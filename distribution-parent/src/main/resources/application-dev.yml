@@ -1,0 +1,152 @@
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    druid:
+      master:
+        url: jdbc:mysql://localhost:3306/tests?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT
+#        url: jdbc:mysql://localhost:3306/test1
+        username: root
+        password: root
+      slave:
+        enabled: false
+        url:
+        username:
+        password:
+      initialSize: 5
+      minIdle: 10
+      maxActive: 20
+      maxWait: 60000
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      maxEvictableIdleTimeMillis: 900000
+      validationQuery: SELECT 1 FROM DUAL
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+      filter:
+        stat:
+          log-slow-sql: true
+          slow-sql-millis: 1000
+          merge-sql: true
+        wall:
+          config:
+            multi-statement-allow: true
+        log4j:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 200MB
+
+
+  data:
+    mongodb:
+      authentication-database: admin
+      uri: mongodb://test:test@127.0.0.1:27017/test
+      options:
+        minConnectionsPerHost: 0
+        maxConnectionsPerHost: 50
+        threadsAllowedToBlockForConnectionMultiplier: 5
+        serverSelectionTimeout: 30000
+        maxWaitTime: 120000
+        maxConnectionIdelTime: 0
+        maxConnectionLifeTime: 0
+        connectTimeout: 60000
+        socketTimeout: 0
+        socketKeepAlive: false
+        sslEnabled: false
+        sslInvalidHostNameAllowed: false
+        alwaysUseMBeans: false
+        heartbeatSocketTimeout: 20000
+        heartbeatConnectTimeout: 20000
+        minHeartbeatFrequency: 500
+        heartbeatFrequency: 10000
+        localThreshold: 15
+
+  #redis配置
+#  redis:
+#    host: 127.0.0.1
+#    port: 6379
+#    timeout: 2000
+#      #    集群环境打开下面注释，单机不需要打开
+#      #    cluster:
+#      #      集群信息
+#      #      nodes: xxx.xxx.xxx.xxx:xxxx,xxx.xxx.xxx.xxx:xxxx,xxx.xxx.xxx.xxx:xxxx
+#      #      #默认值是5 一般当此值设置过大时，容易报：Too many Cluster redirections
+#      #      maxRedirects: 3
+#    password: admin
+#    database: 0
+#    # redis连接池配置
+#    jedis:
+#      pool:
+#        # 最大可用连接数（默认为8，负数表示无限）
+#        max-active: 8
+#        # 最大空闲连接数（默认为8，负数表示无限）
+#        max-idle: 8
+#        # 最小空闲连接数（默认为0，该值只有为正数才有作用）
+#        min-idle: 5
+#        # 从连接池中获取连接最大等待(阻塞)时间（默认为-1，单位为毫秒，负数表示无限）
+#        max-wait: 2000
+
+############RabbitMQ配置############
+  rabbitmq:
+    addresses: localhost:5672
+    username: guest
+    password: guest
+    publisher-confirms: true
+    virtual-host: vh_test
+    template:
+      default-receive-queue: seckill
+    host: localhost
+    port: 5672
+
+#zookeeper暂时没有用上，先注释掉
+#zookeeper.lock-root=/lock_seckill
+#zookeeper.session-timeout=10000
+#zookeeper.connect-str=localhost:2181
+#zookeeper.connect-timeout=8000
+#zookeeper.lock-acquire-timeout=1000
+
+############视图配置############
+#  mvc:
+#    view:
+#      prefix: /templates/
+#      suffix: .html
+
+
+
+#mongo:
+##  address: 192.168.1.240:27017
+#  address: 127.0.0.1:27017
+#  authenticationDatabase: admin
+#  database: test
+#  username: test
+#  password: test
+##  replicaSet: reolicaName
+#  options:
+#    minConnectionsPerHost: 0
+#    maxConnectionsPerHost: 50
+#    threadsAllowedToBlockForConnectionMultiplier: 5
+#    serverSelectionTimeout: 30000
+#    maxWaitTime: 120000
+#    maxConnectionIdelTime: 0
+#    maxConnectionLifeTime: 0
+#    connectTimeout: 60000
+#    socketTimeout: 0
+#    socketKeepAlive: false
+#    sslEnabled: false
+#    sslInvalidHostNameAllowed: false
+#    alwaysUseMBeans: false
+#    heartbeatSocketTimeout: 20000
+#    heartbeatConnectTimeout: 20000
+#    minHeartbeatFrequency: 500
+#    heartbeatFrequency: 10000
+#    localThreshold: 15
+
+server:
+  max-http-header-size: 200MB
+  tomcat:
+    max-http-post-size: 200MB

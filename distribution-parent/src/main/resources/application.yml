@@ -1,0 +1,43 @@
+server:
+  port: 80
+  servlet:
+      context-path: /
+  tomcat:
+    uri-encoding: UTF-8
+    max-threads: 800
+    min-spare-threads: 30
+
+spring:
+  profiles:
+    active: dev
+  devtools:
+    restart:
+      enabled: true
+#  thymeleaf:
+#    prefix: classpath:/templates/
+#    mode: HTML
+#    suffix: .html
+
+
+logging:
+  level:
+    com.chauncy: debug
+    org.springframework: WARN
+    org.spring.springboot.dao: debug
+
+#logging:               #TRACE < DEBUG < INFO < WARN < ERROR < FATAL,如果设置为 WARN ，则低于 WARN 的信息都不会输出。
+#  path: /var/logs          # 在/var/logs目录下生成spring.log文件
+#  file: /var/logs/test.log # 在/var/logs目录下生成test.log文件
+#  config: # 日志配置文件,Spring Boot默认使用classpath路径下的日志配置文件,如:logback.xml
+#  level:  # 日志级别
+#    org.springframework.web: DEBUG # 配置spring web日志级别
+
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countSql
+
+mybatis-plus:
+  type-aliases-package: com.chauncy.*.domain.PO
+  mapper-locations: classpath*:/mapper/**/*Mapper.xml
