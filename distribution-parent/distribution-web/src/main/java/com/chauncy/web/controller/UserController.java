@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 import java.util.Map;
@@ -55,12 +56,12 @@ public class UserController {
         return userList;
     }
 
-    @GetMapping("/spel")
-    public String spel(@Value("#{quartz.texts}") String text) {
-        log.info(applicationContext.getBean("quartzTest").toString());
-        log.info("使用SpEL应用Bean：",text);
-        return text;
+    //templates测试
+    @GetMapping("/hello")
+    public ModelAndView testPage() {
+        ModelAndView mv = new ModelAndView("hello");
+        log.info("ceshi");
+        return mv;
     }
-
 
 }
