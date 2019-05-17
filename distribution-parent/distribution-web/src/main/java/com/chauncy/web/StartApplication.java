@@ -6,7 +6,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
@@ -19,7 +18,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class/*, MongoAutoConfiguration.class*/})   // 排除自定注入的bean
 @MapperScan("com.chauncy.*.mapper")
 @ComponentScan(basePackages = {"com.chauncy"})
-@EnableMongoRepositories
 @EnableSwagger2
 @EnableRedisRepositories
 //@EnableAspectJAutoProxy //aop编程

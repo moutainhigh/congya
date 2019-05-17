@@ -77,10 +77,10 @@
         </dependency>
 
         <!--SpringBoot集成mongodb-->
-        <dependency>
+        <!--<dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
-        </dependency>
+        </dependency>-->
 
         <!-- Spring Boot Redis依赖 -->
         <dependency>
