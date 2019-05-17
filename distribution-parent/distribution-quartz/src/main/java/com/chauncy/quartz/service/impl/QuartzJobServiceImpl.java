@@ -2,11 +2,11 @@ package com.chauncy.quartz.service.impl;
 
 import com.chauncy.common.constant.QuartzConstants;
 import com.chauncy.common.util.Convert;
-import com.chauncy.quartz.domain.po.QuartzJobPO;
+import com.chauncy.data.domain.po.QuartzJobPO;
 import com.chauncy.quartz.mapper.QuartzJobMapper;
 import com.chauncy.quartz.proccessor.ScheduleUtils;
 import com.chauncy.quartz.service.QuartzJobService;
-import com.chauncy.quartz.util.CronUtils;
+import com.chauncy.common.util.CronUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.CronTrigger;
 import org.quartz.Scheduler;

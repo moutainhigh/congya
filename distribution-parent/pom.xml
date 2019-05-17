@@ -13,6 +13,7 @@
         <module>distribution-web</module>
         <module>distribution-test</module>
         <module>distribution-quartz</module>
+        <module>distribution-data</module>
     </modules>
     <packaging>pom</packaging>
     <description>搭建分销系统</description>
@@ -74,6 +75,12 @@
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
             <version>${mybatis-plus.version}</version>
+        </dependency>
+
+        <!--quartz 依赖-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-quartz</artifactId>
         </dependency>
 
         <!--SpringBoot集成mongodb-->

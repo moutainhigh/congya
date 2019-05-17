@@ -1,9 +1,9 @@
-package com.chauncy.quartz.domain.po;
+package com.chauncy.data.domain.po;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.chauncy.common.constant.QuartzConstants;
 import com.chauncy.common.base.BaseEntity;
-import com.chauncy.quartz.util.CronUtils;
+import com.chauncy.common.constant.QuartzConstants;
+import com.chauncy.common.util.CronUtils;
 import lombok.Data;
 import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;

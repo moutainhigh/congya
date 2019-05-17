@@ -1,7 +1,7 @@
 package com.chauncy.quartz.service.impl;
 
 import com.chauncy.common.util.Convert;
-import com.chauncy.quartz.domain.po.QuartzJobLogPO;
+import com.chauncy.data.domain.po.QuartzJobLogPO;
 import com.chauncy.quartz.mapper.QuartzJobLogMapper;
 import com.chauncy.quartz.service.QuartzJobLogService;
 import lombok.extern.slf4j.Slf4j;

@@ -1,6 +1,6 @@
 package com.chauncy.web.controller;
 
-import com.chauncy.test.domain.po.UserPO;
+import com.chauncy.data.domain.po.UserPO;
 import com.chauncy.test.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;

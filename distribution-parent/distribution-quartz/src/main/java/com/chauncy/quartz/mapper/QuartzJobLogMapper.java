@@ -1,7 +1,7 @@
 package com.chauncy.quartz.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.chauncy.quartz.domain.po.QuartzJobLogPO;
+import com.chauncy.data.domain.po.QuartzJobLogPO;
 
 import java.util.List;
 
