@@ -15,18 +15,8 @@ import java.util.concurrent.TimeUnit;
  * @create 2019-05-04 20:59
  */
 
-//@Component  //application.yml模式
 public final class RedisUtil {
 
-    /**
-     * application.yml模式
-//     */
-//    @Autowired
-//    private RedisTemplate<String, Object> redisTemplate;
-
-    /**
-     * .properties模式
-     */
     private RedisTemplate<String, Object> redisTemplate;
 
     public void setRedisTemplate(RedisTemplate<String, Object> redisTemplate) {
