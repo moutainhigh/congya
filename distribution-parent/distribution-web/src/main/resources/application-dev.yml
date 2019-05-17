@@ -4,8 +4,8 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     druid:
       master:
-        url: jdbc:mysql://localhost:3306/tests?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT
-#        url: jdbc:mysql://localhost:3306/test1
+#        url: jdbc:mysql://localhost:3306/tests?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT
+        url: jdbc:mysql://47.102.104.124:3306/test?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT
         username: root
         password: root
       slave:
@@ -42,29 +42,29 @@ spring:
       max-file-size: 200MB
 
 
-  data:
-    mongodb:
-      authentication-database: admin
-      uri: mongodb://test:test@127.0.0.1:27017/test
-      options:
-        minConnectionsPerHost: 0
-        maxConnectionsPerHost: 50
-        threadsAllowedToBlockForConnectionMultiplier: 5
-        serverSelectionTimeout: 30000
-        maxWaitTime: 120000
-        maxConnectionIdelTime: 0
-        maxConnectionLifeTime: 0
-        connectTimeout: 60000
-        socketTimeout: 0
-        socketKeepAlive: false
-        sslEnabled: false
-        sslInvalidHostNameAllowed: false
-        alwaysUseMBeans: false
-        heartbeatSocketTimeout: 20000
-        heartbeatConnectTimeout: 20000
-        minHeartbeatFrequency: 500
-        heartbeatFrequency: 10000
-        localThreshold: 15
+#  data:
+#    mongodb:
+#      authentication-database: admin
+#      uri: mongodb://test:test@127.0.0.1:27017/test
+#      options:
+#        minConnectionsPerHost: 0
+#        maxConnectionsPerHost: 50
+#        threadsAllowedToBlockForConnectionMultiplier: 5
+#        serverSelectionTimeout: 30000
+#        maxWaitTime: 120000
+#        maxConnectionIdelTime: 0
+#        maxConnectionLifeTime: 0
+#        connectTimeout: 60000
+#        socketTimeout: 0
+#        socketKeepAlive: false
+#        sslEnabled: false
+#        sslInvalidHostNameAllowed: false
+#        alwaysUseMBeans: false
+#        heartbeatSocketTimeout: 20000
+#        heartbeatConnectTimeout: 20000
+#        minHeartbeatFrequency: 500
+#        heartbeatFrequency: 10000
+#        localThreshold: 15
 
   #redis配置
 #  redis:
