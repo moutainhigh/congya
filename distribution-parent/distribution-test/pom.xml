@@ -21,5 +21,34 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
+        <!--AOP 依赖-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
+        <!--aspectjrt和aspectjweaver是与aspectj相关的包,用来支持切面编程的；-->
+
+        <!--AspectJrt,aspectjrt包是aspectj的runtime包-->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <version>1.9.3</version>
+        </dependency>
+
+        <!--aspectjweaver,aspectjweaver是aspectj的织入包；-->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>1.9.3</version>
+        </dependency>
+
+        <!--cglib包是用来动态代理用的,基于类的代理； -->
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib</artifactId>
+            <version>3.2.10</version>
+        </dependency>
+
     </dependencies>
 </project>

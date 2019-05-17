@@ -12,6 +12,7 @@
         <module>distribution-framework</module>
         <module>distribution-web</module>
         <module>distribution-test</module>
+        <module>distribution-quartz</module>
     </modules>
     <packaging>pom</packaging>
     <description>搭建分销系统</description>

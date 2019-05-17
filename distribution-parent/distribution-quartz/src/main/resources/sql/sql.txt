@@ -1,0 +1,33 @@
+CREATE TABLE `quartz_job` (
+  `job_id` int(11) NOT NULL,
+  `job_name` varchar(255) NOT NULL,
+  `job_group` varchar(255) DEFAULT NULL,
+  `method_name` varchar(255) NOT NULL,
+  `method_params` varchar(255) DEFAULT NULL,
+  `cron_expression` varchar(255) NOT NULL,
+  `misfire_policy` varchar(255) DEFAULT NULL,
+  `status` varchar(255) NOT NULL,
+  `create_by` varchar(255) DEFAULT NULL,
+  `create_time` date DEFAULT NULL,
+  `update_by` varchar(255) DEFAULT NULL,
+  `update_time` date DEFAULT NULL,
+  `remark` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`job_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE `quartz_log_job` (
+  `job_log_id` int(11) NOT NULL AUTO_INCREMENT,
+  `job_name` varchar(255) DEFAULT NULL,
+  `job_group` varchar(255) DEFAULT NULL,
+  `method_name` varchar(255) DEFAULT NULL,
+  `method_params` varchar(255) DEFAULT NULL,
+  `job_message` varchar(255) DEFAULT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `exception_info` varchar(255) DEFAULT NULL,
+  `create_time` datetime DEFAULT NULL,
+  `create_by` varchar(255) DEFAULT NULL,
+  `update_time` datetime DEFAULT NULL,
+  `update_by` varchar(0) DEFAULT NULL,
+  `remark` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`job_log_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8;
