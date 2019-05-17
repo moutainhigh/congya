@@ -92,16 +92,16 @@ spring:
 #        max-wait: 2000
 
 ############RabbitMQ配置############
-  rabbitmq:
-    addresses: localhost:5672
-    username: guest
-    password: guest
-    publisher-confirms: true
-    virtual-host: vh_test
-    template:
-      default-receive-queue: seckill
-    host: localhost
-    port: 5672
+#  rabbitmq:
+#    addresses: localhost:5672
+#    username: guest
+#    password: guest
+#    publisher-confirms: true
+#    virtual-host: vh_test
+#    template:
+#      default-receive-queue: seckill
+#    host: localhost
+#    port: 5672
 
 #zookeeper暂时没有用上，先注释掉
 #zookeeper.lock-root=/lock_seckill
