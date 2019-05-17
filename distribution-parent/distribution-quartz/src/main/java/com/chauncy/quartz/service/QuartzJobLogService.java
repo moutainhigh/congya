@@ -1,6 +1,6 @@
 package com.chauncy.quartz.service;
 
-import com.chauncy.data.domain.po.QuartzJobLogPO;
+import com.chauncy.data.domain.po.quartz.QuartzJobLogPO;
 
 import java.util.List;
 

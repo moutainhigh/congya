@@ -1,4 +1,4 @@
-package com.chauncy.data.domain.po;
+package com.chauncy.data.domain.po.quartz;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chauncy.common.base.BaseEntity;

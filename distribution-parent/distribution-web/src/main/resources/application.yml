@@ -27,5 +27,5 @@ pagehelper:
   params: count=countSql
 
 mybatis-plus:
-  type-aliases-package: com.chauncy.*.domain.po
+  type-aliases-package: com.chauncy.*.domain.po.*
   mapper-locations: classpath*:/mapper/**/*Mapper.xml

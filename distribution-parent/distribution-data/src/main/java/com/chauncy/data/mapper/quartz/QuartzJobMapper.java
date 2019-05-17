@@ -1,7 +1,7 @@
-package com.chauncy.quartz.mapper;
+package com.chauncy.data.mapper.quartz;
 
 
-import com.chauncy.data.domain.po.QuartzJobPO;
+import com.chauncy.data.domain.po.quartz.QuartzJobPO;
 
 import java.util.List;
 

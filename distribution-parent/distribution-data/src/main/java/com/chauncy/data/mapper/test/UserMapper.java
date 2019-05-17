@@ -1,7 +1,7 @@
-package com.chauncy.test.mapper;
+package com.chauncy.data.mapper.test;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.chauncy.data.domain.po.UserPO;
+import com.chauncy.data.domain.po.test.UserPO;
 import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Param;
 

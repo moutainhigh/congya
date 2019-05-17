@@ -1,8 +1,8 @@
 package com.chauncy.quartz.service.impl;
 
 import com.chauncy.common.util.Convert;
-import com.chauncy.data.domain.po.QuartzJobLogPO;
-import com.chauncy.quartz.mapper.QuartzJobLogMapper;
+import com.chauncy.data.domain.po.quartz.QuartzJobLogPO;
+import com.chauncy.data.mapper.quartz.QuartzJobLogMapper;
 import com.chauncy.quartz.service.QuartzJobLogService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

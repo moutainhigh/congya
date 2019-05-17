@@ -16,7 +16,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  */
 
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class/*, MongoAutoConfiguration.class*/})   // 排除自定注入的bean
-@MapperScan("com.chauncy.*.mapper")
+@MapperScan("com.chauncy.*.mapper.*")
 @ComponentScan(basePackages = {"com.chauncy"})
 @EnableSwagger2
 @EnableRedisRepositories

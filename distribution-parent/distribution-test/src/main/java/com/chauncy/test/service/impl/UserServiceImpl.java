@@ -1,7 +1,7 @@
 package com.chauncy.test.service.impl;
 
-import com.chauncy.data.domain.po.UserPO;
-import com.chauncy.test.mapper.UserMapper;
+import com.chauncy.data.domain.po.test.UserPO;
+import com.chauncy.data.mapper.test.UserMapper;
 import com.chauncy.test.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

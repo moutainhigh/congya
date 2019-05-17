@@ -1,6 +1,6 @@
 package com.chauncy.web.controller.quartz;
 
-import com.chauncy.data.domain.po.QuartzJobPO;
+import com.chauncy.data.domain.po.quartz.QuartzJobPO;
 import com.chauncy.quartz.service.QuartzJobService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
