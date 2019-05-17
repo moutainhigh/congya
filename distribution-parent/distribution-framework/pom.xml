@@ -16,8 +16,8 @@
 
         <!--测试业务模块-->
         <dependency>
-            <groupId>com.chaucy</groupId>
-            <artifactId>springboot-test</artifactId>
+            <groupId>com.chauncy</groupId>
+            <artifactId>distribution-test</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
 

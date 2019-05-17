@@ -11,6 +11,7 @@
         <module>distribution-common</module>
         <module>distribution-framework</module>
         <module>distribution-web</module>
+        <module>distribution-test</module>
     </modules>
     <packaging>pom</packaging>
     <description>搭建分销系统</description>
@@ -115,6 +116,12 @@
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>1.2.47</version>
+        </dependency>
+
+        <!--mq 依赖-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
 
          <!-- 日志工具类 -->
