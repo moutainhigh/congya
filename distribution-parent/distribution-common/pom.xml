@@ -20,6 +20,12 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
 
+        <!-- SpringBoot Web容器 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
         <!-- JSON工具类 start-->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
