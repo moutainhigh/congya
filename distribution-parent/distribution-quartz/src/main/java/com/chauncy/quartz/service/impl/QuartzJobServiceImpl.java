@@ -2,7 +2,7 @@ package com.chauncy.quartz.service.impl;
 
 import com.chauncy.common.constant.QuartzConstants;
 import com.chauncy.common.util.Convert;
-import com.chauncy.quartz.domain.PO.QuartzJobPO;
+import com.chauncy.quartz.domain.po.QuartzJobPO;
 import com.chauncy.quartz.mapper.QuartzJobMapper;
 import com.chauncy.quartz.proccessor.ScheduleUtils;
 import com.chauncy.quartz.service.QuartzJobService;

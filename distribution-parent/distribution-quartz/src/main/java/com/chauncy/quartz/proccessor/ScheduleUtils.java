@@ -2,7 +2,7 @@ package com.chauncy.quartz.proccessor;
 
 import com.chauncy.common.constant.QuartzConstants;
 import com.chauncy.common.exception.job.TaskException;
-import com.chauncy.quartz.domain.PO.QuartzJobPO;
+import com.chauncy.quartz.domain.po.QuartzJobPO;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 

@@ -1,4 +1,4 @@
-package com.chauncy.test.domain.PO;
+package com.chauncy.test.domain.po;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;

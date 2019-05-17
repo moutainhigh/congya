@@ -1,6 +1,6 @@
 package com.chauncy.test.service.impl;
 
-import com.chauncy.test.domain.PO.UserPO;
+import com.chauncy.test.domain.po.UserPO;
 import com.chauncy.test.mapper.UserMapper;
 import com.chauncy.test.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
