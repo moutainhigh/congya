@@ -1,6 +1,5 @@
 package com.chauncy.web.api;
 
-import com.chauncy.test.repository.UserPository;
 import com.chauncy.test.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -37,8 +36,6 @@ public class UserApi {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private UserPository userPository;
 
     @ApiOperation(value="获取用户详细信息", notes="根据url的name来获取用户详细信息")
     @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String", paramType = "path")

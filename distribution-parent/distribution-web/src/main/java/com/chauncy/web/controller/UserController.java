@@ -1,8 +1,6 @@
 package com.chauncy.web.controller;
 
-import com.chauncy.test.domain.DO.GlobalDO;
 import com.chauncy.test.domain.PO.UserPO;
-import com.chauncy.test.repository.UserPository;
 import com.chauncy.test.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -38,9 +36,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private UserPository userPository;
-
     @GetMapping("/findByUserUame")
     public Map<String, Object> findByUserUame(String username) {
         Map<String, Object> result = userService.findByUserUame(username);
@@ -60,11 +55,6 @@ public class UserController {
         return userList;
     }
 
-    @GetMapping("/findAll")
-    public Object getAll() {
-        List<GlobalDO> list = userPository.findAll();
-        return list;
-    }
     @GetMapping("/spel")
     public String spel(@Value("#{quartz.texts}") String text) {
         log.info(applicationContext.getBean("quartzTest").toString());
