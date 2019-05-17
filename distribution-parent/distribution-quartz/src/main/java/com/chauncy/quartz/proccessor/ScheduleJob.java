@@ -3,8 +3,8 @@ package com.chauncy.quartz.proccessor;
 import com.chauncy.common.constant.Constants;
 import com.chauncy.common.constant.QuartzConstants;
 import com.chauncy.common.util.BeanUtils;
-import com.chauncy.quartz.domain.PO.QuartzJobLogPO;
-import com.chauncy.quartz.domain.PO.QuartzJobPO;
+import com.chauncy.quartz.domain.po.QuartzJobLogPO;
+import com.chauncy.quartz.domain.po.QuartzJobPO;
 import com.chauncy.quartz.service.QuartzJobLogService;
 import com.chauncy.quartz.util.SpringContextUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
 import java.util.Date;

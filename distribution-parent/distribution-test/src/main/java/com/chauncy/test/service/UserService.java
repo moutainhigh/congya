@@ -1,6 +1,6 @@
 package com.chauncy.test.service;
 
-import com.chauncy.test.domain.PO.UserPO;
+import com.chauncy.test.domain.po.UserPO;
 
 import java.util.List;
 import java.util.Map;
