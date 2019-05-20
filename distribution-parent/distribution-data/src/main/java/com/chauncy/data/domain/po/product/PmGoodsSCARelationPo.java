@@ -29,9 +29,9 @@ import java.io.Serializable;
  * 解决类目与规格、参数、服务、购买须知、活动说明等属性的关系
  *
  */
-@TableName(value = "tb_goods_sku_category_attribute_relation")
+@TableName(value = "pm_goods_sku_category_attribute_relation")
 @Data
-public class GoodsSCARelation implements Serializable {
+public class PmGoodsSCARelationPo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

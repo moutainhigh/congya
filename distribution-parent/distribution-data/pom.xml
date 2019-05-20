@@ -20,6 +20,35 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
+        <!--代码生成器 依赖-->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-generator</artifactId>
+            <version>3.1.1</version>
+        </dependency>
+
+        <!--添加 模板引擎 依赖，MyBatis-Plus 支持 Velocity（默认）、Freemarker、Beetl，用户可以选择自己熟悉的模板引擎，如果都不满足要求，可以采用自定义模板引擎-->
+        <!--Velocity 默认-->
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity-engine-core</artifactId>
+            <version>2.1</version>
+        </dependency>
+
+        <!--Freemarker-->
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>2.3.28</version>
+        </dependency>
+
+        <!--Beetl -->
+        <dependency>
+            <groupId>com.ibeetl</groupId>
+            <artifactId>beetl</artifactId>
+            <version>3.0.0.M2</version>
+        </dependency>
+
     </dependencies>
 
 </project>

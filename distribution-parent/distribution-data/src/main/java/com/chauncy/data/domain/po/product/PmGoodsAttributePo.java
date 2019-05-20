@@ -23,8 +23,8 @@ import java.util.Date;
  *
  */
 @Data
-@TableName(value = "tb_goods_attribute")
-public class GoodsAttribute implements Serializable {
+@TableName(value = "_goods_attribute")
+public class PmGoodsAttributePo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

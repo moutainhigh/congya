@@ -13,9 +13,9 @@ import java.io.Serializable;
  * 会员表
  *
  */
-@TableName(value = "tb_member")
+@TableName(value = "pm_member")
 @Data
-public class Member implements Serializable {
+public class PmMemberPo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

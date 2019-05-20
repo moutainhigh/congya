@@ -17,8 +17,8 @@ import java.io.Serializable;
  *
  */
 @Data
-@TableName(value = "tb_goods_attribute_value")
-public class GoodsAttributeValue implements Serializable {
+@TableName(value = "pm_goods_attribute_value")
+public class PmGoodsAttributeValuePo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

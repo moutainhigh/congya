@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * @Author huangwancheng
  * @create 2019-05-19 23:59
@@ -15,11 +17,12 @@ import lombok.Data;
  *
  */
 @Data
-@TableName(value = "tb_shipping_template")
-public class ShippingTemplate {
+@TableName(value = "pm_shipping_template")
+public class ShippingTemplate implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private Long id;
-
     @ApiModelProperty(value = "运费模版名称")
     private String name;
 

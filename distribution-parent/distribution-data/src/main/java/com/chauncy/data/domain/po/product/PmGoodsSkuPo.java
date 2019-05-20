@@ -14,8 +14,8 @@ import java.io.Serializable;
  *
  */
 @Data
-@TableName(value = "tb_goods_sku")
-public class GoodsSku implements Serializable {
+@TableName(value = "pm_goods_sku")
+public class PmGoodsSkuPo implements Serializable {
 
 
     private static final long serialVersionUID = 1L;
