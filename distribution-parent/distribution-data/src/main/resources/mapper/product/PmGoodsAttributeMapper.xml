@@ -4,18 +4,52 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.product.PmGoodsAttributePo">
-        <id column="id" property="id" />
-        <result column="name" property="name" />
-        <result column="sort" property="sort" />
-        <result column="update_time" property="updateTime" />
-        <result column="content" property="content" />
-        <result column="remark" property="remark" />
-        <result column="enabled" property="enabled" />
-        <result column="service_type" property="serviceType" />
-        <result column="type" property="type" />
-        <result column="subtitle" property="subtitle" />
-        <result column="logo_image" property="logoImage" />
-        <result column="logo_icon" property="logoIcon" />
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="sort" property="sort"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="content" property="content"/>
+        <result column="remark" property="remark"/>
+        <result column="enabled" property="enabled"/>
+        <result column="service_type" property="serviceType"/>
+        <result column="type" property="type"/>
+        <result column="subtitle" property="subtitle"/>
+        <result column="logo_image" property="logoImage"/>
+        <result column="logo_icon" property="logoIcon"/>
     </resultMap>
+
+    <sql id="find">
+
+    </sql>
+
+    <insert id="insert" parameterType="goodsAttributePo" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_user(
+        <!--<if test="id != null and id != 0">id,</if>-->
+        <if test="name != null and name != ''">name,</if>
+        <if test="sort != null and sort != 0">sort,</if>
+        <if test="updateTime != null and updateTime != ''">updateTime</if>
+        <if test="content != null and content != ''">content</if>
+        <if test="enabled != null and enabled != ''">enabled</if>
+        <if test="remark != null and remark != ''">remark</if>
+        <if test="serviceType != null and serviceType != ''">serviceType</if>
+        <if test="type != null and type != ''">type</if>
+        <if test="subtitle != null and subtitle != ''">subtitle</if>
+        <if test="logoImage != null and logoImage != ''">logoImage</if>
+        <if test="logoIcon != null and logoIcon != ''">logoIcon</if>
+        )values(
+        <!--<if test="id != null and id != 0">#{id},</if>-->
+        <if test="name != null and name != ''">#{name},</if>
+        <if test="sort != null and sort != 0 ">#{sort},</if>
+        <if test="updateTime != null and updateTime != ''">#{updateTime}</if>
+        <if test="content != null and content != ''">#{content}</if>
+        <if test="enabled != null and enabled != ''">#{enabled}</if>
+        <if test="remark != null and remark != ''">#{remark}</if>
+        <if test="serviceType != null and serviceType != ''">#{serviceType}</if>
+        <if test="type != null and type != ''">#{type}</if>
+        <if test="subtitle != null and subtitle != ''">#{subtitle}</if>
+        <if test="logoImage != null and logoImage != ''">#{logoImage}</if>
+        <if test="logoIcon != null and logoIcon != ''">#{logoIcon}</if>
+        )
+    </insert>
 
 </mapper>

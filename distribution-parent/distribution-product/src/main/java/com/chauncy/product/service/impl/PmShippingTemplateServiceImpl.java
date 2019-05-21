@@ -1,8 +1,8 @@
-package com.chauncy.data.temp.product.service.impl;
+package com.chauncy.product.service.impl;
 
 import com.chauncy.data.domain.po.product.PmShippingTemplatePo;
 import com.chauncy.data.mapper.product.PmShippingTemplateMapper;
-import com.chauncy.data.temp.product.service.IPmShippingTemplateService;
+import com.chauncy.product.service.IPmShippingTemplateService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 

@@ -1,4 +1,4 @@
-package com.chauncy.data.temp.product.service;
+package com.chauncy.product.service;
 
 import com.chauncy.data.domain.po.product.PmMemberPo;
 import com.baomidou.mybatisplus.extension.service.IService;

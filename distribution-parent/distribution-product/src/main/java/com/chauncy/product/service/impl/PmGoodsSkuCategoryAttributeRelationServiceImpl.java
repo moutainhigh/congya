@@ -1,8 +1,8 @@
-package com.chauncy.data.temp.product.service.impl;
+package com.chauncy.product.service.impl;
 
 import com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo;
 import com.chauncy.data.mapper.product.PmGoodsSkuCategoryAttributeRelationMapper;
-import com.chauncy.data.temp.product.service.IPmGoodsSkuCategoryAttributeRelationService;
+import com.chauncy.product.service.IPmGoodsSkuCategoryAttributeRelationService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
