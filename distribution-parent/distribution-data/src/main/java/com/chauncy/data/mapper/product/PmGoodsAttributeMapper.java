@@ -39,7 +39,8 @@ public interface PmGoodsAttributeMapper extends BaseMapper<PmGoodsAttributePo> {
      * 商品标签管理
      *
      */
-    int insert(PmGoodsAttributePo pmGoodsAttributePo);
+//    int insert(PmGoodsAttributePo pmGoodsAttributePo);
+
 
 
 }

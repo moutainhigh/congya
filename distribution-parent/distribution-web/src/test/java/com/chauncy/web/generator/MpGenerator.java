@@ -73,7 +73,7 @@ public class MpGenerator {
         pc.setMapper("mapper."+model);
         pc.setService("temp."+model+".service");
         pc.setServiceImpl("temp."+model+".service.impl");
-        pc.setController("temp."+model+".controller");
+        pc.setController("temp.controller."+model);
 
         mpg.setPackageInfo(pc);
 

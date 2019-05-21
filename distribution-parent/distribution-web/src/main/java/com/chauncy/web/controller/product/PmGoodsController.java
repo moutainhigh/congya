@@ -1,4 +1,4 @@
-package com.chauncy.data.temp.product.controller;
+package com.chauncy.web.controller.product;
 
 
 import org.springframework.web.bind.annotation.RequestMapping;

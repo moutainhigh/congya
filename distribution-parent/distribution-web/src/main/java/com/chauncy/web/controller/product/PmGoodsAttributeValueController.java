@@ -1,4 +1,4 @@
-package com.chauncy.data.temp.product.controller;
+package com.chauncy.web.controller.product;
 
 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -7,14 +7,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
- * 按金额计算运费 前端控制器
+ * 存储产品参数信息的表
+
+规格值
+参数值 前端控制器
  * </p>
  *
  * @author huangwancheng
  * @since 2019-05-21
  */
 @RestController
-@RequestMapping("/data/pm-money-shipping-po")
-public class PmMoneyShippingController {
+@RequestMapping("/data/pm-goods-attribute-value-po")
+public class PmGoodsAttributeValueController {
 
 }
