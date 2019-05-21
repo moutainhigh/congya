@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chauncy.data.mapper.product.PmGoodsSkuMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.product.PmGoodsSkuPo">
+        <id column="id" property="id" />
+        <result column="goods_id" property="goodsId" />
+        <result column="sku" property="sku" />
+        <result column="picture" property="picture" />
+        <result column="supplier_price" property="supplierPrice" />
+        <result column="profit_rate" property="profitRate" />
+        <result column="operation_cost" property="operationCost" />
+        <result column="sell_price" property="sellPrice" />
+        <result column="line_price" property="linePrice" />
+        <result column="stock" property="stock" />
+    </resultMap>
+
+</mapper>

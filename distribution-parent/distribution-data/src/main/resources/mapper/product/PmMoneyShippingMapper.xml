@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chauncy.data.mapper.product.PmMoneyShippingMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.product.PmMoneyShippingPo">
+        <id column="id" property="id" />
+        <result column="default_freight" property="defaultFreight" />
+        <result column="default_full_money" property="defaultFullMoney" />
+        <result column="default_post_money" property="defaultPostMoney" />
+        <result column="destination" property="destination" />
+        <result column="destination_basis_freight" property="destinationBasisFreight" />
+        <result column="destination_full_money" property="destinationFullMoney" />
+        <result column="destination_post_money" property="destinationPostMoney" />
+        <result column="shipping_id" property="shippingId" />
+    </resultMap>
+
+</mapper>

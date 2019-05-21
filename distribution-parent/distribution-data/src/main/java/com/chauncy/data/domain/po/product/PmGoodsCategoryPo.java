@@ -1,28 +1,37 @@
 package com.chauncy.data.domain.po.product;
 
+import java.math.BigDecimal;
+
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.chauncy.common.base.BaseEntity;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
-import java.io.Serializable;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
- * @Author huangwancheng
- * @create 2019-05-19 23:26
+ * <p>
+ * 商品分类表
+ * </p>
  *
- * 类目表
- *
+ * @author huangwancheng
+ * @since 2019-05-21
  */
 @Data
-@TableName(value = "pm_goods_category")
-public class PmGoodsCategoryPo implements Serializable {
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("pm_goods_category")
+@ApiModel(value = "PmGoodsCategoryPo对象", description = "商品分类表")
+public class PmGoodsCategoryPo extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
-    private Long id;
-
-    @ApiModelProperty(value = "是否启用：0->不是；1->是")
-    private boolean enabled;
+    @ApiModelProperty(value = "分类ID")
+    @TableId(value = "id", type = IdType.AUTO)
+    private Integer id;
 
     @ApiModelProperty(value = "分类名称")
     private String name;
@@ -33,27 +42,14 @@ public class PmGoodsCategoryPo implements Serializable {
     @ApiModelProperty(value = "排序数字")
     private Integer sort;
 
+    @ApiModelProperty(value = "是否启用 1-是 0-否 默认为1")
+    private Boolean enabled;
+
     @ApiModelProperty(value = "税率")
-    private double taxRate;
+    private BigDecimal taxRate;
 
     @ApiModelProperty(value = "父分类ID")
-    private int parentId;
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", id=").append(id);
-        sb.append(", name=").append(name);
-        sb.append(", sort=").append(sort);
-        sb.append(", enabled=").append(enabled);
-        sb.append(", serialVersionUID=").append(serialVersionUID);
-        sb.append("]");
-        return sb.toString();
-    }
-
+    private Integer parentId;
 
 
 }

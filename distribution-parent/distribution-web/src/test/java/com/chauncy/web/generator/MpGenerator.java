@@ -38,8 +38,7 @@ public class MpGenerator {
          */
         //模块名称
         String model = "product";
-        String tableName = "pm_goods_category";
-
+        String tableName = "pm_shipping_template";
 
         // 代码生成器
         AutoGenerator mpg = new AutoGenerator();
@@ -54,6 +53,7 @@ public class MpGenerator {
         gc.setXmlName("%sMapper");
         gc.setOpen(false);
         gc.setSwagger2(true); //实体属性 Swagger2 注解
+        gc.setFileOverride(true);
         mpg.setGlobalConfig(gc);
 
         // 数据源配置
@@ -130,13 +130,14 @@ public class MpGenerator {
         StrategyConfig strategy = new StrategyConfig();
         strategy.setNaming(NamingStrategy.underline_to_camel);
         strategy.setColumnNaming(NamingStrategy.underline_to_camel);
-        strategy.setSuperEntityClass("com.chauncy.common.base.BaseEntity");
+//        strategy.setSuperEntityClass("com.chauncy.common.base.BaseEntity");
         strategy.setEntityLombokModel(true);
         strategy.setRestControllerStyle(true);
 //        strategy.setSuperControllerClass("com.baomidou.ant.common.BaseController");
         strategy.setInclude(tableName/*scanner("表名，多个英文逗号分割").split(",")*/);
 //        strategy.setSuperEntityColumns("id");
         strategy.setControllerMappingHyphenStyle(true);
+        strategy.setEntitySerialVersionUID(true);
         strategy.setTablePrefix(pc.getModuleName() + "_");
         mpg.setStrategy(strategy);
         mpg.setTemplateEngine(new FreemarkerTemplateEngine());
