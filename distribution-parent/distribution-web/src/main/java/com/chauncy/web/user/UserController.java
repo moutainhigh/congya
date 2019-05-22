@@ -1,4 +1,4 @@
-package com.chauncy.web.controller;
+package com.chauncy.web.user;
 
 import com.chauncy.data.domain.po.test.UserPO;
 import com.chauncy.test.service.UserService;
