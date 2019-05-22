@@ -29,3 +29,10 @@ pagehelper:
 mybatis-plus:
   type-aliases-package: com.chauncy.*.domain.po.*
   mapper-locations: classpath*:/mapper/**/*Mapper.xml
+
+jwt:
+  header: Authorization
+  secret: mySecret
+  #token有效期一天
+  expiration: 86400
+  tokenHead: "Bearer "

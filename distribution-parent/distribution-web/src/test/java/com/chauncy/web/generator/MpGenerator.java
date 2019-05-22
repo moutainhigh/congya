@@ -37,8 +37,8 @@ public class MpGenerator {
          * 需要改的地方
          */
         //模块名称
-        String model = "product";
-        String tableName = "pm_shipping_template";
+        String model = "sys";
+        String tableName = "sys_user";
 
         // 代码生成器
         AutoGenerator mpg = new AutoGenerator();
