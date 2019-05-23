@@ -1,11 +1,11 @@
-package com.chauncy.data.temp.product.service.impl;
+package com.chauncy.test.service.impl;
 
+import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.TbUserPo;
 import com.chauncy.data.mapper.product.TbUserMapper;
-import com.chauncy.data.temp.product.service.ITbUserService;
-import com.chauncy.data.core.AbstractService;
-import org.springframework.stereotype.Service;
+import com.chauncy.test.service.ITbUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * <p>

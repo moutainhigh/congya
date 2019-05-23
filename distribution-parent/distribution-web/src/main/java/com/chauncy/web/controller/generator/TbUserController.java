@@ -1,7 +1,8 @@
 package com.chauncy.web.controller.generator;
 
 
-import com.chauncy.data.temp.product.service.ITbUserService;
+import com.chauncy.test.service.ITbUserService;
+import com.chauncy.test.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +24,9 @@ public class TbUserController {
 
  @Autowired
  private ITbUserService service;
+
+ @Autowired
+ private UserService service2;
 
  @GetMapping("/test")
  public Map<String, Object> findByUserUame(String username) {

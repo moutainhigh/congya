@@ -1,7 +1,7 @@
-package com.chauncy.data.temp.product.service;
+package com.chauncy.test.service;
 
-import com.chauncy.data.domain.po.product.TbUserPo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.domain.po.product.TbUserPo;
 
 /**
  * <p>

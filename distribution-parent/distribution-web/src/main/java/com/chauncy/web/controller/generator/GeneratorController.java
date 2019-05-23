@@ -24,9 +24,8 @@ import java.util.List;
 /**
  * @Author huangwancheng
  * @create 2019-05-22 15:38
- *
+ * <p>
  * 代码自动生成 页面控制器
- *
  */
 @RestController
 @RequestMapping("/generator")
@@ -49,8 +48,8 @@ public class GeneratorController {
          * 暂时硬编码
          */
 //        dataBaseName = "distribution";
-        String dbUserName = "root";
-        String dbPassword = "root";
+        String dbUserName = "root" ;
+        String dbPassword = "root" ;
 
 
         // 代码生成器
@@ -58,7 +57,7 @@ public class GeneratorController {
         // 全局配置
         GlobalConfig gc = new GlobalConfig();
         String projectPath = System.getProperty("user.dir");
-        String path = projectPath+"/distribution-data";
+        String path = projectPath + "/distribution-data" ;
         gc.setOutputDir(path + "/src/main/java");
         gc.setAuthor("huangwancheng");
         gc.setBaseResultMap(true);
@@ -72,7 +71,7 @@ public class GeneratorController {
 
         // 数据源配置
         DataSourceConfig dsc = new DataSourceConfig();
-        dsc.setUrl("jdbc:mysql://47.102.104.124:3306/"+dataBaseName+"?useUnicode=true&useSSL=false&characterEncoding=utf8");
+        dsc.setUrl("jdbc:mysql://47.102.104.124:3306/" + dataBaseName + "?useUnicode=true&useSSL=false&characterEncoding=utf8");
         // dsc.setSchemaName("public");
         dsc.setDriverName("com.mysql.cj.jdbc.Driver");
         dsc.setUsername(dbUserName);
@@ -83,11 +82,11 @@ public class GeneratorController {
         PackageConfig pc = new PackageConfig();
         pc.setModuleName("data");
         pc.setParent("com.chauncy");
-        pc.setEntity("domain.po."+model);
-        pc.setMapper("mapper."+model);
-        pc.setService("temp."+model+".service");
-        pc.setServiceImpl("temp."+model+".service.impl");
-        pc.setController("temp.controller."+model);
+        pc.setEntity("domain.po." + model);
+        pc.setMapper("mapper." + model);
+        pc.setService("temp." + model + ".service");
+        pc.setServiceImpl("temp." + model + ".service.impl");
+        pc.setController("temp.controller." + model);
 
         mpg.setPackageInfo(pc);
 
@@ -100,7 +99,7 @@ public class GeneratorController {
         };
 
         // 如果模板引擎是 freemarker
-        String templatePath = "/templates/mapper.xml.ftl";
+        String templatePath = "/templates/mapper.xml.ftl" ;
         // 如果模板引擎是 velocity
         // String templatePath = "/templates/mapper.xml.vm";
 

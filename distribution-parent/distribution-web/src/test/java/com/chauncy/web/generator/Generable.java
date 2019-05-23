@@ -36,6 +36,7 @@ public class Generable {
         /**
          * 需要改的地方
          * /Users/huangwancheng/git/servicer/distribution-parent/distribution-parent/distribution-data
+         * /Users/huangwancheng/git/servicer/distribution-parent/distribution-parent/distribution-data
          */
         //模块名称
         String model = "product";

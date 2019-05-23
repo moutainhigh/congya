@@ -10,7 +10,7 @@ import java.util.Map;
  * @author huangwancheng
  * @since 2019-05-22
  */
-public interface Service<T>{
+public interface Service<T> extends IService<T>{
 
     Map<String, Object> findByUserUame(String username);
 }

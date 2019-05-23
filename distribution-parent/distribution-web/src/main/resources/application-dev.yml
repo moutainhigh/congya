@@ -45,3 +45,11 @@ server:
   max-http-header-size: 200MB
   tomcat:
     max-http-post-size: 200MB
+
+#server:
+#  max-http-header-size: 200MB
+#  tomcat:
+#    max-connections: 200 # Maximum number of connections that the server accepts and processes at any given time.
+#    max-http-post-size: 0 # Maximum size, in bytes, of the HTTP post content.
+#    max-threads: 300 # Maximum number of worker threads.
+#    min-spare-threads: 0 # Minimum number of worker threads.
