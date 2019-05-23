@@ -1,4 +1,4 @@
-package com.chauncy.data.temp.sys.service.impl;
+package com.chauncy.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.data.domain.po.sys.SysUserPo;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  * @author: zhangrt
  * createAt: 2018/9/14
  */
-@Component(value="CustomUserDetailsService")
+@Component(value="customUserDetailsService")
 public class CustomUserDetailsServiceImpl implements UserDetailsService {
 
 

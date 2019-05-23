@@ -1,6 +1,6 @@
 package com.chauncy.web.config;
 
-import com.chauncy.web.config.jwt.JwtUtils;
+import com.chauncy.data.jwt.JwtUtils;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;

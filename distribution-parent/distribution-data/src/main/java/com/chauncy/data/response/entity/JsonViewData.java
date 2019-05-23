@@ -1,6 +1,7 @@
 package com.chauncy.data.response.entity;
 
 import com.alibaba.fastjson.JSON;
+import com.chauncy.common.enums.ResultCode;
 import com.google.common.net.MediaType;
 
 import javax.servlet.http.HttpServletResponse;
@@ -13,8 +14,8 @@ import java.util.Map;
  * Json 封装类
  * 用于返回前端JSON格式串
  *
- * @author liangzhongqiu789@sina.com
- * @date 2017-05-22
+ * @author zhangrt
+ * @date 2019-05-22
  * @time 16:53
  */
 public class JsonViewData {

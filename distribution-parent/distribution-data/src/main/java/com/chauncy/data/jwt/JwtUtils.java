@@ -1,4 +1,4 @@
-package com.chauncy.web.config.jwt;
+package com.chauncy.data.jwt;
 
 import com.alibaba.fastjson.JSON;
 import com.chauncy.data.domain.po.sys.SysUserPo;

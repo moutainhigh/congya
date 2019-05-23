@@ -19,8 +19,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * Author: JoeTao
- * createAt: 2018/9/14
+ * @author zhangrt
  */
 @Configuration
 @EnableWebSecurity
@@ -31,18 +30,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final AccessDeniedHandler accessDeniedHandler;
 
-    private final UserDetailsService CustomUserDetailsService;
+    private final UserDetailsService customUserDetailsService;
 
     private final JwtAuthenticationTokenFilter authenticationTokenFilter;
 
     @Autowired
     public WebSecurityConfig(JwtAuthenticationEntryPoint unauthorizedHandler,
                              @Qualifier("RestAuthenticationAccessDeniedHandler") AccessDeniedHandler accessDeniedHandler,
-                             @Qualifier("CustomUserDetailsService") UserDetailsService CustomUserDetailsService,
+                             @Qualifier("customUserDetailsService") UserDetailsService customUserDetailsService,
                              JwtAuthenticationTokenFilter authenticationTokenFilter) {
         this.unauthorizedHandler = unauthorizedHandler;
         this.accessDeniedHandler = accessDeniedHandler;
-        this.CustomUserDetailsService = CustomUserDetailsService;
+        this.customUserDetailsService = customUserDetailsService;
         this.authenticationTokenFilter = authenticationTokenFilter;
     }
 
@@ -50,7 +49,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public void configureAuthentication(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
         authenticationManagerBuilder
                 // 设置UserDetailsService
-                .userDetailsService(this.CustomUserDetailsService)
+                .userDetailsService(this.customUserDetailsService)
                 // 使用BCrypt进行密码的hash
                 .passwordEncoder(passwordEncoder());
     }
@@ -67,18 +66,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
+                //权限不足
                 .exceptionHandling().accessDeniedHandler(accessDeniedHandler).and()
                 // 由于使用的是JWT，我们这里不需要csrf
                 .csrf().disable()
+                //未登录状态
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 // 基于token，所以不需要session
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-
+                 //开始配置来配置请求级别的安全性细节
                 .authorizeRequests()
 
                 // 对于获取token的rest api要允许匿名访问
-                .antMatchers("/api/v1/login", "/api/v1/sign", "/error/**").permitAll()
-                // 除上面外的所有请求全部需要鉴权认证
+                .antMatchers("/sys/login", "/sys/sign", "/error/**").permitAll()
+                // 除上面外的所有请求全部需要鉴权认证   authenticated()要求登录
                 .anyRequest().authenticated();
 
         // 禁用缓存

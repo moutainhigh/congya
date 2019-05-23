@@ -1,7 +1,7 @@
 package com.chauncy.web.config;
 
 import com.chauncy.data.response.entity.JsonViewData;
-import com.chauncy.data.response.entity.ResultCode;
+import com.chauncy.common.enums.ResultCode;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
@@ -10,7 +10,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 /**
  * @author: zhangrt

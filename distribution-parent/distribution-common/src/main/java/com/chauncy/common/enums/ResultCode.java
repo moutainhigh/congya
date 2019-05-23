@@ -1,4 +1,4 @@
-package com.chauncy.data.response.entity;
+package com.chauncy.common.enums;
 
 
 /**
