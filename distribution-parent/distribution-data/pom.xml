@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>distribution-data</artifactId>
-    <description>数据模块</description>
+    <description>数据模块、代码自动生成模块</description>
 
     <dependencies>
         <!--公共模块-->
