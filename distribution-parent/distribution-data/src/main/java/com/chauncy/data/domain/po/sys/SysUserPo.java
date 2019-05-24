@@ -1,5 +1,6 @@
 package com.chauncy.data.domain.po.sys;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -51,7 +52,8 @@ public class SysUserPo implements Serializable, UserDetails {
     private String email;
 
     @ApiModelProperty(value = "状态：1启用、0禁用")
-    private Long enabled;
+    @TableField("enabled")
+    private boolean enabled;
 
     @ApiModelProperty(value = "密码")
     private String password;
@@ -68,8 +70,11 @@ public class SysUserPo implements Serializable, UserDetails {
 
 
 
+
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+
         return null;
     }
 

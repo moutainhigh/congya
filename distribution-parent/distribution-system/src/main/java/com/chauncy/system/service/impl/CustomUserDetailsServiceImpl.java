@@ -1,6 +1,7 @@
 package com.chauncy.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.mapper.sys.SysUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,13 @@ public class CustomUserDetailsServiceImpl implements UserDetailsService {
         SysUserPo conditionSysUserPo = new SysUserPo();
         conditionSysUserPo.setUsername(name);
         QueryWrapper<SysUserPo> queryWrapper=new QueryWrapper<>(conditionSysUserPo);
-        SysUserPo sysUserPo = sysUserMapper.selectOne(queryWrapper);
+        SysUserPo sysUserPo;
+        try {
+             sysUserPo = sysUserMapper.selectOne(queryWrapper);
+        }catch (Exception e){
+            LoggerUtil.error(e);
+            throw e;
+        }
         if (sysUserPo == null) {
             throw new UsernameNotFoundException(String.format("账号不存在 '%s'.", name));
         }
