@@ -4,8 +4,8 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
@@ -21,7 +21,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @EnableRedisRepositories
 //@EnableAspectJAutoProxy //aop编程
-public class StartApplication {
+public class StartApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         SpringApplication.run(StartApplication.class, args);
