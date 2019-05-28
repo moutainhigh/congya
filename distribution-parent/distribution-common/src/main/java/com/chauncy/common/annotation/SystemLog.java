@@ -17,7 +17,7 @@ import java.lang.annotation.*;
 public @interface SystemLog {
 
     /**
-     * 日志名称default
+     * 日志名称
      * @return
      */
     String description() default "";
