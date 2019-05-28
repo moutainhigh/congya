@@ -1,37 +1,66 @@
 package com.chauncy.system.service;
 
+import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.sys.SysUserPo;
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.chauncy.data.vo.SearchVo;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 /**
  * <p>
- *  服务类
+ * 用户表 服务类
  * </p>
  *
  * @author huangwancheng
- * @since 2019-05-21
+ * @since 2019-05-24
  */
-public interface ISysUserService extends IService<SysUserPo> {
+@CacheConfig(cacheNames = "user")
+public interface ISysUserService extends Service<SysUserPo> {
 
     /**
-     *登录
-     * @param username 账号
-     * @param password 密码
+     * 通过用户名获取用户
+     *
+     * @param username
      * @return
      */
-    String login(String username,String password);
+//    @Cacheable(key = "#username")
+    SysUserPo findByUsername(String username);
 
     /**
-     * 注册用户
-     * @param sysUserPo
+     * 通过手机获取用户
+     *
+     * @param mobile
      * @return
      */
-    SysUserPo register(SysUserPo sysUserPo);
+    SysUserPo findByMobile(String mobile);
 
     /**
-     * 登出
-     * @param token
+     * 通过邮件和状态获取用户
+     *
+     * @param email
+     * @return
      */
-    void logout(String token);
+    SysUserPo findByEmail(String email);
+
+    /**
+     * 多条件分页获取用户
+     *
+     * @param user
+     * @param searchVo
+     * @param pageable
+     * @return
+     */
+    Page<SysUserPo> findByCondition(SysUserPo user, SearchVo searchVo, Pageable pageable);
+
+    /**
+     * 通过部门id获取
+     *
+     * @param departmentId
+     * @return
+     */
+    List<SysUserPo> findByDepartmentId(String departmentId);
 
 }

@@ -31,6 +31,7 @@ public class TbUserController {
  @GetMapping("/test")
  public Map<String, Object> findByUserUame(String username) {
   Map<String, Object> result = service.findByUserUame(username);
+  service.test(username);
   return result;
  }
 }

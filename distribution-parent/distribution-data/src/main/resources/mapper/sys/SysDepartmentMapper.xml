@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chauncy.data.mapper.sys.SysDepartmentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.sys.SysDepartmentPo">
+        <id column="id" property="id" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="del_flag" property="delFlag" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="parent_id" property="parentId" />
+        <result column="sort_order" property="sortOrder" />
+        <result column="status" property="status" />
+        <result column="title" property="title" />
+        <result column="is_parent" property="isParent" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, create_by, create_time, del_flag, update_by, update_time, parent_id, sort_order, status, title, is_parent
+    </sql>
+
+    <select id="findByParentIdOrderBySortOrder" resultType="com.chauncy.data.domain.po.sys.SysDepartmentPo">
+        select *
+        from sys_department
+        where parent_id = #{parentId}
+        order by sort_order
+    </select>
+
+    <select id="findByParentIdAndIdInOrderBySortOrder"
+            resultType="com.chauncy.data.domain.po.sys.SysDepartmentPo">
+
+    </select>
+
+    <select id="findByParentIdAndStatusOrderBySortOrder"
+            resultType="com.chauncy.data.domain.po.sys.SysDepartmentPo">
+        select *
+        from sys_department
+        where parent_id = #{parentId} and status = #{status}
+        order by sort_order
+    </select>
+
+    <select id="findByTitleLikeOrderBySortOrder" resultType="com.chauncy.data.domain.po.sys.SysDepartmentPo">
+        select *
+        from sys_department
+        where title like concat('%', #{title}, '%')
+        order by sort_order
+    </select>
+    <select id="findByTitleLikeAndIdInOrderBySortOrder"
+            resultType="com.chauncy.data.domain.po.sys.SysDepartmentPo">
+
+    </select>
+
+</mapper>

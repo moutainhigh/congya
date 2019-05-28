@@ -5,14 +5,68 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.sys.SysUserPo">
         <id column="id" property="id" />
-        <result column="avatar" property="avatar" />
+        <result column="create_by" property="createBy" />
         <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="address" property="address" />
+        <result column="avatar" property="avatar" />
+        <result column="description" property="description" />
         <result column="email" property="email" />
-        <result column="enabled" property="enabled" />
+        <result column="mobile" property="mobile" />
+        <result column="nick_name" property="nickName" />
         <result column="password" property="password" />
+        <result column="sex" property="sex" />
+        <result column="status" property="status" />
+        <result column="type" property="type" />
         <result column="username" property="username" />
+        <result column="del_flag" property="delFlag" />
+        <result column="department_id" property="departmentId" />
+        <result column="street" property="street" />
+        <result column="pass_strength" property="passStrength" />
         <result column="last_password_reset_time" property="lastPasswordResetTime" />
-        <result column="phone" property="phone" />
     </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        select id, create_by, create_time, update_by, update_time, address, avatar, description, email, mobile, nick_name, password, sex, status, type, username, del_flag, department_id, street, pass_strength, last_password_reset_time
+        from sys_user
+    </sql>
+
+    <select id="findByUsername" resultType="com.chauncy.data.domain.po.sys.SysUserPo">
+        <include refid="Base_Column_List"/>
+        <where>
+            <if test="username !=null || username!=''">
+                username = #{username}
+            </if>
+        </where>
+    </select>
+
+    <select id="findByMobile" resultType="com.chauncy.data.domain.po.sys.SysUserPo">
+        <include refid="Base_Column_List"/>
+        <where>
+            <if test="mobile !=null || mobile!=''">
+                 mobile = #{mobile}
+            </if>
+        </where>
+    </select>
+
+    <select id="findByEmail" resultType="com.chauncy.data.domain.po.sys.SysUserPo">
+        <include refid="Base_Column_List"/>
+        <where>
+            <if test="email !=null || email!=''">
+                 email = #{email}
+            </if>
+        </where>
+    </select>
+
+    <select id="findByDepartmentId" resultType="com.chauncy.data.domain.po.sys.SysUserPo">
+        <include refid="Base_Column_List"/>
+        <where>
+            <if test="departmentId !=null || departmentId!=''">
+                  department_id = #{departmentId}
+            </if>
+        </where>
+    </select>
 
 </mapper>

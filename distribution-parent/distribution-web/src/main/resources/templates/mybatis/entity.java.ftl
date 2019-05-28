@@ -65,7 +65,7 @@ package ${package.Entity};
     <#if field.keyFlag>
     <#-- 主键 -->
         <#if field.keyIdentityFlag>
-            @TableId(value = "${field.name}", type = IdType.AUTO)
+            @TableId(value = "${field.name}", type = IdType.ID_WORKER)
         <#elseif idType??>
             @TableId(value = "${field.name}", type = IdType.${idType})
         <#elseif field.convert>

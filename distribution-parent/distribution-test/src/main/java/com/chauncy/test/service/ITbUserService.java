@@ -15,4 +15,6 @@ import com.chauncy.data.domain.po.product.TbUserPo;
  */
 public interface ITbUserService extends Service<TbUserPo> {
 
+    void test(String username);
+
 }

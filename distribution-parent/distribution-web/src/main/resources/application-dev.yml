@@ -5,7 +5,7 @@ spring:
     druid:
       master:
 #        url: jdbc:mysql://localhost:3306/tests?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT
-        url: jdbc:mysql://47.102.104.124:3306/distribution?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT
+        url: jdbc:mysql://47.102.104.124:3306/distribution?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true
         username: root
         password: root
       slave:
@@ -53,3 +53,48 @@ server:
 #    max-http-post-size: 0 # Maximum size, in bytes, of the HTTP post content.
 #    max-threads: 300 # Maximum number of worker threads.
 #    min-spare-threads: 0 # Minimum number of worker threads.
+
+# 忽略鉴权url
+ignored:
+  urls:
+    - /dictData/getByType/**
+    - /data/sys-user-po/regist
+    - /common/**
+    - /druid/**
+    - /swagger-ui.html
+    - /swagger-resources/**
+    - /swagger/**
+    - /**/v2/api-docs
+    - /**/*.js
+    - /**/*.css
+    - /**/*.png
+    - /**/*.ico
+    - /test/**
+    - /users/findByUserUame
+
+
+distribution:
+  # 全局限流
+  rateLimit:
+    enable: true
+    # 每1秒内
+    timeout: 1000
+    # 总限制100个请求
+    limit: 100
+  # token交互方式
+  token:
+    # 默认redis 设置为true后，token将存入redis，并具有单点登录功能 设为false将使用JWT交互
+    redis: true
+    # token中存储用户权限数据 设为true开启后可避免每次请求再获取用户权限，但有可能导致编辑权限菜单后无法读取到最新权限数据（需用户重新登录）
+    storePerms: true
+  # token过期时间（分钟）
+  tokenExpireTime: 60
+  # 用户选择保存登录状态对应token过期时间（天）
+  saveLoginTime: 7
+  # 限制用户登陆错误次数（次）
+  loginTimeLimit: 10
+  # 错误超过次数后多少分钟后才能继续登录（分钟）
+  loginAfterTime: 10
+  # mob api配置 mob官网注册申请即可
+  mob:
+   appKey: appKey

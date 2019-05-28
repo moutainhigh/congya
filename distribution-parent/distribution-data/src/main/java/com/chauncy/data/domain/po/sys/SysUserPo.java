@@ -1,95 +1,92 @@
 package com.chauncy.data.domain.po.sys;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-
-import java.time.LocalDateTime;
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
-
+import com.chauncy.common.base.SysBaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.data.annotation.Transient;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * <p>
- *
+ * 用户表
  * </p>
  *
  * @author huangwancheng
- * @since 2019-05-21
+ * @since 2019-05-24
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
-@Accessors(chain = true)
 @TableName("sys_user")
-@ApiModel(value = "SysUserPo对象", description = "")
-@NoArgsConstructor
-public class SysUserPo implements Serializable, UserDetails {
+@ApiModel(value = "SysUserPo对象", description = "用户表")
+public class SysUserPo extends SysBaseEntity {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "ID")
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+    @ApiModelProperty(value = "省市县地址")
+    private String address;
 
-    @ApiModelProperty(value = "头像地址")
+    @ApiModelProperty(value = "用户头像")
     private String avatar;
 
-    @ApiModelProperty(value = "创建日期")
-    private LocalDateTime createTime;
+    @ApiModelProperty(value = "描述/详情/备注")
+    private String description;
 
-    @ApiModelProperty(value = "邮箱")
+    @ApiModelProperty(value = "邮件")
     private String email;
 
-    @ApiModelProperty(value = "状态：1启用、0禁用")
-    private Long enabled;
+    @ApiModelProperty(value = "手机")
+    private String mobile;
+
+    @ApiModelProperty(value = "昵称")
+    private String nickName;
 
     @ApiModelProperty(value = "密码")
     private String password;
 
+    @ApiModelProperty(value = "性别")
+    private String sex;
+
+    @ApiModelProperty(value = "状态 默认0正常 -1拉黑")
+    private Integer status;
+
+    @ApiModelProperty(value = "用户类型 0普通用户 1管理员")
+    private Integer type;
+
     @ApiModelProperty(value = "用户名")
     private String username;
+
+    @ApiModelProperty(value = "删除标志 默认0")
+    private Integer delFlag;
+
+    @ApiModelProperty(value = "所属部门id")
+    private String departmentId;
+
+    @ApiModelProperty(value = "街道地址")
+    private String street;
+
+    @ApiModelProperty(value = "密码强度")
+    private String passStrength;
 
     @ApiModelProperty(value = "最后修改密码的日期")
     private LocalDateTime lastPasswordResetTime;
 
-    private String phone;
+    @Transient
+    @TableField(exist=false)
+    @ApiModelProperty(value = "所属部门名称")
+    private String departmentTitle;
 
+    @Transient
+    @TableField(exist=false)
+    @ApiModelProperty(value = "用户拥有角色")
+    private List<SysRolePo> roles;
 
+    @Transient
+    @TableField(exist=false)
+    @ApiModelProperty(value = "用户拥有的权限")
+    private List<SysPermissionPo> permissions;
 
-
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return false;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return false;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return false;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return false;
-    }
 }
