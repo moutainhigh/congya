@@ -1,4 +1,6 @@
-package com.chauncy.data.vo;
+package com.chauncy.data.util;
+
+import com.chauncy.data.vo.Result;
 
 /**
  * @Author huangwancheng

@@ -30,7 +30,7 @@ public class PmGoodsPo extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "商品ID")
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.ID_WORKER)
     private Long id;
 
     @ApiModelProperty(value = "分类ID")

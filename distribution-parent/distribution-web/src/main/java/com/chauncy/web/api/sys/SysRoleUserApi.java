@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/sys-role-user-po")
-public class SysRoleUserAPI {
+public class SysRoleUserApi {
 
  @Autowired
  private ISysRoleUserService service;

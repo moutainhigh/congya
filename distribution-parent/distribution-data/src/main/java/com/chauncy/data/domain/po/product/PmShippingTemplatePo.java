@@ -1,5 +1,7 @@
 package com.chauncy.data.domain.po.product;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
@@ -28,6 +30,7 @@ public class PmShippingTemplatePo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "运费模版ID")
+    @TableId(value = "id", type = IdType.ID_WORKER)
     private Long id;
 
     @ApiModelProperty(value = "运费模版名称")

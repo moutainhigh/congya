@@ -1,7 +1,7 @@
 package com.chauncy.web.api.sys;
 
 import com.chauncy.data.vo.Result;
-import com.chauncy.data.vo.ResultUtil;
+import com.chauncy.data.util.ResultUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(description = "Security相关接口")
 @RequestMapping("/distribution/common")
 @Transactional
-public class SecurityAPI {
+public class SecurityApi {
 
     @RequestMapping(value = "/needLogin",method = RequestMethod.GET)
     @ApiOperation(value = "没有登录")

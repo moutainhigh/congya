@@ -2,6 +2,8 @@ package com.chauncy.data.domain.po.product;
 
 import java.math.BigDecimal;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
@@ -30,6 +32,7 @@ public class PmMoneyShippingPo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "按金额计算运费ID")
+    @TableId(value = "id", type = IdType.ID_WORKER)
     private Long id;
 
     @ApiModelProperty(value = "默认(基础)运费")

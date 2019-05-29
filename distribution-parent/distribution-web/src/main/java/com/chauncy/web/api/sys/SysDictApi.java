@@ -4,7 +4,7 @@ package com.chauncy.web.api.sys;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.data.domain.po.sys.SysDictPo;
 import com.chauncy.data.vo.Result;
-import com.chauncy.data.vo.ResultUtil;
+import com.chauncy.data.util.ResultUtil;
 import com.chauncy.system.service.ISysDictDataService;
 import com.chauncy.system.service.ISysDictService;
 import io.swagger.annotations.Api;
@@ -30,7 +30,7 @@ import java.util.List;
 @Slf4j
 @Api(description = "字典管理接口")
 @Transactional
-public class SysDictAPI {
+public class SysDictApi {
 
  @Autowired
  private ISysDictService dictService;

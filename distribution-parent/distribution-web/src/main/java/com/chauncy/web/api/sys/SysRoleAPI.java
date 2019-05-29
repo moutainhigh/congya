@@ -7,7 +7,7 @@ import com.chauncy.data.domain.po.sys.SysRolePermissionPo;
 import com.chauncy.data.domain.po.sys.SysRolePo;
 import com.chauncy.data.domain.po.sys.SysRoleUserPo;
 import com.chauncy.data.vo.Result;
-import com.chauncy.data.vo.ResultUtil;
+import com.chauncy.data.util.ResultUtil;
 import com.chauncy.system.service.ISysRoleDepartmentService;
 import com.chauncy.system.service.ISysRolePermissionService;
 import com.chauncy.system.service.ISysRoleService;
@@ -32,7 +32,7 @@ import java.util.Set;
  */
 @RestController
 @Api(description = "角色管理接口")
-@RequestMapping("/sys")
+@RequestMapping("/sys-role-po")
 @Transactional
 public class SysRoleAPI {
 
@@ -85,8 +85,9 @@ public class SysRoleAPI {
    return new ResultUtil<Object>().setErrorMsg("角色不存在");
   }
   role.setDefaultRole(isDefault);
-  UpdateWrapper<SysRolePo> roleWrapper = new UpdateWrapper<SysRolePo>(role);
-  roleService.update(roleWrapper);
+//  UpdateWrapper<SysRolePo> roleWrapper = new UpdateWrapper<SysRolePo>(role);
+////  roleService.update(roleWrapper);
+  roleService.saveOrUpdate(role);
   return new ResultUtil<Object>().setSuccessMsg("设置成功");
  }
 
@@ -157,8 +158,9 @@ public class SysRoleAPI {
  @ApiOperation(value = "更新数据")
  public Result<SysRolePo> edit(@ModelAttribute SysRolePo entity){
 
-  UpdateWrapper<SysRolePo> userWrapper = new UpdateWrapper<>(entity);
-   roleService.update(userWrapper);
+//  UpdateWrapper<SysRolePo> userWrapper = new UpdateWrapper<>(entity);
+//   roleService.update(userWrapper);
+  roleService.saveOrUpdate(entity);
   //手动批量删除缓存
   Set<String> keysUser = redisTemplate.keys("user:" + "*");
   redisTemplate.delete(keysUser);

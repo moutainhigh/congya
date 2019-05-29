@@ -32,8 +32,8 @@ public class PmMemberPo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "会员ID")
-    @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+    @TableId(value = "id", type = IdType.ID_WORKER)
+    private Long id;
 
     @ApiModelProperty(value = "头衔名称")
     private String actor;

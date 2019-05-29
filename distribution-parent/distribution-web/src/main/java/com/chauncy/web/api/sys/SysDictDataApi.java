@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.data.domain.po.sys.SysDictDataPo;
 import com.chauncy.data.domain.po.sys.SysDictPo;
 import com.chauncy.data.vo.Result;
-import com.chauncy.data.vo.ResultUtil;
+import com.chauncy.data.util.ResultUtil;
 import com.chauncy.system.service.ISysDictDataService;
 import com.chauncy.system.service.ISysDictService;
 import io.swagger.annotations.Api;
@@ -34,7 +34,7 @@ import java.util.List;
 @Api(description = "字典数据管理接口")
 @CacheConfig(cacheNames = "dictData")
 @Transactional
-public class SysDictDataAPI {
+public class SysDictDataApi {
 
  @Autowired
  private ISysDictService dictService;

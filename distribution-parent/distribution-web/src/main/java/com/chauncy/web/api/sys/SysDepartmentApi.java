@@ -8,7 +8,7 @@ import com.chauncy.data.domain.po.sys.SysDepartmentHeaderPo;
 import com.chauncy.data.domain.po.sys.SysDepartmentPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.vo.Result;
-import com.chauncy.data.vo.ResultUtil;
+import com.chauncy.data.util.ResultUtil;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.system.service.ISysDepartmentHeaderService;
 import com.chauncy.system.service.ISysDepartmentService;
@@ -44,7 +44,7 @@ import java.util.Set;
 @Api(description = "部门管理接口")
 @CacheConfig(cacheNames = "department")
 @Transactional
-public class SysDepartmentAPI {
+public class SysDepartmentApi {
 
  @Autowired
  private ISysDepartmentService departmentService;

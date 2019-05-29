@@ -30,8 +30,8 @@ public class PmGoodsCategoryPo extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "分类ID")
-    @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+    @TableId(value = "id", type = IdType.ID_WORKER)
+    private Long id;
 
     @ApiModelProperty(value = "分类名称")
     private String name;

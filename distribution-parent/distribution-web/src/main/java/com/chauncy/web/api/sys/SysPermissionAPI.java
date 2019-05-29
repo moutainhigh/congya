@@ -2,7 +2,6 @@ package com.chauncy.web.api.sys;
 
 
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.constant.SecurityConstant;
 import com.chauncy.data.domain.po.sys.SysPermissionPo;
 import com.chauncy.data.domain.po.sys.SysRolePermissionPo;
@@ -10,7 +9,7 @@ import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.vo.DtoUtil;
 import com.chauncy.data.vo.MenuVo;
 import com.chauncy.data.vo.Result;
-import com.chauncy.data.vo.ResultUtil;
+import com.chauncy.data.util.ResultUtil;
 import com.chauncy.security.permission.MySecurityMetadataSource;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.system.service.ISysPermissionService;
@@ -209,8 +208,9 @@ public class SysPermissionAPI {
     }
    }
   }
-  UpdateWrapper<SysPermissionPo> permissionWrapper = new UpdateWrapper<>(permission);
-  permissionService.update(permissionWrapper);
+//  UpdateWrapper<SysPermissionPo> permissionWrapper = new UpdateWrapper<>(permission);
+//  permissionService.update(permissionWrapper);
+  permissionService.saveOrUpdate(permission);
   //重新加载权限
   mySecurityMetadataSource.loadResourceDefine();
   //手动批量删除缓存

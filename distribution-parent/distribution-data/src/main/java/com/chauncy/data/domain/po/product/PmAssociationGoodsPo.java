@@ -1,5 +1,7 @@
 package com.chauncy.data.domain.po.product;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chauncy.common.base.BaseEntity;
 import io.swagger.annotations.ApiModel;
@@ -26,6 +28,7 @@ public class PmAssociationGoodsPo extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "关联商品信息ID")
+    @TableId(value = "id",type = IdType.ID_WORKER)
     private Long id;
 
     @ApiModelProperty(value = "商品id")

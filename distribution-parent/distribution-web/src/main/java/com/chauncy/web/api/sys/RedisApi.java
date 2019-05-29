@@ -3,6 +3,7 @@ package com.chauncy.web.api.sys;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.chauncy.data.util.PageUtil;
+import com.chauncy.data.util.ResultUtil;
 import com.chauncy.data.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -27,7 +28,7 @@ import java.util.*;
 @Api(description = "Redis缓存管理接口")
 @RequestMapping("/distribution/redis")
 @Transactional
-public class RedisAPI {
+public class RedisApi {
     @Autowired
     private JedisPool jedisPool;
 

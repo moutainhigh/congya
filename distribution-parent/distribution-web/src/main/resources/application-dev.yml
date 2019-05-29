@@ -58,7 +58,7 @@ server:
 ignored:
   urls:
     - /dictData/getByType/**
-    - /data/sys-user-po/regist
+    - /sys-user-po/regist
     - /common/**
     - /druid/**
     - /swagger-ui.html

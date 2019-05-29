@@ -41,7 +41,9 @@
     </select>
 
     <select id="findByRoleId" resultType="com.chauncy.data.domain.po.sys.SysRoleUserPo">
-
+        select <include refid="Base_Column_List"/>
+        from sys_role_user
+        where role_id = #{roleId}
     </select>
 
 </mapper>

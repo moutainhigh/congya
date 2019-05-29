@@ -2,7 +2,6 @@ package com.chauncy.web.api.sys;
 
 
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.constant.SecurityConstant;
 import com.chauncy.data.domain.po.sys.SysDepartmentPo;
 import com.chauncy.data.domain.po.sys.SysRolePo;
@@ -11,7 +10,7 @@ import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.util.PageUtil;
 import com.chauncy.data.vo.PageVo;
 import com.chauncy.data.vo.Result;
-import com.chauncy.data.vo.ResultUtil;
+import com.chauncy.data.util.ResultUtil;
 import com.chauncy.data.vo.SearchVo;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.system.service.*;
@@ -45,8 +44,8 @@ import java.util.Set;
 @CacheConfig(cacheNames = "user")
 @Transactional
 @RestController
-@RequestMapping("/data/sys-user-po")
-public class SysUserAPI {
+@RequestMapping("/sys-user-po")
+public class SysUserApi {
 
  @Autowired
  private ISysUserService userService;
@@ -130,8 +129,8 @@ public class SysUserAPI {
 
   SysUserPo u = securityUtil.getCurrUser();
   // 清除持久上下文环境 避免后面语句导致持久化
-  entityManager.clear();
-  u.setPassword(null);
+  /*entityManager.clear();
+  u.setPassword(null);*/
   return new ResultUtil<SysUserPo>().setData(u);
  }
 
@@ -154,9 +153,9 @@ public class SysUserAPI {
   SysUserPo old = securityUtil.getCurrUser();
   u.setUsername(old.getUsername());
   u.setUsername(old.getPassword());
-  UpdateWrapper<SysUserPo> updateWrapper=new UpdateWrapper<>(u);
-  userService.update(updateWrapper);
-//  SysUserPo user = userService.update(u);
+  /*UpdateWrapper<SysUserPo> updateWrapper=new UpdateWrapper<>(u);
+  userService.update(updateWrapper);*/
+  userService.saveOrUpdate(u);
   if(u==null){
    return new ResultUtil<Object>().setErrorMsg("修改失败");
   }
@@ -237,8 +236,9 @@ public class SysUserAPI {
 
   String newEncryptPass= new BCryptPasswordEncoder().encode(newPass);
   user.setPassword(newEncryptPass);
-  UpdateWrapper<SysUserPo> updateWrapper = new UpdateWrapper<>(user);
-  userService.update(updateWrapper);
+  /*UpdateWrapper<SysUserPo> updateWrapper = new UpdateWrapper<>(user);
+  userService.update(updateWrapper);*/
+  userService.saveOrUpdate(user);
 
   //手动更新缓存
   redisTemplate.delete("user::"+user.getUsername());
@@ -294,8 +294,8 @@ public class SysUserAPI {
     u.setDepartmentTitle(department.getTitle());
    }
    // 清除持久上下文环境 避免后面语句导致持久化
-   entityManager.clear();
-   u.setPassword(null);
+//   entityManager.clear();
+//   u.setPassword(null);
   }
   return new ResultUtil<List<SysUserPo>>().setData(list);
  }
@@ -343,8 +343,9 @@ public class SysUserAPI {
    return new ResultUtil<Object>().setErrorMsg("通过userId获取用户失败");
   }
   user.setStatus(SecurityConstant.USER_STATUS_LOCK);
-  UpdateWrapper<SysUserPo> updateWrapper = new UpdateWrapper<>(user);
-  userService.update(updateWrapper);
+//  UpdateWrapper<SysUserPo> updateWrapper = new UpdateWrapper<>(user);
+//  userService.update(updateWrapper);
+  userService.saveOrUpdate(user);
   //手动更新缓存
   redisTemplate.delete("user::"+user.getUsername());
   return new ResultUtil<Object>().setData(null);
@@ -359,8 +360,9 @@ public class SysUserAPI {
    return new ResultUtil<Object>().setErrorMsg("通过userId获取用户失败");
   }
   user.setStatus(SecurityConstant.USER_STATUS_NORMAL);
-  UpdateWrapper<SysUserPo> updateWrapper = new UpdateWrapper<>(user);
-  userService.update(updateWrapper);
+//  UpdateWrapper<SysUserPo> updateWrapper = new UpdateWrapper<>(user);
+//  userService.update(updateWrapper);
+  userService.saveOrUpdate(user);
   //手动更新缓存
   redisTemplate.delete("user::"+user.getUsername());
   return new ResultUtil<Object>().setData(null);
@@ -372,6 +374,10 @@ public class SysUserAPI {
 
   for(String id:ids){
    SysUserPo u = userService.getById(id);
+   if (u==null){
+    return new ResultUtil<Object>().setErrorMsg("该用户不存在");
+
+   }
    //删除缓存
    redisTemplate.delete("user::" + u.getUsername());
    redisTemplate.delete("userRole::" + u.getId());
