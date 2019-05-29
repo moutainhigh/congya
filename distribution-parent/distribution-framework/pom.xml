@@ -35,6 +35,13 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
+        <!--POI模块-->
+        <dependency>
+            <groupId>com.chauncy</groupId>
+            <artifactId>distribution-poi</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
         <!--商品管理模块-->
         <dependency>
             <groupId>com.chauncy</groupId>

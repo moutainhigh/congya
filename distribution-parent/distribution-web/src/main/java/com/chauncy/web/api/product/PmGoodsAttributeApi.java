@@ -1,4 +1,4 @@
-package com.chauncy.web.controller.product;
+package com.chauncy.web.api.product;
 
 
 import com.chauncy.common.util.JSONUtils;
@@ -10,10 +10,7 @@ import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,11 +23,11 @@ import java.util.List;
  * @author huangwancheng
  * @since 2019-05-21
  */
-@Api(tags = "商品属性页面控制器")
+@Api(description = "商品属性页面控制器")
 @RestController
-@RequestMapping("/goods")
+@RequestMapping("/pm-goods-attribute-po")
 @Slf4j
-public class PmGoodsAttributeController {
+public class PmGoodsAttributeApi {
 
     @Autowired
     private IPmGoodsAttributeService goodsAttributeService;
@@ -41,7 +38,8 @@ public class PmGoodsAttributeController {
      * @param goodsAttributePo
      */
     @PostMapping("/saveAttribute")
-    public void saveAttribute(PmGoodsAttributePo goodsAttributePo) {
+    @ApiOperation(value = "保存商品属性（品牌、规格、服务等）")
+    public void saveAttribute(@ModelAttribute PmGoodsAttributePo goodsAttributePo) {
 
         LocalDateTime date = LocalDateTime.now();
         goodsAttributePo.setUpdateTime(date);
@@ -54,6 +52,7 @@ public class PmGoodsAttributeController {
      * @param id
      */
     @PostMapping("/deleteAttributeById")
+    @ApiOperation(value = "保存商品属性（品牌、规格、服务等）")
     public void deleteAttributeById(Long id) {
         goodsAttributeService.removeById(id);
     }
