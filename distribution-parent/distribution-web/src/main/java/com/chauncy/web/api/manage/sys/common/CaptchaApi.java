@@ -1,7 +1,7 @@
 package com.chauncy.web.api.manage.sys.common;
 
 import com.chauncy.common.util.CreateVerifyCode;
-import com.chauncy.data.vo.Captcha;
+import com.chauncy.data.vo.sys.Captcha;
 import com.chauncy.data.vo.Result;
 import com.chauncy.data.util.ResultUtil;
 import io.swagger.annotations.Api;

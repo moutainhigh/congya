@@ -6,14 +6,15 @@ import com.baomidou.mybatisplus.extension.service.IService;
 /**
  * <p>
  * 存储产品参数信息的表
-
-规格值
-参数值 服务类
+ * <p>
+ * 规格值
+ * 参数值 服务类
  * </p>
  *
  * @author huangwancheng
  * @since 2019-05-21
  */
 public interface IPmGoodsAttributeValueService extends IService<PmGoodsAttributeValuePo> {
+
 
 }

@@ -8,6 +8,11 @@
         <result column="product_attribute_id" property="productAttributeId" />
         <result column="value" property="value" />
         <result column="listing_date" property="listingDate" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="del_flag" property="delFlag" />
     </resultMap>
 
 </mapper>

@@ -2,6 +2,7 @@ package com.chauncy.data.mapper.product;
 
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * <p>
@@ -36,10 +37,9 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 public interface PmGoodsAttributeMapper extends BaseMapper<PmGoodsAttributePo> {
 
     /**
-     * 商品标签管理
-     *
+     * 根据不同类型对应的名称查找
      */
-//    int insert(PmGoodsAttributePo pmGoodsAttributePo);
+    PmGoodsAttributePo findByTypeAndName(@Param("type") Integer type, @Param("name") String name);
 
 
 

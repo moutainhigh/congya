@@ -2,7 +2,7 @@ package com.chauncy.security.jwt;
 
 import cn.hutool.core.util.StrUtil;
 import com.chauncy.common.constant.SecurityConstant;
-import com.chauncy.data.vo.TokenUser;
+import com.chauncy.data.vo.sys.TokenUser;
 import com.chauncy.security.util.ResponseUtil;
 import com.chauncy.security.util.SecurityUtil;
 import com.google.common.reflect.TypeToken;

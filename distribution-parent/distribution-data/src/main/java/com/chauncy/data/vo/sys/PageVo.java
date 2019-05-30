@@ -1,4 +1,4 @@
-package com.chauncy.data.vo;
+package com.chauncy.data.vo.sys;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

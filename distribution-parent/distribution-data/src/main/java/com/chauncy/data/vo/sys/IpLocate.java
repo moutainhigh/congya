@@ -1,4 +1,4 @@
-package com.chauncy.data.vo;
+package com.chauncy.data.vo.sys;
 
 import lombok.Data;
 

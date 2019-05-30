@@ -4,7 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.chauncy.common.annotation.SystemLog;
 import com.chauncy.common.constant.SecurityConstant;
 import com.chauncy.common.enums.system.LogType;
-import com.chauncy.data.vo.TokenUser;
+import com.chauncy.data.vo.sys.TokenUser;
 import com.chauncy.security.util.IpInfoUtil;
 import com.chauncy.security.util.ResponseUtil;
 import com.google.gson.Gson;

@@ -3,6 +3,8 @@ package com.chauncy.product.service;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * <p>
  * 商品属性参数表
@@ -36,7 +38,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface IPmGoodsAttributeService extends IService<PmGoodsAttributePo> {
 
     /**
-     * 保存商品属性
+     * 根据不同类型对应的名称查找
      */
-//    int insert();
+    PmGoodsAttributePo findByTypeAndName(Integer type,String name);
+
 }

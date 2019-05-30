@@ -2,7 +2,7 @@ package com.chauncy.data.util;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.chauncy.data.vo.PageVo;
+import com.chauncy.data.vo.sys.PageVo;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;

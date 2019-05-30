@@ -11,7 +11,7 @@ import com.chauncy.data.mapper.sys.SysDepartmentMapper;
 import com.chauncy.data.mapper.sys.SysPermissionMapper;
 import com.chauncy.data.mapper.sys.SysRoleUserMapper;
 import com.chauncy.data.mapper.sys.SysUserMapper;
-import com.chauncy.data.vo.SearchVo;
+import com.chauncy.data.vo.sys.SearchVo;
 import com.chauncy.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
