@@ -1,25 +1,25 @@
-package com.chauncy.web.api.sys;
+package com.chauncy.web.api.manage.sys;
 
 
-import com.chauncy.system.service.ISysRolePermissionService;
+import com.chauncy.system.service.ISysRoleUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
- * 角色权限关系表 前端控制器
+ * 用户与角色关系表 前端控制器
  * </p>
  *
  * @author huangwancheng
  * @since 2019-05-24
  */
 @RestController
-@RequestMapping("/sys-role-permission-po")
-public class SysRolePermissionApi {
+@RequestMapping("/sys-role-user-po")
+public class SysRoleUserApi {
 
  @Autowired
- private ISysRolePermissionService service;
+ private ISysRoleUserService service;
 
 
 }

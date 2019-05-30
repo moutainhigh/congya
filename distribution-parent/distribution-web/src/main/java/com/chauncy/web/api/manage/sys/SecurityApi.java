@@ -1,4 +1,4 @@
-package com.chauncy.web.api.sys;
+package com.chauncy.web.api.manage.sys;
 
 import com.chauncy.data.vo.Result;
 import com.chauncy.data.util.ResultUtil;

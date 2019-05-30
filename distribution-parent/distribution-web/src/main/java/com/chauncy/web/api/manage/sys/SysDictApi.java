@@ -1,4 +1,4 @@
-package com.chauncy.web.api.sys;
+package com.chauncy.web.api.manage.sys;
 
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;

@@ -1,4 +1,4 @@
-package com.chauncy.web.api.sys.common;
+package com.chauncy.web.api.manage.sys.common;
 
 import com.chauncy.common.util.CreateVerifyCode;
 import com.chauncy.data.vo.Captcha;

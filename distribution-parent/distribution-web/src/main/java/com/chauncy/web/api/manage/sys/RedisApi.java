@@ -1,4 +1,4 @@
-package com.chauncy.web.api.sys;
+package com.chauncy.web.api.manage.sys;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;

@@ -1,7 +1,6 @@
-package com.chauncy.web.api.product;
+package com.chauncy.web.api.manage.product;
 
 
-import com.chauncy.common.util.JSONUtils;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.product.service.IPmGoodsAttributeService;
 import com.chauncy.security.util.SecurityUtil;
@@ -9,7 +8,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,7 +44,8 @@ public class PmGoodsAttributeApi {
     public void saveAttribute(@ModelAttribute PmGoodsAttributePo goodsAttributePo) {
 
         LocalDateTime date = LocalDateTime.now();
-        System.out.println(securityUtil.getCurrUser());
+        //获取当前用户
+        System.out.println(securityUtil.getCurrUser().getUsername());
         goodsAttributePo.setUpdateTime(date);
         goodsAttributeService.save(goodsAttributePo);
     }
