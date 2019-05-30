@@ -105,5 +105,10 @@ public class PmGoodsPo extends BaseEntity {
     @ApiModelProperty(value = "审核状态：0->未审核；1->审核通过")
     private Boolean verifyStatus;
 
+    @ApiModelProperty(value = "店铺ID")
+    private Long storeId;
+
+    @ApiModelProperty(value = "商品类型")
+    private Long goodsType;
 
 }

@@ -29,6 +29,8 @@
         <result column="new_status" property="newStatus" />
         <result column="recommand_status" property="recommandStatus" />
         <result column="verify_status" property="verifyStatus" />
+        <result column="store_id" property="storeId" />
+        <result column="goods_type" property="goodsType" />
     </resultMap>
 
 </mapper>

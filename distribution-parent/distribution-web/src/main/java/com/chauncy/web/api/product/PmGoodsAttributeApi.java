@@ -4,6 +4,7 @@ package com.chauncy.web.api.product;
 import com.chauncy.common.util.JSONUtils;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.product.service.IPmGoodsAttributeService;
+import com.chauncy.security.util.SecurityUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -32,6 +33,9 @@ public class PmGoodsAttributeApi {
     @Autowired
     private IPmGoodsAttributeService goodsAttributeService;
 
+    @Autowired
+    private SecurityUtil securityUtil;
+
     /**
      * 保存属性
      *
@@ -42,6 +46,7 @@ public class PmGoodsAttributeApi {
     public void saveAttribute(@ModelAttribute PmGoodsAttributePo goodsAttributePo) {
 
         LocalDateTime date = LocalDateTime.now();
+        System.out.println(securityUtil.getCurrUser());
         goodsAttributePo.setUpdateTime(date);
         goodsAttributeService.save(goodsAttributePo);
     }
@@ -49,14 +54,8 @@ public class PmGoodsAttributeApi {
     /**
      * 根据id删除属性
      *
-     * @param id
+     * @param ids
      */
-    @PostMapping("/deleteAttributeById")
-    @ApiOperation(value = "保存商品属性（品牌、规格、服务等）")
-    public void deleteAttributeById(Long id) {
-        goodsAttributeService.removeById(id);
-    }
-
     @ApiOperation(value = "删除属性", notes = "根据id批量删除")
     @PostMapping("/deleteAttributeByIds")
     public void deleteAttributeByIds(@ApiParam(required = true, name = "ids", value = "id集合")
