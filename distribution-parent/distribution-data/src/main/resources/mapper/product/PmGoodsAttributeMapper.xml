@@ -11,7 +11,6 @@
         <result column="content" property="content"/>
         <result column="remark" property="remark"/>
         <result column="enabled" property="enabled"/>
-        <result column="service_type" property="serviceType"/>
         <result column="type" property="type"/>
         <result column="subtitle" property="subtitle"/>
         <result column="logo_image" property="logoImage"/>

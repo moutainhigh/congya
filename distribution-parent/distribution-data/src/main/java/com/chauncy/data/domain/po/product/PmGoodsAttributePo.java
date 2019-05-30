@@ -76,10 +76,7 @@ public class PmGoodsAttributePo implements Serializable {
     @ApiModelProperty(value = "是否启用 1-是 0-否 默认为1")
     private Boolean enabled;
 
-    @ApiModelProperty(value = "服务说明类型 1-平台服务说明。2-商家服务说明")
-    private Integer serviceType;
-
-    @ApiModelProperty(value = "类型 1->服务说明管理类型 2->活动说明管理类型 3->商品参数管理类型 4->标签管理类型 5->购买须知管理类型 6->规格管理类型 7->品牌管理")
+    @ApiModelProperty(value = "类型 1->平台服务说明管理类型 2->商家服务说明管理类型 2->平台活动说明管理类型  3->商品参数管理类型 4->标签管理类型 5->购买须知管理类型 6->规格管理类型 7->品牌管理")
     private Integer type;
 
     @ApiModelProperty(value = "副标题")
