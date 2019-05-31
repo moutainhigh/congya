@@ -14,6 +14,11 @@
         <result column="sell_price" property="sellPrice" />
         <result column="line_price" property="linePrice" />
         <result column="stock" property="stock" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="del_flag" property="delFlag" />
     </resultMap>
 
 </mapper>

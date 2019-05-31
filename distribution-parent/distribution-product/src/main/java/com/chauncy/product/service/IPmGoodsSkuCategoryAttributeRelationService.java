@@ -33,6 +33,6 @@ public interface IPmGoodsSkuCategoryAttributeRelationService extends IService<Pm
     /**
      * 根据属性ID查找关联信息
      */
-//    List<PmGoodsSkuCategoryAttributeRelationPo> findByAttributeId();
+    List<PmGoodsSkuCategoryAttributeRelationPo> findByAttributeId(Long attributeId);
 
 }

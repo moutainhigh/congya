@@ -13,6 +13,11 @@
         <result column="destination_full_money" property="destinationFullMoney" />
         <result column="destination_post_money" property="destinationPostMoney" />
         <result column="shipping_id" property="shippingId" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="del_flag" property="delFlag" />
     </resultMap>
 
 </mapper>

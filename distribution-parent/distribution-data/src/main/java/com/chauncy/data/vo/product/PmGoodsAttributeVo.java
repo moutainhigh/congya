@@ -1,77 +1,46 @@
-package com.chauncy.data.domain.po.product;
+package com.chauncy.data.vo.product;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.io.Serializable;
-import java.util.List;
-
 import com.chauncy.common.constant.SecurityConstant;
 import com.chauncy.common.util.serializer.LongJsonDeserializer;
 import com.chauncy.common.util.serializer.LongJsonSerializer;
 import com.chauncy.common.util.serializer.LongToStringSerializer;
-import com.chauncy.data.domain.po.sys.SysRolePo;
+import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
+import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
-import org.apache.ibatis.type.Alias;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Transient;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
 /**
- * <p>
- * 商品属性参数表
- * <p>
- * 类目下:
- * 规格管理(平台)
- * 商品参数管理(平台)
- * 服务说明管理(平台、商家)
- * 购买须知管理(平台)
- * 活动说明管理(平台)
- * <p>
- * 商品下：
- * 类目
- * 标签管理(平台)
- * 规格管理(平台)
- * 品牌管理
- * 参数值
- * <p>
- * 服务说明管理(平台、商家)
- * 活动说明管理(平台)
- * 标签管理(平台）
- * 购买须知管理(平台)
- * 规格管理(平台)
- * 商品参数管理(平台)
- * 品牌管理(平台)
- * </p>
- *
- * @author huangwancheng
- * @since 2019-05-21
+ * @Author huangwancheng
+ * @create 2019-05-30 17:09
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
-@Accessors(chain = true)
-@TableName("pm_goods_attribute")
-@ApiModel(value = "PmGoodsAttributePo对象", description = "商品属性参数表 ")
-@Alias("goodsAttributePo")
-public class PmGoodsAttributePo implements Serializable {
+@ApiModel(value = "PmGoodsAttributePo对象", description = "商品属性参数 ")
+public class PmGoodsAttributeVo implements Serializable {
+
+//    private PmGoodsAttributePo pmGoodsAttributePo;
+//
+//    private List<PmGoodsAttributeValuePo> pmGoodsAttributeValuePo;
 
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "id")
-    @TableId(value = "id",type = IdType.ID_WORKER)
     @JsonSerialize(using = LongJsonSerializer.class)
     @JsonDeserialize(using = LongJsonDeserializer.class)
     private Long id;
@@ -124,15 +93,8 @@ public class PmGoodsAttributePo implements Serializable {
     @ApiModelProperty(value = "删除标志 默认0")
     private Integer delFlag = SecurityConstant.STATUS_NORMAL;
 
-    /*@Transient
-    @TableField(exist=false)
     @ApiModelProperty(value = "商品属性值")
-    private List<PmGoodsAttributeValuePo> value;*/
-
-    @Transient
-    @TableField(exist=false)
-    @ApiModelProperty(value = "商品属性值")
-    private String[] values;
+    private List<PmGoodsAttributeValuePo> valueList;
 
 
 }

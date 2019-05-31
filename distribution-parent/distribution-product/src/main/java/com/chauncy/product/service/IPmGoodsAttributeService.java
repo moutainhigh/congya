@@ -1,9 +1,10 @@
 package com.chauncy.product.service;
 
-import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.baomidou.mybatisplus.extension.service.IService;
-
-import java.util.List;
+import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
+import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
+import com.chauncy.data.vo.JsonViewData;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 /**
  * <p>
@@ -37,9 +38,34 @@ import java.util.List;
  */
 public interface IPmGoodsAttributeService extends IService<PmGoodsAttributePo> {
 
+
     /**
-     * 根据不同类型对应的名称查找
+     * 保存商品属性
+     * @param goodsAttributePo
+     * @return
      */
-    PmGoodsAttributePo findByTypeAndName(Integer type,String name);
+    JsonViewData saveAttribute (PmGoodsAttributePo goodsAttributePo);
+
+    /**
+     * 批量删除
+     * @param ids
+     * @return
+     */
+    JsonViewData deleteAttributeByIds(Long[] ids);
+
+    /**
+     * 更新数据
+     *
+     * @param goodsAttributePo
+     * @return
+     */
+    JsonViewData edit(PmGoodsAttributePo goodsAttributePo, PmGoodsAttributeValuePo goodsAttributeValuePo);
+
+    /**
+     * 根据ID查找
+     * @param id
+     * @return
+     */
+    JsonViewData findById(Long id);
 
 }

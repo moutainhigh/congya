@@ -1,16 +1,22 @@
 package com.chauncy.data.domain.po.product;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.chauncy.common.base.BaseEntity;
+import com.chauncy.common.constant.SecurityConstant;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * <p>
@@ -21,11 +27,10 @@ import lombok.experimental.Accessors;
  * @since 2019-05-21
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @TableName("pm_goods_category")
 @ApiModel(value = "PmGoodsCategoryPo对象", description = "商品分类表")
-public class PmGoodsCategoryPo extends BaseEntity {
+public class PmGoodsCategoryPo {
 
     private static final long serialVersionUID = 1L;
 
@@ -50,6 +55,27 @@ public class PmGoodsCategoryPo extends BaseEntity {
 
     @ApiModelProperty(value = "父分类ID")
     private Integer parentId;
+
+    @ApiModelProperty(value = "创建者")
+    private String createBy;
+
+    @CreatedDate
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @ApiModelProperty(value = "创建时间")
+    private LocalDateTime createTime;
+
+    @ApiModelProperty(value = "更新者")
+    private String updateBy;
+
+    @LastModifiedDate
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @ApiModelProperty(value = "更新时间")
+    private LocalDateTime updateTime;
+
+    @ApiModelProperty(value = "删除标志 默认0")
+    private Integer delFlag = SecurityConstant.STATUS_NORMAL;
 
 
 }

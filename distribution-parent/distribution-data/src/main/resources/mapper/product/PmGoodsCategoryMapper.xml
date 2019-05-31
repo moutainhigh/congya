@@ -11,6 +11,12 @@
         <result column="enabled" property="enabled" />
         <result column="tax_rate" property="taxRate" />
         <result column="parent_id" property="parentId" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="del_flag" property="delFlag" />
+
     </resultMap>
 
 </mapper>
