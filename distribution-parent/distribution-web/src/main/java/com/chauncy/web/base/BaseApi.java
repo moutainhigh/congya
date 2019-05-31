@@ -14,7 +14,7 @@ import javax.servlet.http.HttpSession;
  * @Author zhangrt
  * @Date 2019-05-30 10:52
  **/
-public abstract class BaseController {
+public abstract class BaseApi {
 
     @Autowired
     protected HttpServletRequest httpRequest;

@@ -1,11 +1,10 @@
 package com.chauncy.web.api.common;
 
-import cn.hutool.captcha.generator.RandomGenerator;
 import com.chauncy.common.enums.ResultCode;
 import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.common.util.SnowFlakeUtil;
 import com.chauncy.data.vo.JsonViewData;
-import com.chauncy.web.base.FileBaseController;
+import com.chauncy.web.base.BaseApi;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,7 +35,7 @@ import java.util.Objects;
 @RequestMapping(value = "/common/file", method = {RequestMethod.POST, RequestMethod.GET})
 @PropertySource("classpath:config/fileConfig.properties")
 @Api(description = "通用上传文件借口（multipart/form-data）")
-public class FileController extends FileBaseController {
+public class FileApi extends BaseApi {
 
     @Value("${upload.file.saveDir}")
     private String saveDir;
@@ -61,13 +60,19 @@ public class FileController extends FileBaseController {
         int pointPos = fileName.lastIndexOf(".");
         String extension =  fileName.substring(pointPos);
         String newFileName = SnowFlakeUtil.getFlowIdInstance().nextId() + extension;
-        String filePath=saveDir +File.separator+extension.substring(1)+File.separator+ newFileName;
+        String filePath=saveDir +"/"+extension.substring(1)+"/"+ newFileName;
         try {
             byte[] bytes = file.getBytes();
             Path path = Paths.get(httpSession.getServletContext().getRealPath(""),filePath);
+            File myPath=new File(httpSession.getServletContext().getRealPath("")+
+                    "/"+saveDir +"/"+extension.substring(1));
+            if (!myPath.exists()) {
+                myPath.mkdirs();//多级文件夹目录
+            }
             Files.write(path, bytes);
         } catch (IOException e) {
             LoggerUtil.error(e);
+            return setJsonViewData(ResultCode.FAIL,"上传文件出错！");
         }
         return setJsonViewData(filePath);
     }
