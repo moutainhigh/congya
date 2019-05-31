@@ -16,5 +16,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IPmGoodsAttributeValueService extends IService<PmGoodsAttributeValuePo> {
 
+    /**
+     * 通过属性ID attributeID删除
+     */
+
+    void deleteByAttributeId(Long ProductAttributeId);
 
 }

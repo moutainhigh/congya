@@ -15,4 +15,19 @@
         <result column="del_flag" property="delFlag" />
     </resultMap>
 
+    <delete id="deleteByAttributeId">
+        delete
+        from pm_goods_attribute_value
+        <where>
+            <if test="productAttributeId !=null and productAttributeId !=''">
+                and product_attribute_id = #{productAttributeId}
+            </if>
+        </where>
+    </delete>
+    <select id="findByAttributeId" resultType="java.lang.Long">
+        select id
+        from pm_goods_attribute_value
+        where product_attribute_id = #{productAttributeId}
+    </select>
+
 </mapper>

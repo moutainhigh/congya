@@ -4,11 +4,18 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chauncy.common.base.BaseEntity;
+import com.chauncy.common.constant.SecurityConstant;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -19,11 +26,10 @@ import lombok.experimental.Accessors;
  * @since 2019-05-21
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @TableName("pm_association_goods")
 @ApiModel(value = "PmAssociationGoodsPo对象", description = "关联商品—包括关联搭配商品合关联推荐商品，外键为商品id")
-public class PmAssociationGoodsPo extends BaseEntity {
+public class PmAssociationGoodsPo {
 
     private static final long serialVersionUID = 1L;
 
@@ -43,5 +49,25 @@ public class PmAssociationGoodsPo extends BaseEntity {
     @ApiModelProperty(value = "关联类型 1->搭配 2->推荐")
     private Integer associationType;
 
+    @ApiModelProperty(value = "创建者")
+    private String createBy;
+
+    @CreatedDate
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @ApiModelProperty(value = "创建时间")
+    private LocalDateTime createTime;
+
+    @ApiModelProperty(value = "更新者")
+    private String updateBy;
+
+    @LastModifiedDate
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @ApiModelProperty(value = "更新时间")
+    private LocalDateTime updateTime;
+
+    @ApiModelProperty(value = "删除标志 默认0")
+    private Integer delFlag = SecurityConstant.STATUS_NORMAL;
 
 }

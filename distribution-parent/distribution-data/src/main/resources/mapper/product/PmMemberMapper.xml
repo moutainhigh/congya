@@ -12,6 +12,11 @@
         <result column="packet_present" property="packetPresent" />
         <result column="actor_image" property="actorImage" />
         <result column="remark" property="remark" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="del_flag" property="delFlag" />
     </resultMap>
 
 </mapper>

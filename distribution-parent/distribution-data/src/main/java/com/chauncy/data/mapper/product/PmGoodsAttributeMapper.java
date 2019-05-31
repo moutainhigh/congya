@@ -1,7 +1,7 @@
 package com.chauncy.data.mapper.product;
 
-import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import org.apache.ibatis.annotations.Param;
 
 /**
@@ -38,8 +38,13 @@ public interface PmGoodsAttributeMapper extends BaseMapper<PmGoodsAttributePo> {
 
     /**
      * 根据不同类型对应的名称查找
+     *
+     * @param type
+     * @param name
+     * @return
      */
     PmGoodsAttributePo findByTypeAndName(@Param("type") Integer type, @Param("name") String name);
+
 
 
 
