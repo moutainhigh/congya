@@ -23,7 +23,7 @@ import java.util.Objects;
  * @date 2019-05-23
  * @time 09:29
  */
-public abstract class FileBaseController extends BaseController {
+public abstract class FileBaseApi extends BaseApi {
 
     /**
      * 下载，来源输入流
