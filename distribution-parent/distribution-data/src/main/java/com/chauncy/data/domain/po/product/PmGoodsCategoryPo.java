@@ -40,7 +40,7 @@ public class PmGoodsCategoryPo extends BaseEntity {
     private String icon;
 
     @ApiModelProperty(value = "排序数字")
-    private Integer sort;
+    private Double sort;
 
     @ApiModelProperty(value = "是否启用 1-是 0-否 默认为1")
     private Boolean enabled;
