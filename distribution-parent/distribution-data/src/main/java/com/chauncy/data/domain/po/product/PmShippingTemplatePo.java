@@ -8,7 +8,9 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import com.chauncy.common.constant.SecurityConstant;
+import com.chauncy.common.util.serializer.LongJsonSerializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -37,13 +39,14 @@ public class PmShippingTemplatePo implements Serializable {
 
     @ApiModelProperty(value = "运费模版ID")
     @TableId(value = "id", type = IdType.ID_WORKER)
+    @JsonSerialize(using = LongJsonSerializer.class)
     private Long id;
 
     @ApiModelProperty(value = "运费模版名称")
     private String name;
 
     @ApiModelProperty(value = "是否包邮")
-    private Integer isFreePostage;
+    private Boolean isFreePostage;
 
     @ApiModelProperty(value = "商品地址")
     private String productAddress;
@@ -73,5 +76,5 @@ public class PmShippingTemplatePo implements Serializable {
     private LocalDateTime updateTime;
 
     @ApiModelProperty(value = "删除标志 默认0")
-    private Integer delFlag = SecurityConstant.STATUS_NORMAL;
+    private Boolean delFlag;
 }

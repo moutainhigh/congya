@@ -10,7 +10,9 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import com.chauncy.common.constant.SecurityConstant;
+import com.chauncy.common.util.serializer.LongJsonSerializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -39,6 +41,7 @@ public class PmMoneyShippingPo implements Serializable {
 
     @ApiModelProperty(value = "按金额计算运费ID")
     @TableId(value = "id", type = IdType.ID_WORKER)
+    @JsonSerialize(using = LongJsonSerializer.class)
     private Long id;
 
     @ApiModelProperty(value = "默认(基础)运费")
@@ -63,7 +66,7 @@ public class PmMoneyShippingPo implements Serializable {
     private BigDecimal destinationPostMoney;
 
     @ApiModelProperty(value = "运费模版ID")
-    private Integer shippingId;
+    private Long shippingId;
 
     @ApiModelProperty(value = "创建者")
     private String createBy;
@@ -84,7 +87,7 @@ public class PmMoneyShippingPo implements Serializable {
     private LocalDateTime updateTime;
 
     @ApiModelProperty(value = "删除标志 默认0")
-    private Integer delFlag = SecurityConstant.STATUS_NORMAL;
+    private Boolean delFlag;
 
 
 }

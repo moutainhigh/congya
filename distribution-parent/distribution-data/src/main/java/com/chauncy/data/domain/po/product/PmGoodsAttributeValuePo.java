@@ -1,17 +1,10 @@
 package com.chauncy.data.domain.po.product;
 
-import com.alibaba.fastjson.annotation.JSONField;
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-
-import java.time.LocalDateTime;
-import java.io.Serializable;
-
-import com.chauncy.common.constant.SecurityConstant;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.chauncy.common.util.serializer.LongJsonDeserializer;
 import com.chauncy.common.util.serializer.LongJsonSerializer;
-import com.chauncy.common.util.serializer.LongToStringSerializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -23,6 +16,9 @@ import lombok.experimental.Accessors;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.format.annotation.DateTimeFormat;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -52,11 +48,8 @@ public class PmGoodsAttributeValuePo implements Serializable {
     @ApiModelProperty(value = "属性id")
     private Long productAttributeId;
 
-    @ApiModelProperty(value = "属性值或材质")
+    @ApiModelProperty(value = "属性值")
     private String value;
-
-    @ApiModelProperty(value = "上市时间")
-    private LocalDateTime listingDate;
 
     @ApiModelProperty(value = "创建者")
     private String createBy;
@@ -77,7 +70,7 @@ public class PmGoodsAttributeValuePo implements Serializable {
     private LocalDateTime updateTime;
 
     @ApiModelProperty(value = "删除标志 默认0")
-    private Integer delFlag = SecurityConstant.STATUS_NORMAL;
+    private Boolean delFlag;
 
 
 }

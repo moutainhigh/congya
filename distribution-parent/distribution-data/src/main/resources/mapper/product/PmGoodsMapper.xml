@@ -21,10 +21,9 @@
         <result column="generalize_cost_rate" property="generalizeCostRate" />
         <result column="tax_rate_type" property="taxRateType" />
         <result column="custom_tax_rate" property="customTaxRate" />
-        <result column="goods_sort" property="goodsSort" />
+        <result column="sort" property="sort" />
         <result column="stock" property="stock" />
         <result column="low_stock" property="lowStock" />
-        <result column="delete_status" property="deleteStatus" />
         <result column="publish_status" property="publishStatus" />
         <result column="new_status" property="newStatus" />
         <result column="recommand_status" property="recommandStatus" />

@@ -3,13 +3,12 @@ package com.chauncy.data.domain.po.product;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.chauncy.common.base.BaseEntity;
-import com.chauncy.common.constant.SecurityConstant;
+import com.chauncy.common.util.serializer.LongJsonSerializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -35,16 +34,17 @@ public class PmAssociationGoodsPo {
 
     @ApiModelProperty(value = "关联商品信息ID")
     @TableId(value = "id",type = IdType.ID_WORKER)
+    @JsonSerialize(using = LongJsonSerializer.class)
     private Long id;
 
     @ApiModelProperty(value = "商品id")
     private Long goodsId;
 
     @ApiModelProperty(value = "被关联店铺ID")
-    private Integer storeId;
+    private Long storeId;
 
     @ApiModelProperty(value = "被关联商品ID")
-    private Integer associatedGoodsId;
+    private Long associatedGoodsId;
 
     @ApiModelProperty(value = "关联类型 1->搭配 2->推荐")
     private Integer associationType;
@@ -68,6 +68,6 @@ public class PmAssociationGoodsPo {
     private LocalDateTime updateTime;
 
     @ApiModelProperty(value = "删除标志 默认0")
-    private Integer delFlag = SecurityConstant.STATUS_NORMAL;
+    private Boolean delFlag;
 
 }

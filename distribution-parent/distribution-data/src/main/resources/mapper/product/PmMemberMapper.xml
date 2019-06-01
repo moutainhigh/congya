@@ -6,7 +6,7 @@
     <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.product.PmMemberPo">
         <id column="id" property="id" />
         <result column="actor" property="actor" />
-        <result column="level" property="level" />
+        <result column="level_name" property="levelName" />
         <result column="purchase_present" property="purchasePresent" />
         <result column="level_experience" property="levelExperience" />
         <result column="packet_present" property="packetPresent" />

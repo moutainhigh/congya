@@ -1,22 +1,21 @@
 package com.chauncy.data.domain.po.product;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.chauncy.common.base.BaseEntity;
-import com.chauncy.common.constant.SecurityConstant;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.chauncy.common.util.serializer.LongJsonSerializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.format.annotation.DateTimeFormat;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -36,10 +35,11 @@ public class PmGoodsPo {
 
     @ApiModelProperty(value = "商品ID")
     @TableId(value = "id", type = IdType.ID_WORKER)
+    @JsonSerialize(using = LongJsonSerializer.class)
     private Long id;
 
     @ApiModelProperty(value = "分类ID")
-    private Integer goodsCategoryId;
+    private Long goodsCategoryId;
 
     @ApiModelProperty(value = "商品名称")
     private String name;
@@ -57,7 +57,7 @@ public class PmGoodsPo {
     private String detailHtml;
 
     @ApiModelProperty(value = "运费模版ID")
-    private Integer shippingTemplateId;
+    private Long shippingTemplateId;
 
     @ApiModelProperty(value = "发货地")
     private String location;
@@ -66,7 +66,7 @@ public class PmGoodsPo {
     private Integer purchaseLimit;
 
     @ApiModelProperty(value = "会员ID")
-    private Integer memberId;
+    private Long memberId;
 
     @ApiModelProperty(value = "是否含税")
     private Boolean isTax;
@@ -87,16 +87,13 @@ public class PmGoodsPo {
     private BigDecimal customTaxRate;
 
     @ApiModelProperty(value = "商品排序数字")
-    private Long goodsSort;
+    private BigDecimal sort;
 
     @ApiModelProperty(value = "商品库存")
     private Integer stock;
 
     @ApiModelProperty(value = "库存预警")
     private Integer lowStock;
-
-    @ApiModelProperty(value = "删除状态：0->未删除；1->已删除")
-    private Boolean deleteStatus;
 
     @ApiModelProperty(value = "上架状态：0->下架；1->上架")
     private Boolean publishStatus;
@@ -114,7 +111,7 @@ public class PmGoodsPo {
     private Long storeId;
 
     @ApiModelProperty(value = "商品类型")
-    private Long goodsType;
+    private String goodsType;
 
     @ApiModelProperty(value = "创建者")
     private String createBy;
@@ -134,7 +131,7 @@ public class PmGoodsPo {
     @ApiModelProperty(value = "更新时间")
     private LocalDateTime updateTime;
 
-    @ApiModelProperty(value = "删除标志 默认0")
-    private Integer delFlag = SecurityConstant.STATUS_NORMAL;
+    @ApiModelProperty(value = "删除标志 默认0 0->未删除；1->已删除")
+    private Boolean delFlag;
 
 }

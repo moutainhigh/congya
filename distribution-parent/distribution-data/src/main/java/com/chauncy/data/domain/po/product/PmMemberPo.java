@@ -10,7 +10,9 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import com.chauncy.common.constant.SecurityConstant;
+import com.chauncy.common.util.serializer.LongJsonSerializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -39,13 +41,14 @@ public class PmMemberPo implements Serializable {
 
     @ApiModelProperty(value = "会员ID")
     @TableId(value = "id", type = IdType.ID_WORKER)
+    @JsonSerialize(using = LongJsonSerializer.class)
     private Long id;
 
     @ApiModelProperty(value = "头衔名称")
     private String actor;
 
     @ApiModelProperty(value = "等级名称")
-    private String level;
+    private String levelName;
 
     @ApiModelProperty(value = "购物赠送比例")
     private BigDecimal purchasePresent;
@@ -81,7 +84,7 @@ public class PmMemberPo implements Serializable {
     private LocalDateTime updateTime;
 
     @ApiModelProperty(value = "删除标志 默认0")
-    private Integer delFlag = SecurityConstant.STATUS_NORMAL;
+    private Boolean delFlag;
 
 
 }

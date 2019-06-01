@@ -1,21 +1,11 @@
 package com.chauncy.data.domain.po.product;
 
-import com.alibaba.fastjson.annotation.JSONField;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.io.Serializable;
-import java.util.List;
-
-import com.chauncy.common.constant.SecurityConstant;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.chauncy.common.util.serializer.LongJsonDeserializer;
 import com.chauncy.common.util.serializer.LongJsonSerializer;
-import com.chauncy.common.util.serializer.LongToStringSerializer;
-import com.chauncy.data.domain.po.sys.SysRolePo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -29,6 +19,10 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Transient;
 import org.springframework.format.annotation.DateTimeFormat;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -122,7 +116,7 @@ public class PmGoodsAttributePo implements Serializable {
     private LocalDateTime updateTime;
 
     @ApiModelProperty(value = "删除标志 默认0")
-    private Integer delFlag = SecurityConstant.STATUS_NORMAL;
+    private Boolean delFlag;
 
     /*@Transient
     @TableField(exist=false)

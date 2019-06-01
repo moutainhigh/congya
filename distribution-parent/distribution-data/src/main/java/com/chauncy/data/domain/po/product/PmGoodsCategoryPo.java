@@ -1,22 +1,22 @@
 package com.chauncy.data.domain.po.product;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.chauncy.common.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.chauncy.common.constant.SecurityConstant;
+import com.chauncy.common.util.serializer.LongJsonSerializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.format.annotation.DateTimeFormat;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -36,6 +36,7 @@ public class PmGoodsCategoryPo {
 
     @ApiModelProperty(value = "分类ID")
     @TableId(value = "id", type = IdType.ID_WORKER)
+    @JsonSerialize(using = LongJsonSerializer.class)
     private Long id;
 
     @ApiModelProperty(value = "分类名称")
@@ -45,7 +46,7 @@ public class PmGoodsCategoryPo {
     private String icon;
 
     @ApiModelProperty(value = "排序数字")
-    private Double sort;
+    private BigDecimal sort;
 
     @ApiModelProperty(value = "是否启用 1-是 0-否 默认为1")
     private Boolean enabled;
@@ -54,7 +55,7 @@ public class PmGoodsCategoryPo {
     private BigDecimal taxRate;
 
     @ApiModelProperty(value = "父分类ID")
-    private Integer parentId;
+    private Long parentId;
 
     @ApiModelProperty(value = "创建者")
     private String createBy;
@@ -75,7 +76,7 @@ public class PmGoodsCategoryPo {
     private LocalDateTime updateTime;
 
     @ApiModelProperty(value = "删除标志 默认0")
-    private Integer delFlag = SecurityConstant.STATUS_NORMAL;
+    private Boolean delFlag;
 
 
 }
