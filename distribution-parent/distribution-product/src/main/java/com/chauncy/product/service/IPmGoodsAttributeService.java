@@ -68,4 +68,13 @@ public interface IPmGoodsAttributeService extends IService<PmGoodsAttributePo> {
      */
     JsonViewData findById(Long id);
 
+    /**
+     * 条件查询
+     *
+     * @param type
+     * @param name
+     * @param enable
+     * @return
+     */
+    JsonViewData search(Integer type,String name,boolean enable);
 }

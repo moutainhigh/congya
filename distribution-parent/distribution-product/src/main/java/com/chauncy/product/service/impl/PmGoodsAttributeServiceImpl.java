@@ -60,12 +60,12 @@ public class PmGoodsAttributeServiceImpl extends ServiceImpl<PmGoodsAttributeMap
 
         //判断必要字段
         if (goodsAttributePo.getType() == null || goodsAttributePo.getType() == ' ' || goodsAttributePo.getName() == null || goodsAttributePo.getName().equals(' ')) {
-            return new JsonViewData(ResultCode.FAIL, "缺少必需字段name或type");
+            return new JsonViewData(ResultCode.FAIL, "添加失败,缺少必需字段name或type");
         }
 
         //判断不同类型对应的属性名称是否已经存在
         if (mapper.findByTypeAndName(goodsAttributePo.getType(), goodsAttributePo.getName()) != null) {
-            return new JsonViewData(ResultCode.FAIL, "该属性名称已存在");
+            return new JsonViewData(ResultCode.FAIL, "添加失败,该属性名称已存在");
         }
 
         //处理属性类型为规格类型的
@@ -76,7 +76,7 @@ public class PmGoodsAttributeServiceImpl extends ServiceImpl<PmGoodsAttributeMap
                     //判断值不能相同
                     boolean s = temp.equals(goodsAttributePo.getValues()[i]);
                     if (s == true) {
-                        return new JsonViewData(ResultCode.FAIL, "属性值不能重复");
+                        return new JsonViewData(ResultCode.FAIL, "添加失败,属性值不能重复");
                     }
                 }
 
@@ -142,6 +142,24 @@ public class PmGoodsAttributeServiceImpl extends ServiceImpl<PmGoodsAttributeMap
         goodsAttributePo.setUpdateTime(date);
         goodsAttributePo.setUpdateBy(user);
 
+        //判断必要字段
+        if (goodsAttributePo.getType() == null || goodsAttributePo.getType() == ' ' || goodsAttributePo.getName() == null || goodsAttributePo.getName().equals(' ')) {
+            return new JsonViewData(ResultCode.FAIL, "修改失败,缺少必需字段name或type");
+        }
+
+        PmGoodsAttributePo po1 = mapper.selectById(goodsAttributePo.getId());
+        //判断不同类型对应的属性名称是否已经存在
+        PmGoodsAttributePo po = mapper.findByTypeAndName(goodsAttributePo.getType(), goodsAttributePo.getName());
+        if (!po1.getName().equals(goodsAttributePo.getName()) && po != null) {
+            return new JsonViewData(ResultCode.FAIL, "修改失败,该属性名称已存在");
+        }
+
+        //根据属性id查找是否正被使用
+        List<PmGoodsSkuCategoryAttributeRelationPo> list = relationMapper.findByAttributeId(goodsAttributePo.getId());
+        if (list != null && list.size() > 0) {
+            return new JsonViewData(ResultCode.FAIL, "修改失败，包含正被类目或商品使用的关联的属性名称");
+        }
+
         mapper.updateById(goodsAttributePo);
 
         if (goodsAttributePo==null)
@@ -177,6 +195,30 @@ public class PmGoodsAttributeServiceImpl extends ServiceImpl<PmGoodsAttributeMap
 
 
         return new JsonViewData(ResultCode.SUCCESS,"查询成功",pmGoodsAttributeVo);
+    }
+
+    @Override
+    public JsonViewData search(Integer type, String name, boolean enable) {
+        List<PmGoodsAttributePo> goodsAttributePos = mapper.search(type,name,enable);
+        List<PmGoodsAttributeValuePo> goodsAttributeValueList = new ArrayList<>();
+        List<PmGoodsAttributeVo> goodsAttributeVos = new ArrayList<>();
+        for (PmGoodsAttributePo goodsAttributePo : goodsAttributePos) {
+            if (goodsAttributePo.getType() == GoodsAttribute.STANDARD.getId() || goodsAttributePo.getType() == GoodsAttribute.GOODS_PARAM.getId()) {
+                //查询属性值表
+                List<Long> idList = new ArrayList<>();
+                List<PmGoodsAttributeValuePo> valuePoList = valueMapper.findByAttributeId(goodsAttributePo.getId());
+                for (PmGoodsAttributeValuePo po : valuePoList) {
+                    idList.add(po.getId());
+                }
+                goodsAttributeValueList = valueMapper.selectBatchIds(idList);
+            }
+            PmGoodsAttributeVo pmGoodsAttributeVo = new PmGoodsAttributeVo();
+            BeanUtils.copyProperties(goodsAttributePo,pmGoodsAttributeVo);
+            pmGoodsAttributeVo.setValueList(goodsAttributeValueList);
+            goodsAttributeVos.add(pmGoodsAttributeVo);
+        }
+
+        return new JsonViewData(ResultCode.SUCCESS,"查询成功",goodsAttributePos);
     }
 
 }
