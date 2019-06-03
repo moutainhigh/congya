@@ -49,6 +49,13 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
+        <!--店铺模块-->
+        <dependency>
+            <groupId>com.chauncy</groupId>
+            <artifactId>distribution-store</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
         <!-- SpringBoot Web容器 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
