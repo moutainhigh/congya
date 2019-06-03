@@ -5,6 +5,7 @@ import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.vo.JsonViewData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,8 +30,8 @@ public abstract class BaseApi {
 
     protected static int defaultPageNo = 1;
 
-    protected String getCurrentSessionUserId() {
-        return ((SysUserPo) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+    protected UserDetails getUser() {
+        return ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
     }
 
     protected JsonViewData setJsonViewData(ResultCode resultCode) {
