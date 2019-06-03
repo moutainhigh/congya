@@ -87,11 +87,12 @@ public class PmGoodsAttributeApi {
     @ApiOperation(value = "条件查询", notes = "根据类型type、名称、启用状态查询")
     @PostMapping("/search")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "type", value = "属性类型type", required = true, dataType = "Integer", paramType = "path"),
-            @ApiImplicitParam(name = "name", value = "属性名称name", required = false, dataType = "String", paramType = "path"),
-            @ApiImplicitParam(name = "enable", value = "是否启用enable", required = false, dataType = "boolean", paramType = "path")}
+            @ApiImplicitParam(name = "type", value = "属性类型type", required = true, dataType = "Integer", paramType = "query"),
+            @ApiImplicitParam(name = "name", value = "属性名称name", required = false, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "enable", value = "是否启用enable", required = false, dataType = "boolean", paramType = "query")}
     )
-    public JsonViewData search(Integer type, String name, boolean enable) {
+
+    public JsonViewData search( Integer type, String name, Boolean enable) {
 
         return goodsAttributeService.search(type, "%"+ name +"%", enable);
     }
