@@ -78,5 +78,7 @@ public class PmGoodsCategoryPo {
     @ApiModelProperty(value = "删除标志 默认0")
     private Boolean delFlag;
 
+    
+
 
 }

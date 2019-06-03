@@ -1,12 +1,14 @@
 package com.chauncy.common.exception.sys;
 
 import com.chauncy.common.enums.ResultCode;
+import lombok.Data;
 
 /**
  * @author zhangrt
  * @date 2019-05-22
  * @time 15:21
  */
+@Data
 public class ServiceException extends RuntimeException {
 
     private ResultCode resultCode = ResultCode.SYSTEM_ERROR;
