@@ -44,6 +44,12 @@ public class PmGoodsAttributeServiceImpl extends ServiceImpl<PmGoodsAttributeMap
     @Autowired
     private SecurityUtil securityUtil;
 
+    /**
+     * 保存商品属性
+     *
+     * @param goodsAttributePo
+     * @return
+     */
     @Override
     public JsonViewData saveAttribute(PmGoodsAttributePo goodsAttributePo) {
         LocalDateTime date = LocalDateTime.now();
@@ -91,6 +97,11 @@ public class PmGoodsAttributeServiceImpl extends ServiceImpl<PmGoodsAttributeMap
         return new JsonViewData(ResultCode.SUCCESS, "保存成功", goodsAttributePo);
     }
 
+    /**
+     * 批量删除属性以及关联的值
+     * @param ids
+     * @return
+     */
     @Override
     public JsonViewData deleteAttributeByIds(Long[] ids) {
 
@@ -115,8 +126,14 @@ public class PmGoodsAttributeServiceImpl extends ServiceImpl<PmGoodsAttributeMap
         return new JsonViewData(ResultCode.SUCCESS, "批量通过id删除数据成功");
     }
 
+    /**
+     * 更新数据
+     *
+     * @param goodsAttributePo
+     * @return
+     */
     @Override
-    public JsonViewData edit(PmGoodsAttributePo goodsAttributePo,PmGoodsAttributeValuePo goodsAttributeValuePo) {
+    public JsonViewData edit(PmGoodsAttributePo goodsAttributePo) {
 
         LocalDateTime date = LocalDateTime.now();
         //获取当前用户
@@ -124,14 +141,6 @@ public class PmGoodsAttributeServiceImpl extends ServiceImpl<PmGoodsAttributeMap
 
         goodsAttributePo.setUpdateTime(date);
         goodsAttributePo.setUpdateBy(user);
-
-        //处理规格和商品参数
-        if (goodsAttributePo.getType() == GoodsAttribute.STANDARD.getId() || goodsAttributePo.getType() == GoodsAttribute.GOODS_PARAM.getId()) {
-            valueMapper.updateById(goodsAttributeValuePo);
-            if (goodsAttributeValuePo==null){
-                return new JsonViewData(ResultCode.FAIL,"修改失败");
-            }
-        }
 
         mapper.updateById(goodsAttributePo);
 
@@ -143,6 +152,11 @@ public class PmGoodsAttributeServiceImpl extends ServiceImpl<PmGoodsAttributeMap
         return new JsonViewData(ResultCode.SUCCESS, "修改成功", goodsAttributePo);
     }
 
+    /**
+     * 根据ID查找属性以及关联的属性值
+     * @param id
+     * @return
+     */
     @Override
     public JsonViewData findById(Long id) {
         //属性信息表
@@ -151,18 +165,18 @@ public class PmGoodsAttributeServiceImpl extends ServiceImpl<PmGoodsAttributeMap
         if (goodsAttributePo.getType() == GoodsAttribute.STANDARD.getId() || goodsAttributePo.getType() == GoodsAttribute.GOODS_PARAM.getId()) {
             //查询属性值表
             List<Long> idList = new ArrayList<>();
-            idList = valueMapper.findByAttributeId(id);
+            List<PmGoodsAttributeValuePo> valuePoList = valueMapper.findByAttributeId(id);
+            for(PmGoodsAttributeValuePo po : valuePoList) {
+                idList.add(po.getId());
+            }
             goodsAttributeValueList = valueMapper.selectBatchIds(idList);
         }
         PmGoodsAttributeVo pmGoodsAttributeVo = new PmGoodsAttributeVo();
-//        pmGoodsAttributeVo.setPmGoodsAttributePo(goodsAttributePo);
-//        pmGoodsAttributeVo.setPmGoodsAttributeValuePo(goodsAttributeValueList);
         BeanUtils.copyProperties(goodsAttributePo,pmGoodsAttributeVo);
         pmGoodsAttributeVo.setValueList(goodsAttributeValueList);
 
 
         return new JsonViewData(ResultCode.SUCCESS,"查询成功",pmGoodsAttributeVo);
-//        PmGoodsAttributeVo goodsAttributeVo = mapper.findById(id);
-
     }
+
 }

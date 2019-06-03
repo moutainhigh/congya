@@ -14,6 +14,28 @@
         <result column="del_flag" property="delFlag" />
     </resultMap>
 
+    <insert id="saveAttValue">
+        insert into tb_user(
+        <!--<if test="id != null and id != 0">id,</if>-->
+        <if test="productAttributeId != null and productAttributeId != ''">product_attribute_id,</if>
+        <if test="value != null and value != 0">value,</if>
+        <if test="createBy != null and createBy != ''">create_by,</if>
+        <if test="createTime != null and createTime != ''">create_time,</if>
+        <if test="updateBy != null and updateBy != ''">update_by,</if>
+        <if test="updateTime != null and updateTime != ''">update_time,</if>
+        <if test="delFlag != null and delFlag != ''">del_flag</if>
+        )values(
+        <!--<if test="id != null and id != 0">#{id},</if>-->
+        <if test="productAttributeId != null and productAttributeId != ''">#{productAttributeId},</if>
+        <if test="value != null and value != 0">#{value},</if>
+        <if test="createBy != null and createBy != ''">#{createBy}</if>
+        <if test="createTime != null and createTime != ''">#{createTime}</if>
+        <if test="updateBy != null and updateBy != ''">#{updateBy}</if>
+        <if test="updateTime != null and updateTime != ''">#{updateTime}</if>
+        <if test="delFlag != null and delFlag != ''">#{delFlag}</if>
+
+    </insert>
+
     <delete id="deleteByAttributeId">
         delete
         from pm_goods_attribute_value
@@ -23,10 +45,35 @@
             </if>
         </where>
     </delete>
-    <select id="findByAttributeId" resultType="java.lang.Long">
-        select id
+
+    <select id="findByAttributeId" resultType="com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo">
+        select *
         from pm_goods_attribute_value
         where product_attribute_id = #{productAttributeId}
     </select>
+
+    <!--<insert id="insert" parameterType="goodsAttributePo" useGeneratedKeys="true" keyProperty="id">-->
+    <!--insert into tb_user(-->
+    <!--&lt;!&ndash;<if test="id != null and id != 0">id,</if>&ndash;&gt;-->
+    <!--<if test="serviceType != null and serviceType != ''">serviceType</if>-->
+    <!--<if test="type != null and type != ''">type</if>-->
+    <!--<if test="subtitle != null and subtitle != ''">subtitle</if>-->
+    <!--<if test="logoImage != null and logoImage != ''">logoImage</if>-->
+    <!--<if test="logoIcon != null and logoIcon != ''">logoIcon</if>-->
+    <!--)values(-->
+    <!--&lt;!&ndash;<if test="id != null and id != 0">#{id},</if>&ndash;&gt;-->
+    <!--<if test="name != null and name != ''">#{name},</if>-->
+    <!--<if test="sort != null and sort != 0 ">#{sort},</if>-->
+    <!--<if test="updateTime != null and updateTime != ''">#{updateTime}</if>-->
+    <!--<if test="content != null and content != ''">#{content}</if>-->
+    <!--<if test="enabled != null and enabled != ''">#{enabled}</if>-->
+    <!--<if test="remark != null and remark != ''">#{remark}</if>-->
+    <!--<if test="serviceType != null and serviceType != ''">#{serviceType}</if>-->
+    <!--<if test="type != null and type != ''">#{type}</if>-->
+    <!--<if test="subtitle != null and subtitle != ''">#{subtitle}</if>-->
+    <!--<if test="logoImage != null and logoImage != ''">#{logoImage}</if>-->
+    <!--<if test="logoIcon != null and logoIcon != ''">#{logoIcon}</if>-->
+    <!--)-->
+    <!--</insert>-->
 
 </mapper>

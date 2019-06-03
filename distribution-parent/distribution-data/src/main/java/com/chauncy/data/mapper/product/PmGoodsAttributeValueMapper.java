@@ -27,5 +27,7 @@ public interface PmGoodsAttributeValueMapper extends BaseMapper<PmGoodsAttribute
      */
     int deleteByAttributeId(@Param("productAttributeId") Long productAttributeId);
 
-    List<Long> findByAttributeId(@Param("productAttributeId") Long productAttributeId);
+    List<PmGoodsAttributeValuePo> findByAttributeId(@Param("productAttributeId") Long productAttributeId);
+
+    int saveAttValue(@Param("goodsAttributeValuePo") PmGoodsAttributeValuePo goodsAttributeValuePo);
 }

@@ -1,7 +1,8 @@
 package com.chauncy.product.service;
 
-import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
+import com.chauncy.data.vo.JsonViewData;
 
 /**
  * <p>
@@ -17,9 +18,29 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface IPmGoodsAttributeValueService extends IService<PmGoodsAttributeValuePo> {
 
     /**
-     * 通过属性ID attributeID删除
+     * 根据属性ID添加属性值
+     *
+     * @param goodsAttributeValuePo
+     * @return
      */
+    JsonViewData saveAttValue(PmGoodsAttributeValuePo goodsAttributeValuePo);
 
-    void deleteByAttributeId(Long ProductAttributeId);
+    /**
+     * 更新属性值
+     *
+     * @param pmGoodsAttributeValuePo
+     * @return
+     */
+    JsonViewData editValue(PmGoodsAttributeValuePo pmGoodsAttributeValuePo);
+
+    /**
+     * 批量删除属性值
+     *
+     * @param ids
+     * @return
+     */
+    JsonViewData delAttValueByIds(Long[] ids);
+
+    JsonViewData findValueById(Long id);
 
 }

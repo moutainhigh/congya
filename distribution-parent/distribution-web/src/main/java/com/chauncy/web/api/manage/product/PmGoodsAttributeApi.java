@@ -5,6 +5,7 @@ import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.product.service.IPmGoodsAttributeService;
+import com.chauncy.product.service.IPmGoodsAttributeValueService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -27,8 +28,13 @@ public class PmGoodsAttributeApi {
     @Autowired
     private IPmGoodsAttributeService goodsAttributeService;
 
+    @Autowired
+    private IPmGoodsAttributeValueService valueService;
+
+    //TODO 属性操作
+
     /**
-     * 保存属性
+     * 添加属性以及属性值
      *
      * @param goodsAttributePo
      */
@@ -40,7 +46,7 @@ public class PmGoodsAttributeApi {
     }
 
     /**
-     * 根据id删除属性
+     * 根据id删除属性以及关联的值
      *
      * @param ids
      */
@@ -57,23 +63,82 @@ public class PmGoodsAttributeApi {
      * 更新属性基本信息
      *
      * @param goodsAttributePo
-     * @param goodsAttributeValuePo
      * @return
      */
-    @ApiOperation(value = "更新属性", notes = "更新属性基本信息以及属性值")
-    @PostMapping("/edit")
-    public JsonViewData edit(@ModelAttribute PmGoodsAttributePo goodsAttributePo,
-                             @ModelAttribute PmGoodsAttributeValuePo goodsAttributeValuePo) {
+    @ApiOperation(value = "更新属性", notes = "根据ID更新属性")
+    @PostMapping("/editAttribute")
+    public JsonViewData editAttribute(@ModelAttribute PmGoodsAttributePo goodsAttributePo) {
 
-        return goodsAttributeService.edit(goodsAttributePo, goodsAttributeValuePo);
+        return goodsAttributeService.edit(goodsAttributePo);
     }
 
+    /**
+     * 根据ID查找属性以及关联属性值
+     *
+     * @param id
+     * @return
+     */
     @ApiOperation(value = "查找属性信息", notes = "根据ID查找")
-    @PostMapping("/findById/{id}")
+    @GetMapping("/findById/{id}")
     public JsonViewData findById(@ApiParam(required = true, value = "id")
                                  @PathVariable Long id) {
 
         return goodsAttributeService.findById(id);
+    }
+//TODO 属性值操作
+
+    /**
+     * 根据属性ID添加属性值
+     *
+     * @param goodsAttributeValuePo
+     * @return
+     */
+    @ApiOperation(value = "添加属性值", notes = "根据属性ID添加属性值")
+    @PostMapping("/saveAttValue")
+    public JsonViewData saveAttValue(/*@ApiParam(required = true,name = "attributeId",value = "属性值ID") @PathVariable Long attributeId,*/
+            @ModelAttribute PmGoodsAttributeValuePo goodsAttributeValuePo) {
+
+        return valueService.saveAttValue(goodsAttributeValuePo);
+    }
+
+    /**
+     * 删除属性值
+     *
+     * @param ids
+     * @return
+     */
+    @ApiOperation(value = "删除属性值", notes = "有用到属性值的不能删除")
+    @DeleteMapping("/delAttValueByIds/{ids}")
+    public JsonViewData delAttValueByIds(@ApiParam(required = true, name = "ids", value = "属性值id集合") @PathVariable Long[] ids) {
+        return valueService.delAttValueByIds(ids);
+    }
+
+
+    /**
+     * 根据ID查找属性值
+     *
+     * @param id
+     * @return
+     */
+    @ApiOperation(value = "查找属性值信息", notes = "根据ID查找")
+    @GetMapping("/findValueById/{id}")
+    public JsonViewData findValueById(@ApiParam(required = true, name = "属性值ID", value = "id")
+                                      @PathVariable Long id) {
+
+        return valueService.findValueById(id);
+    }
+
+    /**
+     * 更新属性值
+     *
+     * @param goodsAttributeValuePo
+     * @return
+     */
+    @ApiOperation(value = "更新属性值", notes = "根据ID更新属性值")
+    @PostMapping("/editAttValue")
+    public JsonViewData editAttValue(@ModelAttribute PmGoodsAttributeValuePo goodsAttributeValuePo) {
+
+        return valueService.editValue(goodsAttributeValuePo);
     }
 
 }

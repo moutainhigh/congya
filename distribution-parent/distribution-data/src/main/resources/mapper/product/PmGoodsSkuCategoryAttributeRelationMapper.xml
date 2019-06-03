@@ -6,9 +6,15 @@
     <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo">
         <id column="id" property="id" />
         <result column="goods_attribute_id" property="goodsAttributeId" />
+        <result column="attribute_value_id" property="attributeValueId" />
         <result column="goods_category_id" property="goodsCategoryId" />
         <result column="goods_id" property="goodsId" />
         <result column="goods_sku_id" property="goodsSkuId" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="del_flag" property="delFlag" />
     </resultMap>
 
     <select id="findByAttributeId"
@@ -21,6 +27,18 @@
                   and goods_attribute_id = #{attributeId}
               </if>
           </where>
+    </select>
+
+    <select id="findByAttributeValueId"
+            resultType="com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo">
+        select *
+        from pm_goods_sku_category_attribute_relation
+        <where>
+            <if test="valueId !=null and valueId!=''">
+                and attribute_value_id = #{valueId}
+            </if>
+        </where>
+
     </select>
 
 </mapper>

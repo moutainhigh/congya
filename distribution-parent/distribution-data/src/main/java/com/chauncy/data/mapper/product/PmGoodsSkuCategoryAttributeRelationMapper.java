@@ -32,4 +32,6 @@ import java.util.List;
 public interface PmGoodsSkuCategoryAttributeRelationMapper extends BaseMapper<PmGoodsSkuCategoryAttributeRelationPo> {
 
     List<PmGoodsSkuCategoryAttributeRelationPo> findByAttributeId(@Param("attributeId") Long attributeId);
+
+    List<PmGoodsSkuCategoryAttributeRelationPo> findByAttributeValueId(@Param("valueId") Long valueId);
 }

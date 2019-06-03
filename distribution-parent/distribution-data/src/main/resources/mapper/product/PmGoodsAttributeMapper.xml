@@ -39,34 +39,5 @@
 
     </select>
 
-    <!--<insert id="insert" parameterType="goodsAttributePo" useGeneratedKeys="true" keyProperty="id">-->
-        <!--insert into tb_user(-->
-        <!--&lt;!&ndash;<if test="id != null and id != 0">id,</if>&ndash;&gt;-->
-        <!--<if test="name != null and name != ''">name,</if>-->
-        <!--<if test="sort != null and sort != 0">sort,</if>-->
-        <!--<if test="updateTime != null and updateTime != ''">updateTime</if>-->
-        <!--<if test="content != null and content != ''">content</if>-->
-        <!--<if test="enabled != null and enabled != ''">enabled</if>-->
-        <!--<if test="remark != null and remark != ''">remark</if>-->
-        <!--<if test="serviceType != null and serviceType != ''">serviceType</if>-->
-        <!--<if test="type != null and type != ''">type</if>-->
-        <!--<if test="subtitle != null and subtitle != ''">subtitle</if>-->
-        <!--<if test="logoImage != null and logoImage != ''">logoImage</if>-->
-        <!--<if test="logoIcon != null and logoIcon != ''">logoIcon</if>-->
-        <!--)values(-->
-        <!--&lt;!&ndash;<if test="id != null and id != 0">#{id},</if>&ndash;&gt;-->
-        <!--<if test="name != null and name != ''">#{name},</if>-->
-        <!--<if test="sort != null and sort != 0 ">#{sort},</if>-->
-        <!--<if test="updateTime != null and updateTime != ''">#{updateTime}</if>-->
-        <!--<if test="content != null and content != ''">#{content}</if>-->
-        <!--<if test="enabled != null and enabled != ''">#{enabled}</if>-->
-        <!--<if test="remark != null and remark != ''">#{remark}</if>-->
-        <!--<if test="serviceType != null and serviceType != ''">#{serviceType}</if>-->
-        <!--<if test="type != null and type != ''">#{type}</if>-->
-        <!--<if test="subtitle != null and subtitle != ''">#{subtitle}</if>-->
-        <!--<if test="logoImage != null and logoImage != ''">#{logoImage}</if>-->
-        <!--<if test="logoIcon != null and logoIcon != ''">#{logoIcon}</if>-->
-        <!--)-->
-    <!--</insert>-->
 
 </mapper>

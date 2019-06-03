@@ -59,6 +59,9 @@ public class PmGoodsSkuCategoryAttributeRelationPo implements Serializable {
     @ApiModelProperty(value = "商品属性ID")
     private Long goodsAttributeId;
 
+    @ApiModelProperty(value = "商品属性值ID")
+    private Long attributeValueId;
+
     @ApiModelProperty(value = "商品类目ID")
     private Long goodsCategoryId;
 

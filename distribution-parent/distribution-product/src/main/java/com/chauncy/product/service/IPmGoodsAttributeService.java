@@ -47,22 +47,22 @@ public interface IPmGoodsAttributeService extends IService<PmGoodsAttributePo> {
     JsonViewData saveAttribute (PmGoodsAttributePo goodsAttributePo);
 
     /**
-     * 批量删除
+     * 批量删除属性以及关联的值
      * @param ids
      * @return
      */
     JsonViewData deleteAttributeByIds(Long[] ids);
 
     /**
-     * 更新数据
+     * 更新属性基本数据(不包括属性值)
      *
      * @param goodsAttributePo
      * @return
      */
-    JsonViewData edit(PmGoodsAttributePo goodsAttributePo, PmGoodsAttributeValuePo goodsAttributeValuePo);
+    JsonViewData edit(PmGoodsAttributePo goodsAttributePo);
 
     /**
-     * 根据ID查找
+     * 根据ID查找属性以及关联的属性值
      * @param id
      * @return
      */
