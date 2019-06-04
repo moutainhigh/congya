@@ -1,6 +1,5 @@
 package com.chauncy.product.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chauncy.common.enums.ResultCode;
 import com.chauncy.common.enums.goods.GoodsAttribute;
@@ -14,11 +13,11 @@ import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.product.PmGoodsAttributeVo;
 import com.chauncy.product.service.IPmGoodsAttributeService;
 import com.chauncy.security.util.SecurityUtil;
+import com.github.pagehelper.PageHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Wrapper;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -199,6 +198,8 @@ public class PmGoodsAttributeServiceImpl extends ServiceImpl<PmGoodsAttributeMap
 
     @Override
     public JsonViewData search(Integer type, String name, boolean enable) {
+        String order="id asc,name desc";
+        PageHelper.startPage(1,1,order);
         List<PmGoodsAttributePo> goodsAttributePos = mapper.search(type,name,enable);
         List<PmGoodsAttributeValuePo> goodsAttributeValueList = new ArrayList<>();
         List<PmGoodsAttributeVo> goodsAttributeVos = new ArrayList<>();

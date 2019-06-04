@@ -136,7 +136,7 @@
             <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
 
-         <!-- 日志工具类 -->
+        <!-- 日志工具类 -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -175,6 +175,13 @@
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
+
+        <dependency>
+                  <groupId>com.github.pagehelper</groupId>
+                  <artifactId>pagehelper</artifactId>
+                  <version>4.1.6</version>
+        </dependency>
+
 
     </dependencies>
 
