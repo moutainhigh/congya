@@ -218,7 +218,7 @@ public class PmGoodsAttributeServiceImpl extends ServiceImpl<PmGoodsAttributeMap
             goodsAttributeVos.add(pmGoodsAttributeVo);
         }
 
-        return new JsonViewData(ResultCode.SUCCESS,"查询成功",goodsAttributePos);
+        return new JsonViewData(ResultCode.SUCCESS,"查询成功",goodsAttributeVos);
     }
 
 }

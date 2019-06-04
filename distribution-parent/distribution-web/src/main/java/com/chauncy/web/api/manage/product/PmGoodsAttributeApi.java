@@ -92,7 +92,7 @@ public class PmGoodsAttributeApi {
             @ApiImplicitParam(name = "enable", value = "是否启用enable", required = false, dataType = "boolean", paramType = "query")}
     )
 
-    public JsonViewData search( Integer type, String name, Boolean enable) {
+    public JsonViewData search(Integer type, String name, boolean enable) {
 
         return goodsAttributeService.search(type, name, enable);
     }
