@@ -48,8 +48,8 @@
             <if test="name != null and name !=''">
                 and name like concat('%', #{name}, '%')
             </if>
-            <if test="enable !=null and enable !=''">
-                and enabled = #{enable}
+            <if test="enabled !=null and enabled !=''">
+                and enabled = #{enabled}
             </if>
         </where>
     </select>
