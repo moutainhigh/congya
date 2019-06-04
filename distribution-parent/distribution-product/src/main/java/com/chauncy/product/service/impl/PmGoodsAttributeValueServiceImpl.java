@@ -1,8 +1,6 @@
 package com.chauncy.product.service.impl;
 
 import com.chauncy.common.enums.ResultCode;
-import com.chauncy.common.enums.goods.GoodsAttribute;
-import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
 import com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo;
 import com.chauncy.data.mapper.product.PmGoodsAttributeValueMapper;
@@ -11,7 +9,6 @@ import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.product.service.IPmGoodsAttributeValueService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chauncy.security.util.SecurityUtil;
-import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

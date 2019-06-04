@@ -1,6 +1,6 @@
 package com.chauncy.common.valid.constraint;
 
-import com.chauncy.common.enums.goods.GoodsAttribute;
+import com.chauncy.common.enums.goods.GoodsAttributeTypeEnum;
 import com.chauncy.common.valid.annotation.GoodAttributeTypeConstraint;
 
 import javax.validation.ConstraintValidator;
@@ -15,7 +15,7 @@ public class GoodAttributeEnumValidator implements ConstraintValidator<GoodAttri
 
     @Override
     public boolean isValid(Integer value, ConstraintValidatorContext constraintValidatorContext) {
-        GoodsAttribute goodsAttribute = GoodsAttribute.getGoodsAttributeById(value);
-        return Objects.nonNull(goodsAttribute);
+        GoodsAttributeTypeEnum goodsAttributeTypeEnum = GoodsAttributeTypeEnum.getGoodsAttributeById(value);
+        return Objects.nonNull(goodsAttributeTypeEnum);
     }
 }

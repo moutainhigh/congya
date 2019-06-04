@@ -30,6 +30,7 @@
         <result column="verify_status" property="verifyStatus" />
         <result column="store_id" property="storeId" />
         <result column="goods_type" property="goodsType" />
+        <result column="spu" property="spu" />
         <result column="create_by" property="createBy" />
         <result column="create_time" property="createTime" />
         <result column="update_by" property="updateBy" />

@@ -7,7 +7,7 @@ package com.chauncy.common.enums.goods;
  * 4->商品参数管理类型 5->标签管理类型 6->购买须知管理类型 7->规格管理类型 8->品牌管理
  *
  */
-public enum GoodsAttribute {
+public enum GoodsAttributeTypeEnum {
     PLATFORM_SERVICE(1,"平台服务说明管理类型"),
     MERCHANT_SERVICE(2,"商家服务说明管理类型"),
     PLATFORM_ACTIVITY(3,"平台活动说明管理类型"),
@@ -19,7 +19,7 @@ public enum GoodsAttribute {
 
     private Integer id;
     private String name;
-    GoodsAttribute(Integer id,String name){
+    GoodsAttributeTypeEnum(Integer id, String name){
         this.id = id;
         this.name = name;
     }
@@ -34,16 +34,16 @@ public enum GoodsAttribute {
     }
 
     //通过Id获取结果
-    public static GoodsAttribute getGoodsAttributeById(Integer id) {
-        for (GoodsAttribute attribute : GoodsAttribute.values()) {
+    public static GoodsAttributeTypeEnum getGoodsAttributeById(Integer id) {
+        for (GoodsAttributeTypeEnum attribute : GoodsAttributeTypeEnum.values()) {
             if (attribute.getId() == id)
                 return attribute;
         }
         return null;
     }
     //通过名称来获取结果
-    public static GoodsAttribute fromName(String name) {
-        for (GoodsAttribute attribute : GoodsAttribute.values()) {
+    public static GoodsAttributeTypeEnum fromName(String name) {
+        for (GoodsAttributeTypeEnum attribute : GoodsAttributeTypeEnum.values()) {
             if (attribute.getName() == name)
                 return attribute;
         }
