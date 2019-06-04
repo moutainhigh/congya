@@ -76,5 +76,5 @@ public interface IPmGoodsAttributeService extends IService<PmGoodsAttributePo> {
      * @param enabled
      * @return
      */
-    JsonViewData search(Integer type,String name,boolean enabled);
+    JsonViewData search(Integer type,String name,Boolean enabled);
 }
