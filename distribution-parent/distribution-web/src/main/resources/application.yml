@@ -20,11 +20,6 @@ logging:
     org.springframework: WARN
     org.spring.springboot.dao: debug
 
-pagehelper:
-  helper-dialect: mysql
-  reasonable: true
-  support-methods-arguments: true
-  params: count=countSql
 
 mybatis-plus:
   type-aliases-package: com.chauncy.*.domain.po.*
