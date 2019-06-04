@@ -48,7 +48,7 @@
             <if test="name != null and name !=''">
                 and name like concat('%', #{name}, '%')
             </if>
-            <if test="enable !=null and enable !=''">
+            <if test="enable == true or enable == false">
                 and enabled = #{enable}
             </if>
         </where>
