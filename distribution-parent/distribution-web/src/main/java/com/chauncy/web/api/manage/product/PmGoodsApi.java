@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/pm-goods-po")
-@Api(description = "商品管理接口",tags = "添加商品基本信息流程")
+@Api(description = "添加商品基本信息流程")
 @Slf4j
 public class PmGoodsApi extends BaseApi {
 

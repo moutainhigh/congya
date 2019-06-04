@@ -210,10 +210,12 @@ public class PmGoodsAttributeServiceImpl extends ServiceImpl<PmGoodsAttributeMap
                 //查询属性值表
                 List<Long> idList = new ArrayList<>();
                 List<PmGoodsAttributeValuePo> valuePoList = valueMapper.findByAttributeId(goodsAttributePo.getId());
-                for (PmGoodsAttributeValuePo po : valuePoList) {
-                    idList.add(po.getId());
+                if (valuePoList.size()!=0) {
+                    for (PmGoodsAttributeValuePo po : valuePoList) {
+                        idList.add(po.getId());
+                    }
+                    goodsAttributeValueList = valueMapper.selectBatchIds(idList);
                 }
-                goodsAttributeValueList = valueMapper.selectBatchIds(idList);
             }
             PmGoodsAttributeVo pmGoodsAttributeVo = new PmGoodsAttributeVo();
             BeanUtils.copyProperties(goodsAttributePo,pmGoodsAttributeVo);

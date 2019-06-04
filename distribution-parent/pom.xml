@@ -177,9 +177,9 @@
         </dependency>
 
         <dependency>
-                  <groupId>com.github.pagehelper</groupId>
-                  <artifactId>pagehelper</artifactId>
-                  <version>4.1.6</version>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper</artifactId>
+            <version>5.1.8</version>
         </dependency>
 
 
