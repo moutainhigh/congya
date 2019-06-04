@@ -43,7 +43,7 @@
         select * from pm_goods_attribute
         <where>
             <if test="type !=null and type !=''">
-                and type = #{type}
+               type = #{type}
             </if>
             <if test="name != null and name !=''">
                 and name like concat('%', #{name}, '%')
