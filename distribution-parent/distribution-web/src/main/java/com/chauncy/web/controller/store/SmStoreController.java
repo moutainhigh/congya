@@ -1,7 +1,7 @@
 package com.chauncy.web.controller.store;
 
 
-import com.chauncy.data.temp.store.service.ISmStoreService;
+import com.chauncy.store.service.ISmStoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

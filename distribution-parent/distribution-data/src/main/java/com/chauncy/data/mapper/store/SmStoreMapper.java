@@ -1,7 +1,9 @@
 package com.chauncy.data.mapper.store;
 
+import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.mapper.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * <p>
@@ -12,5 +14,8 @@ import com.chauncy.data.mapper.Mapper;
  * @since 2019-06-03
  */
 public interface SmStoreMapper extends Mapper<SmStorePo> {
+
+
+    int insertStore(@Param("smStorePo") SmStorePo smStorePo);
 
 }
