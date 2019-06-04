@@ -199,10 +199,10 @@ public class PmGoodsAttributeServiceImpl extends ServiceImpl<PmGoodsAttributeMap
     }
 
     @Override
-    public JsonViewData search(Integer type, String name, boolean enable) {
+    public JsonViewData search(Integer type, String name, boolean enabled) {
         String order="id asc,name desc";
         PageHelper.startPage(1,1,order);
-        List<PmGoodsAttributePo> goodsAttributePos = mapper.search(type,name,enable);
+        List<PmGoodsAttributePo> goodsAttributePos = mapper.search(type,name,enabled);
         List<PmGoodsAttributeValuePo> goodsAttributeValueList = new ArrayList<>();
         List<PmGoodsAttributeVo> goodsAttributeVos = new ArrayList<>();
         for (PmGoodsAttributePo goodsAttributePo : goodsAttributePos) {
