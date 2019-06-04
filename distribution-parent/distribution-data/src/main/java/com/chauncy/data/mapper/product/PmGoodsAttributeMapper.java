@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 /**
  * <p>
  * 商品属性参数表
@@ -45,7 +47,14 @@ public interface PmGoodsAttributeMapper extends BaseMapper<PmGoodsAttributePo> {
      */
     PmGoodsAttributePo findByTypeAndName(@Param("type") Integer type, @Param("name") String name);
 
-
-
+    /**
+     * 按条件查询
+     *
+     * @param type
+     * @param name
+     * @param enable
+     * @return
+     */
+    List<PmGoodsAttributePo> search(@Param("type") Integer type, @Param("name") String name, @Param("enable") boolean enable);
 
 }

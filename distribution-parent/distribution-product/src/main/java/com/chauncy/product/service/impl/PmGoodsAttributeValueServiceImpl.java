@@ -102,7 +102,7 @@ public class PmGoodsAttributeValueServiceImpl extends ServiceImpl<PmGoodsAttribu
         for (PmGoodsAttributeValuePo valuePo : valuePoList) {
             valueList.add(valuePo.getValue());
         }
-        for (int i = 1; i < valueList.size(); i++) {
+        for (int i = 0; i < valueList.size(); i++) {
             //判断值不能相同
             boolean s = pmGoodsAttributeValuePo.getValue().equals(valueList.get(i));
             if (s == true) {
