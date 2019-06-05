@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chauncy.data.mapper.common.CommonMapper">
+    <select id="getChildIds" resultType="java.lang.Long">
+        WITH RECURSIVE childrenIds (id) AS
+        (
+        SELECT id
+        FROM ${tableName}
+        WHERE
+        <choose>
+            <when test="parentId==null">
+                parent_id is null
+            </when>
+            <otherwise>
+                parent_id=#{parentId}
+            </otherwise>
+        </choose>
+        UNION ALL
+        SELECT c.id
+        FROM childrenIds AS p JOIN ${tableName} AS c
+        ON p.id = c.parent_id
+        )
+        SELECT id FROM childrenIds
+    </select>
+</mapper>

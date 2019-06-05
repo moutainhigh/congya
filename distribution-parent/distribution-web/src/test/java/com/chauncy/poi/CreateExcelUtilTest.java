@@ -1,5 +1,6 @@
 package com.chauncy.poi;
 
+import com.chauncy.data.mapper.common.CommonMapper;
 import com.chauncy.poi.util.CreateExcelUtil;
 import com.chauncy.poi.vo.ExcelSheetVo;
 import com.chauncy.test.service.UserService;
@@ -33,6 +34,10 @@ public class CreateExcelUtilTest {
 
     @Autowired
     private UserService service;
+
+    @Autowired
+    private CommonMapper commonMapper;
+
     /**
      * 导出工作簿单个工作表
      */
