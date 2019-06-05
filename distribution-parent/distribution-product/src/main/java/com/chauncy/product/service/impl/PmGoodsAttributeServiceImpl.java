@@ -14,6 +14,7 @@ import com.chauncy.data.vo.product.PmGoodsAttributeVo;
 import com.chauncy.product.service.IPmGoodsAttributeService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -203,6 +204,7 @@ public class PmGoodsAttributeServiceImpl extends ServiceImpl<PmGoodsAttributeMap
         String order="id asc,name desc";
         PageHelper.startPage(1,1,order);
         List<PmGoodsAttributePo> goodsAttributePos = mapper.search(type,name,enabled);
+        PageInfo<PmGoodsAttributePo> pmGoodsAttributePoPageInfo = new PageInfo<>(goodsAttributePos);
         List<PmGoodsAttributeValuePo> goodsAttributeValueList = new ArrayList<>();
         List<PmGoodsAttributeVo> goodsAttributeVos = new ArrayList<>();
         for (PmGoodsAttributePo goodsAttributePo : goodsAttributePos) {

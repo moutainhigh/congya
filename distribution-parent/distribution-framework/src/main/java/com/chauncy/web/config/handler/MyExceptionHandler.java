@@ -30,7 +30,7 @@ public class MyExceptionHandler {
             ServiceException serviceException = (ServiceException) e;
             return new JsonViewData(serviceException.getResultCode(),serviceException.getLocalizedMessage());
         }else{
-            return new JsonViewData(ResultCode.SYSTEM_ERROR);
+            return new JsonViewData(ResultCode.SYSTEM_ERROR,e.getMessage());
         }
     }
 }
