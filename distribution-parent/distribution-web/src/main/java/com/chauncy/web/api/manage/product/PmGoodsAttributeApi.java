@@ -90,12 +90,12 @@ public class PmGoodsAttributeApi {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "type", value = "属性类型type", required = true, dataType = "Integer", paramType = "query"),
             @ApiImplicitParam(name = "name", value = "属性名称name", required = false, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "enable", value = "是否启用enable", required = false, dataType = "boolean", paramType = "query")}
+            @ApiImplicitParam(name = "enabled", value = "是否启用enabled", required = false, dataType = "boolean", paramType = "query")}
     )
 
-    public JsonViewData search(Integer type, String name, boolean enable) {
+    public JsonViewData search(Integer type, String name, Boolean enabled) {
 
-        return goodsAttributeService.search(type, name, enable);
+        return goodsAttributeService.search(type, name, enabled);
     }
 
 //TODO 属性值操作

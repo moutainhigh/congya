@@ -113,6 +113,9 @@ public class PmGoodsPo {
     @ApiModelProperty(value = "商品类型")
     private String goodsType;
 
+    @ApiModelProperty(value = "spu编码")
+    private String spu;
+
     @ApiModelProperty(value = "创建者")
     private String createBy;
 

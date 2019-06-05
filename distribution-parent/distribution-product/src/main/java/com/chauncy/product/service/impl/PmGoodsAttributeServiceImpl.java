@@ -1,9 +1,8 @@
 package com.chauncy.product.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chauncy.common.enums.ResultCode;
-import com.chauncy.common.enums.goods.GoodsAttribute;
+import com.chauncy.common.enums.goods.GoodsAttributeTypeEnum;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
 import com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo;
@@ -14,12 +13,12 @@ import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.product.PmGoodsAttributeVo;
 import com.chauncy.product.service.IPmGoodsAttributeService;
 import com.chauncy.security.util.SecurityUtil;
+import com.github.pagehelper.PageHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Wrapper;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +70,7 @@ public class PmGoodsAttributeServiceImpl extends ServiceImpl<PmGoodsAttributeMap
         }
 
         //处理属性类型为规格类型的
-        if (GoodsAttribute.STANDARD.getId() == goodsAttributePo.getType()) {
+        if (GoodsAttributeTypeEnum.STANDARD.getId() == goodsAttributePo.getType()) {
             if (goodsAttributePo.getValues() != null) {
                 String temp = goodsAttributePo.getValues()[0];
                 for (int i = 1; i < goodsAttributePo.getValues().length; i++) {
@@ -118,7 +117,7 @@ public class PmGoodsAttributeServiceImpl extends ServiceImpl<PmGoodsAttributeMap
             PmGoodsAttributePo po = new PmGoodsAttributePo();
             po = mapper.selectById(id);
             //处理规格和商品参数
-            if (po.getType() == GoodsAttribute.STANDARD.getId() || po.getType() == GoodsAttribute.GOODS_PARAM.getId()) {
+            if (po.getType() == GoodsAttributeTypeEnum.STANDARD.getId() || po.getType() == GoodsAttributeTypeEnum.GOODS_PARAM.getId()) {
                 valueMapper.deleteByAttributeId(id);
                 mapper.deleteById(id);
             } else
@@ -182,7 +181,7 @@ public class PmGoodsAttributeServiceImpl extends ServiceImpl<PmGoodsAttributeMap
         //属性信息表
         PmGoodsAttributePo goodsAttributePo = mapper.selectById(id);
         List<PmGoodsAttributeValuePo> goodsAttributeValueList = new ArrayList<>();
-        if (goodsAttributePo.getType() == GoodsAttribute.STANDARD.getId() || goodsAttributePo.getType() == GoodsAttribute.GOODS_PARAM.getId()) {
+        if (goodsAttributePo.getType() == GoodsAttributeTypeEnum.STANDARD.getId() || goodsAttributePo.getType() == GoodsAttributeTypeEnum.GOODS_PARAM.getId()) {
             //查询属性值表
             List<Long> idList = new ArrayList<>();
             List<PmGoodsAttributeValuePo> valuePoList = valueMapper.findByAttributeId(id);
@@ -200,19 +199,23 @@ public class PmGoodsAttributeServiceImpl extends ServiceImpl<PmGoodsAttributeMap
     }
 
     @Override
-    public JsonViewData search(Integer type, String name, boolean enable) {
-        List<PmGoodsAttributePo> goodsAttributePos = mapper.search(type,name,enable);
+    public JsonViewData search(Integer type, String name, Boolean enabled) {
+        String order="id asc,name desc";
+        PageHelper.startPage(1,1,order);
+        List<PmGoodsAttributePo> goodsAttributePos = mapper.search(type,name,enabled);
         List<PmGoodsAttributeValuePo> goodsAttributeValueList = new ArrayList<>();
         List<PmGoodsAttributeVo> goodsAttributeVos = new ArrayList<>();
         for (PmGoodsAttributePo goodsAttributePo : goodsAttributePos) {
-            if (goodsAttributePo.getType() == GoodsAttribute.STANDARD.getId() || goodsAttributePo.getType() == GoodsAttribute.GOODS_PARAM.getId()) {
+            if (goodsAttributePo.getType() == GoodsAttributeTypeEnum.STANDARD.getId() || goodsAttributePo.getType() == GoodsAttributeTypeEnum.GOODS_PARAM.getId()) {
                 //查询属性值表
                 List<Long> idList = new ArrayList<>();
                 List<PmGoodsAttributeValuePo> valuePoList = valueMapper.findByAttributeId(goodsAttributePo.getId());
-                for (PmGoodsAttributeValuePo po : valuePoList) {
-                    idList.add(po.getId());
+                if (valuePoList.size()!=0) {
+                    for (PmGoodsAttributeValuePo po : valuePoList) {
+                        idList.add(po.getId());
+                    }
+                    goodsAttributeValueList = valueMapper.selectBatchIds(idList);
                 }
-                goodsAttributeValueList = valueMapper.selectBatchIds(idList);
             }
             PmGoodsAttributeVo pmGoodsAttributeVo = new PmGoodsAttributeVo();
             BeanUtils.copyProperties(goodsAttributePo,pmGoodsAttributeVo);

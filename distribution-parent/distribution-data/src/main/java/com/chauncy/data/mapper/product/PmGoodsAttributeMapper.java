@@ -52,9 +52,9 @@ public interface PmGoodsAttributeMapper extends BaseMapper<PmGoodsAttributePo> {
      *
      * @param type
      * @param name
-     * @param enable
+     * @param enabled
      * @return
      */
-    List<PmGoodsAttributePo> search(@Param("type") Integer type, @Param("name") String name, @Param("enable") boolean enable);
+    List<PmGoodsAttributePo> search(@Param("type") Integer type, @Param("name") String name, @Param("enabled") Boolean enabled);
 
 }
