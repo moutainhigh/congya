@@ -57,4 +57,11 @@ public interface PmGoodsAttributeMapper extends BaseMapper<PmGoodsAttributePo> {
      */
     List<PmGoodsAttributePo> search(@Param("type") Integer type, @Param("name") String name, @Param("enabled") Boolean enabled);
 
+    /**
+     *
+     * @param type
+     * @return
+     */
+    List<PmGoodsAttributePo> findByType(@Param("type") Integer type);
+
 }

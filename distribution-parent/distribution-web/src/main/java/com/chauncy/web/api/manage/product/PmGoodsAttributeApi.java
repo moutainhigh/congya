@@ -85,6 +85,13 @@ public class PmGoodsAttributeApi {
         return goodsAttributeService.findById(id);
     }
 
+    /**
+     * 条件查询
+     * @param type
+     * @param name
+     * @param enabled
+     * @return
+     */
     @ApiOperation(value = "条件查询", notes = "根据类型type、名称、启用状态查询")
     @GetMapping("/search")
     @ApiImplicitParams({
@@ -96,6 +103,20 @@ public class PmGoodsAttributeApi {
     public JsonViewData search(Integer type, String name, Boolean enabled) {
 
         return goodsAttributeService.search(type, name, enabled);
+    }
+
+    /**
+     * 根据type类型查找属性以及关联属性值
+     *
+     * @param type
+     * @return
+     */
+    @ApiOperation(value = "根据类型查找属性信息", notes = "根据类型查找")
+    @GetMapping("/findByType/{type}")
+    public JsonViewData findByType(@ApiParam(required = true, value = "type")
+                                 @PathVariable Integer type) {
+
+        return goodsAttributeService.findByType(type);
     }
 
 //TODO 属性值操作

@@ -14,6 +14,7 @@ import com.chauncy.data.vo.product.PmGoodsAttributeVo;
 import com.chauncy.product.service.IPmGoodsAttributeService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -198,11 +199,20 @@ public class PmGoodsAttributeServiceImpl extends ServiceImpl<PmGoodsAttributeMap
         return new JsonViewData(ResultCode.SUCCESS,"查询成功",pmGoodsAttributeVo);
     }
 
+    /**
+     * 条件分页查询
+     *
+     * @param type
+     * @param name
+     * @param enabled
+     * @return
+     */
     @Override
     public JsonViewData search(Integer type, String name, Boolean enabled) {
         String order="id asc,name desc";
-        PageHelper.startPage(1,1,order);
+        PageHelper.startPage(1,10,order);
         List<PmGoodsAttributePo> goodsAttributePos = mapper.search(type,name,enabled);
+        PageInfo<PmGoodsAttributePo> pmGoodsAttributePoPageInfo = new PageInfo<>(goodsAttributePos);
         List<PmGoodsAttributeValuePo> goodsAttributeValueList = new ArrayList<>();
         List<PmGoodsAttributeVo> goodsAttributeVos = new ArrayList<>();
         for (PmGoodsAttributePo goodsAttributePo : goodsAttributePos) {
@@ -214,11 +224,46 @@ public class PmGoodsAttributeServiceImpl extends ServiceImpl<PmGoodsAttributeMap
                     for (PmGoodsAttributeValuePo po : valuePoList) {
                         idList.add(po.getId());
                     }
+                    String orders="id asc,value desc";
+                    PageHelper.startPage(1,10,orders);
                     goodsAttributeValueList = valueMapper.selectBatchIds(idList);
                 }
             }
             PmGoodsAttributeVo pmGoodsAttributeVo = new PmGoodsAttributeVo();
             BeanUtils.copyProperties(goodsAttributePo,pmGoodsAttributeVo);
+            pmGoodsAttributeVo.setValueList(goodsAttributeValueList);
+            goodsAttributeVos.add(pmGoodsAttributeVo);
+        }
+
+        return new JsonViewData(ResultCode.SUCCESS,"查询成功",goodsAttributeVos);
+    }
+
+    /**
+     * 根据type类型查询
+     *
+     * @param type
+     * @return
+     */
+    @Override
+    public JsonViewData findByType(Integer type) {
+        //属性信息表
+        List<PmGoodsAttributePo> goodsAttributePos = mapper.findByType(type);
+        List<PmGoodsAttributeValuePo> goodsAttributeValueList = new ArrayList<>();
+        List<PmGoodsAttributeVo> goodsAttributeVos = new ArrayList<>();
+        for (PmGoodsAttributePo attributePo : goodsAttributePos) {
+            if (type == GoodsAttributeTypeEnum.STANDARD.getId() || type == GoodsAttributeTypeEnum.GOODS_PARAM.getId()) {
+                //查询属性值表
+                List<Long> idList = new ArrayList<>();
+                List<PmGoodsAttributeValuePo> valuePoList = valueMapper.findByAttributeId(attributePo.getId());
+                if (valuePoList.size() != 0) {
+                    for (PmGoodsAttributeValuePo po : valuePoList) {
+                        idList.add(po.getId());
+                    }
+                    goodsAttributeValueList = valueMapper.selectBatchIds(idList);
+                }
+            }
+            PmGoodsAttributeVo pmGoodsAttributeVo = new PmGoodsAttributeVo();
+            BeanUtils.copyProperties(attributePo, pmGoodsAttributeVo);
             pmGoodsAttributeVo.setValueList(goodsAttributeValueList);
             goodsAttributeVos.add(pmGoodsAttributeVo);
         }
