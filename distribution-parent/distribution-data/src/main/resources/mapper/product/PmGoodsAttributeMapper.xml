@@ -54,5 +54,10 @@
         </where>
     </select>
 
+    <select id="findByType" resultType="com.chauncy.data.domain.po.product.PmGoodsAttributePo">
+      select * from pm_goods_attribute
+      where type = #{type}
+    </select>
+
 
 </mapper>
