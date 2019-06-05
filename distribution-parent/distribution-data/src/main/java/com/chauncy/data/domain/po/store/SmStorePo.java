@@ -48,7 +48,7 @@ public class SmStorePo implements Serializable {
     private String name;
 
     @ApiModelProperty(value = "店铺描述")
-    private String describe;
+    private String storeDescribe;
 
     @ApiModelProperty(value = "店铺账号")
     private String userName;
@@ -68,7 +68,7 @@ public class SmStorePo implements Serializable {
     @ApiModelProperty(value = "所属店铺Id")
     private Long parentId;
 
-    @ApiModelProperty(value = "排序数字")
+    @ApiModelProperty(value = "排序数值")
     private Integer sort;
 
     @ApiModelProperty(value = "主理人姓名")

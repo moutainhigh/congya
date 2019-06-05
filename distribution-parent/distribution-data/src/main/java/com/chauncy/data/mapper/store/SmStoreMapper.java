@@ -15,7 +15,4 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface SmStoreMapper extends Mapper<SmStorePo> {
 
-
-    int insertStore(@Param("smStorePo") SmStorePo smStorePo);
-
 }

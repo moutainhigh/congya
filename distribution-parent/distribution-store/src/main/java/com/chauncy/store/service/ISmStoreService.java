@@ -1,8 +1,8 @@
 package com.chauncy.store.service;
 
-import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.dto.store.StoreBaseInfoDto;
 import com.chauncy.data.vo.JsonViewData;
 
 /**
@@ -16,9 +16,9 @@ import com.chauncy.data.vo.JsonViewData;
 public interface ISmStoreService extends Service<SmStorePo> {
 
     /**
-     * 保存店铺信息
-     * @param smStorePo
+     * 保存店铺基本信息
+     * @param storeBaseInfoDto
      * @return
      */
-    JsonViewData saveStore(SmStorePo smStorePo);
+    JsonViewData saveStore(StoreBaseInfoDto storeBaseInfoDto);
 }
