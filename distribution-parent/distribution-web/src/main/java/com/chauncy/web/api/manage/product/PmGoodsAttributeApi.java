@@ -111,7 +111,7 @@ public class PmGoodsAttributeApi {
      * @param type
      * @return
      */
-    @ApiOperation(value = "根据类型查找属性信息", notes = "根据类型查找")
+    @ApiOperation(value = "根据类型查找属性信息", notes = "类型 1->平台服务说明管理类型 2->商家服务说明管理类型 3->平台活动说明管理类型  4->商品参数管理类型 5->标签管理类型 6->购买须知管理类型 7->规格管理类型 8->品牌管理")
     @GetMapping("/findByType/{type}")
     public JsonViewData findByType(@ApiParam(required = true, value = "type")
                                  @PathVariable Integer type) {
