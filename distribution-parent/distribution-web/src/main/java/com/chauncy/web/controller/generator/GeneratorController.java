@@ -147,7 +147,7 @@ public class GeneratorController {
 //        strategy.setSuperEntityClass("com.chauncy.common.base.BaseEntity");
         strategy.setSuperServiceClass("com.chauncy.data.core.Service");
         strategy.setSuperServiceImplClass("com.chauncy.data.core.AbstractService");
-        strategy.setSuperMapperClass("com.chauncy.data.mapper.Mapper");
+        strategy.setSuperMapperClass("com.chauncy.data.mapper.IBaseMapper");
         strategy.setEntityLombokModel(true);
         strategy.setRestControllerStyle(true);
 //        strategy.setSuperControllerClass("com.baomidou.ant.common.BaseController");

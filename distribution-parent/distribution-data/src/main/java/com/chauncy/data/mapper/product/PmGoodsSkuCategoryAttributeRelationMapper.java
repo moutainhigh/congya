@@ -1,7 +1,7 @@
 package com.chauncy.data.mapper.product;
 
 import com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.chauncy.data.mapper.IBaseMapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -23,13 +23,13 @@ import java.util.List;
  * 类目、属性关系表
  * goods_category_id
  * goods_attribute_id
- * 解决类目与规格、参数、服务、购买须知、活动说明等属性的关系 Mapper 接口
+ * 解决类目与规格、参数、服务、购买须知、活动说明等属性的关系 IBaseMapper 接口
  * </p>
  *
  * @author huangwancheng
  * @since 2019-05-21
  */
-public interface PmGoodsSkuCategoryAttributeRelationMapper extends BaseMapper<PmGoodsSkuCategoryAttributeRelationPo> {
+public interface PmGoodsSkuCategoryAttributeRelationMapper extends IBaseMapper<PmGoodsSkuCategoryAttributeRelationPo> {
 
     List<PmGoodsSkuCategoryAttributeRelationPo> findByAttributeId(@Param("attributeId") Long attributeId);
 

@@ -1,20 +1,20 @@
 package com.chauncy.data.mapper.sys;
 
 import com.chauncy.data.domain.po.sys.SysPermissionPo;
-import com.chauncy.data.mapper.Mapper;
+import com.chauncy.data.mapper.IBaseMapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 /**
  * <p>
- * 菜单权限表 Mapper 接口
+ * 菜单权限表 IBaseMapper 接口
  * </p>
  *
  * @author huangwancheng
  * @since 2019-05-24
  */
-public interface SysPermissionMapper extends Mapper<SysPermissionPo> {
+public interface SysPermissionMapper extends IBaseMapper<SysPermissionPo> {
 
     /**
      * 通过用户id获取

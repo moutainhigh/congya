@@ -4,7 +4,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     druid:
       master:
-#        url: jdbc:mysql://localhost:3306/tests?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT
+        #        url: jdbc:mysql://localhost:3306/tests?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT
         url: jdbc:mysql://47.102.104.124:3306/distribution?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true
         username: root
         password: root
@@ -96,6 +96,9 @@ distribution:
   loginTimeLimit: 10
   # 错误超过次数后多少分钟后才能继续登录（分钟）
   loginAfterTime: 10
+  # 日志记录方式 true使用Elasticsearch记录 false记录至数据库中
+  logRecord:
+    es: false
   # mob api配置 mob官网注册申请即可
   mob:
-   appKey: appKey
+    appKey: appKey

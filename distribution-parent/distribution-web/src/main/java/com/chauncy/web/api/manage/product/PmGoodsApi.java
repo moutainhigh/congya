@@ -11,11 +11,14 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
 
 /**
  * <p>
@@ -42,7 +45,8 @@ public class PmGoodsApi extends BaseApi {
      */
     @PostMapping("/addBase")
     @ApiOperation(value = "添加基本信息")
-    public JsonViewData addBase(@ModelAttribute GoodBaseDto goodBaseDto){
+    public JsonViewData addBase(@Valid @ModelAttribute GoodBaseDto goodBaseDto,
+    BindingResult result) {
 
         return service.addBase(goodBaseDto);
     }

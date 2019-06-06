@@ -1,7 +1,6 @@
 package com.chauncy.web.base;
 
-import com.chauncy.common.enums.ResultCode;
-import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.vo.JsonViewData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;

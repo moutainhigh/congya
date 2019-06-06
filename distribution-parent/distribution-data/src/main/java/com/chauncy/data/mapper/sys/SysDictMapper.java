@@ -1,20 +1,20 @@
 package com.chauncy.data.mapper.sys;
 
 import com.chauncy.data.domain.po.sys.SysDictPo;
-import com.chauncy.data.mapper.Mapper;
+import com.chauncy.data.mapper.IBaseMapper;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
 /**
  * <p>
- *  字典数据处理层 Mapper 接口
+ *  字典数据处理层 IBaseMapper 接口
  * </p>
  *
  * @author huangwancheng
  * @since 2019-05-24
  */
-public interface SysDictMapper extends Mapper<SysDictPo> {
+public interface SysDictMapper extends IBaseMapper<SysDictPo> {
 
     /**
      * 排序获取全部

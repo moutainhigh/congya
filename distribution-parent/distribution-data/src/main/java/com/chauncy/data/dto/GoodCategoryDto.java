@@ -1,12 +1,12 @@
 package com.chauncy.data.dto;
 
-import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
+import com.chauncy.common.enums.goods.GoodsAttributeTypeEnum;
+import com.chauncy.data.valid.annotation.EnumConstraint;
+import com.chauncy.data.valid.annotation.MyForeignKeyConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.springframework.validation.annotation.Validated;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -42,11 +42,17 @@ public class GoodCategoryDto {
     private BigDecimal taxRate;
 
     @ApiModelProperty(value = "父分类ID")
+    @MyForeignKeyConstraint(tableName = "pm_goods_category")
     private Long parentId;
 
     @ApiModelProperty(value = "规格、参数、服务说明、活动说明的id集合")
-    @Valid
+    @NotNull
+    @MyForeignKeyConstraint(tableName = "pm_goods_attribute",message = "goodAttributeIds中存在数据库没有的id")
     List<Long> goodAttributeIds;
+    //没用
+    @ApiModelProperty(value = "类型 1->平台服务说明管理类型 2->商家服务说明管理类型 3->平台活动说明管理类型  4->商品参数管理类型 5->标签管理类型 6->购买须知管理类型 7->规格管理类型 8->品牌管理")
+    @EnumConstraint(target = GoodsAttributeTypeEnum.class)
+    private Integer type;
 
 
 

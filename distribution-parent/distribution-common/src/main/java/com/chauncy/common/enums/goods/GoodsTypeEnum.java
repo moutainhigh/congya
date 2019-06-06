@@ -1,5 +1,9 @@
 package com.chauncy.common.enums.goods;
 
+import com.chauncy.common.enums.BaseEnum;
+
+import java.util.Objects;
+
 /**
  * @Author huangwancheng
  * @create 2019-06-04 16:26
@@ -12,7 +16,7 @@ package com.chauncy.common.enums.goods;
  * 5->服务类
  * 6->虚拟商品
  */
-public enum GoodsTypeEnum {
+public enum GoodsTypeEnum implements BaseEnum {
 
     USUAL(1,"普通商品"),
     BONDED(2,"保税仓"),
@@ -68,4 +72,9 @@ public enum GoodsTypeEnum {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public boolean isExist(Object field) {
+        return Objects.nonNull(getGoodsTypeById(Integer.parseInt(field.toString())));
     }}

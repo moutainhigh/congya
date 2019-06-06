@@ -1,7 +1,7 @@
 package com.chauncy.data.vo;
 
 import com.alibaba.fastjson.JSON;
-import com.chauncy.common.enums.ResultCode;
+import com.chauncy.common.enums.system.ResultCode;
 import com.google.common.net.MediaType;
 
 import javax.servlet.http.HttpServletResponse;

@@ -1,6 +1,6 @@
 package com.chauncy.common.exception.sys;
 
-import com.chauncy.common.enums.ResultCode;
+import com.chauncy.common.enums.system.ResultCode;
 import lombok.Data;
 
 /**

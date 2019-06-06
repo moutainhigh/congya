@@ -1,4 +1,4 @@
-package com.chauncy.common.enums;
+package com.chauncy.common.enums.system;
 
 
 /**

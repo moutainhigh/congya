@@ -2,20 +2,20 @@ package com.chauncy.data.mapper.sys;
 
 import com.chauncy.data.domain.po.sys.SysRolePo;
 import com.chauncy.data.domain.po.sys.SysRoleUserPo;
-import com.chauncy.data.mapper.Mapper;
+import com.chauncy.data.mapper.IBaseMapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 /**
  * <p>
- * 用户与角色关系表 Mapper 接口
+ * 用户与角色关系表 IBaseMapper 接口
  * </p>
  *
  * @author huangwancheng
  * @since 2019-05-24
  */
-public interface SysRoleUserMapper extends Mapper<SysRoleUserPo> {
+public interface SysRoleUserMapper extends IBaseMapper<SysRoleUserPo> {
 
     /**
      * 通过用户id获取

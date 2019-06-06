@@ -101,8 +101,11 @@ public class PmGoodsPo {
     @ApiModelProperty(value = "新品状态:0->不是新品；1->新品")
     private Boolean newStatus;
 
-    @ApiModelProperty(value = "是否是店长推荐；0->不推荐；1->推荐")
+    @ApiModelProperty(value = "是否是店铺推荐；0->不推荐；1->推荐")
     private Boolean recommandStatus;
+
+    @ApiModelProperty(value = "是否是明星单品；0->否；1->是")
+    private Boolean starStatus;
 
     @ApiModelProperty(value = "审核状态：0->未审核；1->审核通过")
     private Boolean verifyStatus;
