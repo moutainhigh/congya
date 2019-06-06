@@ -2,6 +2,7 @@ package com.chauncy.data.mapper.common;
 
 import com.chauncy.common.base.BaseTest;
 import com.chauncy.common.util.LoggerUtil;
+import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.mapper.Mapper;
 import com.chauncy.data.mapper.sys.SysUserMapper;
 import com.chauncy.web.StartApplication;
@@ -22,7 +23,7 @@ import java.util.List;
 public class CommonMapperTest extends BaseTest{
 
     @Autowired
-    private Mapper<SysUserMapper> mapper;
+    private Mapper<SysUserPo> mapper;
 
 
 
