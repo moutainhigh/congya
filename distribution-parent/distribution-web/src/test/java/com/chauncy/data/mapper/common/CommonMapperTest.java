@@ -22,7 +22,7 @@ import java.util.List;
 public class CommonMapperTest extends BaseTest{
 
     @Autowired
-    private SysUserMapper mapper;
+    private Mapper<SysUserMapper> mapper;
 
 
 
