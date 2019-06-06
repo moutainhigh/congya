@@ -3,8 +3,7 @@ package com.chauncy.data.mapper.common;
 import com.chauncy.common.base.BaseTest;
 import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.data.domain.po.sys.SysUserPo;
-import com.chauncy.data.mapper.Mapper;
-import com.chauncy.data.mapper.sys.SysUserMapper;
+import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.web.StartApplication;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,16 +19,16 @@ import java.util.List;
  **/
 @SpringBootTest(classes = StartApplication.class)
 @RunWith(SpringJUnit4ClassRunner.class)
-public class CommonMapperTest extends BaseTest{
+public class CommonIBaseMapperTest extends BaseTest{
 
     @Autowired
-    private Mapper<SysUserPo> mapper;
+    private IBaseMapper<SysUserPo> IBaseMapper;
 
 
 
     @Test
     public void getChildrenIds(){
-        List<Long> sys_permission = mapper.getChildIds(null, "sys_permission");
+        List<Long> sys_permission = IBaseMapper.getChildIds(null, "sys_permission");
         sys_permission.forEach(x->LoggerUtil.error(x.toString()));
     }
 

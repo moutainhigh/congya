@@ -1,11 +1,11 @@
 package com.chauncy.data.mapper.product;
 
 import com.chauncy.data.domain.po.product.TbUserPo;
-import com.chauncy.data.mapper.Mapper;
+import com.chauncy.data.mapper.IBaseMapper;
 
 /**
  * <p>
- * 用户表 Mapper 接口
+ * 用户表 IBaseMapper 接口
  * </p>
  *
  * @author huangwancheng
@@ -13,6 +13,6 @@ import com.chauncy.data.mapper.Mapper;
  *
  * 用来测试代码生成器以及测试相关的基类
  */
-public interface TbUserMapper extends Mapper<TbUserPo> {
+public interface TbUserMapper extends IBaseMapper<TbUserPo> {
 
 }

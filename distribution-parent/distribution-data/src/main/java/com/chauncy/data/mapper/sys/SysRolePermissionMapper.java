@@ -1,19 +1,19 @@
 package com.chauncy.data.mapper.sys;
 
 import com.chauncy.data.domain.po.sys.SysRolePermissionPo;
-import com.chauncy.data.mapper.Mapper;
+import com.chauncy.data.mapper.IBaseMapper;
 
 import java.util.List;
 
 /**
  * <p>
- * 角色权限关系表 Mapper 接口
+ * 角色权限关系表 IBaseMapper 接口
  * </p>
  *
  * @author huangwancheng
  * @since 2019-05-24
  */
-public interface SysRolePermissionMapper extends Mapper<SysRolePermissionPo> {
+public interface SysRolePermissionMapper extends IBaseMapper<SysRolePermissionPo> {
 
     /**
      * 通过permissionId获取

@@ -3,7 +3,7 @@ package com.chauncy.data.core;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chauncy.data.mapper.Mapper;
+import com.chauncy.data.mapper.IBaseMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
@@ -18,11 +18,11 @@ public abstract class AbstractService<M extends BaseMapper<T>,T> extends Service
 
 
     @Autowired
-    private Mapper<T> mapper;
+    private IBaseMapper<T> IBaseMapper;
 
     @Override
     public Map<String, Object> findByUserUame(String username) {
-        return mapper.findByUserName(username);
+        return IBaseMapper.findByUserName(username);
     }
 
 }

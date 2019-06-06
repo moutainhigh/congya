@@ -8,12 +8,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 定制版MyBatis Mapper
+ * 定制版MyBatis IBaseMapper
  *
  * @author huangwancheng
  * @since 2019-05-22
  */
-public interface Mapper<T> extends BaseMapper<T> {
+public interface IBaseMapper<T> extends BaseMapper<T> {
 
 
     Map<String, Object> findByUserName(@Param("username") String username);

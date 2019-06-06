@@ -1,19 +1,19 @@
 package com.chauncy.data.mapper.sys;
 
 import com.chauncy.data.domain.po.sys.SysDictDataPo;
-import com.chauncy.data.mapper.Mapper;
+import com.chauncy.data.mapper.IBaseMapper;
 
 import java.util.List;
 
 /**
  * <p>
- * 字典数据 Mapper 接口
+ * 字典数据 IBaseMapper 接口
  * </p>
  *
  * @author huangwancheng
  * @since 2019-05-24
  */
-public interface SysDictDataMapper extends Mapper<SysDictDataPo> {
+public interface SysDictDataMapper extends IBaseMapper<SysDictDataPo> {
 
     /**
      * 通过dictId和状态获取

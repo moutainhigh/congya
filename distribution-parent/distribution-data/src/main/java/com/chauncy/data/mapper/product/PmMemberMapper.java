@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
  * <p>
- * 会员表 Mapper 接口
+ * 会员表 IBaseMapper 接口
  * </p>
  *
  * @author huangwancheng

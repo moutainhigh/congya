@@ -23,7 +23,7 @@ import java.util.List;
  * 类目、属性关系表
  * goods_category_id
  * goods_attribute_id
- * 解决类目与规格、参数、服务、购买须知、活动说明等属性的关系 Mapper 接口
+ * 解决类目与规格、参数、服务、购买须知、活动说明等属性的关系 IBaseMapper 接口
  * </p>
  *
  * @author huangwancheng

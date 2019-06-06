@@ -1,19 +1,19 @@
 package com.chauncy.data.mapper.sys;
 
 import com.chauncy.data.domain.po.sys.SysDepartmentPo;
-import com.chauncy.data.mapper.Mapper;
+import com.chauncy.data.mapper.IBaseMapper;
 
 import java.util.List;
 
 /**
  * <p>
- * 用户组—部门 Mapper 接口
+ * 用户组—部门 IBaseMapper 接口
  * </p>
  *
  * @author huangwancheng
  * @since 2019-05-24
  */
-public interface SysDepartmentMapper extends Mapper<SysDepartmentPo> {
+public interface SysDepartmentMapper extends IBaseMapper<SysDepartmentPo> {
 
 
     /**

@@ -30,7 +30,7 @@ import java.util.List;
  * 购买须知管理(平台)
  * 规格管理(平台)
  * 商品参数管理(平台)
- * 品牌管理(平台) Mapper 接口
+ * 品牌管理(平台) IBaseMapper 接口
  * </p>
  *
  * @author huangwancheng

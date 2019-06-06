@@ -23,7 +23,7 @@ logging:
 
 mybatis-plus:
   type-aliases-package: com.chauncy.*.domain.po.*
-  mapper-locations: classpath*:/mapper/**/*Mapper.xml
+  mapper-locations: classpath*:/mapper/**/*IBaseMapper.xml
 
 #jwt:
 #  header: Authorization

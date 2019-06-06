@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
  * <p>
- * 关联商品—包括关联搭配商品合关联推荐商品，外键为商品id Mapper 接口
+ * 关联商品—包括关联搭配商品合关联推荐商品，外键为商品id IBaseMapper 接口
  * </p>
  *
  * @author huangwancheng

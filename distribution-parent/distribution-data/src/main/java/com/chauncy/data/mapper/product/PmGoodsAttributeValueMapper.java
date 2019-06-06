@@ -11,7 +11,7 @@ import java.util.List;
  * 存储产品参数信息的表
  * <p>
  * 规格值
- * 参数值 Mapper 接口
+ * 参数值 IBaseMapper 接口
  * </p>
  *
  * @author huangwancheng
