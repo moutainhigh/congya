@@ -7,4 +7,26 @@
       select id as 'id', name as '名字', age as '年龄', salary as '薪水' from tb_user where name = #{username}
     </select>
 
+    <select id="getChildIds" resultType="java.lang.Long">
+        WITH RECURSIVE childrenIds (id) AS
+        (
+        SELECT id
+        FROM ${tableName}
+        WHERE
+        <choose>
+            <when test="parentId==null">
+                parent_id is null
+            </when>
+            <otherwise>
+                parent_id=#{parentId}
+            </otherwise>
+        </choose>
+        UNION ALL
+        SELECT c.id
+        FROM childrenIds AS p JOIN ${tableName} AS c
+        ON p.id = c.parent_id
+        )
+        SELECT id FROM childrenIds
+    </select>
+
 </mapper>

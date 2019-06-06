@@ -1,6 +1,6 @@
 package com.chauncy.data.dto;
 
-import com.chauncy.common.valid.annotation.GoodAttributeTypeConstraint;
+import com.chauncy.data.valid.annotation.GoodAttributeTypeConstraint;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 

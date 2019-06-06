@@ -1,6 +1,6 @@
-package com.chauncy.common.valid.annotation;
+package com.chauncy.data.valid.annotation;
 
-import com.chauncy.common.valid.constraint.GoodAttributeEnumValidator;
+import com.chauncy.data.valid.constraint.GoodAttributeEnumValidator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

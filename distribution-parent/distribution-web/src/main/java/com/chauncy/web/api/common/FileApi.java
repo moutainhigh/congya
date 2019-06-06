@@ -8,6 +8,7 @@ import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.web.base.BaseApi;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.MediaType;
@@ -52,7 +53,7 @@ public class FileApi extends BaseApi {
     @ResponseBody
     @ApiOperation(value = "上传文件,如果上传多个参数名都为file")
     public JsonViewData uploadFile(
-            @RequestParam(value = "file") MultipartFile[] files)  {
+            @ApiParam("文件") @RequestParam(value = "file") MultipartFile[] files)  {
         if (files==null ||files.length==0) {
             return setJsonViewData(ResultCode.PARAM_ERROR, "请提供需要上传的文件");
         }
