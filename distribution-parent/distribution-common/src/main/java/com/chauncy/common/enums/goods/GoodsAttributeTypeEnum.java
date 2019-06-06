@@ -1,5 +1,9 @@
 package com.chauncy.common.enums.goods;
 
+import com.chauncy.common.enums.BaseEnum;
+
+import java.util.Objects;
+
 /**
  * @Author huangwancheng
  * @create 2019-05-30 09:39
@@ -7,7 +11,7 @@ package com.chauncy.common.enums.goods;
  * 4->商品参数管理类型 5->标签管理类型 6->购买须知管理类型 7->规格管理类型 8->品牌管理
  *
  */
-public enum GoodsAttributeTypeEnum {
+public enum GoodsAttributeTypeEnum implements BaseEnum {
     PLATFORM_SERVICE(1,"平台服务说明管理类型"),
     MERCHANT_SERVICE(2,"商家服务说明管理类型"),
     PLATFORM_ACTIVITY(3,"平台活动说明管理类型"),
@@ -23,6 +27,7 @@ public enum GoodsAttributeTypeEnum {
         this.id = id;
         this.name = name;
     }
+
 
     @Override
     public String toString(){
@@ -64,5 +69,10 @@ public enum GoodsAttributeTypeEnum {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public  boolean isExist(Object field) {
+        return Objects.nonNull(getGoodsAttributeById(Integer.parseInt(field.toString())));
     }}
 

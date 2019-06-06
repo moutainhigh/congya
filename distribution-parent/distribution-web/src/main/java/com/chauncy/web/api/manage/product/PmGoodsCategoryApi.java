@@ -1,7 +1,7 @@
 package com.chauncy.web.api.manage.product;
 
 
-import com.chauncy.common.enums.ResultCode;
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo;

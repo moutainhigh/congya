@@ -1,13 +1,10 @@
 package com.chauncy.product.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chauncy.common.enums.ResultCode;
-import com.chauncy.common.enums.goods.GoodsAttributeTypeEnum;
-import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
 import com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo;
 import com.chauncy.data.dto.product.GoodBaseDto;
-import com.chauncy.data.mapper.product.PmGoodsAttributeMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsSkuCategoryAttributeRelationMapper;
 import com.chauncy.data.vo.JsonViewData;
