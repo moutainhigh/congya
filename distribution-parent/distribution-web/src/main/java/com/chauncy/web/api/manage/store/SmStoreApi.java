@@ -1,5 +1,6 @@
 package com.chauncy.web.api.manage.store;
 
+import com.chauncy.data.dto.store.StoreAccountInfoDto;
 import com.chauncy.data.dto.store.StoreBaseInfoDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.store.service.ISmStoreService;
@@ -32,13 +33,21 @@ public class SmStoreApi extends BaseApi {
     @Autowired
     private ISmStoreService smStoreService;
 
-    @PostMapping("/saveStore")
+    @PostMapping("/save/storeBaseInfo")
     @ApiOperation(value = "保存店铺信息（基本信息）")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData save(@Valid @ModelAttribute  @ApiParam(required = true, name = "storeBaseInfoDto", value = "店铺基本信息")
-                                     StoreBaseInfoDto storeBaseInfoDto,
-                             BindingResult result) {
+    public JsonViewData saveStoreBaseInfo(@Valid @ModelAttribute  @ApiParam(required = true, name = "storeBaseInfoDto", value = "店铺基本信息")
+                                                      StoreBaseInfoDto storeBaseInfoDto, BindingResult result) {
 
         return smStoreService.saveStore(storeBaseInfoDto);
+    }
+
+    @PostMapping("/save/storeAccountInfo")
+    @ApiOperation(value = "保存店铺信息（账户信息）")
+    @Transactional(rollbackFor = Exception.class)
+    public JsonViewData saveStoreAccountInfo(@Valid @ModelAttribute  @ApiParam(required = true, name = "storeAccountInfoDto", value = "店铺账户信息")
+                                                         StoreAccountInfoDto storeAccountInfoDto, BindingResult result) {
+
+        return smStoreService.saveStore(storeAccountInfoDto);
     }
 }
