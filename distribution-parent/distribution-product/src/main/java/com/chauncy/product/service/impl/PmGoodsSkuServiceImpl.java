@@ -1,9 +1,9 @@
 package com.chauncy.product.service.impl;
 
+import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.PmGoodsSkuPo;
 import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
 import com.chauncy.product.service.IPmGoodsSkuService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,6 +15,6 @@ import org.springframework.stereotype.Service;
  * @since 2019-05-21
  */
 @Service
-public class PmGoodsSkuServiceImpl extends ServiceImpl<PmGoodsSkuMapper, PmGoodsSkuPo> implements IPmGoodsSkuService {
+public class PmGoodsSkuServiceImpl extends AbstractService<PmGoodsSkuMapper, PmGoodsSkuPo> implements IPmGoodsSkuService {
 
 }

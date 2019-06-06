@@ -1,10 +1,9 @@
 package com.chauncy.product.service.impl;
 
+import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo;
 import com.chauncy.data.mapper.product.PmGoodsSkuCategoryAttributeRelationMapper;
 import com.chauncy.product.service.IPmGoodsSkuCategoryAttributeRelationService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +33,7 @@ import java.util.List;
  * @since 2019-05-21
  */
 @Service
-public class PmGoodsSkuCategoryAttributeRelationServiceImpl extends ServiceImpl<PmGoodsSkuCategoryAttributeRelationMapper, PmGoodsSkuCategoryAttributeRelationPo> implements IPmGoodsSkuCategoryAttributeRelationService {
+public class PmGoodsSkuCategoryAttributeRelationServiceImpl extends AbstractService<PmGoodsSkuCategoryAttributeRelationMapper, PmGoodsSkuCategoryAttributeRelationPo> implements IPmGoodsSkuCategoryAttributeRelationService {
 
     @Autowired
     private PmGoodsSkuCategoryAttributeRelationMapper mapper;

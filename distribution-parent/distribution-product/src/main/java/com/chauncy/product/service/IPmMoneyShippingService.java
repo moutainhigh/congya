@@ -1,7 +1,7 @@
 package com.chauncy.product.service;
 
+import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmMoneyShippingPo;
-import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * <p>
@@ -11,6 +11,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @author huangwancheng
  * @since 2019-05-21
  */
-public interface IPmMoneyShippingService extends IService<PmMoneyShippingPo> {
+public interface IPmMoneyShippingService extends Service<PmMoneyShippingPo> {
 
 }

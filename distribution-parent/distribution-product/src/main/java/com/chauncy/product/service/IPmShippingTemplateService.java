@@ -1,6 +1,6 @@
 package com.chauncy.product.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmShippingTemplatePo;
 
 /**
@@ -11,6 +11,6 @@ import com.chauncy.data.domain.po.product.PmShippingTemplatePo;
  * @author huangwancheng
  * @since 2019-05-21
  */
-public interface IPmShippingTemplateService extends IService<PmShippingTemplatePo> {
+public interface IPmShippingTemplateService extends Service<PmShippingTemplatePo> {
 
 }
