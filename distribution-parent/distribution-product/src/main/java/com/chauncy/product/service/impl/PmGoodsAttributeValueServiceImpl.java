@@ -1,13 +1,13 @@
 package com.chauncy.product.service.impl;
 
 import com.chauncy.common.enums.ResultCode;
+import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
 import com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo;
 import com.chauncy.data.mapper.product.PmGoodsAttributeValueMapper;
 import com.chauncy.data.mapper.product.PmGoodsSkuCategoryAttributeRelationMapper;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.product.service.IPmGoodsAttributeValueService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chauncy.security.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,7 +31,7 @@ import java.util.List;
  */
 @Service
 @Transactional
-public class PmGoodsAttributeValueServiceImpl extends ServiceImpl<PmGoodsAttributeValueMapper, PmGoodsAttributeValuePo> implements IPmGoodsAttributeValueService {
+public class PmGoodsAttributeValueServiceImpl extends AbstractService<PmGoodsAttributeValueMapper, PmGoodsAttributeValuePo> implements IPmGoodsAttributeValueService {
 
     @Autowired
     private PmGoodsAttributeValueMapper mapper;

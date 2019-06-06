@@ -1,7 +1,7 @@
 package com.chauncy.product.service;
 
+import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo;
-import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ import java.util.List;
  * @author huangwancheng
  * @since 2019-05-21
  */
-public interface IPmGoodsSkuCategoryAttributeRelationService extends IService<PmGoodsSkuCategoryAttributeRelationPo> {
+public interface IPmGoodsSkuCategoryAttributeRelationService extends Service<PmGoodsSkuCategoryAttributeRelationPo> {
 
     /**
      * 根据属性ID查找关联信息

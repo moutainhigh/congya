@@ -1,7 +1,7 @@
 package com.chauncy.data.mapper.product;
 
 import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.chauncy.data.mapper.IBaseMapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.List;
  * @author huangwancheng
  * @since 2019-05-21
  */
-public interface PmGoodsAttributeValueMapper extends BaseMapper<PmGoodsAttributeValuePo> {
+public interface PmGoodsAttributeValueMapper extends IBaseMapper<PmGoodsAttributeValuePo> {
 
     /**
      * 根据商品属性ID删除属性值

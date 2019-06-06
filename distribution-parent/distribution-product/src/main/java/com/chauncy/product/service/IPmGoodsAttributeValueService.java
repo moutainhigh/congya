@@ -1,6 +1,6 @@
 package com.chauncy.product.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
 import com.chauncy.data.vo.JsonViewData;
 
@@ -15,7 +15,7 @@ import com.chauncy.data.vo.JsonViewData;
  * @author huangwancheng
  * @since 2019-05-21
  */
-public interface IPmGoodsAttributeValueService extends IService<PmGoodsAttributeValuePo> {
+public interface IPmGoodsAttributeValueService extends Service<PmGoodsAttributeValuePo> {
 
     /**
      * 根据属性ID添加属性值

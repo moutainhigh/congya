@@ -1,7 +1,7 @@
 package com.chauncy.product.service;
 
+import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.chauncy.data.dto.product.GoodBaseDto;
 import com.chauncy.data.vo.JsonViewData;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
  * @author huangwancheng
  * @since 2019-05-21
  */
-public interface IPmGoodsService extends IService<PmGoodsPo> {
+public interface IPmGoodsService extends Service<PmGoodsPo> {
 
     JsonViewData addBase(@ModelAttribute GoodBaseDto goodBaseDto);
 }

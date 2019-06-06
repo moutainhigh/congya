@@ -1,8 +1,8 @@
 package com.chauncy.product.service.impl;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chauncy.common.enums.ResultCode;
 import com.chauncy.common.enums.goods.GoodsAttributeTypeEnum;
+import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
 import com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo;
@@ -32,7 +32,7 @@ import java.util.List;
  */
 @Service
 @Transactional
-public class PmGoodsAttributeServiceImpl extends ServiceImpl<PmGoodsAttributeMapper, PmGoodsAttributePo> implements IPmGoodsAttributeService {
+public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttributeMapper, PmGoodsAttributePo> implements IPmGoodsAttributeService {
 
     @Autowired
     private PmGoodsAttributeMapper mapper;
