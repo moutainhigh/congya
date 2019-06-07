@@ -35,6 +35,13 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
     @Autowired
     private SecurityUtil securityUtil;
+
+    /**
+     * 添加商品基础信息
+     *
+     * @param goodBaseDto
+     * @return
+     */
     @Override
     public JsonViewData addBase(GoodBaseDto goodBaseDto) {
 
@@ -58,5 +65,17 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
 
         return new JsonViewData(ResultCode.SUCCESS,"添加成功",goodBaseDto);
+    }
+
+    /**
+     * 根据ID查找商品信息
+     * @param id
+     * @return
+     */
+    @Override
+    public JsonViewData findBaseById(Long id) {
+
+
+        return null;
     }
 }

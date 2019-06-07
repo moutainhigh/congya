@@ -55,26 +55,6 @@ public class PmGoodsBaseVo {
     @ApiModelProperty(value = "logo缩略图")
     private String logoIcon;
 
-    @ApiModelProperty(value = "创建者")
-    private String createBy;
-
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @ApiModelProperty(value = "创建时间")
-    private LocalDateTime createTime;
-
-    @ApiModelProperty(value = "更新者")
-    private String updateBy;
-
-    @LastModifiedDate
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @ApiModelProperty(value = "更新时间")
-    private LocalDateTime updateTime;
-
-    @ApiModelProperty(value = "删除标志 默认0")
-    private Integer delFlag = SecurityConstant.STATUS_NORMAL;
-
     @ApiModelProperty(value = "商品属性值")
     private List<PmGoodsAttributeValuePo> valueList;
 }

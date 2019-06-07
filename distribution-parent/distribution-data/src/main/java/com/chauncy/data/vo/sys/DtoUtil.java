@@ -15,13 +15,13 @@ public class DtoUtil {
         menuVo.setId(p.getId());
         menuVo.setParentId(p.getParentId());
         menuVo.setName(p.getName());
-        menuVo.setType(p.getType());
+//        menuVo.setType(p.getType());
         menuVo.setTitle(p.getTitle());
-        menuVo.setComponent(p.getComponent());
+//        menuVo.setComponent(p.getComponent());
         menuVo.setPath(p.getPath());
         menuVo.setIcon(p.getIcon());
-        menuVo.setUrl(p.getUrl());
-        menuVo.setButtonType(p.getButtonType());
+//        menuVo.setUrl(p.getUrl());
+//        menuVo.setButtonType(p.getButtonType());
 
         return menuVo;
     }

@@ -12,11 +12,7 @@ import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -49,6 +45,13 @@ public class PmGoodsApi extends BaseApi {
     BindingResult result) {
 
         return service.addBase(goodBaseDto);
+    }
+
+    @GetMapping("findBaseById")
+    @ApiOperation(value="查找商品基本信息")
+    public JsonViewData findBaseById(@ApiParam(required = true,name="id",value = "商品ID") Long id){
+
+        return service.findBaseById(id);
     }
 
 }
