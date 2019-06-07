@@ -32,4 +32,10 @@ public class CommonIBaseMapperTest extends BaseTest{
         sys_permission.forEach(x->LoggerUtil.error(x.toString()));
     }
 
+    @Test
+    public void countById(){
+        int pm_member = IBaseMapper.countById("145993391090438144", "sys_permission");
+        LoggerUtil.error(pm_member+"");
+    }
+
 }

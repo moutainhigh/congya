@@ -1,6 +1,7 @@
 package com.chauncy.product.service.impl;
 
-import com.chauncy.common.enums.ResultCode;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
 import com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo;

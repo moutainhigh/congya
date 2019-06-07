@@ -1,6 +1,6 @@
 package com.chauncy.web.config.aop;
 
-import com.chauncy.common.enums.ResultCode;
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;

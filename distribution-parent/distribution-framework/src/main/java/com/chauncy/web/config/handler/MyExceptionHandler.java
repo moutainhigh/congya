@@ -1,13 +1,12 @@
 package com.chauncy.web.config.handler;
 
-import com.chauncy.common.enums.ResultCode;
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.data.vo.JsonViewData;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
  * 统一异常拦截处理

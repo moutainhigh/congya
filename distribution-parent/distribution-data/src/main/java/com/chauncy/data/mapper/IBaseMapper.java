@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -26,5 +27,13 @@ public interface IBaseMapper<T> extends BaseMapper<T> {
      * @return
      */
     List<Long> getChildIds(@Param("parentId") Long parentId, @Param("tableName") String tableName);
+
+    /**
+     *判断id是否存在
+     * @param id
+     * @param tableName
+     * @return
+     */
+    int countById(@Param("id") Object id,@Param("tableName") String tableName);
 
 }

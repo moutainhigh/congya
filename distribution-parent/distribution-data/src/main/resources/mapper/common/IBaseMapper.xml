@@ -29,4 +29,8 @@
         SELECT id FROM childrenIds
     </select>
 
+    <select id="countById" resultType="java.lang.Integer">
+        select count(1) from ${tableName} where id=#{id}
+    </select>
+
 </mapper>
