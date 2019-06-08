@@ -29,6 +29,8 @@ public abstract class BaseApi {
 
     protected static int defaultPageNo = 1;
 
+    protected static String defaultSoft="sort desc";
+
     protected UserDetails getUser() {
         return ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
     }

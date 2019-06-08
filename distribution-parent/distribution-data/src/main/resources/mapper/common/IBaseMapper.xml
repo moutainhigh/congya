@@ -30,7 +30,7 @@
     </select>
 
     <select id="countById" resultType="java.lang.Integer">
-        select count(1) from ${tableName} where id=#{id}
+        select count(1) from ${tableName} where ${field}=#{value}
     </select>
 
 </mapper>

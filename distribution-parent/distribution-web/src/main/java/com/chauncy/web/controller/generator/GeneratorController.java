@@ -42,7 +42,7 @@ public class GeneratorController {
          * 需要改的地方
          */
         //模块名称
-//        String model = "product";
+//        String model = "good";
 //        String tableName = "tb_user";
         /**
          * 暂时硬编码

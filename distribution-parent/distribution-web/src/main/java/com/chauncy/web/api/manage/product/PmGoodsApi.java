@@ -1,12 +1,11 @@
 package com.chauncy.web.api.manage.product;
 
 
-import com.chauncy.data.dto.product.GoodBaseDto;
+import com.chauncy.data.dto.good.GoodBaseDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.web.base.BaseApi;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;

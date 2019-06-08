@@ -39,7 +39,7 @@ public class Generable {
          * /Users/huangwancheng/git/servicer/distribution-parent/distribution-parent/distribution-data
          */
         //模块名称
-        String model = "product";
+        String model = "good";
         String tableName = "sys_user";
 
         // 代码生成器

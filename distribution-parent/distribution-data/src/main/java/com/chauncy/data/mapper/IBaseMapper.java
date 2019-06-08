@@ -30,10 +30,11 @@ public interface IBaseMapper<T> extends BaseMapper<T> {
 
     /**
      *判断id是否存在
-     * @param id
-     * @param tableName
+     * @param value 值
+     * @param tableName 表名称
+     * @param field 数据要过滤的字段  如 id=#{value}
      * @return
      */
-    int countById(@Param("id") Object id,@Param("tableName") String tableName);
+    int countById(@Param("value") Object value,@Param("tableName") String tableName,@Param("field")String field);
 
 }
