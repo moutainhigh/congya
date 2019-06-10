@@ -22,12 +22,12 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/pm-goods-attribute-po")
 @Slf4j
-@CrossOrigin(
+/*@CrossOrigin(
         origins = "*",
         allowedHeaders = "*",
         allowCredentials = "true",
         methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS, RequestMethod.HEAD}
-)
+)*/
 public class PmGoodsAttributeApi {
 
     @Autowired
@@ -121,6 +121,8 @@ public class PmGoodsAttributeApi {
     @GetMapping("/findByType/{type}")
     public JsonViewData findByType(@ApiParam(required = true, value = "type")
                                  @PathVariable Integer type) {
+
+        System.out.println("crdjo");
 
         return goodsAttributeService.findByType(type);
     }
