@@ -181,6 +181,7 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
     public JsonViewData findById(Long id) {
         //属性信息表
         PmGoodsAttributePo goodsAttributePo = mapper.selectById(id);
+        //需要判断是否为空，代做
         List<PmGoodsAttributeValuePo> goodsAttributeValueList = new ArrayList<>();
         if (goodsAttributePo.getType() == GoodsAttributeTypeEnum.STANDARD.getId() || goodsAttributePo.getType() == GoodsAttributeTypeEnum.GOODS_PARAM.getId()) {
             //查询属性值表

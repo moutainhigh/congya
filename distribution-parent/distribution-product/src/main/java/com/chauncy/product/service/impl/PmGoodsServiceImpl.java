@@ -1,11 +1,10 @@
 package com.chauncy.product.service.impl;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
 import com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo;
-import com.chauncy.data.dto.product.GoodBaseDto;
+import com.chauncy.data.dto.good.GoodBaseDto;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsSkuCategoryAttributeRelationMapper;
 import com.chauncy.data.vo.JsonViewData;
@@ -36,6 +35,13 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
     @Autowired
     private SecurityUtil securityUtil;
+
+    /**
+     * 添加商品基础信息
+     *
+     * @param goodBaseDto
+     * @return
+     */
     @Override
     public JsonViewData addBase(GoodBaseDto goodBaseDto) {
 
@@ -59,5 +65,17 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
 
         return new JsonViewData(ResultCode.SUCCESS,"添加成功",goodBaseDto);
+    }
+
+    /**
+     * 根据ID查找商品信息
+     * @param id
+     * @return
+     */
+    @Override
+    public JsonViewData findBaseById(Long id) {
+
+
+        return null;
     }
 }

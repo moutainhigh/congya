@@ -1,10 +1,13 @@
 package com.chauncy.web;
 
+import com.baomidou.mybatisplus.core.injector.ISqlInjector;
+import com.baomidou.mybatisplus.extension.injector.LogicSqlInjector;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
@@ -27,5 +30,6 @@ public class StartApplication extends SpringBootServletInitializer {
         SpringApplication.run(StartApplication.class, args);
         System.out.println("启动成功");
     }
+
 
 }

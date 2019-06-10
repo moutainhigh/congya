@@ -113,7 +113,7 @@ public class SysPermissionAPI {
   }
 
   // 匹配二级页面拥有权限
-  for(MenuVo m : secondMenuList){
+  /*for(MenuVo m : secondMenuList){
    List<String> permTypes = new ArrayList<>();
    for(MenuVo me : buttonPermissions){
     if(m.getId().equals(me.getParentId())){
@@ -121,7 +121,7 @@ public class SysPermissionAPI {
     }
    }
    m.setPermTypes(permTypes);
-  }
+  }*/
   // 匹配一级页面拥有二级页面
   for(MenuVo m : firstMenuList){
    List<MenuVo> secondMenu = new ArrayList<>();
