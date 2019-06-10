@@ -81,10 +81,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        http.csrf().disable();
         ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry = http
                 .authorizeRequests();
-        registry.requestMatchers(CorsUtils::isPreFlightRequest).permitAll();
         //除配置文件忽略路径其它所有请求都需经过认证和授权
         for (String url : ignoredUrlsProperties.getUrls()) {
             registry.antMatchers(url).permitAll();
