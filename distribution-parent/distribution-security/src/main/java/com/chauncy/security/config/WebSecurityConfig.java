@@ -84,14 +84,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
         ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry = http
                 .authorizeRequests();
-
+        registry.requestMatchers(CorsUtils::isPreFlightRequest).permitAll();
         //除配置文件忽略路径其它所有请求都需经过认证和授权
         for (String url : ignoredUrlsProperties.getUrls()) {
             registry.antMatchers(url).permitAll();
 
         }
 
-        registry.requestMatchers(CorsUtils::isPreFlightRequest).permitAll().and()
+        registry.and()
                 //表单登录方式
                 .formLogin()
                 .loginPage("/distribution/common/needLogin")
