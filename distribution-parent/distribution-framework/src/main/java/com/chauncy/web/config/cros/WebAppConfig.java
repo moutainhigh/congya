@@ -28,7 +28,7 @@
 //    public FilterRegistrationBean someFilterRegistration() {
 //        FilterRegistrationBean registration = new FilterRegistrationBean();
 //        registration.setFilter(new CorsFilter());
-//        registration.addUrlPatterns("/api/*");
+//        registration.addUrlPatterns("/pm-goods-attribute-po/*");
 //        registration.setName("corsFilter");
 //        registration.setOrder(1);
 //        return registration;
