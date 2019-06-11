@@ -60,7 +60,7 @@ public class SmStorePo implements Serializable {
     private Long storeTypeLabelId;
 
     @ApiModelProperty(value = "店铺分类id（pm_goods_attribute主键）")
-    private Long storeCategoryId;
+    private Long storeAttributeId;
 
     @ApiModelProperty(value = "商家类型（推广店铺，商品店铺）")
     private String type;
@@ -143,6 +143,15 @@ public class SmStorePo implements Serializable {
 
     @ApiModelProperty(value = "物流服务评分")
     private Integer logisticsServiceScore;
+
+    @ApiModelProperty(value = "本店营业额")
+    private BigDecimal storeTurnover;
+
+    @ApiModelProperty(value = "本店会员数量")
+    private Integer storeMemberNum;
+
+    @ApiModelProperty(value = "旗下店铺数量")
+    private Integer storeSubNum;
 
     @ApiModelProperty(value = "创建者")
     private String createBy;

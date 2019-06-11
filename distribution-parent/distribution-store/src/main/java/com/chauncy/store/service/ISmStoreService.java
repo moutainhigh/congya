@@ -29,4 +29,23 @@ public interface ISmStoreService extends Service<SmStorePo> {
      * @return
      */
     JsonViewData saveStore(StoreAccountInfoDto storeAccountInfoDto);
+
+    /**
+     * 修改店铺经营状态
+     * @param ids 店铺ID
+     * @return
+     */
+    JsonViewData editStoreStatus(Long[] ids, Boolean enabled);
+
+
+    /**
+     * 条件查询
+     * @param id 店铺id
+     * @param mobile 店铺主理人手机号
+     * @param type 店铺类型
+     * @param name 店铺名称
+     * @param enabled 店铺状态
+     * @return
+     */
+    JsonViewData search(Long id, String mobile, Integer type, String name, Boolean enabled);
 }

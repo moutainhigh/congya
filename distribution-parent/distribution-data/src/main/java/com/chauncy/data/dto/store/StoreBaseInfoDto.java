@@ -1,5 +1,7 @@
 package com.chauncy.data.dto.store;
 
+import com.chauncy.data.valid.annotation.EnumConstraint;
+import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -32,12 +34,12 @@ public class StoreBaseInfoDto {
     private boolean showStatus;
 
     @ApiModelProperty(value = "店铺类型标签id（pm_goods_attribute主键）")
-    @Min(value = 0, message = "店铺类型标签选择错误")
+    @NeedExistConstraint(tableName = "pm_goods_attribute")
     private Long storeTypeLabelId;
 
     @ApiModelProperty(value = "店铺分类id（pm_goods_attribute主键）")
-    @Min(value = 0, message = "店铺分类标签选择错误")
-    private Long storeCategoryId;
+    @NeedExistConstraint(tableName = "pm_goods_attribute")
+    private Long storeAttributeId;
 
     @ApiModelProperty(value = "商家类型（推广店铺，商品店铺）")
     @NotBlank(message = "商家类型不能为空")

@@ -10,7 +10,7 @@
         <result column="user_name" property="userName" />
         <result column="show_status" property="showStatus" />
         <result column="store_type_label_id" property="storeTypeLabelId" />
-        <result column="store_category_id" property="storeCategoryId" />
+        <result column="store_attribute_id" property="storeAttributeId" />
         <result column="type" property="type" />
         <result column="parent_id" property="parentId" />
         <result column="sort" property="sort" />
@@ -48,7 +48,21 @@ Score" />
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, name, store_describe, user_name, show_status, store_type_label_id, store_category_id, type, parent_id, sort, owner_name, owner_mobile, logo_image, store_image, background_image, company_name, company_addr, company_mobile, company_email, legal_person, tax_number, cardholder, opening_bank, account, bank_reserve_mobile, payment_bill_settlement_cycle, income_bill_Settlement_cycle, income_rate, business_license, enabled, total_score, baby_describe_score, service_attitude_score, logistics_service_score
+        id, name, store_describe, user_name, show_status, store_type_label_id, store_attribute_id, type, parent_id, sort, owner_name, owner_mobile, logo_image, store_image, background_image, company_name, company_addr, company_mobile, company_email, legal_person, tax_number, cardholder, opening_bank, account, bank_reserve_mobile, payment_bill_settlement_cycle, income_bill_Settlement_cycle, income_rate, business_license, enabled, total_score, baby_describe_score, service_attitude_score, logistics_service_score
     </sql>
+
+
+    <update id="editStoreStatus">
+        update sm_store
+        set enabled = #{enabled}
+        where id in
+        <foreach collection="array" item="id" index="index"
+                 open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+
+
 
 </mapper>
