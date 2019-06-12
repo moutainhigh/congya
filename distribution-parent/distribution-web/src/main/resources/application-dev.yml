@@ -71,6 +71,7 @@ ignored:
     - /**/*.ico
     - /test/**
     - /users/findByUserUame
+    - /pm-goods-attribute-po/findByType/**
     - /v2/api-docs
 
 
