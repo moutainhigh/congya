@@ -4,6 +4,7 @@ import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.store.StoreAccountInfoDto;
 import com.chauncy.data.dto.store.StoreBaseInfoDto;
+import com.chauncy.data.dto.store.StoreSearchDto;
 import com.chauncy.data.vo.JsonViewData;
 
 /**
@@ -40,12 +41,9 @@ public interface ISmStoreService extends Service<SmStorePo> {
 
     /**
      * 条件查询
-     * @param id 店铺id
-     * @param mobile 店铺主理人手机号
-     * @param type 店铺类型
-     * @param name 店铺名称
-     * @param enabled 店铺状态
+     * @param storeSearchDto
      * @return
      */
-    JsonViewData search(Long id, String mobile, Integer type, String name, Boolean enabled);
+    //JsonViewData search(Long id, String mobile, Integer type, String name, Boolean enabled);
+    JsonViewData search(StoreSearchDto storeSearchDto);
 }

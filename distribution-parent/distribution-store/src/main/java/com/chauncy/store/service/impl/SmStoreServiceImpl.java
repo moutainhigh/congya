@@ -6,6 +6,7 @@ import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.dto.store.StoreAccountInfoDto;
 import com.chauncy.data.dto.store.StoreBaseInfoDto;
+import com.chauncy.data.dto.store.StoreSearchDto;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.store.SmStoreBaseVo;
@@ -97,22 +98,17 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
 
     /**
      * 条件查询
-     * @param id 店铺id
-     * @param mobile 店铺主理人手机号
-     * @param type 店铺类型
-     * @param name 店铺名称
-     * @param enabled 店铺状态
+     * @param storeSearchDto
      * @return
      */
     @Override
-    public JsonViewData search(Long id, String mobile, Integer type, String name, Boolean enabled) {
+    public JsonViewData search(StoreSearchDto storeSearchDto) {
 
-        Integer pageNo=baseSearchDto.getPageNo()==null?defaultPageNo:baseSearchDto.getPageNo();
-        Integer pageSize=baseSearchDto.getPageSize()==null?defaultPageSize:baseSearchDto.getPageSize();
+        Integer pageNo = storeSearchDto.getPageNo()==null ? defaultPageNo : storeSearchDto.getPageNo();
+        Integer pageSize = storeSearchDto.getPageSize()==null ? defaultPageSize : storeSearchDto.getPageSize();
 
         PageInfo<SmStoreBaseVo> smStoreBaseVoPageInfo = PageHelper.startPage()
-        return setJsonViewData(categoryPageInfo);
-
+        return null;
     }
 
 }

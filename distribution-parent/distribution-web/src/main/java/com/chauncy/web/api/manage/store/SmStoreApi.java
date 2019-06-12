@@ -2,6 +2,7 @@ package com.chauncy.web.api.manage.store;
 
 import com.chauncy.data.dto.store.StoreAccountInfoDto;
 import com.chauncy.data.dto.store.StoreBaseInfoDto;
+import com.chauncy.data.dto.store.StoreSearchDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.store.service.ISmStoreService;
 import com.chauncy.web.base.BaseApi;
@@ -66,7 +67,7 @@ public class SmStoreApi extends BaseApi {
      */
     @ApiOperation(value = "条件查询", notes = "根据店铺ID、手机号、店铺类型、店铺名称、店铺状态查询")
     @GetMapping("/search")
-    @ApiImplicitParams({
+    /*@ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "店铺id", required = false, dataType = "Integer", paramType = "query"),
             @ApiImplicitParam(name = "type", value = "店铺主理人手机号", required = false, dataType = "Integer", paramType = "query"),
             @ApiImplicitParam(name = "type", value = "店铺类型", required = false, dataType = "Integer", paramType = "query"),
@@ -74,11 +75,10 @@ public class SmStoreApi extends BaseApi {
             @ApiImplicitParam(name = "enabled", value = "店铺经营状态", required = false, dataType = "Boolean", paramType = "query"),
             @ApiImplicitParam(name = "pageNo", value = "页码", required = false, dataType = "Integer", paramType = "query"),
             @ApiImplicitParam(name = "pageSize", value = "每页记录条数", required = false, dataType = "Integer", paramType = "query")}
-    )
+    )*/
+    public JsonViewData search(@ModelAttribute StoreSearchDto storeSearchDto) {
 
-    public JsonViewData search(Long id, String mobile, Integer type, String name, Boolean enabled) {
-
-        return smStoreService.search(id, mobile, type, name, enabled);
+        return smStoreService.search(storeSearchDto);
     }
 
 }
