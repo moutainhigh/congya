@@ -5,11 +5,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
+import com.chauncy.data.domain.po.product.PmGoodsRelAttributeCategoryPo;
 import com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo;
 import com.chauncy.data.dto.BaseSearchDto;
 import com.chauncy.data.dto.good.GoodCategoryDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.product.service.IPmGoodsCategoryService;
+import com.chauncy.product.service.IPmGoodsRelAttributeCategoryService;
 import com.chauncy.product.service.IPmGoodsSkuCategoryAttributeRelationService;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageHelper;
@@ -24,6 +26,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,6 +54,9 @@ public class PmGoodsCategoryApi extends BaseApi {
     @Autowired
     private IPmGoodsSkuCategoryAttributeRelationService categoryAttributeRelationService;
 
+    @Autowired
+    private IPmGoodsRelAttributeCategoryService relAttributeCategoryService;
+
     /**
      * 保存分类
      *
@@ -68,17 +74,17 @@ public class PmGoodsCategoryApi extends BaseApi {
         goodsCategoryService.save(pmGoodsCategoryPo);
 
         //保存分类与属性的关联
-        List<PmGoodsSkuCategoryAttributeRelationPo> categoryAttributeRelationPos= Lists.newArrayList();
+        List<PmGoodsRelAttributeCategoryPo> relAttributeCategoryPos= Lists.newArrayList();
         if (!ListUtil.isListNullAndEmpty(goodCategoryDto.getGoodAttributeIds())){
             goodCategoryDto.getGoodAttributeIds().forEach(x->{
-                PmGoodsSkuCategoryAttributeRelationPo categoryAttributeRelationPo=new PmGoodsSkuCategoryAttributeRelationPo();
-                categoryAttributeRelationPo.setCreateBy(getUser().getUsername()).setGoodsAttributeId(x).
+                PmGoodsRelAttributeCategoryPo relAttributeCategoryPo=new PmGoodsRelAttributeCategoryPo();
+                relAttributeCategoryPo.setCreateBy(getUser().getUsername()).setGoodsAttributeId(x).
                         setGoodsCategoryId(pmGoodsCategoryPo.getId());
-                categoryAttributeRelationPos.add(categoryAttributeRelationPo);
+                relAttributeCategoryPos.add(relAttributeCategoryPo);
 
             });
         }
-        categoryAttributeRelationService.saveBatch(categoryAttributeRelationPos);
+        relAttributeCategoryService.saveBatch(relAttributeCategoryPos);
         return setJsonViewData(ResultCode.SUCCESS);
     }
 
@@ -90,7 +96,7 @@ public class PmGoodsCategoryApi extends BaseApi {
     @PostMapping("/update")
     @ApiOperation(value = "编辑商品分类")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData update(@RequestBody @Valid @ApiParam(required = true, name = "goodCategoryDto", value = "分类相关信息")
+    public JsonViewData update(@RequestBody @Validated @ApiParam(required = true, name = "goodCategoryDto", value = "分类相关信息")
                                               GoodCategoryDto goodCategoryDto,
                                       BindingResult result) {
         //先修改分类
