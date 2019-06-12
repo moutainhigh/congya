@@ -19,4 +19,10 @@
         id, goods_attribute_id, goods_category_id, create_by, create_time, update_by, update_time, del_flag
     </sql>
 
+    <select id="findByAttributeId"
+            resultType="com.chauncy.data.domain.po.product.PmGoodsRelAttributeCategoryPo">
+        select * from pm_goods_rel_attribute_category
+        where goods_attribute_id = #{goodsAttributeId}
+    </select>
+
 </mapper>

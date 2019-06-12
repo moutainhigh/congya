@@ -1,7 +1,11 @@
 package com.chauncy.data.mapper.product;
 
+import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
 import com.chauncy.data.domain.po.product.PmGoodsRelAttributeValueSkuPo;
 import com.chauncy.data.mapper.IBaseMapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +17,5 @@ import com.chauncy.data.mapper.IBaseMapper;
  */
 public interface PmGoodsRelAttributeValueSkuMapper extends IBaseMapper<PmGoodsRelAttributeValueSkuPo> {
 
+    List<PmGoodsRelAttributeValueSkuPo> findByAttributeValueId(@Param("goodsAttributeValueId") Long goodsAttributeValueId);
 }

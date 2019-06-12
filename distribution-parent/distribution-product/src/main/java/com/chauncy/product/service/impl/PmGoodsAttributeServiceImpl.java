@@ -1,14 +1,10 @@
 package com.chauncy.product.service.impl;
 
-import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.enums.goods.GoodsAttributeTypeEnum;
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.AbstractService;
-import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
-import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
-import com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo;
-import com.chauncy.data.mapper.product.PmGoodsAttributeMapper;
-import com.chauncy.data.mapper.product.PmGoodsAttributeValueMapper;
-import com.chauncy.data.mapper.product.PmGoodsSkuCategoryAttributeRelationMapper;
+import com.chauncy.data.domain.po.product.*;
+import com.chauncy.data.mapper.product.*;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.product.PmGoodsAttributeVo;
 import com.chauncy.product.service.IPmGoodsAttributeService;
@@ -23,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+//import com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo;
 
 /**
  * 商品属性业务处理
@@ -41,7 +39,13 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
     private PmGoodsAttributeValueMapper valueMapper;
 
     @Autowired
-    private PmGoodsSkuCategoryAttributeRelationMapper relationMapper;
+    private PmGoodsRelAttributeCategoryMapper attributeCategoryMapper;
+
+    @Autowired
+    private PmGoodsRelAttributeGoodMapper attributeGoodMapper;
+
+    @Autowired
+    private PmGoodsRelAttributeSkuMapper attributeSkuMapper;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -106,10 +110,16 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
      */
     @Override
     public JsonViewData deleteAttributeByIds(Long[] ids) {
-
+        //判断是否存在引用
         for (Long id : ids) {
-            List<PmGoodsSkuCategoryAttributeRelationPo> list = relationMapper.findByAttributeId(id);
-            if (list != null && list.size() > 0) {
+            List<PmGoodsRelAttributeCategoryPo> list1 = attributeCategoryMapper.findByAttributeId(id);
+            List<PmGoodsRelAttributeGoodPo> list2 = attributeGoodMapper.findByAttributeId(id);
+            List<PmGoodsRelAttributeSkuPo> list3 = attributeSkuMapper.findByAttributeId(id);
+            List lists = new ArrayList<>();
+            lists.add(list1);
+            lists.add(list2);
+            lists.add(list3);
+            if (lists != null && lists.size() > 0) {
                 return new JsonViewData(ResultCode.FAIL, "删除失败，包含正被商品或类目使用关联的属性");
             }
         }
@@ -157,8 +167,14 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
         }
 
         //根据属性id查找是否正被使用
-        List<PmGoodsSkuCategoryAttributeRelationPo> list = relationMapper.findByAttributeId(goodsAttributePo.getId());
-        if (list != null && list.size() > 0) {
+        List<PmGoodsRelAttributeCategoryPo> list1 = attributeCategoryMapper.findByAttributeId(goodsAttributePo.getId());
+        List<PmGoodsRelAttributeGoodPo> list2 = attributeGoodMapper.findByAttributeId(goodsAttributePo.getId());
+        List<PmGoodsRelAttributeSkuPo> list3 = attributeSkuMapper.findByAttributeId(goodsAttributePo.getId());
+        List lists = new ArrayList<>();
+        lists.add(list1);
+        lists.add(list2);
+        lists.add(list3);
+        if (lists != null && lists.size() > 0) {
             return new JsonViewData(ResultCode.FAIL, "修改失败，包含正被类目或商品使用的关联的属性名称");
         }
 
