@@ -1,7 +1,7 @@
 server:
   port: 80
   servlet:
-      context-path: /
+      context-path: /good
   tomcat:
     uri-encoding: UTF-8
     max-threads: 800

@@ -40,7 +40,7 @@ public class Generable {
          */
         //模块名称
         String model = "product";
-        String tableName = "sys_user";
+        String tableName = "pm_goods_rel_attribute_value_sku";
 
         // 代码生成器
         AutoGenerator mpg = new AutoGenerator();
