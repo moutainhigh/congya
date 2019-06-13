@@ -3,14 +3,17 @@ package com.chauncy.web.api.manage.product;
 
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
+import com.chauncy.data.dto.manage.good.base.BaseSearchDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.product.service.IPmGoodsAttributeService;
 import com.chauncy.product.service.IPmGoodsAttributeValueService;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 /**
  * 商品属性页面控制器
@@ -120,7 +123,10 @@ public class PmGoodsAttributeApi {
     @ApiOperation(value = "根据类型查找属性信息", notes = "类型 1->平台服务说明管理类型 2->商家服务说明管理类型 3->平台活动说明管理类型  4->商品参数管理类型 5->标签管理类型 6->购买须知管理类型 7->规格管理类型 8->品牌管理")
     @GetMapping("/findByType/{type}")
     public JsonViewData findByType(@ApiParam(required = true, value = "type")
-                                 @PathVariable Integer type) {
+                                   @PathVariable Integer type,
+                                   @RequestBody @Valid @ApiParam(required = true, name = "baseSearchDto", value = "分类列表查询条件") BaseSearchDto baseSearchDto,
+                                   BindingResult result)
+    {
 
         System.out.println("crdjo");
 

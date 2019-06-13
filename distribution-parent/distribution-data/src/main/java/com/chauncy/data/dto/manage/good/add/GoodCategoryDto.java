@@ -1,4 +1,4 @@
-package com.chauncy.data.dto.good;
+package com.chauncy.data.dto.manage.good.add;
 
 import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import com.chauncy.data.valid.group.IUpdateGroup;

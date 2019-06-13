@@ -3,7 +3,7 @@
 
     <!--logback的配置，需要配置输出源appender，打日志的loger（子节点）和root（根节点），实际上，它输出日志是从子节点开始，子节点如果有输出源直接输入，如果无，判断配置的addtivity，是否像上级传递，即是否向root传递，传递则采用root的输出源，否则不输出日志。-->
 
-	<property name="log.path" value="/Users/huangwancheng/document/log/dev_logs/chacuncy_logs" />
+	<property name="log.path" value="/Users/cheng/document/log/dev_logs/chacuncy_logs" />
     <property name="log.pattern" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50} - [%method,%line] - %msg%n" />
 
     <!--输出到控制台-->

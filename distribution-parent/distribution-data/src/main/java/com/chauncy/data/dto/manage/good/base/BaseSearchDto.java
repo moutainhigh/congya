@@ -1,4 +1,4 @@
-package com.chauncy.data.dto;
+package com.chauncy.data.dto.manage.good.base;
 
 import lombok.Data;
 
