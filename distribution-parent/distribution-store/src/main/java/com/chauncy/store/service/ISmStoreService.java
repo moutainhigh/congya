@@ -6,6 +6,8 @@ import com.chauncy.data.dto.store.StoreAccountInfoDto;
 import com.chauncy.data.dto.store.StoreBaseInfoDto;
 import com.chauncy.data.dto.store.StoreSearchDto;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.store.SmStoreBaseVo;
+import com.github.pagehelper.PageInfo;
 
 /**
  * <p>
@@ -44,6 +46,5 @@ public interface ISmStoreService extends Service<SmStorePo> {
      * @param storeSearchDto
      * @return
      */
-    //JsonViewData search(Long id, String mobile, Integer type, String name, Boolean enabled);
-    JsonViewData search(StoreSearchDto storeSearchDto);
+    PageInfo<SmStoreBaseVo> searchBaseInfo(StoreSearchDto storeSearchDto);
 }

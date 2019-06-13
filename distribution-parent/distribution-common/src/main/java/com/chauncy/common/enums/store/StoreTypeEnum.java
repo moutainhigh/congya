@@ -12,11 +12,11 @@ public enum StoreTypeEnum implements BaseEnum {
 
     /**
      * 店铺类型
-     * 1->普通店铺
-     * 2->推广店铺
+     * 1->推广店铺
+     * 2->商品店铺
      */
-    ORDINARY_STORE(1, "普通店铺"),
-    POPULARIZE_STORE(2, "推广店铺"),
+    ORDINARY_STORE(1, "推广店铺"),
+    POPULARIZE_STORE(2, "商品店铺"),
     ;
 
     private Integer id;

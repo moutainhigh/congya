@@ -1,7 +1,7 @@
 package com.chauncy.store.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.system.ResultCode;
-import com.chauncy.common.util.BeanUtils;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.dto.store.StoreAccountInfoDto;
@@ -14,6 +14,7 @@ import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.store.service.ISmStoreService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,7 +52,7 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
 
 
         SmStorePo smStorePo = new SmStorePo();
-        BeanUtils.copyBeanProp(smStorePo, storeBaseInfoDto);
+        BeanUtils.copyProperties(smStorePo, storeBaseInfoDto);
         //获取当前用户
         String user = securityUtil.getCurrUser().getUsername();
         smStorePo.setCreateBy(user);
@@ -102,13 +103,14 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
      * @return
      */
     @Override
-    public JsonViewData search(StoreSearchDto storeSearchDto) {
+    public PageInfo<SmStoreBaseVo> searchBaseInfo(StoreSearchDto storeSearchDto) {
 
         Integer pageNo = storeSearchDto.getPageNo()==null ? defaultPageNo : storeSearchDto.getPageNo();
         Integer pageSize = storeSearchDto.getPageSize()==null ? defaultPageSize : storeSearchDto.getPageSize();
 
-        PageInfo<SmStoreBaseVo> smStoreBaseVoPageInfo = PageHelper.startPage()
-        return null;
+        PageInfo<SmStoreBaseVo> smStoreBaseVoPageInfo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
+                .doSelectPageInfo(() -> smStoreMapper.searchBaseInfo(storeSearchDto));
+        return smStoreBaseVoPageInfo;
     }
 
 }

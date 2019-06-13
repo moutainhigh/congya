@@ -1,8 +1,12 @@
 package com.chauncy.data.mapper.store;
 
 import com.chauncy.data.domain.po.store.SmStorePo;
+import com.chauncy.data.dto.store.StoreSearchDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.store.SmStoreBaseVo;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * <p>
@@ -22,4 +26,12 @@ public interface SmStoreMapper extends IBaseMapper<SmStorePo> {
      * @return
      */
     int editStoreStatus(@Param("id") Long[] ids, @Param("enabled") Boolean enabled);
+
+    /**
+     * 条件查询
+     *
+     * @param storeSearchDto
+     * @return
+     */
+    List<SmStoreBaseVo> searchBaseInfo(StoreSearchDto storeSearchDto);
 }

@@ -46,6 +46,13 @@ _score" property="logisticsService
 Score" />
     </resultMap>
 
+
+    <sql id="selectSmStoreBaseVo">
+        select id, `name`, `type`, /*(case when `type`=1 then `推广店铺` when `type`=2 then `商品店铺` end) as typeName,*/ parent_id, store_turnover, store_member_num, store_sub_num, goods_num, owner_mobile, sort, enabled
+		from sm_store
+    </sql>
+
+
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, name, store_describe, user_name, show_status, store_type_label_id, store_attribute_id, type, parent_id, sort, owner_name, owner_mobile, logo_image, store_image, background_image, company_name, company_addr, company_mobile, company_email, legal_person, tax_number, cardholder, opening_bank, account, bank_reserve_mobile, payment_bill_settlement_cycle, income_bill_Settlement_cycle, income_rate, business_license, enabled, total_score, baby_describe_score, service_attitude_score, logistics_service_score
@@ -62,6 +69,28 @@ Score" />
         </foreach>
     </update>
 
+
+    <select id="searchBaseInfo" resultType="com.chauncy.data.vo.store.SmStoreBaseVo">
+        <include refid="selectSmStoreBaseVo"/>
+        <where>
+            1=1
+            <if test="id !=null and type !=''">
+                and id = #{id}
+            </if>
+            <if test="name != null and name !=''">
+                and name like concat('%', #{name}, '%')
+            </if>
+            <if test="mobile != null and mobile !=''">
+                and mobile = #{mobile}
+            </if>
+            <if test="enabled != null">
+                and enabled = #{enabled}
+            </if>
+            <if test="type != null and type != ''">
+                and type = #{type}
+            </if>
+        </where>
+    </select>
 
 
 
