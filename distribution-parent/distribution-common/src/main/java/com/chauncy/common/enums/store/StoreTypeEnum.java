@@ -1,14 +1,18 @@
 package com.chauncy.common.enums.store;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.baomidou.mybatisplus.core.enums.IEnum;
 import com.chauncy.common.enums.BaseEnum;
+import com.fasterxml.jackson.annotation.JsonValue;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * @Author: xiaoye
  * @Date: 2019/6/12 16:17
  */
-public enum StoreTypeEnum implements BaseEnum {
+public enum StoreTypeEnum implements BaseEnum, IEnum {
 
     /**
      * 店铺类型
@@ -19,16 +23,17 @@ public enum StoreTypeEnum implements BaseEnum {
     POPULARIZE_STORE(2, "商品店铺"),
     ;
 
-    private Integer id;
-    private String name;
-    StoreTypeEnum(Integer id, String name){
-        this.id = id;
-        this.name = name;
+    @EnumValue
+    private Integer type;
+    private String typeName;
+    StoreTypeEnum(Integer type, String typeName){
+        this.type = type;
+        this.typeName = typeName;
     }
 
     @Override
     public String toString(){
-        return this.id + "_" + this.name;
+        return this.type + "_" + this.typeName;
     }
 
     public static String value(String name){
@@ -38,7 +43,7 @@ public enum StoreTypeEnum implements BaseEnum {
     //通过Id获取结果
     public static StoreTypeEnum getStoreTypeById(Integer id) {
         for (StoreTypeEnum type : StoreTypeEnum.values()) {
-            if (type.getId().equals(id)) {
+            if (type.getType().equals(id)) {
                 return type;
             }
         }
@@ -47,31 +52,37 @@ public enum StoreTypeEnum implements BaseEnum {
     //通过名称来获取结果
     public static StoreTypeEnum fromName(String name) {
         for (StoreTypeEnum type : StoreTypeEnum.values()) {
-            if (type.getName().equals(name)) {
+            if (type.getTypeName().equals(name)) {
                 return type;
             }
         }
         throw new IllegalArgumentException(name);
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
     @Override
     public boolean isExist(Object field) {
         return Objects.nonNull(getStoreTypeById(Integer.parseInt(field.toString())));
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+    @JsonValue
+    public String getTypeName() {
+        return this.typeName;
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
+
+    @Override
+    public Serializable getValue() {
+        return type;
     }
 }
