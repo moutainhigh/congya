@@ -58,6 +58,9 @@ public class PmGoodsCategoryPo {
     @ApiModelProperty(value = "父分类ID")
     private Long parentId;
 
+    @ApiModelProperty("商品分类级别")
+    private Integer level;
+
     @ApiModelProperty(value = "创建者")
     private String createBy;
 

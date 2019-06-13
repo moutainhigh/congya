@@ -1,6 +1,7 @@
 package com.chauncy.data.dto.good;
 
 import com.chauncy.data.valid.annotation.NeedExistConstraint;
+import com.chauncy.data.valid.group.IUpdateGroup;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -18,6 +19,10 @@ import java.util.List;
 @Data
 @ApiModel(value = "PmGoodsCategoryPo对象", description = "商品分类表")
 public class GoodCategoryDto {
+
+    @ApiModelProperty(value = "id,当新增时为空")
+    @NotNull(groups = IUpdateGroup.class)
+    private Long id;
 
     @ApiModelProperty(value = "分类名称")
     @NotBlank(message = "分类名称不能为空")
@@ -39,17 +44,13 @@ public class GoodCategoryDto {
     @Min(value = 0,message = "税率必须大于0")
     private BigDecimal taxRate;
 
-    @ApiModelProperty(value = "父分类ID")
+    @ApiModelProperty(value = "父分类ID,一级分类时这个字段不传或为空")
     @NeedExistConstraint(tableName = "pm_goods_category")
     private Long parentId;
 
     @ApiModelProperty(value = "规格、参数、服务说明、活动说明的id集合")
-    @NotNull
     @NeedExistConstraint(tableName = "pm_goods_attribute",message = "goodAttributeIds中存在数据库没有的id")
     List<Long> goodAttributeIds;
-
-
-
 
 
 

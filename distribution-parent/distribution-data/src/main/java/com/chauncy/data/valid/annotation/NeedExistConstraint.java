@@ -6,17 +6,21 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.*;
 
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 /**
 
  * @Author zhangrt
  * @Date 2019-06-03 15:39
  **/
 
-
+@Repeatable(NeedExistConstraint.List.class)
 @Target({ ElementType.FIELD, ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = NeedExistValidator.class)
 @Documented
+
 public @interface NeedExistConstraint {
     /**
      * 验证不通过时的报错信息
@@ -43,5 +47,15 @@ public @interface NeedExistConstraint {
      * @return
      */
     String field() default "id";
+
+    /**
+     * 支持重复注解
+     */
+    @Target({ METHOD, FIELD, ANNOTATION_TYPE })
+    @Retention(RUNTIME)
+    @Documented
+     public @interface List {
+        NeedExistConstraint[] value();
+    }
 
 }
