@@ -3,10 +3,10 @@ package com.chauncy.product.service.impl;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
-import com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo;
+import com.chauncy.data.domain.po.product.PmGoodsRelAttributeGoodPo;
 import com.chauncy.data.dto.good.GoodBaseDto;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
-import com.chauncy.data.mapper.product.PmGoodsSkuCategoryAttributeRelationMapper;
+import com.chauncy.data.mapper.product.PmGoodsRelAttributeGoodMapper;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.security.util.SecurityUtil;
@@ -31,7 +31,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     private PmGoodsMapper mapper;
 
     @Autowired
-    private PmGoodsSkuCategoryAttributeRelationMapper relationMapper;
+    private PmGoodsRelAttributeGoodMapper attributeGoodMapper;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -58,9 +58,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         mapper.insert(goodsPo);
         //处理商品属性
         for (Long attId : goodBaseDto.getAttributeIds()){
-            PmGoodsSkuCategoryAttributeRelationPo relationPo = new PmGoodsSkuCategoryAttributeRelationPo();
-            relationPo.setGoodsAttributeId(attId).setGoodsId(goodsPo.getId()).setCreateBy(user);
-            relationMapper.insert(relationPo);
+            PmGoodsRelAttributeGoodPo attributeGoodPo = new PmGoodsRelAttributeGoodPo();
+            attributeGoodPo.setGoodsAttributeId(attId).setGoodsGoodId(goodsPo.getId()).setCreateBy(user);
+            attributeGoodMapper.insert(attributeGoodPo);
         }
 
 

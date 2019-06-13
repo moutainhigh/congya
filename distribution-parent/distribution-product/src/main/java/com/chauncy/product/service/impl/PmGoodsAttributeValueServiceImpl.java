@@ -3,9 +3,9 @@ package com.chauncy.product.service.impl;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
-import com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo;
+import com.chauncy.data.domain.po.product.PmGoodsRelAttributeValueSkuPo;
 import com.chauncy.data.mapper.product.PmGoodsAttributeValueMapper;
-import com.chauncy.data.mapper.product.PmGoodsSkuCategoryAttributeRelationMapper;
+import com.chauncy.data.mapper.product.PmGoodsRelAttributeValueSkuMapper;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.product.service.IPmGoodsAttributeValueService;
 import com.chauncy.security.util.SecurityUtil;
@@ -17,6 +17,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+//import com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo;
 
 /**
  * <p>
@@ -37,7 +39,7 @@ public class PmGoodsAttributeValueServiceImpl extends AbstractService<PmGoodsAtt
     private PmGoodsAttributeValueMapper mapper;
 
     @Autowired
-    private PmGoodsSkuCategoryAttributeRelationMapper relationMapper;
+    private PmGoodsRelAttributeValueSkuMapper valueSkuMapper;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -90,7 +92,7 @@ public class PmGoodsAttributeValueServiceImpl extends AbstractService<PmGoodsAtt
         pmGoodsAttributeValuePo.setUpdateTime(date);
         pmGoodsAttributeValuePo.setUpdateBy(user);
         //根据属性值id查找是否正被使用
-        List<PmGoodsSkuCategoryAttributeRelationPo> list = relationMapper.findByAttributeValueId(pmGoodsAttributeValuePo.getId());
+        List<PmGoodsRelAttributeValueSkuPo> list = valueSkuMapper.findByAttributeValueId(pmGoodsAttributeValuePo.getId());
         if (list != null && list.size() > 0) {
             return new JsonViewData(ResultCode.FAIL, "修改失败，包含正被sku或商品使用的关联的属性值");
         }
@@ -127,7 +129,8 @@ public class PmGoodsAttributeValueServiceImpl extends AbstractService<PmGoodsAtt
 
         for (Long id : ids) {
             //根据属性值id查找是否正被使用
-            List<PmGoodsSkuCategoryAttributeRelationPo> list = relationMapper.findByAttributeValueId(id);
+            List<PmGoodsRelAttributeValueSkuPo> list = valueSkuMapper.findByAttributeValueId(id);
+
             if (list != null && list.size() > 0) {
                 return new JsonViewData(ResultCode.FAIL, "删除失败，包含正被sku或商品使用的关联的属性值");
             }
