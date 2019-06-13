@@ -18,7 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 //import com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo;
 
@@ -115,12 +117,11 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
             List<PmGoodsRelAttributeCategoryPo> list1 = attributeCategoryMapper.findByAttributeId(id);
             List<PmGoodsRelAttributeGoodPo> list2 = attributeGoodMapper.findByAttributeId(id);
             List<PmGoodsRelAttributeSkuPo> list3 = attributeSkuMapper.findByAttributeId(id);
-            List lists = new ArrayList<>();
-            lists.add(list1);
-            lists.add(list2);
-            lists.add(list3);
-            if (lists != null && lists.size() > 0) {
-                return new JsonViewData(ResultCode.FAIL, "删除失败，包含正被商品或类目使用关联的属性");
+            boolean a = list1 != null && list1.size() > 0;
+            boolean b = list2 != null && list2.size() > 0;
+            boolean c = list3 != null && list3.size() > 0;
+            if (a == true || b== true || c == true) {
+                return new JsonViewData(ResultCode.FAIL, "删除失败，包含正被商品或类目或sku使用关联的属性");
             }
         }
         //遍历ID
@@ -129,7 +130,9 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
             po = mapper.selectById(id);
             //处理规格和商品参数
             if (po.getType() == GoodsAttributeTypeEnum.STANDARD.getId() || po.getType() == GoodsAttributeTypeEnum.GOODS_PARAM.getId()) {
-                valueMapper.deleteByAttributeId(id);
+                Map<String,Object> map = new HashMap<>();
+                map.put("product_attribute_id",id);
+                valueMapper.deleteByMap(map);
                 mapper.deleteById(id);
             } else
                 mapper.deleteById(id);
