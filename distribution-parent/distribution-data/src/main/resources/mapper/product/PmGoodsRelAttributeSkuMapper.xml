@@ -4,19 +4,24 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.product.PmGoodsRelAttributeSkuPo">
-        <id column="id" property="id" />
-        <result column="goods_attribute_id" property="goodsAttributeId" />
-        <result column="goods_sku_id" property="goodsSkuId" />
-        <result column="create_by" property="createBy" />
-        <result column="create_time" property="createTime" />
-        <result column="update_by" property="updateBy" />
-        <result column="update_time" property="updateTime" />
-        <result column="del_flag" property="delFlag" />
+        <id column="id" property="id"/>
+        <result column="goods_attribute_id" property="goodsAttributeId"/>
+        <result column="goods_sku_id" property="goodsSkuId"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="del_flag" property="delFlag"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, goods_attribute_id, goods_sku_id, create_by, create_time, update_by, update_time, del_flag
     </sql>
+
+    <select id="findByAttributeId" resultType="com.chauncy.data.domain.po.product.PmGoodsRelAttributeSkuPo">
+        select * from pm_goods_rel_attribute_sku
+        where goods_attribute_id = #{goodsAttributeId} and del_flag=0
+    </select>
 
 </mapper>

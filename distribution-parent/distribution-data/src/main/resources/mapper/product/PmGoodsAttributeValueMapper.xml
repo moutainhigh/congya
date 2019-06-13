@@ -36,20 +36,22 @@
 
     </insert>
 
-    <delete id="deleteByAttributeId">
-        delete
-        from pm_goods_attribute_value
-        <where>
-            <if test="productAttributeId !=null and productAttributeId !=''">
-                and product_attribute_id = #{productAttributeId}
-            </if>
-        </where>
-    </delete>
+<!--    <update id="deleteByAttributeId">-->
+<!--        update pm_goods_attribute_value-->
+<!--        <set>-->
+<!--            <if test="del_flag != null and del_flag != ''">del_flag = 1</if>-->
+<!--        </set>-->
+<!--        <where>-->
+<!--            <if test="productAttributeId !=null and productAttributeId !=''">-->
+<!--                and product_attribute_id = #{productAttributeId}-->
+<!--            </if>-->
+<!--        </where>-->
+<!--    </update>-->
 
     <select id="findByAttributeId" resultType="com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo">
         select *
         from pm_goods_attribute_value
-        where product_attribute_id = #{productAttributeId}
+        where product_attribute_id = #{productAttributeId} and del_flag = 0
     </select>
 
 </mapper>

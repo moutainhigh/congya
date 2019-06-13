@@ -18,5 +18,9 @@
     <sql id="Base_Column_List">
         id, goods_attribute_id, goods_good_id, create_by, create_time, update_by, update_time, del_flag
     </sql>
+    <select id="findByAttributeId" resultType="com.chauncy.data.domain.po.product.PmGoodsRelAttributeGoodPo">
+        select * from pm_goods_rel_attribute_good
+        where goods_attribute_id = #{goodsAttributeId} and del_flag=0
+    </select>
 
 </mapper>

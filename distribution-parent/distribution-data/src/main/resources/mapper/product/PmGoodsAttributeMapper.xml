@@ -35,6 +35,7 @@
             <if test="name != null and name !=''">
                 and name = #{name}
             </if>
+            and del_flag = 0
         </where>
 
     </select>
@@ -51,12 +52,13 @@
             <if test="enabled != null">
                 and enabled = #{enabled}
             </if>
+            and del_flag = 0
         </where>
     </select>
 
     <select id="findByType" resultType="com.chauncy.data.domain.po.product.PmGoodsAttributePo">
       select * from pm_goods_attribute
-      where type = #{type}
+      where type = #{type} and del_flag = 0
     </select>
 
 
