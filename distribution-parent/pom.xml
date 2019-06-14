@@ -176,12 +176,19 @@
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
 
+        <!--分页插件-->
         <dependency>
             <groupId>com.github.pagehelper</groupId>
             <artifactId>pagehelper</artifactId>
             <version>5.1.9</version>
         </dependency>
 
+        <!--七牛云图片上传SDK-->
+        <dependency>
+            <groupId>com.qiniu</groupId>
+            <artifactId>qiniu-java-sdk</artifactId>
+            <version>[7.2.0, 7.2.99]</version>
+        </dependency>
 
     </dependencies>
 
