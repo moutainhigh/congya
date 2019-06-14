@@ -10,7 +10,7 @@ import lombok.Data;
  **/
 @Data
 @ApiModel(description = "启用或禁用")
-public class BaseUpdateStatus {
+public class BaseUpdateStatusDto {
 
     private Long id;
 

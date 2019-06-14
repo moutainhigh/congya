@@ -17,6 +17,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Transient;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -67,7 +68,7 @@ public class PmGoodsAttributePo implements Serializable {
     @JsonDeserialize(using = LongJsonDeserializer.class)
     private Long id;
 
-    @ApiModelProperty(value = "名称")
+    @ApiModelProperty(value = "名称或标题")
     private String name;
 
     @ApiModelProperty(value = "排序数字，此排序是展示在前端服务说明的排序")
@@ -83,6 +84,7 @@ public class PmGoodsAttributePo implements Serializable {
     private Boolean enabled;
 
     @ApiModelProperty(value = "类型 1->平台服务说明管理类型 2->商家服务说明管理类型 3->平台活动说明管理类型  4->商品参数管理类型 5->标签管理类型 6->购买须知管理类型 7->规格管理类型 8->品牌管理")
+    @NotNull(message = "类型不能为空")
     private Integer type;
 
     @ApiModelProperty(value = "副标题")

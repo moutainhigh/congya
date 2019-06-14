@@ -4,6 +4,9 @@ import com.chauncy.common.enums.goods.GoodsAttributeTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.*;
+import com.chauncy.data.dto.manage.good.add.GoodAttributeDto;
+import com.chauncy.data.dto.manage.good.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.manage.good.select.FindAttributeInfoByConditionDto;
 import com.chauncy.data.mapper.product.*;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.product.PmGoodsAttributeVo;
@@ -21,8 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-//import com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo;
 
 /**
  * 商品属性业务处理
@@ -52,20 +53,28 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
     @Autowired
     private SecurityUtil securityUtil;
 
+    private static int defaultPageSize = 10;
+
+    private static int defaultPageNo = 1;
+
+    private static String defaultSoft = "sort desc";
+
     /**
      * 保存商品属性
      *
-     * @param goodsAttributePo
+     * @param goodsAttributeDto
      * @return
      */
     @Override
-    public JsonViewData saveAttribute(PmGoodsAttributePo goodsAttributePo) {
+    public JsonViewData saveAttribute(GoodAttributeDto goodsAttributeDto) {
+        PmGoodsAttributePo goodsAttributePo = new PmGoodsAttributePo();
+        BeanUtils.copyProperties(goodsAttributeDto, goodsAttributePo);
         LocalDateTime date = LocalDateTime.now();
         //获取当前用户
         String user = securityUtil.getCurrUser().getUsername();
         goodsAttributePo.setCreateBy(user);
         goodsAttributePo.setCreateTime(date);
-
+        goodsAttributePo.setId(null);
         //判断必要字段
         if (goodsAttributePo.getType() == null || goodsAttributePo.getType() == ' ' || goodsAttributePo.getName() == null || goodsAttributePo.getName().equals(' ')) {
             return new JsonViewData(ResultCode.FAIL, "添加失败,缺少必需字段name或type");
@@ -90,7 +99,6 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
 
                 //先保存基本信息，在保存对应的值
                 mapper.insert(goodsAttributePo);
-                System.out.println(goodsAttributePo.getId());
                 for (String value : goodsAttributePo.getValues()) {
                     PmGoodsAttributeValuePo po = new PmGoodsAttributeValuePo();
                     po.setProductAttributeId(goodsAttributePo.getId());
@@ -107,6 +115,7 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
 
     /**
      * 批量删除属性以及关联的值
+     *
      * @param ids
      * @return
      */
@@ -120,7 +129,7 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
             boolean a = list1 != null && list1.size() > 0;
             boolean b = list2 != null && list2.size() > 0;
             boolean c = list3 != null && list3.size() > 0;
-            if (a == true || b== true || c == true) {
+            if (a == true || b == true || c == true) {
                 return new JsonViewData(ResultCode.FAIL, "删除失败，包含正被商品或类目或sku使用关联的属性");
             }
         }
@@ -130,8 +139,8 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
             po = mapper.selectById(id);
             //处理规格和商品参数
             if (po.getType() == GoodsAttributeTypeEnum.STANDARD.getId() || po.getType() == GoodsAttributeTypeEnum.GOODS_PARAM.getId()) {
-                Map<String,Object> map = new HashMap<>();
-                map.put("product_attribute_id",id);
+                Map<String, Object> map = new HashMap<>();
+                map.put("product_attribute_id", id);
                 valueMapper.deleteByMap(map);
                 mapper.deleteById(id);
             } else
@@ -144,12 +153,14 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
     /**
      * 更新数据
      *
-     * @param goodsAttributePo
+     * @param goodAttributeDto
      * @return
      */
     @Override
-    public JsonViewData edit(PmGoodsAttributePo goodsAttributePo) {
+    public JsonViewData edit(GoodAttributeDto goodAttributeDto) {
 
+        PmGoodsAttributePo goodsAttributePo = new PmGoodsAttributePo();
+        BeanUtils.copyProperties(goodAttributeDto, goodsAttributePo);
         LocalDateTime date = LocalDateTime.now();
         //获取当前用户
         String user = securityUtil.getCurrUser().getUsername();
@@ -163,6 +174,9 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
         }
 
         PmGoodsAttributePo po1 = mapper.selectById(goodsAttributePo.getId());
+        if (po1 == null) {
+            return new JsonViewData(ResultCode.FAIL, "该属性不存在");
+        }
         //判断不同类型对应的属性名称是否已经存在
         PmGoodsAttributePo po = mapper.findByTypeAndName(goodsAttributePo.getType(), goodsAttributePo.getName());
         if (!po1.getName().equals(goodsAttributePo.getName()) && po != null) {
@@ -173,19 +187,17 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
         List<PmGoodsRelAttributeCategoryPo> list1 = attributeCategoryMapper.findByAttributeId(goodsAttributePo.getId());
         List<PmGoodsRelAttributeGoodPo> list2 = attributeGoodMapper.findByAttributeId(goodsAttributePo.getId());
         List<PmGoodsRelAttributeSkuPo> list3 = attributeSkuMapper.findByAttributeId(goodsAttributePo.getId());
-        List lists = new ArrayList<>();
-        lists.add(list1);
-        lists.add(list2);
-        lists.add(list3);
-        if (lists != null && lists.size() > 0) {
+        boolean a = list1 != null && list1.size() > 0;
+        boolean b = list2 != null && list2.size() > 0;
+        boolean c = list3 != null && list3.size() > 0;
+        if (a == true || b == true || c == true) {
             return new JsonViewData(ResultCode.FAIL, "修改失败，包含正被类目或商品使用的关联的属性名称");
         }
 
         mapper.updateById(goodsAttributePo);
 
-        if (goodsAttributePo==null)
-        {
-            return new JsonViewData(ResultCode.FAIL,"修改失败");
+        if (goodsAttributePo == null) {
+            return new JsonViewData(ResultCode.FAIL, "修改失败");
         }
 
         return new JsonViewData(ResultCode.SUCCESS, "修改成功", goodsAttributePo);
@@ -193,6 +205,7 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
 
     /**
      * 根据ID查找属性以及关联的属性值
+     *
      * @param id
      * @return
      */
@@ -200,95 +213,62 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
     public JsonViewData findById(Long id) {
         //属性信息表
         PmGoodsAttributePo goodsAttributePo = mapper.selectById(id);
-        //需要判断是否为空，代做
-        List<PmGoodsAttributeValuePo> goodsAttributeValueList = new ArrayList<>();
+        List<String> valueList = new ArrayList<>();
+        //需要判断是否为空
+        if (goodsAttributePo==null){
+            return new JsonViewData(ResultCode.FAIL,"不存在该属性！");
+        }
         if (goodsAttributePo.getType() == GoodsAttributeTypeEnum.STANDARD.getId() || goodsAttributePo.getType() == GoodsAttributeTypeEnum.GOODS_PARAM.getId()) {
             //查询属性值表
-            List<Long> idList = new ArrayList<>();
             List<PmGoodsAttributeValuePo> valuePoList = valueMapper.findByAttributeId(id);
-            for(PmGoodsAttributeValuePo po : valuePoList) {
-                idList.add(po.getId());
+            for (PmGoodsAttributeValuePo po : valuePoList) {
+                valueList.add(po.getValue());
             }
-            goodsAttributeValueList = valueMapper.selectBatchIds(idList);
         }
         PmGoodsAttributeVo pmGoodsAttributeVo = new PmGoodsAttributeVo();
-        BeanUtils.copyProperties(goodsAttributePo,pmGoodsAttributeVo);
-        pmGoodsAttributeVo.setValueList(goodsAttributeValueList);
+        BeanUtils.copyProperties(goodsAttributePo, pmGoodsAttributeVo);
+        pmGoodsAttributeVo.setValueList(valueList);
 
 
-        return new JsonViewData(ResultCode.SUCCESS,"查询成功",pmGoodsAttributeVo);
+        return new JsonViewData(ResultCode.SUCCESS, "查询成功", pmGoodsAttributeVo);
     }
+
 
     /**
      * 条件分页查询
      *
-     * @param type
-     * @param name
-     * @param enabled
+     * @param findAttributeInfoByConditionDto
      * @return
      */
     @Override
-    public JsonViewData search(Integer type, String name, Boolean enabled) {
-        String order="id asc,name desc";
-        PageHelper.startPage(1,10,order);
-        List<PmGoodsAttributePo> goodsAttributePos = mapper.search(type,name,enabled);
-        PageInfo<PmGoodsAttributePo> pmGoodsAttributePoPageInfo = new PageInfo<>(goodsAttributePos);
-        List<PmGoodsAttributeValuePo> goodsAttributeValueList = new ArrayList<>();
-        List<PmGoodsAttributeVo> goodsAttributeVos = new ArrayList<>();
-        for (PmGoodsAttributePo goodsAttributePo : goodsAttributePos) {
-            if (goodsAttributePo.getType() == GoodsAttributeTypeEnum.STANDARD.getId() || goodsAttributePo.getType() == GoodsAttributeTypeEnum.GOODS_PARAM.getId()) {
-                //查询属性值表
-                List<Long> idList = new ArrayList<>();
-                List<PmGoodsAttributeValuePo> valuePoList = valueMapper.findByAttributeId(goodsAttributePo.getId());
-                if (valuePoList.size()!=0) {
-                    for (PmGoodsAttributeValuePo po : valuePoList) {
-                        idList.add(po.getId());
-                    }
-                    String orders="id asc,value desc";
-                    PageHelper.startPage(1,10,orders);
-                    goodsAttributeValueList = valueMapper.selectBatchIds(idList);
-                }
-            }
-            PmGoodsAttributeVo pmGoodsAttributeVo = new PmGoodsAttributeVo();
-            BeanUtils.copyProperties(goodsAttributePo,pmGoodsAttributeVo);
-            pmGoodsAttributeVo.setValueList(goodsAttributeValueList);
-            goodsAttributeVos.add(pmGoodsAttributeVo);
+    public JsonViewData findByCondition(FindAttributeInfoByConditionDto findAttributeInfoByConditionDto) {
+        Integer pageNo = findAttributeInfoByConditionDto.getPageNo() == null ? defaultPageNo : findAttributeInfoByConditionDto.getPageNo();
+        Integer pageSize = findAttributeInfoByConditionDto.getPageSize() == null ? defaultPageSize : findAttributeInfoByConditionDto.getPageSize();
+        PageInfo<PmGoodsAttributeVo> goodsAttributeVo = new PageInfo<>();
+        //判断Type是否为规格或参数
+        if (findAttributeInfoByConditionDto.getType() == GoodsAttributeTypeEnum.STANDARD.getId() || findAttributeInfoByConditionDto.getType() == GoodsAttributeTypeEnum.GOODS_PARAM.getId()) {
+            goodsAttributeVo = PageHelper.startPage(pageNo, pageSize/*, "id desc"*/)
+                    .doSelectPageInfo(() -> valueMapper.findByCondition(findAttributeInfoByConditionDto.getType(), findAttributeInfoByConditionDto.getName(), findAttributeInfoByConditionDto.getEnabled()));
+        } else {
+            goodsAttributeVo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
+                    .doSelectPageInfo(() -> mapper.findByCondition(findAttributeInfoByConditionDto.getType(), findAttributeInfoByConditionDto.getName(), findAttributeInfoByConditionDto.getEnabled()));
         }
 
-        return new JsonViewData(ResultCode.SUCCESS,"查询成功",goodsAttributeVos);
+        return new JsonViewData(ResultCode.SUCCESS, "查询成功", goodsAttributeVo);
     }
 
     /**
-     * 根据type类型查询
+     * 启用或禁用
      *
-     * @param type
+     * @param baseUpdateStatusDto
      * @return
      */
     @Override
-    public JsonViewData findByType(Integer type) {
-        //属性信息表
-        List<PmGoodsAttributePo> goodsAttributePos = mapper.findByType(type);
-        List<PmGoodsAttributeValuePo> goodsAttributeValueList = new ArrayList<>();
-        List<PmGoodsAttributeVo> goodsAttributeVos = new ArrayList<>();
-        for (PmGoodsAttributePo attributePo : goodsAttributePos) {
-            if (type == GoodsAttributeTypeEnum.STANDARD.getId() || type == GoodsAttributeTypeEnum.GOODS_PARAM.getId()) {
-                //查询属性值表
-                List<Long> idList = new ArrayList<>();
-                List<PmGoodsAttributeValuePo> valuePoList = valueMapper.findByAttributeId(attributePo.getId());
-                if (valuePoList.size() != 0) {
-                    for (PmGoodsAttributeValuePo po : valuePoList) {
-                        idList.add(po.getId());
-                    }
-                    goodsAttributeValueList = valueMapper.selectBatchIds(idList);
-                }
-            }
-            PmGoodsAttributeVo pmGoodsAttributeVo = new PmGoodsAttributeVo();
-            BeanUtils.copyProperties(attributePo, pmGoodsAttributeVo);
-            pmGoodsAttributeVo.setValueList(goodsAttributeValueList);
-            goodsAttributeVos.add(pmGoodsAttributeVo);
-        }
-
-        return new JsonViewData(ResultCode.SUCCESS,"查询成功",goodsAttributeVos);
+    public JsonViewData updateStatus(BaseUpdateStatusDto baseUpdateStatusDto) {
+        PmGoodsAttributePo goodsAttributePo = new PmGoodsAttributePo();
+        BeanUtils.copyProperties(baseUpdateStatusDto,goodsAttributePo);
+        mapper.updateById(goodsAttributePo);
+        return new JsonViewData(ResultCode.SUCCESS,"操作成功！");
     }
 
 }

@@ -2,6 +2,7 @@ package com.chauncy.product.service;
 
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
+import com.chauncy.data.dto.manage.good.add.GoodAttributeValueDto;
 import com.chauncy.data.vo.JsonViewData;
 
 /**
@@ -20,18 +21,18 @@ public interface IPmGoodsAttributeValueService extends Service<PmGoodsAttributeV
     /**
      * 根据属性ID添加属性值
      *
-     * @param goodsAttributeValuePo
+     * @param goodAttributeValueDto
      * @return
      */
-    JsonViewData saveAttValue(PmGoodsAttributeValuePo goodsAttributeValuePo);
+    JsonViewData saveAttValue(GoodAttributeValueDto goodAttributeValueDto);
 
     /**
      * 更新属性值
      *
-     * @param pmGoodsAttributeValuePo
+     * @param goodAttributeValueDto
      * @return
      */
-    JsonViewData editValue(PmGoodsAttributeValuePo pmGoodsAttributeValuePo);
+    JsonViewData editValue(GoodAttributeValueDto goodAttributeValueDto);
 
     /**
      * 批量删除属性值
@@ -41,6 +42,11 @@ public interface IPmGoodsAttributeValueService extends Service<PmGoodsAttributeV
      */
     JsonViewData delAttValueByIds(Long[] ids);
 
+    /**
+     * 根据ID查找
+     * @param id
+     * @return
+     */
     JsonViewData findValueById(Long id);
 
 }

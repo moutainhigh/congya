@@ -14,44 +14,29 @@
         <result column="del_flag" property="delFlag" />
     </resultMap>
 
-    <insert id="saveAttValue">
-        insert into pm_goods_attribute_value(
-        <!--<if test="id != null and id != 0">id,</if>-->
-        <if test="productAttributeId != null and productAttributeId != ''">product_attribute_id,</if>
-        <if test="value != null and value != 0">value,</if>
-        <if test="createBy != null and createBy != ''">create_by,</if>
-        <if test="createTime != null and createTime != ''">create_time,</if>
-        <if test="updateBy != null and updateBy != ''">update_by,</if>
-        <if test="updateTime != null and updateTime != ''">update_time,</if>
-        <if test="delFlag != null and delFlag != ''">del_flag</if>
-        )values(
-        <!--<if test="id != null and id != 0">#{id},</if>-->
-        <if test="productAttributeId != null and productAttributeId != ''">#{productAttributeId},</if>
-        <if test="value != null and value != 0">#{value},</if>
-        <if test="createBy != null and createBy != ''">#{createBy}</if>
-        <if test="createTime != null and createTime != ''">#{createTime}</if>
-        <if test="updateBy != null and updateBy != ''">#{updateBy}</if>
-        <if test="updateTime != null and updateTime != ''">#{updateTime}</if>
-        <if test="delFlag != null and delFlag != ''">#{delFlag}</if>
-
-    </insert>
-
-<!--    <update id="deleteByAttributeId">-->
-<!--        update pm_goods_attribute_value-->
-<!--        <set>-->
-<!--            <if test="del_flag != null and del_flag != ''">del_flag = 1</if>-->
-<!--        </set>-->
-<!--        <where>-->
-<!--            <if test="productAttributeId !=null and productAttributeId !=''">-->
-<!--                and product_attribute_id = #{productAttributeId}-->
-<!--            </if>-->
-<!--        </where>-->
-<!--    </update>-->
 
     <select id="findByAttributeId" resultType="com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo">
         select *
         from pm_goods_attribute_value
         where product_attribute_id = #{productAttributeId} and del_flag = 0
+    </select>
+
+    <select id="findByCondition" resultType="com.chauncy.data.vo.product.PmGoodsAttributeVo">
+        select a.*,b.value
+        from pm_goods_attribute a,pm_goods_attribute_value b
+        <where>
+            <if test="type !=null and type !=''">
+                type = #{type}
+            </if>
+            <if test="enabled !=null">
+                and enabled = #{enabled}
+            </if>
+            <if test="name !=null and name !=''">
+                and name like concat('%', #{name}, '%')
+            </if>
+            and a.id = b.product_attribute_id and a.del_flag = 0 and b.del_flag = 0
+        </where>
+        order by b.id desc
     </select>
 
 </mapper>
