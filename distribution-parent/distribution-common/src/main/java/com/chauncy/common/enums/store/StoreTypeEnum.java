@@ -5,14 +5,13 @@ import com.baomidou.mybatisplus.core.enums.IEnum;
 import com.chauncy.common.enums.BaseEnum;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * @Author: xiaoye
  * @Date: 2019/6/12 16:17
  */
-public enum StoreTypeEnum implements BaseEnum, IEnum {
+public enum StoreTypeEnum implements BaseEnum, IEnum<Integer> {
 
     /**
      * 店铺类型
@@ -23,7 +22,6 @@ public enum StoreTypeEnum implements BaseEnum, IEnum {
     POPULARIZE_STORE(2, "商品店铺"),
     ;
 
-    @EnumValue
     private Integer type;
     private String typeName;
     StoreTypeEnum(Integer type, String typeName){
@@ -82,7 +80,7 @@ public enum StoreTypeEnum implements BaseEnum, IEnum {
     }
 
     @Override
-    public Serializable getValue() {
-        return type;
+    public Integer getValue() {
+        return this.type;
     }
 }
