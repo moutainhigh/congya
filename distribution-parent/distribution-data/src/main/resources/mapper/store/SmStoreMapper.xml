@@ -63,7 +63,7 @@ Score" />
         update sm_store
         set enabled = #{enabled}
         where id in
-        <foreach collection="array" item="id" index="index"
+        <foreach collection="id" item="id" index="index"
                  open="(" close=")" separator=",">
             #{id}
         </foreach>
