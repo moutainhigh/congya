@@ -19,7 +19,8 @@ public enum GoodsAttributeTypeEnum implements BaseEnum {
     LABEL(5,"标签管理类型"),
     PURCHASE(6,"购买须知管理类型"),
     STANDARD(7,"规格管理类型"),
-    BRAND(8,"品牌管理");
+    BRAND(8,"品牌管理"),
+    SENSITIVE(9,"敏感词");
 
     private Integer id;
     private String name;

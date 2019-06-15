@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Api(description = "商品属性管理接口")
 @RestController
-@RequestMapping("/pm-goods-attribute-value-po")
+@RequestMapping("/manage/product/value")
 public class PmGoodsAttributeValueApi {
 
 }

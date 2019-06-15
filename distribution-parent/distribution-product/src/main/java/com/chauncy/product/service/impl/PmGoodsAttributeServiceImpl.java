@@ -9,7 +9,7 @@ import com.chauncy.data.dto.manage.good.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.good.select.FindAttributeInfoByConditionDto;
 import com.chauncy.data.mapper.product.*;
 import com.chauncy.data.vo.JsonViewData;
-import com.chauncy.data.vo.product.PmGoodsAttributeVo;
+import com.chauncy.data.vo.manage.product.PmGoodsAttributeVo;
 import com.chauncy.product.service.IPmGoodsAttributeService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;

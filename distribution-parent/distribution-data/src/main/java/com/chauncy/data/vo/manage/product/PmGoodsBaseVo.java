@@ -56,5 +56,5 @@ public class PmGoodsBaseVo {
     private String logoIcon;
 
     @ApiModelProperty(value = "商品属性值")
-    private List<PmGoodsAttributeValuePo> valueList;
+    private List<String> valueList;
 }
