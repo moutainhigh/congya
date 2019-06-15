@@ -81,7 +81,7 @@ Score" />
                 and name like concat('%', #{name}, '%')
             </if>
             <if test="mobile != null and mobile !=''">
-                and mobile = #{mobile}
+                and owner_mobile = #{mobile}
             </if>
             <if test="enabled != null">
                 and enabled = #{enabled}

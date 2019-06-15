@@ -1,8 +1,9 @@
 package com.chauncy.web.api.manage.store;
 
-import com.chauncy.data.dto.store.StoreAccountInfoDto;
-import com.chauncy.data.dto.store.StoreBaseInfoDto;
-import com.chauncy.data.dto.store.StoreSearchDto;
+import com.chauncy.data.dto.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.manage.store.add.StoreAccountInfoDto;
+import com.chauncy.data.dto.manage.store.add.StoreBaseInfoDto;
+import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.store.SmStoreBaseVo;
 import com.chauncy.store.service.ISmStoreService;
@@ -24,7 +25,7 @@ import javax.validation.Valid;
  */
 @Api(description = "店铺管理接口")
 @RestController
-@RequestMapping("/sm-store-po")
+@RequestMapping("/common/store")
 @Slf4j
 public class SmStoreApi extends BaseApi {
 
@@ -35,7 +36,7 @@ public class SmStoreApi extends BaseApi {
     @ApiOperation(value = "保存店铺信息（基本信息）")
     @Transactional(rollbackFor = Exception.class)
     public JsonViewData saveStoreBaseInfo(@Valid @ModelAttribute  @ApiParam(required = true, name = "storeBaseInfoDto", value = "店铺基本信息")
-                                                      StoreBaseInfoDto storeBaseInfoDto, BindingResult result) {
+                                                  StoreBaseInfoDto storeBaseInfoDto, BindingResult result) {
 
         return smStoreService.saveStore(storeBaseInfoDto);
     }
@@ -44,7 +45,7 @@ public class SmStoreApi extends BaseApi {
     @ApiOperation(value = "保存店铺信息（账户信息）")
     @Transactional(rollbackFor = Exception.class)
     public JsonViewData saveStoreAccountInfo(@Valid @ModelAttribute  @ApiParam(required = true, name = "storeAccountInfoDto", value = "店铺账户信息")
-                                                         StoreAccountInfoDto storeAccountInfoDto, BindingResult result) {
+                                                     StoreAccountInfoDto storeAccountInfoDto, BindingResult result) {
 
         return smStoreService.saveStore(storeAccountInfoDto);
     }
@@ -52,10 +53,10 @@ public class SmStoreApi extends BaseApi {
     @PostMapping("/editStoreStatus")
     @ApiOperation(value = "批量修改店铺经营状态")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData saveStoreAccountInfo(@ApiParam(required = true, name = "id", value = "店铺ID") @RequestParam Long[] ids,
-                                             @ApiParam(required = true, name = "enabled", value = "店铺经营状态") @RequestParam Boolean enabled) {
+    public JsonViewData saveStoreAccountInfo(@Valid @ModelAttribute  @ApiParam(required = true, name = "baseUpdateStatusDto", value = "店铺id、修改的状态值")
+                                                     BaseUpdateStatusDto baseUpdateStatusDto, BindingResult result) {
 
-        return smStoreService.editStoreStatus(ids, enabled);
+        return smStoreService.editStoreStatus(baseUpdateStatusDto);
     }
 
     /**

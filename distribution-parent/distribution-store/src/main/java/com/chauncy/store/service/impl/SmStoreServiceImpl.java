@@ -1,12 +1,12 @@
 package com.chauncy.store.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.store.SmStorePo;
-import com.chauncy.data.dto.store.StoreAccountInfoDto;
-import com.chauncy.data.dto.store.StoreBaseInfoDto;
-import com.chauncy.data.dto.store.StoreSearchDto;
+import com.chauncy.data.dto.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.manage.store.add.StoreAccountInfoDto;
+import com.chauncy.data.dto.manage.store.add.StoreBaseInfoDto;
+import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.store.SmStoreBaseVo;
@@ -19,9 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * <p>
@@ -87,13 +84,14 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
 
     /**
      * 修改店铺经营状态
-     * @param ids 店铺ID
-     * @param enabled 店铺经营状态修改 true 启用 false 禁用
+     * @param baseUpdateStatusDto
+     * ids 店铺ID
+     * enabled 店铺经营状态修改 true 启用 false 禁用
      * @return
      */
     @Override
-    public JsonViewData editStoreStatus(Long[] ids, Boolean enabled) {
-        smStoreMapper.editStoreStatus(ids, enabled);
+    public JsonViewData editStoreStatus(BaseUpdateStatusDto baseUpdateStatusDto) {
+        smStoreMapper.editStoreStatus(baseUpdateStatusDto);
         return new JsonViewData(ResultCode.SUCCESS, "修改经营状态成功");
     }
 

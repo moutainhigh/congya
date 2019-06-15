@@ -2,7 +2,7 @@ package com.chauncy.data.dto.manage.store.select;
 
 import com.chauncy.common.util.serializer.LongJsonDeserializer;
 import com.chauncy.common.util.serializer.LongJsonSerializer;
-import com.chauncy.data.dto.BaseSearchDto;
+import com.chauncy.data.dto.base.BaseSearchDto;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModelProperty;
