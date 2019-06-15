@@ -7,12 +7,13 @@
       select id as 'id', name as '名字', age as '年龄', salary as '薪水' from tb_user where name = #{username}
     </select>
 
-    <select id="getChildIds" resultType="java.lang.Long">
+    <select id="loadChildIds" resultType="java.lang.Long">
         WITH RECURSIVE childrenIds (id) AS
         (
         SELECT id
         FROM ${tableName}
         WHERE
+            del_flag=0 and
         <choose>
             <when test="parentId==null">
                 parent_id is null
@@ -25,8 +26,14 @@
         SELECT c.id
         FROM childrenIds AS p JOIN ${tableName} AS c
         ON p.id = c.parent_id
+        where c.del_flag=0
         )
         SELECT id FROM childrenIds
+        <if test="parentId!=null">
+            UNION
+            SELECT #{parentId}
+        </if>
+
     </select>
 
     <select id="countById" resultType="java.lang.Integer">

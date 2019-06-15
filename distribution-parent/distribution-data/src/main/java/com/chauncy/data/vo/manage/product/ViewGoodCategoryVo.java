@@ -1,8 +1,7 @@
-package com.chauncy.data.dto.manage.good.add;
+package com.chauncy.data.vo.manage.product;
 
 import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import com.chauncy.data.valid.group.IUpdateGroup;
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -13,17 +12,19 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
+/**查看商品分类详情
  * @Author zhangrt
- * @Date 2019-06-03 11:34
+ * @Date 2019/6/14 17:07
  **/
 @Data
-@ApiModel(value = "新增或修改商品分类", description = "商品分类表")
-public class GoodCategoryDto {
+public class ViewGoodCategoryVo {
 
     @ApiModelProperty(value = "id,当新增时为空")
-    @NotNull(groups = IUpdateGroup.class)
     private Long id;
+
+    @ApiModelProperty(value = "是否启用 1-是 0-否 默认为1")
+    @NotNull(message = "启用状态不能为空!")
+    private Boolean enabled;
 
     @ApiModelProperty(value = "分类名称")
     @NotBlank(message = "分类名称不能为空")
@@ -37,9 +38,7 @@ public class GoodCategoryDto {
     @Min(value = 0,message = "排序数字必须大于0")
     private BigDecimal sort;
 
-    @ApiModelProperty(value = "是否启用 1-是 0-否 默认为1")
-    @NotNull(message = "启用状态不能为空!")
-    private Boolean enabled;
+
 
     @ApiModelProperty(value = "税率")
     @Min(value = 0,message = "税率必须大于0")
@@ -58,7 +57,4 @@ public class GoodCategoryDto {
     @ApiModelProperty(value = "规格、参数、服务说明、活动说明的id集合")
     @NeedExistConstraint(tableName = "pm_goods_attribute",message = "goodAttributeIds中存在数据库没有的id")
     List<Long> goodAttributeIds;
-
-
-
 }

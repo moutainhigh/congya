@@ -2,7 +2,7 @@ package com.chauncy.data.mapper.product;
 
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.mapper.IBaseMapper;
-import com.chauncy.data.vo.product.PmGoodsAttributeVo;
+import com.chauncy.data.vo.manage.product.PmGoodsAttributeVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -57,5 +57,12 @@ public interface PmGoodsAttributeMapper extends IBaseMapper<PmGoodsAttributePo> 
      * @return
      */
     List<PmGoodsAttributeVo> findByCondition(@Param("type") Integer type, @Param("name") String name, @Param("enabled") Boolean enabled);
+
+    /**
+     * 根据分类id下的的商品找出哪些属性被商品引用了
+     * @param categoryId
+     * @return
+     */
+    List<PmGoodsAttributePo> loadByCategoryId(@Param("categoryId") Long categoryId);
 
 }

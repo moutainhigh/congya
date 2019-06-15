@@ -1,5 +1,6 @@
 package com.chauncy.data.dto.manage.good.base;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
 import javax.validation.constraints.Min;
@@ -18,4 +19,5 @@ public class BaseSearchDto {
     private Integer pageNo;
     @Min(1)
     private Integer pageSize;
+
 }

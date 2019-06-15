@@ -3,6 +3,8 @@ package com.chauncy.data.vo;
 import com.alibaba.fastjson.JSON;
 import com.chauncy.common.enums.system.ResultCode;
 import com.google.common.net.MediaType;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -18,7 +20,8 @@ import java.util.Map;
  * @date 2019-05-22
  * @time 16:53
  */
-public class JsonViewData {
+@ApiModel(value = "response返回对象")
+public class JsonViewData{
 
     /**
      * 未登陆或超时视图
@@ -28,16 +31,19 @@ public class JsonViewData {
     /**
      * 操作结果码
      */
+    @ApiModelProperty(value = "返回状态码")
     private ResultCode resultCode;
 
     /**
      * 消息提示
      */
+    @ApiModelProperty(value = "消息提示")
     private String message;
 
     /**
      * 有效数据包
      */
+    @ApiModelProperty(value = "返回数据")
     private Object data;
 
     public JsonViewData(ResultCode resultCode) {

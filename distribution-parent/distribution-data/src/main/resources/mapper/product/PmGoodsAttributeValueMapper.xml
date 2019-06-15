@@ -21,7 +21,7 @@
         where product_attribute_id = #{productAttributeId} and del_flag = 0
     </select>
 
-    <select id="findByCondition" resultType="com.chauncy.data.vo.product.PmGoodsAttributeVo">
+    <select id="findByCondition" resultType="com.chauncy.data.vo.manage.product.PmGoodsAttributeVo">
         select a.*,b.value
         from pm_goods_attribute a,pm_goods_attribute_value b
         <where>

@@ -1,9 +1,6 @@
 package com.chauncy.data.domain.po.product;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.chauncy.common.constant.SecurityConstant;
 import com.chauncy.common.util.serializer.LongJsonSerializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -41,6 +38,7 @@ public class PmGoodsCategoryPo {
     private Long id;
 
     @ApiModelProperty(value = "分类名称")
+    @TableField(condition = SqlCondition.LIKE)
     private String name;
 
     @ApiModelProperty(value = "分类缩略图")

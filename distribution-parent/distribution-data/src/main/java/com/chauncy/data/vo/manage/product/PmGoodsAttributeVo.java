@@ -1,4 +1,4 @@
-package com.chauncy.data.vo.product;
+package com.chauncy.data.vo.manage.product;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.IdType;

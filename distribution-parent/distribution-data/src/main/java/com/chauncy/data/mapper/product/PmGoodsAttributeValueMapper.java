@@ -2,7 +2,7 @@ package com.chauncy.data.mapper.product;
 
 import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
 import com.chauncy.data.mapper.IBaseMapper;
-import com.chauncy.data.vo.product.PmGoodsAttributeVo;
+import com.chauncy.data.vo.manage.product.PmGoodsAttributeVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

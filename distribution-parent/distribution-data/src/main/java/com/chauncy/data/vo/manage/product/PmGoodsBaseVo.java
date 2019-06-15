@@ -1,4 +1,4 @@
-package com.chauncy.data.vo.product;
+package com.chauncy.data.vo.manage.product;
 
 import com.chauncy.common.constant.SecurityConstant;
 import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
