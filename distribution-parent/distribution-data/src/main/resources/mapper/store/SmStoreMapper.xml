@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chauncy.data.mapper.store.SmStoreMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.store.SmStorePo">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="store_describe" property="storeDescribe" />
+        <result column="user_name" property="userName" />
+        <result column="show_status" property="showStatus" />
+        <result column="store_type_label_id" property="storeTypeLabelId" />
+        <result column="store_attribute_id" property="storeAttributeId" />
+        <result column="type" property="type" />
+        <result column="parent_id" property="parentId" />
+        <result column="sort" property="sort" />
+        <result column="owner_name" property="ownerName" />
+        <result column="owner_mobile" property="ownerMobile" />
+        <result column="logo_image" property="logoImage" />
+        <result column="store_image" property="storeImage" />
+        <result column="background_image" property="backgroundImage" />
+        <result column="company_name" property="companyName" />
+        <result column="company_addr" property="companyAddr" />
+        <result column="company_mobile" property="companyMobile" />
+        <result column="company_email" property="companyEmail" />
+        <result column="legal_person" property="legalPerson" />
+        <result column="tax_number" property="taxNumber" />
+        <result column="cardholder" property="cardholder" />
+        <result column="opening_bank" property="openingBank" />
+        <result column="account" property="account" />
+        <result column="bank_reserve_mobile" property="bankReserveMobile" />
+        <result column="payment_bill_settlement_cycle" property="paymentBillSettlementCycle" />
+        <result column="income_bill_Settlement_cycle" property="incomeBillSettlementCycle" />
+        <result column="income_rate" property="incomeRate" />
+        <result column="business_license" property="businessLicense" />
+        <result column="enabled" property="enabled" />
+        <result column="total_score" property="totalScore" />
+        <result column="baby_describe_score" property="babyDescribeScore" />
+        <result column="service_attitude
+
+_score" property="serviceAttitude
+
+Score" />
+        <result column="logistics_service
+_score" property="logisticsService
+Score" />
+    </resultMap>
+
+
+    <sql id="selectSmStoreBaseVo">
+        select id, `name`, `type`, (case when `type`=1 then '推广店铺' when `type`=2 then '商品店铺' end) as typeName, parent_id, store_turnover, store_member_num, store_sub_num, goods_num, owner_mobile, sort, enabled
+		from sm_store
+    </sql>
+
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, store_describe, user_name, show_status, store_type_label_id, store_attribute_id, type, parent_id, sort, owner_name, owner_mobile, logo_image, store_image, background_image, company_name, company_addr, company_mobile, company_email, legal_person, tax_number, cardholder, opening_bank, account, bank_reserve_mobile, payment_bill_settlement_cycle, income_bill_Settlement_cycle, income_rate, business_license, enabled, total_score, baby_describe_score, service_attitude_score, logistics_service_score
+    </sql>
+
+
+    <update id="editStoreStatus">
+        update sm_store
+        set enabled = #{enabled}
+        where id in
+        <foreach collection="array" item="id" index="index"
+                 open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+
+    <select id="searchBaseInfo" resultType="com.chauncy.data.vo.store.SmStoreBaseVo">
+        <include refid="selectSmStoreBaseVo"/>
+        <where>
+            1=1
+            <if test="id !=null and type !=''">
+                and id = #{id}
+            </if>
+            <if test="name != null and name !=''">
+                and name like concat('%', #{name}, '%')
+            </if>
+            <if test="mobile != null and mobile !=''">
+                and owner_mobile = #{mobile}
+            </if>
+            <if test="enabled != null">
+                and enabled = #{enabled}
+            </if>
+            <if test="type != null and type != ''">
+                and type = #{type}
+            </if>
+        </where>
+    </select>
+
+
+
+</mapper>

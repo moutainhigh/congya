@@ -12,8 +12,8 @@ import lombok.Data;
 @ApiModel(description = "启用或禁用")
 public class BaseUpdateStatusDto {
 
-    private Long id;
+    private Long[] id;
 
     @ApiModelProperty("改变状态 1：启用  0：禁用")
-    private Boolean[] enabled;
+    private Boolean enabled;
 }

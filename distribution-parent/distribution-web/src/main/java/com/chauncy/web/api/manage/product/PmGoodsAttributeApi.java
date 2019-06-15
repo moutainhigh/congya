@@ -28,14 +28,8 @@ import javax.validation.Valid;
  */
 @Api(description = "商品属性管理接口")
 @RestController
-@RequestMapping("/pm-goods-attribute-po")
+@RequestMapping("/manage/product/attribute")
 @Slf4j
-/*@CrossOrigin(
-        origins = "*",
-        allowedHeaders = "*",
-        allowCredentials = "true",
-        methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS, RequestMethod.HEAD}
-)*/
 public class PmGoodsAttributeApi {
 
     @Autowired

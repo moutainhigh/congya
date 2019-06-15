@@ -265,9 +265,11 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
      */
     @Override
     public JsonViewData updateStatus(BaseUpdateStatusDto baseUpdateStatusDto) {
-        PmGoodsAttributePo goodsAttributePo = new PmGoodsAttributePo();
-        BeanUtils.copyProperties(baseUpdateStatusDto,goodsAttributePo);
-        mapper.updateById(goodsAttributePo);
+        for (Long id : baseUpdateStatusDto.getId()) {
+            PmGoodsAttributePo goodsAttributePo = mapper.selectById(id);
+            goodsAttributePo.setEnabled(baseUpdateStatusDto.getEnabled());
+            mapper.updateById(goodsAttributePo);
+        }
         return new JsonViewData(ResultCode.SUCCESS,"操作成功！");
     }
 
