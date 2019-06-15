@@ -194,12 +194,12 @@ public class PmGoodsCategoryApi extends BaseApi {
     @Transactional(rollbackFor = Exception.class)
     public JsonViewData updateStatus(@RequestBody BaseUpdateStatusDto baseUpdateStatus){
         //找出所有下级id
-        List<Long> allIds = goodsCategoryService.findChildIds(baseUpdateStatus.getId(), "pm_goods_category");
+        List<Long> allIds = goodsCategoryService.findChildIds(baseUpdateStatus.getId()[0], "pm_goods_category");
         List<PmGoodsCategoryPo> categoryPos= Lists.newArrayListWithExpectedSize(allIds.size());
         allIds.forEach(x->{
             PmGoodsCategoryPo categoryPo=new PmGoodsCategoryPo();
             categoryPo.setId(x);
-            categoryPo.setEnabled(baseUpdateStatus.getEnabled()[0]);
+            categoryPo.setEnabled(baseUpdateStatus.getEnabled());
             categoryPos.add(categoryPo);
         });
 
