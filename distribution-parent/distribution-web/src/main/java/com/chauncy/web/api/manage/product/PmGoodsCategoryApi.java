@@ -1,9 +1,12 @@
 package com.chauncy.web.api.manage.product;
 
 
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.common.util.JSONUtils;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
@@ -25,6 +28,8 @@ import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Maps;
 import org.springframework.beans.BeanUtils;
@@ -175,9 +180,9 @@ public class PmGoodsCategoryApi extends BaseApi {
         Integer pageSize=baseSearchDto.getPageSize()==null?defaultPageSize:baseSearchDto.getPageSize();
         BeanUtils.copyProperties(baseSearchDto,queryCategory);
         QueryWrapper<PmGoodsCategoryPo> queryWrapper=new QueryWrapper<>(queryCategory);
-        queryWrapper.select("id","name");
+        queryWrapper.select("id","name","icon","sort","enabled","level");
         PageInfo<PmGoodsCategoryPo> categoryPageInfo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
-                .doSelectPageInfo(() -> goodsCategoryService.list(queryWrapper));
+                .doSelectPageInfo(() -> goodsCategoryService.listMaps(queryWrapper));
         return new JsonViewData(categoryPageInfo);
     }
 
@@ -209,9 +214,12 @@ public class PmGoodsCategoryApi extends BaseApi {
 
     @PostMapping("/view/{id}")
     @ApiOperation(value = "查看分类详情")
-    public JsonViewData delete(@PathVariable Long id){
-
-        return null;
+    public JsonViewData view(@PathVariable Long id){
+        Map<String, Object> map = goodsCategoryService.findById(id);
+        if (!map.get("attributionList").toString().equals("")){
+            map.put("attributionList",JSONUtils.toList(map.get("attributionList")));
+        }
+        return new JsonViewData(map);
     }
 
 

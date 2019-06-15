@@ -12,7 +12,7 @@ import java.util.*;
  * @Date: 2019/04/26 9:40
  * @Version 1.0
  */
-public class JSONUtils {
+public class  JSONUtils {
     /***
      * 将List对象序列化为JSON文本
      */
