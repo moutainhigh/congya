@@ -4,7 +4,11 @@ import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
 import com.chauncy.data.dto.manage.good.add.GoodBaseDto;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.Result;
+import com.chauncy.data.vo.supplier.PmGoodsAttributeValueVo;
 import org.springframework.web.bind.annotation.ModelAttribute;
+
+import java.util.List;
 
 /**
  * <p>
@@ -30,4 +34,12 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @return
      */
     JsonViewData findBaseById(Long id);
+
+    /**
+     * 根据分类ID查找对应的规格值
+     *
+     * @param categoryId
+     * @return
+     */
+    JsonViewData searchStandard(Long categoryId);
 }

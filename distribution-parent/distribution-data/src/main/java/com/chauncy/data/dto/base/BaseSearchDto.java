@@ -12,6 +12,7 @@ import javax.validation.constraints.Min;
 @Data
 public class BaseSearchDto {
 
+
     private Boolean enabled;
 
     private String name;

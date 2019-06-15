@@ -1,20 +1,32 @@
 package com.chauncy.product.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
+import com.chauncy.data.domain.po.product.PmGoodsRelAttributeCategoryPo;
 import com.chauncy.data.domain.po.product.PmGoodsRelAttributeGoodPo;
 import com.chauncy.data.dto.manage.good.add.GoodBaseDto;
+import com.chauncy.data.mapper.product.PmGoodsAttributeMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
+import com.chauncy.data.mapper.product.PmGoodsRelAttributeCategoryMapper;
 import com.chauncy.data.mapper.product.PmGoodsRelAttributeGoodMapper;
+import com.chauncy.data.util.ResultUtil;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.Result;
+import com.chauncy.data.vo.supplier.PmGoodsAttributeValueVo;
 import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.security.util.SecurityUtil;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 
 /**
  * <p>
@@ -78,4 +90,20 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
         return null;
     }
+
+    /**
+     * 供应商添加商品时需要的规格值
+     *
+     * @param categoryId
+     * @return
+     */
+    @Override
+    public JsonViewData searchStandard(Long categoryId) {
+
+        List<PmGoodsAttributeValueVo> list = mapper.searchStandard(categoryId);
+
+        return new JsonViewData(list);
+    }
+
+
 }

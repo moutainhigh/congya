@@ -52,6 +52,9 @@ public class PmGoodsAttributeValuePo implements Serializable {
     @ApiModelProperty(value = "属性值")
     private String value;
 
+    @ApiModelProperty(value = "是否自定义属性值 1是 0否")
+    private Boolean isCustom;
+
     @ApiModelProperty(value = "创建者")
     private String createBy;
 

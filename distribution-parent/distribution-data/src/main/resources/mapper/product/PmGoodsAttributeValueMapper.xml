@@ -7,6 +7,7 @@
         <id column="id" property="id" />
         <result column="product_attribute_id" property="productAttributeId" />
         <result column="value" property="value" />
+        <result column="is_custom" property="isCustom" />
         <result column="create_by" property="createBy" />
         <result column="create_time" property="createTime" />
         <result column="update_by" property="updateBy" />
@@ -18,7 +19,7 @@
     <select id="findByAttributeId" resultType="com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo">
         select *
         from pm_goods_attribute_value
-        where product_attribute_id = #{productAttributeId} and del_flag = 0
+        where product_attribute_id = #{productAttributeId} and del_flag = 0 and is_custom = 0
     </select>
 
     <select id="findByCondition" resultType="com.chauncy.data.vo.manage.product.PmGoodsAttributeVo">
@@ -34,7 +35,7 @@
             <if test="name !=null and name !=''">
                 and name like concat('%', #{name}, '%')
             </if>
-            and a.id = b.product_attribute_id and a.del_flag = 0 and b.del_flag = 0
+            and a.id = b.product_attribute_id and a.del_flag = 0 and b.del_flag = 0 and b.is_custom = 0
         </where>
         order by b.id desc
     </select>
