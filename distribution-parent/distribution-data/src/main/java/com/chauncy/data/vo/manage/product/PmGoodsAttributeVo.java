@@ -1,4 +1,4 @@
-package com.chauncy.data.vo.product;
+package com.chauncy.data.vo.manage.product;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -33,10 +33,6 @@ import java.util.List;
 @Data
 @ApiModel(value = "PmGoodsAttributePo对象", description = "商品属性参数 ")
 public class PmGoodsAttributeVo implements Serializable {
-
-//    private PmGoodsAttributePo pmGoodsAttributePo;
-//
-//    private List<PmGoodsAttributeValuePo> pmGoodsAttributeValuePo;
 
     private static final long serialVersionUID = 1L;
 
@@ -94,7 +90,10 @@ public class PmGoodsAttributeVo implements Serializable {
     private Integer delFlag = SecurityConstant.STATUS_NORMAL;
 
     @ApiModelProperty(value = "商品属性值")
-    private List<PmGoodsAttributeValuePo> valueList;
+    private String value;
+
+    @ApiModelProperty(value = "商品属性值")
+    private List<String> valueList;
 
 
 }

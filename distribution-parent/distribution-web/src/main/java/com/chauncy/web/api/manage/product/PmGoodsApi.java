@@ -1,7 +1,7 @@
 package com.chauncy.web.api.manage.product;
 
 
-import com.chauncy.data.dto.good.GoodBaseDto;
+import com.chauncy.data.dto.manage.good.add.GoodBaseDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.web.base.BaseApi;

@@ -1,6 +1,8 @@
 package com.chauncy.data.valid.constraint;
 
 import com.alibaba.fastjson.JSON;
+import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,10 +53,17 @@ public class NeedExistValidator implements ConstraintValidator<NeedExistConstrai
                 int count = baseMapper.countById(id, tableName,field);
                 if (count==0){
                     //如果数据库不存在
-                    return !isNeedExists;
+                    if (isNeedExists){
+                        return false;
+                    }
+                }
+                else {
+                    if (!isNeedExists){
+                        return false;
+                    }
                 }
             }
-            return isNeedExists;
+            return true;
 
         }
         else {

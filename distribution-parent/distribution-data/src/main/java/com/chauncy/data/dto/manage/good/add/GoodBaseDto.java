@@ -1,4 +1,4 @@
-package com.chauncy.data.dto.good;
+package com.chauncy.data.dto.manage.good.add;
 
 import com.chauncy.common.util.serializer.LongJsonSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;

@@ -4,8 +4,10 @@ package com.chauncy.data.core;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chauncy.data.mapper.IBaseMapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,6 +31,11 @@ public abstract class AbstractService<M extends BaseMapper<T>,T> extends Service
     @Override
     public Map<String, Object> findByUserUame(String username) {
         return IBaseMapper.findByUserName(username);
+    }
+
+    @Override
+    public List<Long> findChildIds(@Param("parentId") Long parentId, @Param("tableName") String tableName){
+        return IBaseMapper.loadChildIds(parentId,tableName);
     }
 
 }

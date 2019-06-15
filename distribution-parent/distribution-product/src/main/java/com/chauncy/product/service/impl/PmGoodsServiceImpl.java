@@ -4,7 +4,7 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
 import com.chauncy.data.domain.po.product.PmGoodsRelAttributeGoodPo;
-import com.chauncy.data.dto.good.GoodBaseDto;
+import com.chauncy.data.dto.manage.good.add.GoodBaseDto;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsRelAttributeGoodMapper;
 import com.chauncy.data.vo.JsonViewData;

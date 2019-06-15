@@ -22,7 +22,11 @@
     <select id="findByAttributeId"
             resultType="com.chauncy.data.domain.po.product.PmGoodsRelAttributeCategoryPo">
         select * from pm_goods_rel_attribute_category
-        where goods_attribute_id = #{goodsAttributeId}
+        where goods_attribute_id = #{goodsAttributeId} <include refid="delflag"></include>
     </select>
+
+    <sql id="delflag">
+        and del_flag=0
+    </sql>
 
 </mapper>

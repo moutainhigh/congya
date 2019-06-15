@@ -20,13 +20,13 @@ public interface IBaseMapper<T> extends BaseMapper<T> {
     Map<String, Object> findByUserName(@Param("username") String username);
 
     /**
-     * 根据数据库表名和parentId获取所有子级，当parentId=null时获取所有数据
+     * 根据数据库表名和parentId获取所有子级包括本身，当parentId=null时获取所有数据
      * 表中必须存在parentId和id字段
      * @param parentId
      * @param tableName
      * @return
      */
-    List<Long> getChildIds(@Param("parentId") Long parentId, @Param("tableName") String tableName);
+    List<Long> loadChildIds(@Param("parentId") Long parentId, @Param("tableName") String tableName);
 
     /**
      *判断id是否存在

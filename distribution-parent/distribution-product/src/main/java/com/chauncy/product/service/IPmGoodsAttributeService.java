@@ -2,6 +2,9 @@ package com.chauncy.product.service;
 
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
+import com.chauncy.data.dto.manage.good.add.GoodAttributeDto;
+import com.chauncy.data.dto.manage.good.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.manage.good.select.FindAttributeInfoByConditionDto;
 import com.chauncy.data.vo.JsonViewData;
 
 /**
@@ -39,10 +42,10 @@ public interface IPmGoodsAttributeService extends Service<PmGoodsAttributePo> {
 
     /**
      * 保存商品属性
-     * @param goodsAttributePo
+     * @param goodsAttributeDto
      * @return
      */
-    JsonViewData saveAttribute (PmGoodsAttributePo goodsAttributePo);
+    JsonViewData saveAttribute (GoodAttributeDto goodsAttributeDto);
 
     /**
      * 批量删除属性以及关联的值
@@ -54,10 +57,10 @@ public interface IPmGoodsAttributeService extends Service<PmGoodsAttributePo> {
     /**
      * 更新属性基本数据(不包括属性值)
      *
-     * @param goodsAttributePo
+     * @param goodAttributeDto
      * @return
      */
-    JsonViewData edit(PmGoodsAttributePo goodsAttributePo);
+    JsonViewData edit(GoodAttributeDto goodAttributeDto);
 
     /**
      * 根据ID查找属性以及关联的属性值
@@ -66,21 +69,20 @@ public interface IPmGoodsAttributeService extends Service<PmGoodsAttributePo> {
      */
     JsonViewData findById(Long id);
 
-    /**
-     * 条件查询
-     *
-     * @param type
-     * @param name
-     * @param enabled
-     * @return
-     */
-    JsonViewData search(Integer type,String name,Boolean enabled);
 
     /**
-     * 根据type类型查找属性以及关联属性值
+     * 条件查询属性以及关联属性值
      *
-     * @param type
+     * @param findAttributeInfoByConditionDto
      * @return
      */
-    JsonViewData findByType(Integer type);
+    JsonViewData findByCondition(FindAttributeInfoByConditionDto findAttributeInfoByConditionDto);
+
+    /**
+     * 启用或禁用
+     *
+     * @param baseUpdateStatusDto
+     * @return
+     */
+    JsonViewData updateStatus(BaseUpdateStatusDto baseUpdateStatusDto);
 }

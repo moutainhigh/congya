@@ -1,4 +1,4 @@
-package com.chauncy.data.dto.good;
+package com.chauncy.data.dto.manage.good.select;
 
 import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import io.swagger.annotations.ApiModel;

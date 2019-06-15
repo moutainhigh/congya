@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.validation.ValidationException;
+
 /**
  * 统一异常拦截处理
  * @Author zhangrt
@@ -28,8 +30,12 @@ public class MyExceptionHandler {
         if(e instanceof ServiceException){
             ServiceException serviceException = (ServiceException) e;
             return new JsonViewData(serviceException.getResultCode(),serviceException.getLocalizedMessage());
-        }else{
-            return new JsonViewData(ResultCode.SYSTEM_ERROR,e.getMessage());
+        }else if (e instanceof ValidationException){
+            if (e.getCause() instanceof ServiceException){
+                ServiceException serviceException= (ServiceException) e.getCause();
+                return new JsonViewData(serviceException.getResultCode(),serviceException.getLocalizedMessage());
+            }
         }
+        return new JsonViewData(ResultCode.SYSTEM_ERROR,e.getMessage());
     }
 }

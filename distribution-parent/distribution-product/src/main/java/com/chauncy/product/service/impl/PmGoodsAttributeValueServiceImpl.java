@@ -4,11 +4,13 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
 import com.chauncy.data.domain.po.product.PmGoodsRelAttributeValueSkuPo;
+import com.chauncy.data.dto.manage.good.add.GoodAttributeValueDto;
 import com.chauncy.data.mapper.product.PmGoodsAttributeValueMapper;
 import com.chauncy.data.mapper.product.PmGoodsRelAttributeValueSkuMapper;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.product.service.IPmGoodsAttributeValueService;
 import com.chauncy.security.util.SecurityUtil;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,8 +19,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-//import com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo;
 
 /**
  * <p>
@@ -47,17 +47,21 @@ public class PmGoodsAttributeValueServiceImpl extends AbstractService<PmGoodsAtt
     /**
      * 根据属性ID添加属性值
      * 需判断是否已存在
-     * @param goodsAttributeValuePo
+     * @param goodAttributeValueDto
      *
      * @return
      */
     @Override
-    public JsonViewData saveAttValue(PmGoodsAttributeValuePo goodsAttributeValuePo) {
+    public JsonViewData saveAttValue(GoodAttributeValueDto goodAttributeValueDto) {
+
+        PmGoodsAttributeValuePo goodsAttributeValuePo = new PmGoodsAttributeValuePo();
+        BeanUtils.copyProperties(goodAttributeValueDto,goodsAttributeValuePo);
         LocalDateTime date = LocalDateTime.now();
         //获取当前用户
         String user = securityUtil.getCurrUser().getUsername();
         goodsAttributeValuePo.setCreateBy(user);
         goodsAttributeValuePo.setCreateTime(date);
+        goodsAttributeValuePo.setId(null);
         //判断该属性下是否已经存在属性值
         List<PmGoodsAttributeValuePo> valuePoList = mapper.findByAttributeId(goodsAttributeValuePo.getProductAttributeId());
         List<String> valueList = new ArrayList<>();
@@ -81,11 +85,14 @@ public class PmGoodsAttributeValueServiceImpl extends AbstractService<PmGoodsAtt
     /**
      * 更新属性值
      * 需判断是否被用&&已存在
-     * @param pmGoodsAttributeValuePo
+     * @param goodAttributeValueDto
      * @return
      */
     @Override
-    public JsonViewData editValue(PmGoodsAttributeValuePo pmGoodsAttributeValuePo) {
+    public JsonViewData editValue(GoodAttributeValueDto goodAttributeValueDto) {
+
+        PmGoodsAttributeValuePo pmGoodsAttributeValuePo = new PmGoodsAttributeValuePo();
+        BeanUtils.copyProperties(goodAttributeValueDto,pmGoodsAttributeValuePo);
         LocalDateTime date = LocalDateTime.now();
         //获取当前用户
         String user = securityUtil.getCurrUser().getUsername();

@@ -6,9 +6,10 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.product.PmGoodsRelAttributeCategoryPo;
-import com.chauncy.data.domain.po.product.PmGoodsSkuCategoryAttributeRelationPo;
-import com.chauncy.data.dto.BaseSearchDto;
-import com.chauncy.data.dto.good.GoodCategoryDto;
+import com.chauncy.data.dto.manage.good.base.BaseSearchDto;
+import com.chauncy.data.dto.manage.good.delete.GoodCategoryDeleteDto;
+import com.chauncy.data.dto.manage.good.add.GoodCategoryDto;
+import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.product.service.IPmGoodsCategoryService;
 import com.chauncy.product.service.IPmGoodsRelAttributeCategoryService;
@@ -27,10 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -70,21 +68,18 @@ public class PmGoodsCategoryApi extends BaseApi {
         //先保存分类
         PmGoodsCategoryPo pmGoodsCategoryPo=new PmGoodsCategoryPo();
         pmGoodsCategoryPo.setCreateBy(getUser().getUsername());
+        if (goodCategoryDto.getParentId()==null){
+            pmGoodsCategoryPo.setLevel(1);
+        }
+        else {
+            PmGoodsCategoryPo parentPo = goodsCategoryService.getById(goodCategoryDto.getParentId());
+            pmGoodsCategoryPo.setLevel(parentPo.getLevel()+1);
+        }
         BeanUtils.copyProperties(goodCategoryDto,pmGoodsCategoryPo);
         goodsCategoryService.save(pmGoodsCategoryPo);
 
-        //保存分类与属性的关联
-        List<PmGoodsRelAttributeCategoryPo> relAttributeCategoryPos= Lists.newArrayList();
-        if (!ListUtil.isListNullAndEmpty(goodCategoryDto.getGoodAttributeIds())){
-            goodCategoryDto.getGoodAttributeIds().forEach(x->{
-                PmGoodsRelAttributeCategoryPo relAttributeCategoryPo=new PmGoodsRelAttributeCategoryPo();
-                relAttributeCategoryPo.setCreateBy(getUser().getUsername()).setGoodsAttributeId(x).
-                        setGoodsCategoryId(pmGoodsCategoryPo.getId());
-                relAttributeCategoryPos.add(relAttributeCategoryPo);
-
-            });
-        }
-        relAttributeCategoryService.saveBatch(relAttributeCategoryPos);
+        //保存属性和分类之间的关系
+        saveRelAttributeAndCategory(goodCategoryDto, pmGoodsCategoryPo);
         return setJsonViewData(ResultCode.SUCCESS);
     }
 
@@ -96,7 +91,7 @@ public class PmGoodsCategoryApi extends BaseApi {
     @PostMapping("/update")
     @ApiOperation(value = "编辑商品分类")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData update(@RequestBody @Validated @ApiParam(required = true, name = "goodCategoryDto", value = "分类相关信息")
+    public JsonViewData update(@RequestBody @Validated(IUpdateGroup.class)  @ApiParam(required = true, name = "goodCategoryDto", value = "分类相关信息")
                                               GoodCategoryDto goodCategoryDto,
                                       BindingResult result) {
         //先修改分类
@@ -105,21 +100,44 @@ public class PmGoodsCategoryApi extends BaseApi {
         BeanUtils.copyProperties(goodCategoryDto,pmGoodsCategoryPo);
         goodsCategoryService.updateById(pmGoodsCategoryPo);
 
-        Map<String,Object> queryMap=Maps.newHashMap("goods_category_id",pmGoodsCategoryPo.getId());
+        Map<String,Object> columnMap=Maps.newHashMap("goods_category_id",pmGoodsCategoryPo.getId());
+        relAttributeCategoryService.removeByMap(columnMap);
 
-        //保存分类与属性的关联
-        List<PmGoodsSkuCategoryAttributeRelationPo> categoryAttributeRelationPos= Lists.newArrayList();
-        if (!ListUtil.isListNullAndEmpty(goodCategoryDto.getGoodAttributeIds())){
-            goodCategoryDto.getGoodAttributeIds().forEach(x->{
-                PmGoodsSkuCategoryAttributeRelationPo categoryAttributeRelationPo=new PmGoodsSkuCategoryAttributeRelationPo();
-                categoryAttributeRelationPo.setCreateBy(getUser().getUsername()).setGoodsAttributeId(x).
+        //保存属性和分类之间的关系
+        saveRelAttributeAndCategory(goodCategoryDto, pmGoodsCategoryPo);
+        return setJsonViewData(ResultCode.SUCCESS);
+    }
+
+    /**
+     * 保存属性和分类之间的关系
+     * @param goodCategoryDto
+     * @param pmGoodsCategoryPo
+     */
+    private void saveRelAttributeAndCategory(@ApiParam(required = true, name = "goodCategoryDto", value = "分类相关信息")
+                                             @Validated(IUpdateGroup.class)
+                                             @RequestBody GoodCategoryDto goodCategoryDto, PmGoodsCategoryPo pmGoodsCategoryPo) {
+        List<PmGoodsRelAttributeCategoryPo> relAttributeCategoryPos = Lists.newArrayList();
+        if (!ListUtil.isListNullAndEmpty(goodCategoryDto.getGoodAttributeIds())) {
+            goodCategoryDto.getGoodAttributeIds().forEach(x -> {
+                PmGoodsRelAttributeCategoryPo relAttributeCategoryPo = new PmGoodsRelAttributeCategoryPo();
+                relAttributeCategoryPo.setCreateBy(getUser().getUsername()).setGoodsAttributeId(x).
                         setGoodsCategoryId(pmGoodsCategoryPo.getId());
-                categoryAttributeRelationPos.add(categoryAttributeRelationPo);
+                relAttributeCategoryPos.add(relAttributeCategoryPo);
 
             });
         }
-        categoryAttributeRelationService.saveBatch(categoryAttributeRelationPos);
-        return setJsonViewData(ResultCode.SUCCESS);
+        relAttributeCategoryService.saveBatch(relAttributeCategoryPos);
+    }
+
+    /**
+     * 修改分类和属性关系时的验证
+     * 先查出该分类下哪些属性被该分类下的商品用到
+     * 如果修改后的属性不包括所有这些被用到的，验证失败
+     * @param goodAttributeIds
+     * @param categoryId
+     */
+    private void validUpdateRelCategoryAndAttribute(List<Long> goodAttributeIds,Long categoryId){
+
     }
 
     @PostMapping("/search")
@@ -137,6 +155,17 @@ public class PmGoodsCategoryApi extends BaseApi {
                 .doSelectPageInfo(() -> goodsCategoryService.list(queryWrapper));
         return setJsonViewData(categoryPageInfo);
     }
+
+    @PostMapping("/delete")
+    @ApiOperation(value = "删除商品分类")
+    public JsonViewData delete(@Validated @RequestBody GoodCategoryDeleteDto goodCategoryDeleteDto, BindingResult bindingResult){
+        boolean isSuccess = goodsCategoryService.removeByIds(goodCategoryDeleteDto.getIds());
+        return isSuccess?setJsonViewData(ResultCode.SUCCESS):setJsonViewData(ResultCode.FAIL);
+    }
+
+
+
+
 
 
 }

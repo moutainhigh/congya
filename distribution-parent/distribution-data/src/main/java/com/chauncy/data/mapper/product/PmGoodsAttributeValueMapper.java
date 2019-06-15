@@ -2,6 +2,7 @@ package com.chauncy.data.mapper.product;
 
 import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.manage.product.PmGoodsAttributeVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -25,9 +26,16 @@ public interface PmGoodsAttributeValueMapper extends IBaseMapper<PmGoodsAttribut
      * @param productAttributeId
      * @return
      */
-    int deleteByAttributeId(@Param("productAttributeId") Long productAttributeId);
 
     List<PmGoodsAttributeValuePo> findByAttributeId(@Param("productAttributeId") Long productAttributeId);
 
-    int saveAttValue(@Param("goodsAttributeValuePo") PmGoodsAttributeValuePo goodsAttributeValuePo);
+    /**
+     * 按条件查询
+     *
+     * @param type
+     * @param name
+     * @param enabled
+     * @return
+     */
+    List<PmGoodsAttributeVo> findByCondition(@Param("type") Integer type, @Param("name") String name, @Param("enabled") Boolean enabled);
 }

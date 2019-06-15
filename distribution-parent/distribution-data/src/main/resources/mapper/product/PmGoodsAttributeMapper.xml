@@ -15,11 +15,11 @@
         <result column="subtitle" property="subtitle"/>
         <result column="logo_image" property="logoImage"/>
         <result column="logo_icon" property="logoIcon"/>
-        <result column="create_by" property="createBy" />
-        <result column="create_time" property="createTime" />
-        <result column="update_by" property="updateBy" />
-        <result column="update_time" property="updateTime" />
-        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="del_flag" property="delFlag"/>
     </resultMap>
 
     <sql id="find">
@@ -35,15 +35,16 @@
             <if test="name != null and name !=''">
                 and name = #{name}
             </if>
+            and del_flag = 0
         </where>
 
     </select>
-    
-    <select id="search" resultType="com.chauncy.data.domain.po.product.PmGoodsAttributePo">
+
+    <select id="findByCondition" resultType="com.chauncy.data.vo.manage.product.PmGoodsAttributeVo">
         select * from pm_goods_attribute
         <where>
             <if test="type !=null and type !=''">
-               type = #{type}
+                type = #{type}
             </if>
             <if test="name != null and name !=''">
                 and name like concat('%', #{name}, '%')
@@ -51,12 +52,15 @@
             <if test="enabled != null">
                 and enabled = #{enabled}
             </if>
+            and del_flag = 0
         </where>
+        order by id desc
     </select>
 
-    <select id="findByType" resultType="com.chauncy.data.domain.po.product.PmGoodsAttributePo">
-      select * from pm_goods_attribute
-      where type = #{type}
+
+    <select id="loadByCategoryId" resultType="com.chauncy.data.domain.po.product.PmGoodsAttributePo">
+       SELECT ag.* FROM `pm_goods` g,pm_goods_rel_attribute_good ag
+       where g.goods_category_id=#{categoryId} and g.id=ag.goods_good_id
     </select>
 
 

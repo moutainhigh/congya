@@ -1,16 +1,24 @@
 package com.chauncy.web.api.manage.product;
 
 
-import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
-import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
+import com.chauncy.data.dto.manage.good.add.GoodAttributeDto;
+import com.chauncy.data.dto.manage.good.add.GoodAttributeValueDto;
+import com.chauncy.data.dto.manage.good.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.manage.good.select.FindAttributeInfoByConditionDto;
+import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.product.service.IPmGoodsAttributeService;
 import com.chauncy.product.service.IPmGoodsAttributeValueService;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 /**
  * 商品属性页面控制器
@@ -41,13 +49,13 @@ public class PmGoodsAttributeApi {
     /**
      * 添加属性以及属性值
      *
-     * @param goodsAttributePo
+     * @param goodsAttributeDto
      */
     @PostMapping("/saveAttribute")
     @ApiOperation(value = "保存商品属性（品牌、规格、服务等）")
-    public JsonViewData saveAttribute(@ModelAttribute PmGoodsAttributePo goodsAttributePo) {
+    public JsonViewData saveAttribute(@RequestBody @Valid @ApiParam(required = true, name = "goodsAttributeDto", value = "属性信息") GoodAttributeDto goodsAttributeDto, BindingResult result) {
 
-        return goodsAttributeService.saveAttribute(goodsAttributePo);
+        return goodsAttributeService.saveAttribute(goodsAttributeDto);
     }
 
     /**
@@ -67,14 +75,14 @@ public class PmGoodsAttributeApi {
     /**
      * 更新属性基本信息
      *
-     * @param goodsAttributePo
+     * @param goodsAttributeDto
      * @return
      */
     @ApiOperation(value = "更新属性", notes = "根据ID更新属性")
     @PostMapping("/editAttribute")
-    public JsonViewData editAttribute(@ModelAttribute PmGoodsAttributePo goodsAttributePo) {
-
-        return goodsAttributeService.edit(goodsAttributePo);
+    public JsonViewData editAttribute(@RequestBody @Validated(IUpdateGroup.class) @ApiParam(required = true, name = "goodsAttributeDto", value = "属性信息")
+                                              GoodAttributeDto goodsAttributeDto, BindingResult result) {
+        return goodsAttributeService.edit(goodsAttributeDto);
     }
 
     /**
@@ -92,39 +100,32 @@ public class PmGoodsAttributeApi {
     }
 
     /**
-     * 条件查询
-     * @param type
-     * @param name
-     * @param enabled
+     * 根据条件查找属性信息
+     *
+     * @param findAttributeInfoByConditionDto
+     * @param result
      * @return
      */
-    @ApiOperation(value = "条件查询", notes = "根据类型type、名称、启用状态查询")
-    @GetMapping("/search")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "type", value = "属性类型type", required = true, dataType = "Integer", paramType = "query"),
-            @ApiImplicitParam(name = "name", value = "属性名称name", required = false, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "enabled", value = "是否启用enabled", required = false, dataType = "boolean", paramType = "query")}
-    )
+    @ApiOperation(value = "根据条件查找属性信息", notes = "1、根据type查询：\n" +
+            "类型 1->平台服务说明管理类型 2->商家服务说明管理类型 3->平台活动说明管理类型  4->商品参数管理类型 5->标签管理类型 6->购买须知管理类型 7->规格管理类型 8->品牌管理\n" +
+            "2、搜索查询：name、type、enabled")
+    @PostMapping("/findByCondition")
+    public JsonViewData findByCondition(@RequestBody @Valid @ApiParam(required = true, name = "findAttributeInfoByConditionDto", value = "属性列表查询条件") FindAttributeInfoByConditionDto findAttributeInfoByConditionDto,
+                                        BindingResult result) {
 
-    public JsonViewData search(Integer type, String name, Boolean enabled) {
-
-        return goodsAttributeService.search(type, name, enabled);
+        return goodsAttributeService.findByCondition(findAttributeInfoByConditionDto);
     }
 
     /**
-     * 根据type类型查找属性以及关联属性值
+     * 启用/禁用属性
      *
-     * @param type
+     * @param baseUpdateStatusDto
      * @return
      */
-    @ApiOperation(value = "根据类型查找属性信息", notes = "类型 1->平台服务说明管理类型 2->商家服务说明管理类型 3->平台活动说明管理类型  4->商品参数管理类型 5->标签管理类型 6->购买须知管理类型 7->规格管理类型 8->品牌管理")
-    @GetMapping("/findByType/{type}")
-    public JsonViewData findByType(@ApiParam(required = true, value = "type")
-                                 @PathVariable Integer type) {
-
-        System.out.println("crdjo");
-
-        return goodsAttributeService.findByType(type);
+    @ApiOperation(value="启用或禁用属性")
+    @PostMapping("/updateStatus")
+    public JsonViewData updateStatus(@RequestBody @ApiParam(required = true,name ="baseUpdateStatusDto",value = "启用或禁用") BaseUpdateStatusDto baseUpdateStatusDto){
+        return goodsAttributeService.updateStatus(baseUpdateStatusDto);
     }
 
 //TODO 属性值操作
@@ -132,15 +133,16 @@ public class PmGoodsAttributeApi {
     /**
      * 根据属性ID添加属性值
      *
-     * @param goodsAttributeValuePo
+     * @param goodAttributeValueDto
      * @return
      */
     @ApiOperation(value = "添加属性值", notes = "根据属性ID添加属性值")
     @PostMapping("/saveAttValue")
-    public JsonViewData saveAttValue(/*@ApiParam(required = true,name = "attributeId",value = "属性值ID") @PathVariable Long attributeId,*/
-            @ModelAttribute PmGoodsAttributeValuePo goodsAttributeValuePo) {
+    public JsonViewData saveAttValue(@RequestBody @Valid @ApiParam(required = true, name = "goodAttributeValueDto", value = "属性值")
+                                             GoodAttributeValueDto goodAttributeValueDto,
+                                     BindingResult result) {
 
-        return valueService.saveAttValue(goodsAttributeValuePo);
+        return valueService.saveAttValue(goodAttributeValueDto);
     }
 
     /**
@@ -173,14 +175,16 @@ public class PmGoodsAttributeApi {
     /**
      * 更新属性值
      *
-     * @param goodsAttributeValuePo
+     * @param goodAttributeValueDto
      * @return
      */
     @ApiOperation(value = "更新属性值", notes = "根据ID和属性ID更新属性值")
     @PostMapping("/editAttValue")
-    public JsonViewData editAttValue(@ModelAttribute PmGoodsAttributeValuePo goodsAttributeValuePo) {
+    public JsonViewData editAttValue(@RequestBody @Validated(IUpdateGroup.class) @ApiParam(required = true, name = "goodAttributeValueDto", value = "属性值")
+                                                 GoodAttributeValueDto goodAttributeValueDto,
+                                     BindingResult result) {
 
-        return valueService.editValue(goodsAttributeValuePo);
+        return valueService.editValue(goodAttributeValueDto);
     }
 
 }
