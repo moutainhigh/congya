@@ -50,7 +50,7 @@ public class PmGoodsApi extends BaseApi {
     @ApiOperation(value="查找商品基本信息")
     public JsonViewData findBaseById(@ApiParam(required = true,name="id",value = "商品ID") Long id){
 
-        return service.findBaseById(id);
+        return null;
     }
 
 }

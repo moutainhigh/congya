@@ -3,6 +3,7 @@ package com.chauncy.product.service;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
 import com.chauncy.data.dto.manage.good.add.GoodBaseDto;
+import com.chauncy.data.dto.supplier.good.add.AddExtraValueDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.Result;
 import com.chauncy.data.vo.supplier.PmGoodsAttributeValueVo;
@@ -28,18 +29,18 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
     JsonViewData addBase(@ModelAttribute GoodBaseDto goodBaseDto);
 
     /**
-     * 根据ID查找商品信息
-     *
-     * @param id
-     * @return
-     */
-    JsonViewData findBaseById(Long id);
-
-    /**
      * 根据分类ID查找对应的规格值
      *
      * @param categoryId
      * @return
      */
     JsonViewData searchStandard(Long categoryId);
+
+    /**
+     *添加商品额外的属性值
+     *
+     * @param addExtraValueDto
+     * @return
+     */
+    JsonViewData addExtraValue(AddExtraValueDto addExtraValueDto);
 }
