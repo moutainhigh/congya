@@ -3,7 +3,7 @@ package com.chauncy.web.api.manage.product;
 
 import com.chauncy.data.dto.manage.good.add.GoodAttributeDto;
 import com.chauncy.data.dto.manage.good.add.GoodAttributeValueDto;
-import com.chauncy.data.dto.manage.good.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.good.select.FindAttributeInfoByConditionDto;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;

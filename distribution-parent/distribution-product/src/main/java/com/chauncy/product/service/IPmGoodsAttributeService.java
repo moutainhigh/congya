@@ -2,10 +2,12 @@ package com.chauncy.product.service;
 
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
+import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.good.add.GoodAttributeDto;
-import com.chauncy.data.dto.manage.good.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.good.select.FindAttributeInfoByConditionDto;
 import com.chauncy.data.vo.JsonViewData;
+
+import java.util.List;
 
 /**
  * <p>
@@ -85,4 +87,14 @@ public interface IPmGoodsAttributeService extends Service<PmGoodsAttributePo> {
      * @return
      */
     JsonViewData updateStatus(BaseUpdateStatusDto baseUpdateStatusDto);
+
+    /**
+     * 查询分类下的商品用到了哪一些属性id
+     * @param categoryId
+     * @return
+     */
+    List<PmGoodsAttributePo> findByCategoryId(Long categoryId);
+
+
+
 }
