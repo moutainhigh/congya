@@ -3,6 +3,7 @@ package com.chauncy.web.base;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.JsonViewData;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -42,8 +43,8 @@ public abstract class BaseApi {
         return new JsonViewData(resultCode);
     }
 
-    protected JsonViewData setJsonViewData(ResultCode resultCode, String message) {
-        return new JsonViewData(resultCode, message);
+    protected JsonViewData setJsonViewData(ResultCode resultCode, String message,Object... args) {
+        return new JsonViewData(resultCode, String.format(message,args));
     }
 
     protected JsonViewData setJsonViewData(Object data) {

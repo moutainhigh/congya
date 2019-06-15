@@ -1,7 +1,7 @@
 package com.chauncy.data.dto.manage.good.select;
 
 import com.chauncy.common.enums.goods.GoodsAttributeTypeEnum;
-import com.chauncy.data.dto.manage.good.base.BaseSearchDto;
+import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.valid.annotation.EnumConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

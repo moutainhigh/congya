@@ -28,7 +28,7 @@
 //
 //    @Test
 //    public void getChildrenIds(){
-//        List<Long> sys_permission = IBaseMapper.getChildIds(null, "sys_permission");
+//        List<Long> sys_permission = IBaseMapper.loadChildIds(null, "sys_permission");
 //        sys_permission.forEach(x->LoggerUtil.error(x.toString()));
 //    }
 //
