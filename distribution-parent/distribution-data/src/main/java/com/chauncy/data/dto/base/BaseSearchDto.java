@@ -1,4 +1,4 @@
-package com.chauncy.data.dto.manage.good.base;
+package com.chauncy.data.dto.base;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;

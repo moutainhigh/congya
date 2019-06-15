@@ -1,4 +1,4 @@
-package com.chauncy.data.dto.manage.good.base;
+package com.chauncy.data.dto.base;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -15,5 +15,5 @@ public class BaseUpdateStatusDto {
     private Long id;
 
     @ApiModelProperty("改变状态 1：启用  0：禁用")
-    private Boolean enabled;
+    private Boolean[] enabled;
 }

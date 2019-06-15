@@ -5,7 +5,7 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.*;
 import com.chauncy.data.dto.manage.good.add.GoodAttributeDto;
-import com.chauncy.data.dto.manage.good.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.good.select.FindAttributeInfoByConditionDto;
 import com.chauncy.data.mapper.product.*;
 import com.chauncy.data.vo.JsonViewData;
@@ -269,6 +269,11 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
         BeanUtils.copyProperties(baseUpdateStatusDto,goodsAttributePo);
         mapper.updateById(goodsAttributePo);
         return new JsonViewData(ResultCode.SUCCESS,"操作成功！");
+    }
+
+    @Override
+    public List<PmGoodsAttributePo> findByCategoryId(Long categoryId) {
+        return mapper.loadByCategoryId(categoryId);
     }
 
 }
