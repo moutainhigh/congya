@@ -58,7 +58,7 @@ public class PmGoodsAttributeApi {
      * @param ids
      */
     @ApiOperation(value = "删除属性", notes = "根据id批量删除")
-    @DeleteMapping("/delAllByIds/{ids}")
+    @GetMapping("/delAllByIds/{ids}")
     public JsonViewData deleteAttributeByIds(@ApiParam(required = true, name = "ids", value = "id集合")
                                              @PathVariable Long[] ids) {
 
@@ -146,7 +146,7 @@ public class PmGoodsAttributeApi {
      * @return
      */
     @ApiOperation(value = "删除属性值", notes = "有用到属性值的不能删除")
-    @DeleteMapping("/delAttValueByIds/{ids}")
+    @GetMapping("/delAttValueByIds/{ids}")
     public JsonViewData delAttValueByIds(@ApiParam(required = true, name = "ids", value = "属性值id集合") @PathVariable Long[] ids) {
         return valueService.delAttValueByIds(ids);
     }
