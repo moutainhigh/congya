@@ -106,9 +106,11 @@ public class PmGoodsAttributeApi {
      * @param result
      * @return
      */
-    @ApiOperation(value = "根据条件查找属性信息", notes = "类型 1->平台服务说明管理类型 2->商家服务说明管理类型 3->平台活动说明管理类型  4->商品参数管理类型 5->标签管理类型 6->购买须知管理类型 7->规格管理类型 8->品牌管理")
+    @ApiOperation(value = "根据条件查找属性信息", notes = "1、根据type查询：\n" +
+            "类型 1->平台服务说明管理类型 2->商家服务说明管理类型 3->平台活动说明管理类型  4->商品参数管理类型 5->标签管理类型 6->购买须知管理类型 7->规格管理类型 8->品牌管理\n" +
+            "2、搜索查询：name、type、enabled")
     @PostMapping("/findByCondition")
-    public JsonViewData findByCondition(@RequestBody @Valid @ApiParam(required = true, name = "baseSearchDto", value = "分类列表查询条件") FindAttributeInfoByConditionDto findAttributeInfoByConditionDto,
+    public JsonViewData findByCondition(@RequestBody @Valid @ApiParam(required = true, name = "findAttributeInfoByConditionDto", value = "属性列表查询条件") FindAttributeInfoByConditionDto findAttributeInfoByConditionDto,
                                         BindingResult result) {
 
         return goodsAttributeService.findByCondition(findAttributeInfoByConditionDto);
