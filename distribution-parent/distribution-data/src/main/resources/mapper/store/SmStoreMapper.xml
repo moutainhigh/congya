@@ -48,7 +48,7 @@ Score" />
 
 
     <sql id="selectSmStoreBaseVo">
-        select id, `name`, `type`, /*(case when `type`=1 then `推广店铺` when `type`=2 then `商品店铺` end) as typeName,*/ parent_id, store_turnover, store_member_num, store_sub_num, goods_num, owner_mobile, sort, enabled
+        select id, `name`, `type`, (case when `type`=1 then `推广店铺` when `type`=2 then `商品店铺` end) as typeName, parent_id, store_turnover, store_member_num, store_sub_num, goods_num, owner_mobile, sort, enabled
 		from sm_store
     </sql>
 

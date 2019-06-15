@@ -33,10 +33,12 @@ public class SmStoreBaseVo implements Serializable {
     private String name;
 
     @ApiModelProperty(value = "商家类型（1.推广店铺，2.商品店铺）")
+    private Integer type;
+
     private StoreTypeEnum storeTypeEnum;
-/*
+
     @ApiModelProperty(value = "商家类型")
-    private String typeName;*/
+    private String typeName;
 
     @ApiModelProperty(value = "所属店铺Id")
     private Long parentId;
