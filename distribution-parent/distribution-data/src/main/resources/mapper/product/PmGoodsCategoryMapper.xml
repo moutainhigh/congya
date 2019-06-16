@@ -4,19 +4,55 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.product.PmGoodsCategoryPo">
-        <id column="id" property="id" />
-        <result column="name" property="name" />
-        <result column="icon" property="icon" />
-        <result column="sort" property="sort" />
-        <result column="enabled" property="enabled" />
-        <result column="tax_rate" property="taxRate" />
-        <result column="parent_id" property="parentId" />
-        <result column="create_by" property="createBy" />
-        <result column="create_time" property="createTime" />
-        <result column="update_by" property="updateBy" />
-        <result column="update_time" property="updateTime" />
-        <result column="del_flag" property="delFlag" />
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="icon" property="icon"/>
+        <result column="sort" property="sort"/>
+        <result column="enabled" property="enabled"/>
+        <result column="tax_rate" property="taxRate"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="del_flag" property="delFlag"/>
 
     </resultMap>
+    <select id="loadById" resultType="java.util.Map">
+      SELECT
+	id,
+	name,
+	enabled,
+	icon,
+	sort,
+	taxRate,
+	IFNULL(CONCAT( '[', GROUP_CONCAT( temp ), ']' ),"") attributionList
+FROM
+	(
+	SELECT
+		c.id,
+		c.NAME,
+		c.enabled,
+		c.icon,
+		c.sort,
+		c.tax_rate taxRate,
+		CONCAT(
+			'{"type":',
+			a.type,
+			',"attributes":[',
+			GROUP_CONCAT( CONCAT( '{"id":', a.id, ',"name":"', a.NAME, '"}' ) ),
+			"]}"
+		) temp
+	FROM
+		`pm_goods_category` c
+		LEFT JOIN pm_goods_rel_attribute_category ac ON c.id = ac.goods_category_id
+		LEFT JOIN pm_goods_attribute a ON a.id = ac.goods_attribute_id
+	WHERE
+	  if(ac.del_flag is null ,1=1,ac.del_flag = 0)
+		AND c.id = #{id}
+	GROUP BY
+	a.type
+	) a
+    </select>
 
 </mapper>

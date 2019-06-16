@@ -51,7 +51,7 @@
     <select id="findByLevelOrderBySortOrder" resultType="com.chauncy.data.domain.po.sys.SysPermissionPo">
         <include refid="Base_Column_List"/>
         <where>
-        <if test="level != null and level != ''">
+        <if test="level != null">
             AND level = #{level}
         </if>
         </where>
