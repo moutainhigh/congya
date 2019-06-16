@@ -70,7 +70,7 @@ Score" />
     </update>
 
 
-    <select id="searchBaseInfo" resultType="com.chauncy.data.vo.store.SmStoreBaseVo">
+    <select id="searchBaseInfo" resultType="com.chauncy.data.vo.manage.store.SmStoreBaseVo">
         <include refid="selectSmStoreBaseVo"/>
         <where>
             1=1

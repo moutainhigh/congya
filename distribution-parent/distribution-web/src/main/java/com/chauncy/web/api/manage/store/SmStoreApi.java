@@ -5,7 +5,7 @@ import com.chauncy.data.dto.manage.store.add.StoreAccountInfoDto;
 import com.chauncy.data.dto.manage.store.add.StoreBaseInfoDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.vo.JsonViewData;
-import com.chauncy.data.vo.store.SmStoreBaseVo;
+import com.chauncy.data.vo.manage.store.SmStoreBaseVo;
 import com.chauncy.store.service.ISmStoreService;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
@@ -23,7 +23,7 @@ import javax.validation.Valid;
  * @Author: xiaoye
  * @Date: 2019/6/3 18:37
  */
-@Api(description = "店铺管理接口")
+@Api(tags = "店铺管理接口")
 @RestController
 @RequestMapping("/common/store")
 @Slf4j

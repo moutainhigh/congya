@@ -4,7 +4,7 @@ import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.mapper.IBaseMapper;
-import com.chauncy.data.vo.store.SmStoreBaseVo;
+import com.chauncy.data.vo.manage.store.SmStoreBaseVo;
 
 import java.util.List;
 

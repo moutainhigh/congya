@@ -1,4 +1,4 @@
-package com.chauncy.data.vo.store;
+package com.chauncy.data.vo.manage.store;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.serializer.SerializerFeature;

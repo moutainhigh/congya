@@ -9,7 +9,7 @@ import com.chauncy.data.dto.manage.store.add.StoreBaseInfoDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.vo.JsonViewData;
-import com.chauncy.data.vo.store.SmStoreBaseVo;
+import com.chauncy.data.vo.manage.store.SmStoreBaseVo;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.store.service.ISmStoreService;
 import com.github.pagehelper.PageHelper;
