@@ -1,8 +1,6 @@
 package com.chauncy.web.api.manage.product;
 
 
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
@@ -13,8 +11,8 @@ import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.product.PmGoodsRelAttributeCategoryPo;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
-import com.chauncy.data.dto.manage.good.delete.GoodCategoryDeleteDto;
 import com.chauncy.data.dto.manage.good.add.GoodCategoryDto;
+import com.chauncy.data.dto.manage.good.delete.GoodCategoryDeleteDto;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.product.service.IPmGoodsAttributeService;
@@ -28,8 +26,6 @@ import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Maps;
 import org.springframework.beans.BeanUtils;
@@ -219,7 +215,7 @@ public class PmGoodsCategoryApi extends BaseApi {
         if (!map.get("attributionList").toString().equals("")){
             map.put("attributionList",JSONUtils.toList(map.get("attributionList")));
         }
-        return new JsonViewData(map);
+        return setJsonViewData(map);
     }
 
 
