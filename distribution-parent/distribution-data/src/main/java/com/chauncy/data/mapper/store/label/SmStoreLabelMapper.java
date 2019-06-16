@@ -23,5 +23,16 @@ public interface SmStoreLabelMapper extends IBaseMapper<SmStoreLabelPo> {
      * @param storeLabelSearchDto
      * @return
      */
-    List<SmStoreLabelVo> searchAll(StoreLabelSearchDto storeLabelSearchDto);
+    List<SmStoreLabelVo> searchPaging(StoreLabelSearchDto storeLabelSearchDto);
+
+
+    /**
+     * 条件查询
+     *
+     * @return
+     */
+   List<SmStoreLabelVo> searchAll();
+
+
+
 }

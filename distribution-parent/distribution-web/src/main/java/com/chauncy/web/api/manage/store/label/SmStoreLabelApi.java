@@ -1,24 +1,17 @@
 package com.chauncy.web.api.manage.store.label;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.chauncy.common.enums.system.ResultCode;
-import com.chauncy.data.domain.po.store.label.SmStoreLabelPo;
-import com.chauncy.data.dto.manage.store.add.StoreBaseInfoDto;
 import com.chauncy.data.dto.manage.store.add.StoreLabelDto;
 import com.chauncy.data.dto.manage.store.select.StoreLabelSearchDto;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.store.label.SmStoreLabelVo;
-import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.store.label.service.ISmStoreLabelService;
-import com.chauncy.store.service.ISmStoreService;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
@@ -26,7 +19,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Map;
 
 /**
  * @author yeJH
@@ -55,7 +47,7 @@ public class SmStoreLabelApi extends BaseApi {
                                      StoreLabelDto storeBaseInfoDto, BindingResult result) {
 
 
-        return smStoreLabelService.saveStoreLabe(storeBaseInfoDto);
+        return smStoreLabelService.saveStoreLabel(storeBaseInfoDto);
     }
 
     /**
@@ -71,7 +63,7 @@ public class SmStoreLabelApi extends BaseApi {
                                      StoreLabelDto storeBaseInfoDto, BindingResult result) {
 
 
-        return smStoreLabelService.editStoreLabe(storeBaseInfoDto);
+        return smStoreLabelService.editStoreLabel(storeBaseInfoDto);
     }
 
 
@@ -98,11 +90,22 @@ public class SmStoreLabelApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "条件查询", notes = "根据标签ID、标签名称、创建时间查询")
-    @GetMapping("/searchAll")
-    public JsonViewData searchAll(@ModelAttribute StoreLabelSearchDto storeLabelSearchDto) {
+    @GetMapping("/searchPaging")
+    public JsonViewData searchPaging(@ModelAttribute StoreLabelSearchDto storeLabelSearchDto) {
 
-        PageInfo<SmStoreLabelVo> smStoreBaseVoPageInfo = smStoreLabelService.searchAll(storeLabelSearchDto);
+        PageInfo<SmStoreLabelVo> smStoreBaseVoPageInfo = smStoreLabelService.searchPaging(storeLabelSearchDto);
         return setJsonViewData(smStoreBaseVoPageInfo);
+    }
+
+    /**
+     * 查询所有的店铺标签
+     * @return
+     */
+    @ApiOperation(value = "查询所有的店铺标签", notes = "查询所有的店铺标签")
+    @GetMapping("/searchAll")
+    public JsonViewData searchAll() {
+
+        return smStoreLabelService.searchAll();
     }
 
 

@@ -25,14 +25,14 @@ public interface ISmStoreLabelService extends Service<SmStoreLabelPo> {
      * @param storeLabelDto
      * @return
      */
-    JsonViewData saveStoreLabe(StoreLabelDto storeLabelDto);
+    JsonViewData saveStoreLabel(StoreLabelDto storeLabelDto);
 
     /**
      * 编辑店铺标签信息
      * @param storeLabelDto
      * @return
      */
-    JsonViewData editStoreLabe(StoreLabelDto storeLabelDto);
+    JsonViewData editStoreLabel(StoreLabelDto storeLabelDto);
     /**
      * 根据ID查找店铺标签
      *
@@ -46,7 +46,13 @@ public interface ISmStoreLabelService extends Service<SmStoreLabelPo> {
      * @param storeLabelSearchDto
      * @return
      */
-    PageInfo<SmStoreLabelVo> searchAll(StoreLabelSearchDto storeLabelSearchDto);
+    PageInfo<SmStoreLabelVo> searchPaging(StoreLabelSearchDto storeLabelSearchDto);
+
+    /**
+     * 查询店铺所有标签
+     * @return
+     */
+    JsonViewData searchAll();
 
 
 }

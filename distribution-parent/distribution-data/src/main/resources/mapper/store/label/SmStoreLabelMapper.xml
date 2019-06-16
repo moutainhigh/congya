@@ -20,7 +20,7 @@
     </sql>
 
 
-    <select id="searchAll" resultType="com.chauncy.data.vo.manage.store.label.SmStoreLabelVo">
+    <select id="searchPaging" resultType="com.chauncy.data.vo.manage.store.label.SmStoreLabelVo">
         select <include refid="Base_Column_List"/> from sm_store_label
         <where>
             1=1
@@ -31,11 +31,17 @@
                 and name like concat('%', #{name}, '%')
             </if>
             <if test="startTime != null">
-                and (date(create_time))  <![CDATA[>= ]]>  #{startTime}
+                and create_time <![CDATA[>= ]]>  #{startTime}
             </if>
             <if test="endTime != null">
-                and (date(create_time))  <![CDATA[<= ]]> #{endTime}
+                and create_time <![CDATA[<= ]]> #{endTime}
             </if>
         </where>
+    </select>
+
+    <select id="searchAll" resultType="com.chauncy.data.vo.manage.store.label.SmStoreLabelVo">
+        select <include refid="Base_Column_List"/>
+        from sm_store_label
+        order by create_time desc
     </select>
 </mapper>

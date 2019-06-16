@@ -16,7 +16,9 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,6 +26,7 @@ import java.util.Map;
  * @since 2019/6/15 19:26
  */
 @Service
+@Transactional
 public class SmStoreLabelServiceImpl extends AbstractService<SmStoreLabelMapper, SmStoreLabelPo> implements ISmStoreLabelService {
 
     @Autowired
@@ -37,8 +40,18 @@ public class SmStoreLabelServiceImpl extends AbstractService<SmStoreLabelMapper,
      * @return
      */
     @Override
-    public JsonViewData saveStoreLabe(StoreLabelDto storeLabelDto) {
-        SmStoreLabelPo smStoreLabelPo = new SmStoreLabelPo();
+    public JsonViewData saveStoreLabel(StoreLabelDto storeLabelDto) {
+
+        QueryWrapper<SmStoreLabelPo> smStoreLabelPoQueryWrapper = new QueryWrapper<>();
+        SmStoreLabelPo queryWarpper = new SmStoreLabelPo();
+        queryWarpper.setName(storeLabelDto.getName());
+        smStoreLabelPoQueryWrapper.setEntity(queryWarpper);
+        SmStoreLabelPo smStoreLabelPo = this.getOne(smStoreLabelPoQueryWrapper);
+
+        if(null != smStoreLabelPo) {
+            return new JsonViewData(ResultCode.DUPLICATION, "标签名称重复");
+        }
+
         //获取当前用户
         String user = securityUtil.getCurrUser().getUsername();
         smStoreLabelPo.setUpdateBy(user);
@@ -53,8 +66,19 @@ public class SmStoreLabelServiceImpl extends AbstractService<SmStoreLabelMapper,
      * @return
      */
     @Override
-    public JsonViewData editStoreLabe(StoreLabelDto storeLabelDto) {
-        SmStoreLabelPo smStoreLabelPo = smStoreLabelMapper.selectById(storeLabelDto.getId());
+    public JsonViewData editStoreLabel(StoreLabelDto storeLabelDto) {
+        SmStoreLabelPo oldLabel = smStoreLabelMapper.selectById(storeLabelDto.getId());
+
+        QueryWrapper<SmStoreLabelPo> smStoreLabelPoQueryWrapper = new QueryWrapper<>();
+        SmStoreLabelPo queryWarpper = new SmStoreLabelPo();
+        queryWarpper.setName(storeLabelDto.getName());
+        smStoreLabelPoQueryWrapper.setEntity(queryWarpper);
+        SmStoreLabelPo smStoreLabelPo = this.getOne(smStoreLabelPoQueryWrapper);
+
+        if(null != smStoreLabelPo && !smStoreLabelPo.getName().equals(oldLabel.getName())) {
+            return new JsonViewData(ResultCode.DUPLICATION, "标签名称重复");
+        }
+
         //获取当前用户
         String user = securityUtil.getCurrUser().getUsername();
         smStoreLabelPo.setUpdateBy(user);
@@ -87,14 +111,26 @@ public class SmStoreLabelServiceImpl extends AbstractService<SmStoreLabelMapper,
      * @return
      */
     @Override
-    public PageInfo<SmStoreLabelVo> searchAll(StoreLabelSearchDto storeLabelSearchDto) {
+    public PageInfo<SmStoreLabelVo> searchPaging(StoreLabelSearchDto storeLabelSearchDto) {
 
         Integer pageNo = storeLabelSearchDto.getPageNo()==null ? defaultPageNo : storeLabelSearchDto.getPageNo();
         Integer pageSize = storeLabelSearchDto.getPageSize()==null ? defaultPageSize : storeLabelSearchDto.getPageSize();
         String pageSoft = " create_time desc";
 
         PageInfo<SmStoreLabelVo> smStoreLabelVoPageInfo = PageHelper.startPage(pageNo, pageSize, pageSoft)
-                .doSelectPageInfo(() -> smStoreLabelMapper.searchAll(storeLabelSearchDto));
+                .doSelectPageInfo(() -> smStoreLabelMapper.searchPaging(storeLabelSearchDto));
         return smStoreLabelVoPageInfo;
+    }
+
+    /**
+     * 查询店铺所有标签
+     * @return
+     */
+    @Override
+    public JsonViewData searchAll() {
+
+        List<SmStoreLabelVo> smStoreLabelVoList = smStoreLabelMapper.searchAll();
+        return new JsonViewData(ResultCode.SUCCESS, "查找成功", smStoreLabelVoList);
+
     }
 }
