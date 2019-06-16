@@ -46,6 +46,11 @@ public class UploadOriginApi {
                 file = Base64DecodeMultipartFileUtil.base64Convert(base64);
             }
         }
+
+        if (files == null ||files.length==0){
+            return new ResultUtil<Object>().setErrorMsg("请选择上传文件");
+        }
+
         //获取当前日期
         String temp_str="";
         Date dt = new Date();

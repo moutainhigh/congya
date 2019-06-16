@@ -1,7 +1,7 @@
 package com.chauncy.product.service;
 
 import com.chauncy.data.core.Service;
-import com.chauncy.data.domain.po.product.PmMemberPo;
+import com.chauncy.data.domain.po.product.PmMemberLevelPo;
 
 /**
  * <p>
@@ -11,6 +11,6 @@ import com.chauncy.data.domain.po.product.PmMemberPo;
  * @author huangwancheng
  * @since 2019-05-21
  */
-public interface IPmMemberService extends Service<PmMemberPo> {
+public interface IPmMemberLevelService extends Service<PmMemberLevelPo> {
 
 }

@@ -14,7 +14,6 @@
         <result column="shipping_template_id" property="shippingTemplateId"/>
         <result column="location" property="location"/>
         <result column="purchase_limit" property="purchaseLimit"/>
-        <result column="member_id" property="memberId"/>
         <result column="is_tax" property="isTax"/>
         <result column="activity_cost_rate" property="activityCostRate"/>
         <result column="profits_rate" property="profitsRate"/>
@@ -22,6 +21,7 @@
         <result column="tax_rate_type" property="taxRateType"/>
         <result column="custom_tax_rate" property="customTaxRate"/>
         <result column="sort" property="sort"/>
+        <result column="is_free_postage" property="isFreePostage"/>
         <result column="stock" property="stock"/>
         <result column="low_stock" property="lowStock"/>
         <result column="publish_status" property="publishStatus"/>

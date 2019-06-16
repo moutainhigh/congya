@@ -65,9 +65,6 @@ public class PmGoodsPo {
     @ApiModelProperty(value = "限购数量")
     private Integer purchaseLimit;
 
-    @ApiModelProperty(value = "会员ID")
-    private Long memberId;
-
     @ApiModelProperty(value = "是否含税")
     private Boolean isTax;
 
@@ -88,6 +85,9 @@ public class PmGoodsPo {
 
     @ApiModelProperty(value = "商品排序数字")
     private BigDecimal sort;
+
+    @ApiModelProperty(value = "是否包邮 默认为0不包邮")
+    private Boolean isFreePostage;
 
     @ApiModelProperty(value = "商品库存")
     private Integer stock;
