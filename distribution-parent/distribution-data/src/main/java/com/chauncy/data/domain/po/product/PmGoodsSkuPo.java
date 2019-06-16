@@ -46,8 +46,11 @@ public class PmGoodsSkuPo implements Serializable {
     @ApiModelProperty(value = "商品id")
     private Long goodsId;
 
-    @ApiModelProperty(value = "sku编号")
-    private String sku;
+    @ApiModelProperty(value = "货号")
+    private String articleNumber;
+
+    @ApiModelProperty(value = "条形码")
+    private String barCode;
 
     @ApiModelProperty(value = "图片")
     private String picture;

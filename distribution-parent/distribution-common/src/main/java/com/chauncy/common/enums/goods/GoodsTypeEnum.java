@@ -52,10 +52,10 @@ public enum GoodsTypeEnum implements BaseEnum {
     //通过名称来获取结果
     public static GoodsTypeEnum fromName(String name) {
         for (GoodsTypeEnum type : GoodsTypeEnum.values()) {
-            if (type.getName() == name)
+            if (type.getName().equals(name))
                 return type;
         }
-        throw new IllegalArgumentException(name);
+        return null;
     }
 
     public Integer getId() {
@@ -76,5 +76,5 @@ public enum GoodsTypeEnum implements BaseEnum {
 
     @Override
     public boolean isExist(Object field) {
-        return Objects.nonNull(getGoodsTypeById(Integer.parseInt(field.toString())));
+        return Objects.nonNull(fromName(field.toString()));
     }}

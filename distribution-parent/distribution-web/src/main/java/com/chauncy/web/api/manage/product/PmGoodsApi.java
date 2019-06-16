@@ -1,7 +1,8 @@
 package com.chauncy.web.api.manage.product;
 
 
-import com.chauncy.data.dto.manage.good.add.GoodBaseDto;
+import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.dto.supplier.good.add.AddGoodBaseDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.web.base.BaseApi;
@@ -25,7 +26,7 @@ import javax.validation.Valid;
  */
 @RestController
 @RequestMapping("/pm-goods-po")
-@Api(description = "添加商品基本信息流程")
+@Api(description = "平台审核商品管理")
 @Slf4j
 public class PmGoodsApi extends BaseApi {
 
@@ -35,22 +36,24 @@ public class PmGoodsApi extends BaseApi {
     /**
      * 添加商品基本信息
      *
-     * @param goodBaseDto
+     * @param addGoodBaseDto
      * @return
      */
     @PostMapping("/addBase")
     @ApiOperation(value = "添加基本信息")
-    public JsonViewData addBase(@RequestBody @Valid @ApiParam(required = true,name="goodBaseDto",value="商品基本信息")
-                                            GoodBaseDto goodBaseDto, BindingResult result) {
+    public JsonViewData addBase(@RequestBody @Valid @ApiParam(required = true,name="addGoodBaseDto",value="商品基本信息")
+                                        AddGoodBaseDto addGoodBaseDto, BindingResult result) {
 
-        return service.addBase(goodBaseDto);
+        service.addBase(addGoodBaseDto);
+
+        return new JsonViewData(ResultCode.SUCCESS);
     }
 
     @GetMapping("findBaseById")
     @ApiOperation(value="查找商品基本信息")
     public JsonViewData findBaseById(@ApiParam(required = true,name="id",value = "商品ID") Long id){
 
-        return service.findBaseById(id);
+        return null;
     }
 
 }

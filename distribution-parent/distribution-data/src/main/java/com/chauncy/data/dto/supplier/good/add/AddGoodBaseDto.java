@@ -1,8 +1,9 @@
-package com.chauncy.data.dto.manage.good.add;
+package com.chauncy.data.dto.supplier.good.add;
 
 import com.chauncy.common.enums.goods.GoodsTypeEnum;
 import com.chauncy.common.util.serializer.LongJsonSerializer;
 import com.chauncy.data.valid.annotation.EnumConstraint;
+import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -17,7 +18,7 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 @ApiModel(value = "GoodBaseDto对象", description = "商品基本信息")
-public class GoodBaseDto {
+public class AddGoodBaseDto {
 
     @ApiModelProperty(value = "商品类型")
     @NotBlank(message = "商品类型图不能为空")
@@ -27,6 +28,7 @@ public class GoodBaseDto {
     @ApiModelProperty(value = "分类ID")
     @JsonSerialize(using = LongJsonSerializer.class)
     @NotNull(message = "分类ID不能为空")
+    @NeedExistConstraint(tableName = "pm_goods_category")
     private Long goodsCategoryId;
 
     @ApiModelProperty(value = "商品名称")

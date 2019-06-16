@@ -19,7 +19,7 @@ import java.util.List;
 public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
 
     /**
-     * 根据分类ID查找对应的规格属性信息
+     * 根据分类ID查找对应的默认的规格属性信息
      *
      * @param categoryId
      * @return
