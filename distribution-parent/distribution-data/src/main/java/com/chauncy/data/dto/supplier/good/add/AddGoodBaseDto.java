@@ -4,6 +4,7 @@ import com.chauncy.common.enums.goods.GoodsTypeEnum;
 import com.chauncy.common.util.serializer.LongJsonSerializer;
 import com.chauncy.data.valid.annotation.EnumConstraint;
 import com.chauncy.data.valid.annotation.NeedExistConstraint;
+import com.chauncy.data.valid.group.IUpdateGroup;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -11,6 +12,7 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * @Author huangwancheng
@@ -19,6 +21,11 @@ import javax.validation.constraints.NotNull;
 @Data
 @ApiModel(value = "GoodBaseDto对象", description = "商品基本信息")
 public class AddGoodBaseDto {
+
+    @ApiModelProperty(value="商品ID")
+    @NeedExistConstraint(tableName = "pm_goods",groups = IUpdateGroup.class)
+    @NotNull(message = "商品ID不能为空",groups = IUpdateGroup.class)
+    private Long id;
 
     @ApiModelProperty(value = "商品类型")
     @NotBlank(message = "商品类型图不能为空")
@@ -58,8 +65,26 @@ public class AddGoodBaseDto {
     @ApiModelProperty(value = "产品详情网页内容")
     private String detailHtml;
 
-    @ApiModelProperty(value = "属性IDs集合")
-    private Long[] attributeIds;
+    @ApiModelProperty(value = "品牌ID")
+    @NeedExistConstraint(tableName = "pm_goods_attribute")
+    private Long brandId;
+
+    @ApiModelProperty(value = "标签ID")
+    @NeedExistConstraint(tableName = "pm_goods_attribute")
+    private Long labelId;
+
+    @ApiModelProperty(value = "服务说明ID")
+    @NeedExistConstraint(tableName = "pm_goods_attribute")
+    private Long ServiceId;
+
+    @ApiModelProperty(value = "商品参数信息")
+    private List<AddGoodsParamValueDto> goodsParamDtoList;
+
+//    @ApiModelProperty(value = "平台活动说明Id")
+//    @NeedExistConstraint(tableName = "pm_goods_attribute")
+//    private Long platformActivityId;
+
+
 
     @ApiModelProperty(value = "运费说明id")
     @NotNull(message = "运费说明ID")
