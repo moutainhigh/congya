@@ -10,6 +10,7 @@ import com.chauncy.data.dto.supplier.good.update.UpdateGoodOperationDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodSellerDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.supplier.BaseGoodsVo;
 import com.chauncy.data.vo.supplier.PmGoodsAttributeValueVo;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
@@ -30,7 +31,21 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @param addGoodBaseDto
      * @return
      */
-    void addBase(@ModelAttribute AddGoodBaseDto addGoodBaseDto);
+    void addBase(AddGoodBaseDto addGoodBaseDto);
+
+    /**
+     * 根据ID获取商品的基本信息
+     *
+     * @param id
+     * @return
+     */
+    BaseGoodsVo findBase(Long id);
+
+    /**
+     * 修改商品基本信息
+     * @param updateGoodBaseDto
+     */
+    void updateBase(AddGoodBaseDto updateGoodBaseDto);
 
     /**
      * 根据分类ID查找对应的规格值

@@ -10,10 +10,13 @@ import com.chauncy.data.dto.supplier.good.update.UpdateGoodSellerDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.product.service.IPmGoodsService;
+import com.chauncy.web.base.BaseApi;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONValue;
+import net.sf.json.processors.JsonVerifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -32,12 +35,12 @@ import java.util.List;
 @Api(description = "商家端商品管理")
 @RequestMapping("/manage/supplier/product")
 @Slf4j
-public class SmGoodsApi {
+public class SmGoodsApi extends BaseApi {
 
     @Autowired
     private IPmGoodsService service;
 
-//TODO 添加商品
+
     /**
      * 添加商品基本信息
      *
@@ -49,6 +52,35 @@ public class SmGoodsApi {
     public JsonViewData addBase(@RequestBody @Valid @ApiParam(required = true, name = "addGoodBaseDto", value = "商品基本信息")
                                         AddGoodBaseDto addGoodBaseDto, BindingResult result) {
         service.addBase(addGoodBaseDto);
+
+        return new JsonViewData(ResultCode.SUCCESS);
+    }
+
+    /**
+     * 根据ID获取商品的基本信息
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/findBase/{id}")
+    @ApiOperation("根据ID获取商品的基本信息")
+    public JsonViewData findBase(@ApiParam(required = true, name = "id", value = "商品ID")
+                                 @PathVariable Long id) {
+
+        return setJsonViewData(service.findBase(id));
+    }
+
+    /**
+     * 修改商品基本信息
+     *
+     * @param updateGoodBaseDto
+     * @return
+     */
+    @PostMapping("/updateBase")
+    @ApiOperation(value = "添加基本信息")
+    public JsonViewData updateBase(@RequestBody @Valid @ApiParam(required = true, name = "updateGoodBaseDto", value = "商品基本信息")
+                                           AddGoodBaseDto updateGoodBaseDto, BindingResult result) {
+        service.updateBase(updateGoodBaseDto);
 
         return new JsonViewData(ResultCode.SUCCESS);
     }
@@ -95,20 +127,21 @@ public class SmGoodsApi {
     public JsonViewData addSkuAttribute(@RequestBody @ApiParam(required = true, name = "addSkuAttributeDtoList", value = "商品属性(SKU)信息集合") @Valid
                                                 List<AddSkuAttributeDto> addSkuAttributeDtoList, BindingResult result) {
 
-         service.addSkuAttribute(addSkuAttributeDtoList);
+        service.addSkuAttribute(addSkuAttributeDtoList);
 
         return new JsonViewData(ResultCode.SUCCESS);
     }
 
     @GetMapping("/searchSkuAttribute/{skuId}")
-    @ApiOperation(value="根据skuId查找sku属性，提供给财务角色填充信息")
-    public JsonViewData searchSkuAttribute(@ApiParam(required = true,name = "skuId",value = "skuId") @PathVariable Long skuId){
+    @ApiOperation(value = "根据skuId查找sku属性，提供给财务角色填充信息")
+    public JsonViewData searchSkuAttribute(@ApiParam(required = true, name = "skuId", value = "skuId") @PathVariable Long skuId) {
 
         return null;
     }
 
     /**
      * 添加或更新财务信息
+     *
      * @param updateSkuFinanceDto
      * @param result
      * @return
@@ -118,7 +151,7 @@ public class SmGoodsApi {
     public JsonViewData updateSkuFinance(@RequestBody @ApiParam(required = true, name = "updateSkuFinanceDto", value = "添加或更新财务信息") @Validated
                                                  UpdateSkuFinanceDto updateSkuFinanceDto, BindingResult result) {
 
-         service.updateSkuFinance(updateSkuFinanceDto);
+        service.updateSkuFinance(updateSkuFinanceDto);
         return new JsonViewData(ResultCode.SUCCESS);
     }
 
@@ -130,8 +163,8 @@ public class SmGoodsApi {
      */
     @PostMapping("/updateGoodOperation")
     @ApiOperation(value = "运营角色添加或更新商品信息")
-    public JsonViewData updateGoodOperation(@RequestBody @ApiParam(required = true,name ="updateGoodOperationDto",value = "运营角色添加或更新商品信息") @Validated
-                                                        UpdateGoodOperationDto updateGoodOperationDto,BindingResult result){
+    public JsonViewData updateGoodOperation(@RequestBody @ApiParam(required = true, name = "updateGoodOperationDto", value = "运营角色添加或更新商品信息") @Validated
+                                                    UpdateGoodOperationDto updateGoodOperationDto, BindingResult result) {
 
         service.updateGoodOperation(updateGoodOperationDto);
 
@@ -147,8 +180,8 @@ public class SmGoodsApi {
      */
     @PostMapping("/updateGoodSeller")
     @ApiOperation("销售角色添加或更新商品信息")
-    public JsonViewData updateGoodSeller(@RequestBody @ApiParam(required = true,name="updateGoodSellerDto",value = "销售角色添加或更新商品信息") @Validated
-                                                 UpdateGoodSellerDto updateGoodSellerDto ,BindingResult result){
+    public JsonViewData updateGoodSeller(@RequestBody @ApiParam(required = true, name = "updateGoodSellerDto", value = "销售角色添加或更新商品信息") @Validated
+                                                 UpdateGoodSellerDto updateGoodSellerDto, BindingResult result) {
 
         service.updateGoodSeller(updateGoodSellerDto);
 
@@ -163,12 +196,11 @@ public class SmGoodsApi {
      */
     @PostMapping("/addAssociation")
     @ApiOperation("添加商品关联")
-    public JsonViewData addAssociationGoods(@RequestBody @ApiParam(required = true,name = "associationDto",value = "添加商品关联信息") @Validated
-                                                    AddAssociationGoodsDto associationDto, BindingResult result){
+    public JsonViewData addAssociationGoods(@RequestBody @ApiParam(required = true, name = "associationDto", value = "添加商品关联信息") @Validated
+                                                    AddAssociationGoodsDto associationDto, BindingResult result) {
         service.addAssociationGoods(associationDto);
 
         return new JsonViewData(ResultCode.SUCCESS);
     }
-
 
 }
