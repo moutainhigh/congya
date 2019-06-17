@@ -37,7 +37,12 @@ public class EnumValidator implements ConstraintValidator<EnumConstraint, Object
                 method = cl.getMethod("isExist",Object.class);
             } catch (NoSuchMethodException e) {
                 LoggerUtil.error(e);
-                throw new ServiceException(ResultCode.SYSTEM_ERROR,"枚举类型验证出错：枚举类缺少isExist方法");
+                constraintValidatorContext.disableDefaultConstraintViolation();//禁用默认的message的值
+                //重新添加错误提示语句
+                constraintValidatorContext
+                        .buildConstraintViolationWithTemplate(cl.getSimpleName()+"枚举类型验证出错：枚举类缺少isExist方法").addConstraintViolation();
+                return false;
+               // throw new ServiceException(ResultCode.SYSTEM_ERROR,"枚举类型验证出错：枚举类缺少isExist方法");
             }
             /**
              * 枚举类没有instance方法
@@ -48,17 +53,23 @@ public class EnumValidator implements ConstraintValidator<EnumConstraint, Object
             try {
                 //执行isExist方法
                 isExist = method.invoke(enumInstance[0], value);
-            } catch (IllegalAccessException e) {
+            } catch (IllegalAccessException | InvocationTargetException e) {
                 LoggerUtil.error(e);
-                throw new ServiceException(ResultCode.SYSTEM_ERROR,"枚举类型验证出错：isExists方法调用出错");
-            } catch (InvocationTargetException e) {
-                LoggerUtil.error(e);
-                throw new ServiceException(ResultCode.SYSTEM_ERROR,"枚举类型验证出错：isExists方法调用出错");
+                constraintValidatorContext.disableDefaultConstraintViolation();//禁用默认的message的值
+                //重新添加错误提示语句
+                constraintValidatorContext
+                        .buildConstraintViolationWithTemplate(cl.getSimpleName()+"枚举类型验证出错：枚举类缺少isExist方法").addConstraintViolation();
+                return false;
+                //throw new ServiceException(ResultCode.SYSTEM_ERROR,"枚举类型验证出错：isExists方法调用出错");
             }
             return (Boolean) isExist;
         }
         else {
-            throw new ServiceException(ResultCode.SYSTEM_ERROR,"枚举类型验证出错：该参数不是枚举类型!");
+            constraintValidatorContext.disableDefaultConstraintViolation();//禁用默认的message的值
+            //重新添加错误提示语句
+            constraintValidatorContext
+                    .buildConstraintViolationWithTemplate(cl.getSimpleName()+"枚举类型验证出错：枚举类缺少isExist方法").addConstraintViolation();
+            return false;
         }
     }
 }

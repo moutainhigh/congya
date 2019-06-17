@@ -23,9 +23,7 @@ import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Maps;
 import org.springframework.beans.BeanUtils;
@@ -36,6 +34,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -71,8 +70,7 @@ public class PmGoodsCategoryApi extends BaseApi {
     @ApiOperation(value = "保存商品分类")
     @Transactional(rollbackFor = Exception.class)
     public JsonViewData save(@RequestBody @Valid @ApiParam(required = true, name = "goodCategoryDto", value = "分类相关信息")
-                                                  GoodCategoryDto goodCategoryDto,
-                                      BindingResult result) {
+                                                  GoodCategoryDto goodCategoryDto) {
         if (!ListUtil.isListNullAndEmpty(goodCategoryDto.getGoodAttributeIds())){
             if (goodCategoryDto.getLevel()!=3){
                 return setJsonViewData(ResultCode.PARAM_ERROR,"只有三级分类才允许分类和属性关联:当前为%s级分类",goodCategoryDto.getLevel());
@@ -167,9 +165,9 @@ public class PmGoodsCategoryApi extends BaseApi {
 
     @PostMapping("/search")
     @ApiOperation(value = "查看商品分类列表")
-    public JsonViewData search(@RequestBody @Valid @ApiParam(required = true, name = "baseSearchDto", value = "分类列表查询条件")
-                                       BaseSearchDto baseSearchDto,
-                               BindingResult result) {
+
+    public JsonViewData<PageInfo> search(@RequestBody @Valid @ApiParam(required = true, name = "baseSearchDto", value = "分类列表查询条件")
+                                       BaseSearchDto baseSearchDto) {
 
         PmGoodsCategoryPo queryCategory=new PmGoodsCategoryPo();
         Integer pageNo=baseSearchDto.getPageNo()==null?defaultPageNo:baseSearchDto.getPageNo();
@@ -179,7 +177,7 @@ public class PmGoodsCategoryApi extends BaseApi {
         queryWrapper.select("id","name","icon","sort","enabled","level");
         PageInfo<PmGoodsCategoryPo> categoryPageInfo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
                 .doSelectPageInfo(() -> goodsCategoryService.listMaps(queryWrapper));
-        return new JsonViewData(categoryPageInfo);
+        return new JsonViewData<PageInfo>(categoryPageInfo);
     }
 
     @PostMapping("/delete")
@@ -210,12 +208,22 @@ public class PmGoodsCategoryApi extends BaseApi {
 
     @PostMapping("/view/{id}")
     @ApiOperation(value = "查看分类详情")
-    public JsonViewData view(@PathVariable Long id){
+    public JsonViewData<Map<String,Object>> view(@PathVariable Long id){
         Map<String, Object> map = goodsCategoryService.findById(id);
         if (!map.get("attributionList").toString().equals("")){
             map.put("attributionList",JSONUtils.toList(map.get("attributionList")));
         }
-        return setJsonViewData(map);
+        return new JsonViewData<Map<String,Object>>(map);
+    }
+    @RequestMapping("/find_by_parentid")
+    @ApiOperation(value = "查看分类详情")
+    public JsonViewData findByParentId(Long parentId){
+
+        if (parentId==null){
+        //todo getmap
+
+        }
+        return null;
     }
 
 

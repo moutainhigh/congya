@@ -9,6 +9,7 @@ import com.chauncy.data.dto.supplier.good.update.UpdateGoodOperationDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodSellerDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.supplier.PmGoodsAttributeValueVo;
 import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.web.base.BaseApi;
 import io.swagger.annotations.Api;
@@ -93,10 +94,10 @@ public class SmGoodsApi extends BaseApi {
      */
     @GetMapping("/searchStandard/{categoryId}")
     @ApiOperation(value = "获取分类下的商品属性规格及其规格值")
-    public JsonViewData searchStandard(@ApiParam(required = true, name = "categoryID", value = "分类id") @PathVariable Long categoryId) {
+    public JsonViewData<List<PmGoodsAttributeValueVo>> searchStandard(@ApiParam(required = true, name = "categoryID", value = "分类id") @PathVariable Long categoryId) {
 
 
-        return new JsonViewData(service.searchStandard(categoryId));
+        return new JsonViewData<List<PmGoodsAttributeValueVo>>(service.searchStandard(categoryId));
     }
 
     /**

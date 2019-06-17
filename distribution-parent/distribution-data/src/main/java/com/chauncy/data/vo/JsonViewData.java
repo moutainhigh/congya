@@ -5,6 +5,7 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.google.common.net.MediaType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiResponse;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -21,7 +22,7 @@ import java.util.Map;
  * @time 16:53
  */
 @ApiModel(value = "response返回对象")
-public class JsonViewData{
+public class JsonViewData<T>{
 
     /**
      * 未登陆或超时视图
@@ -44,7 +45,7 @@ public class JsonViewData{
      * 有效数据包
      */
     @ApiModelProperty(value = "返回数据")
-    private Object data;
+    private T data;
 
     public JsonViewData(ResultCode resultCode) {
         this(resultCode, resultCode.getDescription());
@@ -54,13 +55,13 @@ public class JsonViewData{
         this(resultCode, message, null);
     }
 
-    public JsonViewData(ResultCode resultCode, String message, Object data) {
+    public JsonViewData(ResultCode resultCode, String message, T data) {
         this.resultCode = resultCode;
         this.message = message;
         this.data = data;
     }
 
-    public JsonViewData(Object data) {
+    public JsonViewData(T data) {
         this(ResultCode.SUCCESS, ResultCode.SUCCESS.getDescription(), data);
     }
 

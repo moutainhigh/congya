@@ -26,8 +26,8 @@ import java.util.List;
  * @Version 1.0
  */
 
-@Configuration
-@EnableSwagger2
+//@Configuration
+//@EnableSwagger2
 public class Swagger2Config {
 
     private List<ApiKey> securitySchemes() {
