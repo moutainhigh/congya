@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.Arrays;
 import java.util.List;
 
 /**检查数据库中是否存在该数据
@@ -46,7 +47,7 @@ public class NeedExistValidator implements ConstraintValidator<NeedExistConstrai
             return true;
         }
         //如果传的是id集合就要一个个验证
-        if (value instanceof List){
+        if (value instanceof List ||value.getClass().isArray()){
             //object转list
             List<String> ids= JSON.parseArray(JSON.toJSONString(value),String.class);
             for (String id:ids){
