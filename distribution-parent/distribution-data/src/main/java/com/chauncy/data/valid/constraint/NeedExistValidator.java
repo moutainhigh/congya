@@ -55,7 +55,7 @@ public class NeedExistValidator implements ConstraintValidator<NeedExistConstrai
                 if (count==0){
                     //如果数据库不存在
                     if (isNeedExists){
-                        return false;
+                        throw new ServiceException(ResultCode.PARAM_ERROR,"%s为【%s】在数据库中不存在！",field,id);
                     }
                 }
                 else {
