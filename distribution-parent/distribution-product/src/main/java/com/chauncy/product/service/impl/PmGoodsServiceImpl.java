@@ -84,6 +84,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     @Autowired
     private PmShippingTemplateMapper shippingTemplateMapper;
 
+    @Autowired
+    private PmGoodsCategoryMapper goodsCategoryMapper;
+
     /**
      * 添加商品基础信息
      *
@@ -172,6 +175,21 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         BeanUtils.copyProperties(goodsPo, baseGoodsVo);
         baseVo.setId(goodsPo.getShippingTemplateId());
 
+        /**
+         * 处理分类，根据分类ID获取分类名称
+         *
+         */
+        String[] level = new String[3];
+        PmGoodsCategoryPo goodsCategoryPo3 = goodsCategoryMapper.selectById(baseGoodsVo.getGoodsCategoryId());
+        String level3 = goodsCategoryPo3.getName();
+        PmGoodsCategoryPo goodsCategoryPo2 = goodsCategoryMapper.selectById(goodsCategoryPo3.getParentId());
+        String level2 = goodsCategoryPo2.getName();
+        String level1 = goodsCategoryMapper.selectById(goodsCategoryPo2.getParentId()).getName();
+        level[0]=level1;level[1]=level2;level[2]=level3;
+        baseGoodsVo.setCategoryName(level);
+        /**
+         * 参数属性处理
+         */
         List<PmGoodsParamVo> paramVoList = Lists.newArrayList();
         //根据商品ID查找关联参数值
         Map<String,Object> map = new HashMap<>();
@@ -193,10 +211,14 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             goodsParamVo.setAttributeName(paramName);
             goodsParamVo.setValueId(x);
             goodsParamVo.setValueName(paramValue);
+            paramVoList.add(goodsParamVo);
 
         });
+        baseGoodsVo.setGoodsParams(paramVoList);
 
-
+        /**
+         * 处理其他属性
+         */
         //根据商品ID查找关联属性
         PmGoodsRelAttributeGoodPo goodsRelAttributeGoodPo = new PmGoodsRelAttributeGoodPo();
         goodsRelAttributeGoodPo.setGoodsGoodId(id);
@@ -266,6 +288,16 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         PmGoodsPo goodsPo = new PmGoodsPo();
         //保存非关联信息
         BeanUtils.copyProperties(updateGoodBaseDto, goodsPo);
+        /**
+         * 处理分类更新
+         */
+        /**
+         * 处理商品参数信息
+         */
+        /**
+         * 处理其他属性信息
+         */
+
 
 
     }
