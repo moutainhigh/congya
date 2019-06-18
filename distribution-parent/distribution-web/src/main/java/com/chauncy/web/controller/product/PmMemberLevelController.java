@@ -15,6 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/data/pm-member-po")
-public class PmMemberController {
+public class PmMemberLevelController {
 
 }

@@ -6,7 +6,8 @@
     <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.product.PmGoodsSkuPo">
         <id column="id" property="id" />
         <result column="goods_id" property="goodsId" />
-        <result column="sku" property="sku" />
+        <result column="article_number" property="articleNumber" />
+        <result column="bar_code" property="barCode" />
         <result column="picture" property="picture" />
         <result column="supplier_price" property="supplierPrice" />
         <result column="profit_rate" property="profitRate" />

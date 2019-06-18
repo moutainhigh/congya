@@ -46,8 +46,11 @@ public class PmGoodsSkuPo implements Serializable {
     @ApiModelProperty(value = "商品id")
     private Long goodsId;
 
-    @ApiModelProperty(value = "sku编号")
-    private String sku;
+    @ApiModelProperty(value = "货号")
+    private String articleNumber;
+
+    @ApiModelProperty(value = "条形码")
+    private String barCode;
 
     @ApiModelProperty(value = "图片")
     private String picture;
@@ -74,7 +77,7 @@ public class PmGoodsSkuPo implements Serializable {
     private String createBy;
 
     @CreatedDate
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建时间")
     private LocalDateTime createTime;
@@ -83,7 +86,7 @@ public class PmGoodsSkuPo implements Serializable {
     private String updateBy;
 
     @LastModifiedDate
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "更新时间")
     private LocalDateTime updateTime;

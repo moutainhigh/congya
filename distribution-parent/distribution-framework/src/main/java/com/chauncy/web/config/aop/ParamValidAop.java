@@ -14,7 +14,7 @@ import org.springframework.validation.FieldError;
  * @Author zhangrt
  * @Date 2019-06-03 15:02
  **/
-@Aspect
+/*@Aspect
 @Component
 public class ParamValidAop {
 
@@ -30,4 +30,4 @@ public class ParamValidAop {
             }
         }
     }
-}
+}*/

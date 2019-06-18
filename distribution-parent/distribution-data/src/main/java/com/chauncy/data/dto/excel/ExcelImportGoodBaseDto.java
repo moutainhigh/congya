@@ -1,33 +1,35 @@
-package com.chauncy.data.dto.manage.good.add;
+package com.chauncy.data.dto.excel;
 
 import com.chauncy.common.enums.goods.GoodsTypeEnum;
 import com.chauncy.common.util.serializer.LongJsonSerializer;
+import com.chauncy.data.dto.supplier.good.add.AddGoodsParamValueDto;
 import com.chauncy.data.valid.annotation.EnumConstraint;
+import com.chauncy.data.valid.annotation.NeedExistConstraint;
+import com.chauncy.data.valid.group.IUpdateGroup;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
- * @Author huangwancheng
- * @create 2019-06-04 11:33
- */
-@Data
-@ApiModel(value = "GoodBaseDto对象", description = "商品基本信息")
-public class GoodBaseDto {
+ * excel导入商品基本属性的dto
+ * @Author zhangrt
+ * @Date 2019/6/17 23:09
+ **/
 
-    @ApiModelProperty(value = "商品类型")
-    @NotBlank(message = "商品类型图不能为空")
-    @EnumConstraint(target = GoodsTypeEnum.class)
+@Data
+public class ExcelImportGoodBaseDto {
+
+
+    @NotBlank(message = "商品类型不能为空")
     private String goodsType;
 
-    @ApiModelProperty(value = "分类ID")
-    @JsonSerialize(using = LongJsonSerializer.class)
-    @NotNull(message = "分类ID不能为空")
-    private Long goodsCategoryId;
+    @NotBlank(message = "商品分类")
+    @NeedExistConstraint(tableName = "pm_goods_category")
+    private Long goodsCategoryName;
 
     @ApiModelProperty(value = "商品名称")
     @NotBlank(message = "商品名称不能为空")
@@ -56,8 +58,26 @@ public class GoodBaseDto {
     @ApiModelProperty(value = "产品详情网页内容")
     private String detailHtml;
 
-    @ApiModelProperty(value = "属性IDs集合")
-    private Long[] attributeIds;
+    @ApiModelProperty(value = "品牌ID")
+    @NeedExistConstraint(tableName = "pm_goods_attribute")
+    private Long brandId;
+
+    @ApiModelProperty(value = "标签ID")
+    @NeedExistConstraint(tableName = "pm_goods_attribute")
+    private Long labelId;
+
+    @ApiModelProperty(value = "服务说明ID")
+    @NeedExistConstraint(tableName = "pm_goods_attribute")
+    private Long ServiceId;
+
+    @ApiModelProperty(value = "商品参数信息")
+    private List<AddGoodsParamValueDto> goodsParamDtoList;
+
+//    @ApiModelProperty(value = "平台活动说明Id")
+//    @NeedExistConstraint(tableName = "pm_goods_attribute")
+//    private Long platformActivityId;
+
+
 
     @ApiModelProperty(value = "运费说明id")
     @NotNull(message = "运费说明ID")

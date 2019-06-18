@@ -4,8 +4,8 @@ import com.chauncy.common.enums.goods.GoodsAttributeTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.*;
-import com.chauncy.data.dto.manage.good.add.GoodAttributeDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.manage.good.add.GoodAttributeDto;
 import com.chauncy.data.dto.manage.good.select.FindAttributeInfoByConditionDto;
 import com.chauncy.data.mapper.product.*;
 import com.chauncy.data.vo.JsonViewData;
@@ -137,6 +137,9 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
         for (Long id : ids) {
             PmGoodsAttributePo po = new PmGoodsAttributePo();
             po = mapper.selectById(id);
+            if (po==null){
+                return new JsonViewData(ResultCode.FAIL,"不存在该属性");
+            }
             //处理规格和商品参数
             if (po.getType() == GoodsAttributeTypeEnum.STANDARD.getId() || po.getType() == GoodsAttributeTypeEnum.GOODS_PARAM.getId()) {
                 Map<String, Object> map = new HashMap<>();

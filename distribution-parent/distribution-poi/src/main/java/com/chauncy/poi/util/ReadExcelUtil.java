@@ -72,7 +72,7 @@ public class ReadExcelUtil {
                 for (int cellIndex = 0; cellIndex < row.getLastCellNum(); cellIndex++) {
                     Cell cell = row.getCell(cellIndex);
                     System.out.println("遍历行中cell数据:" + getCellValue(cell));
-                    cellList.add(getCellValue(cell).toString());
+                    cellList.add(getCellValue(cell).toString().trim());
                     System.out.println("第" + cellIndex + "个:     cell个数：" + cellList.size());
                 }
                 dataList.add(cellList);

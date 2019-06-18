@@ -56,6 +56,9 @@ public class SysUserPo extends SysBaseEntity {
     @ApiModelProperty(value = "用户类型 0普通用户 1管理员")
     private Integer type;
 
+    @ApiModelProperty(value = "系统用户类型 1->平台后台用户 2->商家端用户")
+    private Integer systemType;
+
     @ApiModelProperty(value = "用户名")
     private String username;
 

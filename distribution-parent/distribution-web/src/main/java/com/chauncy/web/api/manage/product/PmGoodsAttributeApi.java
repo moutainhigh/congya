@@ -38,7 +38,6 @@ public class PmGoodsAttributeApi {
     @Autowired
     private IPmGoodsAttributeValueService valueService;
 
-    //TODO 属性操作
 
     /**
      * 添加属性以及属性值
@@ -47,7 +46,7 @@ public class PmGoodsAttributeApi {
      */
     @PostMapping("/saveAttribute")
     @ApiOperation(value = "保存商品属性（品牌、规格、服务等）")
-    public JsonViewData saveAttribute(@RequestBody @Valid @ApiParam(required = true, name = "goodsAttributeDto", value = "属性信息") GoodAttributeDto goodsAttributeDto, BindingResult result) {
+    public JsonViewData saveAttribute(@RequestBody @Valid @ApiParam(required = true, name = "goodsAttributeDto", value = "属性信息") GoodAttributeDto goodsAttributeDto) {
 
         return goodsAttributeService.saveAttribute(goodsAttributeDto);
     }
@@ -58,7 +57,7 @@ public class PmGoodsAttributeApi {
      * @param ids
      */
     @ApiOperation(value = "删除属性", notes = "根据id批量删除")
-    @DeleteMapping("/delAllByIds/{ids}")
+    @GetMapping("/delAllByIds/{ids}")
     public JsonViewData deleteAttributeByIds(@ApiParam(required = true, name = "ids", value = "id集合")
                                              @PathVariable Long[] ids) {
 
@@ -75,7 +74,7 @@ public class PmGoodsAttributeApi {
     @ApiOperation(value = "更新属性", notes = "根据ID更新属性")
     @PostMapping("/editAttribute")
     public JsonViewData editAttribute(@RequestBody @Validated(IUpdateGroup.class) @ApiParam(required = true, name = "goodsAttributeDto", value = "属性信息")
-                                              GoodAttributeDto goodsAttributeDto, BindingResult result) {
+                                              GoodAttributeDto goodsAttributeDto) {
         return goodsAttributeService.edit(goodsAttributeDto);
     }
 
@@ -146,7 +145,7 @@ public class PmGoodsAttributeApi {
      * @return
      */
     @ApiOperation(value = "删除属性值", notes = "有用到属性值的不能删除")
-    @DeleteMapping("/delAttValueByIds/{ids}")
+    @GetMapping("/delAttValueByIds/{ids}")
     public JsonViewData delAttValueByIds(@ApiParam(required = true, name = "ids", value = "属性值id集合") @PathVariable Long[] ids) {
         return valueService.delAttValueByIds(ids);
     }

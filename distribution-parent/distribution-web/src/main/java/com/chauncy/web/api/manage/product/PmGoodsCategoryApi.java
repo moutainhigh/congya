@@ -4,14 +4,15 @@ package com.chauncy.web.api.manage.product;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.common.util.JSONUtils;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.product.PmGoodsRelAttributeCategoryPo;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
-import com.chauncy.data.dto.manage.good.delete.GoodCategoryDeleteDto;
 import com.chauncy.data.dto.manage.good.add.GoodCategoryDto;
+import com.chauncy.data.dto.manage.good.delete.GoodCategoryDeleteDto;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.product.service.IPmGoodsAttributeService;
@@ -22,9 +23,7 @@ import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Maps;
 import org.springframework.beans.BeanUtils;
@@ -35,6 +34,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -70,8 +70,7 @@ public class PmGoodsCategoryApi extends BaseApi {
     @ApiOperation(value = "保存商品分类")
     @Transactional(rollbackFor = Exception.class)
     public JsonViewData save(@RequestBody @Valid @ApiParam(required = true, name = "goodCategoryDto", value = "分类相关信息")
-                                                  GoodCategoryDto goodCategoryDto,
-                                      BindingResult result) {
+                                                  GoodCategoryDto goodCategoryDto) {
         if (!ListUtil.isListNullAndEmpty(goodCategoryDto.getGoodAttributeIds())){
             if (goodCategoryDto.getLevel()!=3){
                 return setJsonViewData(ResultCode.PARAM_ERROR,"只有三级分类才允许分类和属性关联:当前为%s级分类",goodCategoryDto.getLevel());
@@ -166,19 +165,19 @@ public class PmGoodsCategoryApi extends BaseApi {
 
     @PostMapping("/search")
     @ApiOperation(value = "查看商品分类列表")
-    public JsonViewData search(@RequestBody @Valid @ApiParam(required = true, name = "baseSearchDto", value = "分类列表查询条件")
-                                       BaseSearchDto baseSearchDto,
-                               BindingResult result) {
+
+    public JsonViewData<PageInfo<PmGoodsCategoryPo>> search(@RequestBody @Valid @ApiParam(required = true, name = "baseSearchDto", value = "分类列表查询条件")
+                                       BaseSearchDto baseSearchDto) {
 
         PmGoodsCategoryPo queryCategory=new PmGoodsCategoryPo();
         Integer pageNo=baseSearchDto.getPageNo()==null?defaultPageNo:baseSearchDto.getPageNo();
         Integer pageSize=baseSearchDto.getPageSize()==null?defaultPageSize:baseSearchDto.getPageSize();
         BeanUtils.copyProperties(baseSearchDto,queryCategory);
         QueryWrapper<PmGoodsCategoryPo> queryWrapper=new QueryWrapper<>(queryCategory);
-        queryWrapper.select("id","name");
+        queryWrapper.select("id","name","icon","sort","enabled","level");
         PageInfo<PmGoodsCategoryPo> categoryPageInfo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
                 .doSelectPageInfo(() -> goodsCategoryService.list(queryWrapper));
-        return new JsonViewData(categoryPageInfo);
+        return setJsonViewData(categoryPageInfo);
     }
 
     @PostMapping("/delete")
@@ -209,9 +208,25 @@ public class PmGoodsCategoryApi extends BaseApi {
 
     @PostMapping("/view/{id}")
     @ApiOperation(value = "查看分类详情")
-    public JsonViewData delete(@PathVariable Long id){
-
-        return null;
+    public JsonViewData<Map<String,Object>> view(@PathVariable Long id){
+        Map<String, Object> map = goodsCategoryService.findById(id);
+        if (!map.get("attributionList").toString().equals("")){
+            map.put("attributionList",JSONUtils.toList(map.get("attributionList")));
+        }
+        return new JsonViewData<Map<String,Object>>(map);
+    }
+    @PostMapping("/find_by_parentid")
+    @ApiOperation(value = "选择商品分类")
+    public JsonViewData findByParentId(Long parentId){
+        PmGoodsCategoryPo condition=new PmGoodsCategoryPo();
+        QueryWrapper<PmGoodsCategoryPo> queryWrapper=new QueryWrapper<>(condition,"id","name");
+        if (parentId==null){
+            condition.setLevel(1);
+        }
+        else {
+            condition.setParentId(parentId);
+        }
+        return setJsonViewData(goodsCategoryService.listMaps(queryWrapper));
     }
 
 

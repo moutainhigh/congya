@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @Api(description = "Security相关接口")
-@RequestMapping("/distribution/common")
+@RequestMapping("/common")
 @Transactional
 public class SecurityApi {
 
