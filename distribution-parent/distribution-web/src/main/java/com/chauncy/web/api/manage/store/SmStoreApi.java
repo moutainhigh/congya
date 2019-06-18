@@ -13,7 +13,6 @@ import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -25,7 +24,7 @@ import javax.validation.Valid;
  */
 @Api(tags = "店铺管理接口")
 @RestController
-@RequestMapping("/common/store")
+@RequestMapping("/manage/store")
 @Slf4j
 public class SmStoreApi extends BaseApi {
 
@@ -36,7 +35,7 @@ public class SmStoreApi extends BaseApi {
     @ApiOperation(value = "保存店铺信息（基本信息）")
     @Transactional(rollbackFor = Exception.class)
     public JsonViewData saveStoreBaseInfo(@Valid @ModelAttribute  @ApiParam(required = true, name = "storeBaseInfoDto", value = "店铺基本信息")
-                                                  StoreBaseInfoDto storeBaseInfoDto, BindingResult result) {
+                                                  StoreBaseInfoDto storeBaseInfoDto) {
 
         return smStoreService.saveStore(storeBaseInfoDto);
     }
@@ -44,8 +43,8 @@ public class SmStoreApi extends BaseApi {
     @PostMapping("/save/storeAccountInfo")
     @ApiOperation(value = "保存店铺信息（账户信息）")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData saveStoreAccountInfo(@Valid @ModelAttribute  @ApiParam(required = true, name = "storeAccountInfoDto", value = "店铺账户信息")
-                                                     StoreAccountInfoDto storeAccountInfoDto, BindingResult result) {
+    public JsonViewData saveStoreAccountInfo(@Valid @RequestBody  @ApiParam(required = true, name = "storeAccountInfoDto", value = "店铺账户信息")
+                                                     StoreAccountInfoDto storeAccountInfoDto) {
 
         return smStoreService.saveStore(storeAccountInfoDto);
     }
@@ -53,8 +52,8 @@ public class SmStoreApi extends BaseApi {
     @PostMapping("/editStoreStatus")
     @ApiOperation(value = "批量修改店铺经营状态")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData saveStoreAccountInfo(@Valid @ModelAttribute  @ApiParam(required = true, name = "baseUpdateStatusDto", value = "店铺id、修改的状态值")
-                                                     BaseUpdateStatusDto baseUpdateStatusDto, BindingResult result) {
+    public JsonViewData saveStoreAccountInfo(@Valid @RequestBody  @ApiParam(required = true, name = "baseUpdateStatusDto", value = "店铺id、修改的状态值")
+                                                     BaseUpdateStatusDto baseUpdateStatusDto) {
 
         return smStoreService.editStoreStatus(baseUpdateStatusDto);
     }
@@ -65,8 +64,8 @@ public class SmStoreApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "条件查询", notes = "根据店铺ID、手机号、店铺类型、店铺名称、店铺状态查询")
-    @GetMapping("/searchBaseInfo")
-    public JsonViewData searchBaseInfo(@ModelAttribute StoreSearchDto storeSearchDto) {
+    @PostMapping("/searchBaseInfo")
+    public JsonViewData searchBaseInfo(@RequestBody StoreSearchDto storeSearchDto) {
 
         PageInfo<SmStoreBaseVo> smStoreBaseVoPageInfo = smStoreService.searchBaseInfo(storeSearchDto);
         return setJsonViewData(smStoreBaseVoPageInfo);
