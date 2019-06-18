@@ -23,21 +23,13 @@ import java.util.List;
 @Data
 public class ExcelImportGoodBaseDto {
 
-    @ApiModelProperty(value="商品ID")
-    @NeedExistConstraint(tableName = "pm_goods",groups = IUpdateGroup.class)
-    @NotNull(message = "商品ID不能为空",groups = IUpdateGroup.class)
-    private Long id;
 
-    @ApiModelProperty(value = "商品类型")
-    @NotBlank(message = "商品类型图不能为空")
-    @EnumConstraint(target = GoodsTypeEnum.class)
+    @NotBlank(message = "商品类型不能为空")
     private String goodsType;
 
-    @ApiModelProperty(value = "分类ID")
-    @JsonSerialize(using = LongJsonSerializer.class)
-    @NotNull(message = "分类ID不能为空")
+    @NotBlank(message = "商品分类")
     @NeedExistConstraint(tableName = "pm_goods_category")
-    private Long goodsCategoryId;
+    private Long goodsCategoryName;
 
     @ApiModelProperty(value = "商品名称")
     @NotBlank(message = "商品名称不能为空")

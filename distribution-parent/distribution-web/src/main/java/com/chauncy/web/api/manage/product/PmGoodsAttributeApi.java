@@ -38,7 +38,6 @@ public class PmGoodsAttributeApi {
     @Autowired
     private IPmGoodsAttributeValueService valueService;
 
-    //TODO 属性操作
 
     /**
      * 添加属性以及属性值
@@ -47,7 +46,7 @@ public class PmGoodsAttributeApi {
      */
     @PostMapping("/saveAttribute")
     @ApiOperation(value = "保存商品属性（品牌、规格、服务等）")
-    public JsonViewData saveAttribute(@RequestBody @Valid @ApiParam(required = true, name = "goodsAttributeDto", value = "属性信息") GoodAttributeDto goodsAttributeDto, BindingResult result) {
+    public JsonViewData saveAttribute(@RequestBody @Valid @ApiParam(required = true, name = "goodsAttributeDto", value = "属性信息") GoodAttributeDto goodsAttributeDto) {
 
         return goodsAttributeService.saveAttribute(goodsAttributeDto);
     }
@@ -75,7 +74,7 @@ public class PmGoodsAttributeApi {
     @ApiOperation(value = "更新属性", notes = "根据ID更新属性")
     @PostMapping("/editAttribute")
     public JsonViewData editAttribute(@RequestBody @Validated(IUpdateGroup.class) @ApiParam(required = true, name = "goodsAttributeDto", value = "属性信息")
-                                              GoodAttributeDto goodsAttributeDto, BindingResult result) {
+                                              GoodAttributeDto goodsAttributeDto) {
         return goodsAttributeService.edit(goodsAttributeDto);
     }
 

@@ -36,7 +36,7 @@ public class SmStoreApi extends BaseApi {
     @ApiOperation(value = "保存店铺信息（基本信息）")
     @Transactional(rollbackFor = Exception.class)
     public JsonViewData saveStoreBaseInfo(@Valid @ModelAttribute  @ApiParam(required = true, name = "storeBaseInfoDto", value = "店铺基本信息")
-                                                  StoreBaseInfoDto storeBaseInfoDto, BindingResult result) {
+                                                  StoreBaseInfoDto storeBaseInfoDto) {
 
         return smStoreService.saveStore(storeBaseInfoDto);
     }
@@ -45,7 +45,7 @@ public class SmStoreApi extends BaseApi {
     @ApiOperation(value = "保存店铺信息（账户信息）")
     @Transactional(rollbackFor = Exception.class)
     public JsonViewData saveStoreAccountInfo(@Valid @ModelAttribute  @ApiParam(required = true, name = "storeAccountInfoDto", value = "店铺账户信息")
-                                                     StoreAccountInfoDto storeAccountInfoDto, BindingResult result) {
+                                                     StoreAccountInfoDto storeAccountInfoDto) {
 
         return smStoreService.saveStore(storeAccountInfoDto);
     }
@@ -54,7 +54,7 @@ public class SmStoreApi extends BaseApi {
     @ApiOperation(value = "批量修改店铺经营状态")
     @Transactional(rollbackFor = Exception.class)
     public JsonViewData saveStoreAccountInfo(@Valid @ModelAttribute  @ApiParam(required = true, name = "baseUpdateStatusDto", value = "店铺id、修改的状态值")
-                                                     BaseUpdateStatusDto baseUpdateStatusDto, BindingResult result) {
+                                                     BaseUpdateStatusDto baseUpdateStatusDto) {
 
         return smStoreService.editStoreStatus(baseUpdateStatusDto);
     }

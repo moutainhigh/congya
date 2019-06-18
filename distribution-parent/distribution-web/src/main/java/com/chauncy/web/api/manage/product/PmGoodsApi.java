@@ -42,7 +42,7 @@ public class PmGoodsApi extends BaseApi {
     @PostMapping("/addBase")
     @ApiOperation(value = "添加基本信息")
     public JsonViewData addBase(@RequestBody @Valid @ApiParam(required = true,name="addGoodBaseDto",value="商品基本信息")
-                                        AddGoodBaseDto addGoodBaseDto, BindingResult result) {
+                                        AddGoodBaseDto addGoodBaseDto) {
 
         service.addBase(addGoodBaseDto);
 

@@ -51,7 +51,7 @@ public class SmGoodsApi extends BaseApi {
     @PostMapping("/addBase")
     @ApiOperation(value = "添加基本信息")
     public JsonViewData addBase(@RequestBody @Valid @ApiParam(required = true, name = "addGoodBaseDto", value = "商品基本信息")
-                                        AddGoodBaseDto addGoodBaseDto, BindingResult result) {
+                                        AddGoodBaseDto addGoodBaseDto) {
         service.addBase(addGoodBaseDto);
 
         return new JsonViewData(ResultCode.SUCCESS);
@@ -80,7 +80,7 @@ public class SmGoodsApi extends BaseApi {
     @PostMapping("/updateBase")
     @ApiOperation(value = "添加基本信息")
     public JsonViewData updateBase(@RequestBody @Valid @ApiParam(required = true, name = "updateGoodBaseDto", value = "商品基本信息")
-                                           AddGoodBaseDto updateGoodBaseDto, BindingResult result) {
+                                           AddGoodBaseDto updateGoodBaseDto) {
         service.updateBase(updateGoodBaseDto);
 
         return new JsonViewData(ResultCode.SUCCESS);
@@ -109,7 +109,7 @@ public class SmGoodsApi extends BaseApi {
     @PostMapping("/addExtraValue")
     @ApiOperation(value = "添加商品额外的属性值")
     public JsonViewData addExtraValue(@RequestBody @ApiParam(required = true, name = "goodAttributeId", value = "属性值id") @Valid
-                                              AddExtraValueDto addExtraValueDto, BindingResult result) {
+                                              AddExtraValueDto addExtraValueDto) {
 
         service.addExtraValue(addExtraValueDto);
 
@@ -126,7 +126,7 @@ public class SmGoodsApi extends BaseApi {
     @PostMapping("/addSkuAttribute")
     @ApiOperation(value = "添加商品属性以及sku信息")
     public JsonViewData addSkuAttribute(@RequestBody @ApiParam(required = true, name = "addSkuAttributeDtoList", value = "商品属性(SKU)信息集合") @Valid
-                                                List<AddSkuAttributeDto> addSkuAttributeDtoList, BindingResult result) {
+                                                List<AddSkuAttributeDto> addSkuAttributeDtoList) {
 
         service.addSkuAttribute(addSkuAttributeDtoList);
 
@@ -150,7 +150,7 @@ public class SmGoodsApi extends BaseApi {
     @PostMapping("/updateSkuFinance")
     @ApiOperation(value = "添加或更新财务信息->sku信息")
     public JsonViewData updateSkuFinance(@RequestBody @ApiParam(required = true, name = "updateSkuFinanceDto", value = "添加或更新财务信息") @Validated
-                                                 UpdateSkuFinanceDto updateSkuFinanceDto, BindingResult result) {
+                                                 UpdateSkuFinanceDto updateSkuFinanceDto) {
 
         service.updateSkuFinance(updateSkuFinanceDto);
         return new JsonViewData(ResultCode.SUCCESS);
@@ -165,7 +165,7 @@ public class SmGoodsApi extends BaseApi {
     @PostMapping("/updateGoodOperation")
     @ApiOperation(value = "运营角色添加或更新商品信息")
     public JsonViewData updateGoodOperation(@RequestBody @ApiParam(required = true, name = "updateGoodOperationDto", value = "运营角色添加或更新商品信息") @Validated
-                                                    UpdateGoodOperationDto updateGoodOperationDto, BindingResult result) {
+                                                    UpdateGoodOperationDto updateGoodOperationDto) {
 
         service.updateGoodOperation(updateGoodOperationDto);
 
@@ -182,7 +182,7 @@ public class SmGoodsApi extends BaseApi {
     @PostMapping("/updateGoodSeller")
     @ApiOperation("销售角色添加或更新商品信息")
     public JsonViewData updateGoodSeller(@RequestBody @ApiParam(required = true, name = "updateGoodSellerDto", value = "销售角色添加或更新商品信息") @Validated
-                                                 UpdateGoodSellerDto updateGoodSellerDto, BindingResult result) {
+                                                 UpdateGoodSellerDto updateGoodSellerDto) {
 
         service.updateGoodSeller(updateGoodSellerDto);
 
@@ -198,7 +198,7 @@ public class SmGoodsApi extends BaseApi {
     @PostMapping("/addAssociation")
     @ApiOperation("添加商品关联")
     public JsonViewData addAssociationGoods(@RequestBody @ApiParam(required = true, name = "associationDto", value = "添加商品关联信息") @Validated
-                                                    AddAssociationGoodsDto associationDto, BindingResult result) {
+                                                    AddAssociationGoodsDto associationDto) {
         service.addAssociationGoods(associationDto);
 
         return new JsonViewData(ResultCode.SUCCESS);

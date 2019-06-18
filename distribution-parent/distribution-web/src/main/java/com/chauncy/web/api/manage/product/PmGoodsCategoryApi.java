@@ -166,7 +166,7 @@ public class PmGoodsCategoryApi extends BaseApi {
     @PostMapping("/search")
     @ApiOperation(value = "查看商品分类列表")
 
-    public JsonViewData<PageInfo> search(@RequestBody @Valid @ApiParam(required = true, name = "baseSearchDto", value = "分类列表查询条件")
+    public JsonViewData<PageInfo<PmGoodsCategoryPo>> search(@RequestBody @Valid @ApiParam(required = true, name = "baseSearchDto", value = "分类列表查询条件")
                                        BaseSearchDto baseSearchDto) {
 
         PmGoodsCategoryPo queryCategory=new PmGoodsCategoryPo();
@@ -176,8 +176,8 @@ public class PmGoodsCategoryApi extends BaseApi {
         QueryWrapper<PmGoodsCategoryPo> queryWrapper=new QueryWrapper<>(queryCategory);
         queryWrapper.select("id","name","icon","sort","enabled","level");
         PageInfo<PmGoodsCategoryPo> categoryPageInfo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
-                .doSelectPageInfo(() -> goodsCategoryService.listMaps(queryWrapper));
-        return new JsonViewData<PageInfo>(categoryPageInfo);
+                .doSelectPageInfo(() -> goodsCategoryService.list(queryWrapper));
+        return setJsonViewData(categoryPageInfo);
     }
 
     @PostMapping("/delete")
