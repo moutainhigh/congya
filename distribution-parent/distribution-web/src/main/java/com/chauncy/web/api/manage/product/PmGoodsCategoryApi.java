@@ -215,15 +215,18 @@ public class PmGoodsCategoryApi extends BaseApi {
         }
         return new JsonViewData<Map<String,Object>>(map);
     }
-    @RequestMapping("/find_by_parentid")
-    @ApiOperation(value = "查看分类详情")
+    @PostMapping("/find_by_parentid")
+    @ApiOperation(value = "选择商品分类")
     public JsonViewData findByParentId(Long parentId){
-
+        PmGoodsCategoryPo condition=new PmGoodsCategoryPo();
+        QueryWrapper<PmGoodsCategoryPo> queryWrapper=new QueryWrapper<>(condition,"id","name");
         if (parentId==null){
-        //todo getmap
-
+            condition.setLevel(1);
         }
-        return null;
+        else {
+            condition.setParentId(parentId);
+        }
+        return setJsonViewData(goodsCategoryService.listMaps(queryWrapper));
     }
 
 
