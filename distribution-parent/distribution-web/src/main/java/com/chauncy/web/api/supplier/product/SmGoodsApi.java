@@ -101,7 +101,6 @@ public class SmGoodsApi extends BaseApi {
 
     /**
      * 添加商品额外的属性值
-     *
      * @param addExtraValueDto
      * @return
      */

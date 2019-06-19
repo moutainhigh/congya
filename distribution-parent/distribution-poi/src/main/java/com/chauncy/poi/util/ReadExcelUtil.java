@@ -33,7 +33,7 @@ public class ReadExcelUtil {
      *
      * @throws Exception
      */
-    public static List<List<String>> readExcelInfo(String url) throws Exception {
+    public static List<List<String>> readExcelInfo(InputStream inputStream) throws Exception {
         /*
          * workbook:工作簿,就是整个Excel文档
          * sheet:工作表
@@ -43,10 +43,10 @@ public class ReadExcelUtil {
 
 //        BufferedWriter bw = new BufferedWriter(new FileWriter(new File(url)));
 //        支持excel2003、2007
-        File excelFile = new File(url);//创建excel文件对象
+        /*File excelFile = new File(url);//创建excel文件对象
         InputStream is = new FileInputStream(excelFile);//创建输入流对象
-        checkExcelVaild(excelFile);
-        Workbook workbook = getWorkBook(excelFile);
+        checkExcelVaild(excelFile);*/
+        Workbook workbook = new HSSFWorkbook(inputStream);
 //        Workbook workbook = WorkbookFactory.create(is);//同时支持2003、2007、2010
 //        获取Sheet数量
         int sheetNum = workbook.getNumberOfSheets();
@@ -64,7 +64,7 @@ public class ReadExcelUtil {
             for (int rowIndex = 0; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
                 Row row = sheet.getRow(rowIndex);
 //                根据文件头可以控制从哪一行读取，在下面if中进行控制
-                if (row == null) {
+                if (row == null||row.getCell(0)==null||row.getCell(0).toString().trim().equals("")) {
                     continue;
                 }
 //                遍历每一行的每一列，第三层循环行中所有单元格
@@ -80,7 +80,7 @@ public class ReadExcelUtil {
             }
 
         }
-        is.close();
+        inputStream.close();
         return dataList;
     }
 
@@ -192,7 +192,7 @@ public class ReadExcelUtil {
      * 获取单元格数据
      */
     private static Object getCellValue(/*Workbook wb, */Cell cell) {
-        Object columnValue = null;
+        Object columnValue = "";
         if (cell != null) {
             DecimalFormat df = new DecimalFormat("0");// 格式化 number
             // String
