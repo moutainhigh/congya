@@ -33,7 +33,6 @@ public class AddGoodBaseDto {
     private String goodsType;
 
     @ApiModelProperty(value = "分类ID")
-    @JsonSerialize(using = LongJsonSerializer.class)
     @NotNull(message = "分类ID不能为空")
     @NeedExistConstraint(tableName = "pm_goods_category")
     private Long goodsCategoryId;

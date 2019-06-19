@@ -8,7 +8,9 @@ import com.chauncy.data.dto.supplier.good.add.AddSkuAttributeDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodOperationDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodSellerDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
+import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.supplier.BaseGoodsVo;
 import com.chauncy.data.vo.supplier.PmGoodsAttributeValueVo;
 import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.web.base.BaseApi;
@@ -16,10 +18,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONValue;
-import net.sf.json.processors.JsonVerifier;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,9 +62,9 @@ public class SmGoodsApi extends BaseApi {
      * @param id
      * @return
      */
-    @GetMapping("/findBase/{id}")
+    @GetMapping("/findBaseGood/{id}")
     @ApiOperation("根据ID获取商品的基本信息")
-    public JsonViewData findBase(@ApiParam(required = true, name = "id", value = "商品ID")
+    public JsonViewData<BaseGoodsVo> findBase(@ApiParam(required = true, name = "id", value = "商品ID")
                                  @PathVariable Long id) {
 
         return setJsonViewData(service.findBase(id));
@@ -79,7 +78,7 @@ public class SmGoodsApi extends BaseApi {
      */
     @PostMapping("/updateBase")
     @ApiOperation(value = "添加基本信息")
-    public JsonViewData updateBase(@RequestBody @Valid @ApiParam(required = true, name = "updateGoodBaseDto", value = "商品基本信息")
+    public JsonViewData updateBase(@RequestBody @Validated(IUpdateGroup.class) @ApiParam(required = true, name = "updateGoodBaseDto", value = "商品基本信息")
                                            AddGoodBaseDto updateGoodBaseDto) {
         service.updateBase(updateGoodBaseDto);
 
@@ -120,7 +119,6 @@ public class SmGoodsApi extends BaseApi {
      * 添加sku信息
      *
      * @param addSkuAttributeDtoList
-     * @param result
      * @return
      */
     @PostMapping("/addSkuAttribute")
@@ -144,7 +142,6 @@ public class SmGoodsApi extends BaseApi {
      * 添加或更新财务信息
      *
      * @param updateSkuFinanceDto
-     * @param result
      * @return
      */
     @PostMapping("/updateSkuFinance")
@@ -176,7 +173,6 @@ public class SmGoodsApi extends BaseApi {
      * 销售角色添加或更新商品信息
      *
      * @param updateGoodSellerDto
-     * @param result
      * @return
      */
     @PostMapping("/updateGoodSeller")
