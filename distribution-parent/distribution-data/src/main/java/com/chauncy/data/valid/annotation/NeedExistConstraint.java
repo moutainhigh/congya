@@ -49,12 +49,18 @@ public @interface NeedExistConstraint {
     String field() default "id";
 
     /**
+     * where 语句拼接  以and开头
+     * @return
+     */
+    String concatWhereSql() default "";
+
+    /**
      * 支持重复注解
      */
     @Target({ METHOD, FIELD, ANNOTATION_TYPE })
     @Retention(RUNTIME)
     @Documented
-     public @interface List {
+      @interface List {
         NeedExistConstraint[] value();
     }
 

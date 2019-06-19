@@ -29,12 +29,15 @@ public class NeedExistValidator implements ConstraintValidator<NeedExistConstrai
 
     private String field;
 
+    private String concatWhereSql;
+
 
     @Override
     public void initialize(NeedExistConstraint constraintAnnotation) {
         tableName = constraintAnnotation.tableName();
         isNeedExists=constraintAnnotation.isNeedExists();
         field=constraintAnnotation.field();
+        concatWhereSql=constraintAnnotation.concatWhereSql();
     }
 
 
@@ -51,7 +54,7 @@ public class NeedExistValidator implements ConstraintValidator<NeedExistConstrai
             //object转list
             List<String> ids= JSON.parseArray(JSON.toJSONString(value),String.class);
             for (String id:ids){
-                int count = baseMapper.countById(id, tableName,field);
+                int count = baseMapper.countById(id, tableName,field,concatWhereSql);
                 if (count==0){
                     constraintValidatorContext.disableDefaultConstraintViolation();//禁用默认的message的值
                     //重新添加错误提示语句
@@ -77,7 +80,7 @@ public class NeedExistValidator implements ConstraintValidator<NeedExistConstrai
 
         }
         else {
-            int count = baseMapper.countById(value, tableName,field);
+            int count = baseMapper.countById(value, tableName,field,concatWhereSql);
             return count>0==isNeedExists;
         }
     }
