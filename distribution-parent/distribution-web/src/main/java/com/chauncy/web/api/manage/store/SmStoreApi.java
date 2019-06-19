@@ -52,7 +52,7 @@ public class SmStoreApi extends BaseApi {
     @PostMapping("/editStoreStatus")
     @ApiOperation(value = "批量修改店铺经营状态")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData saveStoreAccountInfo(@Valid @RequestBody  @ApiParam(required = true, name = "baseUpdateStatusDto", value = "店铺id、修改的状态值")
+    public JsonViewData editStoreStatus(@Valid @RequestBody  @ApiParam(required = true, name = "baseUpdateStatusDto", value = "店铺id、修改的状态值")
                                                      BaseUpdateStatusDto baseUpdateStatusDto) {
 
         return smStoreService.editStoreStatus(baseUpdateStatusDto);
@@ -65,7 +65,7 @@ public class SmStoreApi extends BaseApi {
      */
     @ApiOperation(value = "条件查询", notes = "根据店铺ID、手机号、店铺类型、店铺名称、店铺状态查询")
     @PostMapping("/searchBaseInfo")
-    public JsonViewData searchBaseInfo(@RequestBody StoreSearchDto storeSearchDto) {
+    public JsonViewData<PageInfo<SmStoreBaseVo>> searchBaseInfo(@RequestBody StoreSearchDto storeSearchDto) {
 
         PageInfo<SmStoreBaseVo> smStoreBaseVoPageInfo = smStoreService.searchBaseInfo(storeSearchDto);
         return setJsonViewData(smStoreBaseVoPageInfo);

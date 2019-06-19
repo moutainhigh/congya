@@ -24,8 +24,6 @@ public class SmStoreLabelVo implements Serializable {
 
 
     @ApiModelProperty(value = "id")
-    @JsonSerialize(using = LongJsonSerializer.class)
-    @JsonDeserialize(using = LongJsonDeserializer.class)
     private Long id;
 
 

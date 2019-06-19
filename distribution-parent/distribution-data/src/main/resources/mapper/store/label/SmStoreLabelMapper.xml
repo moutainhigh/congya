@@ -23,7 +23,6 @@
     <select id="searchPaging" resultType="com.chauncy.data.vo.manage.store.label.SmStoreLabelVo">
         select <include refid="Base_Column_List"/> from sm_store_label
         <where>
-            1=1
             <if test="id !=null and type !=''">
                 and id = #{id}
             </if>
@@ -39,7 +38,7 @@
         </where>
     </select>
 
-    <select id="searchAll" resultType="com.chauncy.data.vo.manage.store.label.SmStoreLabelVo">
+    <select id="selectAll" resultType="com.chauncy.data.vo.manage.store.label.SmStoreLabelVo">
         select <include refid="Base_Column_List"/>
         from sm_store_label
         order by create_time desc

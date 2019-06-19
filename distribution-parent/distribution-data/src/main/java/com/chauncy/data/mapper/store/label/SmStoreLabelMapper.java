@@ -27,11 +27,11 @@ public interface SmStoreLabelMapper extends IBaseMapper<SmStoreLabelPo> {
 
 
     /**
-     * 条件查询
+     * 查询所有
      *
      * @return
      */
-   List<SmStoreLabelVo> searchAll();
+   List<SmStoreLabelVo> selectAll();
 
 
 

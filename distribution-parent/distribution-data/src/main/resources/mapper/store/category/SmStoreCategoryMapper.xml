@@ -22,4 +22,39 @@
         id, name, remark, create_time, create_by, update_time, update_by, del_flag, icon, sort, enabled
     </sql>
 
+
+    <!-- 根据分类id，分类名称，是否启用状态分页查找店铺分类 -->
+    <select id="searchPaging" resultType="com.chauncy.data.vo.manage.store.category.SmStoreCategoryVo">
+        select <include refid="Base_Column_List"/> from sm_store_category
+        <where>
+            <if test="id !=null and id !=''">
+                and id = #{id}
+            </if>
+            <if test="name != null and name !=''">
+                and name like concat('%', #{name}, '%')
+            </if>
+            <if test="enabled != null">
+                and enabled =  #{enabled}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAll" resultType="com.chauncy.data.vo.manage.store.category.SmStoreCategoryVo">
+        select <include refid="Base_Column_List"/>
+        from sm_store_category
+        where enabled = true
+        order by create_time desc
+    </select>
+
+    <!-- 批量修改店铺分类是否启用状态 -->
+    <update id="editCategoryStatus">
+        update sm_store_category
+        set enabled = #{enabled}
+        where id in
+        <foreach collection="id" item="id" index="index"
+                 open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
 </mapper>

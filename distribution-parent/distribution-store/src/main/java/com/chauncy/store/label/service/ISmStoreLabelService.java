@@ -9,6 +9,9 @@ import com.chauncy.data.vo.manage.store.label.SmStoreLabelVo;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * <p>
  *  服务类
@@ -25,21 +28,21 @@ public interface ISmStoreLabelService extends Service<SmStoreLabelPo> {
      * @param storeLabelDto
      * @return
      */
-    JsonViewData saveStoreLabel(StoreLabelDto storeLabelDto);
+    SmStoreLabelPo saveStoreLabel(StoreLabelDto storeLabelDto);
 
     /**
      * 编辑店铺标签信息
      * @param storeLabelDto
      * @return
      */
-    JsonViewData editStoreLabel(StoreLabelDto storeLabelDto);
+    SmStoreLabelPo editStoreLabel(StoreLabelDto storeLabelDto);
     /**
      * 根据ID查找店铺标签
      *
      * @param id
      * @return
      */
-    JsonViewData findById(Long id);
+    Map<String, Object> findById(Long id);
 
     /**
      * 条件查询
@@ -52,7 +55,7 @@ public interface ISmStoreLabelService extends Service<SmStoreLabelPo> {
      * 查询店铺所有标签
      * @return
      */
-    JsonViewData searchAll();
+    List<SmStoreLabelVo> selectAll();
 
 
 }

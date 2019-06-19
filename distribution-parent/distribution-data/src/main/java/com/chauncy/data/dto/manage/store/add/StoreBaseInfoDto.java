@@ -32,16 +32,16 @@ public class StoreBaseInfoDto {
     @ApiModelProperty(value = "是否展示在前端 0 不展示 1 展示")
     private boolean showStatus;
 
-    @ApiModelProperty(value = "店铺类型标签id（pm_goods_attribute主键）")
-    @NeedExistConstraint(tableName = "pm_goods_attribute")
-    private Long storeTypeLabelId;
+    @ApiModelProperty(value = "店铺类型标签id（sm_store_label主键）")
+    @NeedExistConstraint(tableName = "sm_store_label")
+    private Long storeLabelId;
 
-    @ApiModelProperty(value = "店铺分类id（pm_goods_attribute主键）")
-    @NeedExistConstraint(tableName = "pm_goods_attribute")
-    private Long storeAttributeId;
+    @ApiModelProperty(value = "店铺分类id（sm_store_category主键）")
+    @NeedExistConstraint(tableName = "sm_store_category")
+    private Long storeCategoryId;
 
     @ApiModelProperty(value = "商家类型（推广店铺，商品店铺）")
-    @NotBlank(message = "商家类型不能为空")
+    @NotNull(message = "商家类型不能为空")
     private Integer type;
 
     @ApiModelProperty(value = "所属店铺Id")

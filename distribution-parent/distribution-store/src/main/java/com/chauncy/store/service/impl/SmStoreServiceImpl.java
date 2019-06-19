@@ -54,6 +54,7 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         String user = securityUtil.getCurrUser().getUsername();
         smStorePo.setCreateBy(user);
         //店铺信息插入
+        smStorePo.setId(null);
         smStoreMapper.insert(smStorePo);
 
         return new JsonViewData(ResultCode.SUCCESS, "添加成功", smStorePo);

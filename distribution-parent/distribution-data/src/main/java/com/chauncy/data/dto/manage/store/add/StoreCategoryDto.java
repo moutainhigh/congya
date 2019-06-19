@@ -36,7 +36,7 @@ public class StoreCategoryDto implements Serializable {
     private String icon;
 
     @ApiModelProperty(value = "排序数字")
-    @NotBlank(message = "排序数字不能为空")
+    @NotNull(message = "排序数字不能为空")
     private BigDecimal sort;
 
     @ApiModelProperty(value = "是否启用 1-是 0-否 默认为1")

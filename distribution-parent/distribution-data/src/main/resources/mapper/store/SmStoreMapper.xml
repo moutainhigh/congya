@@ -10,7 +10,7 @@
         <result column="user_name" property="userName" />
         <result column="show_status" property="showStatus" />
         <result column="store_type_label_id" property="storeTypeLabelId" />
-        <result column="store_attribute_id" property="storeAttributeId" />
+        <result column="store_category_id" property="storeCategoryId" />
         <result column="type" property="type" />
         <result column="parent_id" property="parentId" />
         <result column="sort" property="sort" />
@@ -36,14 +36,8 @@
         <result column="enabled" property="enabled" />
         <result column="total_score" property="totalScore" />
         <result column="baby_describe_score" property="babyDescribeScore" />
-        <result column="service_attitude
-
-_score" property="serviceAttitude
-
-Score" />
-        <result column="logistics_service
-_score" property="logisticsService
-Score" />
+        <result column="service_attitude_score" property="serviceAttitudeScore" />
+        <result column="logistics_service_score" property="logisticsServiceScore" />
     </resultMap>
 
 

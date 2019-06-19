@@ -1,5 +1,6 @@
 package com.chauncy.web.api.manage.store.label;
 
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.manage.store.add.StoreLabelDto;
 import com.chauncy.data.dto.manage.store.select.StoreLabelSearchDto;
 import com.chauncy.data.valid.group.IUpdateGroup;
@@ -26,7 +27,7 @@ import javax.validation.Valid;
  */
 @Api(tags = "店铺标签管理接口")
 @RestController
-@RequestMapping("/common/store/label")
+@RequestMapping("/manage/store/label")
 @Slf4j
 public class SmStoreLabelApi extends BaseApi {
 
@@ -47,7 +48,8 @@ public class SmStoreLabelApi extends BaseApi {
                                      StoreLabelDto storeBaseInfoDto, BindingResult result) {
 
 
-        return smStoreLabelService.saveStoreLabel(storeBaseInfoDto);
+        return new JsonViewData(ResultCode.SUCCESS, "添加成功",
+                smStoreLabelService.saveStoreLabel(storeBaseInfoDto));
     }
 
     /**
@@ -63,7 +65,8 @@ public class SmStoreLabelApi extends BaseApi {
                                      StoreLabelDto storeBaseInfoDto, BindingResult result) {
 
 
-        return smStoreLabelService.editStoreLabel(storeBaseInfoDto);
+        return new JsonViewData(ResultCode.SUCCESS, "编辑成功",
+                smStoreLabelService.editStoreLabel(storeBaseInfoDto));
     }
 
 
@@ -79,7 +82,8 @@ public class SmStoreLabelApi extends BaseApi {
                                  @PathVariable Long id) {
 
 
-        return smStoreLabelService.findById(id);
+        return new JsonViewData(ResultCode.SUCCESS, "查找成功",
+                smStoreLabelService.findById(id));
 
     }
 
@@ -90,11 +94,12 @@ public class SmStoreLabelApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "条件查询", notes = "根据标签ID、标签名称、创建时间查询")
-    @GetMapping("/searchPaging")
-    public JsonViewData searchPaging(@ModelAttribute StoreLabelSearchDto storeLabelSearchDto) {
+    @PostMapping("/searchPaging")
+    public JsonViewData searchPaging(@RequestBody StoreLabelSearchDto storeLabelSearchDto) {
 
         PageInfo<SmStoreLabelVo> smStoreBaseVoPageInfo = smStoreLabelService.searchPaging(storeLabelSearchDto);
         return setJsonViewData(smStoreBaseVoPageInfo);
+
     }
 
     /**
@@ -102,10 +107,11 @@ public class SmStoreLabelApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "查询所有的店铺标签", notes = "查询所有的店铺标签")
-    @GetMapping("/searchAll")
+    @GetMapping("/selectAll")
     public JsonViewData searchAll() {
 
-        return smStoreLabelService.searchAll();
+        return new JsonViewData(ResultCode.SUCCESS, "查找成功",
+                smStoreLabelService.selectAll());
     }
 
 

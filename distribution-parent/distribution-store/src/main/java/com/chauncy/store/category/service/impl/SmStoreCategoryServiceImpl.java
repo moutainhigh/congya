@@ -2,14 +2,19 @@ package com.chauncy.store.category.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.domain.po.store.category.SmStoreCategoryPo;
+import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.add.StoreCategoryDto;
+import com.chauncy.data.dto.manage.store.select.StoreCategorySearchDto;
 import com.chauncy.data.mapper.store.category.SmStoreCategoryMapper;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.manage.store.category.SmStoreCategoryVo;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.store.category.service.ISmStoreCategoryService;
 import com.chauncy.data.core.AbstractService;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +47,7 @@ public class SmStoreCategoryServiceImpl extends AbstractService<SmStoreCategoryM
      * @return
      */
     @Override
-    public JsonViewData saveStoreCategory(StoreCategoryDto storeCategoryDto) {
+    public SmStoreCategoryPo saveStoreCategory(StoreCategoryDto storeCategoryDto) {
 
         QueryWrapper<SmStoreCategoryPo> smStoreCategoryPoQueryWrapper = new QueryWrapper<>();
         SmStoreCategoryPo queryWarpper = new SmStoreCategoryPo();
@@ -51,15 +56,17 @@ public class SmStoreCategoryServiceImpl extends AbstractService<SmStoreCategoryM
         SmStoreCategoryPo smStoreCategoryPo = this.getOne(smStoreCategoryPoQueryWrapper);
 
         if(null != smStoreCategoryPo) {
-            return new JsonViewData(ResultCode.DUPLICATION, "分类名称重复");
+            throw  new ServiceException(ResultCode.DUPLICATION, "分类名称重复");
         }
 
+        smStoreCategoryPo = new SmStoreCategoryPo();
+        BeanUtils.copyProperties(storeCategoryDto, smStoreCategoryPo);
         //获取当前用户
         String user = securityUtil.getCurrUser().getUsername();
         smStoreCategoryPo.setUpdateBy(user);
-        BeanUtils.copyProperties(storeCategoryDto, smStoreCategoryPo);
+        smStoreCategoryPo.setId(null);
         smStoreCategoryMapper.insert(smStoreCategoryPo);
-        return new JsonViewData(ResultCode.SUCCESS, "添加成功", smStoreCategoryPo);
+        return smStoreCategoryPo;
     }
 
 
@@ -70,7 +77,7 @@ public class SmStoreCategoryServiceImpl extends AbstractService<SmStoreCategoryM
      * @return
      */
     @Override
-    public JsonViewData editStoreCategory(StoreCategoryDto storeCategoryDto) {
+    public SmStoreCategoryPo editStoreCategory(StoreCategoryDto storeCategoryDto) {
         SmStoreCategoryPo oldCategory = smStoreCategoryMapper.selectById(storeCategoryDto.getId());
 
         QueryWrapper<SmStoreCategoryPo> smStoreCategoryPoQueryWrapper = new QueryWrapper<>();
@@ -80,15 +87,28 @@ public class SmStoreCategoryServiceImpl extends AbstractService<SmStoreCategoryM
         SmStoreCategoryPo smStoreCategoryPo = this.getOne(smStoreCategoryPoQueryWrapper);
 
         if(null != smStoreCategoryPo && !smStoreCategoryPo.getName().equals(oldCategory.getName())) {
-            return new JsonViewData(ResultCode.DUPLICATION, "分类名称重复");
+            throw new ServiceException(ResultCode.DUPLICATION, "分类名称重复");
         }
 
         //获取当前用户
         String user = securityUtil.getCurrUser().getUsername();
-        smStoreCategoryPo.setUpdateBy(user);
-        BeanUtils.copyProperties(storeCategoryDto, smStoreCategoryPo);
-        smStoreCategoryMapper.updateById(smStoreCategoryPo);
-        return new JsonViewData(ResultCode.SUCCESS, "编辑成功", smStoreCategoryPo);
+        oldCategory.setUpdateBy(user);
+        BeanUtils.copyProperties(storeCategoryDto, oldCategory);
+        smStoreCategoryMapper.updateById(oldCategory);
+        return oldCategory;
+    }
+
+
+    /**
+     * 修改店铺分类启用状态
+     * @param baseUpdateStatusDto
+     * ids 店铺分类ID
+     * enabled 店铺分类启用状态修改 true 启用 false 禁用
+     * @return
+     */
+    @Override
+    public void editCategoryStatus(BaseUpdateStatusDto baseUpdateStatusDto) {
+        smStoreCategoryMapper.editCategoryStatus(baseUpdateStatusDto);
     }
 
     /**
@@ -98,14 +118,14 @@ public class SmStoreCategoryServiceImpl extends AbstractService<SmStoreCategoryM
      * @return
      */
     @Override
-    public JsonViewData findById(Long id) {
+    public Map<String, Object> findById(Long id) {
         QueryWrapper<SmStoreCategoryPo> smStoreCategoryPoQueryWrapper = new QueryWrapper<>();
         SmStoreCategoryPo queryWarpper = new SmStoreCategoryPo();
         queryWarpper.setId(id);
         smStoreCategoryPoQueryWrapper.setEntity(queryWarpper);
         smStoreCategoryPoQueryWrapper.select("id", "name", "icon", "sort", "enabled");
         Map<String, Object> map = this.getMap(smStoreCategoryPoQueryWrapper);
-        return new JsonViewData(ResultCode.SUCCESS, "查找成功", map);
+        return map;
     }
 
 
@@ -114,28 +134,26 @@ public class SmStoreCategoryServiceImpl extends AbstractService<SmStoreCategoryM
      * @param storeCategorySearchDto
      * @return
      */
-    /*@Override
+    @Override
     public PageInfo<SmStoreCategoryVo> searchPaging(StoreCategorySearchDto storeCategorySearchDto) {
 
         Integer pageNo = storeCategorySearchDto.getPageNo()==null ? defaultPageNo : storeCategorySearchDto.getPageNo();
         Integer pageSize = storeCategorySearchDto.getPageSize()==null ? defaultPageSize : storeCategorySearchDto.getPageSize();
-        String pageSoft = " create_time desc";
 
-        PageInfo<SmStoreCategoryVo> smStoreCategoryVoPageInfo = PageHelper.startPage(pageNo, pageSize, pageSoft)
+        PageInfo<SmStoreCategoryVo> smStoreCategoryVoPageInfo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
                 .doSelectPageInfo(() -> smStoreCategoryMapper.searchPaging(storeCategorySearchDto));
         return smStoreCategoryVoPageInfo;
-    }*/
+    }
 
     /**
-     * 查询店铺所有标签
+     * 查询店铺所有分类
      * @return
      */
-    /*@Override
-    public JsonViewData searchAll() {
+    @Override
+    public List<SmStoreCategoryVo> selectAll() {
 
-        List<SmStoreCategoryVo> smStoreCategoryVoList = smStoreCategoryMapper.searchAll();
-        return new JsonViewData(ResultCode.SUCCESS, "查找成功", smStoreCategoryVoList);
+        return smStoreCategoryMapper.selectAll();
 
-    }*/
+    }
 
 }
