@@ -7,6 +7,7 @@ import lombok.Data;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @Author cheng
@@ -40,11 +41,6 @@ public class AddSkuAttributeDto {
     @NotNull(message = "商品库存不能为空")
     private Long stock;
 
-    @ApiModelProperty(value = "规格id")
-    @NotNull(message = "规格id不能为空")
-    private Long standardId;
-
-    @ApiModelProperty(value = "规格值id")
-    @NotNull(message = "规格值id不能为空")
-    private Long standardValueId;
+    @ApiModelProperty(value = "添加规格到指定商品")
+    private List<AddStandardToGoodDto> standardInfos;
 }

@@ -39,16 +39,20 @@
         <result column="del_flag" property="delFlag"/>
     </resultMap>
 
-    <resultMap id="PmGoodsAttributeValueVo" type="com.chauncy.data.vo.supplier.PmGoodsAttributeValueVo">
-        <result column="name" property="name"/>
-        <result column="value" property="value" javaType="java.util.List" jdbcType="VARCHAR" typeHandler="com.chauncy.web.config.mybatisplus.StringToListTypeHandler"/>
-    </resultMap>
+    <select id="findGoodsValue" resultType="com.chauncy.data.bo.supplier.good.GoodsValueBo">
+        select b.id,b.value as name,b.is_custom
+        from pm_goods_rel_attribute_value_good a ,pm_goods_attribute_value b, pm_goods_attribute c
+        <where>
+            a.goods_attribute_value_id = b.id and b.product_attribute_id = c.id and a.del_flag = 0
+            <if test="attributeId !=null">
+                and c.id = #{attributeId}
+            </if>
+            <if test="goodsId !=null">
+                and a.goods_id=#{goodsId}
+            </if>
+        </where>
 
-    <select id="searchStandard" resultMap="PmGoodsAttributeValueVo">
-        select b.name,GROUP_CONCAT(c.value) as value
-        from pm_goods_rel_attribute_category a ,pm_goods_attribute b ,pm_goods_attribute_value c
-        where a.goods_category_id = #{categoryId} and a.goods_attribute_id = b.id and b.id = c.product_attribute_id and b.type =7 and c.is_custom = 0
-        GROUP BY b.name
     </select>
+
 
 </mapper>

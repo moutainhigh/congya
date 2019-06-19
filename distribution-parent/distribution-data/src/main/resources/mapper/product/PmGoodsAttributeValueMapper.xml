@@ -40,4 +40,10 @@
         order by b.id desc
     </select>
 
+    <select id="findDefaultValues" resultType="com.chauncy.data.bo.base.BaseBo">
+        select  c.id,c.value as name
+        from pm_goods_attribute b ,pm_goods_attribute_value c
+        where b.id=#{attributeId} and b.id= c.product_attribute_id and b.type =7 and c.is_custom = 0
+    </select>
+
 </mapper>

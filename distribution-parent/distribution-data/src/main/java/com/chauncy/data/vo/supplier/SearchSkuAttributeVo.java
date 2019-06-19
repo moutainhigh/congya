@@ -13,7 +13,7 @@ import java.math.BigDecimal;
  * 查找商品属性Vo
  */
 @Data
-@ApiModel(description = "查找商品属性")
+@ApiModel(description = "查找商品sku属性")
 public class SearchSkuAttributeVo {
 
     @ApiModelProperty(value = "skuId")

@@ -37,7 +37,7 @@ public interface IBaseMapper<T> extends BaseMapper<T> {
      */
     int countById(@Param("value") Object value,
                   @Param("tableName") String tableName,
-                  @Param("fields")String fields,
+                  @Param("field")String fields,
                   @Param("concatWhereSql") String concatWhereSql
     );
 

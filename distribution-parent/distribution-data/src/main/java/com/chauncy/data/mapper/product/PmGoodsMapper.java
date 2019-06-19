@@ -1,9 +1,9 @@
 package com.chauncy.data.mapper.product;
 
+import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
 import com.chauncy.data.mapper.IBaseMapper;
-import com.chauncy.data.vo.Result;
-import com.chauncy.data.vo.supplier.PmGoodsAttributeValueVo;
+import com.chauncy.data.vo.BaseVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -19,10 +19,10 @@ import java.util.List;
 public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
 
     /**
-     * 根据分类ID查找对应的默认的规格属性信息
+     * 查找该商品对应的属性值
      *
-     * @param categoryId
+     * @param goodsId
      * @return
      */
-    List<PmGoodsAttributeValueVo> searchStandard(@Param("categoryId") Long categoryId);
+    List<GoodsValueBo> findGoodsValue(@Param("goodsId") Long goodsId, @Param("attributeId") Long attributeId);
 }

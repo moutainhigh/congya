@@ -9,14 +9,19 @@ import java.util.List;
 /**
  * @Author cheng
  * @create 2019-06-15 12:23
+ *
+ * 返回商品规格信息
  */
 @Data
 @ApiModel(description = "规格属性")
-public class PmGoodsAttributeValueVo {
+public class GoodsStandardVo {
+
+    @ApiModelProperty("规格ID")
+    private Long attributeId;
 
     @ApiModelProperty("规格名称")
-    private String name;
+    private String attributeName;
 
-    @ApiModelProperty("规格值集合")
-    private List<String> value;
+    @ApiModelProperty("商品规格值信息集合")
+    private List<StandardValueAndStatusVo> attributeValueInfos;
 }
