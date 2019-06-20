@@ -1,7 +1,9 @@
 package com.chauncy.data.mapper.product;
 
+import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.manage.product.PmGoodsAttributeVo;
 import org.apache.ibatis.annotations.Param;
 
@@ -38,4 +40,12 @@ public interface PmGoodsAttributeValueMapper extends IBaseMapper<PmGoodsAttribut
      * @return
      */
     List<PmGoodsAttributeVo> findByCondition(@Param("type") Integer type, @Param("name") String name, @Param("enabled") Boolean enabled);
+
+    /**
+     * 查找分类下的属性对应的默认的属性值
+     *
+     * @param attributeId
+     * @return
+     */
+    List<BaseBo> findDefaultValues(Long attributeId);
 }

@@ -1,17 +1,10 @@
 package com.chauncy.data.dto.excel;
 
-import com.chauncy.common.enums.goods.GoodsTypeEnum;
-import com.chauncy.common.util.serializer.LongJsonSerializer;
-import com.chauncy.data.dto.supplier.good.add.AddGoodsParamValueDto;
-import com.chauncy.data.valid.annotation.EnumConstraint;
 import com.chauncy.data.valid.annotation.NeedExistConstraint;
-import com.chauncy.data.valid.group.IUpdateGroup;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -23,13 +16,14 @@ import java.util.List;
 @Data
 public class ExcelImportGoodBaseDto {
 
+    @NotBlank(message = "商品分类")
+    @NeedExistConstraint(tableName = "pm_goods_category",field = "name",
+            message ="系统第三级分类中不存在该名称",concatWhereSql = "and `level=3`")
+    private String goodsCategoryName;
 
     @NotBlank(message = "商品类型不能为空")
     private String goodsType;
 
-    @NotBlank(message = "商品分类")
-    @NeedExistConstraint(tableName = "pm_goods_category")
-    private Long goodsCategoryName;
 
     @ApiModelProperty(value = "商品名称")
     @NotBlank(message = "商品名称不能为空")
@@ -41,45 +35,56 @@ public class ExcelImportGoodBaseDto {
     @ApiModelProperty(value = "spu编码")
     private String spu;
 
+    @ApiModelProperty(value = "品牌名称")
+    @NotBlank(message = "商品品牌不能为空！")
+    @NeedExistConstraint(tableName = "pm_goods_attribute",field = "name",
+    message = "系统中不存在该品牌名称",concatWhereSql = "and type=7")
+    private String brandName;
+
+    @ApiModelProperty(value = "标签名称")
+    @NotBlank(message = "商品标签不能为空")
+    @NeedExistConstraint(tableName = "pm_goods_attribute",field = "name",concatWhereSql = "and type=4")
+    private List<String> labelNames;
+
     @ApiModelProperty(value = "是否是店铺推荐；0->不推荐；1->推荐")
-    private Boolean recommandStatus;
+    @NotBlank(message = "是否是店铺推荐不能为空")
+    private String recommandStatusName;
 
     @ApiModelProperty(value = "是否是明星单品；0->否；1->是")
-    private Boolean starStatus;
-
-    @ApiModelProperty(value = "商品缩略图")
-    @NotBlank(message = "商品缩略图不能为空")
-    private String icon;
-
-    @ApiModelProperty(value = "轮播图")
-    @NotBlank(message = "轮播图不能为空")
-    private String carouselImage;
-
-    @ApiModelProperty(value = "产品详情网页内容")
-    private String detailHtml;
-
-    @ApiModelProperty(value = "品牌ID")
-    @NeedExistConstraint(tableName = "pm_goods_attribute")
-    private Long brandId;
-
-    @ApiModelProperty(value = "标签ID")
-    @NeedExistConstraint(tableName = "pm_goods_attribute")
-    private Long labelId;
-
-    @ApiModelProperty(value = "服务说明ID")
-    @NeedExistConstraint(tableName = "pm_goods_attribute")
-    private Long ServiceId;
-
-    @ApiModelProperty(value = "商品参数信息")
-    private List<AddGoodsParamValueDto> goodsParamDtoList;
-
-//    @ApiModelProperty(value = "平台活动说明Id")
-//    @NeedExistConstraint(tableName = "pm_goods_attribute")
-//    private Long platformActivityId;
+    @NotBlank(message = "是否是明星单品不能为空")
+    private String starStatusName;
 
 
+    @ApiModelProperty(value = "平台服务说明名称")
+    private String platformServiceName;
 
-    @ApiModelProperty(value = "运费说明id")
-    @NotNull(message = "运费说明ID")
-    private Long shippingId;
+    @ApiModelProperty(value = "商家服务说明名称")
+    private String supplierServiceName;
+
+    @ApiModelProperty(value = "平台运费模板")
+    private String platformShipTemplate;
+
+    @ApiModelProperty(value = "商家运费模板")
+    private String supplierShipTemplate;
+
+    @ApiModelProperty(value = "商品参数")
+    private String goodAttributionName;
+
+    @ApiModelProperty(value = "商品参数值")
+    private String goodAttributionValueName;
+
+
+    @ApiModelProperty(value = "发货地")
+    @NotBlank(message = "发货地不能为空")
+    private String locationName;
+
+    @ApiModelProperty(value = "限购数量")
+    @NotBlank(message = "限购数量不能为空")
+    private String purchaseLimit;
+
+    @ApiModelProperty(value = "关联商品id")
+    @NeedExistConstraint(tableName = "pm_goods")
+    private List<String> goodIds;
+
+
 }

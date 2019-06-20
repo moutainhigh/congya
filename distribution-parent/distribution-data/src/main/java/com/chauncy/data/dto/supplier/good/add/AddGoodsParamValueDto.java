@@ -17,8 +17,8 @@ public class AddGoodsParamValueDto {
 
     @ApiModelProperty(value = "商品参数ID")
     @NeedExistConstraint(tableName = "pm_goods_attribute")
-    private Long id;
+    private Long attributeId;
 
     @ApiModelProperty(value = "商品参数值")
-    private String name;
+    private String attributeName;
 }

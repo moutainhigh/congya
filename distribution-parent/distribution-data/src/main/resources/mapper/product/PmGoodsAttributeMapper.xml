@@ -63,5 +63,22 @@
        where g.goods_category_id=#{categoryId} and g.id=ag.goods_good_id
     </select>
 
+    <select id="findAttByTypeAndCat" resultType="com.chauncy.data.vo.BaseVo">
+        SELECT b.id,b.name
+        FROM pm_goods_rel_attribute_category a, pm_goods_attribute b
+        where b.type=#{type} and a.goods_category_id= #{categoryId} and a.goods_attribute_id = b.id and b.enabled = 1
+    </select>
+
+    <!--<resultMap id="GoodsStandardVo" type="com.chauncy.data.vo.supplier.GoodsStandardVo   <result column="value_name" property="valueName"/>
+        <result column="value" property="value" javaType="java.util.List" jdbcType="VARCHAR" typeHandler="com.chauncy.web.config.mybatisplus.StringToListTypeHandler"/>
+    </resultMap>-->
+
+    <select id="findStandardName" resultType="com.chauncy.data.bo.base.BaseBo">
+        select b.id,b.name
+        from pm_goods_rel_attribute_category a ,pm_goods_attribute b
+        where a.goods_category_id = #{categoryId} and a.goods_attribute_id = b.id and b.type =7 and b.enabled = 1 and a.del_flag = 0
+        GROUP BY b.id,b.name
+    </select>
+
 
 </mapper>
