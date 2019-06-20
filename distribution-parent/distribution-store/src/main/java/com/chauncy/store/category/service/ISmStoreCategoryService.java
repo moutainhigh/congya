@@ -65,4 +65,10 @@ public interface ISmStoreCategoryService extends Service<SmStoreCategoryPo> {
      * @return
      */
     List<SmStoreCategoryVo> selectAll();
+
+    /**
+     * 批量删除分类
+     * @param ids
+     */
+    void delStoreCategoryByIds(Long[] ids);
 }

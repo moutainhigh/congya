@@ -1,13 +1,17 @@
 package com.chauncy.store.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.store.StoreTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.domain.po.store.SmStorePo;
+import com.chauncy.data.domain.po.store.rel.SmRelStoreAttributePo;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.add.StoreAccountInfoDto;
 import com.chauncy.data.dto.manage.store.add.StoreBaseInfoDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
+import com.chauncy.data.mapper.product.PmGoodsAttributeMapper;
 import com.chauncy.data.mapper.store.SmRelStoreAttributeMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.vo.JsonViewData;
@@ -16,6 +20,7 @@ import com.chauncy.data.vo.manage.store.StoreAccountInfoVo;
 import com.chauncy.data.vo.manage.store.StoreBaseInfoVo;
 import com.chauncy.data.vo.manage.store.StoreOperationalInfoVo;
 import com.chauncy.security.util.SecurityUtil;
+import com.chauncy.store.rel.service.ISmRelStoreAttributeService;
 import com.chauncy.store.service.ISmStoreService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -24,6 +29,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -43,8 +52,11 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
     @Autowired
     private SmStoreMapper smStoreMapper;
     @Autowired
+    private PmGoodsAttributeMapper pmGoodsAttributeMapper;
+    @Autowired
     private SmRelStoreAttributeMapper smRelStoreAttributeMapper;
-
+    @Autowired
+    private ISmRelStoreAttributeService smRelStoreAttributeService;
     /**
      * 保存店铺基本信息
      * @param storeBaseInfoDto
@@ -56,18 +68,25 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         //todo  添加店铺后台账号
 
 
+
         SmStorePo smStorePo = new SmStorePo();
         BeanUtils.copyProperties(storeBaseInfoDto, smStorePo);
         //获取当前用户
-        String user = securityUtil.getCurrUser().getUsername();
-        smStorePo.setCreateBy(user);
-        StoreTypeEnum storeTypeEnum = StoreTypeEnum.getStoreTypeById(storeBaseInfoDto.getType());
-        smStorePo.setType(storeTypeEnum.getTypeName());
+        String userName = securityUtil.getCurrUser().getUsername();
+        smStorePo.setCreateBy(userName);
         //店铺信息插入
         smStorePo.setId(null);
         smStoreMapper.insert(smStorePo);
         //店铺品牌关联插入
-        smRelStoreAttributeMapper.insertByBatch(storeBaseInfoDto.getAttributeIds(), smStorePo.getId(), user);
+        List<SmRelStoreAttributePo> smRelStoreAttributePoList = new ArrayList<>();
+        for(Long attributeId : storeBaseInfoDto.getAttributeIds()) {
+            SmRelStoreAttributePo smRelStoreAttributePo = new SmRelStoreAttributePo();
+            smRelStoreAttributePo.setAttributeId(attributeId);
+            smRelStoreAttributePo.setCreateBy(userName);
+            smRelStoreAttributePo.setStoreId(smStorePo.getId());
+            smRelStoreAttributePoList.add(smRelStoreAttributePo);
+        }
+        smRelStoreAttributeService.saveBatch(smRelStoreAttributePoList);
 
         return new JsonViewData(ResultCode.SUCCESS, "添加成功", smStorePo);
     }
@@ -133,7 +152,13 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
     @Override
     public StoreBaseInfoVo findBaseById(Long id) {
         StoreBaseInfoVo storeBaseInfoVo = smStoreMapper.findBaseById(id);
-        return null;
+        String attributeIds = storeBaseInfoVo.getAttributeIds();
+        QueryWrapper<PmGoodsAttributePo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("id",attributeIds);
+        queryWrapper.select("name");
+        List<String> pmGoodsAttributeList = (List<String>)(List)pmGoodsAttributeMapper.selectObjs(queryWrapper);
+        storeBaseInfoVo.setAttributeName(pmGoodsAttributeList);
+        return storeBaseInfoVo;
     }
 
     /**
@@ -144,7 +169,8 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
      */
     @Override
     public StoreAccountInfoVo findAccountById(@Param("id") Long id) {
-        return null;
+
+        return smStoreMapper.findAccountById(id);
     }
 
     /**
@@ -155,8 +181,18 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
      */
     @Override
     public StoreOperationalInfoVo findOperationalById(@Param("id") Long id) {
-        return null;
+        return smStoreMapper.findOperationalById(id);
     }
 
+    /**
+     * 根据账号获取店铺id
+     *
+     * @param userName
+     * @return
+     */
+    @Override
+    public Long findStoreIdByName(String userName) {
+       return smStoreMapper.findStoreIdByName(userName);
+    }
 
 }

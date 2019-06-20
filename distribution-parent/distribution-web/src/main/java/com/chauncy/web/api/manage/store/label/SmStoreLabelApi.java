@@ -25,7 +25,7 @@ import javax.validation.Valid;
  * @author yeJH
  * @since 2019/6/15 16:42
  */
-@Api(tags = "店铺标签管理接口")
+@Api(tags = "平台_店铺标签管理接口")
 @RestController
 @RequestMapping("/manage/store/label")
 @Slf4j
@@ -112,6 +112,20 @@ public class SmStoreLabelApi extends BaseApi {
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
                 smStoreLabelService.selectAll());
+    }
+
+    /**
+     * 批量删除标签
+     *
+     * @param ids
+     */
+    @ApiOperation(value = "删除属性", notes = "根据id批量删除")
+    @GetMapping("/delByIds/{ids}")
+    public JsonViewData delByIds(@ApiParam(required = true, name = "ids", value = "id集合")
+                                             @PathVariable Long[] ids) {
+
+        smStoreLabelService.delStoreLabelByIds(ids);
+        return new JsonViewData(ResultCode.SUCCESS, "批量删除标签成功");
     }
 
 

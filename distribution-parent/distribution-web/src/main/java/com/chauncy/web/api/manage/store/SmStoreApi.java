@@ -22,7 +22,7 @@ import javax.validation.Valid;
  * @Author: xiaoye
  * @Date: 2019/6/3 18:37
  */
-@Api(tags = "平台后台_店铺管理接口")
+@Api(tags = "平台_店铺管理接口")
 @RestController
 @RequestMapping("/manage/store")
 @Slf4j

@@ -59,6 +59,9 @@ public class SysUserPo extends SysBaseEntity {
     @ApiModelProperty(value = "系统用户类型 1->平台后台用户 2->商家端用户")
     private Integer systemType;
 
+    @ApiModelProperty(value = "商家端用户绑定的店铺id")
+    private Long storeId;
+
     @ApiModelProperty(value = "用户名")
     private String username;
 

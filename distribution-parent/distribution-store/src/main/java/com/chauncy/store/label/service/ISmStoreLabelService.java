@@ -58,4 +58,9 @@ public interface ISmStoreLabelService extends Service<SmStoreLabelPo> {
     List<SmStoreLabelVo> selectAll();
 
 
+    /**
+     * 批量删除标签
+     * @param ids
+     */
+    void delStoreLabelByIds(Long[] ids);
 }

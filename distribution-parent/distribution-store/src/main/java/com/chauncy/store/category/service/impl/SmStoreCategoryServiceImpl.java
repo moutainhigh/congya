@@ -3,10 +3,13 @@ package com.chauncy.store.category.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.store.category.SmStoreCategoryPo;
+import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.add.StoreCategoryDto;
 import com.chauncy.data.dto.manage.store.select.StoreCategorySearchDto;
+import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.store.category.SmStoreCategoryMapper;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.store.category.SmStoreCategoryVo;
@@ -37,6 +40,9 @@ public class SmStoreCategoryServiceImpl extends AbstractService<SmStoreCategoryM
 
     @Autowired
     private SmStoreCategoryMapper smStoreCategoryMapper;
+
+    @Autowired
+    private SmStoreMapper smStoreMapper;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -155,5 +161,27 @@ public class SmStoreCategoryServiceImpl extends AbstractService<SmStoreCategoryM
         return smStoreCategoryMapper.selectAll();
 
     }
+
+
+    /**
+     * 批量删除分类
+     * @param ids
+     */
+    @Override
+    public void delStoreCategoryByIds(Long[] ids) {
+        for (Long id :ids) {
+            QueryWrapper<SmStorePo> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("store_category_id",id);
+            List<SmStorePo> smStorePoList = smStoreMapper.selectList(queryWrapper);
+            if(null != smStorePoList & smStorePoList.size() > 0 ) {
+                throw new ServiceException(ResultCode.FAIL, "删除失败，包含正被店铺使用关联的属性");
+            }
+        }
+        for (Long id :ids) {
+            smStoreCategoryMapper.deleteById(id);
+        }
+
+    }
+
 
 }

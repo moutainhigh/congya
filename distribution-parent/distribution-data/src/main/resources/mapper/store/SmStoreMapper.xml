@@ -65,7 +65,7 @@
 
 
     <select id="searchBaseInfo" resultType="com.chauncy.data.vo.manage.store.SmStoreBaseVo">
-        select id, `name`, `type`, (case when `type`=1 then '推广店铺' when `type`=2 then '商品店铺' end) as typeName, parent_id, store_turnover, store_member_num, store_sub_num, goods_num, owner_mobile, sort, enabled
+        select id, `name`, `type`, (case when `type`=1 then '推广店铺' when `type`=2 then '商品店铺' end) as typeName, parent_id, store_turnover, store_member_num, store_sub_num, goods_num, owner_mobile, sort, enabled, company_addr
         from sm_store
         <where>
             <if test="id !=null and id !=''">
@@ -88,15 +88,32 @@
 
 
     <select id="findBaseById" resultType="com.chauncy.data.vo.manage.store.StoreBaseInfoVo">
-        select ss.*,GROUP_CONCAT(pga.id)
+        select ss.*,GROUP_CONCAT(pga.id) as attributeIds
         from sm_store ss left join sm_rel_store_attribute srsa on (ss.id = srsa.store_id and srsa.del_flag = 0)
-                left join pm_goods_attribute pga on (srsa.attributi_id = pga.id and pga.type = 7 and pga.del_flag = 0)
+                left join pm_goods_attribute pga on (srsa.attribute_id = pga.id and pga.type = 8 and pga.del_flag = 0)
         <where>
             <if test="id !=null and id !=''">
-                and id = #{id}
+                and ss.id = #{id}
             </if>
         </where>
         group by ss.id
+    </select>
+
+    <select id="findAccountById" resultType="com.chauncy.data.vo.manage.store.StoreAccountInfoVo">
+        select ss.*
+        from sm_store ss
+        <where>
+            <if test="id !=null and id !=''">
+                and ss.id = #{id}
+            </if>
+        </where>
+        group by ss.id
+    </select>
+
+    <select id="findStoreIdByName" resultType="Long">
+        select id
+        from sm_store
+        where user_name = #{userName}
     </select>
 
 

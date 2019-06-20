@@ -45,6 +45,9 @@ public class SmStoreBaseVo implements Serializable {
     @ApiModelProperty(value = "所属店铺名称")
     private String parentStoreName;
 
+    @ApiModelProperty(value = "公司地址")
+    private String companyAddr;
+
     @ApiModelProperty(value = "本店营业额")
     private BigDecimal storeTurnover;
 

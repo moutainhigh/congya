@@ -1,5 +1,7 @@
 package com.chauncy.data.dto.manage.store.add;
 
+import com.chauncy.common.enums.store.StoreTypeEnum;
+import com.chauncy.data.valid.annotation.EnumConstraint;
 import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -7,6 +9,7 @@ import lombok.Data;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -42,6 +45,7 @@ public class StoreBaseInfoDto {
 
     @ApiModelProperty(value = "商家类型（推广店铺，商品店铺）")
     @NotNull(message = "商家类型不能为空")
+    @EnumConstraint(target = StoreTypeEnum.class)
     private Integer type;
 
     @ApiModelProperty(value = "所属店铺Id")
@@ -71,6 +75,7 @@ public class StoreBaseInfoDto {
     private String backgroundImage;
 
     @ApiModelProperty(value = "所属品牌集合")
-    @NotNull
+    @NotEmpty
+    @NeedExistConstraint(tableName = "sm_store_label")
     private Long[] attributeIds;
 }

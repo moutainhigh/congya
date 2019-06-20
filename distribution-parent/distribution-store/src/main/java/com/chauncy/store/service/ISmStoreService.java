@@ -12,6 +12,7 @@ import com.chauncy.data.vo.manage.store.StoreAccountInfoVo;
 import com.chauncy.data.vo.manage.store.StoreBaseInfoVo;
 import com.chauncy.data.vo.manage.store.StoreOperationalInfoVo;
 import com.github.pagehelper.PageInfo;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * <p>
@@ -76,4 +77,11 @@ public interface ISmStoreService extends Service<SmStorePo> {
      * @return
      */
     StoreOperationalInfoVo findOperationalById(Long id);
+
+    /**
+     * 根据账号获取店铺id
+     * @param userName
+     * @return
+     */
+    Long findStoreIdByName(String userName);
 }

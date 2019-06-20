@@ -4,10 +4,15 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
+import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.store.label.SmStoreLabelPo;
 import com.chauncy.data.dto.manage.store.add.StoreLabelDto;
 import com.chauncy.data.dto.manage.store.select.StoreLabelSearchDto;
+import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.store.label.SmStoreLabelMapper;
+import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.manage.store.SmStoreBaseVo;
 import com.chauncy.data.vo.manage.store.label.SmStoreLabelVo;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.store.label.service.ISmStoreLabelService;
@@ -31,6 +36,9 @@ public class SmStoreLabelServiceImpl extends AbstractService<SmStoreLabelMapper,
 
     @Autowired
     private SmStoreLabelMapper smStoreLabelMapper;
+
+    @Autowired
+    private SmStoreMapper smStoreMapper;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -132,6 +140,27 @@ public class SmStoreLabelServiceImpl extends AbstractService<SmStoreLabelMapper,
     public List<SmStoreLabelVo> selectAll() {
 
         return smStoreLabelMapper.selectAll();
+
+    }
+
+
+    /**
+     * 批量删除标签
+     * @param ids
+     */
+    @Override
+    public void delStoreLabelByIds(Long[] ids) {
+        for (Long id :ids) {
+            QueryWrapper<SmStorePo> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("store_label_id",id);
+            List<SmStorePo> smStorePoList = smStoreMapper.selectList(queryWrapper);
+            if(null != smStorePoList & smStorePoList.size() > 0 ) {
+               throw new ServiceException(ResultCode.FAIL, "删除失败，包含正被店铺使用关联的属性");
+            }
+        }
+        for (Long id :ids) {
+            smStoreLabelMapper.deleteById(id);
+        }
 
     }
 }

@@ -23,6 +23,13 @@ import java.util.List;
 public interface SmStoreMapper extends IBaseMapper<SmStorePo> {
 
     /**
+     * 根据账号获取店铺id
+     * @param userName
+     * @return
+     */
+    Long findStoreIdByName(@Param("userName") String userName);
+
+    /**
      * 修改店铺经营状态
      * @param baseUpdateStatusDto
      * ids 店铺ID

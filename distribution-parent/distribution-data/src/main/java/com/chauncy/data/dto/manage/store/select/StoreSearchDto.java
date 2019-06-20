@@ -1,8 +1,10 @@
 package com.chauncy.data.dto.manage.store.select;
 
+import com.chauncy.common.enums.store.StoreTypeEnum;
 import com.chauncy.common.util.serializer.LongJsonDeserializer;
 import com.chauncy.common.util.serializer.LongJsonSerializer;
 import com.chauncy.data.dto.base.BaseSearchDto;
+import com.chauncy.data.valid.annotation.EnumConstraint;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModelProperty;
@@ -26,6 +28,7 @@ public class StoreSearchDto extends BaseSearchDto {
 
 
     @ApiModelProperty(value = "店铺类型")
+    @EnumConstraint(target = StoreTypeEnum.class)
     private Integer type;
 
     @ApiModelProperty(value = "店铺名称")

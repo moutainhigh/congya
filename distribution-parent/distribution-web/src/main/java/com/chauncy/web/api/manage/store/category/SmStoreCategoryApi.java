@@ -23,7 +23,7 @@ import javax.validation.Valid;
  * @author yeJH
  * @since 2019/6/16 14:50
  */
-@Api(tags = "店铺分类管理接口")
+@Api(tags = "平台_店铺分类管理接口")
 @RestController
 @RequestMapping("/manage/store/category")
 @Slf4j
@@ -34,7 +34,7 @@ public class SmStoreCategoryApi extends BaseApi {
     private ISmStoreCategoryService smStoreCategoryService;
 
 
-    /**
+    /**g
      * 保存店铺分类信息
      * @param storeCategoryDto
      * @return
@@ -115,5 +115,21 @@ public class SmStoreCategoryApi extends BaseApi {
     public JsonViewData selectAll() {
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功", smStoreCategoryService.selectAll());
+    }
+
+
+
+    /**
+     * 批量删除分类
+     *
+     * @param ids
+     */
+    @ApiOperation(value = "删除属性", notes = "根据id批量删除")
+    @GetMapping("/delByIds/{ids}")
+    public JsonViewData delByIds(@ApiParam(required = true, name = "ids", value = "id集合")
+                                           @PathVariable Long[] ids) {
+
+        smStoreCategoryService.delStoreCategoryByIds(ids);
+        return new JsonViewData(ResultCode.SUCCESS, "批量删除分类成功");
     }
 }

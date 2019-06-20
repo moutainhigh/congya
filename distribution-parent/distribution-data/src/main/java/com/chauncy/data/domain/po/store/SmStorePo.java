@@ -60,7 +60,7 @@ public class SmStorePo implements Serializable {
     private Long storeCategoryId;
 
     @ApiModelProperty(value = "商家类型（推广店铺，商品店铺）")
-    private String type;
+    private Integer type;
 
     @ApiModelProperty(value = "所属店铺Id")
     private Long parentId;
