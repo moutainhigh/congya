@@ -5,6 +5,10 @@ import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.manage.store.SmStoreBaseVo;
+import com.chauncy.data.vo.manage.store.StoreAccountInfoVo;
+import com.chauncy.data.vo.manage.store.StoreBaseInfoVo;
+import com.chauncy.data.vo.manage.store.StoreOperationalInfoVo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -34,4 +38,26 @@ public interface SmStoreMapper extends IBaseMapper<SmStorePo> {
      * @return
      */
     List<SmStoreBaseVo> searchBaseInfo(StoreSearchDto storeSearchDto);
+
+    /**
+     * 查询店铺基本信息
+     * @param id
+     * @return
+     */
+    StoreBaseInfoVo findBaseById(@Param("id") Long id);
+
+    /**
+     * 查询店铺账户信息
+     * @param id
+     * @return
+     */
+    StoreAccountInfoVo findAccountById(@Param("id") Long id);
+
+    /**
+     * 查询店铺运营信息
+     * @param id
+     * @return
+     */
+    StoreOperationalInfoVo findOperationalById(@Param("id") Long id);
+
 }

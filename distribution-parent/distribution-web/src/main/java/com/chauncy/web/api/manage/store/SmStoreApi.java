@@ -22,7 +22,7 @@ import javax.validation.Valid;
  * @Author: xiaoye
  * @Date: 2019/6/3 18:37
  */
-@Api(tags = "店铺管理接口")
+@Api(tags = "平台后台_店铺管理接口")
 @RestController
 @RequestMapping("/manage/store")
 @Slf4j
@@ -34,7 +34,7 @@ public class SmStoreApi extends BaseApi {
     @PostMapping("/save/storeBaseInfo")
     @ApiOperation(value = "保存店铺信息（基本信息）")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData saveStoreBaseInfo(@Valid @ModelAttribute  @ApiParam(required = true, name = "storeBaseInfoDto", value = "店铺基本信息")
+    public JsonViewData saveStoreBaseInfo(@Valid @RequestBody  @ApiParam(required = true, name = "storeBaseInfoDto", value = "店铺基本信息")
                                                   StoreBaseInfoDto storeBaseInfoDto) {
 
         return smStoreService.saveStore(storeBaseInfoDto);

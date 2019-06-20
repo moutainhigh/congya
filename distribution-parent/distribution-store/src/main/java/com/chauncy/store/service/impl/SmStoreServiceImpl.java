@@ -1,5 +1,6 @@
 package com.chauncy.store.service.impl;
 
+import com.chauncy.common.enums.store.StoreTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.store.SmStorePo;
@@ -7,13 +8,18 @@ import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.add.StoreAccountInfoDto;
 import com.chauncy.data.dto.manage.store.add.StoreBaseInfoDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
+import com.chauncy.data.mapper.store.SmRelStoreAttributeMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.store.SmStoreBaseVo;
+import com.chauncy.data.vo.manage.store.StoreAccountInfoVo;
+import com.chauncy.data.vo.manage.store.StoreBaseInfoVo;
+import com.chauncy.data.vo.manage.store.StoreOperationalInfoVo;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.store.service.ISmStoreService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,6 +42,8 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
     private SecurityUtil securityUtil;
     @Autowired
     private SmStoreMapper smStoreMapper;
+    @Autowired
+    private SmRelStoreAttributeMapper smRelStoreAttributeMapper;
 
     /**
      * 保存店铺基本信息
@@ -49,13 +57,17 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
 
 
         SmStorePo smStorePo = new SmStorePo();
-        BeanUtils.copyProperties(smStorePo, storeBaseInfoDto);
+        BeanUtils.copyProperties(storeBaseInfoDto, smStorePo);
         //获取当前用户
         String user = securityUtil.getCurrUser().getUsername();
         smStorePo.setCreateBy(user);
+        StoreTypeEnum storeTypeEnum = StoreTypeEnum.getStoreTypeById(storeBaseInfoDto.getType());
+        smStorePo.setType(storeTypeEnum.getTypeName());
         //店铺信息插入
         smStorePo.setId(null);
         smStoreMapper.insert(smStorePo);
+        //店铺品牌关联插入
+        smRelStoreAttributeMapper.insertByBatch(storeBaseInfoDto.getAttributeIds(), smStorePo.getId(), user);
 
         return new JsonViewData(ResultCode.SUCCESS, "添加成功", smStorePo);
     }
@@ -111,5 +123,40 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
                 .doSelectPageInfo(() -> smStoreMapper.searchBaseInfo(storeSearchDto));
         return smStoreBaseVoPageInfo;
     }
+
+
+    /**
+     * 查询店铺基本信息
+     * @param id
+     * @return
+     */
+    @Override
+    public StoreBaseInfoVo findBaseById(Long id) {
+        StoreBaseInfoVo storeBaseInfoVo = smStoreMapper.findBaseById(id);
+        return null;
+    }
+
+    /**
+     * 查询店铺账户信息
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public StoreAccountInfoVo findAccountById(@Param("id") Long id) {
+        return null;
+    }
+
+    /**
+     * 查询店铺运营信息
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public StoreOperationalInfoVo findOperationalById(@Param("id") Long id) {
+        return null;
+    }
+
 
 }

@@ -15,6 +15,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
+ * 店铺列表分页查询结果
  * @Author: xiaoye
  * @Date: 2019/6/11 16:50
  */
