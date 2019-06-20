@@ -1,4 +1,4 @@
-package com.chauncy.data.vo.store;
+package com.chauncy.data.vo.manage.store;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -15,6 +15,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
+ * 店铺列表分页查询结果
  * @Author: xiaoye
  * @Date: 2019/6/11 16:50
  */
@@ -43,6 +44,9 @@ public class SmStoreBaseVo implements Serializable {
 
     @ApiModelProperty(value = "所属店铺名称")
     private String parentStoreName;
+
+    @ApiModelProperty(value = "公司地址")
+    private String companyAddr;
 
     @ApiModelProperty(value = "本店营业额")
     private BigDecimal storeTurnover;

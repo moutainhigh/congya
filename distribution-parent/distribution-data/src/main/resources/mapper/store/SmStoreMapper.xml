@@ -10,7 +10,7 @@
         <result column="user_name" property="userName" />
         <result column="show_status" property="showStatus" />
         <result column="store_type_label_id" property="storeTypeLabelId" />
-        <result column="store_attribute_id" property="storeAttributeId" />
+        <result column="store_category_id" property="storeCategoryId" />
         <result column="type" property="type" />
         <result column="parent_id" property="parentId" />
         <result column="sort" property="sort" />
@@ -36,14 +36,8 @@
         <result column="enabled" property="enabled" />
         <result column="total_score" property="totalScore" />
         <result column="baby_describe_score" property="babyDescribeScore" />
-        <result column="service_attitude
-
-_score" property="serviceAttitude
-
-Score" />
-        <result column="logistics_service
-_score" property="logisticsService
-Score" />
+        <result column="service_attitude_score" property="serviceAttitudeScore" />
+        <result column="logistics_service_score" property="logisticsServiceScore" />
     </resultMap>
 
 
@@ -63,18 +57,18 @@ Score" />
         update sm_store
         set enabled = #{enabled}
         where id in
-        <foreach collection="array" item="id" index="index"
+        <foreach collection="id" item="id" index="index"
                  open="(" close=")" separator=",">
             #{id}
         </foreach>
     </update>
 
 
-    <select id="searchBaseInfo" resultType="com.chauncy.data.vo.store.SmStoreBaseVo">
-        <include refid="selectSmStoreBaseVo"/>
+    <select id="searchBaseInfo" resultType="com.chauncy.data.vo.manage.store.SmStoreBaseVo">
+        select id, `name`, `type`, (case when `type`=1 then '推广店铺' when `type`=2 then '商品店铺' end) as typeName, parent_id, store_turnover, store_member_num, store_sub_num, goods_num, owner_mobile, sort, enabled, company_addr
+        from sm_store
         <where>
-            1=1
-            <if test="id !=null and type !=''">
+            <if test="id !=null and id !=''">
                 and id = #{id}
             </if>
             <if test="name != null and name !=''">
@@ -90,6 +84,36 @@ Score" />
                 and type = #{type}
             </if>
         </where>
+    </select>
+
+
+    <select id="findBaseById" resultType="com.chauncy.data.vo.manage.store.StoreBaseInfoVo">
+        select ss.*,GROUP_CONCAT(pga.id) as attributeIds
+        from sm_store ss left join sm_rel_store_attribute srsa on (ss.id = srsa.store_id and srsa.del_flag = 0)
+                left join pm_goods_attribute pga on (srsa.attribute_id = pga.id and pga.type = 8 and pga.del_flag = 0)
+        <where>
+            <if test="id !=null and id !=''">
+                and ss.id = #{id}
+            </if>
+        </where>
+        group by ss.id
+    </select>
+
+    <select id="findAccountById" resultType="com.chauncy.data.vo.manage.store.StoreAccountInfoVo">
+        select ss.*
+        from sm_store ss
+        <where>
+            <if test="id !=null and id !=''">
+                and ss.id = #{id}
+            </if>
+        </where>
+        group by ss.id
+    </select>
+
+    <select id="findStoreIdByName" resultType="Long">
+        select id
+        from sm_store
+        where user_name = #{userName}
     </select>
 
 

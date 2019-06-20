@@ -2,11 +2,9 @@ package com.chauncy.data.domain.po.store;
 
 import java.math.BigDecimal;
 
-    import com.baomidou.mybatisplus.annotation.IdType;
-    import com.baomidou.mybatisplus.annotation.TableId;
-    import com.baomidou.mybatisplus.annotation.TableName;
-    import com.baomidou.mybatisplus.annotation.TableField;
-    import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.*;
+
+import java.io.Serializable;
     import java.time.LocalDateTime;
 
     import com.chauncy.common.util.serializer.LongJsonDeserializer;
@@ -41,7 +39,6 @@ public class SmStorePo implements Serializable {
     @ApiModelProperty(value = "id")
     @TableId(value = "id",type = IdType.ID_WORKER)
     @JsonSerialize(using = LongJsonSerializer.class)
-    @JsonDeserialize(using = LongJsonDeserializer.class)
     private Long id;
 
     @ApiModelProperty(value = "店铺名称")
@@ -56,14 +53,14 @@ public class SmStorePo implements Serializable {
     @ApiModelProperty(value = "是否展示在前端 0 不展示 1 展示")
     private Boolean showStatus;
 
-    @ApiModelProperty(value = "店铺类型标签id（pm_goods_attribute主键）")
-    private Long storeTypeLabelId;
+    @ApiModelProperty(value = "店铺类型标签id（sm_store_label主键）")
+    private Long storeLabelId;
 
-    @ApiModelProperty(value = "店铺分类id（pm_goods_attribute主键）")
-    private Long storeAttributeId;
+    @ApiModelProperty(value = "店铺分类id（sm_store_category主键）")
+    private Long storeCategoryId;
 
     @ApiModelProperty(value = "商家类型（推广店铺，商品店铺）")
-    private String type;
+    private Integer type;
 
     @ApiModelProperty(value = "所属店铺Id")
     private Long parentId;
@@ -172,5 +169,6 @@ public class SmStorePo implements Serializable {
     private LocalDateTime updateTime;
 
     @ApiModelProperty(value = "删除标志 默认0")
+    @TableLogic
     private Boolean delFlag;
 }

@@ -1,60 +1,53 @@
-package com.chauncy.data.dto.manage.store.add;
+package com.chauncy.data.vo.manage.store;
 
-import com.chauncy.common.enums.store.StoreTypeEnum;
-import com.chauncy.data.valid.annotation.EnumConstraint;
-import com.chauncy.data.valid.annotation.NeedExistConstraint;
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.List;
+
 
 /**
- * @Author: xiaoye
- * @Date: 2019/6/5 15:04
+ * @author yeJH
+ * @since 2019/6/19 22:44
  */
 @Data
-@ApiModel(value = "StoreInfoDto对象", description = "店铺基本信息")
-public class StoreBaseInfoDto {
+public class StoreBaseInfoVo implements Serializable {
 
+    private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "店铺名称")
-    @NotBlank(message = "店铺名称不能为空")
     private String name;
 
     @ApiModelProperty(value = "店铺描述")
     private String storeDescribe;
 
     @ApiModelProperty(value = "店铺账号")
-    @NotBlank(message = "店铺账号不能为空")
     private String userName;
 
     @ApiModelProperty(value = "是否展示在前端 0 不展示 1 展示")
-    private Boolean showStatus;
+    private boolean showStatus;
 
     @ApiModelProperty(value = "店铺类型标签id（sm_store_label主键）")
-    @NeedExistConstraint(tableName = "sm_store_label")
     private Long storeLabelId;
 
     @ApiModelProperty(value = "店铺分类id（sm_store_category主键）")
-    @NeedExistConstraint(tableName = "sm_store_category")
     private Long storeCategoryId;
 
+    @ApiModelProperty(value = "店铺分类名称")
+    private String storeCategoryName;
+
     @ApiModelProperty(value = "商家类型（推广店铺，商品店铺）")
-    @NotNull(message = "商家类型不能为空")
-    @EnumConstraint(target = StoreTypeEnum.class)
     private Integer type;
+
+    @ApiModelProperty(value = "商家类型名称（推广店铺，商品店铺）")
+    private String typeName;
 
     @ApiModelProperty(value = "所属店铺Id")
     private Long parentId;
 
     @ApiModelProperty(value = "排序数值")
-    @Min(value = 0, message = "排序数字必须大于0")
     private Integer sort;
-
 
     @ApiModelProperty(value = "主理人姓名")
     private String ownerName;
@@ -63,19 +56,30 @@ public class StoreBaseInfoDto {
     private String ownerMobile;
 
     @ApiModelProperty(value = "店铺logo")
-    @NotBlank(message = "店铺logo不能为空")
     private String logoImage;
 
     @ApiModelProperty(value = "店铺缩略图，展示用")
-    @NotBlank(message = "店铺缩略图不能为空")
     private String storeImage;
 
     @ApiModelProperty(value = "店铺背景图")
-    @NotBlank(message = "店铺背景图不能为空")
     private String backgroundImage;
 
+    @ApiModelProperty(value = "店铺综合体验评分")
+    private Integer totalScore;
+
+    @ApiModelProperty(value = "宝贝描述评分")
+    private Integer babyDescribeScore;
+
+    @ApiModelProperty(value = "服务态度评分")
+    private Integer serviceAttitudeScore;
+
+    @ApiModelProperty(value = "物流服务评分")
+
+    private Integer logisticsServiceScore;
+
     @ApiModelProperty(value = "所属品牌集合")
-    @NotEmpty
-    @NeedExistConstraint(tableName = "sm_store_label")
-    private Long[] attributeIds;
+    private String attributeIds;
+
+    @ApiModelProperty(value = "所属品牌集合")
+    private List<String> attributeName;
 }

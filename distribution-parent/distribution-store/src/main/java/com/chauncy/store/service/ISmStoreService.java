@@ -7,8 +7,12 @@ import com.chauncy.data.dto.manage.store.add.StoreAccountInfoDto;
 import com.chauncy.data.dto.manage.store.add.StoreBaseInfoDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.vo.JsonViewData;
-import com.chauncy.data.vo.store.SmStoreBaseVo;
+import com.chauncy.data.vo.manage.store.SmStoreBaseVo;
+import com.chauncy.data.vo.manage.store.StoreAccountInfoVo;
+import com.chauncy.data.vo.manage.store.StoreBaseInfoVo;
+import com.chauncy.data.vo.manage.store.StoreOperationalInfoVo;
 import com.github.pagehelper.PageInfo;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * <p>
@@ -51,4 +55,33 @@ public interface ISmStoreService extends Service<SmStorePo> {
      * @return
      */
     PageInfo<SmStoreBaseVo> searchBaseInfo(StoreSearchDto storeSearchDto);
+
+    /**
+     * 查询店铺基本信息
+     * @param id
+     * @return
+     */
+    StoreBaseInfoVo findBaseById(Long id);
+
+
+    /**
+     * 查询店铺账户信息
+     * @param id
+     * @return
+     */
+    StoreAccountInfoVo findAccountById(Long id);
+
+    /**
+     * 查询店铺运营信息
+     * @param id
+     * @return
+     */
+    StoreOperationalInfoVo findOperationalById(Long id);
+
+    /**
+     * 根据账号获取店铺id
+     * @param userName
+     * @return
+     */
+    Long findStoreIdByName(String userName);
 }
