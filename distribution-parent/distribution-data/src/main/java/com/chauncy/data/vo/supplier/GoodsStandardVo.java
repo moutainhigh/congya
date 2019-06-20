@@ -24,4 +24,5 @@ public class GoodsStandardVo {
 
     @ApiModelProperty("商品规格值信息集合")
     private List<StandardValueAndStatusVo> attributeValueInfos;
+
 }

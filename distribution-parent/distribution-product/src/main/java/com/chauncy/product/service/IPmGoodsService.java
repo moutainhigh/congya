@@ -11,7 +11,9 @@ import com.chauncy.data.dto.supplier.good.update.UpdateGoodOperationDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodSellerDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.supplier.BaseGoodsVo;
+import com.chauncy.data.vo.supplier.FindSkuAttributeVo;
 import com.chauncy.data.vo.supplier.GoodsStandardVo;
 
 import java.util.List;
@@ -97,6 +99,14 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
     void addSkuAttribute(List<AddSkuAttributeDto> addSkuAttributeDtoList);
 
     /**
+     * 根据商品ID获取sku 信息、
+     *
+     * @param goodsId
+     * @return
+     */
+    List<FindSkuAttributeVo> findSkuAttribute(Long goodsId);
+
+    /**
      * 添加或更新财务信息
      *
      * @param updateSkuFinanceDto
@@ -127,4 +137,5 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @return
      */
     void addAssociationGoods(AddAssociationGoodsDto associationDto);
+
 }

@@ -71,7 +71,7 @@ public class PmGoodsSkuPo implements Serializable {
     private BigDecimal linePrice;
 
     @ApiModelProperty(value = "库存数量")
-    private Long stock;
+    private Integer stock;
 
     @ApiModelProperty(value = "创建者")
     private String createBy;

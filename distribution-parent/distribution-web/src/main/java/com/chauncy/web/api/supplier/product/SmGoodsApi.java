@@ -14,6 +14,7 @@ import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.supplier.BaseGoodsVo;
+import com.chauncy.data.vo.supplier.FindSkuAttributeVo;
 import com.chauncy.data.vo.supplier.GoodsStandardVo;
 import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.web.base.BaseApi;
@@ -130,7 +131,7 @@ public class SmGoodsApi extends BaseApi {
      * @param findStandardDto
      * @return
      */
-    @PostMapping("/searchStandard")
+    @PostMapping("/findStandard")
     @ApiOperation(value = "获取商品属性规格及其规格值")
     public JsonViewData<List<GoodsStandardVo>> findStandard(@RequestBody @Validated @ApiParam(required = true,
             name = "findStandardDto", value = "获取商品属性规格及其规格值条件") FindStandardDto findStandardDto) {
@@ -171,19 +172,17 @@ public class SmGoodsApi extends BaseApi {
         return new JsonViewData(ResultCode.SUCCESS);
     }
 
-//    public JsonViewData<> findSkuAttribute(@RequestBody @ApiParam(required = true, name = "addSkuAttributeDtoList", value = "商品属性(SKU)信息集合") @Validated
-//                                                   FindSkuAttributeDto findSkuAttributeDto) {
-//
-//
-//        return new JsonViewData()
-//
-//    }
+    /**
+     * 根据商品ID查找sku信息
+     *
+     * @param goodsId
+     * @return
+     */
+    @GetMapping("/findSkuAttribute/{goodsId}")
+    @ApiOperation(value = "根据商品ID查找sku信息")
+    public JsonViewData<List<FindSkuAttributeVo>> searchSkuAttribute(@ApiParam(required = true, name = "goodsId", value = "goodsId") @PathVariable Long goodsId) {
 
-    @GetMapping("/searchSkuAttribute/{skuId}")
-    @ApiOperation(value = "根据skuId查找sku属性，提供给财务角色填充信息")
-    public JsonViewData searchSkuAttribute(@ApiParam(required = true, name = "skuId", value = "skuId") @PathVariable Long skuId) {
-
-        return null;
+        return setJsonViewData(service.findSkuAttribute(goodsId));
     }
 
     /**
