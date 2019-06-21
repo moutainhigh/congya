@@ -2,7 +2,9 @@ package com.chauncy.product.service;
 
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
+import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,6 +22,17 @@ public interface IPmGoodsCategoryService extends Service<PmGoodsCategoryPo> {
      * @return
      */
     Map<String,Object> findById(Long id);
+
+    /**
+     * 根据分类id、type、属性名称集合查找属性id
+     * @param names
+     * @param type
+     * @param cId
+     * @return
+     */
+    List<Long> findAttributeIdsByNamesAndCategoryId(@Param("names")List<String> names,
+                                                @Param("type") Integer type,
+                                                @Param("cId") Long cId);
 
 
 

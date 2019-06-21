@@ -113,6 +113,24 @@ public class StringUtils {
     }
 
     /**
+     * 判断多个字符串全部是否为空
+     *
+     * @param strings
+     * @return
+     */
+    public static boolean isAllBlank(String... strings) {
+        if (strings == null) {
+            return true;
+        }
+        for (String str : strings) {
+            if (isNotBlank(str)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * 判断多个字符串其中任意一个是否为空
      *
      * @param strings
@@ -124,6 +142,24 @@ public class StringUtils {
         }
         for (String str : strings) {
             if (isEmpty(str)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 判断多个字符串其中任意一个是否为空
+     *
+     * @param strings
+     * @return
+     */
+    public static boolean isHasBlank(String... strings) {
+        if (strings == null) {
+            return true;
+        }
+        for (String str : strings) {
+            if (isBlank(str)) {
                 return true;
             }
         }

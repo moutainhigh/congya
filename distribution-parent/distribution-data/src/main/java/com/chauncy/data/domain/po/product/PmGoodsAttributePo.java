@@ -10,6 +10,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.apache.ibatis.type.Alias;
 import org.springframework.data.annotation.CreatedDate;
@@ -58,6 +59,7 @@ import java.time.LocalDateTime;
 @TableName("pm_goods_attribute")
 @ApiModel(value = "PmGoodsAttributePo对象", description = "商品属性参数表 ")
 @Alias("goodsAttributePo")
+@NoArgsConstructor
 public class PmGoodsAttributePo implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -128,5 +130,8 @@ public class PmGoodsAttributePo implements Serializable {
     @ApiModelProperty(value = "商品属性值")
     private String[] values;
 
-
+    public PmGoodsAttributePo(String name,  Integer type) {
+        this.name = name;
+        this.type = type;
+    }
 }

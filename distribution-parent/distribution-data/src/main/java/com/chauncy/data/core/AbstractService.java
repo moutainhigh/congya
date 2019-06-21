@@ -38,4 +38,16 @@ public abstract class AbstractService<M extends BaseMapper<T>,T> extends Service
         return IBaseMapper.loadChildIds(parentId,tableName);
     }
 
+
+    /**
+     *根据name和数据库名称查询对应的名字
+     * @param names
+     * @param tableName
+     * @return
+     */
+    @Override
+    public List<Long> findIdByNamesInAndTableName(List<String> names, String tableName, String concatWhereSql){
+        return IBaseMapper.loadIdByNamesInAndTableName(names,tableName,concatWhereSql);
+    }
+
 }

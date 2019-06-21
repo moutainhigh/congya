@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -26,6 +27,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @Accessors(chain = true)
+@NoArgsConstructor
 @TableName("pm_association_goods")
 @ApiModel(value = "PmAssociationGoodsPo对象", description = "关联商品—包括关联搭配商品合关联推荐商品，外键为商品id")
 public class PmAssociationGoodsPo {
@@ -70,4 +72,11 @@ public class PmAssociationGoodsPo {
     @ApiModelProperty(value = "删除标志 默认0")
     private Boolean delFlag;
 
+    public PmAssociationGoodsPo(Long goodsId, Long storeId, Long associatedGoodsId, Integer associationType,String createBy) {
+        this.goodsId = goodsId;
+        this.storeId = storeId;
+        this.associatedGoodsId = associatedGoodsId;
+        this.associationType = associationType;
+        this.createBy=createBy;
+    }
 }

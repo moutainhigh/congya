@@ -7,6 +7,7 @@ import com.chauncy.product.service.IPmGoodsCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,5 +27,10 @@ public class PmGoodsCategoryServiceImpl extends AbstractService<PmGoodsCategoryM
     @Override
     public Map<String, Object> findById(Long id) {
         return categoryMapper.loadById(id);
+    }
+
+    @Override
+    public List<Long> findAttributeIdsByNamesAndCategoryId(List<String> names, Integer type, Long cId) {
+        return categoryMapper.getAttributeIdsByNamesAndCategoryId(names, type, cId);
     }
 }

@@ -3,6 +3,7 @@ package com.chauncy.data.valid.constraint;
 import com.alibaba.fastjson.JSON;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.common.util.StringUtils;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,10 +47,10 @@ public class NeedExistValidator implements ConstraintValidator<NeedExistConstrai
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext constraintValidatorContext) {
         //如果是parentid可能是空，要判断非空在外面加注解@Notnull
-        if (value==null){
+        if (value==null|| StringUtils.isBlank(value.toString())){
             return true;
         }
-        //如果传的是id集合就要一个个验证
+        //如果传的是集合就要一个个验证
         if (value instanceof List ||value.getClass().isArray()){
             //object转list
             List<String> ids= JSON.parseArray(JSON.toJSONString(value),String.class);

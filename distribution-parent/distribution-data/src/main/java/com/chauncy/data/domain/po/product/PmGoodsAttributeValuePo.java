@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -36,6 +37,8 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("pm_goods_attribute_value")
+@NoArgsConstructor
+
 @ApiModel(value = "PmGoodsAttributeValuePo对象", description = "存储产品参数信息的表 规格值 参数值")
 public class PmGoodsAttributeValuePo implements Serializable {
 

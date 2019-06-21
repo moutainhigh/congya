@@ -3,7 +3,9 @@ package com.chauncy.data.mapper.product;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chauncy.data.mapper.IBaseMapper;
+import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,5 +23,16 @@ public interface PmGoodsCategoryMapper extends IBaseMapper<PmGoodsCategoryPo> {
      * @return
      */
     Map<String,Object> loadById(Long id);
+
+    /**
+     * 根据分类id、type、属性名称集合查找属性id
+     * @param names
+     * @param type
+     * @param cId
+     * @return
+     */
+    List<Long> getAttributeIdsByNamesAndCategoryId(@Param("names")List<String> names,
+                                                   @Param("type") Integer type,
+                                                   @Param("cId") Long cId);
 
 }

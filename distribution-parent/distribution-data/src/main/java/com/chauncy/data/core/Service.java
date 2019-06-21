@@ -3,6 +3,7 @@ package com.chauncy.data.core;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.apache.ibatis.annotations.Param;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -24,4 +25,13 @@ public interface Service<T> extends IService<T>{
      * @return
      */
     List<Long> findChildIds(@Param("parentId") Long parentId, @Param("tableName") String tableName);
+
+    /**
+     *根据name和数据库名称查询对应的id
+     * @param names
+     * @param tableName
+     * @param concatWhereSql 拼接wheresql  以and开头
+     * @return
+     */
+    List<Long> findIdByNamesInAndTableName(List<String> names, String tableName, String concatWhereSql);
 }

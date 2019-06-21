@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -25,6 +26,7 @@ import java.time.LocalDateTime;
  * @since 2019-05-21
  */
 @Data
+@NoArgsConstructor
 @Accessors(chain = true)
 @TableName("pm_goods_category")
 @ApiModel(value = "PmGoodsCategoryPo对象", description = "商品分类表")
@@ -49,6 +51,11 @@ public class PmGoodsCategoryPo {
 
     @ApiModelProperty(value = "是否启用 1-是 0-否 默认为1")
     private Boolean enabled;
+
+    public PmGoodsCategoryPo(String name, Integer level) {
+        this.name = name;
+        this.level = level;
+    }
 
     @ApiModelProperty(value = "税率")
     private BigDecimal taxRate;

@@ -54,5 +54,25 @@ FROM
 	a.type
 	) a
     </select>
+    <select id="getAttributeIdsByNamesAndCategoryId" resultType="java.lang.Long">
+	SELECT
+		a.id
+	FROM
+		`pm_goods_attribute` a,
+		pm_goods_category c,
+		pm_goods_rel_attribute_category ac
+	WHERE
+		a.del_flag = 0
+		AND c.del_flag = 0
+		AND ac.del_flag = 0
+		AND a.NAME in
+		<foreach collection="names" open="(" close=")" separator="," item="name">
+		    #{name}
+		</foreach>
+		AND a.id = ac.goods_attribute_id
+		AND c.id = ac.goods_category_id
+		AND c.id = #{cId}
+		and a.type=#{type}
+	</select>
 
 </mapper>

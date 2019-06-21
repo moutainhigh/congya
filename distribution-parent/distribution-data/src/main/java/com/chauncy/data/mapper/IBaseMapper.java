@@ -41,4 +41,14 @@ public interface IBaseMapper<T> extends BaseMapper<T> {
                   @Param("concatWhereSql") String concatWhereSql
     );
 
+    /**
+     * 根据id和数据库名称查询对应的名字
+     * @param names
+     * @param tableName
+     * @return
+     */
+    List<Long> loadIdByNamesInAndTableName(@Param("names") List<String> names,
+                                     @Param("tableName")String tableName,
+                                     @Param("concatWhereSql")String conWhereSql);
+
 }

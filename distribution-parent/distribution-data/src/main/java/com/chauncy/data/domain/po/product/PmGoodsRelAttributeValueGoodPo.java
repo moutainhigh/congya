@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
@@ -21,6 +22,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
+@NoArgsConstructor
 @Accessors(chain = true)
 @TableName("pm_goods_rel_attribute_value_good")
 @ApiModel(value = "PmGoodsRelAttributeValueGoodPo对象", description = "商品参数值和商品关联表")
@@ -53,4 +55,9 @@ public class PmGoodsRelAttributeValueGoodPo implements Serializable {
     private Long goodsId;
 
 
+    public PmGoodsRelAttributeValueGoodPo(Long goodsAttributeValueId, Long goodsId,String createBy) {
+        this.goodsAttributeValueId = goodsAttributeValueId;
+        this.goodsId = goodsId;
+        this.createBy=createBy;
+    }
 }

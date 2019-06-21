@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
  * @since 2019-06-10
  */
 @Data
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("pm_goods_rel_attribute_good")
@@ -54,4 +56,9 @@ public class PmGoodsRelAttributeGoodPo implements Serializable {
     private Boolean delFlag;
 
 
+    public PmGoodsRelAttributeGoodPo(Long goodsAttributeId, Long goodsGoodId,String createBy) {
+        this.goodsAttributeId = goodsAttributeId;
+        this.goodsGoodId = goodsGoodId;
+        this.createBy=createBy;
+    }
 }

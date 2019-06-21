@@ -9,6 +9,7 @@ import java.util.List;
 
 /**
  * excel导入商品基本属性的dto
+ *
  * @Author zhangrt
  * @Date 2019/6/17 23:09
  **/
@@ -17,8 +18,8 @@ import java.util.List;
 public class ExcelImportGoodBaseDto {
 
     @NotBlank(message = "商品分类")
-    @NeedExistConstraint(tableName = "pm_goods_category",field = "name",
-            message ="系统第三级分类中不存在该名称",concatWhereSql = "and `level=3`")
+    @NeedExistConstraint(tableName = "pm_goods_category", field = "name",
+            message = "系统第三级分类中不存在该名称", concatWhereSql = "and `level=3`")
     private String goodsCategoryName;
 
     @NotBlank(message = "商品类型不能为空")
@@ -37,13 +38,13 @@ public class ExcelImportGoodBaseDto {
 
     @ApiModelProperty(value = "品牌名称")
     @NotBlank(message = "商品品牌不能为空！")
-    @NeedExistConstraint(tableName = "pm_goods_attribute",field = "name",
-    message = "系统中不存在该品牌名称",concatWhereSql = "and type=7")
+    @NeedExistConstraint(tableName = "pm_goods_attribute", field = "name",
+            message = "系统中不存在该品牌名称", concatWhereSql = "and type=7")
     private String brandName;
 
     @ApiModelProperty(value = "标签名称")
     @NotBlank(message = "商品标签不能为空")
-    @NeedExistConstraint(tableName = "pm_goods_attribute",field = "name",concatWhereSql = "and type=4")
+    @NeedExistConstraint(tableName = "pm_goods_attribute", field = "name", concatWhereSql = "and type=4")
     private List<String> labelNames;
 
     @ApiModelProperty(value = "是否是店铺推荐；0->不推荐；1->推荐")
@@ -56,22 +57,26 @@ public class ExcelImportGoodBaseDto {
 
 
     @ApiModelProperty(value = "平台服务说明名称")
+    @NeedExistConstraint(tableName = "pm_goods_attribute", field = "name", concatWhereSql = "and type=1")
     private String platformServiceName;
 
     @ApiModelProperty(value = "商家服务说明名称")
+    @NeedExistConstraint(tableName = "pm_goods_attribute", field = "name", concatWhereSql = "and type=2")
     private String supplierServiceName;
 
     @ApiModelProperty(value = "平台运费模板")
+    @NeedExistConstraint(tableName = "pm_number_shipping", field = "name", concatWhereSql = "and type=1")
     private String platformShipTemplate;
 
     @ApiModelProperty(value = "商家运费模板")
+    @NeedExistConstraint(tableName = "pm_number_shipping", field = "name", concatWhereSql = "and type=2")
     private String supplierShipTemplate;
 
     @ApiModelProperty(value = "商品参数")
-    private String goodAttributionName;
+    private List<String> goodAttributionNames;
 
     @ApiModelProperty(value = "商品参数值")
-    private String goodAttributionValueName;
+    private List<String> goodAttributionValueNames;
 
 
     @ApiModelProperty(value = "发货地")
