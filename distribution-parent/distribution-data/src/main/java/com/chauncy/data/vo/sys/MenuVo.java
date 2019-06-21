@@ -21,8 +21,8 @@ public class MenuVo {
     @ApiModelProperty(value = "菜单/权限名称")
     private String name;
 
-//    @ApiModelProperty(value = "类型 -1顶部菜单 0页面 1具体操作")
-//    private Integer type;
+    @ApiModelProperty(value = "类型 -1顶部菜单 0页面 1具体操作")
+    private Integer type;
 
     @ApiModelProperty(value = "菜单标题")
     private String title;
