@@ -2,6 +2,7 @@ package com.chauncy.data.domain.po.product;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chauncy.common.util.serializer.LongJsonSerializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -70,6 +71,7 @@ public class PmAssociationGoodsPo {
     private LocalDateTime updateTime;
 
     @ApiModelProperty(value = "删除标志 默认0")
+    @TableLogic
     private Boolean delFlag;
 
     public PmAssociationGoodsPo(Long goodsId, Long storeId, Long associatedGoodsId, Integer associationType,String createBy) {

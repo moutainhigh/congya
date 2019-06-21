@@ -6,9 +6,11 @@ import com.chauncy.data.dto.supplier.good.add.AddGoodBaseDto;
 import com.chauncy.data.dto.supplier.good.add.AddOrUpdateSkuAttributeDto;
 import com.chauncy.data.dto.supplier.good.add.AddSkuAttributeDto;
 import com.chauncy.data.dto.supplier.good.select.FindStandardDto;
+import com.chauncy.data.dto.supplier.good.select.SearchGoodInfosDto;
 import com.chauncy.data.dto.supplier.good.select.SelectAttributeDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodOperationDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodSellerDto;
+import com.chauncy.data.dto.supplier.good.update.UpdatePublishStatusDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.BaseVo;
@@ -91,7 +93,7 @@ public class SmGoodsApi extends BaseApi {
                                         AddGoodBaseDto addGoodBaseDto) {
         service.addBase(addGoodBaseDto);
 
-        return new JsonViewData(ResultCode.SUCCESS);
+        return new JsonViewData(ResultCode.SUCCESS,"操作成功");
     }
 
     /**
@@ -120,7 +122,7 @@ public class SmGoodsApi extends BaseApi {
                                            AddGoodBaseDto updateGoodBaseDto) {
         service.updateBase(updateGoodBaseDto);
 
-        return new JsonViewData(ResultCode.SUCCESS);
+        return new JsonViewData(ResultCode.SUCCESS,"操作成功");
     }
 
     /**
@@ -167,7 +169,7 @@ public class SmGoodsApi extends BaseApi {
 
         service.addOrUpdateSkuAttribute(addOrUpdateSkuAttributeDto);
 
-        return new JsonViewData(ResultCode.SUCCESS);
+        return new JsonViewData(ResultCode.SUCCESS,"操作成功");
     }
 
     /**
@@ -205,10 +207,10 @@ public class SmGoodsApi extends BaseApi {
     @PostMapping("/updateSkuFinance")
     @ApiOperation(value = "添加或更新财务信息->sku信息")
     public JsonViewData updateSkuFinance(@RequestBody @ApiParam(required = true, name = "updateSkuFinanceDto", value = "添加或更新财务信息") @Validated
-                                                 UpdateSkuFinanceDto updateSkuFinanceDto) {
+                                                     List<UpdateSkuFinanceDto> updateSkuFinanceDto) {
 
         service.updateSkuFinance(updateSkuFinanceDto);
-        return new JsonViewData(ResultCode.SUCCESS);
+        return new JsonViewData(ResultCode.SUCCESS,"操作成功");
     }
 
     /**
@@ -236,7 +238,7 @@ public class SmGoodsApi extends BaseApi {
 
         service.updateGoodOperation(updateGoodOperationDto);
 
-        return new JsonViewData(ResultCode.SUCCESS);
+        return new JsonViewData(ResultCode.SUCCESS,"操作成功");
     }
 
     /**
@@ -265,7 +267,7 @@ public class SmGoodsApi extends BaseApi {
 
         service.updateGoodSeller(updateGoodSellerDto);
 
-        return new JsonViewData(ResultCode.SUCCESS);
+        return new JsonViewData(ResultCode.SUCCESS,"操作成功");
     }
 
     /**
@@ -280,7 +282,63 @@ public class SmGoodsApi extends BaseApi {
                                                     AddAssociationGoodsDto associationDto) {
         service.addAssociationGoods(associationDto);
 
-        return new JsonViewData(ResultCode.SUCCESS);
+        return new JsonViewData(ResultCode.SUCCESS,"添加商品关联成功");
+    }
+
+    /**
+     * 提交商品审核
+     *
+     * @param goodsIds
+     * @return
+     */
+    @GetMapping("/submitAudit/{ids}")
+    @ApiOperation("提交商品审核")
+    public JsonViewData submitAudit(@ApiParam(required = true, name = "goodsIds", value = "商品id集合，以逗号隔开") @PathVariable Long[] goodsIds){
+
+        service.submitAudit(goodsIds);
+        return setJsonViewData(ResultCode.SUCCESS,"提交审核成功");
+    }
+
+    /**
+     * 上架或下架商品
+     *
+     * @param updatePublishStatusDto
+     * @return
+     */
+    @PostMapping("/submitAudit")
+    @ApiOperation("上架或下架商品")
+    public JsonViewData publishStatus(@RequestBody @Validated @ApiParam(required = true, name = "publishStatusDto", value = "上下架商品条件") UpdatePublishStatusDto updatePublishStatusDto){
+
+        service.publishStatus(updatePublishStatusDto);
+        return setJsonViewData(ResultCode.SUCCESS,"操作成功");
+    }
+
+    /**
+     * 修改应用标签
+     *
+     * @param updatePublishStatusDto
+     * @return
+     */
+    @PostMapping("/updateStarStatus")
+    @ApiOperation("修改应用标签")
+    public JsonViewData updateStarStatus(@RequestBody @Validated @ApiParam(required = true, name = "publishStatusDto", value = "上下架商品条件") UpdatePublishStatusDto updatePublishStatusDto){
+
+        service.updateStarStatus(updatePublishStatusDto);
+        return setJsonViewData(ResultCode.SUCCESS,"操作成功");
+    }
+
+    /**
+     * 条件查询商品信息
+     *
+     * @param searchGoodInfosDto
+     * @return
+     */
+    @PostMapping("/searchGoodsInfo")
+    @ApiOperation("查询商品信息")
+    public JsonViewData searchGoodsInfo(@RequestBody @ApiParam(required = true,name = "searchGoodInfosDto",value = "条件查询商品信息")
+                                      @Validated SearchGoodInfosDto searchGoodInfosDto){
+
+        return setJsonViewData(ResultCode.SUCCESS,"操作成功",service.searchGoodsInfo(searchGoodInfosDto));
     }
 
 }

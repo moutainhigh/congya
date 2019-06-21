@@ -1,5 +1,6 @@
 package com.chauncy.data.domain.po.product;
 
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.time.LocalDateTime;
@@ -47,6 +48,7 @@ public class PmGoodsRelGoodsMemberLevelPo implements Serializable {
     private LocalDateTime updateTime;
 
     @ApiModelProperty(value = "删除标志 1-删除 0未删除")
+    @TableLogic
     private Boolean delFlag;
 
     @ApiModelProperty(value = "商品ID")

@@ -8,12 +8,15 @@ import com.chauncy.data.dto.supplier.good.add.AddAssociationGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.AddGoodBaseDto;
 import com.chauncy.data.dto.supplier.good.add.AddOrUpdateSkuAttributeDto;
 import com.chauncy.data.dto.supplier.good.select.FindStandardDto;
+import com.chauncy.data.dto.supplier.good.select.SearchGoodInfosDto;
 import com.chauncy.data.dto.supplier.good.select.SelectAttributeDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodOperationDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodSellerDto;
+import com.chauncy.data.dto.supplier.good.update.UpdatePublishStatusDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.supplier.*;
+import com.github.pagehelper.PageInfo;
 
 import java.util.List;
 
@@ -119,7 +122,7 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @param updateSkuFinanceDto
      * @return
      */
-    void updateSkuFinance(UpdateSkuFinanceDto updateSkuFinanceDto);
+    void updateSkuFinance(List<UpdateSkuFinanceDto> updateSkuFinanceDto);
 
     /**
      * 根据商品ID查找运营信息
@@ -170,4 +173,31 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      */
     void rejectGoods(RejectGoodsDto rejectGoodsDto);
 
+    /**
+     * 提交商品审核
+     *
+     * @param goodsIds
+     */
+    void submitAudit(Long[] goodsIds);
+
+    /**
+     * 上架或下架商品
+     *
+     * @param updatePublishStatusDt
+     */
+    void publishStatus(UpdatePublishStatusDto updatePublishStatusDt);
+
+    /**
+     * 修改应用标签
+     *
+     * @param updatePublishStatusDto
+     */
+    void updateStarStatus(UpdatePublishStatusDto updatePublishStatusDto);
+
+    /**
+     * 条件查询商品信息
+     *
+     * @param searchGoodInfosDto
+     */
+    PageInfo<PmGoodsVo> searchGoodsInfo(SearchGoodInfosDto searchGoodInfosDto);
 }

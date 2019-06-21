@@ -96,5 +96,8 @@ public class PmGoodsSkuPo implements Serializable {
     @TableLogic
     private Boolean delFlag;
 
+    @ApiModelProperty(value = "销量")
+    private Integer salesInteger;
+
 
 }

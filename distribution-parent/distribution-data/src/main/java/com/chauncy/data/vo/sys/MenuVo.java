@@ -30,21 +30,21 @@ public class MenuVo {
     @ApiModelProperty(value = "页面路径/资源链接url")
     private String path;
 
-//    @ApiModelProperty(value = "前端组件")
-//    private String component;
+    @ApiModelProperty(value = "前端组件")
+    private String component;
 
     @ApiModelProperty(value = "图标")
     private String icon;
 
-//    @ApiModelProperty(value = "网页链接")
-//    private String url;
+    @ApiModelProperty(value = "网页链接")
+    private String url;
 
-//    @ApiModelProperty(value = "按钮权限类型")
-//    private String buttonType;
+    @ApiModelProperty(value = "按钮权限类型")
+    private String buttonType;
 
     @ApiModelProperty(value = "子菜单/权限")
     private List<MenuVo> children;
 
-//    @ApiModelProperty(value = "页面拥有的权限类型")
-//    private List<String> permTypes;
+    @ApiModelProperty(value = "页面拥有的权限类型")
+    private List<String> permTypes;
 }

@@ -145,4 +145,7 @@ public class PmGoodsPo {
 
     @ApiModelProperty(value = "是否是导入商品")
     private Boolean isExcel;
+
+    @ApiModelProperty(value = "销量")
+    private Integer salesInteger;
 }

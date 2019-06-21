@@ -56,5 +56,9 @@
 
     </select>
 
+    <select id="searchGoodsInfo" resultType="com.chauncy.data.vo.supplier.PmGoodsVo">
+
+    </select>
+
 
 </mapper>

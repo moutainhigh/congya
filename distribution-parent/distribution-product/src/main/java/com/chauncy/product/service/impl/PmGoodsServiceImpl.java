@@ -11,24 +11,30 @@ import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.*;
-import com.chauncy.data.dto.manage.good.add.UpdateGoodsOperationDto;
 import com.chauncy.data.dto.manage.good.update.RejectGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.*;
 import com.chauncy.data.dto.supplier.good.select.FindStandardDto;
+import com.chauncy.data.dto.supplier.good.select.SearchGoodInfosDto;
 import com.chauncy.data.dto.supplier.good.select.SelectAttributeDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodOperationDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodSellerDto;
+import com.chauncy.data.dto.supplier.good.update.UpdatePublishStatusDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
 import com.chauncy.data.mapper.product.*;
+import com.chauncy.data.mapper.sys.SysUserMapper;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.manage.product.PmGoodsAttributeVo;
 import com.chauncy.data.vo.supplier.*;
 import com.chauncy.product.service.IPmGoodsRelAttributeGoodService;
 import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.security.util.SecurityUtil;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -43,6 +49,7 @@ import java.util.stream.Collectors;
  * @since 2019-05-21
  */
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo> implements IPmGoodsService {
 
     @Autowired
@@ -96,6 +103,14 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     @Autowired
     private PmMemberLevelMapper memberLevelMapper;
 
+    @Autowired
+    private SysUserMapper sysUserMapper;
+
+    private static int defaultPageSize = 10;
+
+    private static int defaultPageNo = 1;
+
+    private static String defaultSoft = "sort desc";
 
     @Override
     public List<String> findGoodsType() {
@@ -149,9 +164,16 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     public void addBase(AddGoodBaseDto addGoodBaseDto) {
 
         LocalDateTime date = LocalDateTime.now();
+        PmGoodsPo goodsPo = new PmGoodsPo();
         //获取当前用户
         String user = securityUtil.getCurrUser().getUsername();
-        PmGoodsPo goodsPo = new PmGoodsPo();
+        String userId = securityUtil.getCurrUser().getId();
+        //判断用户是属于哪个系统,商家端或者是平台后台
+        Long storeId =sysUserMapper.selectById(userId).getStoreId();
+        //商家端
+        if (storeId!=null){
+            goodsPo.setVerifyStatus(GoodsVerifyStatusEnum.UNCHECKED.getId());
+        }
         goodsPo.setCreateBy(user);
         goodsPo.setId(null);
         goodsPo.setShippingTemplateId(addGoodBaseDto.getShippingId());
@@ -313,7 +335,12 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     public void updateBase(AddGoodBaseDto updateGoodBaseDto) {
 
         String user = securityUtil.getCurrUser().getUsername();
+        String userId = securityUtil.getCurrUser().getId();
+        Long storeId = sysUserMapper.selectById(userId).getStoreId();
         PmGoodsPo goodsPo = new PmGoodsPo();
+        if (storeId!=null){
+            goodsPo.setVerifyStatus(GoodsVerifyStatusEnum.UNCHECKED.getId());
+        }
         //保存非关联信息
         BeanUtils.copyProperties(updateGoodBaseDto, goodsPo);
         goodsPo.setUpdateBy(user);
@@ -585,6 +612,15 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         //初始化商品总库存
         int stock = 0;
         String user = securityUtil.getCurrUser().getUsername();
+        //判断用户属于平台后台或者商家端
+        String userId = securityUtil.getCurrUser().getId();
+        Long storeId = sysUserMapper.selectById(userId).getStoreId();
+        if (storeId!=null){
+            PmGoodsPo goodsPo = new PmGoodsPo();
+            goodsPo.setId(addOrUpdateSkuAttributeDto.getGoodsId());
+            goodsPo.setVerifyStatus(GoodsVerifyStatusEnum.UNCHECKED.getId());
+            mapper.updateById(goodsPo);
+        }
         //通过goodsID商品ID获取sku信息
         Map<String,Object> skuMaps = new HashMap<>();
         skuMaps.put("goods_id",addOrUpdateSkuAttributeDto.getGoodsId());
@@ -769,16 +805,30 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     /**
      * 添加或更新财务信息
      *
-     * @param updateSkuFinanceDto
+     * @param updateSkuFinanceDtos
      * @return
      */
     @Override
-    public void updateSkuFinance(UpdateSkuFinanceDto updateSkuFinanceDto) {
+    public void updateSkuFinance(List<UpdateSkuFinanceDto> updateSkuFinanceDtos) {
 
+        Long skuId = updateSkuFinanceDtos.stream().map(a->a.getSkuId()).collect(Collectors.toList()).get(0);
+        //根据skuId获取goodsId
+        Long goodsId = goodsSkuMapper.selectById(skuId).getGoodsId();
+        //判断用户属于平台后台或者商家端
+        String userId = securityUtil.getCurrUser().getId();
+        Long storeId = sysUserMapper.selectById(userId).getStoreId();
+        //商家端执行更新操作将审核状态修改为未审核状态
+        if (storeId!=null){
+            PmGoodsPo goodsPo = new PmGoodsPo();
+            goodsPo.setId(goodsId);
+            goodsPo.setVerifyStatus(GoodsVerifyStatusEnum.UNCHECKED.getId());
+            mapper.updateById(goodsPo);
+        }
+        updateSkuFinanceDtos.forEach(updateSkuFinanceDto->{
         PmGoodsSkuPo goodsSkuPo = goodsSkuMapper.selectById(updateSkuFinanceDto.getSkuId());
         BeanUtils.copyProperties(updateSkuFinanceDto, goodsSkuPo);
         goodsSkuMapper.updateById(goodsSkuPo);
-
+        });
     }
 
     /**
@@ -851,8 +901,14 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
         //获取当前用户
         String user = securityUtil.getCurrUser().getUsername();
-
+        //判断用户属于平台后台或者商家端
+        String userId = securityUtil.getCurrUser().getId();
+        Long storeId = sysUserMapper.selectById(userId).getStoreId();
         PmGoodsPo goodsPo = mapper.selectById(updateGoodOperationDto.getGoodsId());
+        //商家端执行更新操作将审核状态修改为未审核状态
+        if (storeId!=null){
+            goodsPo.setVerifyStatus(GoodsVerifyStatusEnum.UNCHECKED.getId());
+        }
         BeanUtils.copyProperties(updateGoodOperationDto, goodsPo);
         mapper.updateById(goodsPo);
 
@@ -913,6 +969,13 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     public void updateGoodSeller(UpdateGoodSellerDto updateGoodSellerDto) {
 
         PmGoodsPo goodsPo = mapper.selectById(updateGoodSellerDto.getGoodsId());
+        //判断用户属于平台后台或者商家端
+        String userId = securityUtil.getCurrUser().getId();
+        Long storeId = sysUserMapper.selectById(userId).getStoreId();
+        //商家端执行更新操作将审核状态修改为未审核状态
+        if (storeId!=null){
+            goodsPo.setVerifyStatus(GoodsVerifyStatusEnum.UNCHECKED.getId());
+        }
         BeanUtils.copyProperties(updateGoodSellerDto, goodsPo);
         mapper.updateById(goodsPo);
 
@@ -926,6 +989,17 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
      */
     @Override
     public void addAssociationGoods(AddAssociationGoodsDto associationDto) {
+
+        //判断用户属于平台后台或者商家端
+        String userId = securityUtil.getCurrUser().getId();
+        Long storeId = sysUserMapper.selectById(userId).getStoreId();
+        PmGoodsPo goodsPo = new PmGoodsPo();
+        goodsPo.setId(associationDto.getGoodsId());
+        //商家端执行更新操作将审核状态修改为未审核状态
+        if (storeId!=null){
+            goodsPo.setVerifyStatus(GoodsVerifyStatusEnum.UNCHECKED.getId());
+            mapper.updateById(goodsPo);
+        }
 
         PmAssociationGoodsPo associationGoodsPo = new PmAssociationGoodsPo();
         BeanUtils.copyProperties(associationDto, associationGoodsPo);
@@ -948,5 +1022,83 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
     }
 
+    /**
+     * 提交商品审核
+     *
+     * @param goodsIds
+     */
+    @Override
+    public void submitAudit(Long[] goodsIds) {
+
+        //根据ID获取商品信息
+        List<PmGoodsPo> goodsPos = mapper.selectBatchIds(Arrays.asList(goodsIds));
+        goodsPos.forEach(a->{
+            if (a.getVerifyStatus()!=GoodsVerifyStatusEnum.UNCHECKED.getId()){
+                throw new ServiceException(ResultCode.FAIL,"该商品状态不是未审核状态",a.getName());
+            }
+            else{
+                //修改商品状态
+                a.setVerifyStatus(GoodsVerifyStatusEnum.WAIT_CONFIRM.getId());
+                mapper.updateById(a);
+            }
+        });
+
+    }
+
+    /**
+     * 上架或下架商品
+     *
+     * @param updatePublishStatusDt
+     */
+    @Override
+    public void publishStatus(UpdatePublishStatusDto updatePublishStatusDt) {
+
+        List<PmGoodsPo> goodsPos = mapper.selectBatchIds(Arrays.asList(updatePublishStatusDt.getGoodIds()));
+       //判断商品状态为审核通过状态才能执行上下架操作
+        goodsPos.forEach(a->{
+           //状态为非审核通过状态
+           if (a.getVerifyStatus()!=GoodsVerifyStatusEnum.CHECKED.getId()){
+               throw new ServiceException(ResultCode.FAIL,"该商品的状态还未通过审核",a.getName());
+           }
+           else{
+               //修改上架状态
+               a.setPublishStatus(updatePublishStatusDt.getPulishStatus());
+               mapper.updateById(a);
+           }
+       });
+    }
+
+    /**
+     * 修改应用标签
+     *
+     * @param updatePublishStatusDto
+     */
+    @Override
+    public void updateStarStatus(UpdatePublishStatusDto updatePublishStatusDto) {
+
+        List<PmGoodsPo> goodsPos = mapper.selectBatchIds(Arrays.asList(updatePublishStatusDto.getGoodIds()));
+        goodsPos.forEach(a->{
+            a.setStarStatus(updatePublishStatusDto.getPulishStatus());
+            mapper.updateById(a);
+        });
+
+    }
+
+    /**
+     * 条件查询商品信息
+     *
+     * @param searchGoodInfosDto
+     */
+    @Override
+    public PageInfo<PmGoodsVo> searchGoodsInfo(SearchGoodInfosDto searchGoodInfosDto) {
+        Integer pageNo = searchGoodInfosDto.getPageNo() == null ? defaultPageNo : searchGoodInfosDto.getPageNo();
+        Integer pageSize = searchGoodInfosDto.getPageSize() == null ? defaultPageSize : searchGoodInfosDto.getPageSize();
+        PageInfo<PmGoodsVo> goodsVos = new PageInfo<>();
+
+
+        PageHelper.startPage(pageNo, pageSize, defaultSoft)
+                .doSelectPageInfo(() -> mapper.searchGoodsInfo(searchGoodInfosDto));
+        return goodsVos;
+    }
 
 }

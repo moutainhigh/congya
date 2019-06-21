@@ -46,7 +46,7 @@ public class PmGoodsAttributeApi {
      */
     @PostMapping("/saveAttribute")
     @ApiOperation(value = "保存商品属性（品牌、规格、服务等）")
-    public JsonViewData saveAttribute(@RequestBody @Valid @ApiParam(required = true, name = "goodsAttributeDto", value = "属性信息") GoodAttributeDto goodsAttributeDto) {
+    public JsonViewData saveAttribute(@RequestBody @Validated @ApiParam(required = true, name = "goodsAttributeDto", value = "属性信息") GoodAttributeDto goodsAttributeDto) {
 
         return goodsAttributeService.saveAttribute(goodsAttributeDto);
     }
@@ -96,15 +96,13 @@ public class PmGoodsAttributeApi {
      * 根据条件查找属性信息
      *
      * @param findAttributeInfoByConditionDto
-     * @param result
      * @return
      */
     @ApiOperation(value = "根据条件查找属性信息", notes = "1、根据type查询：\n" +
             "类型 1->平台服务说明管理类型 2->商家服务说明管理类型 3->平台活动说明管理类型  4->商品参数管理类型 5->标签管理类型 6->购买须知管理类型 7->规格管理类型 8->品牌管理\n" +
             "2、搜索查询：name、type、enabled")
     @PostMapping("/findByCondition")
-    public JsonViewData findByCondition(@RequestBody @Valid @ApiParam(required = true, name = "findAttributeInfoByConditionDto", value = "属性列表查询条件") FindAttributeInfoByConditionDto findAttributeInfoByConditionDto,
-                                        BindingResult result) {
+    public JsonViewData findByCondition(@RequestBody @Validated @ApiParam(required = true, name = "findAttributeInfoByConditionDto", value = "属性列表查询条件") FindAttributeInfoByConditionDto findAttributeInfoByConditionDto) {
 
         return goodsAttributeService.findByCondition(findAttributeInfoByConditionDto);
     }
@@ -131,9 +129,8 @@ public class PmGoodsAttributeApi {
      */
     @ApiOperation(value = "添加属性值", notes = "根据属性ID添加属性值")
     @PostMapping("/saveAttValue")
-    public JsonViewData saveAttValue(@RequestBody @Valid @ApiParam(required = true, name = "goodAttributeValueDto", value = "属性值")
-                                             GoodAttributeValueDto goodAttributeValueDto,
-                                     BindingResult result) {
+    public JsonViewData saveAttValue(@RequestBody @Validated @ApiParam(required = true, name = "goodAttributeValueDto", value = "属性值")
+                                             GoodAttributeValueDto goodAttributeValueDto) {
 
         return valueService.saveAttValue(goodAttributeValueDto);
     }
@@ -174,8 +171,7 @@ public class PmGoodsAttributeApi {
     @ApiOperation(value = "更新属性值", notes = "根据ID和属性ID更新属性值")
     @PostMapping("/editAttValue")
     public JsonViewData editAttValue(@RequestBody @Validated(IUpdateGroup.class) @ApiParam(required = true, name = "goodAttributeValueDto", value = "属性值")
-                                                 GoodAttributeValueDto goodAttributeValueDto,
-                                     BindingResult result) {
+                                                 GoodAttributeValueDto goodAttributeValueDto) {
 
         return valueService.editValue(goodAttributeValueDto);
     }
