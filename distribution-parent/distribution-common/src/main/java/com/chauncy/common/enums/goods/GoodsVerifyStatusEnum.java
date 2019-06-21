@@ -1,7 +1,6 @@
 package com.chauncy.common.enums.goods;
 
 import com.chauncy.common.enums.BaseEnum;
-import lombok.Data;
 
 import java.util.Objects;
 
@@ -13,9 +12,10 @@ import java.util.Objects;
  */
 public enum GoodsVerifyStatusEnum implements BaseEnum {
 
-    USUAL(1,"未审核"),
-    BONDED(2,"审核通过"),
-    OVERSEA(3,"不通过/驳回");
+    UNCHECKED(1,"未审核"),
+    WAIT_CONFIRM(2,"待审核"),
+    CHECKED(3,"审核通过"),
+    NOT_APPROVED(4,"不通过/驳回");
 
     private Integer id;
     private String name;

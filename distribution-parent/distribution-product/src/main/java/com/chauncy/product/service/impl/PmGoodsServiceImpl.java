@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.goods.GoodsAttributeTypeEnum;
 import com.chauncy.common.enums.goods.GoodsShipTemplateEnum;
 import com.chauncy.common.enums.goods.GoodsTypeEnum;
+import com.chauncy.common.enums.goods.GoodsVerifyStatusEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.bo.base.BaseBo;
@@ -874,6 +875,12 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             goodsRelGoodsMemberLevelMapper.insert(relGoodsMemberLevelPo);
         }
         //如果是审核通过，则删除对应的驳回详情
+        if (updateGoodOperationDto.getVerifyStatus()== GoodsVerifyStatusEnum.CHECKED.getId() ){
+            PmGoodsPo goodsPo1 = new PmGoodsPo();
+            goodsPo1.setContent(null);
+            goodsPo1.setId(updateGoodOperationDto.getGoodsId());
+            mapper.updateById(goodsPo1);
+        }
     }
 
     /**
@@ -935,7 +942,10 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     public void rejectGoods(RejectGoodsDto rejectGoodsDto) {
 
         PmGoodsPo goodsPo = new PmGoodsPo();
-//        Map<String,>
+        goodsPo.setId(rejectGoodsDto.getGoodsId());
+        goodsPo.setContent(rejectGoodsDto.getContent());
+        mapper.updateById(goodsPo);
+
     }
 
 
