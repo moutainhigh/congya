@@ -33,7 +33,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("pm_member")
+@TableName("pm_member_level")
 @ApiModel(value = "PmMemberPo对象", description = "会员等级表")
 public class PmMemberLevelPo implements Serializable {
 

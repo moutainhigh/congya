@@ -29,6 +29,6 @@ public class UpdateSkuFinanceDto {
     @ApiModelProperty(value = "运营成本")
     private BigDecimal operationCost;
 
-    @ApiModelProperty(value = "商品排序数字")
-    private BigDecimal sort;
+//    @ApiModelProperty(value = "商品排序数字")
+//    private BigDecimal sort;
 }

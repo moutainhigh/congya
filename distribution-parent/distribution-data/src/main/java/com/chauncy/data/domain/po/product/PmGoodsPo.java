@@ -107,8 +107,8 @@ public class PmGoodsPo {
     @ApiModelProperty(value = "是否是明星单品；0->否；1->是")
     private Boolean starStatus;
 
-    @ApiModelProperty(value = "审核状态：0->未审核；1->审核通过")
-    private Boolean verifyStatus;
+    @ApiModelProperty(value = "审核状态：1->未审核；2->审核通过；3->不通过/驳回")
+    private Integer verifyStatus;
 
     @ApiModelProperty(value = "店铺ID")
     private Long storeId;
@@ -140,4 +140,9 @@ public class PmGoodsPo {
     @ApiModelProperty(value = "删除标志 默认0 0->未删除；1->已删除")
     private Boolean delFlag;
 
+    @ApiModelProperty(value = "商品不通过驳回详情")
+    private String content;
+
+    @ApiModelProperty(value = "是否是导入商品")
+    private Boolean isExcel;
 }

@@ -37,6 +37,8 @@
         <result column="update_by" property="updateBy"/>
         <result column="update_time" property="updateTime"/>
         <result column="del_flag" property="delFlag"/>
+        <result column="content" property="content"/>
+        <result column="is_excel" property="isExcel"/>
     </resultMap>
 
     <select id="findGoodsValue" resultType="com.chauncy.data.bo.supplier.good.GoodsValueBo">

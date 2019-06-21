@@ -17,10 +17,6 @@ import java.util.List;
 @ApiModel(value = "AddSkuAttributeDto", description = "商品sku信息表")
 public class AddSkuAttributeDto {
 
-    @ApiModelProperty(value = "商品id")
-    @NotNull(message = "商品ID不能为空")
-    private Long goodsId;
-
     @ApiModelProperty(value = "货号")
     private String articleNumber;
 

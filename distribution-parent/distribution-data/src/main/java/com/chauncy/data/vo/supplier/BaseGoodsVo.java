@@ -56,13 +56,13 @@ public class BaseGoodsVo {
     private BaseVo brandVo;
 
     @ApiModelProperty(value = "商品标签")
-    private BaseVo labelVo;
+    private List<BaseVo> labelVo;
 
     @ApiModelProperty(value = "平台服务说明")
-    private BaseVo platformServiceVo;
+    private List<BaseVo> platformServiceVo;
 
     @ApiModelProperty(value = "商家服务说明")
-    private BaseVo merchantServiceVo;
+    private List<BaseVo> merchantServiceVo;
 
     @ApiModelProperty(value = "平台运费说明")
     private BaseVo platformShipVo;

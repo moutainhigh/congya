@@ -3,8 +3,8 @@ package com.chauncy.web.api.supplier.product;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.supplier.good.add.AddAssociationGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.AddGoodBaseDto;
+import com.chauncy.data.dto.supplier.good.add.AddOrUpdateSkuAttributeDto;
 import com.chauncy.data.dto.supplier.good.add.AddSkuAttributeDto;
-import com.chauncy.data.dto.supplier.good.select.FindSkuAttributeDto;
 import com.chauncy.data.dto.supplier.good.select.FindStandardDto;
 import com.chauncy.data.dto.supplier.good.select.SelectAttributeDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodOperationDto;
@@ -13,9 +13,7 @@ import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
-import com.chauncy.data.vo.supplier.BaseGoodsVo;
-import com.chauncy.data.vo.supplier.FindSkuAttributeVo;
-import com.chauncy.data.vo.supplier.GoodsStandardVo;
+import com.chauncy.data.vo.supplier.*;
 import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.web.base.BaseApi;
 import io.swagger.annotations.Api;
@@ -159,15 +157,15 @@ public class SmGoodsApi extends BaseApi {
     /**
      * 添加sku信息
      *
-     * @param addSkuAttributeDtoList
+     * @param addOrUpdateSkuAttributeDto
      * @return
      */
-    @PostMapping("/addSkuAttribute")
+    @PostMapping("/addOrUpdateSkuAttribute")
     @ApiOperation(value = "添加商品属性以及sku信息")
-    public JsonViewData addSkuAttribute(@RequestBody @ApiParam(required = true, name = "addSkuAttributeDtoList", value = "商品属性(SKU)信息集合") @Validated
-                                                List<AddSkuAttributeDto> addSkuAttributeDtoList) {
+    public JsonViewData addSkuAttribute(@RequestBody @ApiParam(required = true, name = "addOrUpdateSkuAttributeDto", value = "商品属性(SKU)信息集合") @Validated
+                                                AddOrUpdateSkuAttributeDto addOrUpdateSkuAttributeDto) {
 
-        service.addSkuAttribute(addSkuAttributeDtoList);
+        service.addOrUpdateSkuAttribute(addOrUpdateSkuAttributeDto);
 
         return new JsonViewData(ResultCode.SUCCESS);
     }
@@ -180,9 +178,22 @@ public class SmGoodsApi extends BaseApi {
      */
     @GetMapping("/findSkuAttribute/{goodsId}")
     @ApiOperation(value = "根据商品ID查找sku信息")
-    public JsonViewData<List<FindSkuAttributeVo>> searchSkuAttribute(@ApiParam(required = true, name = "goodsId", value = "goodsId") @PathVariable Long goodsId) {
+    public JsonViewData<List<FindSkuAttributeVo>> findSkuAttribute(@ApiParam(required = true, name = "goodsId", value = "goodsId") @PathVariable Long goodsId) {
 
         return setJsonViewData(service.findSkuAttribute(goodsId));
+    }
+
+    /**
+     * 根据商品ID查找财务的sku信息
+     *
+     * @param goodsId
+     * @return
+     */
+    @GetMapping("/findSkuFinance/{goodsId}")
+    @ApiOperation(value = "根据商品ID查找财务的sku信息")
+    public JsonViewData<List<FindSkuFinanceVo>> findSkuFinance(@ApiParam(required = true, name = "goodsId", value = "goodsId") @PathVariable Long goodsId){
+
+        return  setJsonViewData(service.findSkuFinance(goodsId));
     }
 
     /**
@@ -201,6 +212,18 @@ public class SmGoodsApi extends BaseApi {
     }
 
     /**
+     * 根据商品ID查找运营信息
+     *
+     * @param goodsId
+     * @return
+     */
+    @GetMapping("/findGoodOperation/{goodsId}")
+    @ApiOperation(value = "根据商品ID查找运营信息")
+    public JsonViewData<FindGoodOperationVo> findGoodOperation(@ApiParam(required = true, name = "goodsId", value = "goodsId") @PathVariable Long goodsId){
+
+        return setJsonViewData(service.findGoodOperation(goodsId));
+}
+    /**
      * 运营角色添加或更新商品信息
      *
      * @param updateGoodOperationDto
@@ -214,6 +237,19 @@ public class SmGoodsApi extends BaseApi {
         service.updateGoodOperation(updateGoodOperationDto);
 
         return new JsonViewData(ResultCode.SUCCESS);
+    }
+
+    /**
+     * 根据商品ID查找运营信息
+     *
+     * @param goodsId
+     * @return
+     */
+    @GetMapping("/findGoodSeller/{goodsId}")
+    @ApiOperation(value = "根据商品ID查找运营信息")
+    public JsonViewData<FindGoodSellerVo> findGoodSeller(@ApiParam(required = true, name = "goodsId", value = "goodsId") @PathVariable Long goodsId){
+
+        return setJsonViewData(service.findGoodSeller(goodsId));
     }
 
     /**

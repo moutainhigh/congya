@@ -2,19 +2,18 @@ package com.chauncy.product.service;
 
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
+import com.chauncy.data.dto.manage.good.add.UpdateGoodsOperationDto;
+import com.chauncy.data.dto.manage.good.update.RejectGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.AddAssociationGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.AddGoodBaseDto;
-import com.chauncy.data.dto.supplier.good.add.AddSkuAttributeDto;
+import com.chauncy.data.dto.supplier.good.add.AddOrUpdateSkuAttributeDto;
 import com.chauncy.data.dto.supplier.good.select.FindStandardDto;
 import com.chauncy.data.dto.supplier.good.select.SelectAttributeDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodOperationDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodSellerDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
 import com.chauncy.data.vo.BaseVo;
-import com.chauncy.data.vo.JsonViewData;
-import com.chauncy.data.vo.supplier.BaseGoodsVo;
-import com.chauncy.data.vo.supplier.FindSkuAttributeVo;
-import com.chauncy.data.vo.supplier.GoodsStandardVo;
+import com.chauncy.data.vo.supplier.*;
 
 import java.util.List;
 
@@ -93,18 +92,26 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
     /**
      * 添加sku属性信息
      *
-     * @param addSkuAttributeDtoList
+     * @param addOrUpdateSkuAttributeDto
      * @return
      */
-    void addSkuAttribute(List<AddSkuAttributeDto> addSkuAttributeDtoList);
+    void addOrUpdateSkuAttribute(AddOrUpdateSkuAttributeDto addOrUpdateSkuAttributeDto);
 
     /**
-     * 根据商品ID获取sku 信息、
+     * 根据商品ID获取商品属性sku 信息、
      *
      * @param goodsId
      * @return
      */
     List<FindSkuAttributeVo> findSkuAttribute(Long goodsId);
+
+    /**
+     * 根据商品ID查找财务的sku信息
+     *
+     * @param goodsId
+     * @return
+     */
+    List<FindSkuFinanceVo> findSkuFinance(Long goodsId);
 
     /**
      * 添加或更新财务信息
@@ -115,12 +122,30 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
     void updateSkuFinance(UpdateSkuFinanceDto updateSkuFinanceDto);
 
     /**
-     * 添加或更新财务信息
+     * 根据商品ID查找运营信息
+     *
+     * @param goodsId
+     * @return
+     */
+    FindGoodOperationVo findGoodOperation(Long goodsId);
+
+    /**
+     * 添加或更新运营信息
+     *
+     * 平台审核并更新运营信息
      *
      * @param updateGoodOperationDto
      * @return
      */
     void updateGoodOperation(UpdateGoodOperationDto updateGoodOperationDto);
+
+    /**
+     * 根据商品ID查找销售信息
+     *
+     * @param goodsId
+     * @return
+     */
+    FindGoodSellerVo findGoodSeller(Long goodsId);
 
     /**
      * 销售角色添加或更新商品信息
@@ -137,5 +162,12 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @return
      */
     void addAssociationGoods(AddAssociationGoodsDto associationDto);
+
+    /**
+     * 平台驳回商品审核，审核不通过
+     *
+     * @param rejectGoodsDto
+     */
+    void rejectGoods(RejectGoodsDto rejectGoodsDto);
 
 }

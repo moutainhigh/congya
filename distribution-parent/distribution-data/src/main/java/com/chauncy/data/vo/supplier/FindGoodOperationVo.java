@@ -1,25 +1,23 @@
-package com.chauncy.data.dto.supplier.good.update;
+package com.chauncy.data.vo.supplier;
 
-import com.chauncy.common.enums.goods.GoodsVerifyStatusEnum;
-import com.chauncy.data.valid.annotation.EnumConstraint;
 import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
-import java.lang.annotation.Target;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @Author cheng
  * @create 2019-06-16 12:12
  *
- * 运营角色添加商品信息
+ * 查找运营角色填写数据显示给前端
  */
 @Data
-@ApiModel(value = "UpdateGoodOperationDto", description = "运营角色添加商品信息")
-public class UpdateGoodOperationDto {
+@ApiModel(value = "FindGoodOperationVo", description = "查找运营角色填写数据显示给前端")
+public class FindGoodOperationVo {
 
     @ApiModelProperty(value = "商品ID")
     @NeedExistConstraint(tableName = "pm_goods")
@@ -40,7 +38,7 @@ public class UpdateGoodOperationDto {
 
     @ApiModelProperty(value = "限定会员等级ID集合")
     @NotNull(message = "限定会员等级ID不能为空")
-    private Long[] memberLevelIds;
+    private List<MemberLevelInfos> memberLevelInfos;
 
     @ApiModelProperty(value = "商品排序数字")
     @NotNull(message = "商品排序数字不能为空")
@@ -55,8 +53,4 @@ public class UpdateGoodOperationDto {
     @ApiModelProperty(value = "是否包邮 默认为0不包邮")
     @NotNull(message = "是否包邮不能为空")
     private Boolean isFreePostage;
-
-    @ApiModelProperty(value = "审核状态 1->未审核 2->审核通过 3->未通过")
-    @EnumConstraint(target = GoodsVerifyStatusEnum.class)
-    private Integer verifyStatus;
 }

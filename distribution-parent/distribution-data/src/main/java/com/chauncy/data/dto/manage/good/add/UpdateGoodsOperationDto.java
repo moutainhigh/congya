@@ -1,25 +1,22 @@
-package com.chauncy.data.dto.supplier.good.update;
+package com.chauncy.data.dto.manage.good.add;
 
-import com.chauncy.common.enums.goods.GoodsVerifyStatusEnum;
-import com.chauncy.data.valid.annotation.EnumConstraint;
 import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
-import java.lang.annotation.Target;
 import java.math.BigDecimal;
 
 /**
  * @Author cheng
  * @create 2019-06-16 12:12
  *
- * 运营角色添加商品信息
+ * 平台修改运营信息并审核商品
  */
 @Data
-@ApiModel(value = "UpdateGoodOperationDto", description = "运营角色添加商品信息")
-public class UpdateGoodOperationDto {
+@ApiModel(value = "UpdateGoodOperationDto", description = "平台修改运营信息并审核商品")
+public class UpdateGoodsOperationDto {
 
     @ApiModelProperty(value = "商品ID")
     @NeedExistConstraint(tableName = "pm_goods")
@@ -56,7 +53,7 @@ public class UpdateGoodOperationDto {
     @NotNull(message = "是否包邮不能为空")
     private Boolean isFreePostage;
 
-    @ApiModelProperty(value = "审核状态 1->未审核 2->审核通过 3->未通过")
-    @EnumConstraint(target = GoodsVerifyStatusEnum.class)
-    private Integer verifyStatus;
+    @ApiModelProperty(value = "审核状态 0->未审核 1->审核通过")
+    @NotNull(message = "审核状态不能为空")
+    private Boolean verifyStatus;
 }

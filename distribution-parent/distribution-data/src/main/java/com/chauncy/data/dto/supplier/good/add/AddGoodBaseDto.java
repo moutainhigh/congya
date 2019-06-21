@@ -70,11 +70,11 @@ public class AddGoodBaseDto {
 
     @ApiModelProperty(value = "标签ID")
     @NeedExistConstraint(tableName = "pm_goods_attribute")
-    private Long labelId;
+    private Long[] labelId;
 
     @ApiModelProperty(value = "服务说明ID")
     @NeedExistConstraint(tableName = "pm_goods_attribute")
-    private Long ServiceId;
+    private Long[] ServiceId;
 
     @ApiModelProperty(value = "商品参数信息")
     private List<AddGoodsParamValueDto> goodsParamDtoList;
