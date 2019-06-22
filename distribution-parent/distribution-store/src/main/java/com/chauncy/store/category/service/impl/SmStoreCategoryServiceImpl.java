@@ -69,6 +69,7 @@ public class SmStoreCategoryServiceImpl extends AbstractService<SmStoreCategoryM
         BeanUtils.copyProperties(storeCategoryDto, smStoreCategoryPo);
         //获取当前用户
         String user = securityUtil.getCurrUser().getUsername();
+        SysUserPo sysUserPo = securityUtil.getCurrUser();
         smStoreCategoryPo.setUpdateBy(user);
         smStoreCategoryPo.setId(null);
         smStoreCategoryMapper.insert(smStoreCategoryPo);

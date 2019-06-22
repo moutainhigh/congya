@@ -1,12 +1,19 @@
 package com.chauncy.store.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.chauncy.common.constant.SecurityConstant;
 import com.chauncy.common.enums.store.StoreTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.enums.system.SysRoleTypeEnum;
+import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.domain.po.store.SmStorePo;
+import com.chauncy.data.domain.po.store.label.SmStoreLabelPo;
 import com.chauncy.data.domain.po.store.rel.SmRelStoreAttributePo;
+import com.chauncy.data.domain.po.sys.SysRolePo;
+import com.chauncy.data.domain.po.sys.SysRoleUserPo;
+import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.add.StoreAccountInfoDto;
 import com.chauncy.data.dto.manage.store.add.StoreBaseInfoDto;
@@ -14,6 +21,9 @@ import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.mapper.product.PmGoodsAttributeMapper;
 import com.chauncy.data.mapper.store.SmRelStoreAttributeMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
+import com.chauncy.data.mapper.sys.SysRoleMapper;
+import com.chauncy.data.mapper.sys.SysRoleUserMapper;
+import com.chauncy.data.mapper.sys.SysUserMapper;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.store.SmStoreBaseVo;
 import com.chauncy.data.vo.manage.store.StoreAccountInfoVo;
@@ -52,11 +62,17 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
     @Autowired
     private SmStoreMapper smStoreMapper;
     @Autowired
+    private SysUserMapper sysUserMapper;
+    @Autowired
+    private SysRoleMapper sysRoleMapper;
+    @Autowired
+    private SysRoleUserMapper sysRoleUserMapper;
+    @Autowired
     private PmGoodsAttributeMapper pmGoodsAttributeMapper;
     @Autowired
-    private SmRelStoreAttributeMapper smRelStoreAttributeMapper;
-    @Autowired
     private ISmRelStoreAttributeService smRelStoreAttributeService;
+
+    private final static String DEFAULT_PASSWORD = "123456";
     /**
      * 保存店铺基本信息
      * @param storeBaseInfoDto
@@ -65,9 +81,17 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
     @Override
     public JsonViewData saveStore(StoreBaseInfoDto storeBaseInfoDto) {
 
-        //todo  添加店铺后台账号
 
 
+        QueryWrapper<SmStorePo> smStoreCategoryPoQueryWrapper = new QueryWrapper<>();
+        smStoreCategoryPoQueryWrapper.eq("name", storeBaseInfoDto.getName());
+        if(null != this.getOne(smStoreCategoryPoQueryWrapper)) {
+            throw  new ServiceException(ResultCode.DUPLICATION, "店铺名称已存在");
+        }
+        smStoreCategoryPoQueryWrapper.eq("user_name", storeBaseInfoDto.getUserName());
+        if(null != this.getOne(smStoreCategoryPoQueryWrapper)) {
+            throw  new ServiceException(ResultCode.DUPLICATION, "店铺账号已存在");
+        }
 
         SmStorePo smStorePo = new SmStorePo();
         BeanUtils.copyProperties(storeBaseInfoDto, smStorePo);
@@ -88,8 +112,44 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         }
         smRelStoreAttributeService.saveBatch(smRelStoreAttributePoList);
 
+
+        //添加店铺后台账号
+        createSysUser(smStorePo);
+
         return new JsonViewData(ResultCode.SUCCESS, "添加成功", smStorePo);
     }
+
+    /**
+     * 创建店铺管理员角色并且与系统角色ROLE_STORE绑定
+     * @param smStorePo
+     */
+    private void createSysUser(SmStorePo smStorePo) {
+        SysUserPo sysUserPo = new SysUserPo();
+        sysUserPo.setCreateBy(smStorePo.getCreateBy());
+        sysUserPo.setMobile(smStorePo.getOwnerMobile());
+        sysUserPo.setNickName(smStorePo.getName());
+        sysUserPo.setPassword(DEFAULT_PASSWORD);
+        sysUserPo.setType(SecurityConstant.USER_TYPE_ADMIN);
+        sysUserPo.setSystemType(SecurityConstant.SYS_TYPE_SUPPLIER);
+        sysUserPo.setStoreId(smStorePo.getId());
+        sysUserPo.setUsername(smStorePo.getUserName());
+        sysUserMapper.insert(sysUserPo);
+
+        //获取店铺系统角色
+        QueryWrapper<SysRolePo> sysRolePoQueryWrapper = new QueryWrapper<>();
+        sysRolePoQueryWrapper.eq("name", SysRoleTypeEnum.ROLE_STORE.getName());
+        SysRolePo sysRolePo = sysRoleMapper.selectOne(sysRolePoQueryWrapper);
+
+        //关联系统用户跟系统角色
+        SysRoleUserPo sysRoleUserPo = new SysRoleUserPo();
+        sysRoleUserPo.setUserId(sysUserPo.getId());
+        sysRoleUserPo.setRoleId(sysRolePo.getId());
+        sysRoleUserPo.setCreateBy(smStorePo.getCreateBy());
+        sysRoleUserMapper.insert(sysRoleUserPo);
+
+    }
+
+
     /**
      * 保存店铺账户信息
      * @param storeAccountInfoDto

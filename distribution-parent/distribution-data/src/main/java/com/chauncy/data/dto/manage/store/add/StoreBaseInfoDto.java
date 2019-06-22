@@ -76,6 +76,6 @@ public class StoreBaseInfoDto {
 
     @ApiModelProperty(value = "所属品牌集合")
     @NotEmpty
-    @NeedExistConstraint(tableName = "sm_store_label")
+    @NeedExistConstraint(tableName = "pm_goods_attribute")
     private Long[] attributeIds;
 }

@@ -107,7 +107,6 @@
                 and ss.id = #{id}
             </if>
         </where>
-        group by ss.id
     </select>
 
     <select id="findStoreIdByName" resultType="Long">
