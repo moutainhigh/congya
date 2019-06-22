@@ -39,6 +39,7 @@
         <result column="del_flag" property="delFlag"/>
         <result column="content" property="content"/>
         <result column="is_excel" property="isExcel"/>
+        <result column="sales_volume" property="salesVolume"/>
     </resultMap>
 
     <update id="updateStock">

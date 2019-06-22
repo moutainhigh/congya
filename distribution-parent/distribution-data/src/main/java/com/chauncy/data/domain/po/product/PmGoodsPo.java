@@ -147,5 +147,5 @@ public class PmGoodsPo {
     private Boolean isExcel;
 
     @ApiModelProperty(value = "销量")
-    private Integer salesInteger;
+    private Integer salesVolume;
 }
