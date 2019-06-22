@@ -97,7 +97,7 @@ public class PmGoodsSkuPo implements Serializable {
     private Boolean delFlag;
 
     @ApiModelProperty(value = "销量")
-    private Integer salesInteger;
+    private Integer salesVolume;
 
 
 }
