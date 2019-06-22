@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
@@ -21,6 +22,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
+@NoArgsConstructor
 @Accessors(chain = true)
 @TableName("pm_goods_rel_attribute_value_sku")
 @ApiModel(value = "PmGoodsRelAttributeValueSkuPo对象", description = "商品sku与属性值关联表")
@@ -53,5 +55,9 @@ public class PmGoodsRelAttributeValueSkuPo implements Serializable {
     @TableLogic
     private Boolean delFlag;
 
-
+    public PmGoodsRelAttributeValueSkuPo(Long goodsAttributeValueId, Long goodsSkuId, String createBy) {
+        this.goodsAttributeValueId = goodsAttributeValueId;
+        this.goodsSkuId = goodsSkuId;
+        this.createBy = createBy;
+    }
 }

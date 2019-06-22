@@ -1022,6 +1022,11 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
     }
 
+    @Override
+    public boolean updateStock(long goodId, int number) {
+       return mapper.updateStock(goodId,number)>0;
+    }
+
     /**
      * 提交商品审核
      *

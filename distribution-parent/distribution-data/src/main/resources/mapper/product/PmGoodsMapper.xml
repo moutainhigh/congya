@@ -41,6 +41,10 @@
         <result column="is_excel" property="isExcel"/>
     </resultMap>
 
+    <update id="updateStock">
+        update pm_goods set stock=stock+#{number} where id=#{goodId}
+    </update>
+
     <select id="findGoodsValue" resultType="com.chauncy.data.bo.supplier.good.GoodsValueBo">
         select b.id,b.value as name,b.is_custom
         from pm_goods_rel_attribute_value_good a ,pm_goods_attribute_value b, pm_goods_attribute c

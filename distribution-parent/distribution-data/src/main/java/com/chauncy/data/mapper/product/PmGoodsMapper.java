@@ -35,4 +35,8 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
      * @return
      */
     List<PmGoodsVo> searchGoodsInfo(SearchGoodInfosDto searchGoodInfosDto);
+
+
+    int updateStock(@Param("goodId") long goodId,@Param("number") int number);
+
 }

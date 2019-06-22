@@ -174,6 +174,13 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
     void rejectGoods(RejectGoodsDto rejectGoodsDto);
 
     /**
+     * 增加商品库存
+     * @param goodId 商品id
+     * @param number 增量
+     */
+    boolean  updateStock(long goodId,int number);
+
+    /**
      * 提交商品审核
      *
      * @param goodsIds
