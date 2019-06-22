@@ -145,7 +145,7 @@ public class SysPermissionAPI {
         }
 
         // 缓存
-        redisTemplate.opsForValue().set(key, new Gson().toJson(menuList));
+//        redisTemplate.opsForValue().set(key, new Gson().toJson(menuList));
         return new ResultUtil<List<MenuVo>>().setData(menuList);
     }
 
