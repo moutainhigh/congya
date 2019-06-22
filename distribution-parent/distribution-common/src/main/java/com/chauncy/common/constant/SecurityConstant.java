@@ -70,6 +70,16 @@ public interface SecurityConstant {
     Integer USER_TYPE_ADMIN = 1;
 
     /**
+     * 平台后台用户
+     */
+    Integer SYS_TYPE_MANAGER = 1;
+
+    /**
+     * 商家端用户
+     */
+    Integer SYS_TYPE_SUPPLIER = 2;
+
+    /**
      * 全部数据权限
      */
     Integer DATA_TYPE_ALL = 0;
