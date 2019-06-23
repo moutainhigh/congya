@@ -1100,8 +1100,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         Integer pageSize = searchGoodInfosDto.getPageSize() == null ? defaultPageSize : searchGoodInfosDto.getPageSize();
         PageInfo<PmGoodsVo> goodsVos = new PageInfo<>();
 
-
-        PageHelper.startPage(pageNo, pageSize, defaultSoft)
+        goodsVos = PageHelper.startPage(pageNo, pageSize, defaultSoft)
                 .doSelectPageInfo(() -> mapper.searchGoodsInfo(searchGoodInfosDto));
         return goodsVos;
     }

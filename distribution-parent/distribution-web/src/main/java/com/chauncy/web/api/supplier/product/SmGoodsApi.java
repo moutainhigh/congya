@@ -18,6 +18,7 @@ import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.supplier.*;
 import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.web.base.BaseApi;
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -35,7 +36,7 @@ import java.util.List;
  * 商家端商品管理
  */
 @RestController
-@Api(description = "商家端商品管理")
+@Api(tags = "商家端商品管理")
 @RequestMapping("/manage/supplier/product")
 @Slf4j
 public class SmGoodsApi extends BaseApi {
@@ -335,10 +336,12 @@ public class SmGoodsApi extends BaseApi {
      */
     @PostMapping("/searchGoodsInfo")
     @ApiOperation("查询商品信息")
-    public JsonViewData searchGoodsInfo(@RequestBody @ApiParam(required = true,name = "searchGoodInfosDto",value = "条件查询商品信息")
+    public JsonViewData<PageInfo<PmGoodsVo>> searchGoodsInfo(@RequestBody @ApiParam(required = true,name = "searchGoodInfosDto",value = "条件查询商品信息")
                                       @Validated SearchGoodInfosDto searchGoodInfosDto){
 
-        return setJsonViewData(ResultCode.SUCCESS,"操作成功",service.searchGoodsInfo(searchGoodInfosDto));
+        PageInfo<PmGoodsVo> goodsVoPageInfo = service.searchGoodsInfo(searchGoodInfosDto);
+
+        return new JsonViewData<>(ResultCode.SUCCESS,"操作成功",goodsVoPageInfo);
     }
 
 }

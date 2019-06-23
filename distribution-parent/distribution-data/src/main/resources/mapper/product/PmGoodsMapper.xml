@@ -62,7 +62,33 @@
     </select>
 
     <select id="searchGoodsInfo" resultType="com.chauncy.data.vo.supplier.PmGoodsVo">
+    SELECT a.id,a.icon,a.NAME as good_name,a.sort,a.stock,a.sales_volume,a.star_status,a.publish_status,a.verify_status,
+        Min(b.supplier_price) AS supplier_price, Min(b.sell_price) AS sell_price,
+        (select d.`name` from pm_goods_rel_attribute_good c,pm_goods_attribute d
+        where c.goods_attribute_id = d.id and d.type=8 and d.del_flag=0 and c.del_flag = 0 and c.goods_good_id = a.id) as brand
+    from pm_goods a
+        LEFT JOIN pm_goods_sku b on a.id = b.goods_id and a.del_flag = 0
+        LEFT JOIN pm_goods_rel_attribute_good e on e.del_flag = 0 and e.goods_good_id = a.id
+        LEFT JOIN pm_goods_attribute f on e.goods_attribute_id = f.id and f.type=8
+    <where>
+        <if test="goodName!=null and goodName !=''">
+            and a.name like concat('%', #{goodName}, '%')
+        </if>
+        <if test="categoryId!=null">
+            and a.goods_category_id = #{categoryId}
+        </if>
+        <if test="brandId !=null">
+            and d.id = #{brandId}
+        </if>
+        <if test="verifyStatus!=null">
+            and a.verify_status = #{verifyStatus}
+        </if>
+        <if test="publishStatus!=null">
+            and a.publish_status=#{publishStatus}
+        </if>
 
+    </where>
+        GROUP BY a.id order by a.sort;
     </select>
 
 

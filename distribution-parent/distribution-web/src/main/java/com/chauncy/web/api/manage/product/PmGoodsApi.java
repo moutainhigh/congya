@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/manage/product")
-@Api(description = "平台审核商品管理")
+@Api(tags = "平台审核商品管理")
 @Slf4j
 public class PmGoodsApi extends BaseApi {
 

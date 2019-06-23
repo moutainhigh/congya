@@ -24,7 +24,7 @@ public class PmGoodsVo {
     private String icon;
 
     @ApiModelProperty("商品名称")
-    private String name;
+    private String goodName;
 
     @ApiModelProperty("销售价")
     private BigDecimal sellPrice;
@@ -33,10 +33,10 @@ public class PmGoodsVo {
     private BigDecimal supplierPrice;
 
     @ApiModelProperty("排序")
-    private String sort;
+    private BigDecimal sort;
 
     @ApiModelProperty("库存")
-    private String stock;
+    private Integer stock;
 
     @ApiModelProperty("销量")
     private Integer salesVolume;
