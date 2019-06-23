@@ -260,14 +260,15 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
         PageInfo<PmGoodsAttributeVo> goodsAttributeVo = new PageInfo<>();
         //判断Type是否为规格或参数
         if (findAttributeInfoByConditionDto.getType() == GoodsAttributeTypeEnum.STANDARD.getId() /*|| findAttributeInfoByConditionDto.getType() == GoodsAttributeTypeEnum.GOODS_PARAM.getId()*/) {
-            goodsAttributeVo = PageHelper.startPage(pageNo, pageSize/*, "id desc"*/)
-                    .doSelectPageInfo(() -> valueMapper.findByCondition(findAttributeInfoByConditionDto.getType(), findAttributeInfoByConditionDto.getName(), findAttributeInfoByConditionDto.getEnabled()));
+            PageInfo<Map<String,Object>> goodsAttributeValue = PageHelper.startPage(pageNo, pageSize/*, "id desc"*/)
+                    .doSelectPageInfo(() -> valueMapper.findValueByCondition(findAttributeInfoByConditionDto.getType(), findAttributeInfoByConditionDto.getName(), findAttributeInfoByConditionDto.getEnabled()));
+            return new JsonViewData(ResultCode.SUCCESS, "查询成功", goodsAttributeValue);
         } else {
             goodsAttributeVo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
                     .doSelectPageInfo(() -> mapper.findByCondition(findAttributeInfoByConditionDto.getType(), findAttributeInfoByConditionDto.getName(), findAttributeInfoByConditionDto.getEnabled()));
+            return new JsonViewData(ResultCode.SUCCESS, "查询成功", goodsAttributeVo);
         }
 
-        return new JsonViewData(ResultCode.SUCCESS, "查询成功", goodsAttributeVo);
     }
 
     /**
@@ -313,7 +314,7 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
 
             //判断不同类型对应的属性名称是否已经存在
             if (mapper.findByTypeAndName(addOrUpdateAttValueDto.getType(), addOrUpdateAttValueDto.getAttributeName()) != null) {
-                throw new ServiceException(ResultCode.FAIL, "添加失败,该属性名称已存在");
+                throw new ServiceException(ResultCode.FAIL, "添加失败,该属性名称已存在",addOrUpdateAttValueDto.getAttributeName());
             }
 
             //获取属性值列表
@@ -382,7 +383,7 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
                     List<PmGoodsAttributeValuePo> valuePoList = valueMapper.findByAttributeId(x.getAttributeValueId());
                     List<String> values = valuePoList.stream().map(r -> r.getValue()).collect(Collectors.toList());
                     if (values.contains(x.getAttributeValue())) {
-                        throw new ServiceException(ResultCode.FAIL, "添加失败，属性值重复");
+                        throw new ServiceException(ResultCode.FAIL, "添加失败，属性值重复",x.getAttributeValue());
                     }
                     //处理添加数据
                     PmGoodsAttributeValuePo goodsAttributeValuePo = new PmGoodsAttributeValuePo();
@@ -395,26 +396,29 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
                 else {
 
                     //判断属性值是否已被使用
-                    //根据属性值id查找是否正被使用
-                    List<PmGoodsRelAttributeValueSkuPo> list = valueSkuMapper.findByAttributeValueId(addOrUpdateAttValueDto.getAttributeId());
-                    if (list != null && list.size() > 0) {
-                        throw new ServiceException(ResultCode.FAIL, "修改失败，包含正被sku或商品使用的关联的属性值");
-                    }
 
-                    //判断该属性下是否已经存在属性值
-                    List<PmGoodsAttributeValuePo> valuePoList = valueMapper.findByAttributeId(addOrUpdateAttValueDto.getAttributeId());
-                    List<String> valueList = valuePoList.stream().map(g -> g.getValue()).collect(Collectors.toList());
-                    if (valueList.contains(x.getAttributeValue())) {
-                        throw new ServiceException(ResultCode.FAIL, "修改失败，属性值重复");
-                    }
+                    //处理更改的数据，不更改的不执行更新操作
+                    if (!valueMapper.selectById(x.getAttributeValueId()).getValue().equals(x.getAttributeValue())){
+                        //根据属性值id查找是否正被使用
+                        List<PmGoodsRelAttributeValueSkuPo> list = valueSkuMapper.findByAttributeValueId(addOrUpdateAttValueDto.getAttributeId());
+                        if (list != null && list.size() > 0) {
+                            throw new ServiceException(ResultCode.FAIL, "修改失败，包含正被sku或商品使用的关联的属性值");
+                        }
 
-                    //处理修改数据
-                    PmGoodsAttributeValuePo goodsAttributeValuePo = new PmGoodsAttributeValuePo();
-                    goodsAttributeValuePo.setUpdateBy(user);
-                    goodsAttributeValuePo.setId(x.getAttributeValueId());
-                    goodsAttributeValuePo.setValue(x.getAttributeValue());
-                    log.error(x.getAttributeValue());
-                    updateValue.add(goodsAttributeValuePo);
+                        //判断该属性下是否已经存在属性值
+                        List<PmGoodsAttributeValuePo> valuePoList = valueMapper.findByAttributeId(addOrUpdateAttValueDto.getAttributeId());
+                        List<String> valueList = valuePoList.stream().map(g -> g.getValue()).collect(Collectors.toList());
+                        if (valueList.contains(x.getAttributeValue())) {
+                            throw new ServiceException(ResultCode.FAIL, "修改失败，属性值重复",x.getAttributeValue());
+                        }
+
+                        //处理修改数据
+                        PmGoodsAttributeValuePo goodsAttributeValuePo = new PmGoodsAttributeValuePo();
+                        goodsAttributeValuePo.setUpdateBy(user);
+                        goodsAttributeValuePo.setId(x.getAttributeValueId());
+                        goodsAttributeValuePo.setValue(x.getAttributeValue());
+                        updateValue.add(goodsAttributeValuePo);
+                    }
                 }
             });
 
