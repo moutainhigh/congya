@@ -388,6 +388,7 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
                     PmGoodsAttributeValuePo goodsAttributeValuePo = new PmGoodsAttributeValuePo();
                     goodsAttributeValuePo.setCreateBy(user);
                     goodsAttributeValuePo.setValue(x.getAttributeValue());
+                    goodsAttributeValuePo.setProductAttributeId(addOrUpdateAttValueDto.getAttributeId());
                     addValue.add(goodsAttributeValuePo);
                 }
                 //更新操作
