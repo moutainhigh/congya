@@ -62,11 +62,5 @@ public class GoodAttributeDto implements Serializable {
     @TableLogic
     private Boolean delFlag;
 
-    @Transient
-    @TableField(exist=false)
-    @ApiModelProperty(value = "商品属性值")
-    private String[] values;
-
-
 }
 
