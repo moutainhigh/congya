@@ -3,6 +3,7 @@ package com.chauncy.product.service;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.manage.good.add.AddOrUpdateAttValueDto;
 import com.chauncy.data.dto.manage.good.add.GoodAttributeDto;
 import com.chauncy.data.dto.manage.good.select.FindAttributeInfoByConditionDto;
 import com.chauncy.data.vo.JsonViewData;
@@ -95,6 +96,11 @@ public interface IPmGoodsAttributeService extends Service<PmGoodsAttributePo> {
      */
     List<PmGoodsAttributePo> findByCategoryId(Long categoryId);
 
-
-
+    /**
+     * 根据属性ID添加或根据属性值ID修改属性值
+     *
+     * @param addOrUpdateAttValueDto
+     * @return
+     */
+    void addOrUpdateAttInfo(AddOrUpdateAttValueDto addOrUpdateAttValueDto);
 }

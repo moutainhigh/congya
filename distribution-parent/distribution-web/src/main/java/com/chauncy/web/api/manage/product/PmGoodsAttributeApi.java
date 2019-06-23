@@ -1,6 +1,8 @@
 package com.chauncy.web.api.manage.product;
 
 
+import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.dto.manage.good.add.AddOrUpdateAttValueDto;
 import com.chauncy.data.dto.manage.good.add.GoodAttributeDto;
 import com.chauncy.data.dto.manage.good.add.GoodAttributeValueDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
@@ -174,6 +176,20 @@ public class PmGoodsAttributeApi {
                                                  GoodAttributeValueDto goodAttributeValueDto) {
 
         return valueService.editValue(goodAttributeValueDto);
+    }
+
+    /**
+     * 根据属性ID添加或根据属性值ID修改属性值
+     *
+     * @param addOrUpdateAttValueDto
+     * @return
+     */
+    @ApiOperation(value = "根据属性ID添加或根据属性值ID修改属性值")
+    @PostMapping("/addOrUpdateAttInfo")
+    public JsonViewData addOrUpdateAttInfo(@RequestBody @Validated @ApiParam(required = true, name = "goodAttributeValueDto", value = "属性值")
+                                                    AddOrUpdateAttValueDto addOrUpdateAttValueDto) {
+        goodsAttributeService.addOrUpdateAttInfo(addOrUpdateAttValueDto);
+        return new JsonViewData(ResultCode.SUCCESS);
     }
 
 }

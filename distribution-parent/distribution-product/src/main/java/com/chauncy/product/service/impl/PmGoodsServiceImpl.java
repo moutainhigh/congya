@@ -1129,9 +1129,41 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         QueryWrapper<PmGoodsPo> queryWrapper1 = new QueryWrapper<>(goodsPo1);
         //已上架数量
         Integer publishedNum = mapper.selectCount(queryWrapper1);
+        goodStatisticsVo.setPublishedNum(publishedNum);
 
+        PmGoodsPo goodsPo2 = new PmGoodsPo();
+        goodsPo2.setStoreId(storeId);
+        goodsPo2.setPublishStatus(false);
+        QueryWrapper<PmGoodsPo> queryWrapper2 = new QueryWrapper<>(goodsPo2);
+        //未上架商品数量
+        Integer notPublishNum = mapper.selectCount(queryWrapper2);
+        goodStatisticsVo.setNotPublishNum(notPublishNum);
 
-        return null;
+        PmGoodsPo goodsPo3 = new PmGoodsPo();
+        goodsPo3.setStoreId(storeId);
+        goodsPo3.setVerifyStatus(GoodsVerifyStatusEnum.UNCHECKED.getId());
+        QueryWrapper<PmGoodsPo> queryWrapper3 = new QueryWrapper<>(goodsPo3);
+        //未审核商品数量
+        Integer unCheckNum = mapper.selectCount(queryWrapper3);
+        goodStatisticsVo.setUnCheckNum(unCheckNum);
+
+        PmGoodsPo goodsPo4 = new PmGoodsPo();
+        goodsPo4.setStoreId(storeId);
+        goodsPo4.setVerifyStatus(GoodsVerifyStatusEnum.WAIT_CONFIRM.getId());
+        QueryWrapper<PmGoodsPo> queryWrapper4 = new QueryWrapper<>(goodsPo4);
+        //待审核商品数量
+        Integer onCheckNum = mapper.selectCount(queryWrapper4);
+        goodStatisticsVo.setOnCheckNum(onCheckNum);
+
+        PmGoodsPo goodsPo5 = new PmGoodsPo();
+        goodsPo5.setStoreId(storeId);
+        goodsPo5.setVerifyStatus(GoodsVerifyStatusEnum.NOT_APPROVED.getId());
+        QueryWrapper<PmGoodsPo> queryWrapper5 = new QueryWrapper<>(goodsPo5);
+        //未通过商品数量
+        Integer notApprovedNum = mapper.selectCount(queryWrapper5);
+        goodStatisticsVo.setNotApprovedNum(notApprovedNum);
+
+        return goodStatisticsVo;
     }
 
 }
