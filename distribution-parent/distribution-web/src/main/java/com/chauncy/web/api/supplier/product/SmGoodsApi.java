@@ -4,7 +4,6 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.supplier.good.add.AddAssociationGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.AddGoodBaseDto;
 import com.chauncy.data.dto.supplier.good.add.AddOrUpdateSkuAttributeDto;
-import com.chauncy.data.dto.supplier.good.add.AddSkuAttributeDto;
 import com.chauncy.data.dto.supplier.good.select.FindStandardDto;
 import com.chauncy.data.dto.supplier.good.select.SearchGoodInfosDto;
 import com.chauncy.data.dto.supplier.good.select.SelectAttributeDto;
@@ -306,7 +305,7 @@ public class SmGoodsApi extends BaseApi {
      * @param updatePublishStatusDto
      * @return
      */
-    @PostMapping("/submitAudit")
+    @PostMapping("/publish")
     @ApiOperation("上架或下架商品")
     public JsonViewData publishStatus(@RequestBody @Validated @ApiParam(required = true, name = "publishStatusDto", value = "上下架商品条件") UpdatePublishStatusDto updatePublishStatusDto){
 
@@ -336,12 +335,24 @@ public class SmGoodsApi extends BaseApi {
      */
     @PostMapping("/searchGoodsInfo")
     @ApiOperation("查询商品信息")
-    public JsonViewData<PageInfo<PmGoodsVo>> searchGoodsInfo(@RequestBody @ApiParam(required = true,name = "searchGoodInfosDto",value = "条件查询商品信息")
+    public JsonViewData<PageInfo<PmGoodsVo>> searchGoodsInfo(@RequestBody @ApiParam(name = "searchGoodInfosDto",value = "条件查询商品信息")
                                       @Validated SearchGoodInfosDto searchGoodInfosDto){
 
         PageInfo<PmGoodsVo> goodsVoPageInfo = service.searchGoodsInfo(searchGoodInfosDto);
 
         return new JsonViewData<>(ResultCode.SUCCESS,"操作成功",goodsVoPageInfo);
+    }
+
+    /**
+     * 统计商品记录
+     *
+     * @return
+     */
+    @GetMapping("/statisticsGood")
+    @ApiOperation("统计不同状态的商品数量")
+    public JsonViewData<GoodStatisticsVo> statisticsGood(){
+
+        return new JsonViewData(service.statisticsGood());
     }
 
 }

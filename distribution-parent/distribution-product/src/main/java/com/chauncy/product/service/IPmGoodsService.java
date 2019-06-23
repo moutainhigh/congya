@@ -207,4 +207,11 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @param searchGoodInfosDto
      */
     PageInfo<PmGoodsVo> searchGoodsInfo(SearchGoodInfosDto searchGoodInfosDto);
+
+    /**
+     * 统计商品记录
+     *
+     * @return
+     */
+    GoodStatisticsVo statisticsGood();
 }

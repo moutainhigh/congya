@@ -85,7 +85,7 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
             return new JsonViewData(ResultCode.FAIL, "添加失败,该属性名称已存在");
         }
 
-        //处理属性类型为规格类型的
+        /*//处理属性类型为规格类型的
         if (GoodsAttributeTypeEnum.STANDARD.getId() == goodsAttributePo.getType()) {
             if (goodsAttributePo.getValues() != null) {
                 String temp = goodsAttributePo.getValues()[0];
@@ -108,7 +108,7 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
                     valueMapper.insert(po);
                 }
             }
-        } else
+        } else*/
             mapper.insert(goodsAttributePo);
         return new JsonViewData(ResultCode.SUCCESS, "保存成功", goodsAttributePo);
     }

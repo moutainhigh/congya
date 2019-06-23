@@ -86,7 +86,9 @@
         <if test="publishStatus!=null">
             and a.publish_status=#{publishStatus}
         </if>
-
+        <if test="storeId!=null">
+            and a.store_id=#{storeId}
+        </if>
     </where>
         GROUP BY a.id order by a.sort;
     </select>

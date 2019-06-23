@@ -1105,4 +1105,33 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         return goodsVos;
     }
 
+    /**
+     * 统计商品记录
+     *
+     * @return
+     */
+    @Override
+    public GoodStatisticsVo statisticsGood() {
+
+        GoodStatisticsVo goodStatisticsVo = new GoodStatisticsVo();
+        //获取当前商家用户店铺id
+        Long storeId = securityUtil.getCurrUser().getStoreId();
+        PmGoodsPo goodsPo = new PmGoodsPo();
+        goodsPo.setStoreId(storeId);
+        QueryWrapper<PmGoodsPo> queryWrapper = new QueryWrapper<>(goodsPo);
+        Integer goodSum = mapper.selectCount(queryWrapper);
+        //商品总数
+        goodStatisticsVo.setGoodSum(goodSum);
+
+        PmGoodsPo goodsPo1 = new PmGoodsPo();
+        goodsPo1.setStoreId(storeId);
+        goodsPo1.setPublishStatus(true);
+        QueryWrapper<PmGoodsPo> queryWrapper1 = new QueryWrapper<>(goodsPo1);
+        //已上架数量
+        Integer publishedNum = mapper.selectCount(queryWrapper1);
+
+
+        return null;
+    }
+
 }

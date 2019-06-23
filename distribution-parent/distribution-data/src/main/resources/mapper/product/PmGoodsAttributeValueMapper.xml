@@ -22,8 +22,28 @@
         where product_attribute_id = #{productAttributeId} and del_flag = 0
     </select>
 
-    <select id="findByCondition" resultType="com.chauncy.data.vo.manage.product.PmGoodsAttributeVo">
-        select a.*,b.value
+    <resultMap id="findByCondition" type="com.chauncy.data.vo.manage.product.PmGoodsAttributeVo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="sort" property="sort"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="content" property="content"/>
+        <result column="remark" property="remark"/>
+        <result column="enabled" property="enabled"/>
+        <result column="type" property="type"/>
+        <result column="subtitle" property="subtitle"/>
+        <result column="logo_image" property="logoImage"/>
+        <result column="logo_icon" property="logoIcon"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="valueList" property="valueList" javaType="java.util.List" jdbcType="VARCHAR" typeHandler="com.chauncy.web.config.mybatisplus.StringToListTypeHandler"/>
+    </resultMap>
+
+    <select id="findByCondition" resultMap="findByCondition">
+        select a.*,GROUP_CONCAT(CONCAT(b.value))as valueList
         from pm_goods_attribute a,pm_goods_attribute_value b
         <where>
             <if test="type !=null and type !=''">
@@ -37,7 +57,7 @@
             </if>
             and a.id = b.product_attribute_id and a.del_flag = 0 and b.del_flag = 0
         </where>
-        order by b.id desc
+        group by a.id
     </select>
 
     <select id="findDefaultValues" resultType="com.chauncy.data.bo.base.BaseBo">

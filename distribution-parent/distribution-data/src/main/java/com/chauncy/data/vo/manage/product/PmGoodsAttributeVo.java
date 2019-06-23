@@ -87,8 +87,8 @@ public class PmGoodsAttributeVo implements Serializable {
     @ApiModelProperty(value = "删除标志 默认0")
     private Integer delFlag = SecurityConstant.STATUS_NORMAL;
 
-    @ApiModelProperty(value = "商品属性值")
-    private String value;
+//    @ApiModelProperty(value = "商品属性值")
+//    private String value;
 
     @ApiModelProperty(value = "商品属性值")
     private List<String> valueList;
