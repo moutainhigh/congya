@@ -2,15 +2,15 @@ package com.chauncy.data.mapper.store;
 
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.manage.store.select.StoreSearchByConditionDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.mapper.IBaseMapper;
-import com.chauncy.data.vo.manage.store.SmStoreBaseVo;
-import com.chauncy.data.vo.manage.store.StoreAccountInfoVo;
-import com.chauncy.data.vo.manage.store.StoreBaseInfoVo;
-import com.chauncy.data.vo.manage.store.StoreOperationalInfoVo;
+import com.chauncy.data.vo.manage.store.*;
+import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -67,4 +67,18 @@ public interface SmStoreMapper extends IBaseMapper<SmStorePo> {
      */
     StoreOperationalInfoVo findOperationalById(@Param("id") Long id);
 
+    /**
+     * 根据店铺id获取店铺跟哪些品牌关联（品牌下有对应的商品）
+     * @param id
+     * @return
+     */
+    List<Long> selectAttributeIdsById(@Param("id") Long id);
+
+    /**
+     * 条件查询可关联店铺
+     *
+     * @param storeSearchByConditionDto
+     * @return
+     */
+    List<RelStoreInfoVo> searchRelStoreInfo(StoreSearchByConditionDto storeSearchByConditionDto);
 }

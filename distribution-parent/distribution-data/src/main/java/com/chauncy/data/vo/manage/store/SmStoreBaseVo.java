@@ -8,6 +8,7 @@ import com.chauncy.common.util.serializer.LongJsonSerializer;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -20,6 +21,7 @@ import java.math.BigDecimal;
  * @Date: 2019/6/11 16:50
  */
 @Data
+@ApiModel(value = "店铺列表分页查询结果")
 public class SmStoreBaseVo implements Serializable {
 
     private static final long serialVersionUID = 1L;

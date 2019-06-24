@@ -4,6 +4,7 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.add.StoreCategoryDto;
 import com.chauncy.data.dto.manage.store.select.StoreCategorySearchDto;
+import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.store.category.SmStoreCategoryVo;
 import com.chauncy.store.category.service.ISmStoreCategoryService;
@@ -15,6 +16,7 @@ import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -54,7 +56,7 @@ public class SmStoreCategoryApi extends BaseApi {
      */
     @PostMapping("/edit")
     @ApiOperation(value = "编辑店铺分类信息")
-    public JsonViewData edit(@Valid @RequestBody @ApiParam(required = true, name = "storeCategoryDto", value = "店铺分类信息")
+    public JsonViewData edit(@Validated(IUpdateGroup.class)  @RequestBody @ApiParam(required = true, name = "storeCategoryDto", value = "店铺分类信息")
                                      StoreCategoryDto storeCategoryDto) {
 
 

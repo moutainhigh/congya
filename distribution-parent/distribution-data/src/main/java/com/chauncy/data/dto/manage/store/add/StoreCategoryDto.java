@@ -1,5 +1,6 @@
 package com.chauncy.data.dto.manage.store.add;
 
+import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -22,7 +23,7 @@ public class StoreCategoryDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "id,当新增时为空")
-    @NotNull(groups = IUpdateGroup.class)
+    @NeedExistConstraint(tableName = "sm_store_category",groups = IUpdateGroup.class)
     private Long id;
 
 
