@@ -3,6 +3,7 @@ package com.chauncy.product.service.impl;
 import com.chauncy.common.enums.goods.GoodsAttributeTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.common.util.JSONUtils;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.*;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
@@ -258,12 +259,19 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
         Integer pageNo = findAttributeInfoByConditionDto.getPageNo() == null ? defaultPageNo : findAttributeInfoByConditionDto.getPageNo();
         Integer pageSize = findAttributeInfoByConditionDto.getPageSize() == null ? defaultPageSize : findAttributeInfoByConditionDto.getPageSize();
         PageInfo<PmGoodsAttributeVo> goodsAttributeVo = new PageInfo<>();
+        List<Map<String,Object>> map=valueMapper.findValueByCondition(findAttributeInfoByConditionDto.getType(), findAttributeInfoByConditionDto.getName(), findAttributeInfoByConditionDto.getEnabled());
         //判断Type是否为规格或参数
         if (findAttributeInfoByConditionDto.getType() == GoodsAttributeTypeEnum.STANDARD.getId() /*|| findAttributeInfoByConditionDto.getType() == GoodsAttributeTypeEnum.GOODS_PARAM.getId()*/) {
             PageInfo<Map<String,Object>> goodsAttributeValue = PageHelper.startPage(pageNo, pageSize/*, "id desc"*/)
-                    .doSelectPageInfo(() -> valueMapper.findValueByCondition(findAttributeInfoByConditionDto.getType(), findAttributeInfoByConditionDto.getName(), findAttributeInfoByConditionDto.getEnabled()));
+                    .doSelectPageInfo(() ->valueMapper.findValueByCondition(findAttributeInfoByConditionDto.getType(), findAttributeInfoByConditionDto.getName(), findAttributeInfoByConditionDto.getEnabled()));
+//            if (!goodsAttributeValue.getList().stream().map(a->a.get("valueList")).toString().equals(""))
+//                goodsAttributeValue.getList().stream().map(a->a.put("valueList", JSONUtils.toList(goodsAttributeValue.getList().stream().map(b->b.get("valueList")))));
+            goodsAttributeValue.getList().forEach(d->{
+                d.put("valueList",JSONUtils.toList(d.get("valueList")));
+            });
             return new JsonViewData(ResultCode.SUCCESS, "查询成功", goodsAttributeValue);
-        } else {
+        }
+        else {
             goodsAttributeVo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
                     .doSelectPageInfo(() -> mapper.findByCondition(findAttributeInfoByConditionDto.getType(), findAttributeInfoByConditionDto.getName(), findAttributeInfoByConditionDto.getEnabled()));
             return new JsonViewData(ResultCode.SUCCESS, "查询成功", goodsAttributeVo);

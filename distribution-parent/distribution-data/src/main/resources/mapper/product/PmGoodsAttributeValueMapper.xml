@@ -67,7 +67,7 @@
     </select>
 
     <select id="findValueByCondition" resultType="java.util.Map">
-        select a.*,concat('[',GROUP_CONCAT(CONCAT('{"id":',b.id,',"name":',b.value,'}')),']')as valueList
+        select a.*,concat('[',GROUP_CONCAT(CONCAT('{"id":',b.id,',"name":"',b.value,'"}')),']')as valueList
         from pm_goods_attribute a,pm_goods_attribute_value b
         <where>
             <if test="type !=null and type !=''">
