@@ -10,12 +10,16 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * @Author: xiaoye
  * @Date: 2019/6/12 10:14
  */
 @Data
-public class StoreSearchDto extends BaseSearchDto {
+public class StoreSearchDto extends BaseSearchDto implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
 
     @JsonSerialize(using = LongJsonSerializer.class)

@@ -1,15 +1,13 @@
 package com.chauncy.store.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.constant.SecurityConstant;
-import com.chauncy.common.enums.store.StoreTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.enums.system.SysRoleTypeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.core.AbstractService;
-import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.domain.po.store.SmStorePo;
-import com.chauncy.data.domain.po.store.label.SmStoreLabelPo;
 import com.chauncy.data.domain.po.store.rel.SmRelStoreAttributePo;
 import com.chauncy.data.domain.po.sys.SysRolePo;
 import com.chauncy.data.domain.po.sys.SysRoleUserPo;
@@ -17,7 +15,9 @@ import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.add.StoreAccountInfoDto;
 import com.chauncy.data.dto.manage.store.add.StoreBaseInfoDto;
+import com.chauncy.data.dto.manage.store.select.StoreSearchByConditionDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
+import com.chauncy.data.dto.supplier.store.update.StoreBusinessLicenseDto;
 import com.chauncy.data.mapper.product.PmGoodsAttributeMapper;
 import com.chauncy.data.mapper.store.SmRelStoreAttributeMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
@@ -25,10 +25,7 @@ import com.chauncy.data.mapper.sys.SysRoleMapper;
 import com.chauncy.data.mapper.sys.SysRoleUserMapper;
 import com.chauncy.data.mapper.sys.SysUserMapper;
 import com.chauncy.data.vo.JsonViewData;
-import com.chauncy.data.vo.manage.store.SmStoreBaseVo;
-import com.chauncy.data.vo.manage.store.StoreAccountInfoVo;
-import com.chauncy.data.vo.manage.store.StoreBaseInfoVo;
-import com.chauncy.data.vo.manage.store.StoreOperationalInfoVo;
+import com.chauncy.data.vo.manage.store.*;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.store.rel.service.ISmRelStoreAttributeService;
 import com.chauncy.store.service.ISmStoreService;
@@ -37,12 +34,13 @@ import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -68,6 +66,8 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
     @Autowired
     private SysRoleUserMapper sysRoleUserMapper;
     @Autowired
+    private SmRelStoreAttributeMapper smRelStoreAttributeMapper;
+    @Autowired
     private PmGoodsAttributeMapper pmGoodsAttributeMapper;
     @Autowired
     private ISmRelStoreAttributeService smRelStoreAttributeService;
@@ -88,6 +88,7 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         if(null != this.getOne(smStoreCategoryPoQueryWrapper)) {
             throw  new ServiceException(ResultCode.DUPLICATION, "店铺名称已存在");
         }
+        smStoreCategoryPoQueryWrapper = new QueryWrapper<>();
         smStoreCategoryPoQueryWrapper.eq("user_name", storeBaseInfoDto.getUserName());
         if(null != this.getOne(smStoreCategoryPoQueryWrapper)) {
             throw  new ServiceException(ResultCode.DUPLICATION, "店铺账号已存在");
@@ -101,22 +102,79 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         //店铺信息插入
         smStorePo.setId(null);
         smStoreMapper.insert(smStorePo);
-        //店铺品牌关联插入
-        List<SmRelStoreAttributePo> smRelStoreAttributePoList = new ArrayList<>();
-        for(Long attributeId : storeBaseInfoDto.getAttributeIds()) {
-            SmRelStoreAttributePo smRelStoreAttributePo = new SmRelStoreAttributePo();
-            smRelStoreAttributePo.setAttributeId(attributeId);
-            smRelStoreAttributePo.setCreateBy(userName);
-            smRelStoreAttributePo.setStoreId(smStorePo.getId());
-            smRelStoreAttributePoList.add(smRelStoreAttributePo);
-        }
-        smRelStoreAttributeService.saveBatch(smRelStoreAttributePoList);
 
+        //批量插入店铺品牌关联记录
+        saveBatchRelStoreAttribute(storeBaseInfoDto, userName);
 
         //添加店铺后台账号
         createSysUser(smStorePo);
 
         return new JsonViewData(ResultCode.SUCCESS, "添加成功", smStorePo);
+    }
+    /**
+     * 编辑店铺基本信息
+     * @param storeBaseInfoDto
+     * @return
+     */
+    @Override
+    public JsonViewData editStore(StoreBaseInfoDto storeBaseInfoDto) {
+
+        SmStorePo oldSmStore = smStoreMapper.selectById(storeBaseInfoDto.getId());
+
+        QueryWrapper<SmStorePo> smStoreCategoryPoQueryWrapper = new QueryWrapper<>();
+        smStoreCategoryPoQueryWrapper.eq("name", storeBaseInfoDto.getName());
+        SmStorePo tempSmStorePo = this.getOne(smStoreCategoryPoQueryWrapper);
+        if(null != tempSmStorePo && !tempSmStorePo.getId().equals(oldSmStore.getId())) {
+            throw  new ServiceException(ResultCode.DUPLICATION, "店铺名称已存在");
+        }
+        if(!oldSmStore.getUserName().equals(storeBaseInfoDto.getUserName())) {
+            throw  new ServiceException(ResultCode.PARAM_ERROR, "店铺账号不可更改");
+        }
+        if(!oldSmStore.getType().equals(storeBaseInfoDto.getType())) {
+            throw  new ServiceException(ResultCode.PARAM_ERROR, "店铺类型不可更改");
+        }
+
+        BeanUtils.copyProperties(storeBaseInfoDto, oldSmStore);
+        //获取当前用户
+        String userName = securityUtil.getCurrUser().getUsername();
+        oldSmStore.setCreateBy(userName);
+        //店铺信息插入
+        smStoreMapper.updateById(oldSmStore);
+        //查询新更改的品牌中缺少的已有品牌是否有关联的商品  如果有则编辑失败
+        List<Long> oldAttributeIds = smStoreMapper.selectAttributeIdsById(storeBaseInfoDto.getId());
+        List<Long> newAttributeIds = Arrays.asList(storeBaseInfoDto.getAttributeIds());
+        //oldAttributeIds 与 newAttributeIds的差集
+        List<Long> reduceList = oldAttributeIds.stream().filter(item -> !newAttributeIds.contains(item)).collect(toList());
+        if(null != reduceList && reduceList.size() > 0 ) {
+            throw  new ServiceException(ResultCode.PARAM_ERROR, "修改失败，包含正被使用的关联的品牌");
+        }
+
+        //将店铺与品牌关联表的记录删除
+        Map<String, Object> map = new HashMap<>();
+        map.put("store_id", storeBaseInfoDto.getId());
+        smRelStoreAttributeMapper.deleteByMap(map);
+
+        //批量插入店铺品牌关联记录
+        saveBatchRelStoreAttribute(storeBaseInfoDto, userName);
+
+        return new JsonViewData(ResultCode.SUCCESS, "编辑成功");
+    }
+
+    /**
+     * 批量插入店铺品牌关联记录
+     * @param storeBaseInfoDto
+     * @param userName
+     */
+    private void saveBatchRelStoreAttribute (StoreBaseInfoDto storeBaseInfoDto, String userName) {
+        List<SmRelStoreAttributePo> smRelStoreAttributePoList = new ArrayList<>();
+        for(Long attributeId : storeBaseInfoDto.getAttributeIds()) {
+            SmRelStoreAttributePo smRelStoreAttributePo = new SmRelStoreAttributePo();
+            smRelStoreAttributePo.setAttributeId(attributeId);
+            smRelStoreAttributePo.setCreateBy(userName);
+            smRelStoreAttributePo.setStoreId(storeBaseInfoDto.getId());
+            smRelStoreAttributePoList.add(smRelStoreAttributePo);
+        }
+        smRelStoreAttributeService.saveBatch(smRelStoreAttributePoList);
     }
 
     /**
@@ -128,11 +186,12 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         sysUserPo.setCreateBy(smStorePo.getCreateBy());
         sysUserPo.setMobile(smStorePo.getOwnerMobile());
         sysUserPo.setNickName(smStorePo.getName());
-        sysUserPo.setPassword(DEFAULT_PASSWORD);
+        sysUserPo.setPassword(new BCryptPasswordEncoder().encode(DEFAULT_PASSWORD));
         sysUserPo.setType(SecurityConstant.USER_TYPE_ADMIN);
         sysUserPo.setSystemType(SecurityConstant.SYS_TYPE_SUPPLIER);
         sysUserPo.setStoreId(smStorePo.getId());
         sysUserPo.setUsername(smStorePo.getUserName());
+        sysUserPo.setStatus(SecurityConstant.USER_STATUS_LOCK);
         sysUserMapper.insert(sysUserPo);
 
         //获取店铺系统角色
@@ -165,11 +224,26 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
             String user = securityUtil.getCurrUser().getUsername();
             smStorePo.setUpdateBy(user);
             //店铺账户信息插入
+            BeanUtils.copyProperties(storeAccountInfoDto, smStorePo);
             smStoreMapper.updateById(smStorePo);
-            return new JsonViewData(ResultCode.SUCCESS, "添加成功", smStorePo);
+            return new JsonViewData(ResultCode.SUCCESS, "添加成功");
         } else {
             return new JsonViewData(ResultCode.NO_EXISTS, "店铺不存在");
         }
+
+    }
+
+
+
+    /**
+     * 编辑店铺账户信息
+     * @param storeAccountInfoDto
+     * @return
+     */
+    @Override
+    public JsonViewData editStore(StoreAccountInfoDto storeAccountInfoDto) {
+
+        return this.saveStore(storeAccountInfoDto);
 
     }
 
@@ -184,6 +258,20 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
     @Override
     public JsonViewData editStoreStatus(BaseUpdateStatusDto baseUpdateStatusDto) {
         smStoreMapper.editStoreStatus(baseUpdateStatusDto);
+
+        //对应的店铺账号也需要修改状态   店铺启用->账号正常  店铺禁用->账号拉黑
+        UpdateWrapper<SysUserPo> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.in("store_id", baseUpdateStatusDto.getId());
+        SysUserPo sysUserPo = new SysUserPo();
+        Integer status ;
+        if (baseUpdateStatusDto.getEnabled().equals(true)) {
+            status = 0;
+        } else {
+            status = -1;
+        }
+        sysUserPo.setStatus(status);
+        sysUserMapper.update(sysUserPo, updateWrapper);
+
         return new JsonViewData(ResultCode.SUCCESS, "修改经营状态成功");
     }
 
@@ -212,12 +300,12 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
     @Override
     public StoreBaseInfoVo findBaseById(Long id) {
         StoreBaseInfoVo storeBaseInfoVo = smStoreMapper.findBaseById(id);
-        String attributeIds = storeBaseInfoVo.getAttributeIds();
+        /*String attributeIds = storeBaseInfoVo.getAttributeIds();
         QueryWrapper<PmGoodsAttributePo> queryWrapper = new QueryWrapper<>();
         queryWrapper.in("id",attributeIds);
         queryWrapper.select("name");
         List<String> pmGoodsAttributeList = (List<String>)(List)pmGoodsAttributeMapper.selectObjs(queryWrapper);
-        storeBaseInfoVo.setAttributeName(pmGoodsAttributeList);
+        storeBaseInfoVo.setAttributeName(pmGoodsAttributeList);*/
         return storeBaseInfoVo;
     }
 
@@ -254,5 +342,35 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
     public Long findStoreIdByName(String userName) {
        return smStoreMapper.findStoreIdByName(userName);
     }
+
+
+    /**
+     * 商家上传经营资质
+     *
+     * @param storeBusinessLicenseDto
+     * @return
+     */
+    @Override
+    public void uploadBusinessLicense( StoreBusinessLicenseDto storeBusinessLicenseDto) {
+        SmStorePo smStorePo = new SmStorePo();
+        smStorePo.setBusinessLicense(storeBusinessLicenseDto.getImgUrl());
+        smStoreMapper.update(smStorePo, new UpdateWrapper<SmStorePo>().eq("id",storeBusinessLicenseDto.getId()));
+    }
+
+    /**
+     * 条件查询可关联店铺
+     *
+     * @param storeSearchByConditionDto
+     * @return
+     */
+    @Override
+    public PageInfo<RelStoreInfoVo> searchRelStoreInfo(StoreSearchByConditionDto storeSearchByConditionDto) {
+
+        Integer pageNo = storeSearchByConditionDto.getPageNo()==null ? defaultPageNo : storeSearchByConditionDto.getPageNo();
+        Integer pageSize = storeSearchByConditionDto.getPageSize()==null ? defaultPageSize : storeSearchByConditionDto.getPageSize();
+
+        PageInfo<RelStoreInfoVo> relStoreInfoVoPageInfo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
+                .doSelectPageInfo(() -> smStoreMapper.searchRelStoreInfo(storeSearchByConditionDto));
+        return relStoreInfoVoPageInfo;    }
 
 }
