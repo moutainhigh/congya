@@ -38,14 +38,13 @@ public class SmStoreLabelApi extends BaseApi {
     /**
      * 保存店铺标签信息
      * @param storeBaseInfoDto
-     * @param result
      * @return
      */
     @PostMapping("/save")
     @ApiOperation(value = "保存店铺标签信息")
     @Transactional(rollbackFor = Exception.class)
     public JsonViewData save(@Valid @RequestBody @ApiParam(required = true, name = "storeLabelDto", value = "店铺标签信息")
-                                     StoreLabelDto storeBaseInfoDto, BindingResult result) {
+                                     StoreLabelDto storeBaseInfoDto) {
 
 
         return new JsonViewData(ResultCode.SUCCESS, "添加成功",
@@ -55,14 +54,13 @@ public class SmStoreLabelApi extends BaseApi {
     /**
      * 编辑店铺标签信息
      * @param storeBaseInfoDto
-     * @param result
      * @return
      */
     @PostMapping("/edit")
     @ApiOperation(value = "编辑店铺标签信息")
     @Transactional(rollbackFor = Exception.class)
     public JsonViewData edit(@Validated(IUpdateGroup.class) @RequestBody @ApiParam(required = true, name = "storeLabelDto", value = "店铺标签信息")
-                                     StoreLabelDto storeBaseInfoDto, BindingResult result) {
+                                     StoreLabelDto storeBaseInfoDto) {
 
 
         return new JsonViewData(ResultCode.SUCCESS, "编辑成功",

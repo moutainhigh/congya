@@ -3,6 +3,7 @@ package com.chauncy.data.dto.manage.store.add;
 import com.chauncy.common.enums.store.StoreTypeEnum;
 import com.chauncy.data.valid.annotation.EnumConstraint;
 import com.chauncy.data.valid.annotation.NeedExistConstraint;
+import com.chauncy.data.valid.group.IUpdateGroup;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -11,6 +12,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 /**
  * @Author: xiaoye
@@ -18,7 +20,14 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 @ApiModel(value = "StoreInfoDto对象", description = "店铺基本信息")
-public class StoreBaseInfoDto {
+public class StoreBaseInfoDto implements Serializable {
+
+
+    private static final long serialVersionUID = 1L;
+
+    @ApiModelProperty(value = "id,当新增时为空")
+    @NeedExistConstraint(tableName = "sm_store",groups = IUpdateGroup.class)
+    private Long id;
 
 
     @ApiModelProperty(value = "店铺名称")
@@ -35,9 +44,12 @@ public class StoreBaseInfoDto {
     @ApiModelProperty(value = "是否展示在前端 0 不展示 1 展示")
     private Boolean showStatus;
 
-    @ApiModelProperty(value = "店铺类型标签id（sm_store_label主键）")
+    /*@ApiModelProperty(value = "店铺类型标签id（sm_store_label主键）")
     @NeedExistConstraint(tableName = "sm_store_label")
-    private Long storeLabelId;
+    private Long storeLabelId;*/
+
+    @ApiModelProperty(value = "店铺标签")
+    private String storeLabel;
 
     @ApiModelProperty(value = "店铺分类id（sm_store_category主键）")
     @NeedExistConstraint(tableName = "sm_store_category")

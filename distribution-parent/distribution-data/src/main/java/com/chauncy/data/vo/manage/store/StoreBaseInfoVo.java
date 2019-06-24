@@ -1,5 +1,9 @@
 package com.chauncy.data.vo.manage.store;
 
+import com.chauncy.common.util.serializer.LongJsonSerializer;
+import com.chauncy.data.vo.manage.product.PmGoodsBrandVo;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -12,9 +16,14 @@ import java.util.List;
  * @since 2019/6/19 22:44
  */
 @Data
+@ApiModel(value = "店铺账户信息")
 public class StoreBaseInfoVo implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    @ApiModelProperty(value = "id")
+    @JsonSerialize(using = LongJsonSerializer.class)
+    private Long id;
 
     @ApiModelProperty(value = "店铺名称")
     private String name;
@@ -28,8 +37,11 @@ public class StoreBaseInfoVo implements Serializable {
     @ApiModelProperty(value = "是否展示在前端 0 不展示 1 展示")
     private boolean showStatus;
 
-    @ApiModelProperty(value = "店铺类型标签id（sm_store_label主键）")
-    private Long storeLabelId;
+   /* @ApiModelProperty(value = "店铺类型标签id（sm_store_label主键）")
+    private Long storeLabelId;*/
+    @ApiModelProperty(value = "店铺标签")
+    private String storeLabel;
+
 
     @ApiModelProperty(value = "店铺分类id（sm_store_category主键）")
     private Long storeCategoryId;
@@ -78,8 +90,5 @@ public class StoreBaseInfoVo implements Serializable {
     private Integer logisticsServiceScore;
 
     @ApiModelProperty(value = "所属品牌集合")
-    private String attributeIds;
-
-    @ApiModelProperty(value = "所属品牌集合")
-    private List<String> attributeName;
+    private List<PmGoodsBrandVo> pmGoodsBrandVoList;
 }

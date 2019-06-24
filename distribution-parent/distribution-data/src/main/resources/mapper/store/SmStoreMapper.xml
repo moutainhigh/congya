@@ -42,8 +42,16 @@
 
 
     <sql id="selectSmStoreBaseVo">
-        select id, `name`, `type`, (case when `type`=1 then '推广店铺' when `type`=2 then '商品店铺' end) as typeName, parent_id, store_turnover, store_member_num, store_sub_num, goods_num, owner_mobile, sort, enabled
-		from sm_store
+         ss.id, ss.`name`, ss.`type`, (case when ss.`type`=1 then '推广店铺' when ss.`type`=2 then '商品店铺' end) as typeName,
+          ss.parent_id, ss.store_turnover, ss.store_member_num, ss.store_sub_num, ss.goods_num, ss.owner_mobile, ss.sort, ss.enabled
+    </sql>
+
+    <sql id="selectSmStoreBaseInfo">
+         ss.id, ss.`name`, ss.`type`, (case when ss.`type`=1 then '推广店铺' when ss.`type`=2 then '商品店铺' end) as typeName,
+          ss.store_describe, ss.user_name, ss.show_status, ss.store_label, ss.store_category_id, ss.parent_id, ss.sort, ss.owner_name,
+          ss.owner_mobile, ss.logo_image, ss.store_image, ss.background_image, ss.total_score, ss.baby_describe_score,
+          ss.service_attitude_score, ss.logistics_service_score,
+          (select ssc.`name` from sm_store_category ssc where ssc.id = ss.store_category_id) as store_category_name
     </sql>
 
 
@@ -63,9 +71,9 @@
         </foreach>
     </update>
 
-
     <select id="searchBaseInfo" resultType="com.chauncy.data.vo.manage.store.SmStoreBaseVo">
-        select id, `name`, `type`, (case when `type`=1 then '推广店铺' when `type`=2 then '商品店铺' end) as typeName, parent_id, store_turnover, store_member_num, store_sub_num, goods_num, owner_mobile, sort, enabled, company_addr
+        select id, `name`, `type`, (case when `type`=1 then '推广店铺' when `type`=2 then '商品店铺' end) as typeName, parent_id,
+        store_turnover, store_member_num, store_sub_num, goods_num, owner_mobile, sort, enabled, company_addr
         from sm_store
         <where>
             <if test="id !=null and id !=''">
@@ -87,16 +95,46 @@
     </select>
 
 
-    <select id="findBaseById" resultType="com.chauncy.data.vo.manage.store.StoreBaseInfoVo">
-        select ss.*,GROUP_CONCAT(pga.id) as attributeIds
+
+    <resultMap id="storeBaseResult" type="com.chauncy.data.vo.manage.store.StoreBaseInfoVo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="type" property="type"/>
+        <result column="typeName" property="typeName"/>
+        <result column="store_describe" property="storeDescribe"/>
+        <result column="user_name" property="userName"/>
+        <result column="show_status" property="showStatus"/>
+        <result column="store_label" property="storeLabel"/>
+        <result column="store_category_id" property="storeCategoryId"/>
+        <result column="store_category_name" property="storeCategoryName"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="sort" property="sort"/>
+        <result column="owner_name" property="ownerName"/>
+        <result column="owner_mobile" property="ownerMobile"/>
+        <result column="logo_image" property="logoImage"/>
+        <result column="store_image" property="storeImage"/>
+        <result column="background_image" property="backgroundImage"/>
+        <result column="total_score" property="totalScore"/>
+        <result column="baby_describe_score" property="babyDescribeScore"/>
+        <result column="service_attitude_score" property="serviceAttitudeScore"/>
+        <result column="logistics_service_score" property="logisticsServiceScore"/>
+        <!-- collection定义关联集合类型的属性封装规则
+        offType:指定集合中的元素类型
+        -->
+        <collection property="pmGoodsBrandVoList" ofType="com.chauncy.data.vo.manage.product.PmGoodsBrandVo">
+            <id column="attributeId" property="id"/>
+            <result column="attributeName" property="name"/>
+        </collection>
+    </resultMap>
+    <select id="findBaseById" resultMap="storeBaseResult">
+        select <include refid="selectSmStoreBaseInfo"/>,pga.id as attributeId, pga.name as attributeName
         from sm_store ss left join sm_rel_store_attribute srsa on (ss.id = srsa.store_id and srsa.del_flag = 0)
-                left join pm_goods_attribute pga on (srsa.attribute_id = pga.id and pga.type = 8 and pga.del_flag = 0)
+        left join pm_goods_attribute pga on (srsa.attribute_id = pga.id and pga.type = 8 and pga.del_flag = 0)
         <where>
             <if test="id !=null and id !=''">
                 and ss.id = #{id}
             </if>
         </where>
-        group by ss.id
     </select>
 
     <select id="findAccountById" resultType="com.chauncy.data.vo.manage.store.StoreAccountInfoVo">
@@ -115,6 +153,26 @@
         where user_name = #{userName}
     </select>
 
+
+    <select id="selectAttributeIdsById" resultType="java.util.List">
+        select pga.id
+        from pm_goods pg, pm_goods_rel_attribute_good pgrag,pm_goods_attribute pga
+        where pg.id = pgrag.goods_good_id and pga.id = pgrag.goods_attribute_id
+        and pga.`type` = 8 and pg.store_id = #{id} and pg.del_flag = pgrag.del_flag = pga.del_flag = 0
+    </select>
+
+    <select id="searchRelStoreInfo" resultType="com.chauncy.data.vo.manage.store.RelStoreInfoVo">
+        select id, `name`, `company_name`
+        from sm_store
+        <where>
+            <if test="id !=null and id !=''">
+                and id = #{id}
+            </if>
+            <if test="name != null and name !=''">
+                and name like concat('%', #{name}, '%')
+            </if>
+        </where>
+    </select>
 
 
 </mapper>

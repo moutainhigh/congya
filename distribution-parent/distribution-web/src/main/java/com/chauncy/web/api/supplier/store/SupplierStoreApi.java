@@ -1,7 +1,9 @@
 package com.chauncy.web.api.supplier.store;
 
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.dto.manage.good.add.GoodAttributeDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
+import com.chauncy.data.dto.supplier.store.update.StoreBusinessLicenseDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.store.SmStoreBaseVo;
 import com.chauncy.data.vo.manage.store.StoreAccountInfoVo;
@@ -13,9 +15,12 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 /**
  * @author yeJH
@@ -74,5 +79,23 @@ public class SupplierStoreApi extends BaseApi {
                 smStoreService.findOperationalById(id));
 
     }
+
+    /**
+     * 商家上传经营资质
+     * @param storeBusinessLicenseDto
+     * @return
+     */
+    @ApiOperation(value = "商家上传经营资质", notes = "商家上传经营资质")
+    @PostMapping("/uploadLicense")
+    public JsonViewData uploadBusinessLicense(@Valid @RequestBody  @ApiParam(required = true, name = "storeBusinessLicenseDto", value = "店铺资质证书")
+                                                      StoreBusinessLicenseDto storeBusinessLicenseDto) {
+
+        smStoreService.uploadBusinessLicense(storeBusinessLicenseDto);
+        return new JsonViewData(ResultCode.SUCCESS, "编辑成功");
+
+    }
+
+
+
 
 }

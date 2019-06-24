@@ -1,5 +1,8 @@
 package com.chauncy.data.vo.manage.store;
 
+import com.chauncy.common.util.serializer.LongJsonSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -11,9 +14,14 @@ import java.math.BigDecimal;
  * @since 2019/6/19 22:58
  */
 @Data
+@ApiModel(value = "店铺运营信息")
 public class StoreOperationalInfoVo  implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    @ApiModelProperty(value = "id")
+    @JsonSerialize(using = LongJsonSerializer.class)
+    private Long id;
 
     @ApiModelProperty(value = "本店收入")
     private BigDecimal storeIncome;
