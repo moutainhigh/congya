@@ -267,7 +267,11 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
 //            if (!goodsAttributeValue.getList().stream().map(a->a.get("valueList")).toString().equals(""))
 //                goodsAttributeValue.getList().stream().map(a->a.put("valueList", JSONUtils.toList(goodsAttributeValue.getList().stream().map(b->b.get("valueList")))));
             goodsAttributeValue.getList().forEach(d->{
-                d.put("valueList",JSONUtils.toList(d.get("valueList")));
+                if (d.get("valueList")==null){
+                    d.put("valueList",new ArrayList());
+                }else {
+                    d.put("valueList", JSONUtils.toList(d.get("valueList")));
+                }
             });
             return new JsonViewData(ResultCode.SUCCESS, "查询成功", goodsAttributeValue);
         }
