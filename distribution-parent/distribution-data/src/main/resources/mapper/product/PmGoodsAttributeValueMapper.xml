@@ -68,10 +68,12 @@
 
     <select id="findValueByCondition" resultType="java.util.Map">
         select a.*,concat('[',GROUP_CONCAT(CONCAT('{"id":',b.id,',"name":"',b.value,'"}')),']')as valueList
-        from pm_goods_attribute a,pm_goods_attribute_value b
+        from pm_goods_attribute a
+        left join pm_goods_attribute_value b on a.id = b.product_attribute_id
         <where>
+            a.del_flag = 0 and IF(b.del_flag is null,b.del_flag is null,b.del_flag = 0)
             <if test="type !=null and type !=''">
-                type = #{type}
+                and type = #{type}
             </if>
             <if test="enabled !=null">
                 and enabled = #{enabled}
@@ -79,7 +81,7 @@
             <if test="name !=null and name !=''">
                 and name like concat('%', #{name}, '%')
             </if>
-            and a.id = b.product_attribute_id and a.del_flag = 0 and b.del_flag = 0
+
         </where>
         group by a.id
     </select>
