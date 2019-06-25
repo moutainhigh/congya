@@ -16,9 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @since 2019-06-16
  */
 @Service
-public class PmGoodsRelGoodsMemberLevelServiceImpl extends AbstractService<PmGoodsRelGoodsMemberLevelMapper,PmGoodsRelGoodsMemberLevelPo> implements IPmGoodsRelGoodsMemberLevelService {
+public class PmGoodsRelGoodsMemberLevelServiceImpl extends AbstractService<PmGoodsRelGoodsMemberLevelMapper, PmGoodsRelGoodsMemberLevelPo> implements IPmGoodsRelGoodsMemberLevelService {
 
- @Autowired
- private PmGoodsRelGoodsMemberLevelMapper mapper;
+    @Autowired
+    private PmGoodsRelGoodsMemberLevelMapper mapper;
+
+
 
 }

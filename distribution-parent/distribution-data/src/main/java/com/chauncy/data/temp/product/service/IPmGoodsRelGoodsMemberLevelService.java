@@ -2,6 +2,8 @@ package com.chauncy.data.temp.product.service;
 
 import com.chauncy.data.domain.po.product.PmGoodsRelGoodsMemberLevelPo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.domain.po.user.PmMemberLevelPo;
+import org.apache.ibatis.annotations.Select;
 
 /**
  * <p>
@@ -12,5 +14,6 @@ import com.chauncy.data.core.Service;
  * @since 2019-06-16
  */
 public interface IPmGoodsRelGoodsMemberLevelService extends Service<PmGoodsRelGoodsMemberLevelPo> {
+
 
 }

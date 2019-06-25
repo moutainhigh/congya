@@ -1,7 +1,9 @@
 package com.chauncy.data.mapper.product;
 
 import com.chauncy.data.domain.po.product.PmGoodsRelGoodsMemberLevelPo;
+import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.mapper.IBaseMapper;
+import org.apache.ibatis.annotations.Select;
 
 /**
  * <p>
@@ -12,5 +14,6 @@ import com.chauncy.data.mapper.IBaseMapper;
  * @since 2019-06-16
  */
 public interface PmGoodsRelGoodsMemberLevelMapper extends IBaseMapper<PmGoodsRelGoodsMemberLevelPo> {
+
 
 }

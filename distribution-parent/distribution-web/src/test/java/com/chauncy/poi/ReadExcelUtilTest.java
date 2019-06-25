@@ -2,7 +2,7 @@
 //
 //import com.chauncy.data.domain.po.test.UserPO;
 //import com.chauncy.poi.util.ReadExcelUtil;
-//import com.chauncy.test.service.UserService;
+//import com.chauncy.test.com.chauncy.user.service.UserService;
 //import com.chauncy.web.StartApplication;
 //import lombok.extern.slf4j.Slf4j;
 //import org.junit.Test;
@@ -28,7 +28,7 @@
 //public class ReadExcelUtilTest {
 //
 //    @Autowired
-//    private UserService service;
+//    private UserService com.chauncy.user.service;
 //
 //    /**
 //     * 测试ReadExcelUtil工具类的readExcelInfo()方法
@@ -67,7 +67,7 @@
 //                userPO.setName((map.get("名字")==null||map.get("名字")==" ")?null:map.get("名字"));
 //                userPO.setAge((map.get("年龄")==null||map.get("年龄")==" ")?null:Integer.valueOf(map.get("年龄")));
 //                userPO.setSalary((map.get("薪水")==null||map.get("薪水")==" ")?null:Double.valueOf(map.get("薪水")));
-//                service.insert(userPO);
+//                com.chauncy.user.service.insert(userPO);
 //            }
 //
 //        } catch (Exception e) {

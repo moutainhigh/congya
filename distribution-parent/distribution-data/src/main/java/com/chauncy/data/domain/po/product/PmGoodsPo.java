@@ -148,4 +148,9 @@ public class PmGoodsPo {
 
     @ApiModelProperty(value = "销量")
     private Integer salesVolume;
+
+    @ApiModelProperty(value = "限制会员等级id")
+    private Long memberLevelId;
+
+
 }

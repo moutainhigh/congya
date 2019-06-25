@@ -8,17 +8,20 @@ import com.chauncy.common.util.ListUtil;
 import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.common.util.StringUtils;
 import com.chauncy.data.domain.po.product.*;
+import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.temp.product.service.IPmGoodsRelAttributeValueGoodService;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.excel.ExcelImportErrorLogVo;
 import com.chauncy.poi.util.ReadExcelUtil;
 import com.chauncy.product.service.*;
 import com.chauncy.security.util.SecurityUtil;
+import com.chauncy.user.service.IPmMemberLevelService;
 import com.chauncy.web.base.BaseApi;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiOperation;
 import org.mockito.internal.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,6 +95,9 @@ public class ExcelGoodApi extends BaseApi {
 
     @Autowired
     private IPmGoodsRelAttributeValueSkuService relAttributeValueSkuService;
+
+    @Autowired
+    private IPmMemberLevelService memberLevelService;
 
 
     @PostMapping(value = "/importbase", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -610,7 +616,15 @@ public class ExcelGoodApi extends BaseApi {
             BigDecimal generalizeCostRate = new BigDecimal(rowDataList.get(3));
 
             //会员等级购买权限
-            // TODO: 2019/6/23
+            PmMemberLevelPo memberLevelPo=new PmMemberLevelPo();
+            memberLevelPo.setLevelName(rowDataList.get(4));
+            PmMemberLevelPo queryMemberLevel = memberLevelService.getOne(new QueryWrapper<>(memberLevelPo));
+            if (queryMemberLevel==null){
+                excelImportErrorLogVo.setErrorMessage(String.format("会员等级名称【%s】不存在!", rowDataList.get(4)));
+                excelImportErrorLogVo.setRowNumber(i + 1);
+                excelImportErrorLogVos.add(excelImportErrorLogVo);
+                continue;
+            }
 
             //排序数字
             BigDecimal sort = new BigDecimal(rowDataList.get(5));
@@ -649,7 +663,7 @@ public class ExcelGoodApi extends BaseApi {
             PmGoodsPo updateGood = new PmGoodsPo();
             updateGood.setUpdateBy(getUser().getUsername()).setId(queryGood.getId()).setActivityCostRate(activityCostRate)
                     .setProfitsRate(profitsRate).setGeneralizeCostRate(generalizeCostRate).setSort(sort).setTaxRateType(taxRateType)
-                    .setCustomTaxRate(customTaxRate).setIsFreePostage(isFreePostage);
+                    .setCustomTaxRate(customTaxRate).setIsFreePostage(isFreePostage).setMemberLevelId(queryMemberLevel.getId());
 
             pmGoodsService.updateById(updateGood);
 
