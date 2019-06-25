@@ -5,10 +5,10 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.product.PmMoneyShippingPo">
         <id column="id" property="id" />
-        <result column="default_freight" property="defaultFreight" />
+        <!-- <result column="default_freight" property="defaultFreight" />
         <result column="default_full_money" property="defaultFullMoney" />
-        <result column="default_post_money" property="defaultPostMoney" />
-        <result column="destination" property="destination" />
+         <result column="default_post_money" property="defaultPostMoney" />-->
+        <result column="destination_id" property="destinationId" />
         <result column="destination_basis_freight" property="destinationBasisFreight" />
         <result column="destination_full_money" property="destinationFullMoney" />
         <result column="destination_post_money" property="destinationPostMoney" />

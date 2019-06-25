@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -62,8 +63,11 @@ public class AuthenticationFailHandler extends SimpleUrlAuthenticationFailureHan
             } else {
                 ResponseUtil.out(response, ResponseUtil.resultMap(false,500,"用户名或密码错误"));
             }
-        } else if (e instanceof DisabledException) {
+        }else if(e instanceof LockedException){
             ResponseUtil.out(response, ResponseUtil.resultMap(false,500,"账户被禁用，请联系管理员"));
+        }
+        else if (e instanceof DisabledException) {
+            ResponseUtil.out(response, ResponseUtil.resultMap(false,500,"用户不存在，请联系管理员"));
         } else if (e instanceof LoginFailLimitException){
             ResponseUtil.out(response, ResponseUtil.resultMap(false,500,((LoginFailLimitException) e).getMsg()));
         } else {

@@ -1,7 +1,11 @@
 package com.chauncy.data.mapper.product;
 
 import com.chauncy.data.domain.po.product.PmShippingTemplatePo;
+import com.chauncy.data.dto.manage.ship.select.SearchPlatTempDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.manage.ship.PlatTemplateVo;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +17,11 @@ import com.chauncy.data.mapper.IBaseMapper;
  */
 public interface PmShippingTemplateMapper extends IBaseMapper<PmShippingTemplatePo> {
 
+    /**
+     * 条件查询平台运费模版字段
+     *
+     * @param searchPlatTempDto
+     * @return
+     */
+    List<PlatTemplateVo> searchPlatTempByConditions(SearchPlatTempDto searchPlatTempDto);
 }

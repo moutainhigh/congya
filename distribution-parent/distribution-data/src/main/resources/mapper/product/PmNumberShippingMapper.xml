@@ -5,11 +5,11 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.product.PmNumberShippingPo">
         <id column="id" property="id" />
-        <result column="destination" property="destination" />
+        <result column="destination_id" property="destinationId" /><!--
         <result column="default_max_number" property="defaultMaxNumber" />
         <result column="default_max_number_money" property="defaultMaxNumberMoney" />
         <result column="default_addtional_number" property="defaultAddtionalNumber" />
-        <result column="default_addtional_freight" property="defaultAddtionalFreight" />
+        <result column="default_addtional_freight" property="defaultAddtionalFreight" />-->
         <result column="destination_max_number" property="destinationMaxNumber" />
         <result column="destination_max_number_money" property="destinationMaxNumberMoney" />
         <result column="destination_addtional_number" property="destinationAddtionalNumber" />

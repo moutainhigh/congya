@@ -46,9 +46,9 @@ public class PmNumberShippingPo implements Serializable {
     private Long id;
 
     @ApiModelProperty(value = "指定地区")
-    private String destination;
+    private Long destinationId;
 
-    @ApiModelProperty(value = "默认运费的最大件数")
+    /*@ApiModelProperty(value = "默认运费的最大件数")
     private Integer defaultMaxNumber;
 
     @ApiModelProperty(value = "默认最大件数内的运费")
@@ -59,7 +59,7 @@ public class PmNumberShippingPo implements Serializable {
 
     @ApiModelProperty(value = "默认每增加件数就增加的运费")
     private BigDecimal defaultAddtionalFreight;
-
+*/
     @ApiModelProperty(value = "指定地区运费的最大件数")
     private Integer destinationMaxNumber;
 

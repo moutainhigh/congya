@@ -45,17 +45,17 @@ public class PmMoneyShippingPo implements Serializable {
     @JsonSerialize(using = LongJsonSerializer.class)
     private Long id;
 
-    @ApiModelProperty(value = "默认(基础)运费")
+    /*@ApiModelProperty(value = "默认(基础)运费")
     private BigDecimal defaultFreight;
 
     @ApiModelProperty(value = "默认满金额(满足条件金额)")
     private BigDecimal defaultFullMoney;
 
     @ApiModelProperty(value = "默认满足金额条件后的运费默认满足金额条件后的运费默认满足金额条件后的运费")
-    private BigDecimal defaultPostMoney;
+    private BigDecimal defaultPostMoney;*/
 
     @ApiModelProperty(value = "指定地区")
-    private String destination;
+    private Long destinationId;
 
     @ApiModelProperty(value = "指定地区基础运费")
     private BigDecimal destinationBasisFreight;
