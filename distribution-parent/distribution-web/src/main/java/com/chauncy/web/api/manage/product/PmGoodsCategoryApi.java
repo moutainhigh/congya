@@ -9,7 +9,6 @@ import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.product.PmGoodsRelAttributeCategoryPo;
-import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.good.add.GoodCategoryDto;
 import com.chauncy.data.dto.manage.good.delete.GoodCategoryDeleteDto;
@@ -27,7 +26,9 @@ import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Maps;
 import org.springframework.beans.BeanUtils;
@@ -38,7 +39,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 

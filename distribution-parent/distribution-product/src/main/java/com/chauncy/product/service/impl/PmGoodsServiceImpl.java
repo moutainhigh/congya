@@ -11,6 +11,7 @@ import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.*;
+import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.dto.manage.good.update.RejectGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.*;
 import com.chauncy.data.dto.supplier.good.select.FindStandardDto;
@@ -22,6 +23,7 @@ import com.chauncy.data.dto.supplier.good.update.UpdatePublishStatusDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
 import com.chauncy.data.mapper.product.*;
 import com.chauncy.data.mapper.sys.SysUserMapper;
+import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.supplier.*;
 import com.chauncy.product.service.IPmGoodsRelAttributeGoodService;
@@ -75,8 +77,8 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     @Autowired
     private PmGoodsRelAttributeValueGoodMapper goodsRelAttributeValueGoodMapper;
 
-    @Autowired
-    private PmGoodsRelGoodsMemberLevelMapper goodsRelGoodsMemberLevelMapper;
+    /*@Autowired
+    private PmGoodsRelGoodsMemberLevelMapper goodsRelGoodsMemberLevelMapper;*/
 
     @Autowired
     private PmAssociationGoodsMapper associationGoodsMapper;
@@ -854,9 +856,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
                 memberLevelInfos.add(memberLevelInfo);
             });
             findGoodOperationVo.setMemberLevelInfos(memberLevelInfos);
-            return findGoodOperationVo;
-        }
-        else {
+
+        }return findGoodOperationVo;
+        /*else {
             BeanUtils.copyProperties(findGoodOperationVo, goodsPo);
             findGoodOperationVo.setGoodsId(goodsId);
             //根据商品ID查找关联的会员等级购买权限,商品和会员等级多对多的关系
@@ -885,7 +887,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             });
             findGoodOperationVo.setMemberLevelInfos(memberLevelInfos);
             return findGoodOperationVo;
-        }
+        }*/
 
     }
 
@@ -914,7 +916,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         //删除商品对应的会员关系
 
         //根据商品ID查找关联的会员等级购买权限,商品和会员等级多对多的关系
-        Map<String, Object> map = new HashMap<>();
+        /*Map<String, Object> map = new HashMap<>();
         map.put("goods_good_id", updateGoodOperationDto.getGoodsId());
         //获取商品限制的会员等级信息
         List<PmGoodsRelGoodsMemberLevelPo> relGoodsMemberLevelPos = goodsRelGoodsMemberLevelMapper.selectByMap(map);
@@ -928,7 +930,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             relGoodsMemberLevelPo.setCreateBy(user).setMemberLevelId(id).
                     setGoodsGoodId(updateGoodOperationDto.getGoodsId());
             goodsRelGoodsMemberLevelMapper.insert(relGoodsMemberLevelPo);
-        }
+        }*/
         //如果是审核通过，则删除对应的驳回详情
         if (updateGoodOperationDto.getVerifyStatus()== VerifyStatusEnum.CHECKED.getId() ){
             PmGoodsPo goodsPo1 = new PmGoodsPo();

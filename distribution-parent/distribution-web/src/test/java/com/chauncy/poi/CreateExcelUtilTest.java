@@ -2,7 +2,7 @@
 //
 //import com.chauncy.poi.util.CreateExcelUtil;
 //import com.chauncy.poi.vo.ExcelSheetVo;
-//import com.chauncy.test.service.UserService;
+//import com.chauncy.test.com.chauncy.user.service.UserService;
 //import com.chauncy.web.StartApplication;
 //import lombok.extern.slf4j.Slf4j;
 //import org.junit.Test;
@@ -32,7 +32,7 @@
 //public class CreateExcelUtilTest {
 //
 //    @Autowired
-//    private UserService service;
+//    private UserService com.chauncy.user.service;
 //
 //
 //    /**
@@ -42,7 +42,7 @@
 //    public void creatSheet() {
 //        List<ExcelSheetVo> sheetPOS = new ArrayList<>();
 //
-//        List<Map<String, Object>> listMap = service.find();
+//        List<Map<String, Object>> listMap = com.chauncy.user.service.find();
 //
 //        ExcelSheetVo sheetPO = new ExcelSheetVo();
 //
@@ -66,9 +66,9 @@
 //    @Test
 //    public void creatSheets() {
 //
-//        List<Map<String, Object>> listMap1 = service.find();
-//        List<Map<String, Object>> listMap2 = service.find();
-//        List<Map<String, Object>> listMap3 = service.find();
+//        List<Map<String, Object>> listMap1 = com.chauncy.user.service.find();
+//        List<Map<String, Object>> listMap2 = com.chauncy.user.service.find();
+//        List<Map<String, Object>> listMap3 = com.chauncy.user.service.find();
 //
 //        //存放listMap
 //        List<List<Map<String, Object>>> listCounter = new ArrayList<>();

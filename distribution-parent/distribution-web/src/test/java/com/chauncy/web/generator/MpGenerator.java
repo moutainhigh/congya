@@ -71,8 +71,8 @@
 //        pc.setParent("com.chauncy");
 //        pc.setEntity("domain.po."+model);
 //        pc.setMapper("mapper."+model);
-//        pc.setService("temp."+model+".service");
-//        pc.setServiceImpl("temp."+model+".service.impl");
+//        pc.setService("temp."+model+".com.chauncy.user.service");
+//        pc.setServiceImpl("temp."+model+".com.chauncy.user.service.impl");
 //        pc.setController("temp.controller."+model);
 //
 //        mpg.setPackageInfo(pc);

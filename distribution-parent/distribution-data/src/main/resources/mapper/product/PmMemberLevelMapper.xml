@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chauncy.data.mapper.product.PmMemberLevelMapper">
+<mapper namespace="com.chauncy.data.mapper.user.PmMemberLevelMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.product.PmMemberLevelPo">
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.user.PmMemberLevelPo">
         <id column="id" property="id" />
         <result column="actor" property="actor" />
         <result column="level_name" property="levelName" />

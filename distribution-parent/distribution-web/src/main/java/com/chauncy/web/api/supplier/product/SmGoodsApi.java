@@ -151,7 +151,7 @@ public class SmGoodsApi extends BaseApi {
 //    public JsonViewData addExtraValue(@RequestBody @ApiParam(required = true, name = "goodAttributeId", value = "属性值id") @Valid
 //                                              AddExtraValueDto addExtraValueDto) {
 //
-//        service.addExtraValue(addExtraValueDto);
+//        com.chauncy.user.service.addExtraValue(addExtraValueDto);
 //
 //        return new JsonViewData(ResultCode.SUCCESS);
 //    }

@@ -11,7 +11,7 @@ import javax.validation.constraints.Min;
  * @Date 2019/6/8 22:49
  **/
 @Data
-@ApiModel(value = "列表查询", description = "列表查询")
+@ApiModel(value = "列表查询")
 public class BaseSearchDto {
 
     @ApiModelProperty(value = "标签ID")
