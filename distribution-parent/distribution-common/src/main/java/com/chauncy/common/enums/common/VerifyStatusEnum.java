@@ -1,4 +1,4 @@
-package com.chauncy.common.enums.goods;
+package com.chauncy.common.enums.common;
 
 import com.chauncy.common.enums.BaseEnum;
 
@@ -8,9 +8,9 @@ import java.util.Objects;
  * @Author cheng
  * @create 2019-06-21 10:17
  *
- * 商品状态 1-未审核 2-审核通过 3-驳回
+ *  校验状态 1-未审核 2-审核通过 3-驳回 4-不通过/驳回
  */
-public enum GoodsVerifyStatusEnum implements BaseEnum {
+public enum VerifyStatusEnum implements BaseEnum {
 
     UNCHECKED(1,"未审核"),
     WAIT_CONFIRM(2,"待审核"),
@@ -19,7 +19,7 @@ public enum GoodsVerifyStatusEnum implements BaseEnum {
 
     private Integer id;
     private String name;
-    GoodsVerifyStatusEnum(Integer id, String name){
+    VerifyStatusEnum(Integer id, String name){
         this.id = id;
         this.name = name;
     }
@@ -34,16 +34,16 @@ public enum GoodsVerifyStatusEnum implements BaseEnum {
     }
 
     //通过Id获取结果
-    public static GoodsVerifyStatusEnum getVerifyStatusById(Integer id) {
-        for (GoodsVerifyStatusEnum type : GoodsVerifyStatusEnum.values()) {
+    public static VerifyStatusEnum getVerifyStatusById(Integer id) {
+        for (VerifyStatusEnum type : VerifyStatusEnum.values()) {
             if (type.getId() == id)
                 return type;
         }
         return null;
     }
     //通过名称来获取结果
-    public static GoodsVerifyStatusEnum fromName(String name) {
-        for (GoodsVerifyStatusEnum type : GoodsVerifyStatusEnum.values()) {
+    public static VerifyStatusEnum fromName(String name) {
+        for (VerifyStatusEnum type : VerifyStatusEnum.values()) {
             if (type.getName().equals(name))
                 return type;
         }
