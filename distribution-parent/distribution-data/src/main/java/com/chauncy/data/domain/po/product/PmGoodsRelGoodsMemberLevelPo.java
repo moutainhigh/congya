@@ -1,3 +1,4 @@
+/*
 package com.chauncy.data.domain.po.product;
 
 import com.baomidou.mybatisplus.annotation.TableLogic;
@@ -15,6 +16,7 @@ import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotNull;
 
+*/
 /**
  * <p>
  * 商品和会员等级关联表
@@ -22,7 +24,8 @@ import javax.validation.constraints.NotNull;
  *
  * @author huangwancheng
  * @since 2019-06-16
- */
+ *//*
+
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
@@ -63,3 +66,4 @@ public class PmGoodsRelGoodsMemberLevelPo implements Serializable {
 
 
 }
+*/

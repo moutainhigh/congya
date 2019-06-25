@@ -37,9 +37,9 @@ public class ShipTemplateApi {
      * @param addShipTemplateDto
      * @return
      */
-    @PostMapping("/addShipTemplate")
+    @PostMapping("/addOrUpdateShipTemplate")
     @ApiOperation("添加或修改运费模版")
-    public JsonViewData addShipTemplate(@RequestBody @Validated @ApiParam(required = true,name = "添加或修改运费模版",
+    public JsonViewData addOrUpdateShipTemplate(@RequestBody @Validated @ApiParam(required = true,name = "添加或修改运费模版",
             value = "addShipTemplateDto") AddShipTemplateDto addShipTemplateDto){
 
         service.addShipTemplate(addShipTemplateDto);
