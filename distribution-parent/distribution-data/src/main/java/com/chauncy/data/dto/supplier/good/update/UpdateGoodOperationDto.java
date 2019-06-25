@@ -1,6 +1,6 @@
 package com.chauncy.data.dto.supplier.good.update;
 
-import com.chauncy.common.enums.goods.GoodsVerifyStatusEnum;
+import com.chauncy.common.enums.common.VerifyStatusEnum;
 import com.chauncy.data.valid.annotation.EnumConstraint;
 import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import io.swagger.annotations.ApiModel;
@@ -8,7 +8,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
-import java.lang.annotation.Target;
 import java.math.BigDecimal;
 
 /**
@@ -57,6 +56,6 @@ public class UpdateGoodOperationDto {
     private Boolean isFreePostage;
 
     @ApiModelProperty(value = "审核状态 1->未审核 2->审核通过 3->未通过")
-    @EnumConstraint(target = GoodsVerifyStatusEnum.class)
+    @EnumConstraint(target = VerifyStatusEnum.class)
     private Integer verifyStatus;
 }

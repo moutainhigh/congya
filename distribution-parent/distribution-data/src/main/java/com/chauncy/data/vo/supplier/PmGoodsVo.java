@@ -1,6 +1,5 @@
 package com.chauncy.data.vo.supplier;
 
-import com.chauncy.common.enums.goods.GoodsVerifyStatusEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

@@ -2,8 +2,9 @@ package com.chauncy.product.service;
 
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmShippingTemplatePo;
-import com.chauncy.data.dto.manage.ship.add.AddAmountTemplateDto;
+import com.chauncy.data.dto.manage.ship.add.AddShipTemplateDto;
 import com.chauncy.data.dto.manage.ship.select.SearchPlatTempDto;
+import com.chauncy.data.dto.manage.ship.update.VerifyTemplateDto;
 import com.chauncy.data.vo.manage.ship.PlatTemplateVo;
 import com.github.pagehelper.PageInfo;
 
@@ -20,9 +21,9 @@ public interface IPmShippingTemplateService extends Service<PmShippingTemplatePo
     /**
      * 添加按金额计算运费模版
      *
-     * @param addAmountTemplateDto
+     * @param addShipTemplateDto
      */
-    void addShipTemplate(AddAmountTemplateDto addAmountTemplateDto);
+    void addShipTemplate(AddShipTemplateDto addShipTemplateDto);
 
     /**
      * 批量删除按金额计算运费列表
@@ -47,4 +48,12 @@ public interface IPmShippingTemplateService extends Service<PmShippingTemplatePo
      * @return
      */
     PageInfo<PlatTemplateVo> searchPlatTempByConditions(SearchPlatTempDto searchPlatTempDto);
+
+    /**
+     * 批量修改模版的审核状态
+     *
+     * @param verifyTemplateDto
+     * @return
+     */
+    void verifyTemplate(VerifyTemplateDto verifyTemplateDto);
 }

@@ -1,8 +1,9 @@
 package com.chauncy.web.api.manage.ship;
 
 import com.chauncy.common.enums.system.ResultCode;
-import com.chauncy.data.dto.manage.ship.add.AddAmountTemplateDto;
+import com.chauncy.data.dto.manage.ship.add.AddShipTemplateDto;
 import com.chauncy.data.dto.manage.ship.select.SearchPlatTempDto;
+import com.chauncy.data.dto.manage.ship.update.VerifyTemplateDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.ship.PlatTemplateVo;
 import com.chauncy.product.service.IPmShippingTemplateService;
@@ -31,17 +32,17 @@ public class ShipTemplateApi {
     private IPmShippingTemplateService service;
 
     /**
-     * 添加按金额计算运费模版
+     * 添加或修改运费模版
      *
-     * @param addAmountTemplateDto
+     * @param addShipTemplateDto
      * @return
      */
     @PostMapping("/addShipTemplate")
-    @ApiOperation("添加按金额计算运费模版")
-    public JsonViewData addShipTemplate(@RequestBody @Validated @ApiParam(required = true,name = "添加运费模版",
-            value = "addAmountTemplateDto") AddAmountTemplateDto addAmountTemplateDto){
+    @ApiOperation("添加或修改运费模版")
+    public JsonViewData addShipTemplate(@RequestBody @Validated @ApiParam(required = true,name = "添加或修改运费模版",
+            value = "addShipTemplateDto") AddShipTemplateDto addShipTemplateDto){
 
-        service.addShipTemplate(addAmountTemplateDto);
+        service.addShipTemplate(addShipTemplateDto);
         return new JsonViewData(ResultCode.SUCCESS,"操作成功");
     }
 
@@ -89,5 +90,18 @@ public class ShipTemplateApi {
         return new JsonViewData(service.searchPlatTempByConditions(searchPlatTempDto));
     }
 
-//    public JsonViewData updatePlaformShip
+    /**
+     * 批量修改模版的审核状态
+     *
+     * @param verifyTemplateDto
+     * @return
+     */
+    @PostMapping("/verifyTemplate")
+    @ApiOperation("批量修改模版的审核状态")
+    public JsonViewData verifyTemplate(@RequestBody @Validated @ApiParam(required = true,name = "verifyTemplateDto",value ="批量修改模版的审核状态")
+                                               VerifyTemplateDto verifyTemplateDto){
+        service.verifyTemplate(verifyTemplateDto);
+
+        return new JsonViewData(ResultCode.SUCCESS,"操作成功");
+    }
 }

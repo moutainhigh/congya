@@ -1,29 +1,34 @@
 package com.chauncy.product.service.impl;
 
+import com.chauncy.common.enums.ship.ShipCalculateWayEnum;
 import com.chauncy.common.enums.goods.GoodsShipTemplateEnum;
-import com.chauncy.common.enums.goods.GoodsVerifyStatusEnum;
+import com.chauncy.common.enums.common.VerifyStatusEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.PmMoneyShippingPo;
+import com.chauncy.data.domain.po.product.PmNumberShippingPo;
 import com.chauncy.data.domain.po.product.PmShippingTemplatePo;
-import com.chauncy.data.dto.manage.ship.add.AddAmountTemplateDto;
+import com.chauncy.data.dto.manage.ship.add.AddShipTemplateDto;
 import com.chauncy.data.dto.manage.ship.select.SearchPlatTempDto;
+import com.chauncy.data.dto.manage.ship.update.VerifyTemplateDto;
 import com.chauncy.data.mapper.product.PmMoneyShippingMapper;
 import com.chauncy.data.mapper.product.PmNumberShippingMapper;
 import com.chauncy.data.mapper.product.PmShippingTemplateMapper;
 import com.chauncy.data.vo.manage.ship.PlatTemplateVo;
-import com.chauncy.data.vo.supplier.PmGoodsVo;
 import com.chauncy.product.service.IPmMoneyShippingService;
+import com.chauncy.product.service.IPmNumberShippingService;
 import com.chauncy.product.service.IPmShippingTemplateService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,6 +41,7 @@ import java.util.stream.Collectors;
  * @since 2019-05-21
  */
 @Service
+@Slf4j
 public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTemplateMapper, PmShippingTemplatePo> implements IPmShippingTemplateService {
 
     @Autowired
@@ -51,6 +57,9 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
     private IPmMoneyShippingService moneyShippingService;
 
     @Autowired
+    private IPmNumberShippingService numberShippingService;
+
+    @Autowired
     private SecurityUtil securityUtil;
 
     private static int defaultPageSize = 10;
@@ -62,51 +71,197 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
     /**
      * 添加按金额计算运费模版
      *
-     * @param addAmountTemplateDto
+     * @param addShipTemplateDto
      */
     @Override
-    public void addShipTemplate(AddAmountTemplateDto addAmountTemplateDto) {
+    public void addShipTemplate(AddShipTemplateDto addShipTemplateDto) {
 
         //获取当前用户平台用户还是商家用户
-        Boolean isPlat = securityUtil.getCurrUser().getStoreId()==null;
+        Boolean isPlat = securityUtil.getCurrUser().getStoreId() == null;
         //先保存按金额计算模版
         PmShippingTemplatePo shippingTemplatePo = new PmShippingTemplatePo();
-        BeanUtils.copyProperties(addAmountTemplateDto,shippingTemplatePo);
-        shippingTemplatePo.setId(null);
-        if (isPlat){
+        BeanUtils.copyProperties(addShipTemplateDto, shippingTemplatePo);
+        if (isPlat) {
             shippingTemplatePo.setType(GoodsShipTemplateEnum.PLATFORM_SHIP.getId());
-        }else{
+            shippingTemplatePo.setEnable(true);
+        } else {
             shippingTemplatePo.setType(GoodsShipTemplateEnum.MERCHANT_SHIP.getId());
-            shippingTemplatePo.setStoreId(securityUtil.getCurrUser().getStoreId());
-            shippingTemplatePo.setVerifyStatus(GoodsVerifyStatusEnum.UNCHECKED.getId());
+            shippingTemplatePo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
         }
-        shippingTemplatePo.setCreateBy(securityUtil.getCurrUser().getUsername());
-        //去重
-        Map<String,Object> map = new HashMap<>();
-        map.put("name",shippingTemplatePo.getName());
-        map.put("type",shippingTemplatePo.getType());
-        List<String> name = shippingTemplateMapper.selectByMap(map).stream().map(a->a.getName()).collect(Collectors.toList());
-        if (name.contains(shippingTemplatePo.getName())){
-            throw new ServiceException(ResultCode.DUPLICATION, "添加失败,模版名称已存在");
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("name", shippingTemplatePo.getName());
+        map.put("type", shippingTemplatePo.getType());
+        List<String> names = shippingTemplateMapper.selectByMap(map).stream().map(a -> a.getName()).collect(Collectors.toList());
+
+        //TODO 新增操作
+        if (addShipTemplateDto.getId()==0) {
+            if (isPlat) {
+                shippingTemplatePo.setVerifyStatus(VerifyStatusEnum.CHECKED.getId());
+            } else {
+                shippingTemplatePo.setStoreId(securityUtil.getCurrUser().getStoreId());
+            }
+            //去重
+            if (names.contains(shippingTemplatePo.getName())) {
+                throw new ServiceException(ResultCode.DUPLICATION, "操作失败,模版名称已存在");
+            }
+            shippingTemplatePo.setId(null);
+            shippingTemplatePo.setCreateBy(securityUtil.getCurrUser().getUsername());
+            shippingTemplateMapper.insert(shippingTemplatePo);
+
+            //保存指定地区按金额计算运费方式
+            if (addShipTemplateDto.getCalculateWay() == ShipCalculateWayEnum.AMOUNT.getId() && addShipTemplateDto.getAmountDtos() != null && addShipTemplateDto.getAmountDtos().size() != 0) {
+                List<Long> destinationList = addShipTemplateDto.getAmountDtos().stream().map(a -> a.getDestinationId()).collect(Collectors.toList());
+                // 通过去重之后的HashSet长度来判断原list是否包含重复元素
+                boolean isRepeat = destinationList.size() != new HashSet<Long>(destinationList).size();
+                if (isRepeat) {
+                    throw new ServiceException(ResultCode.DUPLICATION, "添加失败,目的地重复");
+                }
+                List<PmMoneyShippingPo> moneyShippingPoList = Lists.newArrayList();
+                addShipTemplateDto.getAmountDtos().forEach(a -> {
+                    PmMoneyShippingPo moneyShippingPo = new PmMoneyShippingPo();
+                    BeanUtils.copyProperties(a, moneyShippingPo);
+                    moneyShippingPo.setShippingId(shippingTemplatePo.getId());
+                    moneyShippingPo.setId(null);
+                    moneyShippingPo.setCreateBy(securityUtil.getCurrUser().getUsername());
+                    moneyShippingPoList.add(moneyShippingPo);
+                });
+                moneyShippingService.saveBatch(moneyShippingPoList);
+            }
+            //保存指定地区按件数计算运费方式
+            else if (addShipTemplateDto.getCalculateWay() == ShipCalculateWayEnum.NUMBER.getId() && addShipTemplateDto.getNumDtos() != null && addShipTemplateDto.getNumDtos().size() != 0) {
+
+                List<PmNumberShippingPo> numberShippingPoList = Lists.newArrayList();
+                List<Long> destinationList = addShipTemplateDto.getNumDtos().stream().map(a -> a.getDestinationId()).collect(Collectors.toList());
+                // 通过去重之后的HashSet长度来判断原list是否包含重复元素
+                boolean isRepeat = destinationList.size() != new HashSet<Long>(destinationList).size();
+                if (isRepeat) {
+                    throw new ServiceException(ResultCode.DUPLICATION, "添加失败,目的地重复");
+                }
+                addShipTemplateDto.getNumDtos().forEach(b -> {
+                    PmNumberShippingPo numberShippingPo = new PmNumberShippingPo();
+                    BeanUtils.copyProperties(b, numberShippingPo);
+                    numberShippingPo.setShippingId(shippingTemplatePo.getId()).setId(null).setCreateBy(securityUtil.getCurrUser().getUsername());
+                    numberShippingPoList.add(numberShippingPo);
+                });
+                numberShippingService.saveBatch(numberShippingPoList);
+            }
         }
-        shippingTemplateMapper.insert(shippingTemplatePo);
-        //再保存指定地区按金额计算运费方式
-        List<Long> destinationList = addAmountTemplateDto.getAmountDtos().stream().map(a->a.getDestinationId()).collect(Collectors.toList());
-        // 通过去重之后的HashSet长度来判断原list是否包含重复元素
-        boolean isRepeat = destinationList.size() != new HashSet<Long>(destinationList).size();
-        if (isRepeat) {
-            throw new ServiceException(ResultCode.DUPLICATION, "添加失败,目的地重复");
+         //TODO 进行修改操作
+        else{
+            /**先处理模版,判断名称不能重复、不能修改计算方式**/
+            PmShippingTemplatePo shippingTemplate = shippingTemplateMapper.selectById(addShipTemplateDto.getId());
+            if (shippingTemplate==null){
+                throw new ServiceException(ResultCode.NO_EXISTS,"该改运费模版不存在",addShipTemplateDto.getId());
+            }
+            //模版名称不能重复
+            if (names!=null && names.size()!=0 && !shippingTemplate.getName().equals(addShipTemplateDto.getName())){
+                throw new ServiceException(ResultCode.DUPLICATION,"修改失败，改模版名称已存在",addShipTemplateDto.getName());
+            }
+            //不能更换计算方式
+            if (addShipTemplateDto.getCalculateWay()!=shippingTemplateMapper.selectById(addShipTemplateDto.getId()).getCalculateWay()){
+                throw new ServiceException(ResultCode.FAIL,"修改失败,不能更换计算方式");
+            }
+            //更新模版信息
+            shippingTemplatePo.setUpdateBy(securityUtil.getCurrUser().getUsername());
+            shippingTemplateMapper.updateById(shippingTemplatePo);
+
+            /**处理按金额计算运费*/
+
+            if (addShipTemplateDto.getCalculateWay()== ShipCalculateWayEnum.AMOUNT.getId()) {
+                List<PmMoneyShippingPo> updateAmounts = Lists.newArrayList();
+                List<PmMoneyShippingPo> addAmounts = Lists.newArrayList();
+                List<Long> destinationList = addShipTemplateDto.getAmountDtos().stream().map(a -> a.getDestinationId()).collect(Collectors.toList());
+                // 通过去重之后的HashSet长度来判断原list是否包含重复元素
+                boolean isRepeat = destinationList.size() != new HashSet<Long>(destinationList).size();
+                if (isRepeat) {
+                    throw new ServiceException(ResultCode.DUPLICATION, "修改失败,填写的目的地重复");
+                }
+                Map<String, Object> map1 = new HashMap<>();
+                map1.put("shipping_id", addShipTemplateDto.getId());
+                List<Long> address = moneyShippingMapper.selectByMap(map1).stream().map(w -> w.getDestinationId()).collect(Collectors.toList());
+                addShipTemplateDto.getAmountDtos().forEach(q -> {
+                    //新增操作
+                    if (q.getId() == 0) {
+                        //判断是否与数据库的数据重复
+                        if (address.contains(q.getDestinationId())) {
+                            throw new ServiceException(ResultCode.DUPLICATION, "修改失败,目的地在数据库已存在");
+                        }
+                        PmMoneyShippingPo moneyShippingPo = new PmMoneyShippingPo();
+                        BeanUtils.copyProperties(q, moneyShippingPo);
+                        moneyShippingPo.setUpdateBy(securityUtil.getCurrUser().getUsername());
+                        moneyShippingPo.setCreateBy(securityUtil.getCurrUser().getUsername());
+                        moneyShippingPo.setShippingId(shippingTemplatePo.getId());
+                        moneyShippingPo.setId(null);
+                        addAmounts.add(moneyShippingPo);
+                    } else {
+                        //判断是否与数据库的数据重复
+                        if (address.contains(q.getDestinationId()) && !q.getDestinationId().equals(moneyShippingMapper.selectById(q.getId()).getDestinationId())) {
+                            throw new ServiceException(ResultCode.DUPLICATION, "修改失败,目的地在数据库已存在");
+                        }
+                        PmMoneyShippingPo moneyShippingPo = new PmMoneyShippingPo();
+                        BeanUtils.copyProperties(q, moneyShippingPo);
+                        moneyShippingPo.setUpdateBy(securityUtil.getCurrUser().getUsername());
+                        updateAmounts.add(moneyShippingPo);
+                    }
+                });
+                //保存和修改按金额计算运费
+                if (addAmounts != null && addAmounts.size() != 0) {
+                    moneyShippingService.saveBatch(addAmounts);
+                }
+                if (updateAmounts != null && updateAmounts.size() != 0) {
+                    moneyShippingService.updateBatchById(updateAmounts);
+                }
+            }
+            /**处理按件数计算运费*/
+            if (addShipTemplateDto.getCalculateWay()== ShipCalculateWayEnum.NUMBER.getId()){
+                List<PmNumberShippingPo> addNumShip = Lists.newArrayList();
+                List<PmNumberShippingPo> updateNumShip = Lists.newArrayList();
+                Map<String,Object> map1 = new HashMap<>();
+                map1.put("shipping_id",addShipTemplateDto.getId());
+                List<Long> addressList = numberShippingMapper.selectByMap(map1).stream().map(w->w.getDestinationId()).collect(Collectors.toList());
+                List<Long> destinations = addShipTemplateDto.getNumDtos().stream().map(a -> a.getDestinationId()).collect(Collectors.toList());
+                // 通过去重之后的HashSet长度来判断原list是否包含重复元素
+                boolean isRepeat = destinations.size() != new HashSet<Long>(destinations).size();
+                if (isRepeat) {
+                    throw new ServiceException(ResultCode.DUPLICATION, "修改失败,填写的目的地重复");
+                }
+                addShipTemplateDto.getNumDtos().forEach(y->{
+
+                    //新增按件数计算运费操作
+                    if (y.getId() == 0) {
+                        //判断是否与数据库的数据重复
+                        if (addressList.contains(y.getDestinationId())) {
+                            throw new ServiceException(ResultCode.DUPLICATION, "修改失败,目的地在数据库已存在");
+                        }
+                        PmNumberShippingPo numberShippingPo = new PmNumberShippingPo();
+                        BeanUtils.copyProperties(y, numberShippingPo);
+                        numberShippingPo.setUpdateBy(securityUtil.getCurrUser().getUsername());
+                        numberShippingPo.setCreateBy(securityUtil.getCurrUser().getUsername());
+                        numberShippingPo.setId(null);
+                        numberShippingPo.setShippingId(shippingTemplatePo.getId());
+                        addNumShip.add(numberShippingPo);
+                    } else {
+                        //判断是否与数据库的数据重复
+                        if (addressList.contains(y.getDestinationId()) && !y.getDestinationId().equals(numberShippingMapper.selectById(y.getId()).getDestinationId())) {
+                            throw new ServiceException(ResultCode.DUPLICATION, "修改失败,目的地在数据库已存在");
+                        }
+                        PmNumberShippingPo numberShippingPo = new PmNumberShippingPo();
+                        BeanUtils.copyProperties(y, numberShippingPo);
+                        numberShippingPo.setUpdateBy(securityUtil.getCurrUser().getUsername());
+                        numberShippingPo.setUpdateTime(LocalDateTime.now());
+                        updateNumShip.add(numberShippingPo);
+                    }
+                });
+                //保存和修改按金额计算运费
+                if (addNumShip != null && addNumShip.size() != 0) {
+                    numberShippingService.saveBatch(addNumShip);
+                }
+                if (updateNumShip != null && updateNumShip.size() != 0) {
+                    numberShippingService.updateBatchById(updateNumShip);
+                }
+                }
         }
-        List<PmMoneyShippingPo> moneyShippingPoList = Lists.newArrayList();
-        addAmountTemplateDto.getAmountDtos().forEach(a->{
-            PmMoneyShippingPo moneyShippingPo = new PmMoneyShippingPo();
-            BeanUtils.copyProperties(a,moneyShippingPo);
-            moneyShippingPo.setShippingId(shippingTemplatePo.getId());
-            moneyShippingPo.setId(null);
-            moneyShippingPo.setCreateBy(securityUtil.getCurrUser().getUsername());
-            moneyShippingPoList.add(moneyShippingPo);
-        });
-        moneyShippingService.saveBatch(moneyShippingPoList);
     }
 
     /**
@@ -144,11 +299,22 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
         Integer pageNo = searchPlatTempDto.getPageNo() == null ? defaultPageNo : searchPlatTempDto.getPageNo();
         Integer pageSize = searchPlatTempDto.getPageSize() == null ? defaultPageSize : searchPlatTempDto.getPageSize();
         PageInfo<PlatTemplateVo> platTemplateVos = new PageInfo<>();
-//        if ()
         platTemplateVos = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
                 .doSelectPageInfo(() -> shippingTemplateMapper.searchPlatTempByConditions(searchPlatTempDto));
 
         return platTemplateVos;
+    }
+
+    /**
+     * 批量修改模版的审核状态
+     *
+     * @param verifyTemplateDto
+     * @return
+     */
+    @Override
+    public void verifyTemplate(VerifyTemplateDto verifyTemplateDto) {
+
+
     }
 
 }
