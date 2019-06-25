@@ -1,7 +1,7 @@
 //package com.chauncy.web.controller.quartz;
 //
 //import com.chauncy.data.domain.po.quartz.QuartzJobPO;
-//import com.chauncy.quartz.service.QuartzJobService;
+//import com.chauncy.quartz.com.chauncy.user.service.QuartzJobService;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
 //import org.springframework.beans.factory.annotation.Autowired;

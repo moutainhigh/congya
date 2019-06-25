@@ -1,4 +1,4 @@
-package com.chauncy.data.domain.po.product;
+package com.chauncy.data.domain.po.user;
 
 import java.math.BigDecimal;
 
@@ -50,6 +50,9 @@ public class PmMemberLevelPo implements Serializable {
 
     @ApiModelProperty(value = "等级名称")
     private String levelName;
+
+    @ApiModelProperty(value = "等级")
+    private Integer level;
 
     @ApiModelProperty(value = "购物赠送比例")
     private BigDecimal purchasePresent;

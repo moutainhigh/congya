@@ -19,6 +19,7 @@
         <module>distribution-security</module>
         <module>distribution-poi</module>
         <module>distribution-store</module>
+        <module>distribution-user</module>
     </modules>
     <packaging>pom</packaging>
     <description>搭建分销系统</description>

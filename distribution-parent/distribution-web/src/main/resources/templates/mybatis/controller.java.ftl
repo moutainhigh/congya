@@ -38,7 +38,7 @@ public class ${table.controllerName} {
 </#if>
 
  @Autowired
- private ${table.serviceName} service;
+ private ${table.serviceName} com.chauncy.user.service;
 
 
 }

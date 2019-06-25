@@ -2,6 +2,7 @@ package com.chauncy.data.dto.manage.store.select;
 
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import net.minidev.json.annotate.JsonIgnore;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
  * @since 2019/6/15 20:30
  */
 @Data
+@ApiModel("标签")
 public class StoreLabelSearchDto  extends BaseSearchDto implements Serializable {
 
     private static final long serialVersionUID = 1L;

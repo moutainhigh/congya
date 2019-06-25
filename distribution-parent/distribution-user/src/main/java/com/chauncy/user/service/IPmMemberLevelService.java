@@ -1,7 +1,7 @@
-package com.chauncy.product.service;
+package com.chauncy.user.service;
 
 import com.chauncy.data.core.Service;
-import com.chauncy.data.domain.po.product.PmMemberLevelPo;
+import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 
 /**
  * <p>
@@ -12,5 +12,13 @@ import com.chauncy.data.domain.po.product.PmMemberLevelPo;
  * @since 2019-05-21
  */
 public interface IPmMemberLevelService extends Service<PmMemberLevelPo> {
+
+
+    /**
+     * 获得最大级别的信息
+     * @return
+     */
+    PmMemberLevelPo findByMaxLevel();
+
 
 }
