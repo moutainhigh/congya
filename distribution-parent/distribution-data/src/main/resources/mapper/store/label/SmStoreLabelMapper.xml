@@ -30,10 +30,10 @@
                 and name like concat('%', #{name}, '%')
             </if>
             <if test="startTime != null">
-                and DATE_FORMAT(create_time,'%Y-%m-%d') =  #{startTime}
+                and date(create_time) =  #{startTime}
             </if>
             <if test="endTime != null">
-                and DATE_FORMAT(create_time,'%Y-%m-%d') <![CDATA[<= ]]> #{endTime}
+                and date(create_time) <![CDATA[<= ]]> #{endTime}
             </if>
         </where>
     </select>
