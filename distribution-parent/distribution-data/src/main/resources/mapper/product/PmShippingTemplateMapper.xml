@@ -98,7 +98,7 @@
         select a.id as templateId,a.name as templateName,a.product_address_id,c1.merger_name as dispatch,a.calculate_way,
             a.create_by,a.create_time,a.default_freight,a.default_full_money,a.default_post_money,
             b.id as amountId,b.destination_id,d.destination_id as destinationIdd,b.destination_basis_freight,b.destination_full_money,b.destination_post_money,
-            c.merger_name as destinationName,c2.merger_name as destinationNamee,
+            c.merger_name as destinationName,c2.merger_name as destinationNamee,e.id,e.name,a.submit_time,a.verify_time,a.verify_status,a.auditor
         from pm_shipping_template a
         left join pm_money_shipping b on a.id=b.shipping_id
         left join pm_number_shipping d on a.id = b.shipping_id
@@ -128,10 +128,10 @@
                 and a.verify_status=#{verifyStatus}
             </if>
             <if test="storeId !=null">
-                and storeId=#{storeId}
+                and a.storeId=#{storeId}
             </if>
             <if test="storeName !=null and storeName!=''">
-                and a.storeName like concat('%', #{storeName}, '%')
+                and e.name like concat('%', #{storeName}, '%')
             </if>
         </where>
     </select>
