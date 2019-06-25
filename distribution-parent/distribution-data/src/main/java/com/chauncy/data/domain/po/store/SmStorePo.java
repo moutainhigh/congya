@@ -53,11 +53,8 @@ public class SmStorePo implements Serializable {
     @ApiModelProperty(value = "是否展示在前端 0 不展示 1 展示")
     private Boolean showStatus;
 
-    /*@ApiModelProperty(value = "店铺类型标签id（sm_store_label主键）")
-    private Long storeLabelId;*/
-
-    @ApiModelProperty(value = "店铺标签")
-    private String storeLabel;
+    @ApiModelProperty(value = "店铺类型标签id（sm_store_label主键）")
+    private Long storeLabelId;
 
     @ApiModelProperty(value = "店铺分类id（sm_store_category主键）")
     private Long storeCategoryId;

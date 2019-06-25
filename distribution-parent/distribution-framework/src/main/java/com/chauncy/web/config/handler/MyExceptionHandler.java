@@ -4,6 +4,7 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.data.vo.JsonViewData;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -32,8 +33,10 @@ public class MyExceptionHandler {
             ServiceException serviceException = (ServiceException) e;
             return new JsonViewData(serviceException.getResultCode(),serviceException.getLocalizedMessage());
         }else if (e instanceof MethodArgumentNotValidException){
-            String errorMessage=((MethodArgumentNotValidException) e).getBindingResult().getFieldError().getDefaultMessage();
-            return new JsonViewData(ResultCode.PARAM_ERROR,errorMessage);
+            FieldError fieldError = ((MethodArgumentNotValidException) e).getBindingResult().getFieldError();
+            String errorMessage= fieldError.getDefaultMessage();
+            String field=fieldError.getField();
+            return new JsonViewData(ResultCode.PARAM_ERROR,field+errorMessage);
             }
         return new JsonViewData(ResultCode.SYSTEM_ERROR,e.getMessage());
     }

@@ -2,6 +2,10 @@ package com.chauncy.product.service;
 
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
+import com.chauncy.data.dto.base.BaseSearchDto;
+import com.chauncy.data.dto.manage.good.select.SearchAttributeByNamePageDto;
+import com.chauncy.data.dto.manage.good.select.SearchGoodCategoryDto;
+import com.chauncy.data.vo.manage.product.SearchAttributeVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -33,6 +37,25 @@ public interface IPmGoodsCategoryService extends Service<PmGoodsCategoryPo> {
     List<Long> findAttributeIdsByNamesAndCategoryId(@Param("names")List<String> names,
                                                 @Param("type") Integer type,
                                                 @Param("cId") Long cId);
+
+
+
+    /**
+     * 查找分类下的属性是否被勾选
+     * @param searchAttributeByNamePageDto
+     * @return
+     */
+    List<SearchAttributeVo> findAttributeVo( SearchAttributeByNamePageDto searchAttributeByNamePageDto);
+
+
+    /**
+     * 查找分类列表
+     * @param baseSearchDto
+     * @param pageNo
+     * @param pageSize
+     * @return
+     */
+    Map<String,Object> searchList(BaseSearchDto baseSearchDto, Integer pageNo, Integer pageSize);
 
 
 
