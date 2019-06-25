@@ -14,6 +14,9 @@ import javax.validation.constraints.Min;
 @ApiModel(value = "列表查询", description = "列表查询")
 public class BaseSearchDto {
 
+    @ApiModelProperty(value = "标签ID")
+    private Long id;
+
     @ApiModelProperty(value = "是否启用 1-是 0-否 默认为1")
     private Boolean enabled;
 

@@ -97,10 +97,10 @@ public class SmStoreCategoryServiceImpl extends AbstractService<SmStoreCategoryM
             throw new ServiceException(ResultCode.DUPLICATION, "分类名称重复");
         }
 
+        BeanUtils.copyProperties(storeCategoryDto, oldCategory);
         //获取当前用户
         String user = securityUtil.getCurrUser().getUsername();
         oldCategory.setUpdateBy(user);
-        BeanUtils.copyProperties(storeCategoryDto, oldCategory);
         smStoreCategoryMapper.updateById(oldCategory);
         return oldCategory;
     }

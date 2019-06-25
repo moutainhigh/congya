@@ -1,10 +1,14 @@
 package com.chauncy.web.api.manage.store.information.label;
 
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.dto.manage.store.add.InformationLabelDto;
+import com.chauncy.data.dto.manage.store.select.InformationLabelSearchDto;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.manage.store.information.label.InformationLabelVo;
 import com.chauncy.store.information.label.service.ISmInformationLabelService;
 import com.chauncy.web.base.BaseApi;
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -22,7 +26,7 @@ import javax.validation.Valid;
  */
 @Api(tags = "平台_店铺资讯资讯标签管理接口")
 @RestController
-@RequestMapping("/manage/store/label")
+@RequestMapping("/manage/information/label")
 @Slf4j
 public class SmInformationLabelApi  extends BaseApi {
 
@@ -31,34 +35,32 @@ public class SmInformationLabelApi  extends BaseApi {
 
     /**
      * 保存店铺资讯标签信息
-     * @param storeBaseInfoDto
+     * @param informationLabelDto
      * @return
      */
     @PostMapping("/save")
     @ApiOperation(value = "保存店铺资讯标签信息")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData save(@Valid @RequestBody @ApiParam(required = true, name = "storeLabelDto", value = "店铺资讯标签信息")
-                                     StoreLabelDto storeBaseInfoDto) {
+    public JsonViewData save(@Valid @RequestBody @ApiParam(required = true, name = "informationLabelDto", value = "店铺资讯标签信息")
+                                     InformationLabelDto informationLabelDto) {
 
-
-        return new JsonViewData(ResultCode.SUCCESS, "添加成功",
-                smStoreLabelService.saveStoreLabel(storeBaseInfoDto));
+        smInformationLabelService.saveInformationLabel(informationLabelDto);
+        return new JsonViewData(ResultCode.SUCCESS, "添加成功");
     }
 
     /**
      * 编辑店铺资讯标签信息
-     * @param storeBaseInfoDto
+     * @param informationLabelDto
      * @return
      */
     @PostMapping("/edit")
     @ApiOperation(value = "编辑店铺资讯标签信息")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData edit(@Validated(IUpdateGroup.class) @RequestBody @ApiParam(required = true, name = "storeLabelDto", value = "店铺资讯标签信息")
-                                     StoreLabelDto storeBaseInfoDto) {
+    public JsonViewData edit(@Validated(IUpdateGroup.class) @RequestBody @ApiParam(required = true, name = "informationLabelDto", value = "店铺资讯标签信息")
+                                         InformationLabelDto informationLabelDto) {
 
-
-        return new JsonViewData(ResultCode.SUCCESS, "编辑成功",
-                smStoreLabelService.editStoreLabel(storeBaseInfoDto));
+        smInformationLabelService.editInformationLabel(informationLabelDto);
+        return new JsonViewData(ResultCode.SUCCESS, "编辑成功");
     }
 
 
@@ -75,22 +77,23 @@ public class SmInformationLabelApi  extends BaseApi {
 
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
-                smStoreLabelService.findById(id));
+                smInformationLabelService.findById(id));
 
     }
 
 
     /**
      * 条件查询
-     * @param storeLabelSearchDto
+     * @param informationLabelSearchDto
      * @return
      */
-    @ApiOperation(value = "条件查询", notes = "根据标签ID、标签名称、创建时间查询")
+    @ApiOperation(value = "条件查询", notes = "根据标签ID、标签名称查询")
     @PostMapping("/searchPaging")
-    public JsonViewData searchPaging(@RequestBody StoreLabelSearchDto storeLabelSearchDto) {
+    public JsonViewData searchPaging(@RequestBody InformationLabelSearchDto informationLabelSearchDto) {
 
-        PageInfo<SmStoreLabelVo> smStoreBaseVoPageInfo = smStoreLabelService.searchPaging(storeLabelSearchDto);
-        return setJsonViewData(smStoreBaseVoPageInfo);
+        PageInfo<InformationLabelVo> informationLabelVoPageInfo = smInformationLabelService.searchPaging(informationLabelSearchDto);
+        return new JsonViewData(ResultCode.SUCCESS, "查找成功",
+                informationLabelVoPageInfo);
 
     }
 
@@ -103,7 +106,7 @@ public class SmInformationLabelApi  extends BaseApi {
     public JsonViewData searchAll() {
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
-                smStoreLabelService.selectAll());
+                smInformationLabelService.selectAll());
     }
 
     /**
@@ -116,7 +119,7 @@ public class SmInformationLabelApi  extends BaseApi {
     public JsonViewData delByIds(@ApiParam(required = true, name = "ids", value = "id集合")
                                  @PathVariable Long[] ids) {
 
-        smStoreLabelService.delStoreLabelByIds(ids);
+        smInformationLabelService.delInformationLabelByIds(ids);
         return new JsonViewData(ResultCode.SUCCESS, "批量删除标签成功");
     }
 

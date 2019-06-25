@@ -29,7 +29,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("sm_information")
-@ApiModel(value = "SmInformationPo对象", description = "店铺资讯标签信息")
+@ApiModel(value = "SmInformationPo对象", description = "店铺资讯信息")
 public class SmInformationPo implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -102,7 +102,7 @@ public class SmInformationPo implements Serializable {
     @ApiModelProperty(value = "创建时间")
     private LocalDateTime createTime;
 
-    @ApiModelProperty(value = "更创建者")
+    @ApiModelProperty(value = "创建者")
     private String createBy;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

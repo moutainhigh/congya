@@ -12,11 +12,11 @@ import java.math.BigDecimal;
 
 /**
  * @author yeJH
- * @since 2019/6/25 18:29
+ * @since 2019/6/25 22:40
  */
 @Data
-@ApiModel(value = "InformationLabelDto对象", description = "店铺资讯标签信息")
-public class InformationLabelDto   implements Serializable {
+@ApiModel(value = "InformationCategoryDto对象", description = "店铺资讯分类信息")
+public class InformationCategoryDto  implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -25,9 +25,13 @@ public class InformationLabelDto   implements Serializable {
     @NotNull(groups = IUpdateGroup.class)
     private Long id;
 
-    @ApiModelProperty(value = "资讯标签名称")
-    @NotBlank(message = "资讯标签名称不能为空")
+    @ApiModelProperty(value = "资讯分类名称")
+    @NotBlank(message = "资讯分类名称不能为空")
     private String name;
+
+    @ApiModelProperty(value = "分类缩略图")
+    @NotBlank(message = "分类缩略图不能为空")
+    private String icon;
 
     @ApiModelProperty(value = "排序数字")
     @NotNull(message = "排序数字不能为空")

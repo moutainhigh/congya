@@ -4,15 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.core.AbstractService;
-import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.store.label.SmStoreLabelPo;
 import com.chauncy.data.dto.manage.store.add.StoreLabelDto;
 import com.chauncy.data.dto.manage.store.select.StoreLabelSearchDto;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.store.label.SmStoreLabelMapper;
-import com.chauncy.data.vo.JsonViewData;
-import com.chauncy.data.vo.manage.store.SmStoreBaseVo;
 import com.chauncy.data.vo.manage.store.label.SmStoreLabelVo;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.store.label.service.ISmStoreLabelService;
@@ -61,10 +58,10 @@ public class SmStoreLabelServiceImpl extends AbstractService<SmStoreLabelMapper,
         }
 
         smStoreLabelPo = new SmStoreLabelPo();
+        BeanUtils.copyProperties(storeLabelDto, smStoreLabelPo);
         //获取当前用户
         String user = securityUtil.getCurrUser().getUsername();
-        smStoreLabelPo.setUpdateBy(user);
-        BeanUtils.copyProperties(storeLabelDto, smStoreLabelPo);
+        smStoreLabelPo.setCreateBy(user);
         smStoreLabelPo.setId(null);
         smStoreLabelMapper.insert(smStoreLabelPo);
         return smStoreLabelPo;
@@ -89,10 +86,10 @@ public class SmStoreLabelServiceImpl extends AbstractService<SmStoreLabelMapper,
             throw new ServiceException(ResultCode.DUPLICATION, "标签名称重复");
         }
 
+        BeanUtils.copyProperties(storeLabelDto, oldLabel);
         //获取当前用户
         String user = securityUtil.getCurrUser().getUsername();
         oldLabel.setUpdateBy(user);
-        BeanUtils.copyProperties(storeLabelDto, oldLabel);
         smStoreLabelMapper.updateById(oldLabel);
         return smStoreLabelPo;
     }
@@ -153,8 +150,8 @@ public class SmStoreLabelServiceImpl extends AbstractService<SmStoreLabelMapper,
         for (Long id :ids) {
             QueryWrapper<SmStorePo> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("store_label_id",id);
-            List<SmStorePo> smStorePoList = smStoreMapper.selectList(queryWrapper);
-            if(null != smStorePoList & smStorePoList.size() > 0 ) {
+            Integer count = smStoreMapper.selectCount(queryWrapper);
+            if(count > 0 ) {
                throw new ServiceException(ResultCode.FAIL, "删除失败，包含正被店铺使用关联的属性");
             }
         }

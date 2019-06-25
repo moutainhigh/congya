@@ -220,11 +220,11 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         SmStorePo smStorePo = smStoreMapper.selectById(storeAccountInfoDto.getId());
 
         if(null != smStorePo) {
+            //店铺账户信息插入
+            BeanUtils.copyProperties(storeAccountInfoDto, smStorePo);
             //获取当前用户
             String user = securityUtil.getCurrUser().getUsername();
             smStorePo.setUpdateBy(user);
-            //店铺账户信息插入
-            BeanUtils.copyProperties(storeAccountInfoDto, smStorePo);
             smStoreMapper.updateById(smStorePo);
             return new JsonViewData(ResultCode.SUCCESS, "添加成功");
         } else {

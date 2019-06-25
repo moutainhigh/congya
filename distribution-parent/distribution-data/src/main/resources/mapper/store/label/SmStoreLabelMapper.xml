@@ -23,7 +23,7 @@
     <select id="searchPaging" resultType="com.chauncy.data.vo.manage.store.label.SmStoreLabelVo">
         select <include refid="Base_Column_List"/> from sm_store_label
         <where>
-            <if test="id !=null and type !=''">
+            <if test="id !=null and id !=''">
                 and id = #{id}
             </if>
             <if test="name != null and name !=''">

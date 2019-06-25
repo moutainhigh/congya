@@ -20,4 +20,25 @@
         id, name, sort, enabled, create_time, create_by, update_time, update_by, del_flag
     </sql>
 
+
+    <select id="searchPaging" resultType="com.chauncy.data.vo.manage.store.information.label.InformationLabelVo">
+        select <include refid="Base_Column_List"/> from sm_information_label
+        <where>
+            <if test="id !=null and id !=''">
+                and id = #{id}
+            </if>
+            <if test="name != null and name !=''">
+                and name like concat('%', #{name}, '%')
+            </if>
+        </where>
+    </select>
+
+
+    <select id="selectAll" resultType="com.chauncy.data.vo.manage.store.information.label.InformationLabelVo">
+        select id,name
+        from sm_store_label
+        where del_flag = 0
+        order by sort desc
+    </select>
+
 </mapper>
