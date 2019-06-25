@@ -1,8 +1,8 @@
 package com.chauncy.product.service.impl;
 
-import com.chauncy.common.enums.ship.ShipCalculateWayEnum;
-import com.chauncy.common.enums.goods.GoodsShipTemplateEnum;
 import com.chauncy.common.enums.common.VerifyStatusEnum;
+import com.chauncy.common.enums.goods.GoodsShipTemplateEnum;
+import com.chauncy.common.enums.ship.ShipCalculateWayEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.core.AbstractService;
@@ -10,7 +10,9 @@ import com.chauncy.data.domain.po.product.PmMoneyShippingPo;
 import com.chauncy.data.domain.po.product.PmNumberShippingPo;
 import com.chauncy.data.domain.po.product.PmShippingTemplatePo;
 import com.chauncy.data.dto.manage.ship.add.AddShipTemplateDto;
+import com.chauncy.data.dto.manage.ship.delete.DelListDto;
 import com.chauncy.data.dto.manage.ship.select.SearchPlatTempDto;
+import com.chauncy.data.dto.manage.ship.update.EnableTemplateDto;
 import com.chauncy.data.dto.manage.ship.update.VerifyTemplateDto;
 import com.chauncy.data.mapper.product.PmMoneyShippingMapper;
 import com.chauncy.data.mapper.product.PmNumberShippingMapper;
@@ -272,14 +274,31 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
     }
 
     /**
-     * 批量删除按金额计算运费列表
+     * 批量删除计算运费列表
      *
-     * @param amountIds
+     * @param delListDto
      * @return
      */
     @Override
-    public void delAmountByIds(Long[] amountIds) {
-        moneyShippingMapper.deleteBatchIds(Arrays.asList(amountIds));
+    public void delByIds( DelListDto delListDto) {
+
+        if (delListDto.getCalculateType()==ShipCalculateWayEnum.AMOUNT.getId()){
+            Arrays.asList(delListDto.getIds()).forEach(a->{
+                if (moneyShippingMapper.selectById(a)==null){
+                    throw new ServiceException(ResultCode.FAIL,"操作失败,"+a+"不存在");
+                }
+            });
+            moneyShippingMapper.deleteBatchIds(Arrays.asList(delListDto.getIds()));
+        }
+
+        else if (delListDto.getCalculateType()==ShipCalculateWayEnum.NUMBER.getId()) {
+            Arrays.asList(delListDto.getIds()).forEach(a->{
+                if (numberShippingMapper.selectById(a)==null){
+                    throw new ServiceException(ResultCode.FAIL,"操作失败,"+a+"不存在");
+                }
+            });
+            numberShippingMapper.deleteBatchIds(Arrays.asList(delListDto.getIds()));
+        }
 
     }
 
@@ -291,6 +310,26 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
      */
     @Override
     public void delTemplateByIds(Long[] templateIds) {
+        //先删除关联的运费列表
+        Arrays.asList(templateIds).forEach(a->{
+            if (shippingTemplateMapper.selectById(a)==null){
+                throw new ServiceException(ResultCode.FAIL,"操作失败,"+a+"不存在");
+            }
+            Map<String, Object> map = new HashMap<>();
+            map.put("shipping_id", a);
+            if (shippingTemplateMapper.selectById(a).getCalculateWay()==ShipCalculateWayEnum.NUMBER.getId()) {
+                List<Long> ids = numberShippingMapper.selectByMap(map).stream().map(b->b.getId()).collect(Collectors.toList());
+                if (ids !=null && ids.size()!=0){
+                    numberShippingMapper.deleteBatchIds(ids);
+                }
+            }
+            else if (shippingTemplateMapper.selectById(a).getCalculateWay()==ShipCalculateWayEnum.AMOUNT.getId()) {
+                List<Long> ids =moneyShippingMapper.selectByMap(map).stream().map(b->b.getId()).collect(Collectors.toList());
+                if (ids !=null && ids.size()!=0){
+                    moneyShippingMapper.deleteBatchIds(ids);
+                }
+            }
+            });
         shippingTemplateMapper.deleteBatchIds(Arrays.asList(templateIds));
     }
 
@@ -363,6 +402,29 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
                 });
                 shippingTemplateService.updateBatchById(shippingTemplatePos);
             }
+    }
+
+    /**
+     * 批量启用或禁用模版
+     *
+     * @param enableTemplateDto
+     * @return
+     */
+    @Override
+    public void enableTemplate(EnableTemplateDto enableTemplateDto) {
+
+        List<PmShippingTemplatePo> shippingTemplatePos = Lists.newArrayList();
+        Arrays.asList(enableTemplateDto.getIds()).forEach(a->{
+            //模版状态在审核通过状态下才能进行启用或禁用
+            if (shippingTemplateMapper.selectById(a).getVerifyStatus()!=VerifyStatusEnum.CHECKED.getId()){
+                throw new ServiceException(ResultCode.FAIL,"操作失败,含有非审核通过的模版,请重新选择");
+            }
+            PmShippingTemplatePo shippingTemplatePo = new PmShippingTemplatePo();
+            shippingTemplatePo.setEnable(enableTemplateDto.getEnable());
+            shippingTemplatePo.setId(a);
+            shippingTemplatePos.add(shippingTemplatePo);
+        });
+        shippingTemplateService.updateBatchById(shippingTemplatePos);
     }
 
 }

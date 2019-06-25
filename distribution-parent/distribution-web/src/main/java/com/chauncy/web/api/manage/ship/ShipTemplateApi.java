@@ -2,7 +2,9 @@ package com.chauncy.web.api.manage.ship;
 
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.manage.ship.add.AddShipTemplateDto;
+import com.chauncy.data.dto.manage.ship.delete.DelListDto;
 import com.chauncy.data.dto.manage.ship.select.SearchPlatTempDto;
+import com.chauncy.data.dto.manage.ship.update.EnableTemplateDto;
 import com.chauncy.data.dto.manage.ship.update.VerifyTemplateDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.ship.PlatTemplateVo;
@@ -49,15 +51,16 @@ public class ShipTemplateApi {
     /**
      * 批量删除按金额计算运费列表
      *
-     * @param amountIds
+     * @param delListDto
      * @return
      */
-    @GetMapping("/delAmountByIds")
-    @ApiOperation("批量删除按金额计算列表")
-    public JsonViewData delAmountByIds(@ApiParam(required = true,name = "指定地区计算运费ID集合",value = "amountIds")
-                                       @PathVariable Long[] amountIds){
+    @PostMapping("/delListByIds")
+    @ApiOperation("批量删除指定地区运费计算列表")
+    public JsonViewData delByIds(@ApiParam(required = true,name = "指定地区计算运费ID集合",value = "amountIds")
 
-        service.delAmountByIds(amountIds);
+                                         DelListDto delListDto){
+
+        service.delByIds(delListDto);
         return new JsonViewData(ResultCode.SUCCESS,"操作成功");
     }
 
@@ -83,7 +86,7 @@ public class ShipTemplateApi {
      * @return
      */
     @PostMapping("/searchTemplateByConditions")
-    @ApiOperation("条件查询平台运费信息")
+    @ApiOperation("条件查询运费信息")
     public JsonViewData<PageInfo<PlatTemplateVo>> SearchPlatTempByConditions(@RequestBody @Validated @ApiParam(required = true,name = "添加运费模版",
             value = "addAmountTemplateDto") SearchPlatTempDto searchPlatTempDto){
 
@@ -103,5 +106,20 @@ public class ShipTemplateApi {
         service.verifyTemplate(verifyTemplateDto);
 
         return new JsonViewData(ResultCode.SUCCESS,"操作成功");
+    }
+
+    /**
+     * 批量启用或禁用模版
+     *
+     * @param enableTemplateDto
+     * @return
+     */
+    @PostMapping("/enable")
+    @ApiOperation("批量启用或禁用模版")
+    public JsonViewData enableTemplate(@RequestBody @Validated @ApiParam(required = true,name = "verifyTemplateDto",value ="批量修改模版的审核状态")
+                                               EnableTemplateDto enableTemplateDto){
+        service.enableTemplate(enableTemplateDto);
+
+        return new JsonViewData(ResultCode.SUCCESS);
     }
 }
