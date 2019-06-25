@@ -121,4 +121,7 @@ public class PmShippingTemplatePo implements Serializable {
 
     @ApiModelProperty(value = "运费模版不通过详情")
     private String content;
+
+    @ApiModelProperty(value = "是否启用 0--禁用 1--启用")
+    private Boolean Enable;
 }

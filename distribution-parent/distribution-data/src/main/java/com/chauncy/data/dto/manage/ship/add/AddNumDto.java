@@ -22,12 +22,13 @@ import java.math.BigDecimal;
 public class AddNumDto {
 
     @ApiModelProperty("运费ID")
-    @NotNull(message = "运费ID不能为空",groups = IUpdateGroup.class)
-    @NeedExistConstraint(tableName = "pm_money_shipping")
+//    @NotNull(message = "运费ID不能为空",groups = IUpdateGroup.class)
+//    @NeedExistConstraint(tableName = "pm_money_shipping",groups = IUpdateGroup.class)
     private Long id;
 
     @ApiModelProperty(value = "指定地区")
     @NotNull(message = "指定地区不能为空")
+    @NeedExistConstraint(tableName = "area_region")
     private Long destinationId;
 
     @ApiModelProperty(value = "指定地区运费的最大件数")

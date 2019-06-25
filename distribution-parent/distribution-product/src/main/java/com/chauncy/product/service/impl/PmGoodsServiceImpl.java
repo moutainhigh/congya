@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.goods.GoodsAttributeTypeEnum;
 import com.chauncy.common.enums.goods.GoodsShipTemplateEnum;
 import com.chauncy.common.enums.goods.GoodsTypeEnum;
-import com.chauncy.common.enums.goods.GoodsVerifyStatusEnum;
+import com.chauncy.common.enums.common.VerifyStatusEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.bo.base.BaseBo;
@@ -77,8 +77,8 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     @Autowired
     private PmGoodsRelAttributeValueGoodMapper goodsRelAttributeValueGoodMapper;
 
-    @Autowired
-    private PmGoodsRelGoodsMemberLevelMapper goodsRelGoodsMemberLevelMapper;
+    /*@Autowired
+    private PmGoodsRelGoodsMemberLevelMapper goodsRelGoodsMemberLevelMapper;*/
 
     @Autowired
     private PmAssociationGoodsMapper associationGoodsMapper;
@@ -173,7 +173,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         Long storeId =sysUserMapper.selectById(userId).getStoreId();
         //商家端
         if (storeId!=null){
-            goodsPo.setVerifyStatus(GoodsVerifyStatusEnum.UNCHECKED.getId());
+            goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
         }
         goodsPo.setCreateBy(user);
         goodsPo.setId(null);
@@ -340,7 +340,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         Long storeId = sysUserMapper.selectById(userId).getStoreId();
         PmGoodsPo goodsPo = new PmGoodsPo();
         if (storeId!=null){
-            goodsPo.setVerifyStatus(GoodsVerifyStatusEnum.UNCHECKED.getId());
+            goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
         }
         //保存非关联信息
         BeanUtils.copyProperties(updateGoodBaseDto, goodsPo);
@@ -619,7 +619,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         if (storeId!=null){
             PmGoodsPo goodsPo = new PmGoodsPo();
             goodsPo.setId(addOrUpdateSkuAttributeDto.getGoodsId());
-            goodsPo.setVerifyStatus(GoodsVerifyStatusEnum.UNCHECKED.getId());
+            goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
             mapper.updateById(goodsPo);
         }
         //通过goodsID商品ID获取sku信息
@@ -822,7 +822,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         if (storeId!=null){
             PmGoodsPo goodsPo = new PmGoodsPo();
             goodsPo.setId(goodsId);
-            goodsPo.setVerifyStatus(GoodsVerifyStatusEnum.UNCHECKED.getId());
+            goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
             mapper.updateById(goodsPo);
         }
         updateSkuFinanceDtos.forEach(updateSkuFinanceDto->{
@@ -856,9 +856,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
                 memberLevelInfos.add(memberLevelInfo);
             });
             findGoodOperationVo.setMemberLevelInfos(memberLevelInfos);
-            return findGoodOperationVo;
-        }
-        else {
+
+        }return findGoodOperationVo;
+        /*else {
             BeanUtils.copyProperties(findGoodOperationVo, goodsPo);
             findGoodOperationVo.setGoodsId(goodsId);
             //根据商品ID查找关联的会员等级购买权限,商品和会员等级多对多的关系
@@ -887,7 +887,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             });
             findGoodOperationVo.setMemberLevelInfos(memberLevelInfos);
             return findGoodOperationVo;
-        }
+        }*/
 
     }
 
@@ -908,7 +908,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         PmGoodsPo goodsPo = mapper.selectById(updateGoodOperationDto.getGoodsId());
         //商家端执行更新操作将审核状态修改为未审核状态
         if (storeId!=null){
-            goodsPo.setVerifyStatus(GoodsVerifyStatusEnum.UNCHECKED.getId());
+            goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
         }
         BeanUtils.copyProperties(updateGoodOperationDto, goodsPo);
         mapper.updateById(goodsPo);
@@ -916,7 +916,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         //删除商品对应的会员关系
 
         //根据商品ID查找关联的会员等级购买权限,商品和会员等级多对多的关系
-        Map<String, Object> map = new HashMap<>();
+        /*Map<String, Object> map = new HashMap<>();
         map.put("goods_good_id", updateGoodOperationDto.getGoodsId());
         //获取商品限制的会员等级信息
         List<PmGoodsRelGoodsMemberLevelPo> relGoodsMemberLevelPos = goodsRelGoodsMemberLevelMapper.selectByMap(map);
@@ -930,9 +930,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             relGoodsMemberLevelPo.setCreateBy(user).setMemberLevelId(id).
                     setGoodsGoodId(updateGoodOperationDto.getGoodsId());
             goodsRelGoodsMemberLevelMapper.insert(relGoodsMemberLevelPo);
-        }
+        }*/
         //如果是审核通过，则删除对应的驳回详情
-        if (updateGoodOperationDto.getVerifyStatus()== GoodsVerifyStatusEnum.CHECKED.getId() ){
+        if (updateGoodOperationDto.getVerifyStatus()== VerifyStatusEnum.CHECKED.getId() ){
             PmGoodsPo goodsPo1 = new PmGoodsPo();
             goodsPo1.setContent(null);
             goodsPo1.setId(updateGoodOperationDto.getGoodsId());
@@ -975,7 +975,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         Long storeId = sysUserMapper.selectById(userId).getStoreId();
         //商家端执行更新操作将审核状态修改为未审核状态
         if (storeId!=null){
-            goodsPo.setVerifyStatus(GoodsVerifyStatusEnum.UNCHECKED.getId());
+            goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
         }
         BeanUtils.copyProperties(updateGoodSellerDto, goodsPo);
         mapper.updateById(goodsPo);
@@ -998,7 +998,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         goodsPo.setId(associationDto.getGoodsId());
         //商家端执行更新操作将审核状态修改为未审核状态
         if (storeId!=null){
-            goodsPo.setVerifyStatus(GoodsVerifyStatusEnum.UNCHECKED.getId());
+            goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
             mapper.updateById(goodsPo);
         }
 
@@ -1039,12 +1039,12 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         //根据ID获取商品信息
         List<PmGoodsPo> goodsPos = mapper.selectBatchIds(Arrays.asList(goodsIds));
         goodsPos.forEach(a->{
-            if (a.getVerifyStatus()!=GoodsVerifyStatusEnum.UNCHECKED.getId()){
+            if (a.getVerifyStatus()!= VerifyStatusEnum.UNCHECKED.getId()){
                 throw new ServiceException(ResultCode.FAIL,"该商品状态不是未审核状态",a.getName());
             }
             else{
                 //修改商品状态
-                a.setVerifyStatus(GoodsVerifyStatusEnum.WAIT_CONFIRM.getId());
+                a.setVerifyStatus(VerifyStatusEnum.WAIT_CONFIRM.getId());
                 mapper.updateById(a);
             }
         });
@@ -1063,7 +1063,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
        //判断商品状态为审核通过状态才能执行上下架操作
         goodsPos.forEach(a->{
            //状态为非审核通过状态
-           if (a.getVerifyStatus()!=GoodsVerifyStatusEnum.CHECKED.getId()){
+           if (a.getVerifyStatus()!= VerifyStatusEnum.CHECKED.getId()){
                throw new ServiceException(ResultCode.FAIL,"该商品的状态还未通过审核",a.getName());
            }
            else{
@@ -1142,7 +1142,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
         PmGoodsPo goodsPo3 = new PmGoodsPo();
         goodsPo3.setStoreId(storeId);
-        goodsPo3.setVerifyStatus(GoodsVerifyStatusEnum.UNCHECKED.getId());
+        goodsPo3.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
         QueryWrapper<PmGoodsPo> queryWrapper3 = new QueryWrapper<>(goodsPo3);
         //未审核商品数量
         Integer unCheckNum = mapper.selectCount(queryWrapper3);
@@ -1150,7 +1150,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
         PmGoodsPo goodsPo4 = new PmGoodsPo();
         goodsPo4.setStoreId(storeId);
-        goodsPo4.setVerifyStatus(GoodsVerifyStatusEnum.WAIT_CONFIRM.getId());
+        goodsPo4.setVerifyStatus(VerifyStatusEnum.WAIT_CONFIRM.getId());
         QueryWrapper<PmGoodsPo> queryWrapper4 = new QueryWrapper<>(goodsPo4);
         //待审核商品数量
         Integer onCheckNum = mapper.selectCount(queryWrapper4);
@@ -1158,7 +1158,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
         PmGoodsPo goodsPo5 = new PmGoodsPo();
         goodsPo5.setStoreId(storeId);
-        goodsPo5.setVerifyStatus(GoodsVerifyStatusEnum.NOT_APPROVED.getId());
+        goodsPo5.setVerifyStatus(VerifyStatusEnum.NOT_APPROVED.getId());
         QueryWrapper<PmGoodsPo> queryWrapper5 = new QueryWrapper<>(goodsPo5);
         //未通过商品数量
         Integer notApprovedNum = mapper.selectCount(queryWrapper5);

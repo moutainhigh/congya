@@ -48,10 +48,12 @@
 
     <sql id="selectSmStoreBaseInfo">
          ss.id, ss.`name`, ss.`type`, (case when ss.`type`=1 then '推广店铺' when ss.`type`=2 then '商品店铺' end) as typeName,
-          ss.store_describe, ss.user_name, ss.show_status, ss.store_label, ss.store_category_id, ss.parent_id, ss.sort, ss.owner_name,
+          ss.store_describe, ss.user_name, ss.show_status, ss.store_label_id, ss.store_category_id, ss.parent_id, ss.sort, ss.owner_name,
           ss.owner_mobile, ss.logo_image, ss.store_image, ss.background_image, ss.total_score, ss.baby_describe_score,
           ss.service_attitude_score, ss.logistics_service_score,
-          (select ssc.`name` from sm_store_category ssc where ssc.id = ss.store_category_id) as store_category_name
+          (select ssc.`name` from sm_store_category ssc where ssc.id = ss.store_category_id) as store_category_name,
+          (select ssl.`name` from sm_store_label ssl where ssl.id = ss.store_label_id) as store_label_name
+
     </sql>
 
 
@@ -104,7 +106,7 @@
         <result column="store_describe" property="storeDescribe"/>
         <result column="user_name" property="userName"/>
         <result column="show_status" property="showStatus"/>
-        <result column="store_label" property="storeLabel"/>
+        <result column="store_label_id" property="storeLabelId"/>
         <result column="store_category_id" property="storeCategoryId"/>
         <result column="store_category_name" property="storeCategoryName"/>
         <result column="parent_id" property="parentId"/>
