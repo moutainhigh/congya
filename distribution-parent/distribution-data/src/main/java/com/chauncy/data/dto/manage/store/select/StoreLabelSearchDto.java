@@ -26,14 +26,14 @@ public class StoreLabelSearchDto  extends BaseSearchDto implements Serializable 
     @ApiModelProperty(value = "标签名称")
     private String name;
 
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @ApiModelProperty(value = "创建时间")
-    private LocalDateTime startTime;
+    private LocalDate startTime;
 
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat( pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @ApiModelProperty(value = "创建时间")
-    private LocalDateTime endTime;
+    private LocalDate endTime;
 
 }
