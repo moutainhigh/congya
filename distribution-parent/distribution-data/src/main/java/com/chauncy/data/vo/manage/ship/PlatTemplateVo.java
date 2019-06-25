@@ -68,10 +68,10 @@ public class PlatTemplateVo {
     private LocalDateTime verifyTime;
 
     @ApiModelProperty("审核状态")
-    private LocalDateTime verifyStatus;
+    private Integer verifyStatus;
 
     @ApiModelProperty("审核者")
-    private LocalDateTime auditor;
+    private String auditor;
 
 
 
