@@ -409,6 +409,15 @@ public class ExcelGoodApi extends BaseApi {
                 excelImportErrorLogVos.add(excelImportErrorLogVo);
                 continue;
             }
+            else {
+                if (queryGood.getVerifyStatus().equals(2)||queryGood.getVerifyStatus().equals(3)||
+                        queryGood.getPublishStatus()){
+                    excelImportErrorLogVo.setRowNumber(i + 1);
+                    excelImportErrorLogVo.setErrorMessage(String.format("上架、待审核、审核通过的商品不能导入！"));
+                    excelImportErrorLogVos.add(excelImportErrorLogVo);
+                    continue;
+                }
+            }
             //规格、规格值
             List<String> attributeNames = Lists.newArrayList();
             List<String> attributeValues = Lists.newArrayList();
@@ -516,6 +525,16 @@ public class ExcelGoodApi extends BaseApi {
                 excelImportErrorLogVos.add(excelImportErrorLogVo);
                 continue;
             }
+            else {
+                PmGoodsPo queryGood=pmGoodsService.getById(querySku.getGoodsId());
+                if (queryGood.getVerifyStatus().equals(2)||queryGood.getVerifyStatus().equals(3)||
+                        queryGood.getPublishStatus()){
+                    excelImportErrorLogVo.setErrorMessage(String.format("上架、待审核、审核通过的商品不能导入！"));
+                    excelImportErrorLogVo.setRowNumber(i + 1);
+                    excelImportErrorLogVos.add(excelImportErrorLogVo);
+                    continue;
+                }
+            }
             //供货价
             BigDecimal supplierPrice=new BigDecimal(rowDataList.get(1));
 
@@ -570,6 +589,15 @@ public class ExcelGoodApi extends BaseApi {
                 excelImportErrorLogVo.setRowNumber(i + 1);
                 excelImportErrorLogVos.add(excelImportErrorLogVo);
                 continue;
+            }
+            else {
+                if (queryGood.getVerifyStatus().equals(2)||queryGood.getVerifyStatus().equals(3)||
+                        queryGood.getPublishStatus()){
+                    excelImportErrorLogVo.setErrorMessage(String.format("上架、待审核、审核通过的商品不能导入！"));
+                    excelImportErrorLogVo.setRowNumber(i + 1);
+                    excelImportErrorLogVos.add(excelImportErrorLogVo);
+                    continue;
+                }
             }
 
             //活动成本

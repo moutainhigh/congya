@@ -53,6 +53,7 @@ FROM
 	GROUP BY
 	a.type
 	) a
+	group by a.id
     </select>
     <select id="getAttributeIdsByNamesAndCategoryId" resultType="java.lang.Long">
 	SELECT
@@ -74,5 +75,63 @@ FROM
 		AND c.id = #{cId}
 		and a.type=#{type}
 	</select>
+	<select id="loadAttributeVo" resultType="com.chauncy.data.vo.manage.product.SearchAttributeVo">
+		SELECT  a.id id,a.name name,IF(ac.id is null,false,true) is_select
+		FROM pm_goods_attribute a
+		left join pm_goods_rel_attribute_category ac on
+		a.id = ac.goods_attribute_id
+		<if test="t.categoryId!=null and t.categoryId!=0">
+			and ac.goods_category_id=#{t.categoryId}
+		</if>
+		where `type`=#{t.type}
+		<if test="t.name!=null and t.name!=''">
+			and a.name like concat('%',#{t.name},'%')
+		</if>
+		and if(ac.del_flag is null ,1=1,ac.del_flag = 0)
+		and a.del_flag=0
+	</select>
+	<select id="loadList" resultType="com.chauncy.data.vo.manage.product.SearchCategoryVo">
+		 WITH RECURSIVE childrenIds (id,name,sort,icon,enabled,level,parent_id) AS
+        (
+        (SELECT id,name,sort,icon,enabled,level,parent_id
+        FROM pm_goods_category
+        WHERE
+            del_flag=0 and level=1
+            <if test="t.name!=null and t.name!=''">
+		         and name like concat('%',#{t.name},'%')
+			</if>
+			<if test="t.id!=null and t.id!=0">
+				and id=#{t.id}
+			</if>
+			<if test="t.enabled!=null">
+				and enabled=#{t.enabled}
+			</if>
+		order by sort desc
+		limit #{offset},#{pageSize}
+		)
+        UNION ALL
+        SELECT c.id,c.name,c.sort,c.icon,c.enabled,c.level,c.parent_id
+        FROM childrenIds AS p JOIN pm_goods_category AS c
+        ON p.id = c.parent_id
+        where c.del_flag=0
+        )
+        SELECT id,name,sort,icon,enabled,level,parent_id FROM childrenIds
+	</select>
+	<select id="loadCount" resultType="java.lang.Integer">
+		SELECT count(*)
+		FROM pm_goods_category
+		WHERE
+		del_flag=0 and level=1
+		<if test="t.name!=null and t.name!=''">
+			and name like concat('%',#{t.name},'%')
+		</if>
+		<if test="t.id!=null and t.id!=0">
+			and id=#{t.id}
+		</if>
+		<if test="t.enabled!=null">
+			and enabled=#{t.enabled}
+		</if>
+	</select>
+
 
 </mapper>

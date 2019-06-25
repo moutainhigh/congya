@@ -13,8 +13,12 @@ import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.good.add.GoodCategoryDto;
 import com.chauncy.data.dto.manage.good.delete.GoodCategoryDeleteDto;
+import com.chauncy.data.dto.manage.good.select.SearchAttributeByNamePageDto;
+import com.chauncy.data.dto.manage.good.select.SearchGoodCategoryDto;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.manage.product.SearchAttributeVo;
+import com.chauncy.data.vo.manage.product.SearchCategoryVo;
 import com.chauncy.product.service.IPmGoodsAttributeService;
 import com.chauncy.product.service.IPmGoodsCategoryService;
 import com.chauncy.product.service.IPmGoodsRelAttributeCategoryService;
@@ -87,7 +91,7 @@ public class PmGoodsCategoryApi extends BaseApi {
 
         //保存属性和分类之间的关系
         saveRelAttributeAndCategory(goodCategoryDto, pmGoodsCategoryPo);
-        return setJsonViewData(ResultCode.SUCCESS);
+        return setJsonViewData(pmGoodsCategoryPo.getId());
     }
 
 
@@ -166,18 +170,11 @@ public class PmGoodsCategoryApi extends BaseApi {
     @PostMapping("/search")
     @ApiOperation(value = "查看商品分类列表")
 
-    public JsonViewData<PageInfo<PmGoodsCategoryPo>> search(@RequestBody @Valid @ApiParam(required = true, name = "baseSearchDto", value = "分类列表查询条件")
-                                       BaseSearchDto baseSearchDto) {
-
-        PmGoodsCategoryPo queryCategory=new PmGoodsCategoryPo();
-        Integer pageNo=baseSearchDto.getPageNo()==null?defaultPageNo:baseSearchDto.getPageNo();
-        Integer pageSize=baseSearchDto.getPageSize()==null?defaultPageSize:baseSearchDto.getPageSize();
-        BeanUtils.copyProperties(baseSearchDto,queryCategory);
-        QueryWrapper<PmGoodsCategoryPo> queryWrapper=new QueryWrapper<>(queryCategory);
-        queryWrapper.select("id","name","icon","sort","enabled","level");
-        PageInfo<PmGoodsCategoryPo> categoryPageInfo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
-                .doSelectPageInfo(() -> goodsCategoryService.list(queryWrapper));
-        return setJsonViewData(categoryPageInfo);
+    public JsonViewData<SearchCategoryVo> search(@RequestBody @Valid @ApiParam(required = true, name = "baseSearchDto", value = "分类列表查询条件")
+                                                         SearchGoodCategoryDto categoryDto) {
+        Integer pageNo=categoryDto.getPageNo()==null?defaultPageNo:categoryDto.getPageNo();
+        Integer pageSize=categoryDto.getPageSize()==null?defaultPageSize:categoryDto.getPageSize();
+        return setJsonViewData(goodsCategoryService.searchList(categoryDto,pageNo,pageSize));
     }
 
     @PostMapping("/delete")
@@ -228,6 +225,21 @@ public class PmGoodsCategoryApi extends BaseApi {
         }
         return setJsonViewData(goodsCategoryService.listMaps(queryWrapper));
     }
+
+    @PostMapping("/find_attribute")
+    @ApiOperation(value = "查找所有属性")
+    public JsonViewData<PageInfo<SearchAttributeVo>> findAttribute(@Validated @RequestBody  SearchAttributeByNamePageDto searchAttributeByNamePageDto){
+        Integer pageNo=searchAttributeByNamePageDto.getPageNo()==null?defaultPageNo:searchAttributeByNamePageDto.getPageNo();
+        Integer pageSize=searchAttributeByNamePageDto.getPageSize()==null?defaultPageSize:searchAttributeByNamePageDto.getPageSize();
+        PmGoodsAttributePo condition=new PmGoodsAttributePo();
+        condition.setName(searchAttributeByNamePageDto.getName());
+        PageInfo<SearchAttributeVo> attributeVoPageInfo = PageHelper.startPage(pageNo, pageSize, "is_select desc")
+                .doSelectPageInfo(() -> goodsCategoryService.findAttributeVo(searchAttributeByNamePageDto));
+        return setJsonViewData(attributeVoPageInfo);
+
+    }
+
+
 
 
 

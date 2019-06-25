@@ -4,6 +4,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.chauncy.common.constant.SecurityConstant;
 import com.chauncy.common.util.serializer.LongJsonDeserializer;
 import com.chauncy.common.util.serializer.LongJsonSerializer;
@@ -85,7 +86,8 @@ public class PmGoodsAttributeVo implements Serializable {
     private LocalDateTime updateTime;
 
     @ApiModelProperty(value = "删除标志 默认0")
-    private Integer delFlag = SecurityConstant.STATUS_NORMAL;
+    @TableLogic
+    private boolean delFlag;
 
 //    @ApiModelProperty(value = "商品属性值")
 //    private String value;
