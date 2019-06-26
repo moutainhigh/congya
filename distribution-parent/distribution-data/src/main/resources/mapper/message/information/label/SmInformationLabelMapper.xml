@@ -22,8 +22,9 @@
 
 
     <select id="searchPaging" resultType="com.chauncy.data.vo.manage.message.information.label.InformationLabelVo">
-        select <include refid="Base_Column_List"/> from sm_information_label
+        select <include refid="Base_Column_List"/> from mm_information_label
         <where>
+            del_flag = 0
             <if test="id !=null and id !=''">
                 and id = #{id}
             </if>
@@ -36,7 +37,7 @@
 
     <select id="selectAll" resultType="com.chauncy.data.vo.manage.message.information.label.InformationLabelVo">
         select id,name
-        from sm_store_label
+        from mm_information_label
         where del_flag = 0
         order by sort desc
     </select>

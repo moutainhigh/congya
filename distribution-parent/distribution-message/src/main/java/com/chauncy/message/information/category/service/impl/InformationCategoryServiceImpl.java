@@ -3,16 +3,24 @@ package com.chauncy.message.information.category.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.domain.po.message.information.category.MmInformationCategoryPo;
+import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.message.information.add.InformationCategoryDto;
+import com.chauncy.data.mapper.message.information.InformationMapper;
 import com.chauncy.data.mapper.message.information.category.InformationCategoryMapper;
 import com.chauncy.data.vo.manage.message.information.category.InformationCategoryVo;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.message.information.category.service.IInformationCategoryService;
 import com.chauncy.data.core.AbstractService;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * <p>
@@ -27,6 +35,9 @@ public class InformationCategoryServiceImpl extends AbstractService<InformationC
 
     @Autowired
     private InformationCategoryMapper informationCategoryMapper;
+
+    @Autowired
+    private InformationMapper informationMapper;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -58,7 +69,7 @@ public class InformationCategoryServiceImpl extends AbstractService<InformationC
      * @param informationCategoryDto
      */
     @Override
-    public void editInformationLabel(InformationCategoryDto informationCategoryDto) {
+    public void editInformationCategory(InformationCategoryDto informationCategoryDto) {
         MmInformationCategoryPo mmInformationCategoryPo = informationCategoryMapper.selectById(informationCategoryDto.getId());
 
         QueryWrapper<MmInformationCategoryPo> queryWrapper = new QueryWrapper<>();
@@ -90,5 +101,51 @@ public class InformationCategoryServiceImpl extends AbstractService<InformationC
     }
 
 
+    /**
+     * 根据分类ID、分类名称查询
+     *
+     * @return
+     */
+    @Override
+    public PageInfo<InformationCategoryVo> searchPaging(BaseSearchDto baseSearchDto) {
+
+        Integer pageNo = baseSearchDto.getPageNo()==null ? defaultPageNo : baseSearchDto.getPageNo();
+        Integer pageSize = baseSearchDto.getPageSize()==null ? defaultPageSize : baseSearchDto.getPageSize();
+
+        PageInfo<InformationCategoryVo> informationCategoryVoPageInfo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
+                .doSelectPageInfo(() -> informationCategoryMapper.searchPaging(baseSearchDto));
+        return informationCategoryVoPageInfo;
+    }
+
+
+    /**
+     * 查询店铺资讯所有分类
+     *
+     * @return
+     */
+    @Override
+    public List<InformationCategoryVo> selectAll() {
+        return informationCategoryMapper.selectAll();
+    }
+
+
+    /**
+     * 批量删除分类
+     * @param ids
+     */
+    @Override
+    public void delInformationCategoryByIds(Long[] ids) {
+        for (Long id :ids) {
+            QueryWrapper<MmInformationPo> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("info_category_id",id);
+            Integer count = informationMapper.selectCount(queryWrapper);
+            if(count > 0 ) {
+                throw new ServiceException(ResultCode.FAIL, "删除失败，包含正被店铺资讯使用关联的分类");
+            }
+        }
+        //批量删除分类
+        informationCategoryMapper.deleteBatchIds(Arrays.asList(ids));
+
+    }
 
 }

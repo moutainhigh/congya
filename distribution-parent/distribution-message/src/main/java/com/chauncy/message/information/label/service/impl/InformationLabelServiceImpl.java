@@ -3,9 +3,11 @@ package com.chauncy.message.information.label.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.domain.po.message.information.label.MmInformationLabelPo;
 import com.chauncy.data.dto.manage.message.information.add.InformationLabelDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationLabelSearchDto;
+import com.chauncy.data.mapper.message.information.InformationMapper;
 import com.chauncy.data.mapper.message.information.label.InformationLabelMapper;
 import com.chauncy.data.vo.manage.message.information.label.InformationLabelVo;
 import com.chauncy.security.util.SecurityUtil;
@@ -36,6 +38,8 @@ public class InformationLabelServiceImpl extends AbstractService<InformationLabe
 
     @Autowired
     private InformationLabelMapper informationLabelMapper;
+    @Autowired
+    private InformationMapper informationMapper;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -87,7 +91,7 @@ public class InformationLabelServiceImpl extends AbstractService<InformationLabe
 
 
     /**
-     * 根据ID查找店铺标签
+     * 根据ID查找店铺资讯标签
      *
      * @param id
      * @return
@@ -111,9 +115,9 @@ public class InformationLabelServiceImpl extends AbstractService<InformationLabe
         Integer pageNo = informationLabelSearchDto.getPageNo()==null ? defaultPageNo : informationLabelSearchDto.getPageNo();
         Integer pageSize = informationLabelSearchDto.getPageSize()==null ? defaultPageSize : informationLabelSearchDto.getPageSize();
 
-        PageInfo<InformationLabelVo> smStoreLabelVoPageInfo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
+        PageInfo<InformationLabelVo> informationLabelVoPageInfo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
                 .doSelectPageInfo(() -> informationLabelMapper.searchPaging(informationLabelSearchDto));
-        return smStoreLabelVoPageInfo;
+        return informationLabelVoPageInfo;
     }
 
     /**
@@ -134,11 +138,11 @@ public class InformationLabelServiceImpl extends AbstractService<InformationLabe
     @Override
     public void delInformationLabelByIds(Long[] ids) {
         for (Long id :ids) {
-            QueryWrapper<MmInformationLabelPo> queryWrapper = new QueryWrapper<>();
+            QueryWrapper<MmInformationPo> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("info_label_id",id);
-            Integer count = informationLabelMapper.selectCount(queryWrapper);
+            Integer count = informationMapper.selectCount(queryWrapper);
             if(count > 0 ) {
-                throw new ServiceException(ResultCode.FAIL, "删除失败，包含正被店铺资讯使用关联的属性");
+                throw new ServiceException(ResultCode.FAIL, "删除失败，包含正被店铺资讯使用关联的标签");
             }
         }
         //批量删除标签
