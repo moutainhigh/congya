@@ -242,13 +242,13 @@ public class SmGoodsApi extends BaseApi {
     }
 
     /**
-     * 根据商品ID查找运营信息
+     * 根据商品ID查找销售信息
      *
      * @param goodsId
      * @return
      */
     @GetMapping("/findGoodSeller/{goodsId}")
-    @ApiOperation(value = "根据商品ID查找运营信息")
+    @ApiOperation(value = "根据商品ID查找销售信息")
     public JsonViewData<FindGoodSellerVo> findGoodSeller(@ApiParam(required = true, name = "goodsId", value = "goodsId") @PathVariable Long goodsId){
 
         return setJsonViewData(service.findGoodSeller(goodsId));

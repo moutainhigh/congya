@@ -857,7 +857,29 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             });
             findGoodOperationVo.setMemberLevelInfos(memberLevelInfos);
 
-        }return findGoodOperationVo;
+        }
+        else{
+            String memberLevelName = memberLevelMapper.selectById(goodsPo.getMemberLevelId()).getLevelName();
+            BeanUtils.copyProperties(goodsPo,findGoodOperationVo);
+            findGoodOperationVo.setGoodsId(goodsId);
+            findGoodOperationVo.setMemberLevelName(memberLevelName);
+            //绑定的会员等级设置为true
+            MemberLevelInfos memberLevelInfo = new MemberLevelInfos();
+            memberLevelInfo.setIsInclude(true);
+            memberLevelInfo.setMemberLevelId(findGoodOperationVo.getMemberLevelId());
+            memberLevelInfo.setLevelName(memberLevelName);
+            memberLevelInfos.add(memberLevelInfo);
+            //未绑定的置为false
+            memberLevelPos.stream().filter(a->a.getId()!=(goodsPo.getMemberLevelId())).forEach(b->{
+                MemberLevelInfos memberLevel = new MemberLevelInfos();
+                memberLevel.setMemberLevelId(b.getId());
+                memberLevel.setLevelName(b.getLevelName());
+                memberLevel.setIsInclude(false);
+                memberLevelInfos.add(memberLevel);
+            });
+            findGoodOperationVo.setMemberLevelInfos(memberLevelInfos);
+        }
+        return findGoodOperationVo;
         /*else {
             BeanUtils.copyProperties(findGoodOperationVo, goodsPo);
             findGoodOperationVo.setGoodsId(goodsId);
@@ -941,7 +963,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     }
 
     /**
-     * 根据商品ID查找运营信息
+     * 根据商品ID查找销售信息
      *
      * @param goodsId
      * @return
