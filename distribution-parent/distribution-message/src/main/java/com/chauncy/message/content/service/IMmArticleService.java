@@ -3,7 +3,7 @@ package com.chauncy.message.content.service;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.message.content.MmArticlePo;
 import com.chauncy.data.dto.manage.message.content.add.AddArticleDto;
-import com.chauncy.data.dto.manage.message.content.select.search.SearchArticleDto;
+import com.chauncy.data.dto.manage.message.content.select.search.SearchContentDto;
 import com.chauncy.data.vo.manage.message.content.ArticleVo;
 import com.github.pagehelper.PageInfo;
 
@@ -45,10 +45,10 @@ public interface IMmArticleService extends Service<MmArticlePo> {
     /**
      * 条件查询文章信息
      *
-     * @param searchArticleDto
+     * @param searchContentDto
      * @return
      */
-    PageInfo<ArticleVo> searchArticle(SearchArticleDto searchArticleDto);
+    PageInfo<ArticleVo> searchArticle(SearchContentDto searchContentDto);
 
     /**
      * 批量删除文章

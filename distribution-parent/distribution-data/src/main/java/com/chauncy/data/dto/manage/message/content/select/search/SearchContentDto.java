@@ -17,9 +17,9 @@ import java.time.LocalDate;
 @ApiModel(description = "条件查询文章信息")
 @Data
 @Accessors(chain = true)
-public class SearchArticleDto {
+public class SearchContentDto {
 
-    @ApiModelProperty("文章名称")
+    @ApiModelProperty("名称或者关键字")
     private String name;
 
     @ApiModelProperty("更新时间")

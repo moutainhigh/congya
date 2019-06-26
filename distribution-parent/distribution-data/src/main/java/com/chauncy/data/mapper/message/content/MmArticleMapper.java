@@ -1,10 +1,9 @@
 package com.chauncy.data.mapper.message.content;
 
 import com.chauncy.data.domain.po.message.content.MmArticlePo;
-import com.chauncy.data.dto.manage.message.content.select.search.SearchArticleDto;
+import com.chauncy.data.dto.manage.message.content.select.search.SearchContentDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.manage.message.content.ArticleVo;
-import com.chauncy.data.vo.manage.product.SearchAttributeVo;
 
 import java.util.List;
 
@@ -21,8 +20,8 @@ public interface MmArticleMapper extends IBaseMapper<MmArticlePo> {
     /**
      * 条件查询文章信息
      *
-     * @param searchArticleDto
+     * @param searchContentDto
      * @return
      */
-    List<ArticleVo> searchArticle(SearchArticleDto searchArticleDto);
+    List<ArticleVo> searchArticle(SearchContentDto searchContentDto);
 }

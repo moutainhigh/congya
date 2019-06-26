@@ -6,7 +6,7 @@ import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.content.MmArticlePo;
 import com.chauncy.data.dto.manage.message.content.add.AddArticleDto;
-import com.chauncy.data.dto.manage.message.content.select.search.SearchArticleDto;
+import com.chauncy.data.dto.manage.message.content.select.search.SearchContentDto;
 import com.chauncy.data.mapper.message.content.MmArticleMapper;
 import com.chauncy.data.vo.manage.message.content.ArticleVo;
 import com.chauncy.message.content.service.IMmArticleService;
@@ -94,22 +94,23 @@ public class MmArticleServiceImpl extends AbstractService<MmArticleMapper, MmArt
         }
         MmArticlePo articlePo = new MmArticlePo();
         BeanUtils.copyProperties(updateArticleDto,articlePo);
+        articlePo.setUpdateBy(securityUtil.getCurrUser().getUsername());
         mapper.updateById(articlePo);
     }
 
     /**
      * 条件查询文章信息
      *
-     * @param searchArticleDto
+     * @param searchContentDto
      * @return
      */
     @Override
-    public PageInfo<ArticleVo> searchArticle(SearchArticleDto searchArticleDto) {
+    public PageInfo<ArticleVo> searchArticle(SearchContentDto searchContentDto) {
 
-        Integer pageNo = searchArticleDto.getPageNo() == null ? defaultPageNo : searchArticleDto.getPageNo();
-        Integer pageSize = searchArticleDto.getPageSize() == null ? defaultPageSize : searchArticleDto.getPageSize();
+        Integer pageNo = searchContentDto.getPageNo() == null ? defaultPageNo : searchContentDto.getPageNo();
+        Integer pageSize = searchContentDto.getPageSize() == null ? defaultPageSize : searchContentDto.getPageSize();
         PageInfo<ArticleVo> articleVo = PageHelper.startPage(pageNo,pageSize).
-                doSelectPageInfo(()->mapper.searchArticle(searchArticleDto));
+                doSelectPageInfo(()->mapper.searchArticle(searchContentDto));
 
         return articleVo;
     }
@@ -120,6 +121,11 @@ public class MmArticleServiceImpl extends AbstractService<MmArticleMapper, MmArt
      */
     @Override
     public void delArticleByIds(Long[] ids) {
+        Arrays.asList(ids).forEach(a->{
+            if (mapper.selectById(a)==null){
+                throw new ServiceException(ResultCode.FAIL,"数据库不存在该文章"+a);
+            }
+        });
        mapper.deleteBatchIds(Arrays.asList(ids));
     }
 }
