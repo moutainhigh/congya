@@ -1,6 +1,7 @@
 package com.chauncy.store.category.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.domain.po.store.SmStorePo;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -182,6 +184,20 @@ public class SmStoreCategoryServiceImpl extends AbstractService<SmStoreCategoryM
             smStoreCategoryMapper.deleteById(id);
         }
 
+    }
+
+    /**
+     * 批量禁用启用
+     *
+     * @param baseUpdateStatusDto
+     */
+    @Override
+    public void editStatusBatch(BaseUpdateStatusDto baseUpdateStatusDto) {
+        UpdateWrapper<SmStoreCategoryPo> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.in("id", Arrays.asList(baseUpdateStatusDto.getId()));
+        SmStoreCategoryPo smStoreCategoryPo = new SmStoreCategoryPo();
+        smStoreCategoryPo.setEnabled(baseUpdateStatusDto.getEnabled());
+        smStoreCategoryMapper.update(smStoreCategoryPo, updateWrapper);
     }
 
 

@@ -1,17 +1,19 @@
 package com.chauncy.message.information.label.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.domain.po.message.information.label.MmInformationLabelPo;
+import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.information.add.InformationLabelDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationLabelSearchDto;
-import com.chauncy.data.mapper.message.information.InformationMapper;
-import com.chauncy.data.mapper.message.information.label.InformationLabelMapper;
+import com.chauncy.data.mapper.message.information.MmInformationMapper;
+import com.chauncy.data.mapper.message.information.label.MmInformationLabelMapper;
 import com.chauncy.data.vo.manage.message.information.label.InformationLabelVo;
 import com.chauncy.security.util.SecurityUtil;
-import com.chauncy.message.information.label.service.IInformationLabelService;
+import com.chauncy.message.information.label.service.IMmInformationLabelService;
 import com.chauncy.data.core.AbstractService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -33,13 +35,13 @@ import java.util.List;
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class InformationLabelServiceImpl extends AbstractService<InformationLabelMapper, MmInformationLabelPo>
-        implements IInformationLabelService {
+public class MmInformationLabelServiceImpl extends AbstractService<MmInformationLabelMapper, MmInformationLabelPo>
+        implements IMmInformationLabelService {
 
     @Autowired
-    private InformationLabelMapper informationLabelMapper;
+    private MmInformationLabelMapper mmInformationLabelMapper;
     @Autowired
-    private InformationMapper informationMapper;
+    private MmInformationMapper mmInformationMapper;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -63,7 +65,7 @@ public class InformationLabelServiceImpl extends AbstractService<InformationLabe
         String userName = securityUtil.getCurrUser().getUsername();
         mmInformationLabelPo.setCreateBy(userName);
         mmInformationLabelPo.setId(null);
-        informationLabelMapper.insert(mmInformationLabelPo);
+        mmInformationLabelMapper.insert(mmInformationLabelPo);
     }
 
     /**
@@ -73,7 +75,7 @@ public class InformationLabelServiceImpl extends AbstractService<InformationLabe
      */
     @Override
     public void editInformationLabel(InformationLabelDto informationLabelDto) {
-        MmInformationLabelPo mmInformationLabelPo = informationLabelMapper.selectById(informationLabelDto.getId());
+        MmInformationLabelPo mmInformationLabelPo = mmInformationLabelMapper.selectById(informationLabelDto.getId());
 
         QueryWrapper<MmInformationLabelPo> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("name", informationLabelDto.getName());
@@ -86,7 +88,7 @@ public class InformationLabelServiceImpl extends AbstractService<InformationLabe
         //获取当前用户
         String userName = securityUtil.getCurrUser().getUsername();
         mmInformationLabelPo.setUpdateBy(userName);
-        informationLabelMapper.updateById(mmInformationLabelPo);
+        mmInformationLabelMapper.updateById(mmInformationLabelPo);
     }
 
 
@@ -99,7 +101,7 @@ public class InformationLabelServiceImpl extends AbstractService<InformationLabe
     @Override
     public InformationLabelVo findById(Long id) {
         InformationLabelVo informationLabelVo = new InformationLabelVo();
-        MmInformationLabelPo mmInformationLabelPo = informationLabelMapper.selectById(id);
+        MmInformationLabelPo mmInformationLabelPo = mmInformationLabelMapper.selectById(id);
         BeanUtils.copyProperties(mmInformationLabelPo, informationLabelVo);
         return informationLabelVo;
     }
@@ -116,7 +118,7 @@ public class InformationLabelServiceImpl extends AbstractService<InformationLabe
         Integer pageSize = informationLabelSearchDto.getPageSize()==null ? defaultPageSize : informationLabelSearchDto.getPageSize();
 
         PageInfo<InformationLabelVo> informationLabelVoPageInfo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
-                .doSelectPageInfo(() -> informationLabelMapper.searchPaging(informationLabelSearchDto));
+                .doSelectPageInfo(() -> mmInformationLabelMapper.searchPaging(informationLabelSearchDto));
         return informationLabelVoPageInfo;
     }
 
@@ -127,9 +129,23 @@ public class InformationLabelServiceImpl extends AbstractService<InformationLabe
      */
     @Override
     public List<InformationLabelVo> selectAll() {
-        return informationLabelMapper.selectAll();
+        return mmInformationLabelMapper.selectAll();
     }
 
+
+    /**
+     * 批量禁用启用
+     *
+     * @param baseUpdateStatusDto
+     */
+    @Override
+    public void editStatusBatch(BaseUpdateStatusDto baseUpdateStatusDto) {
+        UpdateWrapper<MmInformationLabelPo> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.in("id", baseUpdateStatusDto.getId());
+        MmInformationLabelPo mmInformationLabelPo = new MmInformationLabelPo();
+        mmInformationLabelPo.setEnabled(baseUpdateStatusDto.getEnabled());
+        mmInformationLabelMapper.update(mmInformationLabelPo, updateWrapper);
+    }
 
     /**
      * 批量删除标签
@@ -140,13 +156,13 @@ public class InformationLabelServiceImpl extends AbstractService<InformationLabe
         for (Long id :ids) {
             QueryWrapper<MmInformationPo> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("info_label_id",id);
-            Integer count = informationMapper.selectCount(queryWrapper);
+            Integer count = mmInformationMapper.selectCount(queryWrapper);
             if(count > 0 ) {
                 throw new ServiceException(ResultCode.FAIL, "删除失败，包含正被店铺资讯使用关联的标签");
             }
         }
         //批量删除标签
-        informationLabelMapper.deleteBatchIds(Arrays.asList(ids));
+        mmInformationLabelMapper.deleteBatchIds(Arrays.asList(ids));
 
     }
 

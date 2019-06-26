@@ -29,7 +29,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("mm_information")
-@ApiModel(value = "SmInformationPo对象", description = "店铺资讯信息")
+@ApiModel(value = "MmInformationPo对象", description = "店铺资讯信息")
 public class MmInformationPo implements Serializable {
 
     private static final long serialVersionUID = 1L;

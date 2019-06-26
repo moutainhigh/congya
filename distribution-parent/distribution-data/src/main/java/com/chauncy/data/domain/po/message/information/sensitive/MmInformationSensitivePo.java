@@ -1,6 +1,4 @@
-package com.chauncy.data.domain.po.message.information.category;
-
-import java.math.BigDecimal;
+package com.chauncy.data.domain.po.message.information.sensitive;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 
@@ -19,28 +17,22 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author huangwancheng
- * @since 2019-06-25
+ * @since 2019-06-26
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("mm_information_category")
-@ApiModel(value = "MmInformationCategoryPo对象", description = "店铺资讯分类信息")
-public class MmInformationCategoryPo implements Serializable {
+@TableName("mm_information_sensitive")
+@ApiModel(value = "MmInformationSensitivePo对象", description = "")
+public class MmInformationSensitivePo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "资讯分类id")
+    @ApiModelProperty(value = "敏感词id")
     private Long id;
 
-    @ApiModelProperty(value = "资讯分类名称")
+    @ApiModelProperty(value = "敏感词")
     private String name;
-
-    @ApiModelProperty(value = "分类缩略图")
-    private String icon;
-
-    @ApiModelProperty(value = "排序数字")
-    private BigDecimal sort;
 
     @ApiModelProperty(value = "是否启用 1-是 0-否 默认为1")
     private Boolean enabled;

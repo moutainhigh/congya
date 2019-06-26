@@ -3,7 +3,7 @@ package com.chauncy.web.controller.store.information.category;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.chauncy.message.information.category.service.IInformationCategoryService;
+import com.chauncy.message.information.category.service.IMmInformationCategoryService;
 
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class InformationCategoryController {
 
  @Autowired
- private IInformationCategoryService service;
+ private IMmInformationCategoryService service;
 
 
 }

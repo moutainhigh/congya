@@ -11,6 +11,6 @@ import com.chauncy.data.mapper.IBaseMapper;
  * @author huangwancheng
  * @since 2019-06-25
  */
-public interface InformationMapper extends IBaseMapper<MmInformationPo> {
+public interface MmInformationMapper extends IBaseMapper<MmInformationPo> {
 
 }

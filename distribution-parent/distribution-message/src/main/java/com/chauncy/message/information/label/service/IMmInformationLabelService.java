@@ -2,6 +2,7 @@ package com.chauncy.message.information.label.service;
 
 import com.chauncy.data.domain.po.message.information.label.MmInformationLabelPo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.information.add.InformationLabelDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationLabelSearchDto;
 import com.chauncy.data.vo.manage.message.information.label.InformationLabelVo;
@@ -17,7 +18,7 @@ import java.util.List;
  * @author huangwancheng
  * @since 2019-06-25
  */
-public interface IInformationLabelService extends Service<MmInformationLabelPo> {
+public interface IMmInformationLabelService extends Service<MmInformationLabelPo> {
 
 
     /**
@@ -51,6 +52,13 @@ public interface IInformationLabelService extends Service<MmInformationLabelPo> 
      * @return
      */
     List<InformationLabelVo> selectAll();
+
+    /**
+     * 批量禁用启用
+     *
+     * @param baseUpdateStatusDto
+     */
+    void editStatusBatch(BaseUpdateStatusDto baseUpdateStatusDto);
 
     /**
      * 批量删除标签

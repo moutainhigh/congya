@@ -15,7 +15,7 @@ import java.util.List;
  * @author huangwancheng
  * @since 2019-06-25
  */
-public interface InformationLabelMapper extends IBaseMapper<MmInformationLabelPo> {
+public interface MmInformationLabelMapper extends IBaseMapper<MmInformationLabelPo> {
 
     /**
      * 条件查询

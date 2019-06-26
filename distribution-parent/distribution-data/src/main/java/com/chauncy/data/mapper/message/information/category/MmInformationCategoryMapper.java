@@ -15,7 +15,7 @@ import java.util.List;
  * @author huangwancheng
  * @since 2019-06-25
  */
-public interface InformationCategoryMapper extends IBaseMapper<MmInformationCategoryPo> {
+public interface MmInformationCategoryMapper extends IBaseMapper<MmInformationCategoryPo> {
 
 
     /**
