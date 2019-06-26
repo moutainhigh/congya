@@ -323,7 +323,7 @@ public class ExcelGoodApi extends BaseApi {
             saveGoodPo.setLocation(rowDataList.get(15));
             saveGoodPo.setPurchaseLimit(Integer.parseInt(rowDataList.get(16)));
             saveGoodPo.setCreateBy(getUser().getUsername());
-            saveGoodPo.setIsExcel(true);
+            saveGoodPo.setIsExcel(true).setStoreId(securityUtil.getCurrUser().getStoreId());
 
             pmGoodsService.save(saveGoodPo);
 
@@ -379,7 +379,6 @@ public class ExcelGoodApi extends BaseApi {
         return excelImportErrorLogVos;
     }
 
-
     /**
      * 插入sku数据库并获取出错日志
      * @param excelDataList
@@ -417,7 +416,7 @@ public class ExcelGoodApi extends BaseApi {
             }
             else {
                 if (queryGood.getVerifyStatus().equals(2)||queryGood.getVerifyStatus().equals(3)||
-                        queryGood.getPublishStatus()){
+                        (queryGood.getPublishStatus()!=null&&queryGood.getPublishStatus())){
                     excelImportErrorLogVo.setRowNumber(i + 1);
                     excelImportErrorLogVo.setErrorMessage(String.format("上架、待审核、审核通过的商品不能导入！"));
                     excelImportErrorLogVos.add(excelImportErrorLogVo);
@@ -487,8 +486,6 @@ public class ExcelGoodApi extends BaseApi {
                 }
             }
             relAttributeValueSkuService.saveBatch(saveRelAttributeValueSkuGoods);
-
-
         }
         return excelImportErrorLogVos;
     }
@@ -534,7 +531,7 @@ public class ExcelGoodApi extends BaseApi {
             else {
                 PmGoodsPo queryGood=pmGoodsService.getById(querySku.getGoodsId());
                 if (queryGood.getVerifyStatus().equals(2)||queryGood.getVerifyStatus().equals(3)||
-                        queryGood.getPublishStatus()){
+                        (queryGood.getPublishStatus()!=null&&queryGood.getPublishStatus())){
                     excelImportErrorLogVo.setErrorMessage(String.format("上架、待审核、审核通过的商品不能导入！"));
                     excelImportErrorLogVo.setRowNumber(i + 1);
                     excelImportErrorLogVos.add(excelImportErrorLogVo);
@@ -598,10 +595,10 @@ public class ExcelGoodApi extends BaseApi {
             }
             else {
                 if (queryGood.getVerifyStatus().equals(2)||queryGood.getVerifyStatus().equals(3)||
-                        queryGood.getPublishStatus()){
-                    excelImportErrorLogVo.setErrorMessage(String.format("上架、待审核、审核通过的商品不能导入！"));
+                        (queryGood.getPublishStatus()!=null&&queryGood.getPublishStatus())){
                     excelImportErrorLogVo.setRowNumber(i + 1);
                     excelImportErrorLogVos.add(excelImportErrorLogVo);
+                    excelImportErrorLogVo.setErrorMessage(String.format("上架、待审核、审核通过的商品不能导入！"));
                     continue;
                 }
             }
