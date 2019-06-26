@@ -7,17 +7,13 @@ import com.baomidou.mybatisplus.generator.config.*;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
 import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,9 +25,11 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/generator")
+@Api(tags = "代码自动生成")
 public class GeneratorController {
 
     @PostMapping("/create")
+    @ApiOperation("代码自动生成")
     public void generator(@RequestParam(value = "model") String model,
                           @RequestParam(value = "tableName") String tableName,
                           @RequestParam(value = "dataBaseName") String dataBaseName
@@ -84,8 +82,8 @@ public class GeneratorController {
         pc.setParent("com.chauncy");
         pc.setEntity("domain.po." + model);
         pc.setMapper("mapper." + model);
-        pc.setService("temp." + model + ".com.chauncy.user.service");
-        pc.setServiceImpl("temp." + model + ".com.chauncy.user.service.impl");
+        pc.setService("temp." + model + ".service");
+        pc.setServiceImpl("temp." + model + ".service.impl");
         pc.setController("temp.controller." + model);
 
         mpg.setPackageInfo(pc);

@@ -25,7 +25,7 @@ import java.util.List;
 public class AddShipTemplateDto {
 
     @ApiModelProperty("运费模版ID")
-//    @NotNull(message = "运费模版ID不能为空",groups = IUpdateGroup.class)
+//    @NotNull(content = "运费模版ID不能为空",groups = IUpdateGroup.class)
 //    @NeedExistConstraint(tableName = "pm_shipping_template",groups = IUpdateGroup.class)
     private Long id;
 

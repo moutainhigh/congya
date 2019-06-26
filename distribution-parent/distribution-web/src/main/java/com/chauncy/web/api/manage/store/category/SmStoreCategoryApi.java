@@ -100,7 +100,7 @@ public class SmStoreCategoryApi extends BaseApi {
      * @param storeCategorySearchDto
      * @return
      */
-    @ApiOperation(value = "条件查询", notes = "根据分类ID、分类名称、创建时间查询")
+    @ApiOperation(value = "条件查询", notes = "根据分类ID、分类名称查询")
     @PostMapping("/searchPaging")
     public JsonViewData searchPaging(@RequestBody StoreCategorySearchDto storeCategorySearchDto) {
 

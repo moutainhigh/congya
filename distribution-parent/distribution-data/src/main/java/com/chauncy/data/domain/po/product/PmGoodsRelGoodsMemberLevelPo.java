@@ -55,12 +55,12 @@ public class PmGoodsRelGoodsMemberLevelPo implements Serializable {
     private Boolean delFlag;
 
     @ApiModelProperty(value = "商品ID")
-    @NotNull(message = "商品ID不能为空")
+    @NotNull(content = "商品ID不能为空")
     @NeedExistConstraint(tableName = "pm_goods")
     private Long goodsGoodId;
 
     @ApiModelProperty(value = "会员等级ID")
-    @NotNull(message = "会员等级ID不能为空")
+    @NotNull(content = "会员等级ID不能为空")
     @NeedExistConstraint(tableName = "pm_member_level")
     private Long memberLevelId;
 
