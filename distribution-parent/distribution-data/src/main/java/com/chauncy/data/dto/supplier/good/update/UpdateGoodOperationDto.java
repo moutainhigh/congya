@@ -37,9 +37,10 @@ public class UpdateGoodOperationDto {
     @NotNull(message = "推广成本比例不能为空")
     private BigDecimal generalizeCostRate;
 
-    @ApiModelProperty(value = "限定会员等级ID集合")
+    @ApiModelProperty(value = "限定会员等级ID")
     @NotNull(message = "限定会员等级ID不能为空")
-    private Long[] memberLevelIds;
+    @NeedExistConstraint(tableName = "pm_member_level")
+    private Long memberLevelId;
 
     @ApiModelProperty(value = "商品排序数字")
     @NotNull(message = "商品排序数字不能为空")

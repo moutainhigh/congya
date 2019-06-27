@@ -32,6 +32,7 @@ import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -857,7 +858,29 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             });
             findGoodOperationVo.setMemberLevelInfos(memberLevelInfos);
 
-        }return findGoodOperationVo;
+        }
+        else{
+            String memberLevelName = memberLevelMapper.selectById(goodsPo.getMemberLevelId()).getLevelName();
+            BeanUtils.copyProperties(goodsPo,findGoodOperationVo);
+            findGoodOperationVo.setGoodsId(goodsId);
+            findGoodOperationVo.setMemberLevelName(memberLevelName);
+            //绑定的会员等级设置为true
+            MemberLevelInfos memberLevelInfo = new MemberLevelInfos();
+            memberLevelInfo.setIsInclude(true);
+            memberLevelInfo.setMemberLevelId(findGoodOperationVo.getMemberLevelId());
+            memberLevelInfo.setLevelName(memberLevelName);
+            memberLevelInfos.add(memberLevelInfo);
+            //未绑定的置为false
+            memberLevelPos.stream().filter(a->a.getId()!=(goodsPo.getMemberLevelId())).forEach(b->{
+                MemberLevelInfos memberLevel = new MemberLevelInfos();
+                memberLevel.setMemberLevelId(b.getId());
+                memberLevel.setLevelName(b.getLevelName());
+                memberLevel.setIsInclude(false);
+                memberLevelInfos.add(memberLevel);
+            });
+            findGoodOperationVo.setMemberLevelInfos(memberLevelInfos);
+        }
+        return findGoodOperationVo;
         /*else {
             BeanUtils.copyProperties(findGoodOperationVo, goodsPo);
             findGoodOperationVo.setGoodsId(goodsId);
@@ -941,7 +964,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     }
 
     /**
-     * 根据商品ID查找运营信息
+     * 根据商品ID查找销售信息
      *
      * @param goodsId
      * @return
@@ -1040,7 +1063,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         List<PmGoodsPo> goodsPos = mapper.selectBatchIds(Arrays.asList(goodsIds));
         goodsPos.forEach(a->{
             if (a.getVerifyStatus()!= VerifyStatusEnum.UNCHECKED.getId()){
-                throw new ServiceException(ResultCode.FAIL,"该商品状态不是未审核状态",a.getName());
+                throw new ServiceException(ResultCode.FAIL,"该商品状态不是待提交状态",a.getName());
             }
             else{
                 //修改商品状态
@@ -1144,7 +1167,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         goodsPo3.setStoreId(storeId);
         goodsPo3.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
         QueryWrapper<PmGoodsPo> queryWrapper3 = new QueryWrapper<>(goodsPo3);
-        //未审核商品数量
+        //待提交商品数量
         Integer unCheckNum = mapper.selectCount(queryWrapper3);
         goodStatisticsVo.setUnCheckNum(unCheckNum);
 
@@ -1164,7 +1187,53 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         Integer notApprovedNum = mapper.selectCount(queryWrapper5);
         goodStatisticsVo.setNotApprovedNum(notApprovedNum);
 
+        PmGoodsPo goodsPo6 = new PmGoodsPo();
+        goodsPo6.setStoreId(storeId);
+        goodsPo6.setVerifyStatus(VerifyStatusEnum.CHECKED.getId());
+        QueryWrapper<PmGoodsPo> queryWrapper6 = new QueryWrapper<>(goodsPo6);
+        //审核通过商品数量
+        Integer checkedNum = mapper.selectCount(queryWrapper6);
+        goodStatisticsVo.setCheckedNum(checkedNum);
+
         return goodStatisticsVo;
+    }
+
+    /**
+     * 获取分类下的商品属性信息 typeList:商品类型；brandList:品牌；labelList:标签；platformServiceList:平台服务说明;
+     * merchantServiceList:商家服务说明；paramList:商品参数；platformShipList:平台运费模版;merchantShipList:店铺运费模版
+     *
+     * 类型 1->平台服务说明 2->商家服务说明 3->平台活动说明
+     * 4->商品参数 5->商品标签 6->购买须知说明 7->商品规格 8->品牌管理 9->敏感词
+     *
+     * @param categoryId
+     * @return
+     */
+    @Override
+    public AttributeVo findAttributes(Long categoryId) {
+
+        AttributeVo attributeVo = new AttributeVo();
+
+        List<String> typeList = Arrays.stream(GoodsTypeEnum.values()).map(a -> a.getName()).collect(Collectors.toList());
+        List<BaseVo> brandList = goodsAttributeMapper.findAttByType(GoodsAttributeTypeEnum.BRAND.getId());
+        List<BaseVo> labelList = goodsAttributeMapper.findAttByType(GoodsAttributeTypeEnum.LABEL.getId());
+        List<BaseVo> platformServiceList = goodsAttributeMapper.findAttByTypeAndCat(categoryId,GoodsAttributeTypeEnum.PLATFORM_SERVICE.getId());
+        //商家服务说明
+        List<BaseVo> merchantServiceList = goodsAttributeMapper.findAttByType(GoodsAttributeTypeEnum.MERCHANT_SERVICE.getId());
+        List<BaseVo> paramList = goodsAttributeMapper.findAttByTypeAndCat(categoryId,GoodsAttributeTypeEnum.GOODS_PARAM.getId());
+
+        List<BaseVo> platformShipList = shippingTemplateMapper.findByType(GoodsShipTemplateEnum.PLATFORM_SHIP.getId());
+        List<BaseVo> merchantShipList = shippingTemplateMapper.findByType(GoodsShipTemplateEnum.MERCHANT_SHIP.getId());
+
+        attributeVo.setBrandList(brandList);
+        attributeVo.setTypeList(typeList);
+        attributeVo.setLabelList(labelList);
+        attributeVo.setPlatformServiceList(platformServiceList);
+        attributeVo.setMerchantServiceList(merchantServiceList);
+        attributeVo.setParamList(paramList);
+        attributeVo.setPlatformShipList(platformShipList);
+        attributeVo.setMerchantShipList(merchantShipList);
+
+        return attributeVo;
     }
 
 }

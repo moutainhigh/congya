@@ -92,4 +92,11 @@ public interface PmGoodsAttributeMapper extends IBaseMapper<PmGoodsAttributePo> 
      */
     List<AttributeIdNameTypeVo> loadAttributeIdNameTypeVos(@Param("types") List<Integer> types);
 
+    /**
+     * 通过类型查找属性
+     *
+     * @param id
+     * @return
+     */
+    List<BaseVo> findAttByType(Integer id);
 }

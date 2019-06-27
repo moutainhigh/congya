@@ -1,4 +1,4 @@
-package com.chauncy.common.enums.common;
+package com.chauncy.common.enums.message;
 
 import com.chauncy.common.enums.BaseEnum;
 
@@ -6,20 +6,19 @@ import java.util.Objects;
 
 /**
  * @Author cheng
- * @create 2019-06-21 10:17
+ * @create 2019-06-26 18:07
  *
- *  校验状态 1-待提交 2-审核通过 3-驳回 4-不通过/驳回
+ * 类别 1--商品 2--店铺 3--资讯
  */
-public enum VerifyStatusEnum implements BaseEnum {
+public enum KeyWordTypeEnum implements BaseEnum {
 
-    UNCHECKED(1,"待提交"),
-    WAIT_CONFIRM(2,"待审核"),
-    CHECKED(3,"审核通过"),
-    NOT_APPROVED(4,"不通过/驳回");
+    GOODS(1,"商品"),
+    MERCHANT(2,"店铺"),
+    INFORMATION(3,"资讯");
 
     private Integer id;
     private String name;
-    VerifyStatusEnum(Integer id, String name){
+    KeyWordTypeEnum(Integer id, String name){
         this.id = id;
         this.name = name;
     }
@@ -34,16 +33,16 @@ public enum VerifyStatusEnum implements BaseEnum {
     }
 
     //通过Id获取结果
-    public static VerifyStatusEnum getVerifyStatusById(Integer id) {
-        for (VerifyStatusEnum type : VerifyStatusEnum.values()) {
+    public static KeyWordTypeEnum getArticalLocationById(Integer id) {
+        for (KeyWordTypeEnum type : KeyWordTypeEnum.values()) {
             if (type.getId() == id)
                 return type;
         }
         return null;
     }
     //通过名称来获取结果
-    public static VerifyStatusEnum fromName(String name) {
-        for (VerifyStatusEnum type : VerifyStatusEnum.values()) {
+    public static KeyWordTypeEnum fromName(String name) {
+        for (KeyWordTypeEnum type : KeyWordTypeEnum.values()) {
             if (type.getName().equals(name))
                 return type;
         }
@@ -68,6 +67,7 @@ public enum VerifyStatusEnum implements BaseEnum {
 
     @Override
     public boolean isExist(Object field) {
-        return Objects.nonNull(getVerifyStatusById(Integer.parseInt(field.toString())));
+        return Objects.nonNull(fromName(field.toString()));
     }}
+
 

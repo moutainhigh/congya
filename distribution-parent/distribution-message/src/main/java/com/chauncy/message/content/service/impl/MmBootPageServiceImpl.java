@@ -5,7 +5,7 @@ import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.domain.po.message.content.MmBootPagePo;
 import com.chauncy.data.dto.manage.message.content.add.AddBootPageDto;
 import com.chauncy.data.dto.manage.message.content.select.search.SearchContentDto;
-import com.chauncy.data.mapper.message.MmBootPageMapper;
+import com.chauncy.data.mapper.message.content.MmBootPageMapper;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.vo.manage.message.content.BootPageVo;
 import com.chauncy.message.content.service.IMmBootPageService;
@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

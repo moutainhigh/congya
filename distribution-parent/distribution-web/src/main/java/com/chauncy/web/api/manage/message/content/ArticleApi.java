@@ -39,9 +39,9 @@ public class ArticleApi {
      *
      * @return
      */
-    @GetMapping("/findLocations")
+    @GetMapping("/selectLocations")
     @ApiOperation("查找所有的文章位置")
-    public JsonViewData<List<String>> findLocations(){
+    public JsonViewData<List<String>> selectLocations(){
 
         return new JsonViewData(service.findLocations());
     }

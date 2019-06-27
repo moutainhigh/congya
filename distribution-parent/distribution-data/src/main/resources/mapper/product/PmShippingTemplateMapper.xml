@@ -137,5 +137,11 @@
             </if>
         </where>
     </select>
+    <select id="findByType" resultType="com.chauncy.data.vo.BaseVo">
+
+        select id,name
+        from pm_shipping_template
+        where type = #{type}
+    </select>
 
 </mapper>

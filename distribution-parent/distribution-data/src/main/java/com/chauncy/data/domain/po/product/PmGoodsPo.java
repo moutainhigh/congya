@@ -107,7 +107,7 @@ public class PmGoodsPo {
     @ApiModelProperty(value = "是否是明星单品；0->否；1->是")
     private Boolean starStatus;
 
-    @ApiModelProperty(value = "审核状态：1->未审核；2->待审核；3->审核通过；4->不通过/驳回")
+    @ApiModelProperty(value = "审核状态：1->未提交；2->审核中；3->审核通过；4->不通过/驳回")
     private Integer verifyStatus;
 
     @ApiModelProperty(value = "店铺ID")

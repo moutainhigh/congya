@@ -90,6 +90,11 @@
         </foreach>
 
     </select>
+    <select id="findAttByType" resultType="com.chauncy.data.vo.BaseVo">
+        select *
+        from pm_goods_attribute
+        where type = #{type}
+    </select>
 
 
 </mapper>

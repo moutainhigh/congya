@@ -1,4 +1,4 @@
-package com.chauncy.data.mapper.message;
+package com.chauncy.data.mapper.message.content;
 
 import com.chauncy.data.domain.po.message.content.MmBootPagePo;
 import com.chauncy.data.dto.manage.message.content.select.search.SearchContentDto;
