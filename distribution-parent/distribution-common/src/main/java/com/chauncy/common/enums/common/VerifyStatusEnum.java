@@ -8,11 +8,11 @@ import java.util.Objects;
  * @Author cheng
  * @create 2019-06-21 10:17
  *
- *  校验状态 1-未审核 2-审核通过 3-驳回 4-不通过/驳回
+ *  校验状态 1-待提交 2-审核通过 3-驳回 4-不通过/驳回
  */
 public enum VerifyStatusEnum implements BaseEnum {
 
-    UNCHECKED(1,"未审核"),
+    UNCHECKED(1,"待提交"),
     WAIT_CONFIRM(2,"待审核"),
     CHECKED(3,"审核通过"),
     NOT_APPROVED(4,"不通过/驳回");

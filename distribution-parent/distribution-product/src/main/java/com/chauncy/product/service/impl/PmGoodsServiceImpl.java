@@ -1062,7 +1062,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         List<PmGoodsPo> goodsPos = mapper.selectBatchIds(Arrays.asList(goodsIds));
         goodsPos.forEach(a->{
             if (a.getVerifyStatus()!= VerifyStatusEnum.UNCHECKED.getId()){
-                throw new ServiceException(ResultCode.FAIL,"该商品状态不是未审核状态",a.getName());
+                throw new ServiceException(ResultCode.FAIL,"该商品状态不是待提交状态",a.getName());
             }
             else{
                 //修改商品状态
@@ -1166,7 +1166,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         goodsPo3.setStoreId(storeId);
         goodsPo3.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
         QueryWrapper<PmGoodsPo> queryWrapper3 = new QueryWrapper<>(goodsPo3);
-        //未审核商品数量
+        //待提交商品数量
         Integer unCheckNum = mapper.selectCount(queryWrapper3);
         goodStatisticsVo.setUnCheckNum(unCheckNum);
 

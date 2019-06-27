@@ -25,6 +25,9 @@ public class PmGoodsVo {
     @ApiModelProperty("商品名称")
     private String goodName;
 
+    @ApiModelProperty("品牌名称")
+    private String BrandName;
+
     @ApiModelProperty("销售价")
     private BigDecimal sellPrice;
 
@@ -43,10 +46,10 @@ public class PmGoodsVo {
     @ApiModelProperty("应用标签")
     private Boolean starStatus;
 
-    @ApiModelProperty("销售状态")
+    @ApiModelProperty("销售状态 0->下架；1->上架")
     private Boolean publishStatus;
 
-    @ApiModelProperty("审核状态")
+    @ApiModelProperty("审核状态 审核状态：1->未提交；2->审核中；3->审核通过；4->不通过/驳回")
     private Integer verifyStatus;
 
 }

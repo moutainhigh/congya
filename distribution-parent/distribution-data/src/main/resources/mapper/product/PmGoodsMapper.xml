@@ -63,20 +63,22 @@
 
     <select id="searchGoodsInfo" resultType="com.chauncy.data.vo.supplier.PmGoodsVo">
         SELECT a.id,a.icon,a.NAME as good_name,a.sort,a.stock,a.sales_volume,a.star_status,a.publish_status,a.verify_status,
-        Min(b.supplier_price) AS supplier_price, Min(b.sell_price) AS sell_price,d.name
+        Min(b.supplier_price) AS supplier_price, Min(b.sell_price) AS sell_price,d.name as brandName
         from pm_goods a
         LEFT JOIN pm_goods_sku b on a.id = b.goods_id and a.del_flag = 0
         LEFT JOIN pm_goods_rel_attribute_good c on c.del_flag = 0 and c.goods_good_id = a.id
         inner JOIN pm_goods_attribute d on c.goods_attribute_id = d.id and d.type=8
+        inner join pm_goods_category e on e.id = a.goods_category_id
+        left join sm_store f on f.id = a.store_id and f.del_flag = 0
         <where>
          <if test="goodName!=null and goodName !=''">
              and a.name like concat('%', #{goodName}, '%')
          </if>
-         <if test="categoryId!=null">
-             and a.goods_category_id = #{categoryId}
+         <if test="categoryName!=null and categoryName!=''">
+             and e.name like concat('%', #{categoryName}, '%')
          </if>
-         <if test="brandId !=null">
-            and d.id = #{brandId}
+         <if test="brandName !=null and brandName!=''">
+            and d.name like concat('%', #{brandName}, '%')
          </if>
          <if test="verifyStatus!=null">
             and a.verify_status = #{verifyStatus}
@@ -84,8 +86,8 @@
          <if test="publishStatus!=null">
             and a.publish_status=#{publishStatus}
          </if>
-         <if test="storeId!=null">
-            and a.store_id=#{storeId}
+         <if test="storeName!=null and storeName!=''">
+            and f.name like concat('%', #{storeName}, '%')
          </if>
         </where>
         GROUP BY a.id,d.id order by a.sort;
