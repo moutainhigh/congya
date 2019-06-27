@@ -32,6 +32,7 @@ import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -1195,6 +1196,44 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         goodStatisticsVo.setCheckedNum(checkedNum);
 
         return goodStatisticsVo;
+    }
+
+    /**
+     * 获取分类下的商品属性信息 typeList:商品类型；brandList:品牌；labelList:标签；platformServiceList:平台服务说明;
+     * merchantServiceList:商家服务说明；paramList:商品参数；platformShipList:平台运费模版;merchantShipList:店铺运费模版
+     *
+     * 类型 1->平台服务说明 2->商家服务说明 3->平台活动说明
+     * 4->商品参数 5->商品标签 6->购买须知说明 7->商品规格 8->品牌管理 9->敏感词
+     *
+     * @param categoryId
+     * @return
+     */
+    @Override
+    public AttributeVo findAttributes(Long categoryId) {
+
+        AttributeVo attributeVo = new AttributeVo();
+
+        List<String> typeList = Arrays.stream(GoodsTypeEnum.values()).map(a -> a.getName()).collect(Collectors.toList());
+        List<BaseVo> brandList = goodsAttributeMapper.findAttByType(GoodsAttributeTypeEnum.BRAND.getId());
+        List<BaseVo> labelList = goodsAttributeMapper.findAttByType(GoodsAttributeTypeEnum.LABEL.getId());
+        List<BaseVo> platformServiceList = goodsAttributeMapper.findAttByTypeAndCat(categoryId,GoodsAttributeTypeEnum.PLATFORM_SERVICE.getId());
+        //商家服务说明
+        List<BaseVo> merchantServiceList = goodsAttributeMapper.findAttByType(GoodsAttributeTypeEnum.MERCHANT_SERVICE.getId());
+        List<BaseVo> paramList = goodsAttributeMapper.findAttByTypeAndCat(categoryId,GoodsAttributeTypeEnum.GOODS_PARAM.getId());
+
+        List<BaseVo> platformShipList = shippingTemplateMapper.findByType(GoodsShipTemplateEnum.PLATFORM_SHIP.getId());
+        List<BaseVo> merchantShipList = shippingTemplateMapper.findByType(GoodsShipTemplateEnum.MERCHANT_SHIP.getId());
+
+        attributeVo.setBrandList(brandList);
+        attributeVo.setTypeList(typeList);
+        attributeVo.setLabelList(labelList);
+        attributeVo.setPlatformServiceList(platformServiceList);
+        attributeVo.setMerchantServiceList(merchantServiceList);
+        attributeVo.setParamList(paramList);
+        attributeVo.setPlatformShipList(platformShipList);
+        attributeVo.setMerchantShipList(merchantShipList);
+
+        return attributeVo;
     }
 
 }

@@ -355,4 +355,18 @@ public class SmGoodsApi extends BaseApi {
         return new JsonViewData(service.statisticsGood());
     }
 
+    /**
+     * 获取分类下的商品属性信息 typeList:商品类型；brandList:品牌；labelList:标签；platformServiceList:平台服务说明;
+     * merchantServiceList:商家服务说明；paramList:商品参数；platformShipList:平台运费模版;merchantShipList:店铺运费模版
+     *
+     * @param categoryId
+     * @return
+     */
+    @GetMapping("/findAttributes/{categoryId}")
+    @ApiOperation(value = "根据不同分类获取商品属性信息")
+    public JsonViewData<AttributeVo> findAttributes(@ApiParam(required = true, name = "categoryId", value = "分类ID") @PathVariable Long categoryId) {
+
+        return new JsonViewData<>(service.findAttributes(categoryId));
+    }
+
 }

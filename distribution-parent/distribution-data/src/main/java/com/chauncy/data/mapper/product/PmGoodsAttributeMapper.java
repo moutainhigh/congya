@@ -84,4 +84,11 @@ public interface PmGoodsAttributeMapper extends IBaseMapper<PmGoodsAttributePo> 
      */
     List<BaseBo> findStandardName(@Param("categoryId") Long categoryId);
 
+    /**
+     * 通过类型查找属性
+     *
+     * @param id
+     * @return
+     */
+    List<BaseVo> findAttByType(Integer id);
 }
