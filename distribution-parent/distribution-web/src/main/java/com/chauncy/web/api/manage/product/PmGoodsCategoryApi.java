@@ -6,6 +6,8 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.JSONUtils;
 import com.chauncy.common.util.ListUtil;
+import com.chauncy.data.domain.BaseTree;
+import com.chauncy.data.domain.MyBaseTree;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.product.PmGoodsRelAttributeCategoryPo;
@@ -16,8 +18,7 @@ import com.chauncy.data.dto.manage.good.select.SearchAttributeByNamePageDto;
 import com.chauncy.data.dto.manage.good.select.SearchGoodCategoryDto;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
-import com.chauncy.data.vo.manage.product.SearchAttributeVo;
-import com.chauncy.data.vo.manage.product.SearchCategoryVo;
+import com.chauncy.data.vo.manage.product.*;
 import com.chauncy.product.service.IPmGoodsAttributeService;
 import com.chauncy.product.service.IPmGoodsCategoryService;
 import com.chauncy.product.service.IPmGoodsRelAttributeCategoryService;
@@ -41,6 +42,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 商品分类页面控制器
@@ -86,7 +88,6 @@ public class PmGoodsCategoryApi extends BaseApi {
         BeanUtils.copyProperties(goodCategoryDto,pmGoodsCategoryPo);
         pmGoodsCategoryPo.setId(null);
         goodsCategoryService.save(pmGoodsCategoryPo);
-
 
 
         //保存属性和分类之间的关系
@@ -216,7 +217,7 @@ public class PmGoodsCategoryApi extends BaseApi {
     @ApiOperation(value = "选择商品分类")
     public JsonViewData findByParentId(Long parentId){
         PmGoodsCategoryPo condition=new PmGoodsCategoryPo();
-        QueryWrapper<PmGoodsCategoryPo> queryWrapper=new QueryWrapper<>(condition,"id","name");
+        QueryWrapper<PmGoodsCategoryPo> queryWrapper=new QueryWrapper<>(condition,"value","name");
         if (parentId==null){
             condition.setLevel(1);
         }
@@ -226,17 +227,26 @@ public class PmGoodsCategoryApi extends BaseApi {
         return setJsonViewData(goodsCategoryService.listMaps(queryWrapper));
     }
 
+
+    @PostMapping("/find_all_category")
+    @ApiOperation(value = "联动查询所有分类")
+    public JsonViewData findGoodsCategoryTreeVo(){
+        List<GoodsCategoryTreeVo> goodsCategoryTreeVo = goodsCategoryService.findGoodsCategoryTreeVo();
+        return setJsonViewData(MyBaseTree.build(goodsCategoryTreeVo));
+    }
+
     @PostMapping("/find_attribute")
     @ApiOperation(value = "查找所有属性")
-    public JsonViewData<PageInfo<SearchAttributeVo>> findAttribute(@Validated @RequestBody  SearchAttributeByNamePageDto searchAttributeByNamePageDto){
-        Integer pageNo=searchAttributeByNamePageDto.getPageNo()==null?defaultPageNo:searchAttributeByNamePageDto.getPageNo();
-        Integer pageSize=searchAttributeByNamePageDto.getPageSize()==null?defaultPageSize:searchAttributeByNamePageDto.getPageSize();
-        PmGoodsAttributePo condition=new PmGoodsAttributePo();
-        condition.setName(searchAttributeByNamePageDto.getName());
-        PageInfo<SearchAttributeVo> attributeVoPageInfo = PageHelper.startPage(pageNo, pageSize, "is_select desc")
-                .doSelectPageInfo(() -> goodsCategoryService.findAttributeVo(searchAttributeByNamePageDto));
-        return setJsonViewData(attributeVoPageInfo);
-
+    public JsonViewData<CategoryRelAttributeVo> findAttribute(){
+        //这里只能硬编码   查出分类下需要查找的各种属性
+        List<AttributeIdNameTypeVo> attributeIdNameTypeVos = attributeService.findAttributeIdNameTypeVos(Lists.newArrayList(7, 4, 1, 6));
+        Map<Integer,List<AttributeIdNameTypeVo>> map=attributeIdNameTypeVos.stream().collect(Collectors.groupingBy(AttributeIdNameTypeVo::getType));
+        CategoryRelAttributeVo categoryRelAttributeVo=new CategoryRelAttributeVo();
+        categoryRelAttributeVo.setAttributeList(map.get(4));
+        categoryRelAttributeVo.setPurchaseList(map.get(6));
+        categoryRelAttributeVo.setServiceList(map.get(1));
+        categoryRelAttributeVo.setSpecificationList(map.get(7));
+        return setJsonViewData(categoryRelAttributeVo);
     }
 
 

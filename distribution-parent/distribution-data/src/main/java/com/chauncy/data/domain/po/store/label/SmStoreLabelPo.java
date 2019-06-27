@@ -38,7 +38,7 @@ public class SmStoreLabelPo implements Serializable {
 
 
     @ApiModelProperty(value = "标签ID")
-    @TableId(value = "id", type = IdType.ID_WORKER)
+    @TableId(value = "value", type = IdType.ID_WORKER)
     @JsonSerialize(using = LongJsonSerializer.class)
     private Long id;
 

@@ -12,6 +12,7 @@ import com.chauncy.data.dto.manage.good.add.GoodAttributeDto;
 import com.chauncy.data.dto.manage.good.select.FindAttributeInfoByConditionDto;
 import com.chauncy.data.mapper.product.*;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.manage.product.AttributeIdNameTypeVo;
 import com.chauncy.data.vo.manage.product.PmGoodsAttributeVo;
 import com.chauncy.product.service.IPmGoodsAttributeService;
 import com.chauncy.product.service.IPmGoodsAttributeValueService;
@@ -97,7 +98,7 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
         }
 
         /*//处理属性类型为规格类型的
-        if (GoodsAttributeTypeEnum.STANDARD.getId() == goodsAttributePo.getType()) {
+        if (GoodsAttributeTypeEnum.STANDARD.getValue() == goodsAttributePo.getType()) {
             if (goodsAttributePo.getValues() != null) {
                 String temp = goodsAttributePo.getValues()[0];
                 for (int i = 1; i < goodsAttributePo.getValues().length; i++) {
@@ -112,7 +113,7 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
                 mapper.insert(goodsAttributePo);
                 for (String value : goodsAttributePo.getValues()) {
                     PmGoodsAttributeValuePo po = new PmGoodsAttributeValuePo();
-                    po.setProductAttributeId(goodsAttributePo.getId());
+                    po.setProductAttributeId(goodsAttributePo.getValue());
                     po.setValue(value);
                     po.setCreateBy(user);
                     po.setCreateTime(date);
@@ -261,8 +262,8 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
         PageInfo<PmGoodsAttributeVo> goodsAttributeVo = new PageInfo<>();
         List<Map<String,Object>> map=valueMapper.findValueByCondition(findAttributeInfoByConditionDto.getType(), findAttributeInfoByConditionDto.getName(), findAttributeInfoByConditionDto.getEnabled());
         //判断Type是否为规格或参数
-        if (findAttributeInfoByConditionDto.getType() == GoodsAttributeTypeEnum.STANDARD.getId() /*|| findAttributeInfoByConditionDto.getType() == GoodsAttributeTypeEnum.GOODS_PARAM.getId()*/) {
-            PageInfo<Map<String,Object>> goodsAttributeValue = PageHelper.startPage(pageNo, pageSize/*, "id desc"*/)
+        if (findAttributeInfoByConditionDto.getType() == GoodsAttributeTypeEnum.STANDARD.getId() /*|| findAttributeInfoByConditionDto.getType() == GoodsAttributeTypeEnum.GOODS_PARAM.getValue()*/) {
+            PageInfo<Map<String,Object>> goodsAttributeValue = PageHelper.startPage(pageNo, pageSize/*, "value desc"*/)
                     .doSelectPageInfo(() ->valueMapper.findValueByCondition(findAttributeInfoByConditionDto.getType(), findAttributeInfoByConditionDto.getName(), findAttributeInfoByConditionDto.getEnabled()));
 //            if (!goodsAttributeValue.getList().stream().map(a->a.get("valueList")).toString().equals(""))
 //                goodsAttributeValue.getList().stream().map(a->a.put("valueList", JSONUtils.toList(goodsAttributeValue.getList().stream().map(b->b.get("valueList")))));
@@ -439,6 +440,11 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
             if (updateValue!=null && updateValue.size()!=0)
                 valueService.updateBatchById(updateValue);
         }
+    }
+
+    @Override
+    public List<AttributeIdNameTypeVo> findAttributeIdNameTypeVos(List<Integer> types) {
+        return mapper.loadAttributeIdNameTypeVos(types);
     }
 
 }

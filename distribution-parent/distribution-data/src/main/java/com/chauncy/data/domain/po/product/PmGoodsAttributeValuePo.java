@@ -44,7 +44,7 @@ public class PmGoodsAttributeValuePo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "id", type = IdType.ID_WORKER)
+    @TableId(value = "value", type = IdType.ID_WORKER)
     @JsonSerialize(using = LongJsonSerializer.class)
     @JsonDeserialize(using = LongJsonDeserializer.class)
     private Long id;

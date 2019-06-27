@@ -76,7 +76,7 @@ public class SmStoreLabelApi extends BaseApi {
      */
     @ApiOperation(value = "查找店铺标签", notes = "根据ID查找")
     @GetMapping("/findById/{id}")
-    public JsonViewData findById(@ApiParam(required = true, value = "id")
+    public JsonViewData findById(@ApiParam(required = true, value = "value")
                                  @PathVariable Long id) {
 
 

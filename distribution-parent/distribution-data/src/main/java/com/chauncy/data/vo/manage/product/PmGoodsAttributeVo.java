@@ -37,7 +37,7 @@ public class PmGoodsAttributeVo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "id")
+    @ApiModelProperty(value = "value")
     private Long id;
 
     @ApiModelProperty(value = "名称")

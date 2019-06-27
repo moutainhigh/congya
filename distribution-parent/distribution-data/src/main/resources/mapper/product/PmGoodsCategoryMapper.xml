@@ -75,6 +75,7 @@ FROM
 		AND c.id = #{cId}
 		and a.type=#{type}
 	</select>
+
 	<select id="loadAttributeVo" resultType="com.chauncy.data.vo.manage.product.SearchAttributeVo">
 		SELECT  a.id id,a.name name,IF(ac.id is null,false,true) is_select
 		FROM pm_goods_attribute a
@@ -90,7 +91,8 @@ FROM
 		and if(ac.del_flag is null ,1=1,ac.del_flag = 0)
 		and a.del_flag=0
 	</select>
-	<select id="loadList" resultType="com.chauncy.data.vo.manage.product.SearchCategoryVo">
+
+	<select id="loadSearchCategoryVoList" resultType="com.chauncy.data.vo.manage.product.SearchCategoryVo">
 		 WITH RECURSIVE childrenIds (id,name,sort,icon,enabled,level,parent_id) AS
         (
         (SELECT id,name,sort,icon,enabled,level,parent_id
@@ -131,6 +133,29 @@ FROM
 		<if test="t.enabled!=null">
 			and enabled=#{t.enabled}
 		</if>
+	</select>
+
+    <select id="getAttributeIdsByNameAndCategoryId" resultType="java.lang.Long">
+		SELECT
+		a.id
+		FROM
+		`pm_goods_attribute` a,
+		pm_goods_category c,
+		pm_goods_rel_attribute_category ac
+		WHERE
+		a.del_flag = 0
+		AND c.del_flag = 0
+		AND ac.del_flag = 0
+		AND a.NAME =#{name}
+		AND a.id = ac.goods_attribute_id
+		AND c.id = ac.goods_category_id
+		AND c.id = #{cId}
+		and a.type=#{type}
+	</select>
+	<select id="loadGoodsCategoryTreeVo" resultType="com.chauncy.data.vo.manage.product.GoodsCategoryTreeVo">
+		     select id as value,parent_id,name label
+		     from pm_goods_category
+		     where del_flag=0 and enabled=1
 	</select>
 
 

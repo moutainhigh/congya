@@ -39,7 +39,7 @@
         </where>
     </select>
 
-    <!--<select id="selectJobAll" resultMap="QuartzJobLogResult">
+    <!--<select value="selectJobAll" resultMap="QuartzJobLogResult">
         <include refid="selectJobTaskLogVo"/>
     </select>-->
 

@@ -23,7 +23,7 @@
     </select>
 
     <select id="find" resultType="map" parameterType="string">
---       select id as 'id', name as '名字', age as '年龄', salary as '薪水' from tb_user as 用户表
+value
       <include refid="findUsers"></include>
     </select>
 
@@ -38,12 +38,12 @@
 
     <insert id="insert" parameterType="usersPO" useGeneratedKeys="true" keyProperty="id">
         insert into tb_user(
-        <!--<if test="id != null and id != 0">id,</if>-->
+        <!--<if test="value != null and value != 0">value,</if>-->
         <if test="name != null and name != ''">name,</if>
         <if test="age != null and age != 0">age,</if>
         <if test="salary != null and salary != ''">salary</if>
         )values(
-        <!--<if test="id != null and id != 0">#{id},</if>-->
+        <!--<if test="value != null and value != 0">#{value},</if>-->
         <if test="name != null and name != ''">#{name},</if>
         <if test="age != null and age != 0 ">#{age},</if>
         <if test="salary != null and salary != ''">#{salary}</if>

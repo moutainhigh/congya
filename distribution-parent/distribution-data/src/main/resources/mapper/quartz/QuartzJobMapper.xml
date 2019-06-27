@@ -51,7 +51,7 @@
  		delete from quartz_job where job_id = #{jobId}
  	</delete>
 
-    <!--<delete id="deleteJobByIds" parameterType="Long">-->
+    <!--<delete value="deleteJobByIds" parameterType="Long">-->
         <!--delete from sw_job_task where job_id in-->
         <!--<foreach collection="array" item="jobId" open="(" separator="," close=")">-->
             <!--#{jobId}-->

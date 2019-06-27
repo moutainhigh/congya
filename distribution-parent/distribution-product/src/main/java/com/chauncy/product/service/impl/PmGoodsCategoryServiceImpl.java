@@ -6,6 +6,7 @@ import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.SearchAttributeByNamePageDto;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
+import com.chauncy.data.vo.manage.product.GoodsCategoryTreeVo;
 import com.chauncy.data.vo.manage.product.SearchAttributeVo;
 import com.chauncy.data.vo.manage.product.SearchCategoryVo;
 import com.chauncy.product.service.IPmGoodsCategoryService;
@@ -42,6 +43,11 @@ public class PmGoodsCategoryServiceImpl extends AbstractService<PmGoodsCategoryM
     }
 
     @Override
+    public Long findAttributeIdsByNameAndCategoryId(String name, Integer type, Long cId) {
+        return categoryMapper.getAttributeIdsByNameAndCategoryId(name,type,cId);
+    }
+
+    @Override
     public List<SearchAttributeVo> findAttributeVo(SearchAttributeByNamePageDto searchAttributeByNamePageDto) {
         return categoryMapper.loadAttributeVo(searchAttributeByNamePageDto);
     }
@@ -55,10 +61,15 @@ public class PmGoodsCategoryServiceImpl extends AbstractService<PmGoodsCategoryM
             map.put("categoryList", Lists.newArrayList());
         }
         else {
-            List<SearchCategoryVo> searchCategoryVos = categoryMapper.loadList(baseSearchDto, pageSize, (pageNo-1)*pageSize);
+            List<SearchCategoryVo> searchCategoryVos = categoryMapper.loadSearchCategoryVoList(baseSearchDto, pageSize, (pageNo-1)*pageSize);
             List<SearchCategoryVo> categoryList = BaseTree.build(searchCategoryVos);
             map.put("categoryList",categoryList);
         }
         return map;
+    }
+
+    @Override
+    public List<GoodsCategoryTreeVo> findGoodsCategoryTreeVo() {
+        return categoryMapper.loadGoodsCategoryTreeVo();
     }
 }

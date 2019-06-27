@@ -32,7 +32,7 @@ public interface IBaseMapper<T> extends BaseMapper<T> {
      *判断id是否存在
      * @param value 值
      * @param tableName 表名称
-     * @param fields 数据要过滤的字段,多个用逗号隔开  如 id=#{value}
+     * @param fields 数据要过滤的字段,多个用逗号隔开  如 value=#{value}
      * @return
      */
     int countById(@Param("value") Object value,

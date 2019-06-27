@@ -19,7 +19,7 @@ import java.util.List;
 @Data
 public class ViewGoodCategoryVo {
 
-    @ApiModelProperty(value = "id,当新增时为空")
+    @ApiModelProperty(value = "value,当新增时为空")
     private Long id;
 
     @ApiModelProperty(value = "是否启用 1-是 0-否 默认为1")

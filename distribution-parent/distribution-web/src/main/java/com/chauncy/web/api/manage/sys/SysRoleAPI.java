@@ -66,10 +66,10 @@ public class SysRoleAPI {
 //  Page<Role> list = roleService.findAll(PageUtil.initPage(page));
 //  for(Role role : list.getContent()){
 //   // 角色拥有权限
-//   List<RolePermission> permissions = rolePermissionService.findByRoleId(role.getId());
+//   List<RolePermission> permissions = rolePermissionService.findByRoleId(role.getValue());
 //   role.setPermissions(permissions);
 //   // 角色拥有数据权限
-//   List<RoleDepartment> departments = roleDepartmentService.findByRoleId(role.getId());
+//   List<RoleDepartment> departments = roleDepartmentService.findByRoleId(role.getValue());
 //   role.setDepartments(departments);
 //  }
 //  return new ResultUtil<Page<Role>>().setData(list);

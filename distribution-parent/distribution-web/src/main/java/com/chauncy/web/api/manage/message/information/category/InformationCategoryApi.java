@@ -63,17 +63,17 @@ public class InformationCategoryApi extends BaseApi {
     *//**
      * 根据ID查找店铺资讯分类
      *
-     * @param id
+     * @param value
      * @return
      *//*
     @ApiOperation(value = "查找店铺资讯分类", notes = "根据ID查找")
-    @GetMapping("/findById/{id}")
-    public JsonViewData findById(@ApiParam(required = true, value = "id")
-                                 @PathVariable Long id) {
+    @GetMapping("/findById/{value}")
+    public JsonViewData findById(@ApiParam(required = true, value = "value")
+                                 @PathVariable Long value) {
 
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
-                smInformationLabelService.findById(id));
+                smInformationLabelService.findById(value));
 
     }
 

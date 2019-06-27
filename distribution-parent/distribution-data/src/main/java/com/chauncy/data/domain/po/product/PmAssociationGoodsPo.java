@@ -36,7 +36,7 @@ public class PmAssociationGoodsPo {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "关联商品信息ID")
-    @TableId(value = "id",type = IdType.ID_WORKER)
+    @TableId(value = "value",type = IdType.ID_WORKER)
     @JsonSerialize(using = LongJsonSerializer.class)
     private Long id;
 

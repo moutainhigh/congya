@@ -5,6 +5,7 @@ import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.SearchAttributeByNamePageDto;
 import com.chauncy.data.dto.manage.good.select.SearchGoodCategoryDto;
+import com.chauncy.data.vo.manage.product.GoodsCategoryTreeVo;
 import com.chauncy.data.vo.manage.product.SearchAttributeVo;
 import org.apache.ibatis.annotations.Param;
 
@@ -39,6 +40,18 @@ public interface IPmGoodsCategoryService extends Service<PmGoodsCategoryPo> {
                                                 @Param("cId") Long cId);
 
 
+    /**
+     * 根据分类id、type、属性名称查找属性id
+     * @param name
+     * @param type
+     * @param cId
+     * @return
+     */
+    Long findAttributeIdsByNameAndCategoryId(@Param("name")String name,
+                                                    @Param("type") Integer type,
+                                                    @Param("cId") Long cId);
+
+
 
     /**
      * 查找分类下的属性是否被勾选
@@ -56,6 +69,14 @@ public interface IPmGoodsCategoryService extends Service<PmGoodsCategoryPo> {
      * @return
      */
     Map<String,Object> searchList(BaseSearchDto baseSearchDto, Integer pageNo, Integer pageSize);
+
+
+    /**
+     * 联动查询所有分类
+     *
+     * @return
+     */
+    List<GoodsCategoryTreeVo> findGoodsCategoryTreeVo();
 
 
 

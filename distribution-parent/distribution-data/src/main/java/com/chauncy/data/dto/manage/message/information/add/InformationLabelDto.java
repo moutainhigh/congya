@@ -21,7 +21,7 @@ public class InformationLabelDto   implements Serializable {
     private static final long serialVersionUID = 1L;
 
 
-    @ApiModelProperty(value = "id,当新增时为空")
+    @ApiModelProperty(value = "value,当新增时为空")
     @NotNull(groups = IUpdateGroup.class)
     private Long id;
 

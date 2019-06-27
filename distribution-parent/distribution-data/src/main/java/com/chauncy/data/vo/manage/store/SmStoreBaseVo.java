@@ -27,7 +27,7 @@ public class SmStoreBaseVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
 
-    @ApiModelProperty(value = "id")
+    @ApiModelProperty(value = "value")
     @JsonSerialize(using = LongJsonSerializer.class)
     @JsonDeserialize(using = LongJsonDeserializer.class)
     private Long id;

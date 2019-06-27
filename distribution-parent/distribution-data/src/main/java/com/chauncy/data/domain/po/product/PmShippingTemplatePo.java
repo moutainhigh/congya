@@ -42,7 +42,7 @@ public class PmShippingTemplatePo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "运费模版ID")
-    @TableId(value = "id", type = IdType.ID_WORKER)
+    @TableId(value = "value", type = IdType.ID_WORKER)
     @JsonSerialize(using = LongJsonSerializer.class)
     private Long id;
 

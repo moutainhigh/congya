@@ -36,7 +36,7 @@ public class PmGoodsRelAttributeGoodPo implements Serializable {
     @ApiModelProperty(value = "商品属性id")
     private Long goodsAttributeId;
 
-    @ApiModelProperty(value = "商品 id")
+    @ApiModelProperty(value = "商品 value")
     private Long goodsGoodId;
 
     @ApiModelProperty(value = "创建者")

@@ -7,6 +7,7 @@ import com.chauncy.data.dto.manage.good.add.AddOrUpdateAttValueDto;
 import com.chauncy.data.dto.manage.good.add.GoodAttributeDto;
 import com.chauncy.data.dto.manage.good.select.FindAttributeInfoByConditionDto;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.manage.product.AttributeIdNameTypeVo;
 
 import java.util.List;
 
@@ -103,4 +104,11 @@ public interface IPmGoodsAttributeService extends Service<PmGoodsAttributePo> {
      * @return
      */
     void addOrUpdateAttInfo(AddOrUpdateAttValueDto addOrUpdateAttValueDto);
+
+    /**
+     * 根据type list找出商品属性集合
+     * @param types
+     * @return
+     */
+    List<AttributeIdNameTypeVo> findAttributeIdNameTypeVos(List<Integer> types);
 }

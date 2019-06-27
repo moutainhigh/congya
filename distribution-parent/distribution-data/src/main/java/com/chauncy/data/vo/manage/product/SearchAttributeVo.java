@@ -14,7 +14,7 @@ public class SearchAttributeVo {
     @ApiModelProperty(value = "名称")
     private String name;
 
-    @ApiModelProperty(value = "id")
+    @ApiModelProperty(value = "value")
     private String id;
 
     @ApiModelProperty("是否选中")

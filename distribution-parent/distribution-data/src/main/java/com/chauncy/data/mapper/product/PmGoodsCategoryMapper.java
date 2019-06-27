@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.SearchAttributeByNamePageDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.manage.product.GoodsCategoryTreeVo;
 import com.chauncy.data.vo.manage.product.SearchAttributeVo;
 import com.chauncy.data.vo.manage.product.SearchCategoryVo;
 import org.apache.ibatis.annotations.Param;
@@ -40,6 +41,19 @@ public interface PmGoodsCategoryMapper extends IBaseMapper<PmGoodsCategoryPo> {
                                                    @Param("type") Integer type,
                                                    @Param("cId") Long cId);
 
+
+
+    /**
+     * 根据分类id、type、属性名称集合查找属性id
+     * @param name
+     * @param type
+     * @param cId
+     * @return
+     */
+    Long getAttributeIdsByNameAndCategoryId(@Param("name")String name,
+                                                   @Param("type") Integer type,
+                                                   @Param("cId") Long cId);
+
     /**
      * 查找分类下的属性是否被勾选
      * @param searchAttributeByNamePageDto
@@ -54,10 +68,18 @@ public interface PmGoodsCategoryMapper extends IBaseMapper<PmGoodsCategoryPo> {
      * @param offset 偏移量
      * @return
      */
-    List<SearchCategoryVo> loadList(@Param("t") BaseSearchDto baseSearchDto,
-                                    @Param("pageSize") Integer pageSize,
-                                    @Param("offset") Integer offset
+    List<SearchCategoryVo> loadSearchCategoryVoList(@Param("t") BaseSearchDto baseSearchDto,
+                                                    @Param("pageSize") Integer pageSize,
+                                                    @Param("offset") Integer offset
                                     );
+
+    /**
+     * 联动查询所有分类
+     *
+     * @return
+     */
+    List<GoodsCategoryTreeVo> loadGoodsCategoryTreeVo();
+
 
     /**
      * 总条数

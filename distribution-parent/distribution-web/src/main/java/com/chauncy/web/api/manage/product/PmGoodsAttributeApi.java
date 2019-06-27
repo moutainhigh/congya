@@ -85,7 +85,7 @@ public class PmGoodsAttributeApi {
      */
     @ApiOperation(value = "查找属性信息", notes = "根据ID查找")
     @GetMapping("/findById/{id}")
-    public JsonViewData findById(@ApiParam(required = true, value = "id")
+    public JsonViewData findById(@ApiParam(required = true, value = "value")
                                  @PathVariable Long id) {
 
         return goodsAttributeService.findById(id);
@@ -155,7 +155,7 @@ public class PmGoodsAttributeApi {
      */
     @ApiOperation(value = "查找属性值信息", notes = "根据ID查找")
     @GetMapping("/findValueById/{id}")
-    public JsonViewData findValueById(@ApiParam(required = true, name = "id", value = "属性值ID")
+    public JsonViewData findValueById(@ApiParam(required = true, name = "value", value = "属性值ID")
                                       @PathVariable Long id) {
 
         return valueService.findValueById(id);

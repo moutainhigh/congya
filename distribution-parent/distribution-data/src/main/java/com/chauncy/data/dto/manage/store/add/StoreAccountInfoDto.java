@@ -19,7 +19,7 @@ import java.math.BigDecimal;
 public class StoreAccountInfoDto {
 
 
-    @ApiModelProperty(value = "id")
+    @ApiModelProperty(value = "value")
     @NotNull(message = "店铺ID不能为空")
     private Long id;
 

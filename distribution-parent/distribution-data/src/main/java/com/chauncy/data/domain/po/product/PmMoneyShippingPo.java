@@ -41,7 +41,7 @@ public class PmMoneyShippingPo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "按金额计算运费ID")
-    @TableId(value = "id", type = IdType.ID_WORKER)
+    @TableId(value = "value", type = IdType.ID_WORKER)
     @JsonSerialize(using = LongJsonSerializer.class)
     private Long id;
 

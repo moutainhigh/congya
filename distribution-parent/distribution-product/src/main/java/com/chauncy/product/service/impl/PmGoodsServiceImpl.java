@@ -463,7 +463,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             if (goodsValues == null) {
                 defaultValues.forEach(b -> {
                     StandardValueAndStatusVo standardValueAndStatusVo = new StandardValueAndStatusVo();
-                    standardValueAndStatusVo.setAttributeValueId(b.getId());
+                    standardValueAndStatusVo.setAttributeValueId(b.getValue());
                     standardValueAndStatusVo.setAttributeValue(b.getName());
                     standardValueAndStatusVo.setIsInclude(false);
                     valueAndStatusVos.add(standardValueAndStatusVo);
@@ -872,15 +872,15 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             //将所有与商品关联的会员的isInclude置为true
             assignMembers.forEach(a->{
                 MemberLevelInfos memberLevelInfo = new MemberLevelInfos();
-                memberLevelInfo.setMemberLevelId(a.getId());
+                memberLevelInfo.setMemberLevelId(a.getValue());
                 memberLevelInfo.setLevelName(a.getLevelName());
                 memberLevelInfo.setIsInclude(true);
                 memberLevelInfos.add(memberLevelInfo);
             });
             //在所有会员等级列表中排除与商品关联的会员等级列表，并将sInclude置为false
-            memberLevelPos.stream().filter(item->!assignMemberIds.contains(item.getId())).forEach(a->{
+            memberLevelPos.stream().filter(item->!assignMemberIds.contains(item.getValue())).forEach(a->{
                 MemberLevelInfos memberLevelInfo = new MemberLevelInfos();
-                memberLevelInfo.setMemberLevelId(a.getId());
+                memberLevelInfo.setMemberLevelId(a.getValue());
                 memberLevelInfo.setLevelName(a.getLevelName());
                 memberLevelInfo.setIsInclude(false);
                 memberLevelInfos.add(memberLevelInfo);
@@ -921,13 +921,13 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         //获取商品限制的会员等级信息
         List<PmGoodsRelGoodsMemberLevelPo> relGoodsMemberLevelPos = goodsRelGoodsMemberLevelMapper.selectByMap(map);
         //获取和该商品绑定的所有会员等级ID
-        List<Long> ids = relGoodsMemberLevelPos.stream().map(a->a.getId()).collect(Collectors.toList());
+        List<Long> ids = relGoodsMemberLevelPos.stream().map(a->a.getValue()).collect(Collectors.toList());
         goodsRelGoodsMemberLevelMapper.deleteBatchIds(ids);
 
         //保存关联信息,限定会员关系
         PmGoodsRelGoodsMemberLevelPo relGoodsMemberLevelPo = new PmGoodsRelGoodsMemberLevelPo();
-        for (Long id : updateGoodOperationDto.getMemberLevelIds()) {
-            relGoodsMemberLevelPo.setCreateBy(user).setMemberLevelId(id).
+        for (Long value : updateGoodOperationDto.getMemberLevelIds()) {
+            relGoodsMemberLevelPo.setCreateBy(user).setMemberLevelId(value).
                     setGoodsGoodId(updateGoodOperationDto.getGoodsId());
             goodsRelGoodsMemberLevelMapper.insert(relGoodsMemberLevelPo);
         }*/

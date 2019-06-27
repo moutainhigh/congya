@@ -40,7 +40,7 @@ public class SmStoreCategoryPo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "店铺分类id")
-    @TableId(value = "id", type = IdType.ID_WORKER)
+    @TableId(value = "value", type = IdType.ID_WORKER)
     @JsonSerialize(using = LongJsonSerializer.class)
     private Long id;
 

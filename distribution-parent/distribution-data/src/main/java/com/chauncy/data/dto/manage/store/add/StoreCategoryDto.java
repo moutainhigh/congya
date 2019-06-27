@@ -22,7 +22,7 @@ public class StoreCategoryDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "id,当新增时为空")
+    @ApiModelProperty(value = "value,当新增时为空")
     @NeedExistConstraint(tableName = "sm_store_category",groups = IUpdateGroup.class)
     private Long id;
 
