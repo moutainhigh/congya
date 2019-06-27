@@ -846,6 +846,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         //存放会员信息列表
         List<MemberLevelInfos> memberLevelInfos = Lists.newArrayList();
         FindGoodOperationVo findGoodOperationVo = new FindGoodOperationVo();
+        Map<String,Object> mapp = new HashMap<>();
+        mapp.put("level",1);
+        findGoodOperationVo.setLowestLevelId(memberLevelMapper.selectByMap(mapp).get(0).getId());
         PmGoodsPo goodsPo = mapper.selectById(goodsId);
         if (goodsPo==null){
             memberLevelPos.forEach(a->{
