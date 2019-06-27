@@ -174,6 +174,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         //商家端
         if (storeId!=null){
             goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
+            goodsPo.setStoreId(storeId);
         }
         goodsPo.setCreateBy(user);
         goodsPo.setId(null);
@@ -1229,6 +1230,8 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         List<BaseVo> platformShipList = shippingTemplateMapper.findByType(GoodsShipTemplateEnum.PLATFORM_SHIP.getId());
         List<BaseVo> merchantShipList = shippingTemplateMapper.findByType(GoodsShipTemplateEnum.MERCHANT_SHIP.getId());
 
+        String categoryName = goodsCategoryMapper.selectById(categoryId).getName();
+
         attributeVo.setBrandList(brandList);
         attributeVo.setTypeList(typeList);
         attributeVo.setLabelList(labelList);
@@ -1237,6 +1240,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         attributeVo.setParamList(paramList);
         attributeVo.setPlatformShipList(platformShipList);
         attributeVo.setMerchantShipList(merchantShipList);
+        attributeVo.setCategoryName(categoryName);
 
         return attributeVo;
     }
