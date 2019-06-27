@@ -36,8 +36,16 @@ public class FindGoodOperationVo {
     @NotNull(message = "推广成本比例不能为空")
     private BigDecimal generalizeCostRate;
 
-    @ApiModelProperty(value = "限定会员等级ID集合")
-    @NotNull(message = "限定会员等级ID不能为空")
+    @ApiModelProperty(value = "会员等级ID")
+    @NotNull(message = "会员等级ID不能为空")
+    private Long memberLevelId;
+
+    @ApiModelProperty(value = "会员等级名称")
+    @NotNull(message = "会员等级名称不能为空")
+    private  String memberLevelName;
+
+    @ApiModelProperty(value = "限定会员等级列表集合")
+    @NotNull(message = "限定会员等级列表不能为空")
     private List<MemberLevelInfos> memberLevelInfos;
 
     @ApiModelProperty(value = "商品排序数字")

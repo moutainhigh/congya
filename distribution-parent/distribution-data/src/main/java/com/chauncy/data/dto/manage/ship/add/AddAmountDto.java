@@ -22,7 +22,7 @@ import java.math.BigDecimal;
 public class AddAmountDto {
 
     @ApiModelProperty("运费ID")
-//    @NotNull(message = "运费ID不能为空",groups = IUpdateGroup.class)
+//    @NotNull(content = "运费ID不能为空",groups = IUpdateGroup.class)
 //    @NeedExistConstraint(tableName = "pm_money_shipping")
     private Long id;
 
