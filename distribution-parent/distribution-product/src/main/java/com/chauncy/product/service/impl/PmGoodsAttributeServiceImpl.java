@@ -20,6 +20,7 @@ import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,6 +85,7 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
         LocalDateTime date = LocalDateTime.now();
         //获取当前用户
         String user = securityUtil.getCurrUser().getUsername();
+        Long storeId = securityUtil.getCurrUser().getStoreId();
         goodsAttributePo.setCreateBy(user);
         goodsAttributePo.setCreateTime(date);
         goodsAttributePo.setId(null);
@@ -96,9 +98,12 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
         if (mapper.findByTypeAndName(goodsAttributePo.getType(), goodsAttributePo.getName()) != null) {
             return new JsonViewData(ResultCode.FAIL, "添加失败,该属性名称已存在");
         }
+        if (goodsAttributeDto.getType()==GoodsAttributeTypeEnum.MERCHANT_SERVICE.getId()){
+            goodsAttributePo.setStoreId(storeId);
+        }
 
         /*//处理属性类型为规格类型的
-        if (GoodsAttributeTypeEnum.STANDARD.getValue() == goodsAttributePo.getType()) {
+        if (GoodsAttributeTypeEnum.STANDARD.getId() == goodsAttributePo.getType()) {
             if (goodsAttributePo.getValues() != null) {
                 String temp = goodsAttributePo.getValues()[0];
                 for (int i = 1; i < goodsAttributePo.getValues().length; i++) {
@@ -113,7 +118,7 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
                 mapper.insert(goodsAttributePo);
                 for (String value : goodsAttributePo.getValues()) {
                     PmGoodsAttributeValuePo po = new PmGoodsAttributeValuePo();
-                    po.setProductAttributeId(goodsAttributePo.getValue());
+                    po.setProductAttributeId(goodsAttributePo.getId());
                     po.setValue(value);
                     po.setCreateBy(user);
                     po.setCreateTime(date);
@@ -179,6 +184,7 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
         LocalDateTime date = LocalDateTime.now();
         //获取当前用户
         String user = securityUtil.getCurrUser().getUsername();
+        Long storeId = securityUtil.getCurrUser().getStoreId();
 
         goodsAttributePo.setUpdateTime(date);
         goodsAttributePo.setUpdateBy(user);
@@ -192,10 +198,27 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
         if (po1 == null) {
             return new JsonViewData(ResultCode.FAIL, "该属性不存在");
         }
-        //判断不同类型对应的属性名称是否已经存在
-        PmGoodsAttributePo po = mapper.findByTypeAndName(goodsAttributePo.getType(), goodsAttributePo.getName());
-        if (!po1.getName().equals(goodsAttributePo.getName()) && po != null) {
-            return new JsonViewData(ResultCode.FAIL, "修改失败,该属性名称已存在");
+
+        if (goodsAttributePo.getType()==GoodsAttributeTypeEnum.MERCHANT_SERVICE.getId()){
+            if (storeId ==null){
+                throw new ServiceException(ResultCode.FAIL,"您不是商家用户不能访问");
+            }
+            Map<String,Object> maps = Maps.newHashMap();
+            maps.put("store_id",storeId);
+            maps.put("type",GoodsAttributeTypeEnum.MERCHANT_SERVICE.getId());
+            maps.put("name",goodsAttributePo.getName());
+            //判断商品服务说明名称是否已经存在
+            List<PmGoodsAttributePo> pos = mapper.selectByMap(maps);
+            if (!po1.getName().equals(goodsAttributePo.getName()) && (pos != null && pos.size()!=0)) {
+                return new JsonViewData(ResultCode.FAIL, "修改失败,该属性名称已存在");
+            }
+
+        }else {
+            //判断不同类型对应的属性名称是否已经存在
+            PmGoodsAttributePo po = mapper.findByTypeAndName(goodsAttributePo.getType(), goodsAttributePo.getName());
+            if (!po1.getName().equals(goodsAttributePo.getName()) && po != null) {
+                return new JsonViewData(ResultCode.FAIL, "修改失败,该属性名称已存在");
+            }
         }
 
         //根据属性id查找是否正被使用
@@ -257,26 +280,38 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
      */
     @Override
     public JsonViewData findByCondition(FindAttributeInfoByConditionDto findAttributeInfoByConditionDto) {
+        Long storeId = securityUtil.getCurrUser().getStoreId();
+
         Integer pageNo = findAttributeInfoByConditionDto.getPageNo() == null ? defaultPageNo : findAttributeInfoByConditionDto.getPageNo();
         Integer pageSize = findAttributeInfoByConditionDto.getPageSize() == null ? defaultPageSize : findAttributeInfoByConditionDto.getPageSize();
         PageInfo<PmGoodsAttributeVo> goodsAttributeVo = new PageInfo<>();
-        List<Map<String,Object>> map=valueMapper.findValueByCondition(findAttributeInfoByConditionDto.getType(), findAttributeInfoByConditionDto.getName(), findAttributeInfoByConditionDto.getEnabled());
+        List<Map<String, Object>> map = valueMapper.findValueByCondition(findAttributeInfoByConditionDto.getType(), findAttributeInfoByConditionDto.getName(), findAttributeInfoByConditionDto.getEnabled());
         //判断Type是否为规格或参数
-        if (findAttributeInfoByConditionDto.getType() == GoodsAttributeTypeEnum.STANDARD.getId() /*|| findAttributeInfoByConditionDto.getType() == GoodsAttributeTypeEnum.GOODS_PARAM.getValue()*/) {
-            PageInfo<Map<String,Object>> goodsAttributeValue = PageHelper.startPage(pageNo, pageSize/*, "value desc"*/)
-                    .doSelectPageInfo(() ->valueMapper.findValueByCondition(findAttributeInfoByConditionDto.getType(), findAttributeInfoByConditionDto.getName(), findAttributeInfoByConditionDto.getEnabled()));
+        if (findAttributeInfoByConditionDto.getType() == GoodsAttributeTypeEnum.STANDARD.getId() /*|| findAttributeInfoByConditionDto.getType() == GoodsAttributeTypeEnum.GOODS_PARAM.getId()*/) {
+            PageInfo<Map<String, Object>> goodsAttributeValue = PageHelper.startPage(pageNo, pageSize/*, "id desc"*/)
+                    .doSelectPageInfo(() -> valueMapper.findValueByCondition(findAttributeInfoByConditionDto.getType(), findAttributeInfoByConditionDto.getName(), findAttributeInfoByConditionDto.getEnabled()));
 //            if (!goodsAttributeValue.getList().stream().map(a->a.get("valueList")).toString().equals(""))
 //                goodsAttributeValue.getList().stream().map(a->a.put("valueList", JSONUtils.toList(goodsAttributeValue.getList().stream().map(b->b.get("valueList")))));
-            goodsAttributeValue.getList().forEach(d->{
-                if (d.get("valueList")==null){
-                    d.put("valueList",new ArrayList());
-                }else {
+            goodsAttributeValue.getList().forEach(d -> {
+                if (d.get("valueList") == null) {
+                    d.put("valueList", new ArrayList());
+                } else {
                     d.put("valueList", JSONUtils.toList(d.get("valueList")));
                 }
             });
             return new JsonViewData(ResultCode.SUCCESS, "查询成功", goodsAttributeValue);
-        }
-        else {
+            //商家服务
+        } else if (findAttributeInfoByConditionDto.getType() == GoodsAttributeTypeEnum.MERCHANT_SERVICE.getId()) {
+            if (storeId ==null){
+                throw new ServiceException(ResultCode.FAIL,"您不是商家用户不能访问");
+            }
+            Map<String,Object> map1 = new HashMap<>();
+            map1.put("store_id",storeId);
+            goodsAttributeVo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
+                    .doSelectPageInfo(() -> mapper.selectByMap(map1));
+            return new JsonViewData(ResultCode.SUCCESS, "查询成功", goodsAttributeVo);
+
+        } else {
             goodsAttributeVo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
                     .doSelectPageInfo(() -> mapper.findByCondition(findAttributeInfoByConditionDto.getType(), findAttributeInfoByConditionDto.getName(), findAttributeInfoByConditionDto.getEnabled()));
             return new JsonViewData(ResultCode.SUCCESS, "查询成功", goodsAttributeVo);
@@ -316,6 +351,7 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
 
         //获取当前用户
         String user = securityUtil.getCurrUser().getUsername();
+        Long storeId = securityUtil.getCurrUser().getStoreId();
 
         //添加商品属性操作,商品下的属性值也是添加操作
         if (addOrUpdateAttValueDto.getAttributeId() == 0) {
@@ -342,6 +378,9 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
             goodsAttributePo.setId(null).setEnabled(addOrUpdateAttValueDto.getEnable()).
                     setCreateBy(user).setName(addOrUpdateAttValueDto.getAttributeName()).
                     setSort(addOrUpdateAttValueDto.getSort()).setType(addOrUpdateAttValueDto.getType());
+            if (storeId!=null){
+                goodsAttributePo.setStoreId(storeId);
+            }
             mapper.insert(goodsAttributePo);
             addOrUpdateAttValueDto.getStandardValueInfo().forEach(a -> {
                 PmGoodsAttributeValuePo goodsAttributeValuePo = new PmGoodsAttributeValuePo();

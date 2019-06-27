@@ -32,7 +32,6 @@ import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -847,6 +846,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         //存放会员信息列表
         List<MemberLevelInfos> memberLevelInfos = Lists.newArrayList();
         FindGoodOperationVo findGoodOperationVo = new FindGoodOperationVo();
+        Map<String,Object> mapp = new HashMap<>();
+        mapp.put("level",1);
+        findGoodOperationVo.setLowestLevelId(memberLevelMapper.selectByMap(mapp).get(0).getId());
         PmGoodsPo goodsPo = mapper.selectById(goodsId);
         if (goodsPo==null){
             memberLevelPos.forEach(a->{
@@ -1211,6 +1213,10 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     @Override
     public AttributeVo findAttributes(Long categoryId) {
 
+        Long storeId = securityUtil.getCurrUser().getStoreId();
+        Map<String,Object> map = new HashMap<>();
+        map.put("store_id",storeId);
+
         AttributeVo attributeVo = new AttributeVo();
 
         List<String> typeList = Arrays.stream(GoodsTypeEnum.values()).map(a -> a.getName()).collect(Collectors.toList());
@@ -1220,7 +1226,6 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         //商家服务说明
         List<BaseVo> merchantServiceList = goodsAttributeMapper.findAttByType(GoodsAttributeTypeEnum.MERCHANT_SERVICE.getId());
         List<BaseVo> paramList = goodsAttributeMapper.findAttByTypeAndCat(categoryId,GoodsAttributeTypeEnum.GOODS_PARAM.getId());
-
         List<BaseVo> platformShipList = shippingTemplateMapper.findByType(GoodsShipTemplateEnum.PLATFORM_SHIP.getId());
         List<BaseVo> merchantShipList = shippingTemplateMapper.findByType(GoodsShipTemplateEnum.MERCHANT_SHIP.getId());
 

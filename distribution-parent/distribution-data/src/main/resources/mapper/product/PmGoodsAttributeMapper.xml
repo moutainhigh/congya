@@ -20,6 +20,7 @@
         <result column="update_by" property="updateBy"/>
         <result column="update_time" property="updateTime"/>
         <result column="del_flag" property="delFlag"/>
+        <result column="store_id" property="storeId"/>
     </resultMap>
 
     <sql id="find">
