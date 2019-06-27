@@ -1186,6 +1186,14 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         Integer notApprovedNum = mapper.selectCount(queryWrapper5);
         goodStatisticsVo.setNotApprovedNum(notApprovedNum);
 
+        PmGoodsPo goodsPo6 = new PmGoodsPo();
+        goodsPo6.setStoreId(storeId);
+        goodsPo6.setVerifyStatus(VerifyStatusEnum.CHECKED.getId());
+        QueryWrapper<PmGoodsPo> queryWrapper6 = new QueryWrapper<>(goodsPo6);
+        //审核通过商品数量
+        Integer checkedNum = mapper.selectCount(queryWrapper6);
+        goodStatisticsVo.setCheckedNum(checkedNum);
+
         return goodStatisticsVo;
     }
 

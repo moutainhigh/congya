@@ -25,7 +25,7 @@ public class GoodStatisticsVo {
     @ApiModelProperty("未上架商品数量")
     private Integer notPublishNum;
 
-    @ApiModelProperty("未审核商品数量")
+    @ApiModelProperty("未提交商品数量")
     private Integer unCheckNum;
 
     @ApiModelProperty("待审核商品数量")
@@ -33,5 +33,8 @@ public class GoodStatisticsVo {
 
     @ApiModelProperty("未通过商品数量")
     private Integer notApprovedNum;
+
+    @ApiModelProperty("审核通过商品数量")
+    private Integer checkedNum;
 
 }
