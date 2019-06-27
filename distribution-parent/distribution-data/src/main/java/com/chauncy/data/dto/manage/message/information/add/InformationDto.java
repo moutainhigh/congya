@@ -34,17 +34,14 @@ public class InformationDto  implements Serializable {
     @ApiModelProperty(value = "作者")
     private String author;
 
-    @ApiModelProperty(value = "是否启用 1-是 0-否 默认为0")
-    private Boolean enabled;
-
     @ApiModelProperty(value = "资讯标签id（mm_information_label主键）")
     private Long infoLabelId;
 
     @ApiModelProperty(value = "资讯分类id（mm_information_category主键）")
     private Long infoCategoryId;
 
-    @ApiModelProperty(value = "所属店铺Id")
-    private Long storeId;
+    @ApiModelProperty(value = "关联商品id")
+    private Long goodsId;
 
     @ApiModelProperty(value = "排序数字")
     private Integer sort;

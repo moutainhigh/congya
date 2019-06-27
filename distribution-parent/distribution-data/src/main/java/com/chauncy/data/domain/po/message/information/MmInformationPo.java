@@ -59,6 +59,9 @@ public class MmInformationPo implements Serializable {
     @ApiModelProperty(value = "所属店铺Id")
     private Long storeId;
 
+    @ApiModelProperty(value = "关联商品id")
+    private Long goodsId;
+
     @ApiModelProperty(value = "排序数字")
     private Integer sort;
 
