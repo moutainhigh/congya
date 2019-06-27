@@ -104,7 +104,7 @@ public class SmGoodsApi extends BaseApi {
      */
     @GetMapping("/findBaseGood/{id}")
     @ApiOperation("根据ID获取商品的基本信息")
-    public JsonViewData<BaseGoodsVo> findBase(@ApiParam(required = true, name = "value", value = "商品ID")
+    public JsonViewData<BaseGoodsVo> findBase(@ApiParam(required = true, name = "id", value = "商品ID")
                                               @PathVariable Long id) {
 
         return setJsonViewData(service.findBase(id));

@@ -41,7 +41,7 @@ public class SupplierStoreApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "查询店铺基本信息", notes = "根据店铺ID获取店铺基本信息")
-    @ApiImplicitParam(name = "value", value = "店铺id", required = true, dataType = "Long", paramType = "path")
+    @ApiImplicitParam(name = "id", value = "店铺id", required = true, dataType = "Long", paramType = "path")
     @GetMapping("/findBaseById/{id}")
     public JsonViewData<StoreBaseInfoVo> findBaseById(@PathVariable(value = "id")Long id) {
 
@@ -56,7 +56,7 @@ public class SupplierStoreApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "查询店铺账户信息", notes = "根据店铺ID获取店铺账户信息")
-    @ApiImplicitParam(name = "value", value = "店铺id", required = true, dataType = "Long", paramType = "path")
+    @ApiImplicitParam(name = "id", value = "店铺id", required = true, dataType = "Long", paramType = "path")
     @GetMapping("/findAccountById/{id}")
     public JsonViewData<StoreAccountInfoVo> findAccountById(@PathVariable(value = "id")Long id) {
 
@@ -71,7 +71,7 @@ public class SupplierStoreApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "查询店铺运营信息", notes = "根据店铺ID获取店铺运营信息")
-    @ApiImplicitParam(name = "value", value = "店铺id", required = true, dataType = "Long", paramType = "path")
+    @ApiImplicitParam(name = "id", value = "店铺id", required = true, dataType = "Long", paramType = "path")
     @GetMapping("/findOperationalById/{id}")
     public JsonViewData<StoreOperationalInfoVo> findOperationalById(@PathVariable(value = "id")Long id) {
 

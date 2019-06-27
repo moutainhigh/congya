@@ -43,10 +43,10 @@ public @interface NeedExistConstraint {
     boolean isNeedExists() default true;
 
     /**
-     * 数据库中查找哪个字段  如id：where value=#{value}
+     * 数据库中查找哪个字段  如id：where id=#{id}
      * @return
      */
-    String field() default "value";
+    String field() default "id";
 
     /**
      * where 语句拼接  以and开头

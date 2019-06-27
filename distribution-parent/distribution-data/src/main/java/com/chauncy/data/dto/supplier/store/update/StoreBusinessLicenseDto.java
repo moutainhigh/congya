@@ -16,7 +16,7 @@ import javax.validation.constraints.NotNull;
 @ApiModel(value = "StoreBusinessLicenseDto对象", description = "店铺经营资质证书")
 public class StoreBusinessLicenseDto {
 
-    @ApiModelProperty(value = "value")
+    @ApiModelProperty(value = "id")
     @NotNull(message = "店铺ID不能为空")
     @NeedExistConstraint(tableName = "sm_store")
     private Long id;

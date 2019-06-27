@@ -51,28 +51,28 @@ public interface SmStoreMapper extends IBaseMapper<SmStorePo> {
      * @param id
      * @return
      */
-    StoreBaseInfoVo findBaseById(@Param("value") Long id);
+    StoreBaseInfoVo findBaseById(@Param("id") Long id);
 
     /**
      * 查询店铺账户信息
      * @param id
      * @return
      */
-    StoreAccountInfoVo findAccountById(@Param("value") Long id);
+    StoreAccountInfoVo findAccountById(@Param("id") Long id);
 
     /**
      * 查询店铺运营信息
      * @param id
      * @return
      */
-    StoreOperationalInfoVo findOperationalById(@Param("value") Long id);
+    StoreOperationalInfoVo findOperationalById(@Param("id") Long id);
 
     /**
      * 根据店铺id获取店铺跟哪些品牌关联（品牌下有对应的商品）
      * @param id
      * @return
      */
-    List<Long> selectAttributeIdsById(@Param("value") Long id);
+    List<Long> selectAttributeIdsById(@Param("id") Long id);
 
     /**
      * 条件查询可关联店铺

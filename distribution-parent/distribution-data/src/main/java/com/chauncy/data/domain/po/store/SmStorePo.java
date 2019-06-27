@@ -37,7 +37,7 @@ public class SmStorePo implements Serializable {
 
 
     @ApiModelProperty(value = "value")
-    @TableId(value = "value",type = IdType.ID_WORKER)
+    @TableId(value = "id",type = IdType.ID_WORKER)
     @JsonSerialize(using = LongJsonSerializer.class)
     private Long id;
 

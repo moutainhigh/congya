@@ -35,7 +35,7 @@ public class PmGoodsCategoryPo {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "分类ID")
-    @TableId(value = "value", type = IdType.ID_WORKER)
+    @TableId(value = "id", type = IdType.ID_WORKER)
     @JsonSerialize(using = LongJsonSerializer.class)
     private Long id;
 

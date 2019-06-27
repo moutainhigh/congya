@@ -35,7 +35,7 @@ public class MmInformationPo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "资讯id")
-    @TableId(value = "value",type = IdType.ID_WORKER)
+    @TableId(value = "id",type = IdType.ID_WORKER)
     @JsonSerialize(using = LongJsonSerializer.class)
     @JsonDeserialize(using = LongJsonDeserializer.class)
     private Long id;

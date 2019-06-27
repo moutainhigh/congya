@@ -34,7 +34,7 @@
 //
 //    @Test
 //    public void countById(){
-//        int pm_member = IBaseMapper.countById("145993391090438144", "sys_permission","value");
+//        int pm_member = IBaseMapper.countById("145993391090438144", "sys_permission","id");
 //        LoggerUtil.error(pm_member+"");
 //    }
 //

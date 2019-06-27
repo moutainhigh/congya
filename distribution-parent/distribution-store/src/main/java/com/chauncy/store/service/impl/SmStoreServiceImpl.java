@@ -302,7 +302,7 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         StoreBaseInfoVo storeBaseInfoVo = smStoreMapper.findBaseById(id);
         /*String attributeIds = storeBaseInfoVo.getAttributeIds();
         QueryWrapper<PmGoodsAttributePo> queryWrapper = new QueryWrapper<>();
-        queryWrapper.in("value",attributeIds);
+        queryWrapper.in("id",attributeIds);
         queryWrapper.select("name");
         List<String> pmGoodsAttributeList = (List<String>)(List)pmGoodsAttributeMapper.selectObjs(queryWrapper);
         storeBaseInfoVo.setAttributeName(pmGoodsAttributeList);*/
@@ -316,7 +316,7 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
      * @return
      */
     @Override
-    public StoreAccountInfoVo findAccountById(@Param("value") Long id) {
+    public StoreAccountInfoVo findAccountById(@Param("id") Long id) {
 
         return smStoreMapper.findAccountById(id);
     }
@@ -328,7 +328,7 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
      * @return
      */
     @Override
-    public StoreOperationalInfoVo findOperationalById(@Param("value") Long id) {
+    public StoreOperationalInfoVo findOperationalById(@Param("id") Long id) {
         return smStoreMapper.findOperationalById(id);
     }
 
@@ -354,7 +354,7 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
     public void uploadBusinessLicense( StoreBusinessLicenseDto storeBusinessLicenseDto) {
         SmStorePo smStorePo = new SmStorePo();
         smStorePo.setBusinessLicense(storeBusinessLicenseDto.getImgUrl());
-        smStoreMapper.update(smStorePo, new UpdateWrapper<SmStorePo>().eq("value",storeBusinessLicenseDto.getId()));
+        smStoreMapper.update(smStorePo, new UpdateWrapper<SmStorePo>().eq("id",storeBusinessLicenseDto.getId()));
     }
 
     /**

@@ -106,7 +106,7 @@ public class SmStoreLabelServiceImpl extends AbstractService<SmStoreLabelMapper,
         SmStoreLabelPo queryWarpper = new SmStoreLabelPo();
         queryWarpper.setId(id);
         smStoreLabelPoQueryWrapper.setEntity(queryWarpper);
-        smStoreLabelPoQueryWrapper.select("value", "name", "remark", "create_time");
+        smStoreLabelPoQueryWrapper.select("id", "name", "remark", "create_time");
         Map<String, Object> map = this.getMap(smStoreLabelPoQueryWrapper);
         return map;
     }

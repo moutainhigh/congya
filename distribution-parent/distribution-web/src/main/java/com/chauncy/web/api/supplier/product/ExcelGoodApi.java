@@ -210,7 +210,7 @@ public class ExcelGoodApi extends BaseApi {
             }
             //商品分类
             PmGoodsCategoryPo categoryCondition=new PmGoodsCategoryPo(rowDataList.get(0),3);
-            Wrapper categoryPoWrapper=new QueryWrapper<>(categoryCondition,"value");
+            Wrapper categoryPoWrapper=new QueryWrapper<>(categoryCondition,"id");
             PmGoodsCategoryPo categoryPo = categoryService.getOne(categoryPoWrapper);
             if (categoryPo==null){
                 excelImportErrorLogVo.setRowNumber(i+1);
@@ -220,7 +220,7 @@ public class ExcelGoodApi extends BaseApi {
             }
             //商品品牌
             PmGoodsAttributePo brandCondition=new PmGoodsAttributePo(rowDataList.get(5),8);
-            Wrapper brandWrapper=new QueryWrapper<>(brandCondition,"value");
+            Wrapper brandWrapper=new QueryWrapper<>(brandCondition,"id");
             PmGoodsAttributePo brand = attributePoService.getOne(brandWrapper);
             if (brand==null){
                 excelImportErrorLogVo.setRowNumber(i+1);
@@ -346,7 +346,7 @@ public class ExcelGoodApi extends BaseApi {
                 PmGoodsAttributeValuePo valueCondition=new PmGoodsAttributeValuePo();
                 valueCondition.setProductAttributeId(attributeId);
                 valueCondition.setValue(attributeValues.get(j));
-                Wrapper<PmGoodsAttributeValuePo> goodsAttributeValuePoWrapper=new QueryWrapper<>(valueCondition,"value");
+                Wrapper<PmGoodsAttributeValuePo> goodsAttributeValuePoWrapper=new QueryWrapper<>(valueCondition,"id");
                 PmGoodsAttributeValuePo selectValuePo = valueService.getOne(goodsAttributeValuePoWrapper);*/
                 //不存在则新增为自定义属性值
 //                if (selectValuePo==null){
@@ -359,7 +359,7 @@ public class ExcelGoodApi extends BaseApi {
                     saveRelValueGoods.add(new PmGoodsRelAttributeValueGoodPo(saveValuePo.getId(),saveGoodPo.getId(),getUser().getUsername()));
                 //}
                /* else {
-                    saveRelValueGoods.add(new PmGoodsRelAttributeValueGoodPo(selectValuePo.getValue(),saveGoodPo.getValue(),getUser().getUsername()));
+                    saveRelValueGoods.add(new PmGoodsRelAttributeValueGoodPo(selectValuePo.getId(),saveGoodPo.getId(),getUser().getUsername()));
                 }*/
             }
             relAttributeValueGoodService.saveBatch(saveRelValueGoods);
@@ -471,7 +471,7 @@ public class ExcelGoodApi extends BaseApi {
                 PmGoodsAttributeValuePo valueCondition = new PmGoodsAttributeValuePo();
                 valueCondition.setProductAttributeId(attributeId);
                 valueCondition.setValue(attributeValues.get(j));
-                Wrapper<PmGoodsAttributeValuePo> goodsAttributeValuePoWrapper = new QueryWrapper<>(valueCondition, "value");
+                Wrapper<PmGoodsAttributeValuePo> goodsAttributeValuePoWrapper = new QueryWrapper<>(valueCondition, "id");
                 PmGoodsAttributeValuePo selectValuePo = valueService.getOne(goodsAttributeValuePoWrapper);
                 //不存在则新增为自定义属性值
                 if (selectValuePo == null) {
@@ -525,7 +525,7 @@ public class ExcelGoodApi extends BaseApi {
             PmGoodsSkuPo querySku=skuService.getById(rowDataList.get(0));
             if (querySku == null) {
                 excelImportErrorLogVo.setRowNumber(i + 1);
-                excelImportErrorLogVo.setErrorMessage(String.format("sku value【%s】不存在!", rowDataList.get(0)));
+                excelImportErrorLogVo.setErrorMessage(String.format("sku id【%s】不存在!", rowDataList.get(0)));
                 excelImportErrorLogVos.add(excelImportErrorLogVo);
                 continue;
             }

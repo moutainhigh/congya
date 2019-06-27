@@ -38,7 +38,7 @@ public class SmRelStoreAttributePo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "店铺-品牌关联表")
-    @TableId(value = "value",type = IdType.ID_WORKER)
+    @TableId(value = "id",type = IdType.ID_WORKER)
     @JsonSerialize(using = LongJsonSerializer.class)
     private Long id;
 

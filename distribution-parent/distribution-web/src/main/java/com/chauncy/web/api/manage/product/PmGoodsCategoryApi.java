@@ -217,7 +217,7 @@ public class PmGoodsCategoryApi extends BaseApi {
     @ApiOperation(value = "选择商品分类")
     public JsonViewData findByParentId(Long parentId){
         PmGoodsCategoryPo condition=new PmGoodsCategoryPo();
-        QueryWrapper<PmGoodsCategoryPo> queryWrapper=new QueryWrapper<>(condition,"value","name");
+        QueryWrapper<PmGoodsCategoryPo> queryWrapper=new QueryWrapper<>(condition,"id","name");
         if (parentId==null){
             condition.setLevel(1);
         }

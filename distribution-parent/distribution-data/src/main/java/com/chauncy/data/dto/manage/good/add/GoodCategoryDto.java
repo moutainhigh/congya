@@ -21,7 +21,7 @@ import java.util.List;
 @ApiModel(value = "新增或修改商品分类", description = "商品分类表")
 public class GoodCategoryDto {
 
-    @ApiModelProperty(value = "value,当新增时为空")
+    @ApiModelProperty(value = "id,当新增时为空")
     @NotNull(groups = IUpdateGroup.class)
     private Long id;
 

@@ -32,7 +32,7 @@ public class MmBootPagePo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "启动页ID")
-    @TableId(value = "value",type = IdType.ID_WORKER)
+    @TableId(value = "id",type = IdType.ID_WORKER)
     private Long id;
 
     @ApiModelProperty(value = "名称")

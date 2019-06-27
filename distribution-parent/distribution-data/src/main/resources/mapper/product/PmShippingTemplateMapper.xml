@@ -69,7 +69,7 @@
         </collection>
     </resultMap>
 
-    <!--<resultMap value="Amount" type="com.chauncy.data.vo.manage.ship.PlatTemplateVo" extends="ShipResult">
+    <!--<resultMap id="Amount" type="com.chauncy.data.vo.manage.ship.PlatTemplateVo" extends="ShipResult">
 
         <collection property="amountCalculateList" ofType="com.chauncy.data.vo.manage.ship.AmountVo">
             <result column="destination_id" property="destinationId" />
@@ -81,7 +81,7 @@
         </collection>
     </resultMap>
 
-    <resultMap value="Number" type="com.chauncy.data.vo.manage.ship.PlatTemplateVo" extends="ShipResult">
+    <resultMap id="Number" type="com.chauncy.data.vo.manage.ship.PlatTemplateVo" extends="ShipResult">
 
         <collection property="numberCalculateList" ofType="com.chauncy.data.vo.manage.ship.NumberVo">
             <result column="destination_id" property="destinationId" />

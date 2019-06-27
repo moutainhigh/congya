@@ -130,7 +130,7 @@ public class SmStoreCategoryServiceImpl extends AbstractService<SmStoreCategoryM
         SmStoreCategoryPo queryWarpper = new SmStoreCategoryPo();
         queryWarpper.setId(id);
         smStoreCategoryPoQueryWrapper.setEntity(queryWarpper);
-        smStoreCategoryPoQueryWrapper.select("value", "name", "icon", "sort", "enabled");
+        smStoreCategoryPoQueryWrapper.select("id", "name", "icon", "sort", "enabled");
         Map<String, Object> map = this.getMap(smStoreCategoryPoQueryWrapper);
         return map;
     }
