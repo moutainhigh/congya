@@ -1,26 +1,26 @@
-package com.chauncy.data.temp.controller.area;
+package com.chauncy.web.api.app.user;
 
 
+import com.chauncy.user.service.IUmAreaShippingService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.chauncy.data.areaService.IAreaRegionService;
 
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
- * 中国行政地址信息表 前端控制器
+ * 收货地址表 前端控制器
  * </p>
  *
  * @author huangwancheng
  * @since 2019-06-28
  */
 @RestController
-@RequestMapping("area-region-po")
-public class AreaRegionController {
+@RequestMapping("um-area-shipping-po")
+public class UmAreaShippingApi {
 
  @Autowired
- private IAreaRegionService service;
+ private IUmAreaShippingService service;
 
 
 }

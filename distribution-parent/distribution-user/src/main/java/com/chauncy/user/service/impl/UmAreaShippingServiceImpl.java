@@ -2,8 +2,8 @@ package com.chauncy.user.service.impl;
 
 import com.chauncy.data.domain.po.user.UmAreaShippingPo;
 import com.chauncy.data.mapper.user.UmAreaShippingMapper;
-import com.chauncy.data.temp.user.service.IUmAreaShippingService;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.user.service.IUmAreaShippingService;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
