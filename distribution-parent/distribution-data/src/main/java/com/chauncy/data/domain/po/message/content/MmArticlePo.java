@@ -32,7 +32,7 @@ public class MmArticlePo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "文章ID")
-    @TableId(value = "value",type = IdType.ID_WORKER)
+    @TableId(value = "id",type = IdType.ID_WORKER)
     private Long id;
 
     @ApiModelProperty(value = "创建者")

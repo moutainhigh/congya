@@ -20,7 +20,7 @@ import java.util.List;
 @ApiModel(value = "查找商品分类列表")
 public class SearchGoodCategoryDto extends BaseSearchDto {
 
-    @ApiModelProperty("value")
+    @ApiModelProperty("id")
     private Long id;
 
 

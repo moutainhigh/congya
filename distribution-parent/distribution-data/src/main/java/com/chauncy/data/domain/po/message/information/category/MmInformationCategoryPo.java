@@ -2,6 +2,8 @@ package com.chauncy.data.domain.po.message.information.category;
 
 import java.math.BigDecimal;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.time.LocalDateTime;
@@ -31,6 +33,7 @@ public class MmInformationCategoryPo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "资讯分类id")
+    @TableId(value = "id",type = IdType.ID_WORKER)
     private Long id;
 
     @ApiModelProperty(value = "资讯分类名称")

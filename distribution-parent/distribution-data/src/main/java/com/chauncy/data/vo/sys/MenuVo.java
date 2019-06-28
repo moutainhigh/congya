@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 public class MenuVo {
 
-    @ApiModelProperty(value = "value")
+    @ApiModelProperty(value = "id")
     private String id;
 
     @ApiModelProperty(value = "父id")

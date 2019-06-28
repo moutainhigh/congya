@@ -44,5 +44,6 @@ public class AttributeVo {
     @ApiModelProperty("店铺运费模版")
     private List<BaseVo> merchantShipList;
 
-
+    @ApiModelProperty("分类名称")
+    private  String categoryName;
 }

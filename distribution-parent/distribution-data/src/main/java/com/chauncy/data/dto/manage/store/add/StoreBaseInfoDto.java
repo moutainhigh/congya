@@ -25,7 +25,7 @@ public class StoreBaseInfoDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "value,当新增时为空")
+    @ApiModelProperty(value = "id,当新增时为空")
     @NeedExistConstraint(tableName = "sm_store",groups = IUpdateGroup.class)
     private Long id;
 

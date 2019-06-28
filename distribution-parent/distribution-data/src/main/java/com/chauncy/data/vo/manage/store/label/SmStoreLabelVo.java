@@ -23,7 +23,7 @@ public class SmStoreLabelVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
 
-    @ApiModelProperty(value = "value")
+    @ApiModelProperty(value = "id")
     private Long id;
 
 

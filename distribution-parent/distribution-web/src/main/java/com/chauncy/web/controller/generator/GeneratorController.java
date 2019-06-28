@@ -150,7 +150,7 @@ public class GeneratorController {
         strategy.setRestControllerStyle(true);
 //        strategy.setSuperControllerClass("com.baomidou.ant.common.BaseController");
         strategy.setInclude(tableName/*scanner("表名，多个英文逗号分割").split(",")*/);
-//        strategy.setSuperEntityColumns("value");
+//        strategy.setSuperEntityColumns("id");
         strategy.setControllerMappingHyphenStyle(true);
         strategy.setEntitySerialVersionUID(true);
         strategy.setTablePrefix(pc.getModuleName() + "_");

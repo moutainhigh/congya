@@ -174,6 +174,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         //商家端
         if (storeId!=null){
             goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
+            goodsPo.setStoreId(storeId);
         }
         goodsPo.setCreateBy(user);
         goodsPo.setId(null);
@@ -207,6 +208,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     public BaseGoodsVo findBase(Long id) {
 
         PmGoodsPo goodsPo = mapper.selectById(id);
+        if (goodsPo==null) throw new ServiceException(ResultCode.PARAM_ERROR,"数据库不存在该商品");
         BaseGoodsVo baseGoodsVo = new BaseGoodsVo();
         BaseVo baseVo = new BaseVo();
         //复制非关联属性
@@ -463,7 +465,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             if (goodsValues == null) {
                 defaultValues.forEach(b -> {
                     StandardValueAndStatusVo standardValueAndStatusVo = new StandardValueAndStatusVo();
-                    standardValueAndStatusVo.setAttributeValueId(b.getValue());
+                    standardValueAndStatusVo.setAttributeValueId(b.getId());
                     standardValueAndStatusVo.setAttributeValue(b.getName());
                     standardValueAndStatusVo.setIsInclude(false);
                     valueAndStatusVos.add(standardValueAndStatusVo);
@@ -897,15 +899,15 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             //将所有与商品关联的会员的isInclude置为true
             assignMembers.forEach(a->{
                 MemberLevelInfos memberLevelInfo = new MemberLevelInfos();
-                memberLevelInfo.setMemberLevelId(a.getValue());
+                memberLevelInfo.setMemberLevelId(a.getId());
                 memberLevelInfo.setLevelName(a.getLevelName());
                 memberLevelInfo.setIsInclude(true);
                 memberLevelInfos.add(memberLevelInfo);
             });
             //在所有会员等级列表中排除与商品关联的会员等级列表，并将sInclude置为false
-            memberLevelPos.stream().filter(item->!assignMemberIds.contains(item.getValue())).forEach(a->{
+            memberLevelPos.stream().filter(item->!assignMemberIds.contains(item.getId())).forEach(a->{
                 MemberLevelInfos memberLevelInfo = new MemberLevelInfos();
-                memberLevelInfo.setMemberLevelId(a.getValue());
+                memberLevelInfo.setMemberLevelId(a.getId());
                 memberLevelInfo.setLevelName(a.getLevelName());
                 memberLevelInfo.setIsInclude(false);
                 memberLevelInfos.add(memberLevelInfo);
@@ -946,13 +948,13 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         //获取商品限制的会员等级信息
         List<PmGoodsRelGoodsMemberLevelPo> relGoodsMemberLevelPos = goodsRelGoodsMemberLevelMapper.selectByMap(map);
         //获取和该商品绑定的所有会员等级ID
-        List<Long> ids = relGoodsMemberLevelPos.stream().map(a->a.getValue()).collect(Collectors.toList());
+        List<Long> ids = relGoodsMemberLevelPos.stream().map(a->a.getId()).collect(Collectors.toList());
         goodsRelGoodsMemberLevelMapper.deleteBatchIds(ids);
 
         //保存关联信息,限定会员关系
         PmGoodsRelGoodsMemberLevelPo relGoodsMemberLevelPo = new PmGoodsRelGoodsMemberLevelPo();
-        for (Long value : updateGoodOperationDto.getMemberLevelIds()) {
-            relGoodsMemberLevelPo.setCreateBy(user).setMemberLevelId(value).
+        for (Long id : updateGoodOperationDto.getMemberLevelIds()) {
+            relGoodsMemberLevelPo.setCreateBy(user).setMemberLevelId(id).
                     setGoodsGoodId(updateGoodOperationDto.getGoodsId());
             goodsRelGoodsMemberLevelMapper.insert(relGoodsMemberLevelPo);
         }*/
@@ -1229,6 +1231,8 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         List<BaseVo> platformShipList = shippingTemplateMapper.findByType(GoodsShipTemplateEnum.PLATFORM_SHIP.getId());
         List<BaseVo> merchantShipList = shippingTemplateMapper.findByType(GoodsShipTemplateEnum.MERCHANT_SHIP.getId());
 
+        String categoryName = goodsCategoryMapper.selectById(categoryId).getName();
+
         attributeVo.setBrandList(brandList);
         attributeVo.setTypeList(typeList);
         attributeVo.setLabelList(labelList);
@@ -1237,6 +1241,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         attributeVo.setParamList(paramList);
         attributeVo.setPlatformShipList(platformShipList);
         attributeVo.setMerchantShipList(merchantShipList);
+        attributeVo.setCategoryName(categoryName);
 
         return attributeVo;
     }

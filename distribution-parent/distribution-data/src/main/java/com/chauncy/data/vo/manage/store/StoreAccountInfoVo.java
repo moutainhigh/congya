@@ -22,7 +22,7 @@ public class StoreAccountInfoVo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "value")
+    @ApiModelProperty(value = "id")
     @JsonSerialize(using = LongJsonSerializer.class)
     private Long id;
 

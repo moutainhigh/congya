@@ -236,7 +236,7 @@ public class SysPermissionAPI {
                 return new ResultUtil<Object>().setErrorMsg("删除失败，包含正被角色使用关联的菜单或权限");
             }
         }
-//  for(String value:ids){
+//  for(String id:ids){
         List<String> idList = Arrays.asList(ids);
         permissionService.removeByIds(idList);
 

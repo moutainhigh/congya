@@ -69,7 +69,7 @@ public class SnowFlakeUtil {
         }
 
         if (timestamp < this.lastTimestamp) {
-            log.error(String.format("clock moved backwards.Refusing to generate value for %d milliseconds", (this.lastTimestamp - timestamp)));
+            log.error(String.format("clock moved backwards.Refusing to generate id for %d milliseconds", (this.lastTimestamp - timestamp)));
             return -1;
         }
 

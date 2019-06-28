@@ -70,7 +70,7 @@
         where b.type=#{type} and a.goods_category_id= #{categoryId} and a.goods_attribute_id = b.id and b.enabled = 1
     </select>
 
-    <!--<resultMap value="GoodsStandardVo" type="com.chauncy.data.vo.supplier.GoodsStandardVo   <result column="value_name" property="valueName"/>
+    <!--<resultMap id="GoodsStandardVo" type="com.chauncy.data.vo.supplier.GoodsStandardVo   <result column="value_name" property="valueName"/>
         <result column="value" property="value" javaType="java.util.List" jdbcType="VARCHAR" typeHandler="com.chauncy.web.config.mybatisplus.StringToListTypeHandler"/>
     </resultMap>-->
 
