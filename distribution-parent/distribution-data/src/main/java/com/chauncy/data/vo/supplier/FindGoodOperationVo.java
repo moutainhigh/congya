@@ -45,8 +45,10 @@ public class FindGoodOperationVo {
     private  String memberLevelName;
 
     @ApiModelProperty(value = "限定会员等级列表集合")
-    @NotNull(message = "限定会员等级列表不能为空")
     private List<MemberLevelInfos> memberLevelInfos;
+
+    @ApiModelProperty(value = "最低会员等级ID")
+    private Long lowestLevelId;
 
     @ApiModelProperty(value = "商品排序数字")
     @NotNull(message = "商品排序数字不能为空")

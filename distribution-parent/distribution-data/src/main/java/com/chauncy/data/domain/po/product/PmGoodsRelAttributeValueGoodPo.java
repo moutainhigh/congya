@@ -1,5 +1,7 @@
 package com.chauncy.data.domain.po.product;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 
@@ -32,6 +34,7 @@ public class PmGoodsRelAttributeValueGoodPo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "关联ID")
+    @TableId(value = "id", type = IdType.ID_WORKER)
     private Long id;
 
     @ApiModelProperty(value = "创建者")

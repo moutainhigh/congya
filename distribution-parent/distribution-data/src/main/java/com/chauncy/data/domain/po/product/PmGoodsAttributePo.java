@@ -121,6 +121,9 @@ public class PmGoodsAttributePo implements Serializable {
     @TableLogic
     private Boolean delFlag;
 
+    @ApiModelProperty(value = "店铺ID")
+    private Long storeId;
+
     /*@Transient
     @TableField(exist=false)
     @ApiModelProperty(value = "商品属性值")

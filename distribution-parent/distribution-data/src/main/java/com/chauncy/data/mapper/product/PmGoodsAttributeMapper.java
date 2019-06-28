@@ -4,6 +4,7 @@ import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.manage.product.AttributeIdNameTypeVo;
 import com.chauncy.data.vo.manage.product.PmGoodsAttributeVo;
 import org.apache.ibatis.annotations.Param;
 
@@ -84,4 +85,18 @@ public interface PmGoodsAttributeMapper extends IBaseMapper<PmGoodsAttributePo> 
      */
     List<BaseBo> findStandardName(@Param("categoryId") Long categoryId);
 
+    /**
+     * 根据type list找出商品属性集合
+     * @param types
+     * @return
+     */
+    List<AttributeIdNameTypeVo> loadAttributeIdNameTypeVos(@Param("types") List<Integer> types);
+
+    /**
+     * 通过类型查找属性
+     *
+     * @param id
+     * @return
+     */
+    List<BaseVo> findAttByType(Integer id);
 }

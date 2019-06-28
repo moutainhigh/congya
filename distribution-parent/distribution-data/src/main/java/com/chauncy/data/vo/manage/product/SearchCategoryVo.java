@@ -13,8 +13,6 @@ import java.math.BigDecimal;
 @Data
 public class SearchCategoryVo extends BaseTree<Long,SearchCategoryVo> {
 
- /*   @ApiModelProperty(value = "id")
-    private Long id;*/
 
     @ApiModelProperty(value = "名称")
     private String name;

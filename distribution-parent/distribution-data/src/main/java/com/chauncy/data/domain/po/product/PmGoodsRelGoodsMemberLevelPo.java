@@ -36,7 +36,7 @@ public class PmGoodsRelGoodsMemberLevelPo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "ID")
-    private Long id;
+    private Long value;
 
     @ApiModelProperty(value = "创建者")
     private String createBy;

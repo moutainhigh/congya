@@ -29,17 +29,17 @@ public class SearchGoodInfosDto {
     @ApiModelProperty(value = "分页大小")
     private Integer pageSize;
 
-    @ApiModelProperty(value = "店铺id")
-    private Long storeId;
+//    @ApiModelProperty(value = "店铺id")
+//    private Long storeId;
 
     @ApiModelProperty("商品名称")
     private String goodName;
 
     @ApiModelProperty("商品分类")
-    private Integer categoryId;
+    private String categoryName;
 
     @ApiModelProperty("商品品牌")
-    private Integer brandId;
+    private String brandName;
 
     @ApiModelProperty("商品审核状态")
     private Integer verifyStatus;
@@ -47,8 +47,8 @@ public class SearchGoodInfosDto {
     @ApiModelProperty("商品销售状态")
     private Boolean publishStatus;
 
-//    @ApiModelProperty("店铺名称")
-//    private String storeName;
+    @ApiModelProperty("店铺名称")
+    private String storeName;
 //
 //    @ApiModelProperty("提交时间")
 //    private LocalDate pushTime;
