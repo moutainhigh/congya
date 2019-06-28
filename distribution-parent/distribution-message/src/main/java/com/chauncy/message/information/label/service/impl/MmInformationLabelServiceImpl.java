@@ -141,7 +141,7 @@ public class MmInformationLabelServiceImpl extends AbstractService<MmInformation
     @Override
     public void editStatusBatch(BaseUpdateStatusDto baseUpdateStatusDto) {
         UpdateWrapper<MmInformationLabelPo> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.in("id", baseUpdateStatusDto.getId());
+        updateWrapper.in("id", Arrays.asList(baseUpdateStatusDto.getId()));
         MmInformationLabelPo mmInformationLabelPo = new MmInformationLabelPo();
         mmInformationLabelPo.setEnabled(baseUpdateStatusDto.getEnabled());
         mmInformationLabelMapper.update(mmInformationLabelPo, updateWrapper);

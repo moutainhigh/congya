@@ -133,5 +133,22 @@ FROM
 		</if>
 	</select>
 
+	<select id="loadParentName" resultType="java.lang.String">
+       select name from (WITH RECURSIVE childrenIds (id,parent_id,`name`) AS
+        (
+        SELECT id,parent_id,`name`
+        FROM pm_goods_category
+        WHERE
+            del_flag=0 and
+                id= #{id}
+        UNION ALL
+        SELECT c.id,c.parent_id,c.`name`
+        FROM childrenIds AS p left JOIN pm_goods_category AS c
+        ON p.parent_id = c.id
+        where c.del_flag=0
+        )
+        SELECT id,`name` FROM childrenIds) as t order by id
+    </select>
+
 
 </mapper>

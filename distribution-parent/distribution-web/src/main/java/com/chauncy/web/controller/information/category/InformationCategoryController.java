@@ -1,4 +1,4 @@
-package com.chauncy.web.controller.store.information.category;
+package com.chauncy.web.controller.information.category;
 
 
 import org.springframework.web.bind.annotation.RequestMapping;

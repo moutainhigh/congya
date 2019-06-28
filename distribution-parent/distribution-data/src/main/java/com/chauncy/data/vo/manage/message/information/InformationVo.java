@@ -1,43 +1,29 @@
-package com.chauncy.data.domain.po.message.information;
+package com.chauncy.data.vo.manage.message.information;
 
-import com.baomidou.mybatisplus.annotation.*;
-
-import java.time.LocalDateTime;
-import java.io.Serializable;
-
-import com.chauncy.common.util.serializer.LongJsonDeserializer;
-import com.chauncy.common.util.serializer.LongJsonSerializer;
+import com.baomidou.mybatisplus.annotation.SqlCondition;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.chauncy.data.vo.supplier.InformationRelGoodsVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.List;
+
 /**
- * <p>
- * 店铺资讯信息
- * </p>
- *
- * @author huangwancheng
- * @since 2019-06-25
+ * @author yeJH
+ * @since 2019/6/27 18:34
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
-@Accessors(chain = true)
-@TableName("mm_information")
-@ApiModel(value = "MmInformationPo对象", description = "店铺资讯信息")
-public class MmInformationPo implements Serializable {
+@ApiModel(value = "店铺资讯")
+public class InformationVo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "资讯id")
-    @TableId(value = "id",type = IdType.ID_WORKER)
-    @JsonSerialize(using = LongJsonSerializer.class)
-    @JsonDeserialize(using = LongJsonDeserializer.class)
     private Long id;
 
     @ApiModelProperty(value = "资讯标题")
@@ -53,14 +39,20 @@ public class MmInformationPo implements Serializable {
     @ApiModelProperty(value = "资讯标签id（mm_information_label主键）")
     private Long infoLabelId;
 
+    @ApiModelProperty(value = "资讯标签名称")
+    private String infoLabelName;
+
     @ApiModelProperty(value = "资讯分类id（mm_information_category主键）")
     private Long infoCategoryId;
+
+    @ApiModelProperty(value = "资讯分类名称")
+    private String infoCategoryName;
 
     @ApiModelProperty(value = "所属店铺Id")
     private Long storeId;
 
-    @ApiModelProperty(value = "关联商品id")
-    private Long goodsId;
+    @ApiModelProperty(value = "关联商品")
+    private List<InformationRelGoodsVo> goodsList;
 
     @ApiModelProperty(value = "排序数字")
     private Integer sort;
@@ -73,6 +65,9 @@ public class MmInformationPo implements Serializable {
 
     @ApiModelProperty(value = " 1-未审核 2-审核通过 3-驳回 4-不通过/驳回")
     private Integer verifyStatus;
+
+    @ApiModelProperty(value = "原因")
+    private String remark;
 
     @ApiModelProperty(value = "浏览量")
     private Integer browsingNum;
@@ -89,36 +84,14 @@ public class MmInformationPo implements Serializable {
     @ApiModelProperty(value = "收藏量")
     private Integer collectionNum;
 
-    @ApiModelProperty(value = "备注")
-    private String remark;
-
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "审核时间")
     private LocalDateTime verifyTime;
 
-    @ApiModelProperty(value = "审核者")
-    private String verifyBy;
-
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建时间")
     private LocalDateTime createTime;
-
-    @ApiModelProperty(value = "创建者")
-    private String createBy;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @ApiModelProperty(value = "更新时间")
-    private LocalDateTime updateTime;
-
-    @ApiModelProperty(value = "更新者")
-    private String updateBy;
-
-    @ApiModelProperty(value = "删除标志 默认0")
-    @TableLogic
-    private Boolean delFlag;
-
 
 }

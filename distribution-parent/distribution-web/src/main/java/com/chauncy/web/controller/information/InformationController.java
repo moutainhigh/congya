@@ -1,4 +1,4 @@
-package com.chauncy.web.controller.store.information;
+package com.chauncy.web.controller.information;
 
 
 import org.springframework.web.bind.annotation.RequestMapping;

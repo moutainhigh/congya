@@ -1,4 +1,4 @@
-package com.chauncy.web.controller.store.information.sensitive;
+package com.chauncy.web.controller.information.sensitive;
 
 
 import com.chauncy.message.information.sensitive.service.IMmInformationSensitiveService;

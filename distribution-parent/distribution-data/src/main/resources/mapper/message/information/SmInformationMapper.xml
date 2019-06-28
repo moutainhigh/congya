@@ -13,7 +13,7 @@
         <result column="store_id" property="storeId" />
         <result column="sort" property="sort" />
         <result column="cover_image" property="coverImage" />
-        <result column="text" property="text" />
+        <result column="detail_html" property="detailHtml" />
         <result column="verify_status" property="verifyStatus" />
         <result column="browsing_num" property="browsingNum" />
         <result column="forward_num" property="forwardNum" />
@@ -34,5 +34,14 @@
     <sql id="Base_Column_List">
         id, title, author, enabled, info_label_id, info_category_id, store_id, sort, cover_image, text, verify_status, browsing_num, forward_num, comment_num, liked_num, collection_num, remark, verify_time, verify_by, create_time, create_by, update_time, update_by, del_flag
     </sql>
+
+
+    <select id="findById" resultType="com.chauncy.data.vo.manage.message.information.InformationVo">
+        select mi.*, mil.`name` as infoLabelName, mic.`name` as infoCategoryName
+        from mm_information mi left join mm_information_label mil on (mi.info_label_id = mil.id and mil.del_flag = 0)
+            left join mm_information_category mic on (mi.info_category_id = mic.id and mic.del_flag = 0)
+        where mi.id = #{id}
+    </select>
+
 
 </mapper>
