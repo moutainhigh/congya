@@ -71,4 +71,10 @@ public interface ISmStoreCategoryService extends Service<SmStoreCategoryPo> {
      * @param ids
      */
     void delStoreCategoryByIds(Long[] ids);
+    /**
+     * 批量禁用启用
+     *
+     * @param baseUpdateStatusDto
+     */
+    void editStatusBatch(BaseUpdateStatusDto baseUpdateStatusDto);
 }

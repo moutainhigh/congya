@@ -261,7 +261,7 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
 
         //对应的店铺账号也需要修改状态   店铺启用->账号正常  店铺禁用->账号拉黑
         UpdateWrapper<SysUserPo> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.in("store_id", baseUpdateStatusDto.getId());
+        updateWrapper.in("store_id", Arrays.asList(baseUpdateStatusDto.getId()));
         SysUserPo sysUserPo = new SysUserPo();
         Integer status ;
         if (baseUpdateStatusDto.getEnabled().equals(true)) {

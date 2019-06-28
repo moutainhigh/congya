@@ -102,7 +102,7 @@ public class SmStoreCategoryApi extends BaseApi {
      */
     @ApiOperation(value = "条件查询", notes = "根据分类ID、分类名称查询")
     @PostMapping("/searchPaging")
-    public JsonViewData searchPaging(@RequestBody StoreCategorySearchDto storeCategorySearchDto) {
+    public JsonViewData<PageInfo<SmStoreCategoryVo>> searchPaging(@RequestBody StoreCategorySearchDto storeCategorySearchDto) {
 
         PageInfo<SmStoreCategoryVo> smStoreBaseVoPageInfo = smStoreCategoryService.searchPaging(storeCategorySearchDto);
         return setJsonViewData(smStoreBaseVoPageInfo);
@@ -114,7 +114,7 @@ public class SmStoreCategoryApi extends BaseApi {
      */
     @ApiOperation(value = "查询所有的店铺分类", notes = "查询所有的店铺分类")
     @GetMapping("/searchAll")
-    public JsonViewData selectAll() {
+    public JsonViewData<SmStoreCategoryVo> selectAll() {
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功", smStoreCategoryService.selectAll());
     }
@@ -134,4 +134,16 @@ public class SmStoreCategoryApi extends BaseApi {
         smStoreCategoryService.delStoreCategoryByIds(ids);
         return new JsonViewData(ResultCode.SUCCESS, "批量删除分类成功");
     }
+
+    @PostMapping("/editStatusBatch")
+    @ApiOperation(value = "批量禁用启用")
+    @Transactional(rollbackFor = Exception.class)
+    public JsonViewData editStatusBatch(@Valid @RequestBody  @ApiParam(required = true, name = "baseUpdateStatusDto", value = "id、修改的状态值")
+                                                BaseUpdateStatusDto baseUpdateStatusDto) {
+
+        smStoreCategoryService.editStatusBatch(baseUpdateStatusDto);
+        return new JsonViewData(ResultCode.SUCCESS, "修改状态成功");
+    }
+
+
 }

@@ -78,6 +78,7 @@
         store_turnover, store_member_num, store_sub_num, goods_num, owner_mobile, sort, enabled, company_addr
         from sm_store
         <where>
+            del_flag = 0
             <if test="id !=null and id !=''">
                 and id = #{id}
             </if>
@@ -143,6 +144,7 @@
         select ss.*
         from sm_store ss
         <where>
+            del_flag = 0
             <if test="id !=null and id !=''">
                 and ss.id = #{id}
             </if>
@@ -152,7 +154,7 @@
     <select id="findStoreIdByName" resultType="Long">
         select id
         from sm_store
-        where user_name = #{userName}
+        where del_flag = 0 and user_name = #{userName}
     </select>
 
 

@@ -26,6 +26,16 @@ public interface Service<T> extends IService<T>{
      */
     List<Long> findChildIds(@Param("parentId") Long parentId, @Param("tableName") String tableName);
 
+
+    /**
+     * 根据数据库表名和id获取所有父级包括本身
+     * 表中必须存在id字段
+     * @param id
+     * @param tableName
+     * @return
+     */
+    List<Long> findParentIds(@Param("id") Long id, @Param("tableName") String tableName);
+
     /**
      *根据name和数据库名称查询对应的id
      * @param names
