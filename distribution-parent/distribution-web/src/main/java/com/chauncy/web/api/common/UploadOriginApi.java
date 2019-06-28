@@ -27,7 +27,7 @@ import java.util.Date;
  */
 @Slf4j
 @RestController
-@Api(description = "文件上传接口")
+@Api(tags = "文件上传接口")
 @RequestMapping("/upload")
 @Transactional(rollbackFor = Exception.class)
 public class UploadOriginApi {
