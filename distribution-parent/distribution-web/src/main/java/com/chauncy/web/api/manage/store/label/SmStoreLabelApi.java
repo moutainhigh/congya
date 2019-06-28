@@ -1,6 +1,7 @@
 package com.chauncy.web.api.manage.store.label;
 
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.add.StoreLabelDto;
 import com.chauncy.data.dto.manage.store.select.StoreLabelSearchDto;
 import com.chauncy.data.valid.group.IUpdateGroup;
@@ -93,7 +94,7 @@ public class SmStoreLabelApi extends BaseApi {
      */
     @ApiOperation(value = "条件查询", notes = "根据标签ID、标签名称、创建时间查询")
     @PostMapping("/searchPaging")
-    public JsonViewData searchPaging(@RequestBody StoreLabelSearchDto storeLabelSearchDto) {
+    public JsonViewData<PageInfo<SmStoreLabelVo>> searchPaging(@RequestBody StoreLabelSearchDto storeLabelSearchDto) {
 
         PageInfo<SmStoreLabelVo> smStoreBaseVoPageInfo = smStoreLabelService.searchPaging(storeLabelSearchDto);
         return setJsonViewData(smStoreBaseVoPageInfo);
@@ -106,7 +107,7 @@ public class SmStoreLabelApi extends BaseApi {
      */
     @ApiOperation(value = "查询所有的店铺标签", notes = "查询所有的店铺标签")
     @GetMapping("/selectAll")
-    public JsonViewData searchAll() {
+    public JsonViewData<SmStoreLabelVo> searchAll() {
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
                 smStoreLabelService.selectAll());
@@ -125,6 +126,5 @@ public class SmStoreLabelApi extends BaseApi {
         smStoreLabelService.delStoreLabelByIds(ids);
         return new JsonViewData(ResultCode.SUCCESS, "批量删除标签成功");
     }
-
 
 }

@@ -1,11 +1,13 @@
 package com.chauncy.store.label.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.store.label.SmStoreLabelPo;
+import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.add.StoreLabelDto;
 import com.chauncy.data.dto.manage.store.select.StoreLabelSearchDto;
 import com.chauncy.data.mapper.store.SmStoreMapper;
@@ -160,4 +162,5 @@ public class SmStoreLabelServiceImpl extends AbstractService<SmStoreLabelMapper,
         }
 
     }
+
 }

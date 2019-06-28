@@ -30,8 +30,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("sm_information_label")
-@ApiModel(value = "SmInformationLabelPo对象", description = "店铺资讯标签信息")
+@TableName("mm_information_label")
+@ApiModel(value = "MmInformationLabelPo对象", description = "店铺资讯标签信息")
 public class MmInformationLabelPo implements Serializable {
 
     private static final long serialVersionUID = 1L;

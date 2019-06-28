@@ -39,6 +39,12 @@ public abstract class AbstractService<M extends BaseMapper<T>,T> extends Service
     }
 
 
+    @Override
+    public List<Long> findParentIds(@Param("id") Long id, @Param("tableName") String tableName){
+        return IBaseMapper.loadParentIds(id,tableName);
+    }
+
+
     /**
      *根据name和数据库名称查询对应的名字
      * @param names

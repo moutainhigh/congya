@@ -29,6 +29,15 @@ public interface IBaseMapper<T> extends BaseMapper<T> {
     List<Long> loadChildIds(@Param("parentId") Long parentId, @Param("tableName") String tableName);
 
     /**
+     * 根据数据库表名和id获取所有父级包括本身
+     * 表中必须存在id字段
+     * @param id
+     * @param tableName
+     * @return
+     */
+    List<Long> loadParentIds(@Param("id") Long id, @Param("tableName") String tableName);
+
+    /**
      *判断id是否存在
      * @param value 值
      * @param tableName 表名称
