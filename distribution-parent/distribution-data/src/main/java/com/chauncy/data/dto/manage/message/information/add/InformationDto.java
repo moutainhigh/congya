@@ -4,13 +4,17 @@ import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.chauncy.common.enums.common.VerifyStatusEnum;
 import com.chauncy.data.valid.annotation.EnumConstraint;
+import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import com.chauncy.data.valid.group.IUpdateGroup;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author yeJH
@@ -25,38 +29,39 @@ public class InformationDto  implements Serializable {
 
     @ApiModelProperty(value = "id,当新增时为空")
     @NotNull(groups = IUpdateGroup.class)
+    @NeedExistConstraint(tableName = "mm_information")
     private Long id;
 
     @ApiModelProperty(value = "资讯标题")
-    @TableField(condition = SqlCondition.LIKE)
+    @NotBlank(message = "资讯分类名称不能为空")
     private String title;
 
     @ApiModelProperty(value = "作者")
+    @NotBlank(message = "作者不能为空")
     private String author;
 
-    @ApiModelProperty(value = "是否启用 1-是 0-否 默认为0")
-    private Boolean enabled;
-
-    @ApiModelProperty(value = "资讯标签id（sm_information_label主键）")
+    @ApiModelProperty(value = "资讯标签id（mm_information_label主键）")
+    @NeedExistConstraint(tableName = "mm_information_label")
     private Long infoLabelId;
 
-    @ApiModelProperty(value = "资讯分类id（sm_information_category主键）")
+    @ApiModelProperty(value = "资讯分类id（mm_information_category主键）")
+    @NeedExistConstraint(tableName = "mm_information_category")
     private Long infoCategoryId;
 
-    @ApiModelProperty(value = "所属店铺Id")
-    private Long storeId;
+    @ApiModelProperty(value = "关联商品id")
+    @NeedExistConstraint(tableName = "pm_goods")
+    private List<Long> goodsIds;
 
     @ApiModelProperty(value = "排序数字")
+    @NotNull(message = "排序数字不能为空")
     private Integer sort;
 
     @ApiModelProperty(value = "封面图片")
+    @NotBlank(message = "封面图片不能为空")
     private String coverImage;
 
     @ApiModelProperty(value = "资讯正文")
-    private String text;
-
-    @ApiModelProperty(value = " 1-未审核 2-审核通过 3-驳回 4-不通过/驳回")
-    @EnumConstraint(target = VerifyStatusEnum.class)
-    private Integer verifyStatus;
+    @NotBlank(message = "资讯正文不能为空")
+    private String detailHtml;
 
 }

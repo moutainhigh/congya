@@ -23,6 +23,7 @@
     <select id="searchPaging" resultType="com.chauncy.data.vo.manage.store.label.SmStoreLabelVo">
         select <include refid="Base_Column_List"/> from sm_store_label
         <where>
+            del_flag = 0
             <if test="id !=null and id !=''">
                 and id = #{id}
             </if>
@@ -41,6 +42,7 @@
     <select id="selectAll" resultType="com.chauncy.data.vo.manage.store.label.SmStoreLabelVo">
         select <include refid="Base_Column_List"/>
         from sm_store_label
+        where del_flag = 0
         order by create_time desc
     </select>
 </mapper>

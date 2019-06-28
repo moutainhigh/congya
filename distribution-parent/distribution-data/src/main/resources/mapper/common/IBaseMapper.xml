@@ -32,6 +32,23 @@
 
     </select>
 
+    <select id="loadParentIds" resultType="java.lang.Long">
+       WITH RECURSIVE parentIds (id,parent_id) AS
+        (
+        SELECT id,parent_id
+        FROM  ${tableName}
+        WHERE
+            del_flag=0 and
+                id=#{id}
+        UNION ALL
+        SELECT c.id,c.parent_id
+        FROM parentIds AS p left JOIN  ${tableName}  AS c
+        ON p.parent_id = c.id
+        where c.del_flag=0
+        )
+        SELECT id FROM parentIds
+    </select>
+
     <select id="countById" resultType="java.lang.Integer">
         select count(1) from ${tableName} where
         del_flag=0 and

@@ -88,4 +88,12 @@ public interface PmGoodsCategoryMapper extends IBaseMapper<PmGoodsCategoryPo> {
      */
     Integer loadCount(@Param("t")BaseSearchDto baseSearchDto);
 
+
+    /**
+     * 根据id获取所有父级包括本身分类名称
+     * @param id
+     * @return
+     */
+    List<String> loadParentName(@Param("id") Long id);
+
 }
