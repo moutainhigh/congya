@@ -1,5 +1,6 @@
 package com.chauncy.web.controller.generator;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.baomidou.mybatisplus.generator.AutoGenerator;
 import com.baomidou.mybatisplus.generator.InjectionConfig;
@@ -65,6 +66,8 @@ public class GeneratorController {
         gc.setOpen(false);
         gc.setSwagger2(true); //实体属性 Swagger2 注解
         gc.setFileOverride(true);
+        // ID 策略 AUTO->("数据库ID自增") INPUT->(用户输入ID") ID_WORKER->("全局唯一ID") UUID->("全局唯一ID")
+        gc.setIdType(IdType.ID_WORKER);
         mpg.setGlobalConfig(gc);
 
         // 数据源配置
