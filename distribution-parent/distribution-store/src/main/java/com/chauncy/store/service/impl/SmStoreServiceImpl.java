@@ -52,7 +52,7 @@ import static java.util.stream.Collectors.toList;
  * @since 2019-06-03
  */
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo> implements ISmStoreService {
 
     @Autowired

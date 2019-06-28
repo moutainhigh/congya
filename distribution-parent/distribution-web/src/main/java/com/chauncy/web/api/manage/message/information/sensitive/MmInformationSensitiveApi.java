@@ -121,7 +121,7 @@ public class MmInformationSensitiveApi  extends BaseApi {
                                  @PathVariable Long[] ids) {
 
         mmInformationSensitiveService.delInformationSensitiveByIds(ids);
-        return new JsonViewData(ResultCode.SUCCESS, "批量删除敏感词成功");
+        return new JsonViewData(ResultCode.SUCCESS, "删除敏感词成功");
     }
 
 }

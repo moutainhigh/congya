@@ -8,20 +8,27 @@ import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.domain.po.message.information.rel.MmRelInformationGoodsPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.manage.message.information.add.InformationDto;
+import com.chauncy.data.dto.manage.message.information.select.InformationSearchDto;
 import com.chauncy.data.mapper.message.information.MmInformationMapper;
 import com.chauncy.data.mapper.message.information.rel.MmRelInformationGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
+import com.chauncy.data.vo.manage.message.information.InformationPageInfoVo;
 import com.chauncy.data.vo.manage.message.information.InformationVo;
+import com.chauncy.data.vo.manage.store.label.SmStoreLabelVo;
 import com.chauncy.data.vo.supplier.InformationRelGoodsVo;
 import com.chauncy.message.information.rel.IMmRelInformationGoodsService;
 import com.chauncy.message.information.service.IMmInformationService;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.security.util.SecurityUtil;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -33,6 +40,7 @@ import java.util.*;
  * @since 2019-06-25
  */
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class MmInformationServiceImpl extends AbstractService<MmInformationMapper, MmInformationPo> implements IMmInformationService {
 
     @Autowired
@@ -66,6 +74,7 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
         //新增资讯默认为待审核状态
         mmInformationPo.setVerifyStatus(VerifyStatusEnum.WAIT_CONFIRM.getId());
         mmInformationPo.setStoreId(sysUserPo.getStoreId());
+        mmInformationPo.setUpdateTime(LocalDateTime.now());
         mmInformationMapper.insert(mmInformationPo);
 
         //批量插入商品资讯关联记录
@@ -177,4 +186,38 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
         return informationVo;
     }
 
+    /**
+     * 根据关联ID删除资讯跟店铺的绑定关系
+     *
+     * @param id 资讯商品关联id
+     * @return
+     */
+    @Override
+    public void delRelById(Long id) {
+        MmRelInformationGoodsPo mmRelInformationGoodsPo = mmRelInformationGoodsMapper.selectById(id);
+        if(null != mmRelInformationGoodsPo) {
+            //直接删除
+            mmRelInformationGoodsMapper.deleteById(id);
+        } else {
+            throw new ServiceException(ResultCode.NO_EXISTS,"删除的信息不存在");
+        }
+    }
+
+
+    /**
+     * 分页条件查询
+     *
+     * @param informationSearchDto
+     * @return
+     */
+    @Override
+    public PageInfo<InformationPageInfoVo> searchPaging(InformationSearchDto informationSearchDto) {
+
+        Integer pageNo = informationSearchDto.getPageNo()==null ? defaultPageNo : informationSearchDto.getPageNo();
+        Integer pageSize = informationSearchDto.getPageSize()==null ? defaultPageSize : informationSearchDto.getPageSize();
+
+        PageInfo<InformationPageInfoVo> informationPageInfoVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> mmInformationMapper.searchPaging(informationSearchDto));
+        return informationPageInfoVoPageInfo;
+    }
 }
