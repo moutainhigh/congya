@@ -23,11 +23,14 @@ public class CategoryRelAttributeVo {
     @ApiModelProperty(value = "商品参数")
     private List<AttributeIdNameTypeVo> AttributeList;
 
-    @ApiModelProperty(value = "服务说明")
+    @ApiModelProperty(value = "平台服务说明")
     private List<AttributeIdNameTypeVo> serviceList;
 
     @ApiModelProperty(value = "购买须知说明")
     private List<AttributeIdNameTypeVo> purchaseList;
+
+    @ApiModelProperty(value = "平台活动说明")
+    private List<AttributeIdNameTypeVo> activityList;
 
 
 

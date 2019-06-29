@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
  * @author huangwancheng
  * @since 2019-05-21
  */
-@Api(tags = "商品属性管理接口")
+@Api(tags = "平台_商品管理_商品属性管理接口")
 @RestController
 @RequestMapping("/manage/product/attribute")
 @Slf4j
