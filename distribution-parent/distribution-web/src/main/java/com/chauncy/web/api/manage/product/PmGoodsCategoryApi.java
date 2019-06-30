@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  * @author zhangrt
  * @since 2019-05-21
  */
-@Api(description = "商品分类管理接口")
+@Api(tags = "平台_商品管理_商品分类管理接口")
 @RestController
 @RequestMapping("/manage/product/category")
 @Slf4j
@@ -238,13 +238,14 @@ public class PmGoodsCategoryApi extends BaseApi {
     @ApiOperation(value = "查找所有属性")
     public JsonViewData<CategoryRelAttributeVo> findAttribute(){
         //这里只能硬编码   查出分类下需要查找的各种属性
-        List<AttributeIdNameTypeVo> attributeIdNameTypeVos = attributeService.findAttributeIdNameTypeVos(Lists.newArrayList(7, 4, 1, 6));
+        List<AttributeIdNameTypeVo> attributeIdNameTypeVos = attributeService.findAttributeIdNameTypeVos(Lists.newArrayList(3,7, 4, 1, 6));
         Map<Integer,List<AttributeIdNameTypeVo>> map=attributeIdNameTypeVos.stream().collect(Collectors.groupingBy(AttributeIdNameTypeVo::getType));
         CategoryRelAttributeVo categoryRelAttributeVo=new CategoryRelAttributeVo();
         categoryRelAttributeVo.setAttributeList(map.get(4));
         categoryRelAttributeVo.setPurchaseList(map.get(6));
         categoryRelAttributeVo.setServiceList(map.get(1));
         categoryRelAttributeVo.setSpecificationList(map.get(7));
+        categoryRelAttributeVo.setActivityList(map.get(3));
         return setJsonViewData(categoryRelAttributeVo);
     }
 

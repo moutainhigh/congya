@@ -31,7 +31,7 @@ import java.nio.file.Paths;
 @Controller
 @RequestMapping(value = "/common/file", method = {RequestMethod.POST, RequestMethod.GET})
 @PropertySource("classpath:config/fileConfig.properties")
-@Api(description = "通用上传文件借口（multipart/form-data）")
+@Api(tags = "通用上传文件借口（multipart/form-data）")
 public class FileApi extends BaseApi {
 
     @Value("${upload.file.saveDir}")
