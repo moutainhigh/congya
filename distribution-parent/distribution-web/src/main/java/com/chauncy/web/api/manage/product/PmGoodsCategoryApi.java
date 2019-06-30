@@ -103,8 +103,13 @@ public class PmGoodsCategoryApi extends BaseApi {
     @ApiOperation(value = "编辑商品分类")
     @Transactional(rollbackFor = Exception.class)
     public JsonViewData update(@RequestBody @Validated(IUpdateGroup.class)  @ApiParam(required = true, name = "goodCategoryDto", value = "分类相关信息")
-                                              GoodCategoryDto goodCategoryDto,
-                                      BindingResult result) {
+                                              GoodCategoryDto goodCategoryDto
+                                      ) {
+
+        //特殊处理，空的前端传成了0
+        if (goodCategoryDto.getParentId()==0){
+            goodCategoryDto.setParentId(null);
+        }
         //验证分类关联属性能否被修改
         validUpdateRelCategoryAndAttribute(goodCategoryDto.getGoodAttributeIds(),goodCategoryDto.getId());
         //先修改分类
@@ -160,7 +165,7 @@ public class PmGoodsCategoryApi extends BaseApi {
         }
         notAllowDelAttributes.forEach(x->{
             if (!goodAttributeIds.contains(x.getId())){
-                throw new ServiceException(ResultCode.PARAM_ERROR,"修改出错，%属性不允许删除：已被该分类下的商品所关联",x.getName());
+                throw new ServiceException(ResultCode.PARAM_ERROR,"修改出错，%s属性不允许删除：已被该分类下的商品所关联",x.getName());
             }
         });
 

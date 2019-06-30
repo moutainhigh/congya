@@ -60,8 +60,10 @@
 
 
     <select id="loadByCategoryId" resultType="com.chauncy.data.domain.po.product.PmGoodsAttributePo">
-       SELECT ag.* FROM `pm_goods` g,pm_goods_rel_attribute_good ag
+       SELECT a.* FROM `pm_goods` g,pm_goods_rel_attribute_good ag,pm_goods_attribute a
        where g.goods_category_id=#{categoryId} and g.id=ag.goods_good_id
+       and g.del_flag=0 and ag.del_flag=0 and a.del_flag=0 and a.id=ag.goods_attribute_id
+       and a.type in(1,3,4,6,7)
     </select>
 
     <select id="findAttByTypeAndCat" resultType="com.chauncy.data.vo.BaseVo">
