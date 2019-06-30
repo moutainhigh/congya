@@ -202,6 +202,25 @@ public class CreateVerifyCode {
         return str2;
     }
 
+     /**
+     * 得到随机数字
+     * @param n
+     * @return
+     */
+    public String randomNumber(int n) {
+        String str1 = "1234567890";
+        String str2 = "";
+        double r;
+        int len = str1.length() - 1;
+        for (int i = 0; i < n; i++) {
+            r = (Math.random()) * len;
+            str2 = str2 + str1.charAt((int) r);
+        }
+        return str2;
+    }
+
+
+
     /**
      * 得到随机颜色
      * @param fc

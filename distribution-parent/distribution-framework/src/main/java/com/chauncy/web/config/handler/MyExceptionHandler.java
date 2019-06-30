@@ -36,7 +36,8 @@ public class MyExceptionHandler {
             FieldError fieldError = ((MethodArgumentNotValidException) e).getBindingResult().getFieldError();
             String errorMessage= fieldError.getDefaultMessage();
             String field=fieldError.getField();
-            return new JsonViewData(ResultCode.PARAM_ERROR,field+errorMessage);
+            String value=fieldError.getRejectedValue().toString();
+            return new JsonViewData(ResultCode.PARAM_ERROR,String.format("【%s】为【%s】:%s",field,value,errorMessage));
             }
         return new JsonViewData(ResultCode.SYSTEM_ERROR,e.getMessage());
     }
