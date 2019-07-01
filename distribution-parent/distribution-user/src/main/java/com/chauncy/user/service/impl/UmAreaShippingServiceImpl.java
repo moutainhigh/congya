@@ -5,7 +5,7 @@ import com.chauncy.data.dto.app.user.add.AddAreaDto;
 import com.chauncy.data.mapper.area.AreaRegionMapper;
 import com.chauncy.data.mapper.user.UmAreaShippingMapper;
 import com.chauncy.data.core.AbstractService;
-import com.chauncy.data.vo.user.ShipAreaVo;
+import com.chauncy.data.vo.app.user.ShipAreaVo;
 import com.chauncy.user.service.IUmAreaShippingService;
 import org.assertj.core.util.Lists;
 import org.springframework.beans.BeanUtils;

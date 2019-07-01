@@ -1,5 +1,6 @@
-package com.chauncy.data.dto.app.order.evaluate;
+package com.chauncy.data.dto.app.order.evaluate.add;
 
+import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -20,9 +21,11 @@ public class AddValuateDto {
     private Long id;
 
     @ApiModelProperty(value = "订单编号")
+    @NeedExistConstraint(tableName = "om_order")
     private Long orderId;
 
     @ApiModelProperty(value = "sku Id")
+    @NeedExistConstraint(tableName = "pm_goods_sku")
     private Long skuId;
 
     @ApiModelProperty(value = "评价父ID")

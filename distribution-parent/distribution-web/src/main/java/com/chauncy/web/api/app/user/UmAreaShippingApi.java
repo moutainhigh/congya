@@ -5,7 +5,7 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.app.user.add.AddAreaDto;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
-import com.chauncy.data.vo.user.ShipAreaVo;
+import com.chauncy.data.vo.app.user.ShipAreaVo;
 import com.chauncy.user.service.IUmAreaShippingService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

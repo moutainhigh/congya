@@ -63,6 +63,7 @@ public class GeneratorController {
         gc.setBaseColumnList(true);
         gc.setEntityName("%sPo");
         gc.setXmlName("%sMapper");
+        gc.setControllerName("%sApi");
         gc.setOpen(false);
         gc.setSwagger2(true); //实体属性 Swagger2 注解
         gc.setFileOverride(true);

@@ -12,11 +12,12 @@
         <result column="del_flag" property="delFlag" />
         <result column="um_user_id" property="umUserId" />
         <result column="area_shipping_id" property="areaShippingId" />
+        <result column="evaluate_status" property="evaluateStatus" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, create_by, create_time, update_by, update_time, del_flag, um_user_id, area_shipping_id
+        id, create_by, create_time, update_by, update_time, del_flag, um_user_id, area_shipping_id,evaluate_status
     </sql>
 
 </mapper>

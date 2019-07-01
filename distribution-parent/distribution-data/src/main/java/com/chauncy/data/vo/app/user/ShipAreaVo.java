@@ -1,4 +1,4 @@
-package com.chauncy.data.vo.user;
+package com.chauncy.data.vo.app.user;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
