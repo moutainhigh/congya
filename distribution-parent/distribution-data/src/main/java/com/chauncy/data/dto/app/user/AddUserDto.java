@@ -24,6 +24,7 @@ public class AddUserDto {
     private String phone;
 
     @ApiModelProperty(value = "邀请码")
+    @NeedExistConstraint(tableName = "um_user",field = "invite_code",message = "该邀请码不存在!")
     private String inviteCode;
 
     @ApiModelProperty(value = "密码")

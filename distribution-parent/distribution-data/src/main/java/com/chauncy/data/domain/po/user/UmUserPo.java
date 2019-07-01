@@ -124,5 +124,8 @@ public class UmUserPo implements Serializable {
     @ApiModelProperty(value = "密码")
     private String password;
 
+    @ApiModelProperty(value = "头像")
+    private String photo;
+
 
 }
