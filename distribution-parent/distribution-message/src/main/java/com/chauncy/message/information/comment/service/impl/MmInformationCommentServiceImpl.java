@@ -1,10 +1,14 @@
 package com.chauncy.message.information.comment.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.domain.po.message.information.comment.MmInformationCommentPo;
-import com.chauncy.data.dto.base.BaseSearchDto;
+import com.chauncy.data.dto.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.manage.message.information.select.InformationCommentDto;
 import com.chauncy.data.mapper.message.information.comment.MmInformationCommentMapper;
 import com.chauncy.data.core.AbstractService;
-import com.chauncy.data.vo.manage.message.information.category.InformationCategoryVo;
 import com.chauncy.data.vo.manage.message.information.comment.InformationCommentVo;
 import com.chauncy.message.information.comment.service.IMmInformationCommentService;
 import com.github.pagehelper.PageHelper;
@@ -12,6 +16,8 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Arrays;
 
 /**
  * <p>
@@ -31,17 +37,41 @@ public class MmInformationCommentServiceImpl extends AbstractService<MmInformati
     /**
      * 分页查询评论
      *
-     * @param baseSearchDto
+     * @param informationCommentDto
      * @return
      */
     @Override
-    public PageInfo<InformationCommentVo> searchPaging(BaseSearchDto baseSearchDto) {
+    public PageInfo<InformationCommentVo> searchPaging(InformationCommentDto informationCommentDto) {
 
-        Integer pageNo = baseSearchDto.getPageNo()==null ? defaultPageNo : baseSearchDto.getPageNo();
-        Integer pageSize = baseSearchDto.getPageSize()==null ? defaultPageSize : baseSearchDto.getPageSize();
+        Integer pageNo = informationCommentDto.getPageNo()==null ? defaultPageNo : informationCommentDto.getPageNo();
+        Integer pageSize = informationCommentDto.getPageSize()==null ? defaultPageSize : informationCommentDto.getPageSize();
 
-
+        System.out.println(informationCommentDto.getId());
         PageInfo<InformationCommentVo> informationCategoryVoPageInfo = PageHelper.startPage(pageNo, pageSize)
-                .doSelectPageInfo(() -> mmInformationCommentMapper.searchPaging(baseSearchDto));
-        return informationCategoryVoPageInfo;    }
+                .doSelectPageInfo(() -> mmInformationCommentMapper.searchPaging(informationCommentDto.getId()));
+        return informationCategoryVoPageInfo;
+    }
+
+
+    /**
+     * 隐藏显示评论
+     *
+     * @param baseUpdateStatusDto
+     */
+    @Override
+    public void editStatusBatch(BaseUpdateStatusDto baseUpdateStatusDto) {
+        this.editEnabledBatch(baseUpdateStatusDto);
+    }
+
+
+    /**
+     * 删除评论
+     * @param id
+     */
+    @Override
+    public void delInfoCommentById(Long id) {
+        //批量删除
+        mmInformationCommentMapper.deleteById(id);
+    }
+
 }

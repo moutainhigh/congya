@@ -11,7 +11,7 @@
         <result column="parent_id" property="parentId" />
         <result column="enabled" property="enabled" />
         <result column="is_prosecuted" property="isProsecuted" />
-        <result column="remark" property="remark" />
+        <result column="content" property="content" />
         <result column="create_time" property="createTime" />
         <result column="create_by" property="createBy" />
         <result column="update_time" property="updateTime" />
@@ -25,14 +25,14 @@
     </sql>
 
 
-    <resultMap id="commentBaseResult" type="com.chauncy.data.vo.manage.message.information.comment.InformationCommentVo">
+    <!--<resultMap id="commentBaseResult" type="com.chauncy.data.vo.manage.message.information.comment.InformationCommentVo">
         <id column="id" property="id"/>
         <result column="user_id" property="userId"/>
         <result column="parent_user_id" property="parentUserId"/>
         <result column="create_time" property="createTime"/>
-        <!-- collection定义关联集合类型的属性封装规则
+        &lt;!&ndash; collection定义关联集合类型的属性封装规则
         offType:指定集合中的元素类型
-        -->
+        &ndash;&gt;
         <collection property="informationCommentVoList" ofType="com.chauncy.data.vo.manage.message.information.comment.InformationCommentVo">
             <id column="cId" property="id"/>
             <result column="cUserId" property="userId"/>
@@ -41,13 +41,29 @@
         </collection>
     </resultMap>
     <select id="searchPaging" resultMap="commentBaseResult">
-        select mic.id, mic.user_id, mic.parent_user_id, mic.create_time,
-                cmic.id as cId, cmic.user_id as cUserId, cmic.parent_user_id as cParentUserId,cmic.create_time as cCreateTime
+        select mic.id, mic.user_id, mic.parent_user_id, mic.create_time, mic.enabled, IFNULL(uu.name,su.username) as userName,
+        IFNULL(uu.name,su.avatar) as avatar, IFNULL(puu.name,psu.username) as parentUserName
         from mm_information_comment mic
-        left join mm_information_comment cmic on (cmic.parent_id = mic.id and cmic.del_flag = 0 and cmic.enabled = 1)
+        left join um_user uu on mic.user_id = uu.id
+        left join sys_user su on mic.user_id = su.id
+        left join um_user puu on mic.parent_user_id = uu.id
+        left join sys_user psu on mic.parent_user_id = su.id
+        where mic.info_id = 1
         <where>
-                and  mic.info_id = #{id} and mic.enabled = 1 and mic.parent_id is null
+                and  mic.info_id = #{id}
         </where>
-    </select>
+        order by mic.create_time asc
+    </select>-->
 
+    <select id="searchPaging" resultType="com.chauncy.data.vo.manage.message.information.comment.InformationCommentVo">
+        select mic.id, mic.user_id, mic.parent_user_id, mic.create_time, mic.enabled, mic.content, IFNULL(uu.name,su.username) as userName,
+        IFNULL(uu.name,su.avatar) as avatar, IFNULL(puu.name,psu.username) as parentUserName
+        from mm_information_comment mic
+        left join um_user uu on mic.user_id = uu.id
+        left join sys_user su on mic.user_id = su.id
+        left join um_user puu on mic.parent_user_id = puu.id
+        left join sys_user psu on mic.parent_user_id = psu.id
+        where mic.info_id = #{id} and mic.del_flag = 0
+        order by mic.create_time asc
+    </select>
 </mapper>

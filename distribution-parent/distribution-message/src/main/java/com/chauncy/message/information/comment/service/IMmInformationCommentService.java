@@ -3,6 +3,8 @@ package com.chauncy.message.information.comment.service;
 import com.chauncy.data.domain.po.message.information.comment.MmInformationCommentPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.base.BaseSearchDto;
+import com.chauncy.data.dto.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.manage.message.information.select.InformationCommentDto;
 import com.chauncy.data.vo.manage.message.information.comment.InformationCommentVo;
 import com.github.pagehelper.PageInfo;
 
@@ -18,8 +20,21 @@ public interface IMmInformationCommentService extends Service<MmInformationComme
 
     /**
      * 分页查询评论
-     * @param baseSearchDto
+     * @param informationCommentDto
      * @return
      */
-    PageInfo<InformationCommentVo> searchPaging(BaseSearchDto baseSearchDto);
+    PageInfo<InformationCommentVo> searchPaging(InformationCommentDto informationCommentDto);
+
+    /**
+     * 隐藏显示评论
+     *
+     * @param baseUpdateStatusDto
+     */
+    void editStatusBatch(BaseUpdateStatusDto baseUpdateStatusDto);
+
+    /**
+     * 删除评论
+     * @param id
+     */
+    void delInfoCommentById(Long id);
 }

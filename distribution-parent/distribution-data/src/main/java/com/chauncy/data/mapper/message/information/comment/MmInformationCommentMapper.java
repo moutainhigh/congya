@@ -2,8 +2,10 @@ package com.chauncy.data.mapper.message.information.comment;
 
 import com.chauncy.data.domain.po.message.information.comment.MmInformationCommentPo;
 import com.chauncy.data.dto.base.BaseSearchDto;
+import com.chauncy.data.dto.manage.message.information.select.InformationCommentDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.manage.message.information.comment.InformationCommentVo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -19,8 +21,8 @@ public interface MmInformationCommentMapper extends IBaseMapper<MmInformationCom
     /**
      * 分页查询评论
      *
-     * @param baseSearchDto
+     * @param id  资讯ID
      * @return
      */
-    List<InformationCommentVo> searchPaging(BaseSearchDto baseSearchDto);
+    List<InformationCommentVo> searchPaging(@Param("id") Long id);
 }

@@ -52,8 +52,8 @@ public class MmInformationCommentPo implements Serializable {
     @ApiModelProperty(value = "评论是否被举报 1-是 0-否 默认为0")
     private Boolean isProsecuted;
 
-    @ApiModelProperty(value = "备注")
-    private String remark;
+    @ApiModelProperty(value = "评论内容")
+    private String content;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")

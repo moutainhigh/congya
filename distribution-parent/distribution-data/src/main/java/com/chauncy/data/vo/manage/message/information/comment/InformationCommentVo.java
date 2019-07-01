@@ -25,26 +25,35 @@ public class InformationCommentVo implements Serializable {
     @ApiModelProperty(value = "评论id")
     private Long id;
 
-    @ApiModelProperty(value = "评论的用户ID")
-    private Long userId;
+   /* @ApiModelProperty(value = "评论的用户ID")
+    private Long userId;*/
 
     @ApiModelProperty(value = "评论的用户名称")
     private String userName;
 
-    @ApiModelProperty(value = "被回复的用户ID")
-    private Long parentUserId;
+    @ApiModelProperty(value = "评论的用户头像")
+    private String avatar;
 
-    @ApiModelProperty(value = "被回复的用户ID")
+    @ApiModelProperty(value = "是否启用 1-是 0-否 默认为0")
+    private Boolean enabled;
+
+    /*@ApiModelProperty(value = "被回复的用户ID")
+    private Long parentUserId;*/
+
+    @ApiModelProperty(value = "被回复的用户名称")
     private String parentUserName;
+
+    @ApiModelProperty(value = "评论内容")
+    private String content;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建时间")
     private LocalDateTime createTime;
 
-    @ApiModelProperty(value = "评论条数")
+   /* @ApiModelProperty(value = "评论条数")
     private Integer commentNum;
 
     @ApiModelProperty(value = "被回复的用户ID")
-    private List<InformationCommentVo> informationCommentVoList;
+    private List<InformationCommentVo> informationCommentVoList;*/
 }
