@@ -2,7 +2,7 @@ package com.chauncy.user.service;
 
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.core.Service;
-import com.chauncy.data.dto.app.user.AddUserDto;
+import com.chauncy.data.dto.app.user.add.AddUserDto;
 
 /**
  * <p>

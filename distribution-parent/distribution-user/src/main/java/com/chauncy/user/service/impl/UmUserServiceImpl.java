@@ -5,7 +5,7 @@ import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.RedisUtil;
 import com.chauncy.common.util.StringUtils;
 import com.chauncy.data.domain.po.user.UmUserPo;
-import com.chauncy.data.dto.app.user.AddUserDto;
+import com.chauncy.data.dto.app.user.add.AddUserDto;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.user.service.IUmUserService;
 import com.chauncy.data.core.AbstractService;
