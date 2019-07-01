@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chauncy.data.mapper.message.information.comment.MmInformationCommentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.message.information.comment.MmInformationCommentPo">
+        <id column="id" property="id" />
+        <result column="user_id" property="userId" />
+        <result column="info_id" property="infoId" />
+        <result column="parent_user_id" property="parentUserId" />
+        <result column="parent_id" property="parentId" />
+        <result column="enabled" property="enabled" />
+        <result column="is_prosecuted" property="isProsecuted" />
+        <result column="remark" property="remark" />
+        <result column="create_time" property="createTime" />
+        <result column="create_by" property="createBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="del_flag" property="delFlag" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, info_id, user_id, parent_user_id, parent_id, enabled, is_prosecuted, remark, create_time, create_by, update_time, update_by, del_flag
+    </sql>
+
+
+    <resultMap id="commentBaseResult" type="com.chauncy.data.vo.manage.message.information.comment.InformationCommentVo">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="parent_user_id" property="parentUserId"/>
+        <result column="create_time" property="createTime"/>
+        <!-- collection定义关联集合类型的属性封装规则
+        offType:指定集合中的元素类型
+        -->
+        <collection property="informationCommentVoList" ofType="com.chauncy.data.vo.manage.message.information.comment.InformationCommentVo">
+            <id column="cId" property="id"/>
+            <result column="cUserId" property="userId"/>
+            <result column="cParentUserId" property="parentUserId"/>
+            <result column="cCreateTime" property="createTime"/>
+        </collection>
+    </resultMap>
+    <select id="searchPaging" resultMap="commentBaseResult">
+        select mic.id, mic.user_id, mic.parent_user_id, mic.create_time,
+                cmic.id as cId, cmic.user_id as cUserId, cmic.parent_user_id as cParentUserId,cmic.create_time as cCreateTime
+        from mm_information_comment mic
+        left join mm_information_comment cmic on (cmic.parent_id = mic.id and cmic.del_flag = 0 and cmic.enabled = 1)
+        <where>
+                and  mic.info_id = #{id} and mic.enabled = 1 and mic.parent_id is null
+        </where>
+    </select>
+
+</mapper>

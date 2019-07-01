@@ -1,4 +1,4 @@
-package com.chauncy.message.information.rel;
+package com.chauncy.message.information.rel.service;
 
 import com.chauncy.data.domain.po.message.information.rel.MmRelInformationGoodsPo;
 import com.chauncy.data.core.Service;
