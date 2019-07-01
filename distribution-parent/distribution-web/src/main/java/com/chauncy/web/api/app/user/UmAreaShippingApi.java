@@ -2,7 +2,7 @@ package com.chauncy.web.api.app.user;
 
 
 import com.chauncy.common.enums.system.ResultCode;
-import com.chauncy.data.dto.app.user.AddAreaDto;
+import com.chauncy.data.dto.app.user.add.AddAreaDto;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.user.ShipAreaVo;

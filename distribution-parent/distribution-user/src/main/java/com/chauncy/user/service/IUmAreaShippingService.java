@@ -1,9 +1,8 @@
 package com.chauncy.user.service;
 
-import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.user.UmAreaShippingPo;
 import com.chauncy.data.core.Service;
-import com.chauncy.data.dto.app.user.AddAreaDto;
+import com.chauncy.data.dto.app.user.add.AddAreaDto;
 import com.chauncy.data.vo.user.ShipAreaVo;
 
 import java.util.List;

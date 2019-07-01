@@ -1,6 +1,6 @@
 package com.chauncy.web.api.app.user;
 
-import com.chauncy.data.dto.app.user.AddUserDto;
+import com.chauncy.data.dto.app.user.add.AddUserDto;
 import com.chauncy.data.vo.JsonViewData;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;

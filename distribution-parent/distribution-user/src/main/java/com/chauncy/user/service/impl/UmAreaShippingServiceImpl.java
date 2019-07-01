@@ -1,14 +1,12 @@
 package com.chauncy.user.service.impl;
 
-import com.chauncy.data.domain.po.area.AreaRegionPo;
 import com.chauncy.data.domain.po.user.UmAreaShippingPo;
-import com.chauncy.data.dto.app.user.AddAreaDto;
+import com.chauncy.data.dto.app.user.add.AddAreaDto;
 import com.chauncy.data.mapper.area.AreaRegionMapper;
 import com.chauncy.data.mapper.user.UmAreaShippingMapper;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.vo.user.ShipAreaVo;
 import com.chauncy.user.service.IUmAreaShippingService;
-import io.swagger.annotations.ApiModel;
 import org.assertj.core.util.Lists;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;

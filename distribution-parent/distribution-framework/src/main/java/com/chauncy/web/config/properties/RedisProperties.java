@@ -1,5 +1,6 @@
 package com.chauncy.web.config.properties;
 
+import com.alibaba.fastjson.support.spring.FastJsonRedisSerializer;
 import com.chauncy.common.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -164,15 +165,16 @@ public class RedisProperties {
      */
     private void initDomainRedisTemplate(RedisTemplate<String, Object> redisTemplate, RedisConnectionFactory factory) {
         //如果不配置Serializer，那么存储的时候缺省使用String，如果用User类型存储，那么会提示错误User can't cast to String！
-
+        FastJsonRedisSerializer<Object> fastJsonRedisSerializer = new FastJsonRedisSerializer<>(Object.class);
+        // 全局开启AutoType，不建议使用
         // key采用String的序列化方式
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         // hash的key也采用String的序列化方式
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
         // hash的value也采用String的序列化方式
-        redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
+        redisTemplate.setHashValueSerializer(fastJsonRedisSerializer/*new GenericJackson2JsonRedisSerializer()*/);
         // value序列化方式采用jackson
-        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        redisTemplate.setValueSerializer(fastJsonRedisSerializer);
         // 开启事务
         redisTemplate.setEnableTransactionSupport(true);
 
