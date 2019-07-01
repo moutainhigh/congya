@@ -34,9 +34,9 @@ public class MyExceptionHandler {
             return new JsonViewData(serviceException.getResultCode(),serviceException.getLocalizedMessage());
         }else if (e instanceof MethodArgumentNotValidException){
             FieldError fieldError = ((MethodArgumentNotValidException) e).getBindingResult().getFieldError();
-            String errorMessage= fieldError.getDefaultMessage();
+            Object errorMessage= fieldError.getDefaultMessage();
             String field=fieldError.getField();
-            String value=fieldError.getRejectedValue().toString();
+            Object value=fieldError.getRejectedValue();
             return new JsonViewData(ResultCode.PARAM_ERROR,String.format("【%s】为【%s】:%s",field,value,errorMessage));
             }
         return new JsonViewData(ResultCode.SYSTEM_ERROR,e.getMessage());
