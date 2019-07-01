@@ -46,7 +46,7 @@ public class GoodCategoryDto {
     private BigDecimal taxRate;
 
     @ApiModelProperty(value = "父分类ID,一级分类时这个字段不传或为空")
-    @NeedExistConstraint(tableName = "pm_goods_category")
+    @NeedExistConstraint(tableName = "pm_goods_category",message = "数据库不存在！")
     private Long parentId;
 
     @ApiModelProperty(value = "分类总共三级")

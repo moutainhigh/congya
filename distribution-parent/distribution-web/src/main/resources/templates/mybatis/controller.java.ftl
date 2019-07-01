@@ -3,6 +3,7 @@ package ${package.Controller};
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.beans.factory.annotation.Autowired;
+import io.swagger.annotations.Api;
 import ${package.Service}.${table.serviceName};
 
 <#if restControllerStyle>
@@ -28,6 +29,7 @@ import ${superControllerClassPackage};
 @Controller
 </#if>
 @RequestMapping("<#--<#if package.ModuleName??>/${package.ModuleName}</#if>/--><#if controllerMappingHyphenStyle??>${controllerMappingHyphen}<#else>${table.entityPath}</#if>")
+@Api(tags = "${table.comment!}")
 <#if kotlin>
 class ${table.controllerName}<#if superControllerClass??> : ${superControllerClass}()</#if>
 <#else>

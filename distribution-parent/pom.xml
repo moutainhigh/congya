@@ -21,6 +21,7 @@
         <module>distribution-store</module>
         <module>distribution-user</module>
         <module>distribution-message</module>
+        <module>distribution-order</module>
     </modules>
     <packaging>pom</packaging>
     <description>搭建分销系统</description>

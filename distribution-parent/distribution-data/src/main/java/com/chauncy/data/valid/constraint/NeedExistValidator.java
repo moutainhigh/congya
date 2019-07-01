@@ -50,6 +50,12 @@ public class NeedExistValidator implements ConstraintValidator<NeedExistConstrai
         if (value==null|| StringUtils.isBlank(value.toString())){
             return true;
         }
+        //long类型特殊处理，前端有时候空的会传0
+        if (value instanceof Long){
+            if (Long.parseLong(value.toString())==0){
+                return true;
+            }
+        }
         //如果传的是集合就要一个个验证
         if (value instanceof List ||value.getClass().isArray()){
             //object转list

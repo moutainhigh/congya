@@ -6,7 +6,6 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.JSONUtils;
 import com.chauncy.common.util.ListUtil;
-import com.chauncy.data.domain.BaseTree;
 import com.chauncy.data.domain.MyBaseTree;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
@@ -14,18 +13,18 @@ import com.chauncy.data.domain.po.product.PmGoodsRelAttributeCategoryPo;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.good.add.GoodCategoryDto;
 import com.chauncy.data.dto.manage.good.delete.GoodCategoryDeleteDto;
-import com.chauncy.data.dto.manage.good.select.SearchAttributeByNamePageDto;
 import com.chauncy.data.dto.manage.good.select.SearchGoodCategoryDto;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
-import com.chauncy.data.vo.manage.product.*;
+import com.chauncy.data.vo.manage.product.AttributeIdNameTypeVo;
+import com.chauncy.data.vo.manage.product.CategoryRelAttributeVo;
+import com.chauncy.data.vo.manage.product.GoodsCategoryTreeVo;
+import com.chauncy.data.vo.manage.product.SearchCategoryVo;
 import com.chauncy.product.service.IPmGoodsAttributeService;
 import com.chauncy.product.service.IPmGoodsCategoryService;
 import com.chauncy.product.service.IPmGoodsRelAttributeCategoryService;
 import com.chauncy.product.service.IPmGoodsSkuCategoryAttributeRelationService;
 import com.chauncy.web.base.BaseApi;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -50,7 +49,7 @@ import java.util.stream.Collectors;
  * @author zhangrt
  * @since 2019-05-21
  */
-@Api(description = "商品分类管理接口")
+@Api(tags = "平台_商品管理_商品分类管理接口")
 @RestController
 @RequestMapping("/manage/product/category")
 @Slf4j
@@ -104,8 +103,13 @@ public class PmGoodsCategoryApi extends BaseApi {
     @ApiOperation(value = "编辑商品分类")
     @Transactional(rollbackFor = Exception.class)
     public JsonViewData update(@RequestBody @Validated(IUpdateGroup.class)  @ApiParam(required = true, name = "goodCategoryDto", value = "分类相关信息")
-                                              GoodCategoryDto goodCategoryDto,
-                                      BindingResult result) {
+                                              GoodCategoryDto goodCategoryDto
+                                      ) {
+
+        //特殊处理，空的前端传成了0
+        if (goodCategoryDto.getParentId()==0){
+            goodCategoryDto.setParentId(null);
+        }
         //验证分类关联属性能否被修改
         validUpdateRelCategoryAndAttribute(goodCategoryDto.getGoodAttributeIds(),goodCategoryDto.getId());
         //先修改分类
@@ -161,7 +165,7 @@ public class PmGoodsCategoryApi extends BaseApi {
         }
         notAllowDelAttributes.forEach(x->{
             if (!goodAttributeIds.contains(x.getId())){
-                throw new ServiceException(ResultCode.PARAM_ERROR,"修改出错，%属性不允许删除：已被该分类下的商品所关联",x.getName());
+                throw new ServiceException(ResultCode.PARAM_ERROR,"修改出错，%s属性不允许删除：已被该分类下的商品所关联",x.getName());
             }
         });
 
@@ -239,13 +243,14 @@ public class PmGoodsCategoryApi extends BaseApi {
     @ApiOperation(value = "查找所有属性")
     public JsonViewData<CategoryRelAttributeVo> findAttribute(){
         //这里只能硬编码   查出分类下需要查找的各种属性
-        List<AttributeIdNameTypeVo> attributeIdNameTypeVos = attributeService.findAttributeIdNameTypeVos(Lists.newArrayList(7, 4, 1, 6));
+        List<AttributeIdNameTypeVo> attributeIdNameTypeVos = attributeService.findAttributeIdNameTypeVos(Lists.newArrayList(3,7, 4, 1, 6));
         Map<Integer,List<AttributeIdNameTypeVo>> map=attributeIdNameTypeVos.stream().collect(Collectors.groupingBy(AttributeIdNameTypeVo::getType));
         CategoryRelAttributeVo categoryRelAttributeVo=new CategoryRelAttributeVo();
         categoryRelAttributeVo.setAttributeList(map.get(4));
         categoryRelAttributeVo.setPurchaseList(map.get(6));
         categoryRelAttributeVo.setServiceList(map.get(1));
         categoryRelAttributeVo.setSpecificationList(map.get(7));
+        categoryRelAttributeVo.setActivityList(map.get(3));
         return setJsonViewData(categoryRelAttributeVo);
     }
 
