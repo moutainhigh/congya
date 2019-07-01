@@ -1,3 +1,5 @@
+package com.chauncy.common.util.third;
+
 import com.aliyuncs.CommonRequest;
 import com.aliyuncs.CommonResponse;
 import com.aliyuncs.DefaultAcsClient;

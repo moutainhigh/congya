@@ -207,7 +207,7 @@ public class CreateVerifyCode {
      * @param n
      * @return
      */
-    public String randomNumber(int n) {
+    public static String randomNumber(int n) {
         String str1 = "1234567890";
         String str2 = "";
         double r;
