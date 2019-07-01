@@ -55,5 +55,23 @@ public class OmEvaluatePo implements Serializable {
     @ApiModelProperty(value = "sku Id")
     private Long skuId;
 
+    @ApiModelProperty(value = "评价父ID")
+    private Long parentId;
+
+    @ApiModelProperty(value = "宝贝描述星级")
+    private Integer descriptionStartLevel;
+
+    @ApiModelProperty(value = "物流服务星级")
+    private Integer shipStartLevel;
+
+    @ApiModelProperty(value = "服务态度星级")
+    private Integer attitudeStartLevel;
+
+    @ApiModelProperty(value = "评论内容")
+    private String content;
+
+    @ApiModelProperty(value = "评价图片")
+    private String picture;
+
 
 }

@@ -2,6 +2,7 @@ package com.chauncy.order.evaluate.service;
 
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.order.OmEvaluatePo;
+import com.chauncy.data.dto.app.order.evaluate.AddValuateDto;
 
 /**
  * <p>
@@ -13,4 +14,11 @@ import com.chauncy.data.domain.po.order.OmEvaluatePo;
  */
 public interface IOmEvaluateService extends Service<OmEvaluatePo> {
 
+    /**
+     * 用户进行商品评价
+     *
+     * @param addValuateDto
+     * @return
+     */
+    void addEvaluate(AddValuateDto addValuateDto);
 }
