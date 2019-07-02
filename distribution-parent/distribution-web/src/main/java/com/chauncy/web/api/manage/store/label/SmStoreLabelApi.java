@@ -124,7 +124,7 @@ public class SmStoreLabelApi extends BaseApi {
                                              @PathVariable Long[] ids) {
 
         smStoreLabelService.delStoreLabelByIds(ids);
-        return new JsonViewData(ResultCode.SUCCESS, "批量删除标签成功");
+        return new JsonViewData(ResultCode.SUCCESS, "删除成功");
     }
 
 }

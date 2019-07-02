@@ -95,7 +95,7 @@
 
 
     <select id="searchRelGoodsByInfoId" resultType="com.chauncy.data.vo.supplier.InformationRelGoodsVo">
-    SELECT pg.id, pg.`name`, pg.goods_category_id, Min(pgs.sell_price) AS sell_price,pg.goods_type
+    SELECT mrig.id, pg.`name`, pg.goods_category_id, Min(pgs.sell_price) AS sell_price,pg.goods_type
     FROM mm_rel_information_goods mrig
          LEFT JOIN pm_goods pg on (pg.id = mrig.goods_id and pg.del_flag = 0)
          LEFT JOIN pm_goods_sku pgs on (pg.id = pgs.goods_id and pgs.del_flag = 0)

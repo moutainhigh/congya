@@ -3,7 +3,10 @@ package com.chauncy.message.information.service;
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.manage.message.information.add.InformationDto;
+import com.chauncy.data.dto.manage.message.information.select.InformationSearchDto;
+import com.chauncy.data.vo.manage.message.information.InformationPageInfoVo;
 import com.chauncy.data.vo.manage.message.information.InformationVo;
+import com.github.pagehelper.PageInfo;
 
 /**
  * <p>
@@ -38,4 +41,18 @@ public interface IMmInformationService extends Service<MmInformationPo> {
      * @return
      */
     InformationVo findById(Long id);
+
+    /**
+     * 根据关联ID删除资讯跟店铺的绑定关系
+     * @param id 资讯商品关联id
+     * @return
+     */
+    void delRelById(Long id);
+
+    /**
+     * 分页条件查询
+     * @param informationSearchDto
+     * @return
+     */
+    PageInfo<InformationPageInfoVo> searchPaging(InformationSearchDto informationSearchDto);
 }

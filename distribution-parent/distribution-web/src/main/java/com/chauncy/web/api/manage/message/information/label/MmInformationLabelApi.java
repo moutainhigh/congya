@@ -132,7 +132,7 @@ public class MmInformationLabelApi extends BaseApi {
                                  @PathVariable Long[] ids) {
 
         mmInformationLabelService.delInformationLabelByIds(ids);
-        return new JsonViewData(ResultCode.SUCCESS, "批量删除标签成功");
+        return new JsonViewData(ResultCode.SUCCESS, "删除标签成功");
     }
 
 

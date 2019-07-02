@@ -1,9 +1,9 @@
-package com.chauncy.message.information.rel.service;
+package com.chauncy.message.information.rel.service.impl;
 
 import com.chauncy.data.domain.po.message.information.rel.MmRelInformationGoodsPo;
 import com.chauncy.data.mapper.message.information.rel.MmRelInformationGoodsMapper;
 import com.chauncy.data.core.AbstractService;
-import com.chauncy.message.information.rel.IMmRelInformationGoodsService;
+import com.chauncy.message.information.rel.service.IMmRelInformationGoodsService;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 

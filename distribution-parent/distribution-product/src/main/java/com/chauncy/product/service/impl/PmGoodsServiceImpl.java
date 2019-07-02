@@ -1221,15 +1221,24 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
         AttributeVo attributeVo = new AttributeVo();
 
-        List<String> typeList = Arrays.stream(GoodsTypeEnum.values()).map(a -> a.getName()).collect(Collectors.toList());
-        List<BaseVo> brandList = goodsAttributeMapper.findAttByType(GoodsAttributeTypeEnum.BRAND.getId());
-        List<BaseVo> labelList = goodsAttributeMapper.findAttByType(GoodsAttributeTypeEnum.LABEL.getId());
-        List<BaseVo> platformServiceList = goodsAttributeMapper.findAttByTypeAndCat(categoryId,GoodsAttributeTypeEnum.PLATFORM_SERVICE.getId());
+        List<String> typeList = Lists.newArrayList();
+        List<BaseVo> brandList = Lists.newArrayList();
+        List<BaseVo> labelList = Lists.newArrayList();
+        List<BaseVo> platformServiceList = Lists.newArrayList();
+        List<BaseVo> merchantServiceList = Lists.newArrayList();
+        List<BaseVo> paramList = Lists.newArrayList();
+        List<BaseVo> platformShipList = Lists.newArrayList();
+        List<BaseVo> merchantShipList = Lists.newArrayList();
+
+        typeList = Arrays.stream(GoodsTypeEnum.values()).map(a -> a.getName()).collect(Collectors.toList());
+        brandList = goodsAttributeMapper.findAttByType(GoodsAttributeTypeEnum.BRAND.getId());
+        labelList = goodsAttributeMapper.findAttByType(GoodsAttributeTypeEnum.LABEL.getId());
+        platformServiceList = goodsAttributeMapper.findAttByTypeAndCat(categoryId,GoodsAttributeTypeEnum.PLATFORM_SERVICE.getId());
         //商家服务说明
-        List<BaseVo> merchantServiceList = goodsAttributeMapper.findAttByType(GoodsAttributeTypeEnum.MERCHANT_SERVICE.getId());
-        List<BaseVo> paramList = goodsAttributeMapper.findAttByTypeAndCat(categoryId,GoodsAttributeTypeEnum.GOODS_PARAM.getId());
-        List<BaseVo> platformShipList = shippingTemplateMapper.findByType(GoodsShipTemplateEnum.PLATFORM_SHIP.getId());
-        List<BaseVo> merchantShipList = shippingTemplateMapper.findByType(GoodsShipTemplateEnum.MERCHANT_SHIP.getId());
+        merchantServiceList = goodsAttributeMapper.findAttByType(GoodsAttributeTypeEnum.MERCHANT_SERVICE.getId());
+        paramList = goodsAttributeMapper.findAttByTypeAndCat(categoryId,GoodsAttributeTypeEnum.GOODS_PARAM.getId());
+        platformShipList = shippingTemplateMapper.findByType(GoodsShipTemplateEnum.PLATFORM_SHIP.getId());
+        merchantShipList = shippingTemplateMapper.findByType(GoodsShipTemplateEnum.MERCHANT_SHIP.getId());
 
         String categoryName = goodsCategoryMapper.selectById(categoryId).getName();
 

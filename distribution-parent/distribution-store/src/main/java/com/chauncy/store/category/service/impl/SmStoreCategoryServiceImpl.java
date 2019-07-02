@@ -37,7 +37,7 @@ import java.util.Map;
  * @since 2019-06-16
  */
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 public class SmStoreCategoryServiceImpl extends AbstractService<SmStoreCategoryMapper, SmStoreCategoryPo> implements ISmStoreCategoryService {
 
     @Autowired

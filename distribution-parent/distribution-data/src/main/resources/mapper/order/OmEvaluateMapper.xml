@@ -4,20 +4,20 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.order.OmEvaluatePo">
-        <id column="id" property="id" />
-        <result column="create_by" property="createBy" />
-        <result column="create_time" property="createTime" />
-        <result column="update_by" property="updateBy" />
-        <result column="update_time" property="updateTime" />
-        <result column="del_flag" property="delFlag" />
-        <result column="order_id" property="orderId" />
-        <result column="sku_id" property="skuId" />
-        <result column="parent_id" property="parentId" />
-        <result column="description_start_level" property="descriptionStartLevel" />
-        <result column="ship_start_level" property="shipStartLevel" />
-        <result column="attitude_start_level" property="attitudeStartLevel" />
-        <result column="content" property="content" />
-        <result column="picture" property="picture" />
+        <id column="id" property="id"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="order_id" property="orderId"/>
+        <result column="sku_id" property="skuId"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="description_start_level" property="descriptionStartLevel"/>
+        <result column="ship_start_level" property="shipStartLevel"/>
+        <result column="attitude_start_level" property="attitudeStartLevel"/>
+        <result column="content" property="content"/>
+        <result column="picture" property="picture"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
@@ -25,5 +25,45 @@
         id, create_by, create_time, update_by, update_time, del_flag, order_id, sku_id,parent_id,description_start_level,
         ship_start_level,attitude_start_level,content,picture
     </sql>
+
+    <select id="getGoodsEvaluate" resultType="com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo">
+        select a.photo as icon,a.name as nick_name,b.content,b.picture,b.id
+        from um_user a,om_evaluate b,om_order c
+        <where>
+            isNull(b.parent_id) and b.order_id = c.id and c.um_user_id=a.id
+            <if test="t.skuId!=null">
+                and b.sku_id=#{t.skuId}
+            </if>
+        </where>
+        order by b.create_time
+    </select>
+
+    <select id="getPersonalEvaluate" resultType="com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo">
+        select a.photo as icon,a.name as nick_name,b.content,b.picture,b.sku_id,b.id
+        from um_user a,om_evaluate b,om_order c
+        <where>
+            c.id = b.order_id and c.um_user_id = a.id and c.evaluate_status = 2 and isNull(b.parent_id)
+            <if test="userId !=null">
+                and c.um_user_id = #{userId}
+            </if>
+        </where>
+    </select>
+
+    <select id="searchEvaluate" resultType="com.chauncy.data.vo.supplier.evaluate.SearchEvaluateVo">
+        select b.id as user_id,b.name as nick_name,b.phone,c.name as goods_name,e.sku_id,e.id as evaluate_id,e.description_start_level,
+               e.picture,e.content,e.create_time,a.id as order_id
+        from om_order a,um_user b,pm_goods c,pm_goods_sku d,om_evaluate e,sm_store f
+        <where> a.evaluate_status = 2 and a.id = e.order_id and e.sku_id = d.id and d.goods_id = c.id and a.um_user_id = b.id
+		      and ISNULL(e.parent_id) and a.store_id = f.id
+		      <if test="evaluate.storeId!=null">
+                  and a.store_id = #{evaluate.storeId}
+              </if>
+        </where>
+        order by e.create_time
+    </select>
+    <select id="getEvaluate" resultType="com.chauncy.data.vo.supplier.evaluate.EvaluateVo">
+        select *
+        from om_evaluate a,
+    </select>
 
 </mapper>

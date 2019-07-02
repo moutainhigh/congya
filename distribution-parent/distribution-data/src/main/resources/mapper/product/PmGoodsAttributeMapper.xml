@@ -69,7 +69,7 @@
     <select id="findAttByTypeAndCat" resultType="com.chauncy.data.vo.BaseVo">
         SELECT b.id,b.name
         FROM pm_goods_rel_attribute_category a, pm_goods_attribute b
-        where b.type=#{type} and a.goods_category_id= #{categoryId} and a.goods_attribute_id = b.id and b.enabled = 1
+        where a.del_flag = 0 and b.type=#{type} and a.goods_category_id= #{categoryId} and a.goods_attribute_id = b.id and b.enabled = 1
     </select>
 
     <!--<resultMap id="GoodsStandardVo" type="com.chauncy.data.vo.supplier.GoodsStandardVo   <result column="value_name" property="valueName"/>
