@@ -13,6 +13,7 @@
         <result column="store_id" property="storeId" />
         <result column="sort" property="sort" />
         <result column="cover_image" property="coverImage" />
+        <result column="pure_text" property="pureText" />
         <result column="detail_html" property="detailHtml" />
         <result column="verify_status" property="verifyStatus" />
         <result column="browsing_num" property="browsingNum" />
@@ -32,7 +33,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, title, author, enabled, info_label_id, info_category_id, store_id, sort, cover_image, text, verify_status, browsing_num, forward_num, comment_num, liked_num, collection_num, remark, verify_time, verify_by, create_time, create_by, update_time, update_by, del_flag
+        id, title, author, enabled, info_label_id, info_category_id, store_id, sort, cover_image, pure_text, detail_html, verify_status, browsing_num, forward_num, comment_num, liked_num, collection_num, remark, verify_time, verify_by, create_time, create_by, update_time, update_by, del_flag
     </sql>
 
 
@@ -44,7 +45,7 @@
     </select>
 
 
-    <select id="searchPaging" resultType="com.chauncy.data.vo.manage.message.information.InformationPageInfoVo">
+    <select id="searchInfoPaging" resultType="com.chauncy.data.vo.manage.message.information.InformationPageInfoVo">
         select mi.id, mi.title, mi.enabled, mi.sort, mi.verify_status, mi.update_time, mil.name as infoLabelName, mic.name as infoCategoryName
         from mm_information mi
         left join mm_information_label mil on (mil.id = mi.info_label_id and mil.del_flag = 0)
@@ -65,6 +66,35 @@
             </if>
         </where>
         order by mi.sort desc
+    </select>
+
+    <select id="searchInfoBasePaging" resultType="com.chauncy.data.vo.app.message.information.InformationPagingVo">
+        select mi.id, mi.title, mi.update_time, left(mi.pure_text,100) as pureText , mi.author, mi.browsing_num
+        from mm_information mi
+        <where>
+            mi.del_flag = 0
+            <if test="infoLabelId !=null and infoLabelId !=0 ">
+                and mi.info_label_id = #{infoLabelId}
+            </if>
+            <if test="infoCategoryId != null and infoCategoryId !=0">
+                and mi.info_category_id = #{infoCategoryId}
+            </if>
+            <if test="keyword != null and keyword !=''">
+                and (mi.title  like concat('%', #{keyword}, '%') or mi.pure_text  like concat('%', #{keyword}, '%'))
+            </if>
+            <if test="informationTypeEnum != null and informationTypeEnum.getId() == 1">
+            /*关注店铺*/
+                and
+            </if>
+        </where>
+        <choose>
+            <when test="informationTypeEnum != null and informationTypeEnum.getId() == 2">
+                order by mi.sort desc
+            </when>
+            <otherwise>
+                order by mi.browsing_num desc
+            </otherwise>
+        </choose>
     </select>
 
 </mapper>

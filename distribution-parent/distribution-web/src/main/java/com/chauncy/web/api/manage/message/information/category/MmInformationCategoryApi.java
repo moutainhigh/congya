@@ -25,7 +25,7 @@ import javax.validation.Valid;
  * @author yeJH
  * @since 2019/6/25 17:59
  */
-@Api(tags = "平台_店铺资讯分类管理接口")
+@Api(tags = "平台_店铺资讯_分类管理接口")
 @RestController
 @RequestMapping("/manage/information/category")
 @Slf4j

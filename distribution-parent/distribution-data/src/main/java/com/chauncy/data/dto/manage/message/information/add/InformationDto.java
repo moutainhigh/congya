@@ -60,8 +60,12 @@ public class InformationDto  implements Serializable {
     @NotBlank(message = "封面图片不能为空")
     private String coverImage;
 
-    @ApiModelProperty(value = "资讯正文")
+    @ApiModelProperty(value = "资讯正文带格式文本")
     @NotBlank(message = "资讯正文不能为空")
     private String detailHtml;
+
+    @ApiModelProperty(value = "资讯正文纯文本")
+    @NotBlank(message = "资讯正文不能为空")
+    private String  pureText ;
 
 }

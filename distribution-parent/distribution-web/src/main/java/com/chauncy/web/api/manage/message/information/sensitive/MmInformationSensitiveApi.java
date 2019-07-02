@@ -25,7 +25,7 @@ import javax.validation.Valid;
  * @author yeJH
  * @since 2019/6/26 13:03
  */
-@Api(tags = "平台_店铺资讯敏感词管理接口")
+@Api(tags = "平台_店铺资讯_敏感词管理接口")
 @RestController
 @RequestMapping("/manage/information/sensitive")
 @Slf4j

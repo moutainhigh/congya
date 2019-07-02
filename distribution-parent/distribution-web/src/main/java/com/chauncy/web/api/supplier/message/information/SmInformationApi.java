@@ -1,4 +1,4 @@
-package com.chauncy.web.api.supplier.message;
+package com.chauncy.web.api.supplier.message.information;
 
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
@@ -32,7 +32,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/supplier/information")
 @Slf4j
-public class MsInformationApi extends BaseApi {
+public class SmInformationApi extends BaseApi {
 
     @Autowired
     private IMmInformationService mmInformationService;

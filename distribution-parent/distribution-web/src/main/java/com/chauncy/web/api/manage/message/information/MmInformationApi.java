@@ -21,6 +21,6 @@ public class MmInformationApi extends BaseApi {
     @Autowired
     private IMmInformationService mmInformationService;
 
-
+    // todo 审核资讯
 
 }

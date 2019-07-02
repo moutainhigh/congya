@@ -23,7 +23,7 @@ import javax.validation.Valid;
  * @author yeJH
  * @since 2019/6/30 16:26
  */
-@Api(tags = "平台_店铺资讯评论管理接口")
+@Api(tags = "平台_店铺资讯_评论管理接口")
 @RestController
 @RequestMapping("/manage/information/comment")
 @Slf4j

@@ -44,8 +44,6 @@ public class MmInformationPo implements Serializable {
     @TableField(condition = SqlCondition.LIKE)
     private String title;
 
-    @ApiModelProperty(value = "作者")
-    private String author;
 
     @ApiModelProperty(value = "是否启用 1-是 0-否 默认为0")
     private Boolean enabled;
@@ -68,7 +66,10 @@ public class MmInformationPo implements Serializable {
     @ApiModelProperty(value = "封面图片")
     private String coverImage;
 
-    @ApiModelProperty(value = "资讯正文")
+    @ApiModelProperty(value = "资讯正文纯文本")
+    private String  pureText ;
+
+    @ApiModelProperty(value = "资讯正文带格式文本")
     private String detailHtml;
 
     @ApiModelProperty(value = " 1-未审核 2-待审核 3-审核通过 4-不通过/驳回")
