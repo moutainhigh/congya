@@ -44,4 +44,27 @@
     </select>
 
 
+    <select id="searchPaging" resultType="com.chauncy.data.vo.manage.message.information.InformationPageInfoVo">
+        select mi.id, mi.title, mi.enabled, mi.sort, mi.verify_status, mi.update_time, mil.name as infoLabelName, mic.name as infoCategoryName
+        from mm_information mi
+        left join mm_information_label mil on (mil.id = mi.info_label_id and mil.del_flag = 0)
+        left join mm_information_category mic on (mic.id = mi.info_category_id and mil.del_flag = 0)
+        <where>
+            mi.del_flag = 0
+            <if test="id !=null and id !=''">
+                and mi.id = #{id}
+            </if>
+            <if test="name != null and name !=''">
+                and mi.name like concat('%', #{name}, '%')
+            </if>
+            <if test="startTime != null">
+                and date(mi.create_time) <![CDATA[<= ]]>  #{startTime}
+            </if>
+            <if test="endTime != null">
+                and date(mi.create_time) <![CDATA[<= ]]> #{endTime}
+            </if>
+        </where>
+        order by mi.sort desc
+    </select>
+
 </mapper>

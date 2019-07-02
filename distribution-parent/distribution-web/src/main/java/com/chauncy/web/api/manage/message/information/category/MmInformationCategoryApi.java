@@ -132,7 +132,7 @@ public class MmInformationCategoryApi extends BaseApi {
                                  @PathVariable Long[] ids) {
 
         mmInformationCategoryService.delInformationCategoryByIds(ids);
-        return new JsonViewData(ResultCode.SUCCESS, "批量删除分类成功");
+        return new JsonViewData(ResultCode.SUCCESS, "删除分类成功");
     }
 
 }

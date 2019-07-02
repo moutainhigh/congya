@@ -132,7 +132,7 @@ public class SmStoreCategoryApi extends BaseApi {
                                            @PathVariable Long[] ids) {
 
         smStoreCategoryService.delStoreCategoryByIds(ids);
-        return new JsonViewData(ResultCode.SUCCESS, "批量删除分类成功");
+        return new JsonViewData(ResultCode.SUCCESS, "删除分类成功");
     }
 
     @PostMapping("/editStatusBatch")

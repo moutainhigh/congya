@@ -1,9 +1,9 @@
 package com.chauncy.web.controller.information.rel;
 
 
+import com.chauncy.message.information.rel.service.IMmRelInformationGoodsService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.chauncy.message.information.rel.IMmRelInformationGoodsService;
 
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("mm-rel-information-goods-po")
 public class MmRelInformationGoodsController {
 
- @Autowired
- private IMmRelInformationGoodsService service;
+    @Autowired
+    private IMmRelInformationGoodsService service;
 
 
 }

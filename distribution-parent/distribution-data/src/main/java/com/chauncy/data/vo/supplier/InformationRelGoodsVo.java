@@ -18,7 +18,7 @@ public class InformationRelGoodsVo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty("商品ID")
+    @ApiModelProperty("关联ID")
     private Long id;
 
     @ApiModelProperty("商品名称")

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.time.LocalDateTime;
@@ -61,6 +62,7 @@ public class MmInformationCategoryPo implements Serializable {
     private String updateBy;
 
     @ApiModelProperty(value = "删除标志 默认0")
+    @TableLogic
     private Boolean delFlag;
 
 

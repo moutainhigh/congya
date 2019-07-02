@@ -1,6 +1,7 @@
 package com.chauncy.data.core;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import org.apache.ibatis.annotations.Param;
 
 import java.io.Serializable;
@@ -44,4 +45,12 @@ public interface Service<T> extends IService<T>{
      * @return
      */
     List<Long> findIdByNamesInAndTableName(List<String> names, String tableName, String concatWhereSql);
+
+
+    /**
+     * 批量禁用启用
+     *
+     * @param baseUpdateStatusDto
+     */
+    void editEnabledBatch(BaseUpdateStatusDto baseUpdateStatusDto);
 }

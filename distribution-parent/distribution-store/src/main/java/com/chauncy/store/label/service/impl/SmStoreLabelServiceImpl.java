@@ -30,7 +30,7 @@ import java.util.Map;
  * @since 2019/6/15 19:26
  */
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 public class SmStoreLabelServiceImpl extends AbstractService<SmStoreLabelMapper, SmStoreLabelPo> implements ISmStoreLabelService {
 
     @Autowired
