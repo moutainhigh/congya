@@ -6,8 +6,12 @@ import com.chauncy.data.domain.po.order.OmEvaluatePo;
 import com.chauncy.data.dto.app.order.evaluate.add.AddValuateDto;
 import com.chauncy.data.dto.app.order.evaluate.add.SearchEvaluateDto;
 import com.chauncy.data.dto.app.order.evaluate.select.GetPersonalEvaluateDto;
+import com.chauncy.data.dto.supplier.good.select.SearchEvaluatesDto;
 import com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo;
+import com.chauncy.data.vo.supplier.evaluate.EvaluateVo;
+import com.chauncy.data.vo.supplier.evaluate.SearchEvaluateVo;
 import com.github.pagehelper.PageInfo;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 /**
  * <p>
@@ -40,4 +44,11 @@ public interface IOmEvaluateService extends Service<OmEvaluatePo> {
      * @return
      */
     PageInfo<GoodsEvaluateVo> getPersonalEvaluate(GetPersonalEvaluateDto getPersonalEvaluateDto);
+
+    /**
+     * 条件查询评价信息
+     * @param searchEvaluateDto
+     * @return
+     */
+    PageInfo<SearchEvaluateVo> searchEvaluate(SearchEvaluatesDto searchEvaluateDto);
 }

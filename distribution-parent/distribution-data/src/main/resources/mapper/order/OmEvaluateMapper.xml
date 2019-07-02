@@ -49,4 +49,21 @@
         </where>
     </select>
 
+    <select id="searchEvaluate" resultType="com.chauncy.data.vo.supplier.evaluate.SearchEvaluateVo">
+        select b.id as user_id,b.name as nick_name,b.phone,c.name as goods_name,e.sku_id,e.id as evaluate_id,e.description_start_level,
+               e.picture,e.content,e.create_time,a.id as order_id
+        from om_order a,um_user b,pm_goods c,pm_goods_sku d,om_evaluate e,sm_store f
+        <where> a.evaluate_status = 2 and a.id = e.order_id and e.sku_id = d.id and d.goods_id = c.id and a.um_user_id = b.id
+		      and ISNULL(e.parent_id) and a.store_id = f.id
+		      <if test="evaluate.storeId!=null">
+                  and a.store_id = #{evaluate.storeId}
+              </if>
+        </where>
+        order by e.create_time
+    </select>
+    <select id="getEvaluate" resultType="com.chauncy.data.vo.supplier.evaluate.EvaluateVo">
+        select *
+        from om_evaluate a,
+    </select>
+
 </mapper>

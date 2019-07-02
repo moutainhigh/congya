@@ -1,4 +1,4 @@
-package com.chauncy.data.vo.app.evaluate;
+package com.chauncy.data.vo.supplier.evaluate;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -6,13 +6,13 @@ import lombok.Data;
 
 /**
  * @Author cheng
- * @create 2019-07-01 12:38
+ * @create 2019-07-02 14:32
  *
  * 获取商品对应的所有评价信息
  */
 @Data
 @ApiModel(description = "获取商品对应的所有评价信息")
-public class GoodsEvaluateVo {
+public class EvaluateVo {
 
     @ApiModelProperty("用户昵称")
     private String nickName;

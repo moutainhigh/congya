@@ -34,6 +34,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
+        /*String args[]  = username.split("/");
+        String loginName = args[0];
+        String type = args[1];*/
+
         String flagKey = "loginFailFlag:"+username;
         String value = redisTemplate.opsForValue().get(flagKey);
         Long timeRest = redisTemplate.getExpire(flagKey, TimeUnit.MINUTES);
@@ -41,6 +45,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             //超过限制次数
             throw new LoginFailLimitException("登录错误次数超过限制，请"+timeRest+"分钟后再试");
         }
+
         SysUserPo user = userService.findByUsername(username);
         return new SecurityUserDetails(user);
     }

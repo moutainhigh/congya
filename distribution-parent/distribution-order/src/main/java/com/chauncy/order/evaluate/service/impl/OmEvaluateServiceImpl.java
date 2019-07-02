@@ -2,21 +2,19 @@ package com.chauncy.order.evaluate.service.impl;
 
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.order.OmEvaluatePo;
-import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.evaluate.add.AddValuateDto;
 import com.chauncy.data.dto.app.order.evaluate.add.SearchEvaluateDto;
 import com.chauncy.data.dto.app.order.evaluate.select.GetPersonalEvaluateDto;
+import com.chauncy.data.dto.supplier.good.select.SearchEvaluatesDto;
 import com.chauncy.data.mapper.order.OmEvaluateMapper;
-import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
-import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo;
-import com.chauncy.data.vo.supplier.PmGoodsVo;
+import com.chauncy.data.vo.supplier.evaluate.EvaluateVo;
+import com.chauncy.data.vo.supplier.evaluate.SearchEvaluateVo;
 import com.chauncy.order.evaluate.service.IOmEvaluateService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.google.common.collect.Lists;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,12 +36,6 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
 
     @Autowired
     private OmEvaluateMapper mapper;
-
-    @Autowired
-    private OmOrderMapper orderMapper;
-
-    @Autowired
-    private UmUserMapper userMapper;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -120,6 +112,42 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
 
         return getReply(goodsEvaluateVo);
 
+    }
+
+    /**
+     * 条件查询评价信息
+     * @param searchEvaluateDto
+     * @return
+     */
+    @Override
+    public PageInfo<SearchEvaluateVo> searchEvaluate(SearchEvaluatesDto searchEvaluateDto) {
+
+        //获取当前用户并判断属于哪种用户
+        Long storeId = securityUtil.getCurrUser().getStoreId();
+        if (storeId!=null){
+            searchEvaluateDto.setStoreId(storeId);
+        }
+        Integer pageNo = searchEvaluateDto.getPageNo() == null ? defaultPageNo : searchEvaluateDto.getPageNo();
+        Integer pageSize = searchEvaluateDto.getPageSize() == null ? defaultPageSize : searchEvaluateDto.getPageSize();
+
+        PageInfo<SearchEvaluateVo> searchEvaluateVo = PageHelper.startPage(pageNo,pageSize)
+                .doSelectPageInfo(()->mapper.searchEvaluate(searchEvaluateDto));
+        //获取评价信息
+        if (searchEvaluateVo.getList().size() != 0 && searchEvaluateVo.getList() != null) {
+            searchEvaluateVo.getList().forEach(a -> {
+                //用户的评价
+                EvaluateVo evaluateVo1 = mapper.getEvaluate(a.getOrderId(),a.getSku_id());
+
+                Map<String, Object> map1 = new HashMap<>();
+                map1.put("parent_id", a.getEvaluateId());
+                List<OmEvaluatePo> evaluatePo = mapper.selectByMap(map1);
+                if (evaluatePo != null && evaluatePo.size() != 0) {
+                    EvaluateVo evaluateVo = new EvaluateVo();
+
+                }
+            });
+        }
+        return searchEvaluateVo;
     }
 
     /**

@@ -75,7 +75,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 // 设置UserDetailsService
                 .userDetailsService(userDetailsService)
                 // 使用BCrypt进行密码的hash
-                .passwordEncoder(new BCryptPasswordEncoder());
+                .passwordEncoder(new BCryptPasswordEncoder());/**/
     }
 
     @Override
@@ -109,7 +109,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .logout()
 //                    .logoutUrl("/signOut")
-                .logoutSuccessUrl("/signOut")
+                .logoutSuccessUrl("/")
                 .permitAll()
                 .and()
                 .authorizeRequests()
