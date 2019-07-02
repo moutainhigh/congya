@@ -3,6 +3,8 @@ package com.chauncy.common.exception.sys;
 import com.chauncy.common.enums.system.ResultCode;
 import lombok.Data;
 
+import javax.security.sasl.AuthenticationException;
+
 /**
  * @author zhangrt
  * @date 2019-05-22

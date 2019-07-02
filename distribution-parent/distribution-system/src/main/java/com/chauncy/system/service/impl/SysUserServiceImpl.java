@@ -31,17 +31,17 @@ import java.util.List;
 @Service
 public class SysUserServiceImpl extends AbstractService<SysUserMapper, SysUserPo> implements ISysUserService {
 
- @Autowired
- private SysUserMapper mapper;
+    @Autowired
+    private SysUserMapper mapper;
 
- @Autowired
- private SysRoleUserMapper userRoleMapper;
+    @Autowired
+    private SysRoleUserMapper userRoleMapper;
 
- @Autowired
- private SysPermissionMapper permissionMapper;
+    @Autowired
+    private SysPermissionMapper permissionMapper;
 
- @Autowired
- private SysDepartmentMapper departmentMapper;
+    @Autowired
+    private SysDepartmentMapper departmentMapper;
 
 // @Autowired
 // private SecurityUtils securityUtil;
@@ -51,70 +51,70 @@ public class SysUserServiceImpl extends AbstractService<SysUserMapper, SysUserPo
 //  return mapper;
 // }
 
- @Override
- public SysUserPo findByUsername(String username) {
+    @Override
+    public SysUserPo findByUsername(String username) {
 
-  List<SysUserPo> list=mapper.findByUsername(username);
-  if(list!=null&&list.size()>0){
-   SysUserPo user = list.get(0);
-   // 关联部门
-   if(StrUtil.isNotBlank(user.getDepartmentId())){
+        List<SysUserPo> list = mapper.findByUsername(username);
+        if (list != null && list.size() > 0) {
+            SysUserPo user = list.get(0);
+            // 关联部门
+            if (StrUtil.isNotBlank(user.getDepartmentId())) {
 
-    SysDepartmentPo conditionSysDep = new SysDepartmentPo();
-    conditionSysDep.setId(user.getDepartmentId());
-    QueryWrapper<SysDepartmentPo> queryWrappers=new QueryWrapper<>(conditionSysDep);
-    SysDepartmentPo querySysDep = departmentMapper.selectOne(queryWrappers);
+                SysDepartmentPo conditionSysDep = new SysDepartmentPo();
+                conditionSysDep.setId(user.getDepartmentId());
+                QueryWrapper<SysDepartmentPo> queryWrappers = new QueryWrapper<>(conditionSysDep);
+                SysDepartmentPo querySysDep = departmentMapper.selectOne(queryWrappers);
 
-    user.setDepartmentTitle(querySysDep.getTitle());
-   }
-   // 关联角色
-   List<SysRolePo> roleList = userRoleMapper.findByUserId(user.getId());
-   user.setRoles(roleList);
-   // 关联权限菜单
-   List<SysPermissionPo> permissionList = permissionMapper.findByUserId(user.getId());
-   user.setPermissions(permissionList);
-   return user;
-  }
-  return null;
- }
+                user.setDepartmentTitle(querySysDep.getTitle());
+            }
+            // 关联角色
+            List<SysRolePo> roleList = userRoleMapper.findByUserId(user.getId());
+            user.setRoles(roleList);
+            // 关联权限菜单
+            List<SysPermissionPo> permissionList = permissionMapper.findByUserId(user.getId());
+            user.setPermissions(permissionList);
+            return user;
+        }
+        return null;
+    }
 
- @Override
- public SysUserPo findByMobile(String mobile) {
+    @Override
+    public SysUserPo findByMobile(String mobile) {
 
-  List<SysUserPo> list = mapper.findByMobile(mobile);
-  if(list!=null&&list.size()>0) {
-   SysUserPo user = list.get(0);
-   return user;
-  }
-  return null;
- }
+        List<SysUserPo> list = mapper.findByMobile(mobile);
+        if (list != null && list.size() > 0) {
+            SysUserPo user = list.get(0);
+            return user;
+        }
+        return null;
+    }
 
- @Override
- public SysUserPo findByEmail(String email) {
+    @Override
+    public SysUserPo findByEmail(String email) {
 
-  List<SysUserPo> list = mapper.findByEmail(email);
-  if(list!=null&&list.size()>0) {
-   SysUserPo user = list.get(0);
-   return user;
-  }
-  return null;
- }
+        List<SysUserPo> list = mapper.findByEmail(email);
+        if (list != null && list.size() > 0) {
+            SysUserPo user = list.get(0);
+            return user;
+        }
+        return null;
+    }
 
- /**
-  * 多条件分页查询待做
-  *
-  * @param user
-  * @param searchVo
-  * @param pageable
-  * @return
-  */
- @Override
- public Page<SysUserPo> findByCondition(SysUserPo user, SearchVo searchVo, Pageable pageable) {
+    /**
+     * 多条件分页查询待做
+     *
+     * @param user
+     * @param searchVo
+     * @param pageable
+     * @return
+     */
+    @Override
+    public Page<SysUserPo> findByCondition(SysUserPo user, SearchVo searchVo, Pageable pageable) {
 
-  QueryWrapper<SysUserPo> queryWrappers=new QueryWrapper<>(user);
-  List<SysUserPo> querySysUserPo = mapper.selectList(queryWrappers);
+        QueryWrapper<SysUserPo> queryWrappers = new QueryWrapper<>(user);
+        List<SysUserPo> querySysUserPo = mapper.selectList(queryWrappers);
 
-  return null;
+        return null;
 
 //  return userDao.findAll(
 //
@@ -182,12 +182,12 @@ public class SysUserServiceImpl extends AbstractService<SysUserMapper, SysUserPo
 //  }, pageable
 //
 //  );
- }
+    }
 
- @Override
- public List<SysUserPo> findByDepartmentId(String departmentId) {
+    @Override
+    public List<SysUserPo> findByDepartmentId(String departmentId) {
 
-  return mapper.findByDepartmentId(departmentId);
- }
+        return mapper.findByDepartmentId(departmentId);
+    }
 
 }

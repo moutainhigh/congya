@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,7 +22,10 @@ import org.springframework.security.config.annotation.web.configurers.Expression
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.web.cors.CorsUtils;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @Author huangwancheng
@@ -69,13 +74,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private SecurityUtil securityUtil;
 
+    @Autowired
+    private AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> authenticationDetailsSource;
+
+    @Autowired
+    private AuthenticationProvider provider;
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth
+        /*auth
                 // 设置UserDetailsService
                 .userDetailsService(userDetailsService)
+
                 // 使用BCrypt进行密码的hash
-                .passwordEncoder(new BCryptPasswordEncoder());
+                .passwordEncoder(new BCryptPasswordEncoder());*/
+
+        auth.authenticationProvider(provider);
     }
 
     @Override
@@ -94,6 +108,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         registry.and()
                 //表单登录方式
                 .formLogin()
+                //增加手机号  验证码等字段
+                .authenticationDetailsSource(authenticationDetailsSource)
                 //请求时未登录跳转接口
                 .loginPage("/common/needLogin")
                 //登录请求url

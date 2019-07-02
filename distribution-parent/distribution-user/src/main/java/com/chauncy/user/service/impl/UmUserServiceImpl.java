@@ -1,5 +1,6 @@
 package com.chauncy.user.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.enums.user.ValidCodeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
@@ -45,7 +46,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         String redisKey=String.format(validCodeEnum.getRedisKey(),phone);
         Object redisValue = redisUtil.get(redisKey);
         if (redisValue==null){
-            throw new ServiceException(ResultCode.FAIL,"验证码错误！");
+            return false;
         }
         if (StringUtils.equals(verifyCode.trim(), redisValue.toString().trim())){
             return true;
@@ -68,5 +69,18 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         saveUser.setInviteCode(SnowFlakeUtil.getFlowIdInstance().nextId());
         saveUser.setCreateBy("test");
         return mapper.insert(saveUser)>0;
+    }
+
+    @Override
+    public boolean reset(AddUserDto addUserDto) {
+        if (!validVerifyCode(addUserDto.getVerifyCode(),addUserDto.getPhone(),ValidCodeEnum.RESET_PASSWORD_CODE)){
+            throw new ServiceException(ResultCode.FAIL,"验证码错误！");
+        }
+        UmUserPo updateUser = new UmUserPo();
+        updateUser.setUpdateBy("test").setPassword(addUserDto.getPassword());
+        UmUserPo condition = new UmUserPo();
+        condition.setPhone(addUserDto.getPhone());
+        return  mapper.update(updateUser,new UpdateWrapper<>(condition))>0;
+
     }
 }

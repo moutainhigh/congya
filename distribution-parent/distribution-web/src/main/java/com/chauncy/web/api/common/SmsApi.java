@@ -38,7 +38,7 @@ public class SmsApi extends BaseApi {
         String verifyCode = CreateVerifyCode.randomNumber(4);
         String redisKey=String.format(verifyCodeDto.getValidCodeEnum().getRedisKey(),verifyCodeDto.getPhone());
         //5分钟内有效
-        redisUtil.set(redisKey,verifyCode,300);
+        redisUtil.set(redisKey,verifyCode,3000);
         SendSms.send(verifyCodeDto.getPhone(), verifyCode,
                 verifyCodeDto.getValidCodeEnum().getTemplateCode());
         return setJsonViewData(ResultCode.SUCCESS);
