@@ -162,7 +162,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
      * @return
      */
     @Override
-    public void addBase(AddGoodBaseDto addGoodBaseDto) {
+    public Long addBase(AddGoodBaseDto addGoodBaseDto) {
 
         LocalDateTime date = LocalDateTime.now();
         PmGoodsPo goodsPo = new PmGoodsPo();
@@ -189,8 +189,11 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         addAttribute(addGoodBaseDto, user, goodsPo);
 
         //处理商品参数属性
+        if (addGoodBaseDto.getGoodsParamDtoList()!=null)
         addParam(addGoodBaseDto, user, goodsPo);
 
+        Long goodsId = goodsPo.getId();
+        return goodsId;
     }
 
     /**
@@ -376,7 +379,6 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         goodsRelAttributeGoodMapper.deleteByMap(GoodIdMap);
         //插入新数据
         addAttribute(updateGoodBaseDto, user, goodsPo);
-
     }
 
     /**

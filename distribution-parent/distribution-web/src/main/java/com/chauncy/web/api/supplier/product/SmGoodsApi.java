@@ -91,9 +91,9 @@ public class SmGoodsApi extends BaseApi {
     @ApiOperation(value = "添加基本信息")
     public JsonViewData addBase(@RequestBody @Validated @ApiParam(required = true, name = "addGoodBaseDto", value = "商品基本信息")
                                         AddGoodBaseDto addGoodBaseDto) {
-        service.addBase(addGoodBaseDto);
+        /*service.addBase(addGoodBaseDto);*/
 
-        return new JsonViewData(ResultCode.SUCCESS,"操作成功");
+        return new JsonViewData(service.addBase(addGoodBaseDto));
     }
 
     /**

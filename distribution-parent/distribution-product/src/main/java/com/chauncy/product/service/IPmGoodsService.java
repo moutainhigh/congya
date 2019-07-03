@@ -59,7 +59,7 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @param addGoodBaseDto
      * @return
      */
-    void addBase(AddGoodBaseDto addGoodBaseDto);
+    Long addBase(AddGoodBaseDto addGoodBaseDto);
 
     /**
      * 根据ID获取商品的基本信息

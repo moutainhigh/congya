@@ -27,7 +27,7 @@
     </sql>
 
     <select id="getGoodsEvaluate" resultType="com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo">
-        select a.photo as icon,a.name as nick_name,b.content,b.picture,b.id
+        select a.photo as icon,a.name as nick_name,b.content,b.picture,b.id,ROUND((b.attitude_start_level+b.description_start_level+b.ship_start_level)/3) as startLevel
         from um_user a,om_evaluate b,om_order c
         <where>
             isNull(b.parent_id) and b.order_id = c.id and c.um_user_id=a.id
@@ -55,15 +55,37 @@
         from om_order a,um_user b,pm_goods c,pm_goods_sku d,om_evaluate e,sm_store f
         <where> a.evaluate_status = 2 and a.id = e.order_id and e.sku_id = d.id and d.goods_id = c.id and a.um_user_id = b.id
 		      and ISNULL(e.parent_id) and a.store_id = f.id
-		      <if test="evaluate.storeId!=null">
+		      <if test="evaluate.storeId != null">
                   and a.store_id = #{evaluate.storeId}
               </if>
+              <if test="evaluate.phone != null and evaluate.phone !=' '">
+                  and b.phone = #{evaluate.phone}
+              </if>
+              <if test="evaluate.userId != null">
+                  and b.id = #{evaluate.userId}
+              </if>
+            <if test="evaluate.orderId != null">
+                  and e.order_id =#{evaluate.orderId}
+            </if>
+            <if test="evaluate.goodsId != null">
+                  and d.goods_id = #{evaluate.goodsId}
+            </if>
+            <if test="evaluate.goodsName != null and evaluate.goodsName != ''">
+                  and c.name like concat ('%', #{evaluate.goodsName} ,'%')
+            </if>
+            <if test="evaluate.evaluateTime != null">
+                  and DATE_FORMAT(e.create_time,'%Y-%m-%d')=#{evaluate.evaluateTime}
+            </if>
+            <if test="evaluate.evaluateTime">
+
+            </if>
         </where>
         order by e.create_time
     </select>
     <select id="getEvaluate" resultType="com.chauncy.data.vo.supplier.evaluate.EvaluateVo">
-        select *
-        from om_evaluate a,
+        select c.name as nickName,c.photo as icon,content,picture,a.id,ROUND((a.attitude_start_level+a.description_start_level+a.ship_start_level)/3) as startLevel
+        from om_evaluate a,om_order b,um_user c
+        where b.id = a.order_id and b.id = #{orderId} and a.sku_id = #{skuId} and b.um_user_id = c.id and isNull(a.parent_id)
     </select>
 
 </mapper>
