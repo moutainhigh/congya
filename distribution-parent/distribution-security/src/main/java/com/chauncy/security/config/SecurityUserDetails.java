@@ -5,6 +5,7 @@ import com.chauncy.common.constant.SecurityConstant;
 import com.chauncy.data.domain.po.sys.SysPermissionPo;
 import com.chauncy.data.domain.po.sys.SysRolePo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -27,6 +28,7 @@ import java.util.List;
  *
  */
 @Slf4j
+@NoArgsConstructor
 public class SecurityUserDetails extends SysUserPo implements UserDetails {
 
     private static final long serialVersionUID = 1L;

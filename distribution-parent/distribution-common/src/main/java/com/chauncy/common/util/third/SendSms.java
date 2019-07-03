@@ -17,7 +17,7 @@ public class SendSms {
     AccessKey ID LTAIrOQ5daZ6ArrP
     AccessKeySecret UkTtE9cNYIbThMA5QMdwZPCCIoSM3O*/
 
-    public static void send(String phoneNumbers,String validCode,String templateCode) {
+    public static void send(String phoneNumbers,String validCode,String templateCode)  {
         String templateParam=String.format("{\"code\":\"%s\"}",validCode);
         DefaultProfile profile = DefaultProfile.getProfile("default", "LTAIrOQ5daZ6ArrP", "UkTtE9cNYIbThMA5QMdwZPCCIoSM3O");
         IAcsClient client = new DefaultAcsClient(profile);

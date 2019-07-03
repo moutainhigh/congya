@@ -59,7 +59,7 @@ ignored:
   urls:
     - /dictData/getByType/**
     - /sys-user-po/regist
-#    - /common/**
+    - /common/**
     - /druid/**
     - /swagger-ui.html
     - /swagger-resources/**

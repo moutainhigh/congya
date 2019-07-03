@@ -21,7 +21,7 @@ public interface IUmUserService extends Service<UmUserPo> {
      * @param validCodeEnum
      * @return
      */
-    boolean validVerifyCode(String verifyCode, String phone, ValidCodeEnum validCodeEnum);
+    boolean validVerifyCode(String verifyCode, String phone, ValidCodeEnum validCodeEnum) ;
 
     /**
      * 新增用户
@@ -29,6 +29,13 @@ public interface IUmUserService extends Service<UmUserPo> {
      * @return
      */
     boolean saveUser(AddUserDto addUserDto);
+
+    /**
+     * 用户修改密码
+     * @param addUserDto
+     * @return
+     */
+    boolean reset(AddUserDto addUserDto);
 
 
 }

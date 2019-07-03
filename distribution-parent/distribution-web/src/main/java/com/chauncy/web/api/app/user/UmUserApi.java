@@ -3,6 +3,8 @@ package com.chauncy.web.api.app.user;
 
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.app.user.add.AddUserDto;
+import com.chauncy.data.valid.group.ISaveGroup;
+import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.user.service.IUmUserService;
 import com.chauncy.web.base.BaseApi;
@@ -34,13 +36,24 @@ public class UmUserApi extends BaseApi {
 
     @PostMapping("/register")
     @ApiOperation("新用户注册")
-    public JsonViewData register(@Validated @RequestBody AddUserDto userDto){
+    public JsonViewData register(@Validated(ISaveGroup.class) @RequestBody AddUserDto userDto){
         String encryptPass = new BCryptPasswordEncoder().encode(userDto.getPassword());
         userDto.setPassword(encryptPass);
 
         return service.saveUser(userDto)?setJsonViewData(ResultCode.SUCCESS):setJsonViewData(ResultCode.FAIL);
+    }
+
+    @PostMapping("/reset")
+    @ApiOperation("忘记密码")
+    public JsonViewData reset(@Validated(IUpdateGroup.class) @RequestBody AddUserDto userDto){
+        String encryptPass = new BCryptPasswordEncoder().encode(userDto.getPassword());
+        userDto.setPassword(encryptPass);
+
+        return service.reset(userDto)?setJsonViewData(ResultCode.SUCCESS):setJsonViewData(ResultCode.FAIL);
 
     }
+
+
 
 
 }
