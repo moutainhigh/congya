@@ -14,6 +14,7 @@ import com.chauncy.data.mapper.message.information.MmInformationMapper;
 import com.chauncy.data.mapper.message.information.rel.MmRelInformationGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
+import com.chauncy.data.vo.app.message.information.InformationBaseVo;
 import com.chauncy.data.vo.app.message.information.InformationPagingVo;
 import com.chauncy.data.vo.manage.message.information.InformationPageInfoVo;
 import com.chauncy.data.vo.manage.message.information.InformationVo;
@@ -161,7 +162,7 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
     }
 
     /**
-     * 根据ID查找店铺资讯
+     * 后台根据ID查找资讯
      *
      * @param id 资讯id
      * @return
@@ -185,6 +186,18 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
         informationVo.setGoodsList(goodsList);
 
         return informationVo;
+    }
+
+    /**
+     * app根据ID查找资讯
+     *
+     * @param id 资讯id
+     * @return
+     */
+    @Override
+    public InformationBaseVo findBaseById(Long id) {
+        //资讯基本信息
+        return  mmInformationMapper.findBaseById(id);
     }
 
     /**

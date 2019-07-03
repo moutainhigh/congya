@@ -19,7 +19,7 @@ import com.chauncy.data.dto.manage.store.select.StoreSearchByConditionDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.dto.supplier.store.update.StoreBusinessLicenseDto;
 import com.chauncy.data.mapper.product.PmGoodsAttributeMapper;
-import com.chauncy.data.mapper.store.SmRelStoreAttributeMapper;
+import com.chauncy.data.mapper.store.rel.SmRelStoreAttributeMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.sys.SysRoleMapper;
 import com.chauncy.data.mapper.sys.SysRoleUserMapper;

@@ -1,4 +1,4 @@
-package com.chauncy.data.mapper.store;
+package com.chauncy.data.mapper.store.rel;
 
 import com.chauncy.data.domain.po.store.rel.SmRelStoreAttributePo;
 import com.chauncy.data.mapper.IBaseMapper;

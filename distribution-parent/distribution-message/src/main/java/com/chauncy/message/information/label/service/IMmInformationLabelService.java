@@ -22,13 +22,13 @@ public interface IMmInformationLabelService extends Service<MmInformationLabelPo
 
 
     /**
-     * 保存店铺资讯标签信息
+     * 保存资讯标签信息
      * @param informationLabelDto
      */
     void saveInformationLabel(InformationLabelDto informationLabelDto);
 
     /**
-     * 编辑店铺资讯标签信息
+     * 编辑资讯标签信息
      * @param informationLabelDto
      */
     void editInformationLabel(InformationLabelDto informationLabelDto);
@@ -48,7 +48,7 @@ public interface IMmInformationLabelService extends Service<MmInformationLabelPo
     PageInfo<InformationLabelVo> searchPaging(InformationLabelSearchDto informationLabelSearchDto);
 
     /**
-     * 查询店铺资讯所有标签
+     * 查询资讯所有标签
      * @return
      */
     List<InformationLabelVo> selectAll();

@@ -25,7 +25,7 @@ import javax.validation.Valid;
  * @author yeJH
  * @since 2019/6/25 17:58
  */
-@Api(tags = "平台_店铺资讯_标签管理接口")
+@Api(tags = "平台_资讯_标签管理接口")
 @RestController
 @RequestMapping("/manage/information/label")
 @Slf4j
@@ -35,14 +35,14 @@ public class MmInformationLabelApi extends BaseApi {
     private IMmInformationLabelService mmInformationLabelService;
 
     /**
-     * 保存店铺资讯标签信息
+     * 保存资讯标签信息
      * @param informationLabelDto
      * @return
      */
     @PostMapping("/save")
-    @ApiOperation(value = "保存店铺资讯标签信息")
+    @ApiOperation(value = "保存资讯标签信息")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData save(@Valid @RequestBody @ApiParam(required = true, name = "informationLabelDto", value = "店铺资讯标签信息")
+    public JsonViewData save(@Valid @RequestBody @ApiParam(required = true, name = "informationLabelDto", value = "资讯标签信息")
                                      InformationLabelDto informationLabelDto) {
 
         mmInformationLabelService.saveInformationLabel(informationLabelDto);
@@ -50,14 +50,14 @@ public class MmInformationLabelApi extends BaseApi {
     }
 
     /**
-     * 编辑店铺资讯标签信息
+     * 编辑资讯标签信息
      * @param informationLabelDto
      * @return
      */
     @PostMapping("/edit")
-    @ApiOperation(value = "编辑店铺资讯标签信息")
+    @ApiOperation(value = "编辑资讯标签信息")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData edit(@Validated(IUpdateGroup.class) @RequestBody @ApiParam(required = true, name = "informationLabelDto", value = "店铺资讯标签信息")
+    public JsonViewData edit(@Validated(IUpdateGroup.class) @RequestBody @ApiParam(required = true, name = "informationLabelDto", value = "资讯标签信息")
                                          InformationLabelDto informationLabelDto) {
 
         mmInformationLabelService.editInformationLabel(informationLabelDto);
@@ -66,12 +66,12 @@ public class MmInformationLabelApi extends BaseApi {
 
 
     /**
-     * 根据ID查找店铺资讯标签
+     * 根据ID查找资讯标签
      *
      * @param id
      * @return
      */
-    @ApiOperation(value = "查找店铺资讯标签", notes = "根据ID查找")
+    @ApiOperation(value = "查找资讯标签", notes = "根据ID查找")
     @GetMapping("/findById/{id}")
     public JsonViewData<InformationLabelVo> findById(@ApiParam(required = true, value = "id")
                                  @PathVariable Long id) {
@@ -99,10 +99,10 @@ public class MmInformationLabelApi extends BaseApi {
     }
 
     /**
-     * 查询所有的店铺资讯标签
+     * 查询所有的资讯标签
      * @return
      */
-    @ApiOperation(value = "查询所有的店铺资讯标签", notes = "查询所有的店铺资讯标签")
+    @ApiOperation(value = "查询所有的资讯标签", notes = "查询所有的资讯标签")
     @GetMapping("/selectAll")
     public JsonViewData<InformationLabelVo> searchAll() {
 

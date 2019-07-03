@@ -21,6 +21,10 @@ public class SearchInfoByConditionDto  extends BaseSearchDto implements Serializ
     private static final long serialVersionUID = 1L;
 
 
+    @ApiModelProperty(value = "店铺id")
+    @NeedExistConstraint(tableName = "sm_store")
+    private Long storeId;
+
     @ApiModelProperty(value = "资讯标签id")
     @NeedExistConstraint(tableName = "mm_information_label")
     private Long infoLabelId;

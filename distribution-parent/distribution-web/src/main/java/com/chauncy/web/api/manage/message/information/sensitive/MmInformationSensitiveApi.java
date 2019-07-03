@@ -25,7 +25,7 @@ import javax.validation.Valid;
  * @author yeJH
  * @since 2019/6/26 13:03
  */
-@Api(tags = "平台_店铺资讯_敏感词管理接口")
+@Api(tags = "平台_资讯_敏感词管理接口")
 @RestController
 @RequestMapping("/manage/information/sensitive")
 @Slf4j
@@ -36,14 +36,14 @@ public class MmInformationSensitiveApi  extends BaseApi {
 
 
     /**
-     * 保存店铺资讯敏感词信息
+     * 保存资讯敏感词信息
      * @param informationSensitiveDto
      * @return
      */
     @PostMapping("/save")
-    @ApiOperation(value = "保存店铺资讯敏感词信息")
+    @ApiOperation(value = "保存资讯敏感词信息")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData save(@Valid @RequestBody @ApiParam(required = true, name = "informationSensitiveDto", value = "店铺资讯敏感词信息")
+    public JsonViewData save(@Valid @RequestBody @ApiParam(required = true, name = "informationSensitiveDto", value = "资讯敏感词信息")
                                      InformationSensitiveDto informationSensitiveDto) {
 
         mmInformationSensitiveService.saveInformationSensitive(informationSensitiveDto);
@@ -51,14 +51,14 @@ public class MmInformationSensitiveApi  extends BaseApi {
     }
 
     /**
-     * 编辑店铺资讯敏感词信息
+     * 编辑资讯敏感词信息
      * @param informationSensitiveDto
      * @return
      */
     @PostMapping("/edit")
-    @ApiOperation(value = "编辑店铺资讯敏感词信息")
+    @ApiOperation(value = "编辑资讯敏感词信息")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData edit(@Validated(IUpdateGroup.class) @RequestBody @ApiParam(required = true, name = "informationSensitiveDto", value = "店铺资讯敏感词信息")
+    public JsonViewData edit(@Validated(IUpdateGroup.class) @RequestBody @ApiParam(required = true, name = "informationSensitiveDto", value = "资讯敏感词信息")
                                          InformationSensitiveDto informationSensitiveDto) {
 
         mmInformationSensitiveService.editInformationSensitive(informationSensitiveDto);
@@ -67,12 +67,12 @@ public class MmInformationSensitiveApi  extends BaseApi {
 
 
     /**
-     * 根据ID查找店铺资讯敏感词
+     * 根据ID查找资讯敏感词
      *
      * @param id
      * @return
      */
-    @ApiOperation(value = "查找店铺资讯敏感词", notes = "根据ID查找")
+    @ApiOperation(value = "查找资讯敏感词", notes = "根据ID查找")
     @GetMapping("/findById/{id}")
     public JsonViewData<InformationSensitiveVo> findById(@ApiParam(required = true, value = "id")
                                                         @PathVariable Long id) {

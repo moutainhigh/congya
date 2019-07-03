@@ -21,7 +21,7 @@ import java.util.List;
  * @since 2019/6/25 19:54
  */
 @Data
-@ApiModel(value = "InformationDto对象", description = "店铺资讯信息")
+@ApiModel(value = "InformationDto对象", description = "资讯信息")
 public class InformationDto  implements Serializable {
 
     private static final long serialVersionUID = 1L;

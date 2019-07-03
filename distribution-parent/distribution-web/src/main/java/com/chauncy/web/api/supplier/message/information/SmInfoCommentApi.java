@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author yeJH
  * @since 2019/7/2 11:33
  */
-@Api(tags = "APP_店铺资讯_评论管理接口")
+@Api(tags = "APP_资讯_评论管理接口")
 @RestController
 @RequestMapping("/app/information/comment")
 @Slf4j

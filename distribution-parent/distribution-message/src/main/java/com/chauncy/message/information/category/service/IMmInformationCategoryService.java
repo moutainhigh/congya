@@ -22,14 +22,14 @@ import java.util.List;
 public interface IMmInformationCategoryService extends Service<MmInformationCategoryPo> {
 
     /**
-     * 保存店铺资讯分类信息
+     * 保存资讯分类信息
      * @param informationCategoryDto
      */
     void saveInformationCategory(InformationCategoryDto informationCategoryDto);
 
 
     /**
-     * 编辑店铺资讯分类信息
+     * 编辑资讯分类信息
      * @param informationCategoryDto
      */
     void editInformationCategory(InformationCategoryDto informationCategoryDto);
@@ -49,7 +49,7 @@ public interface IMmInformationCategoryService extends Service<MmInformationCate
     PageInfo<InformationCategoryVo> searchPaging(BaseSearchDto baseSearchDto);
 
     /**
-     * 查询店铺资讯所有分类
+     * 查询资讯所有分类
      *
      * @return
      */
