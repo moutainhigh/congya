@@ -1,12 +1,15 @@
 package com.chauncy.security.util;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.constant.SecurityConstant;
 import com.chauncy.data.domain.po.sys.SysPermissionPo;
 import com.chauncy.data.domain.po.sys.SysRolePo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.system.service.ISysRoleUserService;
 import com.chauncy.system.service.ISysUserRoleCatchService;
 import com.chauncy.system.service.ISysUserService;
+import com.chauncy.user.service.IUmUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -40,6 +43,9 @@ public class SecurityUtil {
     @Autowired
     private ISysUserRoleCatchService userRoleCatchService;
 
+    @Autowired
+    private IUmUserService umUserService;
+
     /**
      * 获取当前登录用户
      * @return
@@ -48,6 +54,19 @@ public class SecurityUtil {
 
         UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userService.findByUsername(user.getUsername());
+    }
+
+
+    /**
+     * 获取当前app登录用户
+     * @return
+     */
+    public UmUserPo getAppCurrUser(){
+
+        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UmUserPo userPo=new UmUserPo();
+        userPo.setPhone(user.getUsername());
+        return umUserService.getOne(new QueryWrapper<>(userPo));
     }
 
     /**

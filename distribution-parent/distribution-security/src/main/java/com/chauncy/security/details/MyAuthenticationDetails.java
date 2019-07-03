@@ -17,11 +17,15 @@ import javax.servlet.http.HttpServletRequest;
 @Data
 public class MyAuthenticationDetails extends WebAuthenticationDetails {
 
+    //手机号码
     private final String phone;
-
+    //验证码
     private final String verifyCode;
-
+    //登录方式
     private final LoginType loginType;
+    //通过第三方登录获得的用户唯一id
+    private final String unionId;
+
 
 
 
@@ -39,5 +43,6 @@ public class MyAuthenticationDetails extends WebAuthenticationDetails {
         }*/
         //登录类型
         loginType=LoginType.valueOf(request.getParameter("loginType"));
+        unionId=request.getParameter("unionId");
     }
 }

@@ -127,5 +127,14 @@ public class UmUserPo implements Serializable {
     @ApiModelProperty(value = "头像")
     private String photo;
 
+    @ApiModelProperty(value = "通过第三方登录获得的用户唯一id")
+    private String unionId;
+
+    @ApiModelProperty(value = "是否已领取用户礼包，默认否")
+    private boolean isGetNewGift;
+
+    @ApiModelProperty(value = "真实姓名")
+    private boolean trueName;
+
 
 }

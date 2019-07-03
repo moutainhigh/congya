@@ -3,6 +3,7 @@ package com.chauncy.web.api.app.user;
 
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.app.user.add.AddUserDto;
+import com.chauncy.data.dto.app.user.add.BindUserDto;
 import com.chauncy.data.valid.group.ISaveGroup;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
@@ -28,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/app/user")
-@Api(tags = "前端用户")
+@Api(tags = "APP_前端用户")
 public class UmUserApi extends BaseApi {
 
     @Autowired
@@ -51,6 +52,14 @@ public class UmUserApi extends BaseApi {
 
         return service.reset(userDto)?setJsonViewData(ResultCode.SUCCESS):setJsonViewData(ResultCode.FAIL);
 
+    }
+
+    @PostMapping("/binding")
+    @ApiOperation("第三方登录绑定")
+    public JsonViewData binding(@Validated @RequestBody BindUserDto userDto){
+        String encryptPass = new BCryptPasswordEncoder().encode(userDto.getPassword());
+        userDto.setPassword(encryptPass);
+        return service.bindUser(userDto)?setJsonViewData(ResultCode.SUCCESS):setJsonViewData(ResultCode.FAIL);
     }
 
 

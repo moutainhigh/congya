@@ -40,4 +40,8 @@
         id, create_by, create_time, update_by, update_time, del_flag, name, sex, invite_code, parent_id, store_id, commission_status, enabled, login_times, recent_login_time, current_experience, current_red_envelops, current_integral, current_shop_ticket, total_consume_money, invite_people_num, total_red_envelops, total_integral, total_shop_ticket, total_order, member_level_id, phone, id_card, password
     </sql>
 
+    <update id="updateLogin">
+             update um_user   set login_times=login_times+1,recent_login_time=now() where phone=#{phone}
+    </update>
+
 </mapper>

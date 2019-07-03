@@ -9,7 +9,8 @@ public enum LoginType {
     MANAGE("总后台登录"),
     SUPPLIER("商家端登录"),
     APP_PASSWORD("App密码登录"),
-    APP_CODE("App手机验证码登录");
+    APP_CODE("App手机验证码登录"),
+    THIRD_WECHAT("第三方微信登录");
 
     private String description;
 
