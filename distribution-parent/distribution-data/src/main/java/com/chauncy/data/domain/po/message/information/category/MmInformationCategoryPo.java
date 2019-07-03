@@ -28,7 +28,7 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("mm_information_category")
-@ApiModel(value = "MmInformationCategoryPo对象", description = "店铺资讯分类信息")
+@ApiModel(value = "MmInformationCategoryPo对象", description = "资讯分类信息")
 public class MmInformationCategoryPo implements Serializable {
 
     private static final long serialVersionUID = 1L;

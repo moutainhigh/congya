@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author yeJH
  * @since 2019/6/25 17:57
  */
-@Api(tags = "平台_店铺资讯管理接口")
+@Api(tags = "平台_资讯管理接口")
 @RestController
 @RequestMapping("/manage/information")
 @Slf4j
@@ -21,6 +21,6 @@ public class MmInformationApi extends BaseApi {
     @Autowired
     private IMmInformationService mmInformationService;
 
-
+    // todo 审核资讯
 
 }

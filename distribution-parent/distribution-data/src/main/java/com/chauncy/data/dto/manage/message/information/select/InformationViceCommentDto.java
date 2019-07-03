@@ -11,15 +11,15 @@ import java.io.Serializable;
 
 /**
  * @author yeJH
- * @since 2019/7/1 14:31
+ * @since 2019/7/3 20:43
  */
 @Data
-@ApiModel("根据资讯id获取评论")
-public class InformationCommentDto extends BaseSearchDto implements Serializable {
+@ApiModel("根据主评论id获取副评论")
+public class InformationViceCommentDto  extends BaseSearchDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "资讯id")
+    @ApiModelProperty(value = "评论id")
     @NeedExistConstraint(tableName = "mm_information")
     @NotNull(message = "id不能为空")
     private Long id;

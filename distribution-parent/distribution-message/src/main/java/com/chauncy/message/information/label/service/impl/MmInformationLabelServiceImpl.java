@@ -47,7 +47,7 @@ public class MmInformationLabelServiceImpl extends AbstractService<MmInformation
     private SecurityUtil securityUtil;
 
     /**
-     * 保存店铺资讯标签信息
+     * 保存资讯标签信息
      *
      * @param informationLabelDto
      */
@@ -69,7 +69,7 @@ public class MmInformationLabelServiceImpl extends AbstractService<MmInformation
     }
 
     /**
-     * 编辑店铺资讯标签信息
+     * 编辑资讯标签信息
      *
      * @param informationLabelDto
      */
@@ -93,7 +93,7 @@ public class MmInformationLabelServiceImpl extends AbstractService<MmInformation
 
 
     /**
-     * 根据ID查找店铺资讯标签
+     * 根据ID查找资讯标签
      *
      * @param id
      * @return
@@ -123,7 +123,7 @@ public class MmInformationLabelServiceImpl extends AbstractService<MmInformation
     }
 
     /**
-     * 查询店铺资讯所有标签
+     * 查询资讯所有标签
      *
      * @return
      */
@@ -158,7 +158,7 @@ public class MmInformationLabelServiceImpl extends AbstractService<MmInformation
             queryWrapper.eq("info_label_id",id);
             Integer count = mmInformationMapper.selectCount(queryWrapper);
             if(count > 0 ) {
-                throw new ServiceException(ResultCode.FAIL, "删除失败，包含正被店铺资讯使用关联的标签");
+                throw new ServiceException(ResultCode.FAIL, "删除失败，包含正被资讯使用关联的标签");
             }
         }
         //批量删除标签

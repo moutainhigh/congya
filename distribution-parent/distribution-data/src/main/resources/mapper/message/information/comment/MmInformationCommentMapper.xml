@@ -25,7 +25,7 @@
     </sql>
 
 
-    <!--<resultMap id="commentBaseResult" type="com.chauncy.data.vo.manage.message.information.comment.InformationCommentVo">
+    <!--<resultMap id="commentBaseResult" type="com.chauncy.data.vo.manage.message.information.comment.InformationMainCommentVontVo">
         <id column="id" property="id"/>
         <result column="user_id" property="userId"/>
         <result column="parent_user_id" property="parentUserId"/>
@@ -33,7 +33,7 @@
         &lt;!&ndash; collection定义关联集合类型的属性封装规则
         offType:指定集合中的元素类型
         &ndash;&gt;
-        <collection property="informationCommentVoList" ofType="com.chauncy.data.vo.manage.message.information.comment.InformationCommentVo">
+        <collection property="informationCommentVoList" ofType="com.chauncy.data.vo.manage.message.information.comment.InformationMainCommentVontVo">
             <id column="cId" property="id"/>
             <result column="cUserId" property="userId"/>
             <result column="cParentUserId" property="parentUserId"/>
@@ -45,7 +45,7 @@
         IFNULL(uu.name,su.avatar) as avatar, IFNULL(puu.name,psu.username) as parentUserName
         from mm_information_comment mic
         left join um_user uu on mic.user_id = uu.id
-        left join sys_user su on mic.user_id = su.id
+        left join sys_user su on mic.user_id = su.idsearchInfoViceComment
         left join um_user puu on mic.parent_user_id = uu.id
         left join sys_user psu on mic.parent_user_id = su.id
         where mic.info_id = 1
@@ -55,7 +55,7 @@
         order by mic.create_time asc
     </select>-->
 
-    <select id="searchPaging" resultType="com.chauncy.data.vo.manage.message.information.comment.InformationCommentVo">
+    <select id="searchInfoViceComment" resultType="com.chauncy.data.vo.manage.message.information.comment.InformationViceCommentVo">
         select mic.id, mic.user_id, mic.parent_user_id, mic.create_time, mic.enabled, mic.content, IFNULL(uu.name,su.username) as userName,
         IFNULL(uu.name,su.avatar) as avatar, IFNULL(puu.name,psu.username) as parentUserName
         from mm_information_comment mic
@@ -66,4 +66,50 @@
         where mic.info_id = #{id} and mic.del_flag = 0
         order by mic.create_time asc
     </select>
+
+    <resultMap id="commentBaseResult" type="com.chauncy.data.vo.manage.message.information.comment.InformationMainCommentVo">
+        <id column="id" property="id"/>
+        <result column="userName" property="userName"/>
+        <result column="avatar" property="avatar"/>
+        <result column="content" property="content"/>
+        <result column="create_time" property="createTime"/>
+        <!--collection定义关联集合类型的属性封装规则
+        延迟加载 传递两个参数
+　　　　{pMenuId=child_pid,userId=userId}
+　　　　 传递查询参数名称=字段名称-->
+        <collection property="informationViceCommentVoList" column="{id=id,type=type}"
+                    select="com.chauncy.data.mapper.message.information.comment.MmInformationCommentMapper.searchViceCommentByMainId">
+        </collection>
+    </resultMap>
+    <select id="searchInfoMainComment" resultMap="commentBaseResult">
+        select count(mic1.id) > 10 as haveMoreComment, mic.id, mic.user_id, mic.parent_user_id, mic.create_time, mic.enabled,
+        IFNULL(uu.name,su.username) as userName, IFNULL(uu.name,su.avatar) as avatar , 'subStep' as type
+        from mm_information_comment mic
+        left join um_user uu on mic.user_id = uu.id
+        left join sys_user su on mic.user_id = su.id
+        left join mm_information_comment mic1 on (mic1.parent_id = mic.id and mic1.enabled = 1 and mic1.del_flag = 0)
+        <where>
+                and  mic.info_id = #{id}  and mic.enabled = 1 and mic.del_flag = 0 and mic.parent_id is null
+        </where>
+        GROUP BY mic.id
+        order by mic.create_time asc
+    </select>
+
+
+    <select id="searchViceCommentByMainId" resultType="com.chauncy.data.vo.manage.message.information.comment.InformationViceCommentVo">
+        select mic.id, mic.user_id, mic.parent_user_id, mic.create_time, mic.enabled, mic.content, IFNULL(uu.name,su.username) as userName,
+        IFNULL(uu.name,su.avatar) as avatar, IFNULL(puu.name,psu.username) as parentUserName
+        from mm_information_comment mic
+        left join um_user uu on mic.user_id = uu.id
+        left join sys_user su on mic.user_id = su.id
+        left join um_user puu on mic.parent_user_id = puu.id
+        left join sys_user psu on mic.parent_user_id = psu.id
+        where mic.parent_id = #{id} and mic.del_flag = 0
+        order by mic.create_time asc
+        <if test="type != null and type =='subStep'">
+           limit 0,10
+        </if>
+    </select>
+
+
 </mapper>

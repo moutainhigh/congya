@@ -25,7 +25,7 @@ import javax.validation.Valid;
  * @author yeJH
  * @since 2019/6/25 17:59
  */
-@Api(tags = "平台_店铺资讯分类管理接口")
+@Api(tags = "平台_资讯_分类管理接口")
 @RestController
 @RequestMapping("/manage/information/category")
 @Slf4j
@@ -36,14 +36,14 @@ public class MmInformationCategoryApi extends BaseApi {
 
 
     /**
-     * 保存店铺资讯分类信息
+     * 保存资讯分类信息
      * @param informationCategoryDto
      * @return
      */
     @PostMapping("/save")
-    @ApiOperation(value = "保存店铺资讯分类信息")
+    @ApiOperation(value = "保存资讯分类信息")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData save(@Valid @RequestBody @ApiParam(required = true, name = "informationCategoryDto", value = "店铺资讯分类信息")
+    public JsonViewData save(@Valid @RequestBody @ApiParam(required = true, name = "informationCategoryDto", value = "资讯分类信息")
                                      InformationCategoryDto informationCategoryDto) {
 
         mmInformationCategoryService.saveInformationCategory(informationCategoryDto);
@@ -51,14 +51,14 @@ public class MmInformationCategoryApi extends BaseApi {
     }
 
     /**
-     * 编辑店铺资讯分类信息
+     * 编辑资讯分类信息
      * @param informationCategoryDto
      * @return
      */
     @PostMapping("/edit")
-    @ApiOperation(value = "编辑店铺资讯分类信息")
+    @ApiOperation(value = "编辑资讯分类信息")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData edit(@Validated(IUpdateGroup.class) @RequestBody @ApiParam(required = true, name = "informationCategoryDto", value = "店铺资讯分类信息")
+    public JsonViewData edit(@Validated(IUpdateGroup.class) @RequestBody @ApiParam(required = true, name = "informationCategoryDto", value = "资讯分类信息")
                                      InformationCategoryDto informationCategoryDto) {
 
         mmInformationCategoryService.editInformationCategory(informationCategoryDto);
@@ -67,12 +67,12 @@ public class MmInformationCategoryApi extends BaseApi {
 
 
     /**
-     * 根据ID查找店铺资讯分类
+     * 根据ID查找资讯分类
      *
      * @param id
      * @return
      */
-    @ApiOperation(value = "查找店铺资讯分类", notes = "根据ID查找")
+    @ApiOperation(value = "查找资讯分类", notes = "根据ID查找")
     @GetMapping("/findById/{id}")
     public JsonViewData<InformationCategoryVo> findById(@ApiParam(required = true, value = "id")
                                  @PathVariable Long id) {
@@ -100,10 +100,10 @@ public class MmInformationCategoryApi extends BaseApi {
     }
 
     /**
-     * 查询所有的店铺资讯分类
+     * 查询所有的资讯分类
      * @return
      */
-    @ApiOperation(value = "查询所有的店铺资讯分类", notes = "查询所有的店铺资讯分类")
+    @ApiOperation(value = "查询所有的资讯分类", notes = "查询所有的资讯分类")
     @GetMapping("/selectAll")
     public JsonViewData<InformationCategoryVo> searchAll() {
 
