@@ -136,15 +136,14 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
         if (searchEvaluateVo.getList().size() != 0 && searchEvaluateVo.getList() != null) {
             searchEvaluateVo.getList().forEach(a -> {
                 //用户的评价
-                EvaluateVo evaluateVo1 = mapper.getEvaluate(a.getOrderId(),a.getSku_id());
-
+                EvaluateVo evaluateVo1 = mapper.getEvaluate(a.getOrderId(),a.getSkuId());
+                //获取回复信息
                 Map<String, Object> map1 = new HashMap<>();
-                map1.put("parent_id", a.getEvaluateId());
-                List<OmEvaluatePo> evaluatePo = mapper.selectByMap(map1);
-                if (evaluatePo != null && evaluatePo.size() != 0) {
-                    EvaluateVo evaluateVo = new EvaluateVo();
-
+                map1.put("parent_id", evaluateVo1.getId());
+                if (mapper.selectByMap(map1) != null && mapper.selectByMap(map1).size() != 0) {
+                    evaluateVo1.setReply(mapper.selectByMap(map1).get(0).getContent());
                 }
+                a.setEvaluateVo(evaluateVo1);
             });
         }
         return searchEvaluateVo;

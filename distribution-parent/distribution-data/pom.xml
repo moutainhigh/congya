@@ -27,6 +27,19 @@
             <version>3.1.1</version>
         </dependency>
 
+        <!--支付宝支付-->
+        <dependency>
+            <groupId>com.egzosn</groupId>
+            <artifactId>pay-java-ali</artifactId>
+            <version>2.12.7</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.egzosn</groupId>
+            <artifactId>pay-java-wx</artifactId>
+            <version>2.12.7</version>
+        </dependency>
+
         <!--添加 模板引擎 依赖，MyBatis-Plus 支持 Velocity（默认）、Freemarker、Beetl，用户可以选择自己熟悉的模板引擎，如果都不满足要求，可以采用自定义模板引擎-->
         <!--Velocity 默认-->
         <dependency>

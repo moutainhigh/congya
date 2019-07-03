@@ -37,7 +37,7 @@ public class SearchEvaluatesDto {
     @ApiModelProperty("评价时间")
     private LocalDate evaluateTime;
 
-    @ApiModelProperty("店铺ID,商家端查看时为空")
+    @ApiModelProperty("店铺ID")
     private Long storeId;
 
     @Min(1)

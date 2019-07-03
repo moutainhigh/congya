@@ -49,8 +49,8 @@ public interface OmEvaluateMapper extends IBaseMapper<OmEvaluatePo> {
      * 获取单个评价信息
      *
      * @param orderId
-     * @param sku_id
+     * @param skuId
      * @return
      */
-    EvaluateVo getEvaluate(Long orderId, Long sku_id);
+    EvaluateVo getEvaluate(@Param("orderId") Long orderId, @Param("skuId") Long skuId);
 }

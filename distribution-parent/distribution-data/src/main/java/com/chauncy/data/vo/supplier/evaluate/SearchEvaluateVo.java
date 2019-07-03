@@ -29,7 +29,7 @@ public class SearchEvaluateVo {
     private Long userId;
 
     @ApiModelProperty(value = "skuId")
-    private Long sku_id;
+    private Long skuId;
 
     @ApiModelProperty(value = "phone")
     private String phone;

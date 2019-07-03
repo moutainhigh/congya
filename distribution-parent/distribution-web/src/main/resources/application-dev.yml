@@ -74,6 +74,10 @@ ignored:
     - /pm-goods-attribute-po/findByType/**
     - /v2/api-docs
 
+# 配置文件加密key
+jasypt:
+  encryptor:
+    password: 123456
 
 distribution:
   # 全局限流
