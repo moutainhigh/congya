@@ -48,7 +48,7 @@
 
     <select id="findBaseById" resultType="com.chauncy.data.vo.app.message.information.InformationBaseVo">
         select mi.*, count(srufs.id) as fansNum, (select ss.`name` from sm_store ss where ss.id = mi.store_id) as storeName
-        from mm_information mi left join sm_rel_user_foucs_store srufs on (mi.store_id = srufs.store_id and srufs.del_flag = 0)
+        from mm_information mi left join sm_rel_user_focus_store srufs on (mi.store_id = srufs.store_id and srufs.del_flag = 0)
         where mi.id = #{id}
     </select>
 

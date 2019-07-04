@@ -9,6 +9,7 @@ import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.store.rel.SmRelStoreAttributePo;
+import com.chauncy.data.domain.po.store.rel.SmRelUserFocusStorePo;
 import com.chauncy.data.domain.po.sys.SysRolePo;
 import com.chauncy.data.domain.po.sys.SysRoleUserPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
@@ -21,6 +22,7 @@ import com.chauncy.data.dto.supplier.store.update.StoreBusinessLicenseDto;
 import com.chauncy.data.mapper.product.PmGoodsAttributeMapper;
 import com.chauncy.data.mapper.store.rel.SmRelStoreAttributeMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
+import com.chauncy.data.mapper.store.rel.SmRelUserFocusStoreMapper;
 import com.chauncy.data.mapper.sys.SysRoleMapper;
 import com.chauncy.data.mapper.sys.SysRoleUserMapper;
 import com.chauncy.data.mapper.sys.SysUserMapper;
@@ -68,7 +70,7 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
     @Autowired
     private SmRelStoreAttributeMapper smRelStoreAttributeMapper;
     @Autowired
-    private PmGoodsAttributeMapper pmGoodsAttributeMapper;
+    private SmRelUserFocusStoreMapper smRelUserFocusStoreMapper;
     @Autowired
     private ISmRelStoreAttributeService smRelStoreAttributeService;
 
@@ -371,6 +373,22 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
 
         PageInfo<RelStoreInfoVo> relStoreInfoVoPageInfo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
                 .doSelectPageInfo(() -> smStoreMapper.searchRelStoreInfo(storeSearchByConditionDto));
-        return relStoreInfoVoPageInfo;    }
+        return relStoreInfoVoPageInfo;
+    }
+
+    /**
+     * 用户关注店铺
+     *
+     * @param storeId 店铺id
+     * @param userId  用户id
+     * @return
+     */
+    @Override
+    public void userFocusStore(Long storeId, Long userId) {
+        SmRelUserFocusStorePo smRelUserFocusStorePo = new SmRelUserFocusStorePo();
+        smRelUserFocusStorePo.setStoreId(storeId);
+        smRelUserFocusStorePo.setUserId(userId);
+        smRelUserFocusStoreMapper.insert(smRelUserFocusStorePo);
+    }
 
 }

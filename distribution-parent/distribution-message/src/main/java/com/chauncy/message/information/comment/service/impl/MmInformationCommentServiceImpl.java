@@ -1,9 +1,13 @@
 package com.chauncy.message.information.comment.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.domain.po.message.information.comment.MmInformationCommentPo;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.manage.message.information.add.AddInformationCommentDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationCommentDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationViceCommentDto;
+import com.chauncy.data.mapper.message.information.MmInformationMapper;
 import com.chauncy.data.mapper.message.information.comment.MmInformationCommentMapper;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.vo.manage.message.information.comment.InformationMainCommentVo;
@@ -29,6 +33,8 @@ public class MmInformationCommentServiceImpl extends AbstractService<MmInformati
 
     @Autowired
     private MmInformationCommentMapper mmInformationCommentMapper;
+    @Autowired
+    private MmInformationMapper mmInformationMapper;
 
     /**
      * 后台分条件页查询评论
@@ -102,4 +108,29 @@ public class MmInformationCommentServiceImpl extends AbstractService<MmInformati
         mmInformationCommentMapper.deleteById(id);
     }
 
+    /**
+     * 保存评论
+     */
+    @Override
+    public void saveInfoComment(AddInformationCommentDto addInformationCommentDto, Long userId) {
+        MmInformationCommentPo mmInformationCommentPo = new MmInformationCommentPo();
+        mmInformationCommentPo.setInfoId(addInformationCommentDto.getInfoId());
+        mmInformationCommentPo.setUserId(userId);
+        mmInformationCommentPo.setParentId(addInformationCommentDto.getParentId());
+        mmInformationCommentPo.setContent(addInformationCommentDto.getContent());
+        if(null != addInformationCommentDto.getParentId()) {
+            MmInformationCommentPo parentComment = mmInformationCommentMapper.selectById(addInformationCommentDto.getParentId());
+            if(null != parentComment.getParentId()) {
+                //用户评论的评论不是主评论
+                mmInformationCommentPo.setParentUserId(parentComment.getUserId());
+            }
+        }
+        mmInformationCommentMapper.insert(mmInformationCommentPo);
+        //资讯评论量+1
+        MmInformationPo mmInformationPo = mmInformationMapper.selectById(addInformationCommentDto.getInfoId());
+        UpdateWrapper updateWrapper = new UpdateWrapper();
+        updateWrapper.eq("id", mmInformationPo.getId());
+        updateWrapper.set("liked_num", mmInformationPo.getLikedNum() + 1);
+        this.update(updateWrapper);
+    }
 }
