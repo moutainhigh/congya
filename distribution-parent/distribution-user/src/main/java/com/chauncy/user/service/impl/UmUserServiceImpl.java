@@ -10,6 +10,7 @@ import com.chauncy.common.util.StringUtils;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.user.add.AddUserDto;
+import com.chauncy.data.dto.app.user.add.BindUserDto;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.user.service.IUmUserService;
 import org.springframework.beans.BeanUtils;
@@ -43,12 +44,12 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
 
     @Override
     public boolean validVerifyCode(String verifyCode, String phone, ValidCodeEnum validCodeEnum) {
-        String redisKey=String.format(validCodeEnum.getRedisKey(),phone);
+        String redisKey = String.format(validCodeEnum.getRedisKey(), phone);
         Object redisValue = redisUtil.get(redisKey);
-        if (redisValue==null){
+        if (redisValue == null) {
             return false;
         }
-        if (StringUtils.equals(verifyCode.trim(), redisValue.toString().trim())){
+        if (StringUtils.equals(verifyCode.trim(), redisValue.toString().trim())) {
             return true;
         }
         return false;
@@ -57,30 +58,45 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean saveUser(AddUserDto addUserDto) {
-        if (!validVerifyCode(addUserDto.getVerifyCode(),addUserDto.getPhone(),ValidCodeEnum.REGISTER_CODE)){
-            throw new ServiceException(ResultCode.FAIL,"验证码错误！");
+        if (!validVerifyCode(addUserDto.getVerifyCode(), addUserDto.getPhone(), ValidCodeEnum.REGISTER_CODE)) {
+            throw new ServiceException(ResultCode.FAIL, "验证码错误！");
         }
         UmUserPo saveUser = new UmUserPo();
-        BeanUtils.copyProperties(addUserDto,saveUser);
+        BeanUtils.copyProperties(addUserDto, saveUser);
 
         /**
          * 设置一些值
          */
         saveUser.setInviteCode(SnowFlakeUtil.getFlowIdInstance().nextId());
-        saveUser.setCreateBy("test");
-        return mapper.insert(saveUser)>0;
+        return mapper.insert(saveUser) > 0;
+    }
+
+    @Override
+    public boolean bindUser(BindUserDto userDto) {
+        if (!validVerifyCode(userDto.getVerifyCode(), userDto.getPhone(), ValidCodeEnum.BIND_PHONE_CODE)) {
+            throw new ServiceException(ResultCode.FAIL, "验证码错误！");
+        }
+        UmUserPo saveUser = new UmUserPo();
+        BeanUtils.copyProperties(userDto, saveUser);
+        saveUser.setInviteCode(SnowFlakeUtil.getFlowIdInstance().nextId());
+        return mapper.insert(saveUser) > 0;
     }
 
     @Override
     public boolean reset(AddUserDto addUserDto) {
-        if (!validVerifyCode(addUserDto.getVerifyCode(),addUserDto.getPhone(),ValidCodeEnum.RESET_PASSWORD_CODE)){
-            throw new ServiceException(ResultCode.FAIL,"验证码错误！");
+        if (!validVerifyCode(addUserDto.getVerifyCode(), addUserDto.getPhone(), ValidCodeEnum.RESET_PASSWORD_CODE)) {
+            throw new ServiceException(ResultCode.FAIL, "验证码错误！");
         }
         UmUserPo updateUser = new UmUserPo();
-        updateUser.setUpdateBy("test").setPassword(addUserDto.getPassword());
+        updateUser.setPassword(addUserDto.getPassword());
         UmUserPo condition = new UmUserPo();
         condition.setPhone(addUserDto.getPhone());
-        return  mapper.update(updateUser,new UpdateWrapper<>(condition))>0;
+        return mapper.update(updateUser, new UpdateWrapper<>(condition)) > 0;
 
+    }
+
+    @Override
+    public boolean updateLogin(String phone) {
+        return mapper.updateLogin(phone)>0;
     }
 }

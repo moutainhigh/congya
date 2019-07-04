@@ -1,4 +1,4 @@
-package com.chauncy.web.api.supplier.message;
+package com.chauncy.web.api.supplier.message.information;
 
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
@@ -28,24 +28,24 @@ import javax.validation.Valid;
  * @author yeJH
  * @since 2019/6/26 15:56
  */
-@Api(tags = "商家_店铺资讯管理接口")
+@Api(tags = "商家_资讯管理接口")
 @RestController
 @RequestMapping("/supplier/information")
 @Slf4j
-public class MsInformationApi extends BaseApi {
+public class SmInformationApi extends BaseApi {
 
     @Autowired
     private IMmInformationService mmInformationService;
     
     /**
-     * 保存店铺资讯信息
+     * 保存资讯信息
      * @param informationDto
      * @return
      */
     @PostMapping("/save")
-    @ApiOperation(value = "保存店铺资讯信息")
+    @ApiOperation(value = "保存资讯信息")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData save(@Valid @RequestBody @ApiParam(required = true, name = "informationDto", value = "店铺资讯信息")
+    public JsonViewData save(@Valid @RequestBody @ApiParam(required = true, name = "informationDto", value = "资讯信息")
                                      InformationDto informationDto) {
 
         mmInformationService.saveInformation(informationDto);
@@ -53,14 +53,14 @@ public class MsInformationApi extends BaseApi {
     }
 
     /**
-     * 编辑店铺资讯信息
+     * 编辑资讯信息
      * @param informationDto
      * @return
      */
     @PostMapping("/edit")
-    @ApiOperation(value = "编辑店铺资讯信息")
+    @ApiOperation(value = "编辑资讯信息")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData edit(@Validated(IUpdateGroup.class)  @RequestBody @ApiParam(required = true, name = "informationDto", value = "店铺资讯信息")
+    public JsonViewData edit(@Validated(IUpdateGroup.class)  @RequestBody @ApiParam(required = true, name = "informationDto", value = "资讯信息")
                                      InformationDto informationDto) {
 
         mmInformationService.editInformation(informationDto);
@@ -69,12 +69,12 @@ public class MsInformationApi extends BaseApi {
 
 
     /**
-     * 根据ID查找店铺资讯
+     * 根据ID查找资讯
      *
      * @param id
      * @return
      */
-    @ApiOperation(value = "查找店铺资讯", notes = "根据ID查找")
+    @ApiOperation(value = "查找资讯", notes = "根据ID查找")
     @GetMapping("/findById/{id}")
     public JsonViewData<InformationVo> findById(@ApiParam(required = true, value = "id")
                                                 @PathVariable Long id) {

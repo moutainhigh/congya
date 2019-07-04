@@ -1,8 +1,11 @@
 package com.chauncy.web.base;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.user.service.IUmUserService;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,6 +31,9 @@ public abstract class BaseApi {
     @Autowired
     protected HttpSession httpSession;
 
+    @Autowired
+    protected IUmUserService umUserService;
+
 
     protected static int defaultPageSize = 10;
 
@@ -37,6 +43,18 @@ public abstract class BaseApi {
 
     protected UserDetails getUser() {
         return ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+    }
+
+    /**
+     * 获取当前登录app用户
+     * @return
+     */
+    public UmUserPo getAppCurrUser(){
+
+        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UmUserPo userPo=new UmUserPo();
+        userPo.setPhone(user.getUsername());
+        return umUserService.getOne(new QueryWrapper<>(userPo));
     }
 
     protected JsonViewData setJsonViewData(ResultCode resultCode) {

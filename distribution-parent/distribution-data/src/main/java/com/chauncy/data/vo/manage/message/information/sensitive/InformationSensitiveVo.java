@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
  * @since 2019/6/26 14:42
  */
 @Data
-@ApiModel(value = "店铺资讯敏感词")
+@ApiModel(value = "资讯敏感词")
 public class InformationSensitiveVo    implements Serializable {
 
     private static final long serialVersionUID = 1L;

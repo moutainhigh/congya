@@ -21,13 +21,13 @@ import java.util.List;
 public interface IMmInformationSensitiveService extends Service<MmInformationSensitivePo> {
 
     /**
-     * 保存店铺资讯敏感词信息
+     * 保存资讯敏感词信息
      * @param informationSensitiveDto
      */
     void saveInformationSensitive(InformationSensitiveDto informationSensitiveDto);
     
     /**
-     * 编辑店铺资讯敏感词信息
+     * 编辑资讯敏感词信息
      * @param informationSensitiveDto
      */
     void editInformationSensitive(InformationSensitiveDto informationSensitiveDto);

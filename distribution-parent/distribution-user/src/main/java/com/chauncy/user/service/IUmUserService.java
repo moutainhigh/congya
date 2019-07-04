@@ -4,6 +4,7 @@ import com.chauncy.common.enums.user.ValidCodeEnum;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.user.add.AddUserDto;
+import com.chauncy.data.dto.app.user.add.BindUserDto;
 
 /**
  * <p>
@@ -31,11 +32,25 @@ public interface IUmUserService extends Service<UmUserPo> {
     boolean saveUser(AddUserDto addUserDto);
 
     /**
+     * 绑定用户
+     * @param userDto
+     * @return
+     */
+    boolean bindUser(BindUserDto userDto);
+
+    /**
      * 用户修改密码
      * @param addUserDto
      * @return
      */
     boolean reset(AddUserDto addUserDto);
+
+    /**
+     * 登陆成功后修改登陆时间和登录次数
+     * @param phone
+     * @return
+     */
+    boolean updateLogin(String phone);
 
 
 }

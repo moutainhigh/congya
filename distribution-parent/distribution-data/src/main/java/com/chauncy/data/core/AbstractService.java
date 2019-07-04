@@ -27,6 +27,7 @@ public abstract class AbstractService<M extends BaseMapper<T>,T> extends Service
 
     protected static String defaultSoft="sort desc";
 
+
     @Autowired
     private IBaseMapper<T> IBaseMapper;
 

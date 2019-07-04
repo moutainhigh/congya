@@ -1,22 +1,18 @@
 package com.chauncy.security.provider;
 
-import cn.hutool.system.UserInfo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.user.ValidCodeEnum;
-import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.security.config.SecurityUserDetails;
 import com.chauncy.security.config.UserDetailsServiceImpl;
 import com.chauncy.security.details.MyAuthenticationDetails;
 import com.chauncy.security.exception.LoginFailLimitException;
 import com.chauncy.user.service.IUmUserService;
-import io.swagger.annotations.ApiModelProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -40,6 +36,8 @@ public class AppProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         MyAuthenticationDetails details = (MyAuthenticationDetails) authentication.getDetails();
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+
         switch (details.getLoginType()) {
             case MANAGE:
                 String userName = authentication.getName();// 这个获取表单输入中返回的用户名;
@@ -49,7 +47,6 @@ public class AppProvider implements AuthenticationProvider {
                 if (userInfo.getUsername() == null) {
                     throw new DisabledException("用户名不存在");
                 }
-                BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
                 if (!bCryptPasswordEncoder.matches(password, userInfo.getPassword())) {
                     throw new BadCredentialsException("密码不正确");
                 }
@@ -75,11 +72,53 @@ public class AppProvider implements AuthenticationProvider {
                 SecurityUserDetails securityUserDetails=new SecurityUserDetails();
                 securityUserDetails.setUsername(phone);
                 securityUserDetails.setPassword(queryUser.getPassword());
+                appAfterLogin(phone);
                 return new UsernamePasswordAuthenticationToken(securityUserDetails, queryUser.getPassword());
-            case SUPPLIER:
-                break;
+            case APP_PASSWORD:
+                String appPhone = details.getPhone();
+                String appPassword = (String) authentication.getCredentials();// 这个是表单中输入的密码；
+                UmUserPo appCondition = new UmUserPo();
+                appCondition.setPhone(appPhone);
+                UmUserPo appQueryUser = umUserService.getOne(new QueryWrapper<>(appCondition));
+                if (appQueryUser==null){
+                    throw new DisabledException("该手机号码未注册！");
+                }
+                if (!appQueryUser.getEnabled()){
+                    throw new LockedException("该账户已被禁用！");
+                }
+                if (!bCryptPasswordEncoder.matches(appPassword, appQueryUser.getPassword())) {
+                    throw new BadCredentialsException("密码不正确");
+                }
+                SecurityUserDetails appSecurityUser=new SecurityUserDetails();
+                appSecurityUser.setUsername(appPhone);
+                appSecurityUser.setPassword(appQueryUser.getPassword());
+                appAfterLogin(appPhone);
+                return new UsernamePasswordAuthenticationToken(appSecurityUser, appQueryUser.getPassword());
+            case THIRD_WECHAT:
+                String unionId=details.getUnionId();
+                UmUserPo thirdCondition = new UmUserPo();
+                thirdCondition.setUnionId(unionId);
+                UmUserPo thirdQueryUser = umUserService.getOne(new QueryWrapper<>(thirdCondition));
+                if (thirdQueryUser==null){
+                    throw new LoginFailLimitException("该用户尚未注册，请先完成手机验证注册！");
+                }
+                if (!thirdQueryUser.getEnabled()){
+                    throw new LockedException("该账户已被禁用！");
+                }
+                SecurityUserDetails thirdSecurityUser=new SecurityUserDetails();
+                thirdSecurityUser.setUsername(thirdQueryUser.getPhone());
+                thirdSecurityUser.setPassword(thirdQueryUser.getPassword());
+                appAfterLogin(thirdQueryUser.getPhone());
+                return new UsernamePasswordAuthenticationToken(thirdSecurityUser, thirdQueryUser.getPassword());
         }
         return null;
+    }
+
+    /**
+     * 登录之后更新一些统计信息
+     */
+    private void appAfterLogin(String phone){
+        umUserService.updateLogin(phone);
     }
 
     @Override

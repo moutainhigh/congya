@@ -46,7 +46,7 @@ public class MmInformationCategoryServiceImpl extends AbstractService<MmInformat
     @Autowired
     private SecurityUtil securityUtil;
     /**
-     * 保存店铺资讯分类信息
+     * 保存资讯分类信息
      *
      * @param informationCategoryDto
      */
@@ -68,7 +68,7 @@ public class MmInformationCategoryServiceImpl extends AbstractService<MmInformat
     }
     
     /**
-     * 编辑店铺资讯分类信息
+     * 编辑资讯分类信息
      *
      * @param informationCategoryDto
      */
@@ -123,7 +123,7 @@ public class MmInformationCategoryServiceImpl extends AbstractService<MmInformat
 
 
     /**
-     * 查询店铺资讯所有分类
+     * 查询资讯所有分类
      *
      * @return
      */
@@ -158,7 +158,7 @@ public class MmInformationCategoryServiceImpl extends AbstractService<MmInformat
             queryWrapper.eq("info_category_id",id);
             Integer count = mmInformationMapper.selectCount(queryWrapper);
             if(count > 0 ) {
-                throw new ServiceException(ResultCode.FAIL, "删除失败，包含正被店铺资讯使用关联的分类");
+                throw new ServiceException(ResultCode.FAIL, "删除失败，包含正被资讯使用关联的分类");
             }
         }
         //批量删除分类

@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
  * @since 2019/6/28 16:01
  */
 @Data
-@ApiModel(value = "资讯列表分页查询结果")
+@ApiModel(value = "后台资讯列表分页查询结果")
 public class InformationPageInfoVo implements Serializable {
 
     private static final long serialVersionUID = 1L;
