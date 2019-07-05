@@ -26,7 +26,8 @@ public enum ResultCode  {
 
     OCCUPATION(8, "数据被占用，系统繁忙！"),
 
-    REMOTE_LOGIN(9, "异地登录,被挤下线！");
+    REMOTE_LOGIN(9, "异地登录,被挤下线！"),
+    NSUFFICIENT_INVENTORY(10,"库存不足！");
 
     private int value;
     private String description;

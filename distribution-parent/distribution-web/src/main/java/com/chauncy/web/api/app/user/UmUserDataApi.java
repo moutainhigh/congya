@@ -188,6 +188,7 @@ public class UmUserDataApi extends BaseApi {
         BeanUtils.copyProperties(updateUserDataDto,updateUser);
         updateUser.setId(getAppCurrUser().getId());
         umUserService.updateById(updateUser);
+        return setJsonViewData(ResultCode.SUCCESS);
     }
 
 

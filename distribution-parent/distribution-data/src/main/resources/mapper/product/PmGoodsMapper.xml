@@ -62,8 +62,7 @@
     </select>
 
     <select id="searchGoodsInfo" resultType="com.chauncy.data.vo.supplier.PmGoodsVo">
-        SELECT a.id,a.icon,a.NAME as
-        good_name,a.sort,a.stock,a.sales_volume,a.star_status,a.publish_status,a.verify_status,
+        SELECT a.id,a.icon,a.NAME as good_name,a.sort,a.sales_volume,a.star_status,a.publish_status,a.verify_status,
         Min(b.supplier_price) AS supplier_price, Min(b.sell_price) AS sell_price,d.name as brandName
         from pm_goods a
         LEFT JOIN pm_goods_sku b on a.id = b.goods_id and a.del_flag = 0
@@ -72,38 +71,38 @@
         inner join pm_goods_category e on e.id = a.goods_category_id
         left join sm_store f on f.id = a.store_id and f.del_flag = 0
         <where>
-            <if test="goodName!=null and goodName !=''">
-                and a.name like concat('%', #{goodName}, '%')
-            </if>
-            <if test="categoryName!=null and categoryName!=''">
-                and e.name like concat('%', #{categoryName}, '%')
-            </if>
-            <if test="brandName !=null and brandName!=''">
-                and d.name like concat('%', #{brandName}, '%')
-            </if>
-            <if test="verifyStatus!=null">
-                and a.verify_status = #{verifyStatus}
-            </if>
-            <if test="publishStatus!=null">
-                and a.publish_status=#{publishStatus}
-            </if>
-            <if test="storeName!=null and storeName!=''">
-                and f.name like concat('%', #{storeName}, '%')
-            </if>
+         <if test="goodName!=null and goodName !=''">
+             and a.name like concat('%', #{goodName}, '%')
+         </if>
+         <if test="categoryName!=null and categoryName!=''">
+             and e.name like concat('%', #{categoryName}, '%')
+         </if>
+         <if test="brandName !=null and brandName!=''">
+            and d.name like concat('%', #{brandName}, '%')
+         </if>
+         <if test="verifyStatus!=null">
+            and a.verify_status = #{verifyStatus}
+         </if>
+         <if test="publishStatus!=null">
+            and a.publish_status=#{publishStatus}
+         </if>
+         <if test="storeName!=null and storeName!=''">
+            and f.name like concat('%', #{storeName}, '%')
+         </if>
         </where>
         GROUP BY a.id,d.id order by a.sort;
     </select>
 
 
     <select id="searchRelGoodsByInfoId" resultType="com.chauncy.data.vo.supplier.InformationRelGoodsVo">
-        SELECT mrig.id, pg.`name`, pg.goods_category_id, Min(pgs.sell_price) AS sell_price,pg.goods_type
-        FROM mm_rel_information_goods mrig
-        LEFT JOIN pm_goods pg on (pg.id = mrig.goods_id and pg.del_flag = 0)
-        LEFT JOIN pm_goods_sku pgs on (pg.id = pgs.goods_id and pgs.del_flag = 0)
-        <where>
-            mrig.information_id = #{id}
-        </where>
-        GROUP BY pg.id
+    SELECT mrig.id, pg.`name`, pg.goods_category_id, Min(pgs.sell_price) AS sell_price,pg.goods_type
+    FROM mm_rel_information_goods mrig
+         LEFT JOIN pm_goods pg on (pg.id = mrig.goods_id and pg.del_flag = 0)
+         LEFT JOIN pm_goods_sku pgs on (pg.id = pgs.goods_id and pgs.del_flag = 0)
+    <where>
+         mrig.information_id = #{id}
+    </where>
+    GROUP BY pg.id
     </select>
 
     <select id="searchExcelGoods" resultType="com.chauncy.data.vo.supplier.good.ExcelGoodVo">

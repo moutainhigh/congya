@@ -34,6 +34,7 @@ import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -618,7 +619,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     public void addOrUpdateSkuAttribute(AddOrUpdateSkuAttributeDto addOrUpdateSkuAttributeDto) {
 
         //初始化商品总库存
-        int stock = 0;
+//        int stock = 0;
         String user = securityUtil.getCurrUser().getUsername();
         //判断用户属于平台后台或者商家端
         String userId = securityUtil.getCurrUser().getId();
@@ -635,7 +636,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         List<PmGoodsSkuPo> skus = goodsSkuMapper.selectByMap(skuMaps);
         //如果skuPos为空，则新增sku
         if (skus.size()==0 && skus==null) {
-            addSkus(addOrUpdateSkuAttributeDto, stock, user);
+            addSkus(addOrUpdateSkuAttributeDto, /*stock,*/ user);
         }
         //如果skuPos不为空，则更新sku
         else{
@@ -664,7 +665,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             /**
              * 重新添加sku相关信息
              */
-            addSkus(addOrUpdateSkuAttributeDto, stock, user);
+            addSkus(addOrUpdateSkuAttributeDto, /*stock,*/ user);
         }
 
     }
@@ -673,10 +674,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
      * 添加sku列表
      *
      * @param addOrUpdateSkuAttributeDto
-     * @param stock
      * @param user
      */
-    private void addSkus(AddOrUpdateSkuAttributeDto addOrUpdateSkuAttributeDto, int stock, String user) {
+    private void addSkus(AddOrUpdateSkuAttributeDto addOrUpdateSkuAttributeDto,/* int stock,*/ String user) {
         for (AddSkuAttributeDto addSkuAttributeDto : addOrUpdateSkuAttributeDto.getSkuAttributeDtos()) {
             //保存非关联信息到sku
             PmGoodsSkuPo goodsSkuPo = new PmGoodsSkuPo();
@@ -730,12 +730,12 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
                 }
             });
-            stock += addSkuAttributeDto.getStock();
-            //更新商品总库存
-            PmGoodsPo goodsPo = new PmGoodsPo();
-            goodsPo.setStock(stock);
-            goodsPo.setId(addOrUpdateSkuAttributeDto.getGoodsId());
-            goodsMapper.updateById(goodsPo);
+//            stock += addSkuAttributeDto.getStock();
+//            //更新商品总库存
+//            PmGoodsPo goodsPo = new PmGoodsPo();
+//            goodsPo.setStock(stock);
+//            goodsPo.setId(addOrUpdateSkuAttributeDto.getGoodsId());
+//            goodsMapper.updateById(goodsPo);
         }
     }
 
@@ -1135,6 +1135,12 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
         goodsVos = PageHelper.startPage(pageNo, pageSize, defaultSoft)
                 .doSelectPageInfo(() -> mapper.searchGoodsInfo(searchGoodInfosDto));
+        goodsVos.getList().forEach(a->{
+            Map<String,Object> map = Maps.newHashMap();
+            map.put("goods_id",a.getId());
+            int stock = goodsSkuMapper.selectByMap(map).stream().map(PmGoodsSkuPo::getStock).mapToInt(c -> c).sum();
+            a.setStock(stock);
+        });
         return goodsVos;
     }
 
@@ -1245,7 +1251,13 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         platformShipList = shippingTemplateMapper.findByType(GoodsShipTemplateEnum.PLATFORM_SHIP.getId());
         merchantShipList = shippingTemplateMapper.findByType(GoodsShipTemplateEnum.MERCHANT_SHIP.getId());
 
-        String categoryName = goodsCategoryMapper.selectById(categoryId).getName();
+        PmGoodsCategoryPo goodsCategoryPo3 = goodsCategoryMapper.selectById(categoryId);
+        String level3 = goodsCategoryPo3.getName();
+        PmGoodsCategoryPo goodsCategoryPo2 = goodsCategoryMapper.selectById(goodsCategoryPo3.getParentId());
+        String level2 = goodsCategoryPo2.getName();
+        String level1 = goodsCategoryMapper.selectById(goodsCategoryPo2.getParentId()).getName();
+
+        String categoryName = level1+"/"+level2+"/"+level3;
 
         attributeVo.setBrandList(brandList);
         attributeVo.setTypeList(typeList);
