@@ -191,7 +191,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         addAttribute(addGoodBaseDto, user, goodsPo);
 
         //处理商品参数属性
-        if (addGoodBaseDto.getGoodsParamDtoList()!=null)
+        if (addGoodBaseDto.getGoodsParamDtoList()!=null && addGoodBaseDto.getGoodsParamDtoList().size()!=0)
         addParam(addGoodBaseDto, user, goodsPo);
 
         Long goodsId = goodsPo.getId();
@@ -370,7 +370,8 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             goodsAttributeValueMapper.deleteById(x);
         });
         //添加商品参数信息
-        addParam(updateGoodBaseDto, user, goodsPo);
+        if (updateGoodBaseDto.getGoodsParamDtoList()!=null && updateGoodBaseDto.getGoodsParamDtoList().size()!=0)
+            addParam(updateGoodBaseDto, user, goodsPo);
 
         /**
          * 处理其他属性信息，商品与属性关联表

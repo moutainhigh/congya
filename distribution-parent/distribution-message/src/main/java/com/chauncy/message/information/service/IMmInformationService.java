@@ -2,8 +2,11 @@ package com.chauncy.message.information.service;
 
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.dto.app.message.information.select.SearchInfoByConditionDto;
 import com.chauncy.data.dto.manage.message.information.add.InformationDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationSearchDto;
+import com.chauncy.data.vo.app.message.information.InformationBaseVo;
+import com.chauncy.data.vo.app.message.information.InformationPagingVo;
 import com.chauncy.data.vo.manage.message.information.InformationPageInfoVo;
 import com.chauncy.data.vo.manage.message.information.InformationVo;
 import com.github.pagehelper.PageInfo;
@@ -36,11 +39,18 @@ public interface IMmInformationService extends Service<MmInformationPo> {
     void delInformationByIds(Long[] ids);
 
     /**
-     * 根据ID查找店铺资讯
+     * 后台根据ID查找资讯
      * @param id 资讯id
      * @return
      */
     InformationVo findById(Long id);
+
+    /**
+     * app根据ID查找资讯
+     * @param id 资讯id
+     * @return
+     */
+    InformationBaseVo findBaseById(Long id);
 
     /**
      * 根据关联ID删除资讯跟店铺的绑定关系
@@ -50,9 +60,15 @@ public interface IMmInformationService extends Service<MmInformationPo> {
     void delRelById(Long id);
 
     /**
-     * 分页条件查询
+     * 后台分页条件查询
      * @param informationSearchDto
      * @return
      */
     PageInfo<InformationPageInfoVo> searchPaging(InformationSearchDto informationSearchDto);
+    /**
+     * app分页条件查询
+     * @param searchInfoByConditionDto
+     * @return
+     */
+    PageInfo<InformationPagingVo> searchPaging(SearchInfoByConditionDto searchInfoByConditionDto);
 }

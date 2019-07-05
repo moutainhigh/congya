@@ -25,7 +25,7 @@ import javax.validation.Valid;
  * @author yeJH
  * @since 2019/6/16 14:50
  */
-@Api(tags = "平台_店铺分类管理接口")
+@Api(tags = "平台_店铺管理_分类管理接口")
 @RestController
 @RequestMapping("/manage/store/category")
 @Slf4j

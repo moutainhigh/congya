@@ -14,7 +14,7 @@ import java.io.Serializable;
  * @since 2019/6/26 14:34
  */
 @Data
-@ApiModel(value = "InformationSensitiveDto对象", description = "店铺资讯敏感词信息")
+@ApiModel(value = "InformationSensitiveDto对象", description = "资讯敏感词信息")
 public class InformationSensitiveDto   implements Serializable {
 
     private static final long serialVersionUID = 1L;

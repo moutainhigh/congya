@@ -7,12 +7,15 @@ import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.domain.po.message.information.rel.MmRelInformationGoodsPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.dto.app.message.information.select.SearchInfoByConditionDto;
 import com.chauncy.data.dto.manage.message.information.add.InformationDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationSearchDto;
 import com.chauncy.data.mapper.message.information.MmInformationMapper;
 import com.chauncy.data.mapper.message.information.rel.MmRelInformationGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
+import com.chauncy.data.vo.app.message.information.InformationBaseVo;
+import com.chauncy.data.vo.app.message.information.InformationPagingVo;
 import com.chauncy.data.vo.manage.message.information.InformationPageInfoVo;
 import com.chauncy.data.vo.manage.message.information.InformationVo;
 import com.chauncy.data.vo.supplier.InformationRelGoodsVo;
@@ -159,7 +162,7 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
     }
 
     /**
-     * 根据ID查找店铺资讯
+     * 后台根据ID查找资讯
      *
      * @param id 资讯id
      * @return
@@ -186,6 +189,18 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
     }
 
     /**
+     * app根据ID查找资讯
+     *
+     * @param id 资讯id
+     * @return
+     */
+    @Override
+    public InformationBaseVo findBaseById(Long id) {
+        //资讯基本信息
+        return  mmInformationMapper.findBaseById(id);
+    }
+
+    /**
      * 根据关联ID删除资讯跟店铺的绑定关系
      *
      * @param id 资讯商品关联id
@@ -204,7 +219,7 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
 
 
     /**
-     * 分页条件查询
+     * 后台分页条件查询
      *
      * @param informationSearchDto
      * @return
@@ -216,7 +231,25 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
         Integer pageSize = informationSearchDto.getPageSize()==null ? defaultPageSize : informationSearchDto.getPageSize();
 
         PageInfo<InformationPageInfoVo> informationPageInfoVoPageInfo = PageHelper.startPage(pageNo, pageSize)
-                .doSelectPageInfo(() -> mmInformationMapper.searchPaging(informationSearchDto));
+                .doSelectPageInfo(() -> mmInformationMapper.searchInfoPaging(informationSearchDto));
         return informationPageInfoVoPageInfo;
+    }
+
+
+    /**
+     * app分页条件查询
+     *
+     * @param searchInfoByConditionDto
+     * @return
+     */
+    @Override
+    public PageInfo<InformationPagingVo> searchPaging(SearchInfoByConditionDto searchInfoByConditionDto) {
+
+        Integer pageNo = searchInfoByConditionDto.getPageNo()==null ? defaultPageNo : searchInfoByConditionDto.getPageNo();
+        Integer pageSize = searchInfoByConditionDto.getPageSize()==null ? defaultPageSize : searchInfoByConditionDto.getPageSize();
+
+        PageInfo<InformationPagingVo> informationBaseVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> mmInformationMapper.searchInfoBasePaging(searchInfoByConditionDto));
+        return informationBaseVoPageInfo;
     }
 }

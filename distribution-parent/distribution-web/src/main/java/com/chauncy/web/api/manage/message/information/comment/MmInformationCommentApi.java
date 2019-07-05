@@ -1,11 +1,11 @@
 package com.chauncy.web.api.manage.message.information.comment;
 
 import com.chauncy.common.enums.system.ResultCode;
-import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationCommentDto;
 import com.chauncy.data.vo.JsonViewData;
-import com.chauncy.data.vo.manage.message.information.comment.InformationCommentVo;
+import com.chauncy.data.vo.manage.message.information.comment.InformationMainCommentVo;
+import com.chauncy.data.vo.manage.message.information.comment.InformationViceCommentVo;
 import com.chauncy.message.information.comment.service.IMmInformationCommentService;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
@@ -23,7 +23,7 @@ import javax.validation.Valid;
  * @author yeJH
  * @since 2019/6/30 16:26
  */
-@Api(tags = "平台_店铺资讯评论管理接口")
+@Api(tags = "平台_资讯_评论管理接口")
 @RestController
 @RequestMapping("/manage/information/comment")
 @Slf4j
@@ -39,9 +39,9 @@ public class MmInformationCommentApi extends BaseApi {
      */
     @ApiOperation(value = "条件查询", notes = "根据ID、名称查询")
     @PostMapping("/searchPaging")
-    public JsonViewData<PageInfo<InformationCommentVo>> searchPaging(@RequestBody InformationCommentDto informationCommentDto) {
+    public JsonViewData<PageInfo<InformationMainCommentVo>> searchPaging(@RequestBody InformationCommentDto informationCommentDto) {
 
-        PageInfo<InformationCommentVo> informationCategoryVoPageInfo = mmInformationCommentService.searchPaging(informationCommentDto);
+        PageInfo<InformationViceCommentVo> informationCategoryVoPageInfo = mmInformationCommentService.searchPaging(informationCommentDto);
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
                 informationCategoryVoPageInfo);
 

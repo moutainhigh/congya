@@ -1,7 +1,7 @@
 package com.chauncy.store.rel.service.impl;
 
 import com.chauncy.data.domain.po.store.rel.SmRelStoreAttributePo;
-import com.chauncy.data.mapper.store.SmRelStoreAttributeMapper;
+import com.chauncy.data.mapper.store.rel.SmRelStoreAttributeMapper;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.store.rel.service.ISmRelStoreAttributeService;
 import org.springframework.stereotype.Service;

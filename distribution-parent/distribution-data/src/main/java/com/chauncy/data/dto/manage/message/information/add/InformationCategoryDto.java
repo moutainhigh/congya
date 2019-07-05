@@ -15,7 +15,7 @@ import java.math.BigDecimal;
  * @since 2019/6/25 22:40
  */
 @Data
-@ApiModel(value = "InformationCategoryDto对象", description = "店铺资讯分类信息")
+@ApiModel(value = "InformationCategoryDto对象", description = "资讯分类信息")
 public class InformationCategoryDto  implements Serializable {
 
     private static final long serialVersionUID = 1L;

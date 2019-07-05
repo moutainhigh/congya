@@ -39,7 +39,7 @@ public class MmInformationSensitiveServiceImpl extends AbstractService<MmInforma
     @Autowired
     private SecurityUtil securityUtil;
     /**
-     * 保存店铺资讯敏感词信息
+     * 保存资讯敏感词信息
      *
      * @param informationSensitiveDto
      */
@@ -61,7 +61,7 @@ public class MmInformationSensitiveServiceImpl extends AbstractService<MmInforma
     }
 
     /**
-     * 编辑店铺资讯敏感词信息
+     * 编辑资讯敏感词信息
      *
      * @param informationSensitiveDto
      */

@@ -26,7 +26,7 @@ import javax.validation.Valid;
  * @author yeJH
  * @since 2019/6/15 16:42
  */
-@Api(tags = "平台_店铺标签管理接口")
+@Api(tags = "平台_店铺管理_标签管理接口")
 @RestController
 @RequestMapping("/manage/store/label")
 @Slf4j

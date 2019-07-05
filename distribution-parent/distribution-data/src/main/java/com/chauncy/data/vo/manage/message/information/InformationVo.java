@@ -18,7 +18,7 @@ import java.util.List;
  * @since 2019/6/27 18:34
  */
 @Data
-@ApiModel(value = "店铺资讯")
+@ApiModel(value = "资讯")
 public class InformationVo implements Serializable {
 
     private static final long serialVersionUID = 1L;

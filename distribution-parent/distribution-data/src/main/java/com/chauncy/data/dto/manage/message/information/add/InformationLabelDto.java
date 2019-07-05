@@ -15,7 +15,7 @@ import java.math.BigDecimal;
  * @since 2019/6/25 18:29
  */
 @Data
-@ApiModel(value = "InformationLabelDto对象", description = "店铺资讯标签信息")
+@ApiModel(value = "InformationLabelDto对象", description = "资讯标签信息")
 public class InformationLabelDto   implements Serializable {
 
     private static final long serialVersionUID = 1L;
