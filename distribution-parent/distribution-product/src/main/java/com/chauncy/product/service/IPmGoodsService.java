@@ -8,6 +8,7 @@ import com.chauncy.data.dto.supplier.good.add.AddAssociationGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.AddGoodBaseDto;
 import com.chauncy.data.dto.supplier.good.add.AddOrUpdateSkuAttributeDto;
 import com.chauncy.data.dto.supplier.good.select.FindStandardDto;
+import com.chauncy.data.dto.supplier.good.select.SearchExcelDto;
 import com.chauncy.data.dto.supplier.good.select.SearchGoodInfosDto;
 import com.chauncy.data.dto.supplier.good.select.SelectAttributeDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodOperationDto;
@@ -16,6 +17,7 @@ import com.chauncy.data.dto.supplier.good.update.UpdatePublishStatusDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.supplier.*;
+import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -223,4 +225,11 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @return
      */
     AttributeVo findAttributes(Long categoryId);
+
+    /**
+     * 查询导入商品信息
+     * @param searchExcelDto
+     * @return
+     */
+    PageInfo<ExcelGoodVo> searchExcelGoods(SearchExcelDto searchExcelDto);
 }

@@ -22,7 +22,11 @@ public enum ValidCodeEnum implements BaseEnum {
     @ApiModelProperty("修改密码")
     RESET_PASSWORD_CODE(3,"SMS_144205066","redis:app:user:reset:phone:%s"),
     @ApiModelProperty("绑定手机")
-    BIND_PHONE_CODE(3,"SMS_169637862","redis:app:user:bind:phone:%s");
+    BIND_PHONE_CODE(4,"SMS_169637862","redis:app:user:bind:phone:%s"),
+    @ApiModelProperty("更改绑定手机")
+    OLD_BIND_PHONE_CODE(5,"SMS_169900842","redis:app:user:oldBind:phone:%s"),
+    @ApiModelProperty("更改绑定手机")
+    NEW_BIND_PHONE_CODE(6,"SMS_169895822","redis:app:user:newBind:phone:%s");
 
 
 

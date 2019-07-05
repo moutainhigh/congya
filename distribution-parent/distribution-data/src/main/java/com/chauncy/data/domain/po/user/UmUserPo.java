@@ -18,6 +18,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotBlank;
+
 /**
  * <p>
  * 前端用户
@@ -131,10 +133,16 @@ public class UmUserPo implements Serializable {
     private String unionId;
 
     @ApiModelProperty(value = "是否已领取用户礼包，默认否")
-    private boolean isGetNewGift;
+    private Boolean isGetNewGift;
 
     @ApiModelProperty(value = "真实姓名")
-    private boolean trueName;
+    private String trueName;
+
+    @ApiModelProperty(value = "正面照片")
+    private String frontPhoto;
+
+    @ApiModelProperty(value = "反面照片")
+    private String backPhoto;
 
 
 }

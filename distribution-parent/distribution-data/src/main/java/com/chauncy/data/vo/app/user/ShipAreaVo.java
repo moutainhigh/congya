@@ -9,6 +9,7 @@ import lombok.Data;
  * @create 2019-06-30 16:41
  *
  */
+
 @ApiModel(description = "收货地址详情")
 @Data
 public class ShipAreaVo {

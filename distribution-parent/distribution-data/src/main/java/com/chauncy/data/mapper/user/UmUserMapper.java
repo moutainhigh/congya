@@ -1,8 +1,14 @@
 package com.chauncy.data.mapper.user;
 
 import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.dto.manage.user.select.SearchUserIdCardDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.valid.annotation.NeedExistConstraint;
+import com.chauncy.data.vo.app.user.UserDataVo;
+import com.chauncy.data.vo.manage.user.idCard.SearchIdCardVo;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * <p>
@@ -20,5 +26,21 @@ public interface UmUserMapper extends IBaseMapper<UmUserPo> {
      * @return
      */
     int updateLogin(@Param("phone") String phone);
+
+    /**
+     * 查找导入商品列表
+     * @param searchUserIdCardDto
+     * @return
+     */
+    List<SearchIdCardVo> loadSearchIdCardVos(SearchUserIdCardDto searchUserIdCardDto);
+
+    /**
+     * 根据手机号码获取用户基本信息
+     * @param phone
+     * @return
+     */
+    UserDataVo loadUserDataVo(@Param("phone") String phone);
+
+
 
 }

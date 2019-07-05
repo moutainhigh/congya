@@ -11,8 +11,14 @@ import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.user.add.AddUserDto;
 import com.chauncy.data.dto.app.user.add.BindUserDto;
+import com.chauncy.data.dto.manage.user.select.SearchUserIdCardDto;
 import com.chauncy.data.mapper.user.UmUserMapper;
+import com.chauncy.data.vo.app.user.UserDataVo;
+import com.chauncy.data.vo.manage.user.idCard.SearchIdCardVo;
+import com.chauncy.data.vo.supplier.PmGoodsVo;
 import com.chauncy.user.service.IUmUserService;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
@@ -98,5 +104,19 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     @Override
     public boolean updateLogin(String phone) {
         return mapper.updateLogin(phone)>0;
+    }
+
+    @Override
+    public PageInfo<SearchIdCardVo> searchIdCardVos(SearchUserIdCardDto searchUserIdCardDto) {
+        Integer pageNo = searchUserIdCardDto.getPageNo() == null ? defaultPageNo : searchUserIdCardDto.getPageNo();
+        Integer pageSize = searchUserIdCardDto.getPageSize() == null ? defaultPageSize : searchUserIdCardDto.getPageSize();
+        PageInfo<SearchIdCardVo> searchIdCardVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> mapper.loadSearchIdCardVos(searchUserIdCardDto));
+        return searchIdCardVoPageInfo;
+    }
+
+    @Override
+    public UserDataVo getUserDataVo(String phone) {
+        return mapper.loadUserDataVo(phone);
     }
 }

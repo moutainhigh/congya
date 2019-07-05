@@ -9,9 +9,11 @@ import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.common.util.StringUtils;
 import com.chauncy.data.domain.po.product.*;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
+import com.chauncy.data.dto.supplier.good.select.SearchExcelDto;
 import com.chauncy.data.temp.product.service.IPmGoodsRelAttributeValueGoodService;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.excel.ExcelImportErrorLogVo;
+import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
 import com.chauncy.poi.util.ReadExcelUtil;
 import com.chauncy.product.service.*;
 import com.chauncy.security.util.SecurityUtil;
@@ -28,10 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -106,13 +106,13 @@ public class ExcelGoodApi extends BaseApi {
     @SuppressWarnings("unchecked")
     public JsonViewData<List<ExcelImportErrorLogVo>> importBase(@RequestParam(value = "file") MultipartFile file) throws InstantiationException, IllegalAccessException, IOException {
 
-        List<List<String>> excelData=getDataFromExcel(file.getInputStream());
+        List<List<String>> excelData = getDataFromExcel(file.getInputStream());
 
-        List<ExcelImportErrorLogVo> excelImportErrorLogVos= saveBaseAndGetErrorLogs(excelData);
+        List<ExcelImportErrorLogVo> excelImportErrorLogVos = saveBaseAndGetErrorLogs(excelData);
         return new JsonViewData(ResultCode.SUCCESS,
-                "操作成功，共有"+excelImportErrorLogVos.size()+"条导入失败！",
+                "操作成功，共有" + excelImportErrorLogVos.size() + "条导入失败！",
                 excelImportErrorLogVos
-                );
+        );
     }
 
 
@@ -122,10 +122,10 @@ public class ExcelGoodApi extends BaseApi {
     @SuppressWarnings("unchecked")
     public JsonViewData<List<ExcelImportErrorLogVo>> finance(@RequestParam(value = "file") MultipartFile file) throws InstantiationException, IllegalAccessException, IOException {
 
-        List<List<String>> excelData=getDataFromExcel(file.getInputStream());
-        List<ExcelImportErrorLogVo> excelImportErrorLogVos= savefinanceAndGetErrorLogs(excelData);
+        List<List<String>> excelData = getDataFromExcel(file.getInputStream());
+        List<ExcelImportErrorLogVo> excelImportErrorLogVos = savefinanceAndGetErrorLogs(excelData);
         return new JsonViewData(ResultCode.SUCCESS,
-                "操作成功，共有"+excelImportErrorLogVos.size()+"条导入失败！",
+                "操作成功，共有" + excelImportErrorLogVos.size() + "条导入失败！",
                 excelImportErrorLogVos
         );
     }
@@ -136,10 +136,10 @@ public class ExcelGoodApi extends BaseApi {
     @SuppressWarnings("unchecked")
     public JsonViewData<List<ExcelImportErrorLogVo>> operate(@RequestParam(value = "file") MultipartFile file) throws InstantiationException, IllegalAccessException, IOException {
 
-        List<List<String>> excelData=getDataFromExcel(file.getInputStream());
-        List<ExcelImportErrorLogVo> excelImportErrorLogVos= saveOperateAndGetErrorLogs(excelData);
+        List<List<String>> excelData = getDataFromExcel(file.getInputStream());
+        List<ExcelImportErrorLogVo> excelImportErrorLogVos = saveOperateAndGetErrorLogs(excelData);
         return new JsonViewData(ResultCode.SUCCESS,
-                "操作成功，共有"+excelImportErrorLogVos.size()+"条导入失败！",
+                "操作成功，共有" + excelImportErrorLogVos.size() + "条导入失败！",
                 excelImportErrorLogVos
         );
     }
@@ -151,23 +151,34 @@ public class ExcelGoodApi extends BaseApi {
     @SuppressWarnings("unchecked")
     public JsonViewData<List<ExcelImportErrorLogVo>> importsku(@RequestParam(value = "file") MultipartFile file) throws InstantiationException, IllegalAccessException, IOException {
 
-        List<List<String>> excelData=getDataFromExcel(file.getInputStream());
-        List<ExcelImportErrorLogVo> excelImportErrorLogVos= saveSkuAndGetErrorLogs(excelData);
+        List<List<String>> excelData = getDataFromExcel(file.getInputStream());
+        List<ExcelImportErrorLogVo> excelImportErrorLogVos = saveSkuAndGetErrorLogs(excelData);
         return new JsonViewData(ResultCode.SUCCESS,
-                "操作成功，共有"+excelImportErrorLogVos.size()+"条导入失败！",
+                "操作成功，共有" + excelImportErrorLogVos.size() + "条导入失败！",
                 excelImportErrorLogVos
         );
     }
 
+    @PostMapping(value = "/searchExcelGoods")
+    @ApiOperation(value = "查询导入商品列表")
+    @Transactional(rollbackFor = Exception.class)
+    @SuppressWarnings("unchecked")
+    public JsonViewData<List<ExcelGoodVo>> searchExcelGoods(@Validated @RequestBody SearchExcelDto searchExcelDto) {
+        return setJsonViewData(pmGoodsService.searchExcelGoods(searchExcelDto));
+
+    }
+
+
     /**
      * 获取excel中的数据
+     *
      * @param inputStream
      * @return
      */
-    private  List<List<String>>  getDataFromExcel(InputStream inputStream){
+    private List<List<String>> getDataFromExcel(InputStream inputStream) {
         List<List<String>> excelData;
         try {
-            excelData=ReadExcelUtil.readExcelInfo(inputStream);
+            excelData = ReadExcelUtil.readExcelInfo(inputStream);
             if (ListUtil.isListNullAndEmpty(excelData)) {
                 throw new ServiceException(ResultCode.FAIL, "获取excel数据失败！");
             }
@@ -179,14 +190,13 @@ public class ExcelGoodApi extends BaseApi {
     }
 
 
-
     /**
      * 插入商品基本信息数据库并获取出错日志
      *
      * @param excelDataList
      * @return
      */
-    private List<ExcelImportErrorLogVo> saveBaseAndGetErrorLogs(List<List<String>> excelDataList) throws IllegalAccessException,InstantiationException {
+    private List<ExcelImportErrorLogVo> saveBaseAndGetErrorLogs(List<List<String>> excelDataList) throws IllegalAccessException, InstantiationException {
         //excel导入出错记录
         List<ExcelImportErrorLogVo> excelImportErrorLogVos = Lists.newArrayList();
 
@@ -195,97 +205,93 @@ public class ExcelGoodApi extends BaseApi {
             //获得整行数据
             List<String> rowDataList = excelDataList.get(i);
             if (rowDataList.size() < BASE_GOOD_ROW_NUMBER) {
-                excelImportErrorLogVo.setRowNumber(i+1);
+                excelImportErrorLogVo.setRowNumber(i + 1);
                 excelImportErrorLogVo.setErrorMessage("excel列数与模板不符合");
                 excelImportErrorLogVos.add(excelImportErrorLogVo);
                 continue;
             }
             //判断不为空的
-            if (StringUtils.isHasBlank(rowDataList.get(0),rowDataList.get(1),rowDataList.get(2),rowDataList.get(5),
-                    rowDataList.get(6),rowDataList.get(7),rowDataList.get(8),rowDataList.get(15),rowDataList.get(16))){
-                excelImportErrorLogVo.setRowNumber(i+1);
+            if (StringUtils.isHasBlank(rowDataList.get(0), rowDataList.get(1), rowDataList.get(2), rowDataList.get(5),
+                    rowDataList.get(6), rowDataList.get(7), rowDataList.get(8), rowDataList.get(15), rowDataList.get(16))) {
+                excelImportErrorLogVo.setRowNumber(i + 1);
                 excelImportErrorLogVo.setErrorMessage("请填写完整excel中红色的列");
                 excelImportErrorLogVos.add(excelImportErrorLogVo);
                 continue;
             }
             //商品分类
-            PmGoodsCategoryPo categoryCondition=new PmGoodsCategoryPo(rowDataList.get(0),3);
-            Wrapper categoryPoWrapper=new QueryWrapper<>(categoryCondition,"id");
+            PmGoodsCategoryPo categoryCondition = new PmGoodsCategoryPo(rowDataList.get(0), 3);
+            Wrapper categoryPoWrapper = new QueryWrapper<>(categoryCondition, "id");
             PmGoodsCategoryPo categoryPo = categoryService.getOne(categoryPoWrapper);
-            if (categoryPo==null){
-                excelImportErrorLogVo.setRowNumber(i+1);
-                excelImportErrorLogVo.setErrorMessage(String.format("系统中商品三级分类【%s】不存在该名称",rowDataList.get(0)));
+            if (categoryPo == null) {
+                excelImportErrorLogVo.setRowNumber(i + 1);
+                excelImportErrorLogVo.setErrorMessage(String.format("系统中商品三级分类【%s】不存在该名称", rowDataList.get(0)));
                 excelImportErrorLogVos.add(excelImportErrorLogVo);
                 continue;
             }
             //商品品牌
-            PmGoodsAttributePo brandCondition=new PmGoodsAttributePo(rowDataList.get(5),8);
-            Wrapper brandWrapper=new QueryWrapper<>(brandCondition,"id");
+            PmGoodsAttributePo brandCondition = new PmGoodsAttributePo(rowDataList.get(5), 8);
+            Wrapper brandWrapper = new QueryWrapper<>(brandCondition, "id");
             PmGoodsAttributePo brand = attributePoService.getOne(brandWrapper);
-            if (brand==null){
-                excelImportErrorLogVo.setRowNumber(i+1);
-                excelImportErrorLogVo.setErrorMessage(String.format("系统商品品牌【%s】不存在该名称",rowDataList.get(5)));
+            if (brand == null) {
+                excelImportErrorLogVo.setRowNumber(i + 1);
+                excelImportErrorLogVo.setErrorMessage(String.format("系统商品品牌【%s】不存在该名称", rowDataList.get(5)));
                 excelImportErrorLogVos.add(excelImportErrorLogVo);
                 continue;
             }
             //商品标签
-            List<String>  labelNames=Splitter.on(";").splitToList(rowDataList.get(6));
+            List<String> labelNames = Splitter.on(";").splitToList(rowDataList.get(6));
             List<Long> labelIds = pmGoodsService.findIdByNamesInAndTableName(labelNames, "pm_goods_attribute", "and type=5");
-            if (ListUtil.isListNullAndEmpty(labelIds)){
-                excelImportErrorLogVo.setRowNumber(i+1);
-                excelImportErrorLogVo.setErrorMessage(String.format("系统中商品标签【%s】不存在",rowDataList.get(6)));
+            if (ListUtil.isListNullAndEmpty(labelIds)) {
+                excelImportErrorLogVo.setRowNumber(i + 1);
+                excelImportErrorLogVo.setErrorMessage(String.format("系统中商品标签【%s】不存在", rowDataList.get(6)));
                 excelImportErrorLogVos.add(excelImportErrorLogVo);
                 continue;
             }
 
-            Boolean recommandStatus="是".equals(rowDataList.get(7));
-            Boolean starStatus="是".equals(rowDataList.get(8));
+            Boolean recommandStatus = "是".equals(rowDataList.get(7));
+            Boolean starStatus = "是".equals(rowDataList.get(8));
 
             //平台服务说明与商家服务说明
-            if (StringUtils.isAllBlank(rowDataList.get(9),rowDataList.get(10)))
-            {
-                excelImportErrorLogVo.setRowNumber(i+1);
+            if (StringUtils.isAllBlank(rowDataList.get(9), rowDataList.get(10))) {
+                excelImportErrorLogVo.setRowNumber(i + 1);
                 excelImportErrorLogVo.setErrorMessage("平台服务说明与商家服务说明不能同时为空");
                 excelImportErrorLogVos.add(excelImportErrorLogVo);
                 continue;
             }
-            List<Long> serviceIds=Lists.newArrayList();
+            List<Long> serviceIds = Lists.newArrayList();
             List<String> serviceNames;
-            if (!StringUtils.isAllBlank(rowDataList.get(9))){
-                serviceNames=Splitter.on(";").omitEmptyStrings().splitToList(rowDataList.get(9));
-                serviceIds=categoryService.findAttributeIdsByNamesAndCategoryId(serviceNames,1,categoryPo.getId());
+            if (!StringUtils.isAllBlank(rowDataList.get(9))) {
+                serviceNames = Splitter.on(";").omitEmptyStrings().splitToList(rowDataList.get(9));
+                serviceIds = categoryService.findAttributeIdsByNamesAndCategoryId(serviceNames, 1, categoryPo.getId());
+            } else {
+                serviceNames = Splitter.on(";").omitEmptyStrings().splitToList(rowDataList.get(10));
+                serviceIds = categoryService.findAttributeIdsByNamesAndCategoryId(serviceNames, 2, categoryPo.getId());
             }
-            else {
-                serviceNames=Splitter.on(";").omitEmptyStrings().splitToList(rowDataList.get(10));
-                serviceIds=categoryService.findAttributeIdsByNamesAndCategoryId(serviceNames,2,categoryPo.getId());
-            }
-            if (ListUtil.isListNullAndEmpty(serviceIds)){
-                excelImportErrorLogVo.setRowNumber(i+1);
+            if (ListUtil.isListNullAndEmpty(serviceIds)) {
+                excelImportErrorLogVo.setRowNumber(i + 1);
                 excelImportErrorLogVo.setErrorMessage("服务说明不存在！");
                 excelImportErrorLogVos.add(excelImportErrorLogVo);
                 continue;
             }
 
             //运费模板
-            if (StringUtils.isAllBlank(rowDataList.get(11),rowDataList.get(12)))
-            {
-                excelImportErrorLogVo.setRowNumber(i+1);
+            if (StringUtils.isAllBlank(rowDataList.get(11), rowDataList.get(12))) {
+                excelImportErrorLogVo.setRowNumber(i + 1);
                 excelImportErrorLogVo.setErrorMessage("平台运费模板与店铺运费模板不能同时为空");
                 excelImportErrorLogVos.add(excelImportErrorLogVo);
                 continue;
             }
             String shipName;
             Long shipId;
-            if (!StringUtils.isAllBlank(rowDataList.get(11))){
-                shipName=rowDataList.get(11);
-                shipId=categoryService.findIdByNamesInAndTableName(Lists.newArrayList(shipName),"pm_shipping_template","and type=1").get(0);
+            if (!StringUtils.isAllBlank(rowDataList.get(11))) {
+                shipName = rowDataList.get(11);
+                shipId = categoryService.findIdByNamesInAndTableName(Lists.newArrayList(shipName), "pm_shipping_template", "and type=1").get(0);
+            } else {
+                shipName = rowDataList.get(12);
+                shipId = categoryService.findIdByNamesInAndTableName(Lists.newArrayList(shipName), "pm_shipping_template", "and type=2").get(0);
             }
-            else {
-                shipName=rowDataList.get(12);
-                shipId=categoryService.findIdByNamesInAndTableName(Lists.newArrayList(shipName),"pm_shipping_template","and type=2").get(0);
-            }
-            if (shipId==null){
-                excelImportErrorLogVo.setRowNumber(i+1);
+            if (shipId == null) {
+                excelImportErrorLogVo.setRowNumber(i + 1);
                 excelImportErrorLogVo.setErrorMessage("运费模板不存在");
                 excelImportErrorLogVos.add(excelImportErrorLogVo);
                 continue;
@@ -293,25 +299,25 @@ public class ExcelGoodApi extends BaseApi {
 
             //商品参数与参数值
             List<String> attributeNames;
-            List<String> attributeValues=null;
+            List<String> attributeValues = null;
             List<Long> attributeIds = null;
-            if (StringUtils.isNotBlank(rowDataList.get(13))){
-                attributeValues=Splitter.on(";").omitEmptyStrings().splitToList(rowDataList.get(14));
-                attributeNames=Splitter.on(";").omitEmptyStrings().splitToList(rowDataList.get(13));
+            if (StringUtils.isNotBlank(rowDataList.get(13))) {
+                attributeValues = Splitter.on(";").omitEmptyStrings().splitToList(rowDataList.get(14));
+                attributeNames = Splitter.on(";").omitEmptyStrings().splitToList(rowDataList.get(13));
                 attributeIds = categoryService.findAttributeIdsByNamesAndCategoryId(attributeNames, 4, categoryPo.getId());
             }
-            if (ListUtil.isListNullAndEmpty(attributeIds)){
-                excelImportErrorLogVo.setRowNumber(i+1);
-                excelImportErrorLogVo.setErrorMessage(String.format("【%s】中存在系统中没有的商品参数",rowDataList.get(13)));
+            if (ListUtil.isListNullAndEmpty(attributeIds)) {
+                excelImportErrorLogVo.setRowNumber(i + 1);
+                excelImportErrorLogVo.setErrorMessage(String.format("【%s】中存在系统中没有的商品参数", rowDataList.get(13)));
                 excelImportErrorLogVos.add(excelImportErrorLogVo);
                 continue;
             }
 
-            List<Long>  goodIds=Splitter.on(";").trimResults().omitEmptyStrings().splitToList(rowDataList.get(17))
-                    .stream().map(x->Long.parseLong(x)).collect(Collectors.toList());
+            List<Long> goodIds = Splitter.on(";").trimResults().omitEmptyStrings().splitToList(rowDataList.get(17))
+                    .stream().map(x -> Long.parseLong(x)).collect(Collectors.toList());
 
             //保存商品表
-            PmGoodsPo saveGoodPo=new PmGoodsPo();
+            PmGoodsPo saveGoodPo = new PmGoodsPo();
             saveGoodPo.setGoodsCategoryId(categoryPo.getId());
             saveGoodPo.setGoodsType(rowDataList.get(1));
             saveGoodPo.setName(rowDataList.get(2));
@@ -327,21 +333,21 @@ public class ExcelGoodApi extends BaseApi {
 
             pmGoodsService.save(saveGoodPo);
 
-            List<PmGoodsRelAttributeGoodPo>  relAttributeGoodPos=Lists.newArrayList();
+            List<PmGoodsRelAttributeGoodPo> relAttributeGoodPos = Lists.newArrayList();
             //品牌
-            relAttributeGoodPos.add(new PmGoodsRelAttributeGoodPo(brand.getId(),saveGoodPo.getId(),getUser().getUsername()));
+            relAttributeGoodPos.add(new PmGoodsRelAttributeGoodPo(brand.getId(), saveGoodPo.getId(), getUser().getUsername()));
             //标签
-            for (Long labelId:labelIds){
-                relAttributeGoodPos.add(new PmGoodsRelAttributeGoodPo(labelId,saveGoodPo.getId(),getUser().getUsername()));
+            for (Long labelId : labelIds) {
+                relAttributeGoodPos.add(new PmGoodsRelAttributeGoodPo(labelId, saveGoodPo.getId(), getUser().getUsername()));
             }
             //服务说明
-            for (Long serviceId:serviceIds){
-                relAttributeGoodPos.add(new PmGoodsRelAttributeGoodPo(serviceId,saveGoodPo.getId(),getUser().getUsername()));
+            for (Long serviceId : serviceIds) {
+                relAttributeGoodPos.add(new PmGoodsRelAttributeGoodPo(serviceId, saveGoodPo.getId(), getUser().getUsername()));
             }
             //商品参数与参数值
-            List<PmGoodsRelAttributeValueGoodPo> saveRelValueGoods=Lists.newArrayList();
-            for (int j=0;j<attributeIds.size();j++){
-                Long attributeId=attributeIds.get(j);
+            List<PmGoodsRelAttributeValueGoodPo> saveRelValueGoods = Lists.newArrayList();
+            for (int j = 0; j < attributeIds.size(); j++) {
+                Long attributeId = attributeIds.get(j);
                 /*//查出该属性下的属性值是否存在
                 PmGoodsAttributeValuePo valueCondition=new PmGoodsAttributeValuePo();
                 valueCondition.setProductAttributeId(attributeId);
@@ -350,13 +356,13 @@ public class ExcelGoodApi extends BaseApi {
                 PmGoodsAttributeValuePo selectValuePo = valueService.getOne(goodsAttributeValuePoWrapper);*/
                 //不存在则新增为自定义属性值
 //                if (selectValuePo==null){
-                    PmGoodsAttributeValuePo saveValuePo=new PmGoodsAttributeValuePo();
-                    saveValuePo.setValue(attributeValues.get(j));
-                    saveValuePo.setProductAttributeId(attributeIds.get(j));
-                    saveValuePo.setIsCustom(true);
-                    saveValuePo.setCreateBy(getUser().getUsername());
-                    valueService.save(saveValuePo);
-                    saveRelValueGoods.add(new PmGoodsRelAttributeValueGoodPo(saveValuePo.getId(),saveGoodPo.getId(),getUser().getUsername()));
+                PmGoodsAttributeValuePo saveValuePo = new PmGoodsAttributeValuePo();
+                saveValuePo.setValue(attributeValues.get(j));
+                saveValuePo.setProductAttributeId(attributeIds.get(j));
+                saveValuePo.setIsCustom(true);
+                saveValuePo.setCreateBy(getUser().getUsername());
+                valueService.save(saveValuePo);
+                saveRelValueGoods.add(new PmGoodsRelAttributeValueGoodPo(saveValuePo.getId(), saveGoodPo.getId(), getUser().getUsername()));
                 //}
                /* else {
                     saveRelValueGoods.add(new PmGoodsRelAttributeValueGoodPo(selectValuePo.getId(),saveGoodPo.getId(),getUser().getUsername()));
@@ -365,10 +371,10 @@ public class ExcelGoodApi extends BaseApi {
             relAttributeValueGoodService.saveBatch(saveRelValueGoods);
 
 
-            if (!ListUtil.isListNullAndEmpty(goodIds)){
-                List<PmAssociationGoodsPo> associationGoodsPos=Lists.newArrayList();
-                for (Long goodId:goodIds){
-                    PmAssociationGoodsPo associationGoodsPo=new PmAssociationGoodsPo(saveGoodPo.getId(),securityUtil.getCurrUser().getStoreId(),goodId,2,getUser().getUsername());
+            if (!ListUtil.isListNullAndEmpty(goodIds)) {
+                List<PmAssociationGoodsPo> associationGoodsPos = Lists.newArrayList();
+                for (Long goodId : goodIds) {
+                    PmAssociationGoodsPo associationGoodsPo = new PmAssociationGoodsPo(saveGoodPo.getId(), securityUtil.getCurrUser().getStoreId(), goodId, 2, getUser().getUsername());
                     associationGoodsPos.add(associationGoodsPo);
                 }
                 associationGoodsService.saveBatch(associationGoodsPos);
@@ -381,10 +387,11 @@ public class ExcelGoodApi extends BaseApi {
 
     /**
      * 插入sku数据库并获取出错日志
+     *
      * @param excelDataList
      * @return
      */
-    private List<ExcelImportErrorLogVo> saveSkuAndGetErrorLogs(List<List<String>> excelDataList) throws IllegalAccessException,InstantiationException {
+    private List<ExcelImportErrorLogVo> saveSkuAndGetErrorLogs(List<List<String>> excelDataList) throws IllegalAccessException, InstantiationException {
         //excel导入出错记录
         List<ExcelImportErrorLogVo> excelImportErrorLogVos = Lists.newArrayList();
 
@@ -413,10 +420,9 @@ public class ExcelGoodApi extends BaseApi {
                 excelImportErrorLogVo.setErrorMessage(String.format("商品id【%s】不存在!", rowDataList.get(0)));
                 excelImportErrorLogVos.add(excelImportErrorLogVo);
                 continue;
-            }
-            else {
-                if (queryGood.getVerifyStatus().equals(2)||queryGood.getVerifyStatus().equals(3)||
-                        (queryGood.getPublishStatus()!=null&&queryGood.getPublishStatus())){
+            } else {
+                if (queryGood.getVerifyStatus().equals(2) || queryGood.getVerifyStatus().equals(3) ||
+                        (queryGood.getPublishStatus() != null && queryGood.getPublishStatus())) {
                     excelImportErrorLogVo.setRowNumber(i + 1);
                     excelImportErrorLogVo.setErrorMessage(String.format("上架、待审核、审核通过的商品不能导入！"));
                     excelImportErrorLogVos.add(excelImportErrorLogVo);
@@ -442,9 +448,9 @@ public class ExcelGoodApi extends BaseApi {
                 continue;
             }
             List<Long> standardIds = categoryService.findAttributeIdsByNamesAndCategoryId(attributeNames, 7, queryGood.getGoodsCategoryId());
-            if (ListUtil.isListNullAndEmpty(standardIds)||standardIds.size()!=attributeNames.size()) {
+            if (ListUtil.isListNullAndEmpty(standardIds) || standardIds.size() != attributeNames.size()) {
                 excelImportErrorLogVo.setRowNumber(i + 1);
-                excelImportErrorLogVo.setErrorMessage(String.format("【%s】中某些规格在当前分类不存在！",rowDataList.get(1)));
+                excelImportErrorLogVo.setErrorMessage(String.format("【%s】中某些规格在当前分类不存在！", rowDataList.get(1)));
                 excelImportErrorLogVos.add(excelImportErrorLogVo);
                 continue;
             }
@@ -453,20 +459,18 @@ public class ExcelGoodApi extends BaseApi {
             skuPo.setArticleNumber(rowDataList.get(5)).setCreateBy(getUser().getUsername()).
                     setGoodsId(Long.parseLong(rowDataList.get(0))).setBarCode(rowDataList.get(6))
                     .setSellPrice(new BigDecimal(rowDataList.get(2))).setLinePrice(new BigDecimal(rowDataList.get(2)))
-                    .setStock((int)Double.parseDouble(rowDataList.get(4)));
+                    .setStock((int) Double.parseDouble(rowDataList.get(4)));
 
             //保存sku主表
             skuService.save(skuPo);
             //修改库存
-            pmGoodsService.updateStock(skuPo.getGoodsId(),skuPo.getStock());
-
-
+            pmGoodsService.updateStock(skuPo.getGoodsId(), skuPo.getStock());
 
 
             List<PmGoodsRelAttributeValueSkuPo> saveRelAttributeValueSkuGoods = Lists.newArrayList();
             for (int j = 0; j < standardIds.size(); j++) {
 
-                Long attributeId = categoryService.findAttributeIdsByNameAndCategoryId(attributeNames.get(j),7,queryGood.getGoodsCategoryId());
+                Long attributeId = categoryService.findAttributeIdsByNameAndCategoryId(attributeNames.get(j), 7, queryGood.getGoodsCategoryId());
                 //查出该属性下的属性值是否存在
                 PmGoodsAttributeValuePo valueCondition = new PmGoodsAttributeValuePo();
                 valueCondition.setProductAttributeId(attributeId);
@@ -492,13 +496,13 @@ public class ExcelGoodApi extends BaseApi {
     }
 
 
-
     /**
      * 插入财务信息并获取出错日志
+     *
      * @param excelDataList
      * @return
      */
-    private List<ExcelImportErrorLogVo> savefinanceAndGetErrorLogs(List<List<String>> excelDataList) throws IllegalAccessException,InstantiationException {
+    private List<ExcelImportErrorLogVo> savefinanceAndGetErrorLogs(List<List<String>> excelDataList) throws IllegalAccessException, InstantiationException {
         //excel导入出错记录
         List<ExcelImportErrorLogVo> excelImportErrorLogVos = Lists.newArrayList();
 
@@ -522,17 +526,16 @@ public class ExcelGoodApi extends BaseApi {
             }
             //skuId
 
-            PmGoodsSkuPo querySku=skuService.getById(rowDataList.get(0));
+            PmGoodsSkuPo querySku = skuService.getById(rowDataList.get(0));
             if (querySku == null) {
                 excelImportErrorLogVo.setRowNumber(i + 1);
                 excelImportErrorLogVo.setErrorMessage(String.format("sku id【%s】不存在!", rowDataList.get(0)));
                 excelImportErrorLogVos.add(excelImportErrorLogVo);
                 continue;
-            }
-            else {
-                PmGoodsPo queryGood=pmGoodsService.getById(querySku.getGoodsId());
-                if (queryGood.getVerifyStatus().equals(2)||queryGood.getVerifyStatus().equals(3)||
-                        (queryGood.getPublishStatus()!=null&&queryGood.getPublishStatus())){
+            } else {
+                PmGoodsPo queryGood = pmGoodsService.getById(querySku.getGoodsId());
+                if (queryGood.getVerifyStatus().equals(2) || queryGood.getVerifyStatus().equals(3) ||
+                        (queryGood.getPublishStatus() != null && queryGood.getPublishStatus())) {
                     excelImportErrorLogVo.setErrorMessage(String.format("上架、待审核、审核通过的商品不能导入！"));
                     excelImportErrorLogVo.setRowNumber(i + 1);
                     excelImportErrorLogVos.add(excelImportErrorLogVo);
@@ -540,17 +543,17 @@ public class ExcelGoodApi extends BaseApi {
                 }
             }
             //供货价
-            BigDecimal supplierPrice=new BigDecimal(rowDataList.get(1));
+            BigDecimal supplierPrice = new BigDecimal(rowDataList.get(1));
 
             //利润比例
-            BigDecimal profitRate=new BigDecimal(rowDataList.get(2));
+            BigDecimal profitRate = new BigDecimal(rowDataList.get(2));
 
             //运营成本
-            BigDecimal operationCost=new BigDecimal(rowDataList.get(3));
+            BigDecimal operationCost = new BigDecimal(rowDataList.get(3));
 
             PmGoodsSkuPo updateSku = new PmGoodsSkuPo();
             updateSku.setId(querySku.getId()).setSupplierPrice(supplierPrice).setProfitRate(profitRate).setOperationCost(operationCost)
-            .setUpdateBy(getUser().getUsername());
+                    .setUpdateBy(getUser().getUsername());
 
             skuService.updateById(updateSku);
 
@@ -561,10 +564,11 @@ public class ExcelGoodApi extends BaseApi {
 
     /**
      * 插入运营信息并获取出错日志
+     *
      * @param excelDataList
      * @return
      */
-    private List<ExcelImportErrorLogVo> saveOperateAndGetErrorLogs(List<List<String>> excelDataList) throws IllegalAccessException,InstantiationException {
+    private List<ExcelImportErrorLogVo> saveOperateAndGetErrorLogs(List<List<String>> excelDataList) throws IllegalAccessException, InstantiationException {
         //excel导入出错记录
         List<ExcelImportErrorLogVo> excelImportErrorLogVos = Lists.newArrayList();
 
@@ -593,10 +597,9 @@ public class ExcelGoodApi extends BaseApi {
                 excelImportErrorLogVo.setRowNumber(i + 1);
                 excelImportErrorLogVos.add(excelImportErrorLogVo);
                 continue;
-            }
-            else {
-                if (queryGood.getVerifyStatus().equals(2)||queryGood.getVerifyStatus().equals(3)||
-                        (queryGood.getPublishStatus()!=null&&queryGood.getPublishStatus())){
+            } else {
+                if (queryGood.getVerifyStatus().equals(2) || queryGood.getVerifyStatus().equals(3) ||
+                        (queryGood.getPublishStatus() != null && queryGood.getPublishStatus())) {
                     excelImportErrorLogVo.setRowNumber(i + 1);
                     excelImportErrorLogVos.add(excelImportErrorLogVo);
                     excelImportErrorLogVo.setErrorMessage(String.format("上架、待审核、审核通过的商品不能导入！"));
@@ -614,10 +617,10 @@ public class ExcelGoodApi extends BaseApi {
             BigDecimal generalizeCostRate = new BigDecimal(rowDataList.get(3));
 
             //会员等级购买权限
-            PmMemberLevelPo memberLevelPo=new PmMemberLevelPo();
+            PmMemberLevelPo memberLevelPo = new PmMemberLevelPo();
             memberLevelPo.setLevelName(rowDataList.get(4));
             PmMemberLevelPo queryMemberLevel = memberLevelService.getOne(new QueryWrapper<>(memberLevelPo));
-            if (queryMemberLevel==null){
+            if (queryMemberLevel == null) {
                 excelImportErrorLogVo.setErrorMessage(String.format("会员等级名称【%s】不存在!", rowDataList.get(4)));
                 excelImportErrorLogVo.setRowNumber(i + 1);
                 excelImportErrorLogVos.add(excelImportErrorLogVo);

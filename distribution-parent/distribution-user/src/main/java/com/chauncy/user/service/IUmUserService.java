@@ -5,6 +5,13 @@ import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.user.add.AddUserDto;
 import com.chauncy.data.dto.app.user.add.BindUserDto;
+import com.chauncy.data.dto.manage.user.select.SearchUserIdCardDto;
+import com.chauncy.data.vo.app.user.UserDataVo;
+import com.chauncy.data.vo.manage.user.idCard.SearchIdCardVo;
+import com.github.pagehelper.PageInfo;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * <p>
@@ -51,6 +58,22 @@ public interface IUmUserService extends Service<UmUserPo> {
      * @return
      */
     boolean updateLogin(String phone);
+
+    /**
+     * 查找导入商品列表
+     * @param searchUserIdCardDto
+     * @return
+     */
+    PageInfo<SearchIdCardVo> searchIdCardVos(SearchUserIdCardDto searchUserIdCardDto);
+
+
+    /**
+     * 根据手机号码获取用户基本信息
+     * @param phone
+     * @return
+     */
+    UserDataVo getUserDataVo(@Param("phone") String phone);
+
 
 
 }

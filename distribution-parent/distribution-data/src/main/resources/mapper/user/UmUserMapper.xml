@@ -4,35 +4,35 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.user.UmUserPo">
-        <id column="id" property="id" />
-        <result column="create_by" property="createBy" />
-        <result column="create_time" property="createTime" />
-        <result column="update_by" property="updateBy" />
-        <result column="update_time" property="updateTime" />
-        <result column="del_flag" property="delFlag" />
-        <result column="name" property="name" />
-        <result column="sex" property="sex" />
-        <result column="invite_code" property="inviteCode" />
-        <result column="parent_id" property="parentId" />
-        <result column="store_id" property="storeId" />
-        <result column="commission_status" property="commissionStatus" />
-        <result column="enabled" property="enabled" />
-        <result column="login_times" property="loginTimes" />
-        <result column="recent_login_time" property="recentLoginTime" />
-        <result column="current_experience" property="currentExperience" />
-        <result column="current_red_envelops" property="currentRedEnvelops" />
-        <result column="current_integral" property="currentIntegral" />
-        <result column="current_shop_ticket" property="currentShopTicket" />
-        <result column="total_consume_money" property="totalConsumeMoney" />
-        <result column="invite_people_num" property="invitePeopleNum" />
-        <result column="total_red_envelops" property="totalRedEnvelops" />
-        <result column="total_integral" property="totalIntegral" />
-        <result column="total_shop_ticket" property="totalShopTicket" />
-        <result column="total_order" property="totalOrder" />
-        <result column="member_level_id" property="memberLevelId" />
-        <result column="phone" property="phone" />
-        <result column="id_card" property="idCard" />
-        <result column="password" property="password" />
+        <id column="id" property="id"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="name" property="name"/>
+        <result column="sex" property="sex"/>
+        <result column="invite_code" property="inviteCode"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="store_id" property="storeId"/>
+        <result column="commission_status" property="commissionStatus"/>
+        <result column="enabled" property="enabled"/>
+        <result column="login_times" property="loginTimes"/>
+        <result column="recent_login_time" property="recentLoginTime"/>
+        <result column="current_experience" property="currentExperience"/>
+        <result column="current_red_envelops" property="currentRedEnvelops"/>
+        <result column="current_integral" property="currentIntegral"/>
+        <result column="current_shop_ticket" property="currentShopTicket"/>
+        <result column="total_consume_money" property="totalConsumeMoney"/>
+        <result column="invite_people_num" property="invitePeopleNum"/>
+        <result column="total_red_envelops" property="totalRedEnvelops"/>
+        <result column="total_integral" property="totalIntegral"/>
+        <result column="total_shop_ticket" property="totalShopTicket"/>
+        <result column="total_order" property="totalOrder"/>
+        <result column="member_level_id" property="memberLevelId"/>
+        <result column="phone" property="phone"/>
+        <result column="id_card" property="idCard"/>
+        <result column="password" property="password"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
@@ -43,5 +43,48 @@
     <update id="updateLogin">
              update um_user   set login_times=login_times+1,recent_login_time=now() where phone=#{phone}
     </update>
+    <select id="loadSearchIdCardVos" resultType="com.chauncy.data.vo.manage.user.idCard.SearchIdCardVo">
+        select id,phone,name,true_name,id_card,front_photo,back_photo
+        from um_user
+        where del_flag=0
+        and true_name is not null
+        <if test="id!=null and id!=0">
+            and id=#{id}
+        </if>
+
+        <if test="phone!=null and phone!=''">
+            and phone like concat('%', #{phone}, '%')
+        </if>
+        <if test="enabled!=null">
+            and enabled=#{enabled}
+        </if>
+        <if test="startRecentLoginTime!=null">
+            and recent_login_time&gt;=#{startRecentLoginTime}
+        </if>
+        <if test="endRecentLoginTime!=null">
+            and recent_login_time&lt;=#{endRecentLoginTime}
+        </if>
+
+
+    </select>
+    <select id="loadUserDataVo" resultType="com.chauncy.data.vo.app.user.UserDataVo">
+        SELECT
+            u1.photo,
+            u1.NAME,
+        CASE
+                WHEN u1.sex IS NULL THEN
+                ''
+                WHEN u1.sex = 0 THEN
+                '女' ELSE '男'
+            END sex,
+        IF
+            ( u1.id_card IS NULL, 0, 1 ) isPass,
+            u2.invite_code
+        FROM
+            um_user u1
+            LEFT JOIN um_user u2 ON u1.parent_id = u2.id
+        WHERE
+            u1.phone = #{phone}
+    </select>
 
 </mapper>
