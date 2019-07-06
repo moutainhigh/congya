@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -16,14 +17,20 @@ import java.util.List;
 @Data
 public class StoreGoodsVo {
 
+    @ApiModelProperty("商品名称")
+    private String goodsName;
+
     @ApiModelProperty("商品副标题")
-    private String subTitle;
+    private String subtitle;
+
+    @ApiModelProperty("skuId")
+    private Long skuId;
 
     @ApiModelProperty("sku图片")
-    private Long picture;
+    private String picture;
 
     @ApiModelProperty("sku销售价格")
-    private Long sellPrice;
+    private BigDecimal sellPrice;
 
     @ApiModelProperty("sku属性值")
     private String value;
@@ -39,5 +46,7 @@ public class StoreGoodsVo {
 
     @ApiModelProperty("是否售罄")
     private Boolean isSoldOut;
+
+    //关联的商品促销活动待写
 
 }
