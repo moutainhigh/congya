@@ -8,10 +8,12 @@ import com.chauncy.common.util.RedisUtil;
 import com.chauncy.common.util.SnowFlakeUtil;
 import com.chauncy.common.util.StringUtils;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.message.interact.MmFeedBackPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.user.add.AddUserDto;
 import com.chauncy.data.dto.app.user.add.BindUserDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserIdCardDto;
+import com.chauncy.data.mapper.message.interact.MmFeedBackMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.app.user.UserDataVo;
 import com.chauncy.data.vo.manage.user.idCard.SearchIdCardVo;
@@ -45,7 +47,8 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     @Autowired
     private RedisUtil redisUtil;
 
-
+    @Autowired
+    private MmFeedBackMapper feedBackMapper;
 
 
     @Override
@@ -118,5 +121,20 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     @Override
     public UserDataVo getUserDataVo(String phone) {
         return mapper.loadUserDataVo(phone);
+    }
+
+    /**
+     *用户反馈信息
+     *
+     * @return
+     */
+    @Override
+    public void addFeedBack(String content, UmUserPo userPo) {
+        MmFeedBackPo feedBackPo = new MmFeedBackPo();
+        feedBackPo.setContent(content);
+        feedBackPo.setCreateBy(userPo.getTrueName());
+        feedBackPo.setId(null);
+        feedBackPo.setUserId(userPo.getId());
+        feedBackMapper.insert(feedBackPo);
     }
 }

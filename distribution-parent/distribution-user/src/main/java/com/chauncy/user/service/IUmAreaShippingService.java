@@ -2,6 +2,7 @@ package com.chauncy.user.service;
 
 import com.chauncy.data.domain.po.user.UmAreaShippingPo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.user.add.AddAreaDto;
 import com.chauncy.data.vo.app.user.ShipAreaVo;
 
@@ -23,7 +24,7 @@ public interface IUmAreaShippingService extends Service<UmAreaShippingPo> {
      * @param addAreaDto
      * @return
      */
-    void addArea(AddAreaDto addAreaDto);
+    void addArea(AddAreaDto addAreaDto, UmUserPo userPo);
 
     /**
      * 用户修改收货地址
@@ -31,7 +32,7 @@ public interface IUmAreaShippingService extends Service<UmAreaShippingPo> {
      * @param updateAreaDto
      * @return
      */
-    void updateArea(AddAreaDto updateAreaDto);
+    void updateArea(AddAreaDto updateAreaDto,UmUserPo userPo);
 
     /**
      * 删除收货地址

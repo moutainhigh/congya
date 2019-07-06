@@ -75,5 +75,10 @@ public interface IUmUserService extends Service<UmUserPo> {
     UserDataVo getUserDataVo(@Param("phone") String phone);
 
 
-
+    /**
+     *用户反馈信息
+     *
+     * @return
+     */
+    void addFeedBack(String content, UmUserPo userPo);
 }

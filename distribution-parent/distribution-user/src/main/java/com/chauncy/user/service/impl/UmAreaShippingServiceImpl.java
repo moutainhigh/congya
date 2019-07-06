@@ -1,6 +1,7 @@
 package com.chauncy.user.service.impl;
 
 import com.chauncy.data.domain.po.user.UmAreaShippingPo;
+import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.user.add.AddAreaDto;
 import com.chauncy.data.mapper.area.AreaRegionMapper;
 import com.chauncy.data.mapper.user.UmAreaShippingMapper;
@@ -40,12 +41,12 @@ public class UmAreaShippingServiceImpl extends AbstractService<UmAreaShippingMap
      * @return
      */
     @Override
-    public void addArea(AddAreaDto addAreaDto) {
+    public void addArea(AddAreaDto addAreaDto, UmUserPo userPo) {
 
         UmAreaShippingPo areaShippingPo = updateDefault(addAreaDto);
         //获取当前登陆的用户ID
-        areaShippingPo.setUmUserId((long) 1);
-        areaShippingPo.setCreateBy("当前登陆的用户");
+        areaShippingPo.setUmUserId(userPo.getId());
+        areaShippingPo.setCreateBy(userPo.getName());
         areaShippingPo.setId(null);
         mapper.insert(areaShippingPo);
     }
@@ -57,10 +58,10 @@ public class UmAreaShippingServiceImpl extends AbstractService<UmAreaShippingMap
      * @return
      */
     @Override
-    public void updateArea(AddAreaDto updateAreaDto) {
+    public void updateArea(AddAreaDto updateAreaDto,UmUserPo userPo) {
 
         UmAreaShippingPo areaShippingPo = updateDefault(updateAreaDto);
-        areaShippingPo.setUpdateBy("当前用户");
+        areaShippingPo.setUpdateBy(userPo.getName());
         mapper.updateById(areaShippingPo);
     }
 
