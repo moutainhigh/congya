@@ -53,4 +53,7 @@ public class FindSkuAttributeVo {
 
     @ApiModelProperty("sku属性以及属性值组合")
     private List<List<Map<String,String>>> skuList;
+
+    @ApiModelProperty(value = "属性以及属性值组合")
+    private List<Map<Long,StandardValueAndStatusVo>> attributeValues;
 }

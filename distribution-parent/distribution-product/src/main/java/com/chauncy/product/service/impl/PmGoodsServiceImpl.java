@@ -173,9 +173,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         String user = securityUtil.getCurrUser().getUsername();
         String userId = securityUtil.getCurrUser().getId();
         //判断用户是属于哪个系统,商家端或者是平台后台
-        Long storeId =sysUserMapper.selectById(userId).getStoreId();
+        Long storeId = sysUserMapper.selectById(userId).getStoreId();
         //商家端
-        if (storeId!=null){
+        if (storeId != null) {
             goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
             goodsPo.setStoreId(storeId);
         }
@@ -192,8 +192,8 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         addAttribute(addGoodBaseDto, user, goodsPo);
 
         //处理商品参数属性
-        if (addGoodBaseDto.getGoodsParamDtoList()!=null && addGoodBaseDto.getGoodsParamDtoList().size()!=0)
-        addParam(addGoodBaseDto, user, goodsPo);
+        if (addGoodBaseDto.getGoodsParamDtoList() != null && addGoodBaseDto.getGoodsParamDtoList().size() != 0)
+            addParam(addGoodBaseDto, user, goodsPo);
 
         Long goodsId = goodsPo.getId();
         return goodsId;
@@ -214,7 +214,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     public BaseGoodsVo findBase(Long id) {
 
         PmGoodsPo goodsPo = mapper.selectById(id);
-        if (goodsPo==null) throw new ServiceException(ResultCode.PARAM_ERROR,"数据库不存在该商品");
+        if (goodsPo == null) throw new ServiceException(ResultCode.PARAM_ERROR, "数据库不存在该商品");
         BaseGoodsVo baseGoodsVo = new BaseGoodsVo();
         BaseVo baseVo = new BaseVo();
         //复制非关联属性
@@ -347,7 +347,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         String userId = securityUtil.getCurrUser().getId();
         Long storeId = sysUserMapper.selectById(userId).getStoreId();
         PmGoodsPo goodsPo = new PmGoodsPo();
-        if (storeId!=null){
+        if (storeId != null) {
             goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
         }
         //保存非关联信息
@@ -371,7 +371,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             goodsAttributeValueMapper.deleteById(x);
         });
         //添加商品参数信息
-        if (updateGoodBaseDto.getGoodsParamDtoList()!=null && updateGoodBaseDto.getGoodsParamDtoList().size()!=0)
+        if (updateGoodBaseDto.getGoodsParamDtoList() != null && updateGoodBaseDto.getGoodsParamDtoList().size() != 0)
             addParam(updateGoodBaseDto, user, goodsPo);
 
         /**
@@ -399,7 +399,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         attributeGoodPo1.setGoodsAttributeId(updateGoodBaseDto.getBrandId()).setGoodsGoodId(goodsPo.getId()).setCreateBy(user);
         relAttributeGoodPoList.add(attributeGoodPo1);
         //保存标签，多个
-        for(Long labelId : updateGoodBaseDto.getLabelId()) {
+        for (Long labelId : updateGoodBaseDto.getLabelId()) {
             PmGoodsRelAttributeGoodPo attributeGoodPo2 = new PmGoodsRelAttributeGoodPo();
             attributeGoodPo2.setGoodsAttributeId(labelId).setGoodsGoodId(goodsPo.getId()).setCreateBy(user);
             relAttributeGoodPoList.add(attributeGoodPo2);
@@ -479,27 +479,27 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             }
             //修改商品规格及其sku情况下
             else if (goodsValues != null) {*/
-                //循环商品属性值,并设置isInclude的值为true
-                goodsValues.forEach(d -> {
-                    StandardValueAndStatusVo standardValueAndStatusVo = new StandardValueAndStatusVo();
-                    standardValueAndStatusVo.setAttributeValueId(d.getId());
-                    standardValueAndStatusVo.setAttributeValue(d.getName());
+            //循环商品属性值,并设置isInclude的值为true
+            goodsValues.forEach(d -> {
+                StandardValueAndStatusVo standardValueAndStatusVo = new StandardValueAndStatusVo();
+                standardValueAndStatusVo.setAttributeValueId(d.getId());
+                standardValueAndStatusVo.setAttributeValue(d.getName());
 
-                    standardValueAndStatusVo.setIsInclude(true);
-                    valueAndStatusVos.add(standardValueAndStatusVo);
-                });
+                standardValueAndStatusVo.setIsInclude(true);
+                valueAndStatusVos.add(standardValueAndStatusVo);
+            });
 
-                //遍历商品未用到的规格值信息
-                defaultValues.stream().filter(item -> !goodsValuesIds.contains(item.getId())).forEach(a -> {
-                    StandardValueAndStatusVo standardValueAndStatusVo = new StandardValueAndStatusVo();
-                    standardValueAndStatusVo.setAttributeValueId(a.getId());
-                    standardValueAndStatusVo.setAttributeValue(a.getName());
-                    standardValueAndStatusVo.setIsInclude(false);
-                    valueAndStatusVos.add(standardValueAndStatusVo);
-                });
+            //遍历商品未用到的规格值信息
+            defaultValues.stream().filter(item -> !goodsValuesIds.contains(item.getId())).forEach(a -> {
+                StandardValueAndStatusVo standardValueAndStatusVo = new StandardValueAndStatusVo();
+                standardValueAndStatusVo.setAttributeValueId(a.getId());
+                standardValueAndStatusVo.setAttributeValue(a.getName());
+                standardValueAndStatusVo.setIsInclude(false);
+                valueAndStatusVos.add(standardValueAndStatusVo);
+            });
 
-                goodsStandardVo.setAttributeValueInfos(valueAndStatusVos);
-                goodsStandardVos.add(goodsStandardVo);
+            goodsStandardVo.setAttributeValueInfos(valueAndStatusVos);
+            goodsStandardVos.add(goodsStandardVo);
 //            }
         });
         return goodsStandardVos;
@@ -507,7 +507,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
     /**
      * 根据商品ID获取sku信息
-     *
+     * <p>
      * 商品与sku为1对多
      *
      * @param goodsId
@@ -519,62 +519,79 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         List<FindSkuAttributeVo> findSkuAttributeVos = Lists.newArrayList();
         //判断该商品是否存在
         PmGoodsPo goodsPo = mapper.selectById(goodsId);
-        if (goodsPo==null){
-            throw new ServiceException(ResultCode.NO_EXISTS,"该商品不存在！");
+        if (goodsPo == null) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "该商品不存在！");
         }
-        Map<String,Object> map = new HashMap<>();
-        map.put("goods_id",goodsId);
+        Map<String, Object> map = new HashMap<>();
+        map.put("goods_id", goodsId);
         List<PmGoodsSkuPo> goodsSkuPos = goodsSkuMapper.selectByMap(map);
-        if (goodsSkuPos==null && goodsSkuPos.size()==0){
+        if (goodsSkuPos == null && goodsSkuPos.size() == 0) {
             return null;
         }
         //循环获取sku信息
-        goodsSkuPos.forEach(x->{
+        goodsSkuPos.forEach(x -> {
             //获取除规格信息外的其他信息
             FindSkuAttributeVo findSkuAttributeVo = new FindSkuAttributeVo();
-            BeanUtils.copyProperties(x,findSkuAttributeVo);
+            BeanUtils.copyProperties(x, findSkuAttributeVo);
             findSkuAttributeVo.setSkuId(x.getId());
+
             //获取每条sku对应的规格信息，规格值与sku多对多关系
-            Map<String,Object> relMap = new HashMap<>();
-            relMap.put("goods_sku_id",x.getId());
+            Map<String, Object> relMap = new HashMap<>();
+            relMap.put("goods_sku_id", x.getId());
             List<PmGoodsRelAttributeValueSkuPo> relAttributeValueSkuPos = goodsRelAttributeValueSkuMapper.selectByMap(relMap);
             //根据skuId获取属性值ID列表
-            List<Long> valueIds = relAttributeValueSkuPos.stream().map(a->a.getGoodsAttributeValueId()).collect(Collectors.toList());
+            List<Long> valueIds = relAttributeValueSkuPos.stream().map(a -> a.getGoodsAttributeValueId()).collect(Collectors.toList());
             //根据属性值id查找属性值表，获取属性值和属性ID
 //            List<AttributeInfos> attributeInfos = Lists.newArrayList();
-            List<List<Map<String,String>>> skuList = Lists.newArrayList();
-            valueIds.forEach(b->{
-                //属性信息（map<属性ID，属性名称>、map<属性值ID,属性值>）
-//                AttributeInfos attributeInfo = new AttributeInfos();
-                List<Map<String,String>> listMap = Lists.newArrayList();
-                //map<属性值ID,属性值>
-                Map<String,String> valueMap = new HashMap<>();
+
+            List<Map<Long,StandardValueAndStatusVo>> attributeValues = Lists.newArrayList();
+            valueIds.forEach(b -> {
+                Map<Long,StandardValueAndStatusVo> map1 =new HashMap<>();
                 PmGoodsAttributeValuePo valuePo = goodsAttributeValueMapper.selectById(b);
                 if (valuePo==null){
                     throw new ServiceException(ResultCode.NO_EXISTS,"数据库不存在对应的属性值",b);
                 }
-                String value = valuePo.getValue();
-                valueMap.put("valueId",b.toString());
-                valueMap.put("valueName",value);
-                //map<属性ID,属性名>
+                StandardValueAndStatusVo standardValueAndStatusVo = new StandardValueAndStatusVo();
+                standardValueAndStatusVo.setAttributeValueId(b);
+                standardValueAndStatusVo.setAttributeValue(valuePo.getValue());
                 Long attributeId = goodsAttributeValueMapper.selectById(b).getProductAttributeId();
-                String name = goodsAttributeMapper.selectById(attributeId).getName();
-                Map<String,String> attributeMap = new HashMap<>();
-                attributeMap.put("attributeId",attributeId.toString());
-                attributeMap.put("attributeName",name);
-                listMap.add(attributeMap);
-                listMap.add(valueMap);
-//                attributeInfo.setAttributeInfos(listMap);
-
-//                skuList.add(attributeInfo);
-
-                skuList.add(listMap);
-
+                map1.put(attributeId,standardValueAndStatusVo);
+                attributeValues.add(map1);
             });
+
+//            List<List<Map<String,String>>> skuList = Lists.newArrayList();
+//            valueIds.forEach(b->{
+//                //属性信息（map<属性ID，属性名称>、map<属性值ID,属性值>）
+////                AttributeInfos attributeInfo = new AttributeInfos();
+//                List<Map<String,String>> listMap = Lists.newArrayList();
+//                //map<属性值ID,属性值>
+//                Map<String,String> valueMap = new HashMap<>();
+//                PmGoodsAttributeValuePo valuePo = goodsAttributeValueMapper.selectById(b);
+//                if (valuePo==null){
+//                    throw new ServiceException(ResultCode.NO_EXISTS,"数据库不存在对应的属性值",b);
+//                }
+//                String value = valuePo.getValue();
+//                valueMap.put("valueId",b.toString());
+//                valueMap.put("valueName",value);
+//                //map<属性ID,属性名>
+//                Long attributeId = goodsAttributeValueMapper.selectById(b).getProductAttributeId();
+//                String name = goodsAttributeMapper.selectById(attributeId).getName();
+//                Map<String,String> attributeMap = new HashMap<>();
+//                attributeMap.put("attributeId",attributeId.toString());
+//                attributeMap.put("attributeName",name);
+//                listMap.add(attributeMap);
+//                listMap.add(valueMap);
+////                attributeInfo.setAttributeInfos(listMap);
+//
+////                skuList.add(attributeInfo);
+//
+//                skuList.add(listMap);
+//
+//            });
 
 //            findSkuAttributeVo.setSkuList(attributeInfos);
 
-            findSkuAttributeVo.setSkuList(skuList);
+            findSkuAttributeVo.setAttributeValues(attributeValues);
 
             findSkuAttributeVos.add(findSkuAttributeVo);
         });
@@ -624,36 +641,36 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         //判断用户属于平台后台或者商家端
         String userId = securityUtil.getCurrUser().getId();
         Long storeId = sysUserMapper.selectById(userId).getStoreId();
-        if (storeId!=null){
+        if (storeId != null) {
             PmGoodsPo goodsPo = new PmGoodsPo();
             goodsPo.setId(addOrUpdateSkuAttributeDto.getGoodsId());
             goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
             mapper.updateById(goodsPo);
         }
         //通过goodsID商品ID获取sku信息
-        Map<String,Object> skuMaps = new HashMap<>();
-        skuMaps.put("goods_id",addOrUpdateSkuAttributeDto.getGoodsId());
+        Map<String, Object> skuMaps = new HashMap<>();
+        skuMaps.put("goods_id", addOrUpdateSkuAttributeDto.getGoodsId());
         List<PmGoodsSkuPo> skus = goodsSkuMapper.selectByMap(skuMaps);
         //如果skuPos为空，则新增sku
-        if (skus.size()==0 && skus==null) {
+        if (skus.size() == 0 && skus == null) {
             addSkus(addOrUpdateSkuAttributeDto, /*stock,*/ user);
         }
         //如果skuPos不为空，则更新sku
-        else{
+        else {
             //根据删除所有sku关联关系，pm_goods_sku删除该商品的sku,pm_goods_rel_attribute_value_sku获取该商品
             //下对应的自定义属性值pm_goods_attribute_value并删除，删除sku与属性值的关联关系
             //先获取自定义属性值并删除
-            List<Long> skuIds = skus.stream().map(a->a.getId()).collect(Collectors.toList());
+            List<Long> skuIds = skus.stream().map(a -> a.getId()).collect(Collectors.toList());
             //根据skuId获取信息
-            skuIds.forEach(id->{
-                Map<String,Object> valueMap = new HashMap<>();
-                valueMap.put("goods_sku_id",id);
+            skuIds.forEach(id -> {
+                Map<String, Object> valueMap = new HashMap<>();
+                valueMap.put("goods_sku_id", id);
                 List<PmGoodsRelAttributeValueSkuPo> relAttributeValueSkuPos = goodsRelAttributeValueSkuMapper.selectByMap(valueMap);
                 //获取属性值ID集合
-                List<Long> valueIds = relAttributeValueSkuPos.stream().map(a->a.getGoodsAttributeValueId()).collect(Collectors.toList());
+                List<Long> valueIds = relAttributeValueSkuPos.stream().map(a -> a.getGoodsAttributeValueId()).collect(Collectors.toList());
                 List<PmGoodsAttributeValuePo> goodsAttributeValuePos = goodsAttributeValueMapper.selectBatchIds(valueIds);
                 //获取自定义属性值并删除
-                goodsAttributeValuePos.stream().filter(a->a.getIsCustom()).forEach(b->{
+                goodsAttributeValuePos.stream().filter(a -> a.getIsCustom()).forEach(b -> {
                     goodsAttributeValueMapper.deleteById(b.getId());
                 });
                 //删除sku与属性值关联表的信息
@@ -752,49 +769,49 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         List<FindSkuFinanceVo> findSkuFinanceVos = Lists.newArrayList();
         //判断该商品是否存在
         PmGoodsPo goodsPo = mapper.selectById(goodsId);
-        if (goodsPo==null){
-            throw new ServiceException(ResultCode.NO_EXISTS,"该商品不存在！");
+        if (goodsPo == null) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "该商品不存在！");
         }
-        Map<String,Object> map = new HashMap<>();
-        map.put("goods_id",goodsId);
+        Map<String, Object> map = new HashMap<>();
+        map.put("goods_id", goodsId);
         List<PmGoodsSkuPo> goodsSkuPos = goodsSkuMapper.selectByMap(map);
-        if (goodsSkuPos==null && goodsSkuPos.size()==0){
+        if (goodsSkuPos == null && goodsSkuPos.size() == 0) {
             return null;
         }
         //循环获取sku信息
-        goodsSkuPos.forEach(x->{
+        goodsSkuPos.forEach(x -> {
             //获取除规格信息外的其他信息
             FindSkuFinanceVo findSkuFinanceVo = new FindSkuFinanceVo();
-            BeanUtils.copyProperties(x,findSkuFinanceVo);
+            BeanUtils.copyProperties(x, findSkuFinanceVo);
             findSkuFinanceVo.setSkuId(x.getId());
             //获取每条sku对应的规格信息，规格值与sku多对多关系
-            Map<String,Object> relMap = new HashMap<>();
-            relMap.put("goods_sku_id",x.getId());
+            Map<String, Object> relMap = new HashMap<>();
+            relMap.put("goods_sku_id", x.getId());
             List<PmGoodsRelAttributeValueSkuPo> relAttributeValueSkuPos = goodsRelAttributeValueSkuMapper.selectByMap(relMap);
             //根据skuId获取属性值ID列表
-            List<Long> valueIds = relAttributeValueSkuPos.stream().map(a->a.getGoodsAttributeValueId()).collect(Collectors.toList());
+            List<Long> valueIds = relAttributeValueSkuPos.stream().map(a -> a.getGoodsAttributeValueId()).collect(Collectors.toList());
             //根据属性值id查找属性值表，获取属性值和属性ID
 //            List<AttributeInfos> attributeInfos = Lists.newArrayList();
-            List<List<Map<String,String>>> skuList = Lists.newArrayList();
-            valueIds.forEach(b->{
+            List<List<Map<String, String>>> skuList = Lists.newArrayList();
+            valueIds.forEach(b -> {
                 //属性信息（map<属性ID，属性名称>、map<属性值ID,属性值>）
 //                AttributeInfos attributeInfo = new AttributeInfos();
-                List<Map<String,String>> listMap = Lists.newArrayList();
+                List<Map<String, String>> listMap = Lists.newArrayList();
                 //map<属性值ID,属性值>
-                Map<String,String> valueMap = new HashMap<>();
+                Map<String, String> valueMap = new HashMap<>();
                 PmGoodsAttributeValuePo valuePo = goodsAttributeValueMapper.selectById(b);
-                if (valuePo==null){
-                    throw new ServiceException(ResultCode.NO_EXISTS,"数据库不存在对应的属性值",b);
+                if (valuePo == null) {
+                    throw new ServiceException(ResultCode.NO_EXISTS, "数据库不存在对应的属性值", b);
                 }
                 String value = valuePo.getValue();
-                valueMap.put("valueId",b.toString());
-                valueMap.put("valueName",value);
+                valueMap.put("valueId", b.toString());
+                valueMap.put("valueName", value);
                 //map<属性ID,属性名>
                 Long attributeId = goodsAttributeValueMapper.selectById(b).getProductAttributeId();
                 String name = goodsAttributeMapper.selectById(attributeId).getName();
-                Map<String,String> attributeMap = new HashMap<>();
-                attributeMap.put("attributeId",attributeId.toString());
-                attributeMap.put("attributeName",name);
+                Map<String, String> attributeMap = new HashMap<>();
+                attributeMap.put("attributeId", attributeId.toString());
+                attributeMap.put("attributeName", name);
                 listMap.add(attributeMap);
                 listMap.add(valueMap);
 
@@ -819,23 +836,23 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     @Override
     public void updateSkuFinance(List<UpdateSkuFinanceDto> updateSkuFinanceDtos) {
 
-        Long skuId = updateSkuFinanceDtos.stream().map(a->a.getSkuId()).collect(Collectors.toList()).get(0);
+        Long skuId = updateSkuFinanceDtos.stream().map(a -> a.getSkuId()).collect(Collectors.toList()).get(0);
         //根据skuId获取goodsId
         Long goodsId = goodsSkuMapper.selectById(skuId).getGoodsId();
         //判断用户属于平台后台或者商家端
         String userId = securityUtil.getCurrUser().getId();
         Long storeId = sysUserMapper.selectById(userId).getStoreId();
         //商家端执行更新操作将审核状态修改为未审核状态
-        if (storeId!=null){
+        if (storeId != null) {
             PmGoodsPo goodsPo = new PmGoodsPo();
             goodsPo.setId(goodsId);
             goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
             mapper.updateById(goodsPo);
         }
-        updateSkuFinanceDtos.forEach(updateSkuFinanceDto->{
-        PmGoodsSkuPo goodsSkuPo = goodsSkuMapper.selectById(updateSkuFinanceDto.getSkuId());
-        BeanUtils.copyProperties(updateSkuFinanceDto, goodsSkuPo);
-        goodsSkuMapper.updateById(goodsSkuPo);
+        updateSkuFinanceDtos.forEach(updateSkuFinanceDto -> {
+            PmGoodsSkuPo goodsSkuPo = goodsSkuMapper.selectById(updateSkuFinanceDto.getSkuId());
+            BeanUtils.copyProperties(updateSkuFinanceDto, goodsSkuPo);
+            goodsSkuMapper.updateById(goodsSkuPo);
         });
     }
 
@@ -853,12 +870,12 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         //存放会员信息列表
         List<MemberLevelInfos> memberLevelInfos = Lists.newArrayList();
         FindGoodOperationVo findGoodOperationVo = new FindGoodOperationVo();
-        Map<String,Object> mapp = new HashMap<>();
-        mapp.put("level",1);
+        Map<String, Object> mapp = new HashMap<>();
+        mapp.put("level", 1);
         findGoodOperationVo.setLowestLevelId(memberLevelMapper.selectByMap(mapp).get(0).getId());
         PmGoodsPo goodsPo = mapper.selectById(goodsId);
-        if (goodsPo==null){
-            memberLevelPos.forEach(a->{
+        if (goodsPo == null) {
+            memberLevelPos.forEach(a -> {
                 MemberLevelInfos memberLevelInfo = new MemberLevelInfos();
                 memberLevelInfo.setIsInclude(false);
                 memberLevelInfo.setMemberLevelId(a.getId());
@@ -867,10 +884,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             });
             findGoodOperationVo.setMemberLevelInfos(memberLevelInfos);
 
-        }
-        else{
+        } else {
             String memberLevelName = memberLevelMapper.selectById(goodsPo.getMemberLevelId()).getLevelName();
-            BeanUtils.copyProperties(goodsPo,findGoodOperationVo);
+            BeanUtils.copyProperties(goodsPo, findGoodOperationVo);
             findGoodOperationVo.setGoodsId(goodsId);
             findGoodOperationVo.setMemberLevelName(memberLevelName);
             //绑定的会员等级设置为true
@@ -880,7 +896,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             memberLevelInfo.setLevelName(memberLevelName);
             memberLevelInfos.add(memberLevelInfo);
             //未绑定的置为false
-            memberLevelPos.stream().filter(a->a.getId()!=(goodsPo.getMemberLevelId())).forEach(b->{
+            memberLevelPos.stream().filter(a -> a.getId() != (goodsPo.getMemberLevelId())).forEach(b -> {
                 MemberLevelInfos memberLevel = new MemberLevelInfos();
                 memberLevel.setMemberLevelId(b.getId());
                 memberLevel.setLevelName(b.getLevelName());
@@ -939,7 +955,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         Long storeId = sysUserMapper.selectById(userId).getStoreId();
         PmGoodsPo goodsPo = mapper.selectById(updateGoodOperationDto.getGoodsId());
         //商家端执行更新操作将审核状态修改为未审核状态
-        if (storeId!=null){
+        if (storeId != null) {
             goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
         }
         BeanUtils.copyProperties(updateGoodOperationDto, goodsPo);
@@ -964,7 +980,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             goodsRelGoodsMemberLevelMapper.insert(relGoodsMemberLevelPo);
         }*/
         //如果是审核通过，则删除对应的驳回详情
-        if (updateGoodOperationDto.getVerifyStatus()== VerifyStatusEnum.CHECKED.getId() ){
+        if (updateGoodOperationDto.getVerifyStatus() == VerifyStatusEnum.CHECKED.getId()) {
             PmGoodsPo goodsPo1 = new PmGoodsPo();
             goodsPo1.setContent(null);
             goodsPo1.setId(updateGoodOperationDto.getGoodsId());
@@ -983,10 +999,10 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
         FindGoodSellerVo findGoodSellerVo = new FindGoodSellerVo();
         PmGoodsPo goodsPo = mapper.selectById(goodsId);
-        if (goodsPo==null){
+        if (goodsPo == null) {
             return null;
         }
-        BeanUtils.copyProperties(goodsPo,findGoodSellerVo);
+        BeanUtils.copyProperties(goodsPo, findGoodSellerVo);
         findGoodSellerVo.setGoodsId(goodsId);
 
         return findGoodSellerVo;
@@ -1006,7 +1022,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         String userId = securityUtil.getCurrUser().getId();
         Long storeId = sysUserMapper.selectById(userId).getStoreId();
         //商家端执行更新操作将审核状态修改为未审核状态
-        if (storeId!=null){
+        if (storeId != null) {
             goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
         }
         BeanUtils.copyProperties(updateGoodSellerDto, goodsPo);
@@ -1029,7 +1045,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         PmGoodsPo goodsPo = new PmGoodsPo();
         goodsPo.setId(associationDto.getGoodsId());
         //商家端执行更新操作将审核状态修改为未审核状态
-        if (storeId!=null){
+        if (storeId != null) {
             goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
             mapper.updateById(goodsPo);
         }
@@ -1057,7 +1073,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
     @Override
     public boolean updateStock(long goodId, int number) {
-       return mapper.updateStock(goodId,number)>0;
+        return mapper.updateStock(goodId, number) > 0;
     }
 
     /**
@@ -1070,11 +1086,10 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
         //根据ID获取商品信息
         List<PmGoodsPo> goodsPos = mapper.selectBatchIds(Arrays.asList(goodsIds));
-        goodsPos.forEach(a->{
-            if (a.getVerifyStatus()!= VerifyStatusEnum.UNCHECKED.getId()){
-                throw new ServiceException(ResultCode.FAIL,"该商品状态不是待提交状态",a.getName());
-            }
-            else{
+        goodsPos.forEach(a -> {
+            if (a.getVerifyStatus() != VerifyStatusEnum.UNCHECKED.getId()) {
+                throw new ServiceException(ResultCode.FAIL, "该商品状态不是待提交状态", a.getName());
+            } else {
                 //修改商品状态
                 a.setVerifyStatus(VerifyStatusEnum.WAIT_CONFIRM.getId());
                 mapper.updateById(a);
@@ -1092,18 +1107,17 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     public void publishStatus(UpdatePublishStatusDto updatePublishStatusDt) {
 
         List<PmGoodsPo> goodsPos = mapper.selectBatchIds(Arrays.asList(updatePublishStatusDt.getGoodIds()));
-       //判断商品状态为审核通过状态才能执行上下架操作
-        goodsPos.forEach(a->{
-           //状态为非审核通过状态
-           if (a.getVerifyStatus()!= VerifyStatusEnum.CHECKED.getId()){
-               throw new ServiceException(ResultCode.FAIL,"该商品的状态还未通过审核",a.getName());
-           }
-           else{
-               //修改上架状态
-               a.setPublishStatus(updatePublishStatusDt.getPulishStatus());
-               mapper.updateById(a);
-           }
-       });
+        //判断商品状态为审核通过状态才能执行上下架操作
+        goodsPos.forEach(a -> {
+            //状态为非审核通过状态
+            if (a.getVerifyStatus() != VerifyStatusEnum.CHECKED.getId()) {
+                throw new ServiceException(ResultCode.FAIL, "该商品的状态还未通过审核", a.getName());
+            } else {
+                //修改上架状态
+                a.setPublishStatus(updatePublishStatusDt.getPulishStatus());
+                mapper.updateById(a);
+            }
+        });
     }
 
     /**
@@ -1115,7 +1129,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     public void updateStarStatus(UpdatePublishStatusDto updatePublishStatusDto) {
 
         List<PmGoodsPo> goodsPos = mapper.selectBatchIds(Arrays.asList(updatePublishStatusDto.getGoodIds()));
-        goodsPos.forEach(a->{
+        goodsPos.forEach(a -> {
             a.setStarStatus(updatePublishStatusDto.getPulishStatus());
             mapper.updateById(a);
         });
@@ -1135,9 +1149,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
         goodsVos = PageHelper.startPage(pageNo, pageSize, defaultSoft)
                 .doSelectPageInfo(() -> mapper.searchGoodsInfo(searchGoodInfosDto));
-        goodsVos.getList().forEach(a->{
-            Map<String,Object> map = Maps.newHashMap();
-            map.put("goods_id",a.getId());
+        goodsVos.getList().forEach(a -> {
+            Map<String, Object> map = Maps.newHashMap();
+            map.put("goods_id", a.getId());
             int stock = goodsSkuMapper.selectByMap(map).stream().map(PmGoodsSkuPo::getStock).mapToInt(c -> c).sum();
             a.setStock(stock);
         });
@@ -1216,7 +1230,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     /**
      * 获取分类下的商品属性信息 typeList:商品类型；brandList:品牌；labelList:标签；platformServiceList:平台服务说明;
      * merchantServiceList:商家服务说明；paramList:商品参数；platformShipList:平台运费模版;merchantShipList:店铺运费模版
-     *
+     * <p>
      * 类型 1->平台服务说明 2->商家服务说明 3->平台活动说明
      * 4->商品参数 5->商品标签 6->购买须知说明 7->商品规格 8->品牌管理 9->敏感词
      *
@@ -1227,8 +1241,8 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     public AttributeVo findAttributes(Long categoryId) {
 
         Long storeId = securityUtil.getCurrUser().getStoreId();
-        Map<String,Object> map = new HashMap<>();
-        map.put("store_id",storeId);
+        Map<String, Object> map = new HashMap<>();
+        map.put("store_id", storeId);
 
         AttributeVo attributeVo = new AttributeVo();
 
@@ -1244,10 +1258,10 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         typeList = Arrays.stream(GoodsTypeEnum.values()).map(a -> a.getName()).collect(Collectors.toList());
         brandList = goodsAttributeMapper.findAttByType(GoodsAttributeTypeEnum.BRAND.getId());
         labelList = goodsAttributeMapper.findAttByType(GoodsAttributeTypeEnum.LABEL.getId());
-        platformServiceList = goodsAttributeMapper.findAttByTypeAndCat(categoryId,GoodsAttributeTypeEnum.PLATFORM_SERVICE.getId());
+        platformServiceList = goodsAttributeMapper.findAttByTypeAndCat(categoryId, GoodsAttributeTypeEnum.PLATFORM_SERVICE.getId());
         //商家服务说明
         merchantServiceList = goodsAttributeMapper.findAttByType(GoodsAttributeTypeEnum.MERCHANT_SERVICE.getId());
-        paramList = goodsAttributeMapper.findAttByTypeAndCat(categoryId,GoodsAttributeTypeEnum.GOODS_PARAM.getId());
+        paramList = goodsAttributeMapper.findAttByTypeAndCat(categoryId, GoodsAttributeTypeEnum.GOODS_PARAM.getId());
         platformShipList = shippingTemplateMapper.findByType(GoodsShipTemplateEnum.PLATFORM_SHIP.getId());
         merchantShipList = shippingTemplateMapper.findByType(GoodsShipTemplateEnum.MERCHANT_SHIP.getId());
 
@@ -1257,7 +1271,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         String level2 = goodsCategoryPo2.getName();
         String level1 = goodsCategoryMapper.selectById(goodsCategoryPo2.getParentId()).getName();
 
-        String categoryName = level1+"/"+level2+"/"+level3;
+        String categoryName = level1 + "/" + level2 + "/" + level3;
 
         attributeVo.setBrandList(brandList);
         attributeVo.setTypeList(typeList);

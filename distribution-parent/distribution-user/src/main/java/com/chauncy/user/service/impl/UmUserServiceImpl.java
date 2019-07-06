@@ -132,7 +132,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     public void addFeedBack(String content, UmUserPo userPo) {
         MmFeedBackPo feedBackPo = new MmFeedBackPo();
         feedBackPo.setContent(content);
-        feedBackPo.setCreateBy(userPo.getTrueName());
+        feedBackPo.setCreateBy(userPo.getName());
         feedBackPo.setId(null);
         feedBackPo.setUserId(userPo.getId());
         feedBackMapper.insert(feedBackPo);
