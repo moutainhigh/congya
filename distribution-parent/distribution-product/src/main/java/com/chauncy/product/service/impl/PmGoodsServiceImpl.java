@@ -7,6 +7,7 @@ import com.chauncy.common.enums.goods.GoodsTypeEnum;
 import com.chauncy.common.enums.common.VerifyStatusEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.common.util.JSONUtils;
 import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.core.AbstractService;
@@ -514,9 +515,10 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
      * @return
      */
     @Override
-    public List<FindSkuAttributeVo> findSkuAttribute(Long goodsId) {
+    public List<Map<String,Object>> findSkuAttribute(Long goodsId) {
 
-        List<FindSkuAttributeVo> findSkuAttributeVos = Lists.newArrayList();
+//        List<FindSkuAttributeVo> findSkuAttributeVos = Lists.newArrayList();
+        List<Map<String,Object>> mapList = Lists.newArrayList();
         //判断该商品是否存在
         PmGoodsPo goodsPo = mapper.selectById(goodsId);
         if (goodsPo == null) {
@@ -530,10 +532,12 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         }
         //循环获取sku信息
         goodsSkuPos.forEach(x -> {
+            Map<String, Object> map1 = new HashMap<>();
             //获取除规格信息外的其他信息
             FindSkuAttributeVo findSkuAttributeVo = new FindSkuAttributeVo();
             BeanUtils.copyProperties(x, findSkuAttributeVo);
             findSkuAttributeVo.setSkuId(x.getId());
+            map1=JSONUtils.toBean(findSkuAttributeVo,Map.class);
 
             //获取每条sku对应的规格信息，规格值与sku多对多关系
             Map<String, Object> relMap = new HashMap<>();
@@ -544,9 +548,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             //根据属性值id查找属性值表，获取属性值和属性ID
 //            List<AttributeInfos> attributeInfos = Lists.newArrayList();
 
-            List<Map<Long, StandardValueAndStatusVo>> attributeValues = Lists.newArrayList();
+//            List<Map<Long, StandardValueAndStatusVo>> attributeValues = Lists.newArrayList();
+            Map<String, Object> finalMap = map1;
             valueIds.forEach(b -> {
-                Map<Long, StandardValueAndStatusVo> map1 = new HashMap<>();
                 PmGoodsAttributeValuePo valuePo = goodsAttributeValueMapper.selectById(b);
                 if (valuePo == null) {
                     throw new ServiceException(ResultCode.NO_EXISTS, "数据库不存在对应的属性值", b);
@@ -555,8 +559,8 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
                 standardValueAndStatusVo.setAttributeValueId(b);
                 standardValueAndStatusVo.setAttributeValue(valuePo.getValue());
                 Long attributeId = goodsAttributeValueMapper.selectById(b).getProductAttributeId();
-                map1.put(attributeId, standardValueAndStatusVo);
-                attributeValues.add(map1);
+                finalMap.put(attributeId.toString(), standardValueAndStatusVo);
+//                attributeValues.add(map1);
             });
 
 //            List<List<Map<String,String>>> skuList = Lists.newArrayList();
@@ -591,12 +595,13 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
 //            findSkuAttributeVo.setSkuList(attributeInfos);
 
-            findSkuAttributeVo.setAttributeValues(attributeValues);
+//            findSkuAttributeVo.setAttributeValues(map1);
 
-            findSkuAttributeVos.add(findSkuAttributeVo);
+//            findSkuAttributeVos.add(findSkuAttributeVo);
+            mapList.add(map1);
         });
 
-        return findSkuAttributeVos;
+        return mapList;
     }
 
 

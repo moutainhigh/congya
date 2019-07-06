@@ -49,13 +49,13 @@ public class FindSkuAttributeVo {
     private BigDecimal linePrice;
 
     @ApiModelProperty(value = "库存数量")
-    private Long stock;
+    private Integer stock;
 
     @ApiModelProperty("sku属性以及属性值组合")
     private List<List<Map<String,String>>> skuList;
 
-    @ApiModelProperty(value = "属性以及属性值组合")
-    private List<Map<Long,StandardValueAndStatusVo>> attributeValues;
+//    @ApiModelProperty(value = "属性以及属性值组合")
+//    private Map<Long,StandardValueAndStatusVo> attributeValues;
 
 
 }
