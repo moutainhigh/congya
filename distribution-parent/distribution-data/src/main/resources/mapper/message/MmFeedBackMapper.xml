@@ -16,5 +16,16 @@
     <sql id="Base_Column_List">
         id, create_by, create_time, del_flag, user_id, content
     </sql>
+    <select id="searchFeedBack"
+            resultType="com.chauncy.data.vo.manage.message.interact.feedBack.SearchFeedBackVo">
+        select user_id,create_by as nick_name,content,create_time as feed_time
+        from mm_feed_back
+        <where>
+            <if test="feedTime !=null">
+                DATE_FORMAT(create_time,'%Y-%m-%d') = #{feedTime}
+            </if>
+        </where>
+
+    </select>
 
 </mapper>

@@ -544,18 +544,18 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             //根据属性值id查找属性值表，获取属性值和属性ID
 //            List<AttributeInfos> attributeInfos = Lists.newArrayList();
 
-            List<Map<Long,StandardValueAndStatusVo>> attributeValues = Lists.newArrayList();
+            List<Map<Long, StandardValueAndStatusVo>> attributeValues = Lists.newArrayList();
             valueIds.forEach(b -> {
-                Map<Long,StandardValueAndStatusVo> map1 =new HashMap<>();
+                Map<Long, StandardValueAndStatusVo> map1 = new HashMap<>();
                 PmGoodsAttributeValuePo valuePo = goodsAttributeValueMapper.selectById(b);
-                if (valuePo==null){
-                    throw new ServiceException(ResultCode.NO_EXISTS,"数据库不存在对应的属性值",b);
+                if (valuePo == null) {
+                    throw new ServiceException(ResultCode.NO_EXISTS, "数据库不存在对应的属性值", b);
                 }
                 StandardValueAndStatusVo standardValueAndStatusVo = new StandardValueAndStatusVo();
                 standardValueAndStatusVo.setAttributeValueId(b);
                 standardValueAndStatusVo.setAttributeValue(valuePo.getValue());
                 Long attributeId = goodsAttributeValueMapper.selectById(b).getProductAttributeId();
-                map1.put(attributeId,standardValueAndStatusVo);
+                map1.put(attributeId, standardValueAndStatusVo);
                 attributeValues.add(map1);
             });
 
@@ -792,7 +792,23 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             List<Long> valueIds = relAttributeValueSkuPos.stream().map(a -> a.getGoodsAttributeValueId()).collect(Collectors.toList());
             //根据属性值id查找属性值表，获取属性值和属性ID
 //            List<AttributeInfos> attributeInfos = Lists.newArrayList();
-            List<List<Map<String, String>>> skuList = Lists.newArrayList();
+
+            List<Map<Long, StandardValueAndStatusVo>> attributeValues = Lists.newArrayList();
+            valueIds.forEach(b -> {
+                Map<Long, StandardValueAndStatusVo> map1 = new HashMap<>();
+                PmGoodsAttributeValuePo valuePo = goodsAttributeValueMapper.selectById(b);
+                if (valuePo == null) {
+                    throw new ServiceException(ResultCode.NO_EXISTS, "数据库不存在对应的属性值", b);
+                }
+                StandardValueAndStatusVo standardValueAndStatusVo = new StandardValueAndStatusVo();
+                standardValueAndStatusVo.setAttributeValueId(b);
+                standardValueAndStatusVo.setAttributeValue(valuePo.getValue());
+                Long attributeId = goodsAttributeValueMapper.selectById(b).getProductAttributeId();
+                map1.put(attributeId, standardValueAndStatusVo);
+                attributeValues.add(map1);
+            });
+
+           /* List<List<Map<String, String>>> skuList = Lists.newArrayList();
             valueIds.forEach(b -> {
                 //属性信息（map<属性ID，属性名称>、map<属性值ID,属性值>）
 //                AttributeInfos attributeInfo = new AttributeInfos();
@@ -817,9 +833,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
                 skuList.add(listMap);
 
-            });
+            });*/
 
-            findSkuFinanceVo.setSkuList(skuList);
+            findSkuFinanceVo.setAttributeValues(attributeValues);
 
             findSkuFinanceVos.add(findSkuFinanceVo);
         });

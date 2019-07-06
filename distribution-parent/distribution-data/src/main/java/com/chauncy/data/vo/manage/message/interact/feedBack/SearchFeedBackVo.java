@@ -4,7 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * @Author cheng
@@ -23,7 +23,7 @@ public class SearchFeedBackVo {
     private String nickName;
 
     @ApiModelProperty("反馈时间")
-    private LocalDate feedTime;
+    private LocalDateTime feedTime;
 
     @ApiModelProperty("反馈内容")
     private String content;

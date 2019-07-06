@@ -9,6 +9,7 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ public class MmFeedBackApi {
      * @param searchFeedBackDto
      * @return
      */
-    @RequestMapping("/searchFeedBack")
+    @PostMapping("/searchFeedBack")
     @ApiOperation("条件查询意见反馈")
     public JsonViewData<PageInfo<SearchFeedBackVo>> searchFeedBack(@RequestBody @ApiParam(required = true,name = "searchFeedBackDto",value = "条件查询意见反馈")
                                        @Validated SearchFeedBackDto searchFeedBackDto){
