@@ -48,17 +48,18 @@
 
     <select id="findGoodsValue" resultType="com.chauncy.data.bo.supplier.good.GoodsValueBo">
         select b.id,b.value as name,b.is_custom
-        from pm_goods_rel_attribute_value_good a ,pm_goods_attribute_value b, pm_goods_attribute c
+        from pm_goods_rel_attribute_value_sku a ,pm_goods_attribute_value b, pm_goods_attribute c,pm_goods_sku d
         <where>
             a.goods_attribute_value_id = b.id and b.product_attribute_id = c.id and a.del_flag = 0
+            and d.id = a.goods_sku_id
             <if test="attributeId !=null">
                 and c.id = #{attributeId}
             </if>
             <if test="goodsId !=null">
-                and a.goods_id=#{goodsId}
+                and d.goods_id=#{goodsId}
             </if>
         </where>
-
+        GROUP BY b.id
     </select>
 
     <select id="searchGoodsInfo" resultType="com.chauncy.data.vo.supplier.PmGoodsVo">
