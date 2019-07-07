@@ -13,6 +13,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @Author: xiaoye
@@ -91,4 +92,7 @@ public class StoreBaseInfoDto implements Serializable {
     @NotEmpty
     @NeedExistConstraint(tableName = "pm_goods_attribute")
     private Long[] attributeIds;
+
+    @ApiModelProperty(value = "绑定店铺关系")
+    private List<StoreRelStoreDto> storeRelStoreDtoList;
 }

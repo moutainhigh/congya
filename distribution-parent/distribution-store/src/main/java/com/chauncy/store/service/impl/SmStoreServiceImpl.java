@@ -10,12 +10,14 @@ import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.store.rel.SmRelStoreAttributePo;
 import com.chauncy.data.domain.po.store.rel.SmRelUserFocusStorePo;
+import com.chauncy.data.domain.po.store.rel.SmStoreRelStorePo;
 import com.chauncy.data.domain.po.sys.SysRolePo;
 import com.chauncy.data.domain.po.sys.SysRoleUserPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.add.StoreAccountInfoDto;
 import com.chauncy.data.dto.manage.store.add.StoreBaseInfoDto;
+import com.chauncy.data.dto.manage.store.add.StoreRelStoreDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchByConditionDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.dto.supplier.store.update.StoreBusinessLicenseDto;
@@ -23,6 +25,7 @@ import com.chauncy.data.mapper.product.PmGoodsAttributeMapper;
 import com.chauncy.data.mapper.store.rel.SmRelStoreAttributeMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.store.rel.SmRelUserFocusStoreMapper;
+import com.chauncy.data.mapper.store.rel.SmStoreRelStoreMapper;
 import com.chauncy.data.mapper.sys.SysRoleMapper;
 import com.chauncy.data.mapper.sys.SysRoleUserMapper;
 import com.chauncy.data.mapper.sys.SysUserMapper;
@@ -30,6 +33,7 @@ import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.store.*;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.store.rel.service.ISmRelStoreAttributeService;
+import com.chauncy.store.rel.service.ISmStoreRelStoreService;
 import com.chauncy.store.service.ISmStoreService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -72,6 +76,10 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
     @Autowired
     private SmRelUserFocusStoreMapper smRelUserFocusStoreMapper;
     @Autowired
+    private SmStoreRelStoreMapper smStoreRelStoreMapper;
+    @Autowired
+    private ISmStoreRelStoreService smStoreRelStoreService;
+    @Autowired
     private ISmRelStoreAttributeService smRelStoreAttributeService;
 
     private final static String DEFAULT_PASSWORD = "123456";
@@ -104,6 +112,9 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         //店铺信息插入
         smStorePo.setId(null);
         smStoreMapper.insert(smStorePo);
+
+        //绑定店铺关系
+        bindingStore(smStorePo.getId(), storeBaseInfoDto.getStoreRelStoreDtoList());
 
         //批量插入店铺品牌关联记录
         saveBatchRelStoreAttribute(storeBaseInfoDto, userName);
@@ -180,6 +191,30 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
     }
 
     /**
+     * 绑定店铺关系
+     * @param storeId
+     * @param storeRelStoreDtoList
+     */
+    private void bindingStore(Long storeId, List<StoreRelStoreDto> storeRelStoreDtoList) {
+        List<SmStoreRelStorePo> smStoreRelStorePoList = new ArrayList<>();
+        for(StoreRelStoreDto storeRelStoreDto : storeRelStoreDtoList) {
+            SmStoreRelStorePo smStoreRelStorePo = new SmStoreRelStorePo();
+            smStoreRelStorePo.setStoreId(storeId);
+            smStoreRelStorePo.setParentId(storeRelStoreDto.getParentId());
+            smStoreRelStorePo.setType(storeRelStoreDto.getType());
+            QueryWrapper<SmStoreRelStorePo> queryWrapper = new QueryWrapper<>(smStoreRelStorePo);
+            Integer count = smStoreRelStoreMapper.selectCount(queryWrapper);
+            if(count > 0) {
+                //关系已存在
+            } else {
+                //关系不存在
+                smStoreRelStorePoList.add(smStoreRelStorePo);
+            }
+        }
+        smStoreRelStoreService.saveBatch(smStoreRelStorePoList);
+    }
+
+    /**
      * 创建店铺管理员角色并且与系统角色ROLE_STORE绑定
      * @param smStorePo
      */
@@ -209,6 +244,7 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         sysRoleUserMapper.insert(sysRoleUserPo);
 
     }
+
 
 
     /**

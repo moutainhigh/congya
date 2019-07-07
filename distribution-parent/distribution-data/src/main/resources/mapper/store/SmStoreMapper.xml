@@ -131,7 +131,7 @@
     </resultMap>
     <select id="findBaseById" resultMap="storeBaseResult">
         select <include refid="selectSmStoreBaseInfo"/>,pga.id as attributeId, pga.name as attributeName
-        from sm_store ss left join sm_rel_store_attribute srsa on (ss.id = srsa.store_id and srsa.del_flag = 0)
+        from sm_store ss left join sm_store_rel_attribute srsa on (ss.id = srsa.store_id and srsa.del_flag = 0)
         left join pm_goods_attribute pga on (srsa.attribute_id = pga.id and pga.type = 8 and pga.del_flag = 0)
         <where>
             <if test="id !=null and id !=''">
