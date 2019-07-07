@@ -3,11 +3,15 @@ package com.chauncy.web.api.manage.sys;
 
 import cn.hutool.core.util.StrUtil;
 import com.chauncy.common.constant.SecurityConstant;
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.sys.SysDepartmentPo;
 import com.chauncy.data.domain.po.sys.SysRolePo;
 import com.chauncy.data.domain.po.sys.SysRoleUserPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.dto.manage.sys.user.add.AddPlatformUserDto;
 import com.chauncy.data.util.PageUtil;
+import com.chauncy.data.valid.group.IUpdateGroup;
+import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.sys.PageVo;
 import com.chauncy.data.vo.Result;
 import com.chauncy.data.util.ResultUtil;
@@ -19,13 +23,16 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.xmlbeans.impl.piccolo.xml.EntityManager;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,7 +47,7 @@ import java.util.Set;
  * @since 2019-05-24
  */
 @Slf4j
-@Api(description = "用户接口")
+@Api(tags = "平台-系统管理-用户接口")
 @CacheConfig(cacheNames = "user")
 @Transactional
 @RestController
@@ -73,6 +80,155 @@ public class SysUserApi {
 
 // @PersistenceContext
  private EntityManager entityManager;
+
+
+ @RequestMapping(value = "/addUser",method = RequestMethod.POST)
+ @ApiOperation(value = "添加用户")
+ public JsonViewData addUser(@ModelAttribute AddPlatformUserDto u,
+                            @RequestParam(required = false) String[] role){
+
+  if(StrUtil.isBlank(u.getUsername()) || StrUtil.isBlank(u.getPassword())){
+   return new JsonViewData(ResultCode.FAIL,"缺少必需表单字段");
+  }
+
+  if(userService.findByUsername(u.getUsername())!=null){
+   return new JsonViewData(ResultCode.FAIL,"该用户名已被注册");
+  }
+  //删除缓存
+  redisTemplate.delete("user::"+u.getUsername());
+
+  String encryptPass = new BCryptPasswordEncoder().encode(u.getPassword());
+  u.setPassword(encryptPass);
+  SysUserPo sysUserPo = new SysUserPo();
+  BeanUtils.copyProperties(u,sysUserPo);
+  SysUserPo currentUser = securityUtil.getCurrUser();
+  if (currentUser.getStoreId()==null){
+   sysUserPo.setSystemType(1);
+  }else{
+   sysUserPo.setSystemType(2);
+   sysUserPo.setStoreId(currentUser.getStoreId());
+  }
+  sysUserPo.setCreateBy(currentUser.getUsername());
+  boolean s = userService.save(sysUserPo);
+  if(!s){
+   return new JsonViewData(ResultCode.FAIL,"添加失败");
+  }
+  if(role!=null&&role.length>0){
+   //添加角色
+   for(String roleId : role){
+    SysRoleUserPo ur = new SysRoleUserPo();
+    ur.setUserId(sysUserPo.getId());
+    ur.setRoleId(roleId);
+    ur.setCreateBy(currentUser.getUsername());
+    iUserRoleService.save(ur);
+   }
+  }
+
+  return new JsonViewData(ResultCode.SUCCESS);
+ }
+
+
+ /**
+  * @param u
+  * @param role
+  * @return
+  */
+ @RequestMapping(value = "/admin/editUser",method = RequestMethod.POST)
+ @ApiOperation(value = "管理员修改资料",notes = "需要通过id获取原用户信息 需要username更新缓存")
+ @CacheEvict(key = "#u.username")
+ public JsonViewData editUser(@ModelAttribute @Validated(IUpdateGroup.class) AddPlatformUserDto u,
+                            @RequestParam(required = false) String[] role){
+
+  SysUserPo old = userService.getById(u.getId());
+  //若修改了用户名
+  if(!old.getUsername().equals(u.getUsername())){
+   //若修改用户名删除原用户名缓存
+   redisTemplate.delete("user::"+old.getUsername());
+   //判断新用户名是否存在
+   if(userService.findByUsername(u.getUsername())!=null){
+    return new JsonViewData(ResultCode.DUPLICATION,"该用户名已被存在");
+   }
+   //删除缓存
+   redisTemplate.delete("user::"+u.getUsername());
+  }
+
+  // 若修改了手机和邮箱判断是否唯一
+  if(!old.getMobile().equals(u.getMobile())&&userService.findByMobile(u.getMobile())!=null){
+   return new JsonViewData(ResultCode.DUPLICATION,"该手机号已绑定其他账户");
+  }
+  if(!old.getEmail().equals(u.getEmail())&&userService.findByEmail(u.getEmail())!=null){
+   return new JsonViewData(ResultCode.DUPLICATION,"该邮箱已绑定其他账户");
+  }
+
+  u.setPassword(old.getPassword());
+//  UpdateWrapper<SysUserPo> updateWrapper = new UpdateWrapper<>(u);
+  SysUserPo userPo = new SysUserPo();
+  BeanUtils.copyProperties(u,userPo);
+  boolean s = userService.saveOrUpdate(userPo);
+  if(!s){
+   return new JsonViewData(ResultCode.FAIL,"修改失败");
+  }
+  //删除该用户角色
+  iUserRoleService.deleteByUserId(u.getId());
+  if(role!=null&&role.length>0){
+   //新角色
+   for(String roleId : role){
+    SysRoleUserPo ur = new SysRoleUserPo();
+    ur.setRoleId(roleId);
+    ur.setUserId(u.getId());
+    ur.setCreateBy(securityUtil.getCurrUser().getUsername());
+    iUserRoleService.save(ur);
+   }
+  }
+  //手动删除缓存
+  redisTemplate.delete("userRole::"+u.getId());
+  redisTemplate.delete("userRole::depIds:"+u.getId());
+  return new JsonViewData(ResultCode.SUCCESS,"修改成功");
+ }
+
+
+
+
+
+
+
+
+
+
+
+ @RequestMapping(value = "/add",method = RequestMethod.POST)
+ @ApiOperation(value = "添加用户")
+ public Result<Object> regist(@ModelAttribute SysUserPo u,
+                              @RequestParam(required = false) String[] role){
+
+  if(StrUtil.isBlank(u.getUsername()) || StrUtil.isBlank(u.getPassword())){
+   return new ResultUtil<Object>().setErrorMsg("缺少必需表单字段");
+  }
+
+  if(userService.findByUsername(u.getUsername())!=null){
+   return new ResultUtil<Object>().setErrorMsg("该用户名已被注册");
+  }
+  //删除缓存
+  redisTemplate.delete("user::"+u.getUsername());
+
+  String encryptPass = new BCryptPasswordEncoder().encode(u.getPassword());
+  u.setPassword(encryptPass);
+  boolean s = userService.save(u);
+  if(!s){
+   return new ResultUtil<Object>().setErrorMsg("添加失败");
+  }
+  if(role!=null&&role.length>0){
+   //添加角色
+   for(String roleId : role){
+    SysRoleUserPo ur = new SysRoleUserPo();
+    ur.setUserId(u.getId());
+    ur.setRoleId(roleId);
+    iUserRoleService.save(ur);
+   }
+  }
+
+  return new ResultUtil<Object>().setData(u);
+ }
 
  @RequestMapping(value = "/regist",method = RequestMethod.POST)
  @ApiOperation(value = "注册用户")
@@ -298,40 +454,6 @@ public class SysUserApi {
 //   u.setPassword(null);
   }
   return new ResultUtil<List<SysUserPo>>().setData(list);
- }
-
- @RequestMapping(value = "/admin/add",method = RequestMethod.POST)
- @ApiOperation(value = "添加用户")
- public Result<Object> regist(@ModelAttribute SysUserPo u,
-                              @RequestParam(required = false) String[] role){
-
-  if(StrUtil.isBlank(u.getUsername()) || StrUtil.isBlank(u.getPassword())){
-   return new ResultUtil<Object>().setErrorMsg("缺少必需表单字段");
-  }
-
-  if(userService.findByUsername(u.getUsername())!=null){
-   return new ResultUtil<Object>().setErrorMsg("该用户名已被注册");
-  }
-  //删除缓存
-  redisTemplate.delete("user::"+u.getUsername());
-
-  String encryptPass = new BCryptPasswordEncoder().encode(u.getPassword());
-  u.setPassword(encryptPass);
-  boolean s = userService.save(u);
-  if(!s){
-   return new ResultUtil<Object>().setErrorMsg("添加失败");
-  }
-  if(role!=null&&role.length>0){
-   //添加角色
-   for(String roleId : role){
-    SysRoleUserPo ur = new SysRoleUserPo();
-    ur.setUserId(u.getId());
-    ur.setRoleId(roleId);
-    iUserRoleService.save(ur);
-   }
-  }
-
-  return new ResultUtil<Object>().setData(u);
  }
 
  @RequestMapping(value = "/admin/disable/{userId}",method = RequestMethod.POST)
