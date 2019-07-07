@@ -558,6 +558,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
                 StandardValueAndStatusVo standardValueAndStatusVo = new StandardValueAndStatusVo();
                 standardValueAndStatusVo.setAttributeValueId(b);
                 standardValueAndStatusVo.setAttributeValue(valuePo.getValue());
+                standardValueAndStatusVo.setIsInclude(true);
                 Long attributeId = goodsAttributeValueMapper.selectById(b).getProductAttributeId();
                 finalMap.put(attributeId.toString(), standardValueAndStatusVo);
 //                attributeValues.add(map1);
