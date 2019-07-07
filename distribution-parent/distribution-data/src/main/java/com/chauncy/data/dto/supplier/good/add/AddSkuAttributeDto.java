@@ -4,7 +4,9 @@ import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.List;
@@ -38,5 +40,7 @@ public class AddSkuAttributeDto {
     private Long stock;
 
     @ApiModelProperty(value = "添加规格到指定商品")
+    @NotNull(message = "规格信息不能为空")
+    @Valid
     private List<AddStandardToGoodDto> standardInfos;
 }

@@ -1171,12 +1171,12 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
         goodsVos = PageHelper.startPage(pageNo, pageSize, defaultSoft)
                 .doSelectPageInfo(() -> mapper.searchGoodsInfo(searchGoodInfosDto));
-        goodsVos.getList().forEach(a -> {
-            Map<String, Object> map = Maps.newHashMap();
-            map.put("goods_id", a.getId());
-            int stock = goodsSkuMapper.selectByMap(map).stream().map(PmGoodsSkuPo::getStock).mapToInt(c -> c).sum();
-            a.setStock(stock);
-        });
+//        goodsVos.getList().forEach(a -> {
+//            Map<String, Object> map = Maps.newHashMap();
+//            map.put("goods_id", a.getId());
+//            int stock = goodsSkuMapper.selectByMap(map).stream().map(PmGoodsSkuPo::getStock).mapToInt(c -> c).sum();
+//            a.setStock(stock);
+//        });
         return goodsVos;
     }
 
