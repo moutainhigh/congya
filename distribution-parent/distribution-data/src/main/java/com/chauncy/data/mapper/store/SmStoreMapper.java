@@ -6,6 +6,7 @@ import com.chauncy.data.dto.manage.store.select.StoreSearchByConditionDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.manage.store.*;
+import com.chauncy.data.vo.manage.store.rel.SmRelStoreVo;
 import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 
@@ -28,6 +29,13 @@ public interface SmStoreMapper extends IBaseMapper<SmStorePo> {
      * @return
      */
     Long findStoreIdByName(@Param("userName") String userName);
+
+    /**
+     * 根据账店铺id获取绑定店铺的列表
+     * @param id
+     * @return
+     */
+    List<SmRelStoreVo> findBindingStore(@Param("id") Long id);
 
     /**
      * 修改店铺经营状态

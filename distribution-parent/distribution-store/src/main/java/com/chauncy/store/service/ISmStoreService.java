@@ -126,4 +126,10 @@ public interface ISmStoreService extends Service<SmStorePo> {
      * @return
      */
     void userFocusStore(Long storeId, Long userId);
+
+    /**
+     * 店铺解除绑定
+     * @return
+     */
+    void storeUnbound(Long id);
 }

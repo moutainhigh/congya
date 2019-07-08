@@ -151,7 +151,7 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         //获取当前用户
         String userName = securityUtil.getCurrUser().getUsername();
         oldSmStore.setCreateBy(userName);
-        //店铺信息插入
+        //店铺信息修改
         smStoreMapper.updateById(oldSmStore);
         //查询新更改的品牌中缺少的已有品牌是否有关联的商品  如果有则编辑失败
         List<Long> oldAttributeIds = smStoreMapper.selectAttributeIdsById(storeBaseInfoDto.getId());
@@ -161,6 +161,10 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         if(null != reduceList && reduceList.size() > 0 ) {
             throw  new ServiceException(ResultCode.PARAM_ERROR, "修改失败，包含正被使用的关联的品牌");
         }
+
+
+        //绑定店铺关系
+        bindingStore(oldSmStore.getId(), storeBaseInfoDto.getStoreRelStoreDtoList());
 
         //将店铺与品牌关联表的记录删除
         Map<String, Object> map = new HashMap<>();
@@ -196,14 +200,19 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
      * @param storeRelStoreDtoList
      */
     private void bindingStore(Long storeId, List<StoreRelStoreDto> storeRelStoreDtoList) {
+        //删除店铺关系
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("store_id", storeId);
+        smStoreRelStoreMapper.delete(queryWrapper);
+
         List<SmStoreRelStorePo> smStoreRelStorePoList = new ArrayList<>();
         for(StoreRelStoreDto storeRelStoreDto : storeRelStoreDtoList) {
             SmStoreRelStorePo smStoreRelStorePo = new SmStoreRelStorePo();
             smStoreRelStorePo.setStoreId(storeId);
             smStoreRelStorePo.setParentId(storeRelStoreDto.getParentId());
             smStoreRelStorePo.setType(storeRelStoreDto.getType());
-            QueryWrapper<SmStoreRelStorePo> queryWrapper = new QueryWrapper<>(smStoreRelStorePo);
-            Integer count = smStoreRelStoreMapper.selectCount(queryWrapper);
+            QueryWrapper<SmStoreRelStorePo> relQueryWrapper = new QueryWrapper<>(smStoreRelStorePo);
+            Integer count = smStoreRelStoreMapper.selectCount(relQueryWrapper);
             if(count > 0) {
                 //关系已存在
             } else {
@@ -427,4 +436,18 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         smRelUserFocusStoreMapper.insert(smRelUserFocusStorePo);
     }
 
+    /**
+     * 店铺解除绑定
+     *
+     * @return
+     */
+    @Override
+    public void storeUnbound(Long id) {
+        SmStoreRelStorePo smStoreRelStorePo = smStoreRelStoreMapper.selectById(id);
+        if(null != smStoreRelStorePo) {
+            smStoreRelStoreMapper.deleteById(id);
+        } else {
+            throw new ServiceException(ResultCode.NO_EXISTS, "绑定的关系不存在");
+        }
+    }
 }
