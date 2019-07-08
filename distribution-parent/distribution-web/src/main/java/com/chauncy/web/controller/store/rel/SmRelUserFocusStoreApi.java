@@ -4,7 +4,7 @@ package com.chauncy.web.controller.store.rel;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import io.swagger.annotations.Api;
-import com.chauncy.store.rel.service.ISmRelUserFoucsStoreService;
+import com.chauncy.store.rel.service.ISmRelUserFocusStoreService;
 
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,12 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2019-07-02
  */
 @RestController
-@RequestMapping("sm-rel-user-foucs-store-po")
+@RequestMapping("sm-rel-user-focus-store-po")
 @Api(tags = "用户关注店铺关联信息表")
-public class SmRelUserFoucsStoreApi {
+public class SmRelUserFocusStoreApi {
 
  @Autowired
- private ISmRelUserFoucsStoreService service;
+ private ISmRelUserFocusStoreService service;
 
 
 }

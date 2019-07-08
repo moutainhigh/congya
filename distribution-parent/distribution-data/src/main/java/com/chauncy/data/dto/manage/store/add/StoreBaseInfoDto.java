@@ -13,6 +13,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @Author: xiaoye
@@ -27,6 +28,7 @@ public class StoreBaseInfoDto implements Serializable {
 
     @ApiModelProperty(value = "id,当新增时为空")
     @NeedExistConstraint(tableName = "sm_store",groups = IUpdateGroup.class)
+    @Min(message = "店铺id错误", value = 1)
     private Long id;
 
 
@@ -50,7 +52,7 @@ public class StoreBaseInfoDto implements Serializable {
 
     @ApiModelProperty(value = "店铺标签id(sm_store_label主键)")
     @NeedExistConstraint(tableName = "sm_store_label")
-    private String storeLabelId;
+    private Long storeLabelId;
 
     @ApiModelProperty(value = "店铺分类id（sm_store_category主键）")
     @NeedExistConstraint(tableName = "sm_store_category")
@@ -91,4 +93,7 @@ public class StoreBaseInfoDto implements Serializable {
     @NotEmpty
     @NeedExistConstraint(tableName = "pm_goods_attribute")
     private Long[] attributeIds;
+
+    @ApiModelProperty(value = "绑定店铺关系")
+    private List<StoreRelStoreDto> storeRelStoreDtoList;
 }

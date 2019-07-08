@@ -44,6 +44,8 @@ public class MmInformationPo implements Serializable {
     @TableField(condition = SqlCondition.LIKE)
     private String title;
 
+    @ApiModelProperty(value = "资讯作者")
+    private String author;
 
     @ApiModelProperty(value = "是否启用 1-是 0-否 默认为0")
     private Boolean enabled;

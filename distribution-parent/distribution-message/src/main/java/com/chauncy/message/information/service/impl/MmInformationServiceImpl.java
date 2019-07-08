@@ -1,19 +1,23 @@
 package com.chauncy.message.information.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.enums.common.VerifyStatusEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.domain.po.message.information.rel.MmRelInformationGoodsPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.message.information.select.SearchInfoByConditionDto;
+import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.information.add.InformationDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationSearchDto;
 import com.chauncy.data.mapper.message.information.MmInformationMapper;
 import com.chauncy.data.mapper.message.information.rel.MmRelInformationGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
+import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.app.message.information.InformationBaseVo;
 import com.chauncy.data.vo.app.message.information.InformationPagingVo;
 import com.chauncy.data.vo.manage.message.information.InformationPageInfoVo;
@@ -53,6 +57,8 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
     private PmGoodsCategoryMapper pmGoodsCategoryMapper;
     @Autowired
     private PmGoodsMapper pmGoodsMapper;
+    @Autowired
+    private UmUserMapper umUserMapper;
     @Autowired
     private IMmRelInformationGoodsService mmRelInformationGoodsService;
 
@@ -196,6 +202,11 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
      */
     @Override
     public InformationBaseVo findBaseById(Long id) {
+        MmInformationPo mmInformationPo = mmInformationMapper.selectById(id);
+        UpdateWrapper updateWrapper = new UpdateWrapper();
+        updateWrapper.eq("id", id);
+        updateWrapper.set("browsing_num", mmInformationPo.getBrowsingNum() + 1);
+        this.update(updateWrapper);
         //资讯基本信息
         return  mmInformationMapper.findBaseById(id);
     }
@@ -252,4 +263,54 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
                 .doSelectPageInfo(() -> mmInformationMapper.searchInfoBasePaging(searchInfoByConditionDto));
         return informationBaseVoPageInfo;
     }
+
+
+    /**
+     * 用户点赞资讯
+     *
+     * @param infoId 资讯id
+     * @param userId 用户id
+     * @return
+     */
+    @Override
+    public void likeInfo(Long infoId, Long userId) {
+        UmUserPo umUserPo = umUserMapper.selectById(userId);
+        if(null == umUserPo) {
+            throw new ServiceException(ResultCode.NO_EXISTS,"用户不存在");
+        }
+        MmInformationPo mmInformationPo = mmInformationMapper.selectById(infoId);
+        if(null != mmInformationPo) {
+            UpdateWrapper updateWrapper = new UpdateWrapper();
+            updateWrapper.eq("id", infoId);
+            updateWrapper.set("liked_num", mmInformationPo.getLikedNum() + 1);
+            this.update(updateWrapper);
+        } else {
+            throw new ServiceException(ResultCode.NO_EXISTS,"资讯不存在");
+        }
+    }
+
+    /**
+     * 审核资讯
+     *
+     * @param baseUpdateStatusDto
+     */
+    @Override
+    public void verifyInfo(BaseUpdateStatusDto baseUpdateStatusDto) {
+        MmInformationPo mmInformationPo = mmInformationMapper.selectById(baseUpdateStatusDto.getId()[0]);
+        if(null == mmInformationPo) {
+            throw new ServiceException(ResultCode.NO_EXISTS,"资讯不存在");
+        } else {
+            if(!mmInformationPo.getVerifyStatus().equals(VerifyStatusEnum.WAIT_CONFIRM.getId()))  {
+                throw new ServiceException(ResultCode.PARAM_ERROR,"资讯不是待审核状态");
+            } else {
+                UpdateWrapper updateWrapper = new UpdateWrapper();
+                updateWrapper.eq("id", mmInformationPo.getId());
+                updateWrapper.set("verify_status", baseUpdateStatusDto.getEnabled());
+                updateWrapper.set("verify_time", LocalDateTime.now());
+                updateWrapper.set("verify_by", securityUtil.getCurrUser().getUsername());
+                this.update(updateWrapper);
+            }
+        }
+    }
+
 }

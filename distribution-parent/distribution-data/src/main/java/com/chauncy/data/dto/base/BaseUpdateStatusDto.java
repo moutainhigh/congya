@@ -18,7 +18,7 @@ public class BaseUpdateStatusDto {
     @NotNull(message = "id参数不能为空")
     private Long[] id;
 
-    @ApiModelProperty("改变状态 1：启用  0：禁用")
+    @ApiModelProperty("改变状态 1：启用/通过  0：禁用/驳回")
     @NotNull(message = "enabled参数不能为空")
     private Boolean enabled;
 }

@@ -46,7 +46,7 @@ public class MmInformationCommentPo implements Serializable {
     @ApiModelProperty(value = "被回复的评论ID")
     private Long parentId;
 
-    @ApiModelProperty(value = "是否启用 1-是 0-否 默认为0")
+    @ApiModelProperty(value = "是否启用 1-是 0-否 默认为1")
     private Boolean enabled;
 
     @ApiModelProperty(value = "评论是否被举报 1-是 0-否 默认为0")
