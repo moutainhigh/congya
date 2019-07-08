@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
  **/
 
 @RestController
-@Api(description = "商家端商品管理")
+@Api(tags = "商家端_商品管理_商品导入")
 @RequestMapping("/supplier/product")
 public class ExcelGoodApi extends BaseApi {
 
@@ -471,13 +471,13 @@ public class ExcelGoodApi extends BaseApi {
             for (int j = 0; j < standardIds.size(); j++) {
 
                 Long attributeId = categoryService.findAttributeIdsByNameAndCategoryId(attributeNames.get(j), 7, queryGood.getGoodsCategoryId());
-                //查出该属性下的属性值是否存在
+                //查出该属性下的规格值是否存在
                 PmGoodsAttributeValuePo valueCondition = new PmGoodsAttributeValuePo();
                 valueCondition.setProductAttributeId(attributeId);
                 valueCondition.setValue(attributeValues.get(j));
                 Wrapper<PmGoodsAttributeValuePo> goodsAttributeValuePoWrapper = new QueryWrapper<>(valueCondition, "id");
                 PmGoodsAttributeValuePo selectValuePo = valueService.getOne(goodsAttributeValuePoWrapper);
-                //不存在则新增为自定义属性值
+                //不存在则新增为自定义规格值
                 if (selectValuePo == null) {
                     PmGoodsAttributeValuePo saveValuePo = new PmGoodsAttributeValuePo();
                     saveValuePo.setValue(attributeValues.get(j));
