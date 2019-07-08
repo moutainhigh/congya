@@ -6,8 +6,13 @@ import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.user.add.AddUserDto;
 import com.chauncy.data.dto.app.user.add.BindUserDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserIdCardDto;
+import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
+import com.chauncy.data.dto.manage.user.update.UpdateUserDto;
 import com.chauncy.data.vo.app.user.UserDataVo;
+import com.chauncy.data.vo.manage.user.detail.UmUserDetailVo;
+import com.chauncy.data.vo.manage.user.detail.UmUserRelVo;
 import com.chauncy.data.vo.manage.user.idCard.SearchIdCardVo;
+import com.chauncy.data.vo.manage.user.list.UmUserListVo;
 import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 
@@ -72,7 +77,46 @@ public interface IUmUserService extends Service<UmUserPo> {
      * @param phone
      * @return
      */
-    UserDataVo getUserDataVo(@Param("phone") String phone);
+    UserDataVo getUserDataVo( String phone);
+
+    /**
+     *用户填写邀请码
+     * @param inviteCode
+     * @param userId
+     */
+    void  setParent(Long inviteCode,Long userId);
+
+
+    /**
+     * 获取用户列表
+     * @param searchUserListDto
+     * @return
+     */
+    PageInfo<UmUserListVo> searchUserList(SearchUserListDto searchUserListDto);
+
+
+    /**
+     * 获取用户详情
+     * @param id
+     * @return
+     */
+    UmUserDetailVo getUserDetailVo( Long id);
+
+
+    /**
+     * 管理端更改用户信息
+     * 修改当前红包  总的也要改变
+     * @param updateUserDto
+     * @return
+     */
+    boolean updateUmUser( UpdateUserDto updateUserDto, String currentUserName);
+
+    /**
+     * 关联用户不包括本身
+     * @param id
+     * @return
+     */
+    List<UmUserRelVo>  getRelUsers(@Param("id") Long id);
 
 
 

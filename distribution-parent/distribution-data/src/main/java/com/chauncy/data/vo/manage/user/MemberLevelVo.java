@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.chauncy.common.util.serializer.LongJsonSerializer;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -17,7 +18,7 @@ import java.math.BigDecimal;
  **/
 @Data
 @Accessors(chain = true)
-
+@ApiModel(description = "会员等级")
 public class MemberLevelVo extends PmMemberLevelPo {
 
     @ApiModelProperty(value = "会员ID")

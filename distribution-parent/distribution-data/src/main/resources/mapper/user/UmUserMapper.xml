@@ -43,6 +43,67 @@
     <update id="updateLogin">
              update um_user   set login_times=login_times+1,recent_login_time=now() where phone=#{phone}
     </update>
+
+    <update id="updateUmUser">
+        update um_user set
+        member_level_id=#{t.memberLevelId},
+        parent_id=#{t.parentId},
+        store_id=#{t.storeId},
+        commission_status=#{t.commissionStatus},
+        current_red_envelops=current_red_envelops+#{t.currentRedEnvelops},
+        current_integral=current_integral+#{t.currentIntegral},
+        current_shop_ticket=current_shop_ticket+#{t.currentShopTicket},
+        total_red_envelops=total_red_envelops+#{t.currentRedEnvelops},
+        total_integral=total_integral+#{t.currentIntegral},
+        total_shop_ticket=total_shop_ticket+#{t.currentShopTicket},
+        update_by=#{currentUserName}
+        where id=#{t.id}
+    </update>
+    <select id="loadSearchUserList" resultType="com.chauncy.data.vo.manage.user.list.UmUserListVo">
+        SELECT
+        u.id,
+        u.phone,
+        u.true_name,
+        m.level_name,
+        u.total_order,
+        current_integral,
+        total_red_envelops,
+        total_consume_money,
+        current_shop_ticket,
+        total_shop_ticket,
+        s.`name` storeName,
+        u.parent_id parent,
+        invite_people_num,
+        recent_login_time,
+        u.enabled,
+        commission_status
+        FROM
+        um_user u
+        INNER JOIN pm_member_level m ON u.member_level_id = m.id
+        LEFT JOIN sm_store s ON u.store_id = s.id
+        WHERE
+        u.del_flag = 0
+        AND m.del_flag = 0
+        AND IF(s.del_flag is null, 1=1,s.del_flag = 0)
+        <if test="id!=null and id!=0">
+            AND u.id = #{id}
+        </if>
+        <if test="phone!=null and phone!=''">
+            AND u.phone LIKE concat('%', #{phone}, '%')
+        </if>
+        <if test="trueName!=null and trueName!=''">
+            AND u.true_name LIKE concat('%', #{trueName}, '%')
+        </if>
+        <if test="levelId!=null and levelId!=0">
+            AND m.id = #{levelId}
+        </if>
+        <if test="enabled!=null ">
+            AND u.enabled = #{enabled}
+        </if>
+        <if test="storeName!=null and storeName!=''">
+            AND s.NAME LIKE concat('%', #{storeName}, '%')
+        </if>
+    </select>
     <select id="loadSearchIdCardVos" resultType="com.chauncy.data.vo.manage.user.idCard.SearchIdCardVo">
         select id,phone,name,true_name,id_card,front_photo,back_photo
         from um_user
@@ -85,6 +146,65 @@
             LEFT JOIN um_user u2 ON u1.parent_id = u2.id
         WHERE
             u1.phone = #{phone}
+    </select>
+    <select id="loadUserDetailVo" resultType="com.chauncy.data.vo.manage.user.detail.UmUserDetailVo">
+        SELECT
+            u.photo,
+            u.phone,
+            m.actor,
+            m.level_name,
+            u.id,
+            u.enabled,
+            u.NAME,
+            u.sex,
+            u.login_times,
+            u.invite_code,
+            u.create_time,
+            u.parent_id parentName,
+            u.recent_login_time,
+            u.store_id,
+            u.commission_status,
+            `current_experience`,
+            `current_red_envelops`,
+            `current_integral`,
+            `current_shop_ticket`,
+            `total_consume_money`,
+            `invite_people_num`,
+            `total_red_envelops`,
+            `total_integral`,
+            `total_shop_ticket`,
+            `total_order` ,
+             IFNULL(m2.level_experience-current_experience,0) next_level_experience
+        FROM
+            um_user u
+            INNER JOIN pm_member_level m ON u.member_level_id = m.id
+            left join  pm_member_level m2 ON m.level+1=m2.`level`
+        WHERE
+            u.id = #{id} and u.del_flag=0 and m.del_flag=0 and
+            IF(m2.level_experience is null,m2.del_flag is null,m2.del_flag =0)
+    </select>
+    <select id="getLabelNamesByUserId" resultType="java.lang.String">
+        select IFNULL(GROUP_CONCAT(l.`name`),'') labelNames
+        from um_user u,um_user_label l,um_rel_user_label ul
+        where u.del_flag=0 and l.del_flag=0 and ul.del_flag=0
+        and u.id=ul.user_id and l.id=ul.user_label_id
+        and u.id=#{id}
+    </select>
+    <select id="getRelUsers" resultType="com.chauncy.data.vo.manage.user.detail.UmUserRelVo">
+            WITH RECURSIVE childrenIds (id,true_name,phone) AS
+                (
+                SELECT id,true_name,phone
+                FROM um_user
+                WHERE
+                    del_flag=0 and
+                    parent_id=#{id}
+                UNION ALL
+                SELECT c.id,c.true_name,c.phone
+                FROM childrenIds AS p JOIN um_user AS c
+                ON p.id = c.parent_id
+                where c.del_flag=0
+                )
+            SELECT id,true_name,phone FROM childrenIds
     </select>
 
 </mapper>

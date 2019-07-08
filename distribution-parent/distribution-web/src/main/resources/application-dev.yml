@@ -73,9 +73,10 @@ ignored:
     - /users/findByUserUame
     - /pm-goods-attribute-po/findByType/**
     - /v2/api-docs
-    - /app/user/security/register
-    - /app/user/security/reset
-    - /app/user/security/binding
+    - /app/user/data/register
+    - /app/user/data/reset
+    - /app/user/data/binding
+    - /generator/create
 
 # 配置文件加密key
 jasypt:

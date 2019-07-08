@@ -1,5 +1,6 @@
 package com.chauncy.data.dto.app.user.update;
 
+import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -10,7 +11,7 @@ import lombok.experimental.Accessors;
  * @Date 2019/7/4 23:43
  **/
 @Data
-@ApiModel(value = "更改绑定")
+@ApiModel(description = "个人基本信息")
 @Accessors(chain = true)
 public class UpdateUserDataDto {
 
@@ -24,6 +25,7 @@ public class UpdateUserDataDto {
     private Boolean sex;
 
     @ApiModelProperty(value = "邀请码")
+    @NeedExistConstraint(message = "邀请码不存在",tableName = "um_user",field = "invite_code")
     private Long inviteCode;
 
 

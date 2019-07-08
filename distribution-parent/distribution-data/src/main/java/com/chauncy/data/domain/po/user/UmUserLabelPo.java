@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.time.LocalDateTime;
@@ -49,6 +50,7 @@ public class UmUserLabelPo implements Serializable {
     private LocalDateTime updateTime;
 
     @ApiModelProperty(value = "删除标志 1-删除 0未删除")
+    @TableLogic
     private Boolean delFlag;
 
     @ApiModelProperty(value = "标签名称")

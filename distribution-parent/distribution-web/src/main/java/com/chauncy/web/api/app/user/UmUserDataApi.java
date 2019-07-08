@@ -160,7 +160,7 @@ public class UmUserDataApi extends BaseApi {
 
     @PostMapping("/old_phone_check")
     @ApiOperation("原有手机号码验证")
-    public JsonViewData oldphone(@Validated @RequestBody UpdatePhoneDto updatePhoneDto){
+    public JsonViewData oldphone(@Validated(ISaveGroup.class) @RequestBody UpdatePhoneDto updatePhoneDto){
         boolean isTrue = umUserService.validVerifyCode(updatePhoneDto.getVerifyCode(), updatePhoneDto.getPhone()
                 , ValidCodeEnum.OLD_BIND_PHONE_CODE);
         return isTrue?setJsonViewData(ResultCode.SUCCESS):setJsonViewData(ResultCode.SUCCESS);
@@ -168,7 +168,7 @@ public class UmUserDataApi extends BaseApi {
 
     @PostMapping("/new_phone_check")
     @ApiOperation("新手机号码验证")
-    public JsonViewData newphone(@Validated @RequestBody UpdatePhoneDto updatePhoneDto){
+    public JsonViewData newphone(@Validated(IUpdateGroup.class) @RequestBody UpdatePhoneDto updatePhoneDto){
         boolean isTrue = umUserService.validVerifyCode(updatePhoneDto.getVerifyCode(), updatePhoneDto.getPhone()
                 , ValidCodeEnum.NEW_BIND_PHONE_CODE);
         if (!isTrue){
@@ -184,10 +184,17 @@ public class UmUserDataApi extends BaseApi {
     @PostMapping("/update")
     @ApiOperation("个人头像 昵称 性别 邀请码更改")
     public JsonViewData update(@Validated @RequestBody UpdateUserDataDto updateUserDataDto){
-        UmUserPo updateUser=new UmUserPo();
-        BeanUtils.copyProperties(updateUserDataDto,updateUser);
-        updateUser.setId(getAppCurrUser().getId());
-        umUserService.updateById(updateUser);
+        //设置邀请码
+        if (updateUserDataDto.getInviteCode()!=null&&updateUserDataDto.getInviteCode()!=0){
+            umUserService.setParent(updateUserDataDto.getInviteCode(),getAppCurrUser().getId());
+        }
+        else {
+            UmUserPo updateUser = new UmUserPo();
+            BeanUtils.copyProperties(updateUserDataDto, updateUser);
+            updateUser.setId(getAppCurrUser().getId());
+            umUserService.updateById(updateUser);
+        }
+        return setJsonViewData(ResultCode.SUCCESS);
     }
 
 
@@ -196,7 +203,6 @@ public class UmUserDataApi extends BaseApi {
     public JsonViewData<UserDataVo> get(){
         return setJsonViewData(service.getUserDataVo(getAppCurrUser().getPhone()));
     }
-
 
 
 
