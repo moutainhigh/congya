@@ -1,5 +1,6 @@
 package com.chauncy.common.util.third;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import cn.jiguang.common.resp.APIConnectionException;
@@ -12,6 +13,7 @@ import cn.jpush.api.push.model.Platform;
 import cn.jpush.api.push.model.PushPayload;
 import cn.jpush.api.push.model.audience.Audience;
 import cn.jpush.api.push.model.notification.*;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * @Author cheng
@@ -21,9 +23,12 @@ import cn.jpush.api.push.model.notification.*;
  */
 public class JpushClientUtil {
 
-    private final static String APPKEY = "这是你的appkey";
+    @Value("${distribution.jpush.APPKEY}")
+    private String app_key;
 
-    private final static String MASTERSECRET = "这是你的mastersecret";
+    private final static String APPKEY = "43fce926da40c017ab4b4818";
+
+    private final static String MASTERSECRET = "328f5af7bc97bb017c715c77";
 
     private static JPushClient jPushClient = new JPushClient(MASTERSECRET, APPKEY);
 
@@ -307,10 +312,18 @@ public class JpushClientUtil {
                 .setPlatform(Platform.all())
                 //指定推送的接收对象，all代表所有人，也可以指定已经设置成功的tag或alias或该应应用客户端调用接口获取到的registration id
                 .setAudience(Audience.alias(bieming))
+//                .setNotification(Notification.android(parm.get("msg"), parm.get("title"), parm))  //发送内容
+                .setMessage(Message.content(msg_content))//自定义信息
                 //jpush的通知，android的由jpush直接下发，iOS的由apns服务器下发，Winphone的由mpns下发
                 //jpush的通知，android的由jpush直接下发，iOS的由apns服务器下发，Winphone的由mpns下发
                 .setNotification(Notification.newBuilder()
-                        .addPlatformNotification(IosNotification.newBuilder()
+                        .addPlatformNotification(AndroidNotification.newBuilder()//android推送设置
+                                .setAlert(msg_title)
+                                .setTitle(notification_title)//设置通知标题
+                                .addExtras(extrasparams)//设置附加字段map  也可以设置(key,value)格式
+                                .build()
+                        )
+                        .addPlatformNotification(IosNotification.newBuilder()//ios推送设置
                                 //传一个IosAlert对象，指定apns title、title、subtitle等
                                 .setAlert(notification_title)
                                 //直接传alert
@@ -435,5 +448,17 @@ public class JpushClientUtil {
                         .setTimeToLive(86400)
                         .build())
                 .build();
+    }
+
+    public static void main(String[] args){
+        String notification_title="发送All";
+        String msg_title="抢购！抢购！抢购！抢购！";
+        String msg_content="促销活动仅剩3小时";
+        String alias = "18218431233";
+        Map<String, String> extrasparams=new HashMap<>();
+        extrasparams.put("a","额外字段1");
+        extrasparams.put("b","额外字段2");
+//        JpushClientUtil.sendToAllAndroid(notification_title,msg_title,msg_content,extrasparams);
+        JpushClientUtil.sendToBieMing(alias,notification_title,msg_title,msg_content,extrasparams);
     }
 }
