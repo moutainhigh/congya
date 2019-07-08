@@ -369,5 +369,9 @@ public class SmGoodsApi extends BaseApi {
 
         return new JsonViewData<>(service.findAttributes(categoryId));
     }
+//
+//    @GetMapping("/delGoodsById/{ids}")
+//    @ApiOperation("批量删除商品")
+//    public JsonViewData delGoodsById()
 
 }

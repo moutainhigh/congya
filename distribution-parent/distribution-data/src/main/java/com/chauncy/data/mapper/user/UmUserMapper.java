@@ -7,6 +7,7 @@ import com.chauncy.data.dto.manage.user.update.UpdateUserDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import com.chauncy.data.vo.app.user.UserDataVo;
+import com.chauncy.data.vo.manage.message.interact.push.UmUsersVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserDetailVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserRelVo;
 import com.chauncy.data.vo.manage.user.idCard.SearchIdCardVo;
@@ -24,6 +25,14 @@ import java.util.List;
  * @since 2019-06-30
  */
 public interface UmUserMapper extends IBaseMapper<UmUserPo> {
+
+    /**
+     * 推送信息时需要获取app用户信息
+     * 
+     * @param searchUserListDto
+     * @return
+     */
+    List<UmUsersVo> loadSearchUsers(SearchUserListDto searchUserListDto);
 
     /**
      * 登陆成功后修改登录次数和登录时间

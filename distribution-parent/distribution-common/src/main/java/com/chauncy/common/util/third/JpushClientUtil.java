@@ -1,6 +1,7 @@
 package com.chauncy.common.util.third;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import cn.jiguang.common.resp.APIConnectionException;
@@ -13,6 +14,7 @@ import cn.jpush.api.push.model.Platform;
 import cn.jpush.api.push.model.PushPayload;
 import cn.jpush.api.push.model.audience.Audience;
 import cn.jpush.api.push.model.notification.*;
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Value;
 
 /**
@@ -73,10 +75,10 @@ public class JpushClientUtil {
      * @param extrasparams        扩展字段
      * @return 0推送失败，1推送成功
      */
-    public static int sendToBieMing(String bieming, String notification_title, String msg_title, String msg_content, Map<String, String> extrasparams) {
+    public static int sendToBieMing(/*String bieming,*/List<String> aliasList, String notification_title, String msg_title, String msg_content, Map<String, String> extrasparams) {
         int result = 0;
         try {
-            PushPayload pushPayload = JpushClientUtil.buildPushObject_all_BieMing_alertWithTitle(bieming, notification_title, msg_title, msg_content, extrasparams);
+            PushPayload pushPayload = JpushClientUtil.buildPushObject_all_BieMing_alertWithTitle(aliasList, notification_title, msg_title, msg_content, extrasparams);
             System.out.println(pushPayload);
             PushResult pushResult = jPushClient.sendPush(pushPayload);
             System.out.println(pushResult);
@@ -192,8 +194,8 @@ public class JpushClientUtil {
                 .setNotification(Notification.newBuilder()
                         .setAlert(notification_title)
                         .addPlatformNotification(AndroidNotification.newBuilder()//android推送设置
-                                .setAlert(notification_title)
-                                .setTitle(notification_title)//设置通知标题
+                                .setAlert(msg_title)//title对应的内容，紧跟着通知栏下面
+                                .setTitle(notification_title)//设置通知栏标题
                                 .addExtras(extrasparams)//设置附加字段map  也可以设置(key,value)格式
                                 .build()
                         )
@@ -218,6 +220,7 @@ public class JpushClientUtil {
                 .setMessage(Message.newBuilder()
                         .setMsgContent(msg_content)//通知内容
                         .setTitle(msg_title)//通知内容标题
+                        .addExtras(extrasparams)//设置附加字段map,此字段为透传字段，不会显示在通知栏。
                         .build())
                 .setOptions(Options.newBuilder()
                         //此字段的值是用来指定本推送要推送的apns环境，false表示开发，true表示生产；对android和自定义消息无意义
@@ -297,23 +300,23 @@ public class JpushClientUtil {
     /**
      * 别名
      *
-     * @param bieming
+     * @param aliasList
      * @param notification_title
      * @param msg_title
      * @param msg_content
      * @param extrasparams
      * @return
      */
-    private static PushPayload buildPushObject_all_BieMing_alertWithTitle(String bieming, String notification_title, String msg_title, String msg_content, Map<String, String> extrasparams) {
+    private static PushPayload buildPushObject_all_BieMing_alertWithTitle(/*String bieming*/List<String> aliasList, String notification_title, String msg_title, String msg_content, Map<String, String> extrasparams) {
 
 
         return PushPayload.newBuilder()
                 //指定要推送的平台，all代表当前应用配置了的所有平台，也可以传android等具体平台
                 .setPlatform(Platform.all())
                 //指定推送的接收对象，all代表所有人，也可以指定已经设置成功的tag或alias或该应应用客户端调用接口获取到的registration id
-                .setAudience(Audience.alias(bieming))
+                .setAudience(Audience.alias(aliasList))
 //                .setNotification(Notification.android(parm.get("msg"), parm.get("title"), parm))  //发送内容
-                .setMessage(Message.content(msg_content))//自定义信息
+//                .setMessage(Message.content(msg_content))//自定义信息
                 //jpush的通知，android的由jpush直接下发，iOS的由apns服务器下发，Winphone的由mpns下发
                 //jpush的通知，android的由jpush直接下发，iOS的由apns服务器下发，Winphone的由mpns下发
                 .setNotification(Notification.newBuilder()
@@ -350,6 +353,7 @@ public class JpushClientUtil {
                 .setMessage(Message.newBuilder()
                         .setMsgContent(msg_content)
                         .setTitle(msg_title)
+                        .addExtras(extrasparams)
                         .build())
 
                 .setOptions(Options.newBuilder()
@@ -390,7 +394,7 @@ public class JpushClientUtil {
                 .setMessage(Message.newBuilder()
                         .setMsgContent(msg_content)
                         .setTitle(msg_title)
-                        .addExtras(extrasparams)
+//                        .addExtras(extrasparams)
                         .build())
 
                 .setOptions(Options.newBuilder()
@@ -454,11 +458,17 @@ public class JpushClientUtil {
         String notification_title="发送All";
         String msg_title="抢购！抢购！抢购！抢购！";
         String msg_content="促销活动仅剩3小时";
-        String alias = "18218431233";
         Map<String, String> extrasparams=new HashMap<>();
         extrasparams.put("a","额外字段1");
         extrasparams.put("b","额外字段2");
+        List<String> list = Lists.newArrayList();
+        list.add("18218431233");
+        list.add("18318743492");
+        List<List<String>> aliasList = Lists.partition(list,2);
 //        JpushClientUtil.sendToAllAndroid(notification_title,msg_title,msg_content,extrasparams);
-        JpushClientUtil.sendToBieMing(alias,notification_title,msg_title,msg_content,extrasparams);
+        aliasList.forEach(x->{
+            JpushClientUtil.sendToBieMing(x,notification_title,msg_title,msg_content,extrasparams);
+
+        });
     }
 }

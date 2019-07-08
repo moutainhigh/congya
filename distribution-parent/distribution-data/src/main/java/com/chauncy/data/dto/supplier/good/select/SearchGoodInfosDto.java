@@ -56,11 +56,17 @@ public class SearchGoodInfosDto {
 //    @ApiModelProperty("审核时间")
 //    private LocalDate verifyTime;
 //
-//    @ApiModelProperty("销售价格")
-//    private BigDecimal sellPrice;
+    @ApiModelProperty("最低销售价格")
+    private BigDecimal lowestSellPrice;
+
+    @ApiModelProperty("最高销售价格")
+    private BigDecimal highestSellPrice;
 //
-//    @ApiModelProperty("供货价格")
-//    private BigDecimal supplierPrice;
+    @ApiModelProperty("最低供货价格")
+    private BigDecimal lowestSupplierPrice;
+
+    @ApiModelProperty("最高销售价格")
+    private BigDecimal highestSupplierPrice;
 //
 //    @ApiModelProperty("商品标签")
 //    private String labelName;

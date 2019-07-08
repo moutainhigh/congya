@@ -12,8 +12,10 @@ import cn.jpush.api.push.model.audience.Audience;
 import cn.jpush.api.push.model.notification.AndroidNotification;
 import cn.jpush.api.push.model.notification.IosNotification;
 import cn.jpush.api.push.model.notification.Notification;
+import com.google.common.collect.Lists;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,7 +33,7 @@ public class JPushUtil {
 
     //极光推送>>Android
     //Map<String, String> parm是我自己传过来的参数,可以自定义参数
-    public static void jpushAndroid(Map<String, String> parm) {
+    public static void jpushAndroid(List<String> list, Map<String, String> parm) {
 
         //创建JPushClient(极光推送的实例)
         JPushClient jpushClient = new JPushClient(MASTER_SECRET, APP_KEY);
@@ -39,11 +41,12 @@ public class JPushUtil {
         PushPayload payload = PushPayload.newBuilder()
                 .setPlatform(Platform.android())//指定android平台的用户
 //                .setAudience(Audience.all())//你项目中的所有用户
-                .setAudience(Audience.alias(parm.get("alias")))//设置别名发送,单发，点对点方式
+                .setAudience(Audience.alias(list))//设置别名发送,单发，点对点方式
 //                .setAudience(Audience.tag("黄金会员"))//设置按标签发送，相当于群发
 //                .setAudience(Audience.registrationId(parm.get("id")))//registrationId指定用户
 
                 .setNotification(Notification.android(parm.get("msg"), parm.get("title"), parm))  //发送内容
+
                 .setOptions(Options.newBuilder().setApnsProduction(true).setTimeToLive(7200).build())
                 // apnProduction指定开发环境 true为生产模式 false 为测试模式 (android不区分模式,ios区分模式) 不用设置也没关系
                 // TimeToLive 两个小时的缓存时间
@@ -136,8 +139,15 @@ public class JPushUtil {
             //设置提示信息,内容是文章标题
             parm.put("msg","22测试发送给指定的黄金会员");
             parm.put("title","这里是title");
-            parm.put("alias","18218431233");
-            JPushUtil.jpushAndroid(parm);
+            parm.put("extra","额外字段");
+            List<String> list = Lists.newArrayList();
+            list.add("18218431233");
+            list.add("18318743492");
+            List<List<String>> aliasList = Lists.partition(list,2);
+            aliasList.forEach(x->{
+                JPushUtil.jpushAndroid(x,parm);
+            });
+
         }
 
 }
