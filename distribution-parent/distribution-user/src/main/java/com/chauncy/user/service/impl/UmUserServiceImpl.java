@@ -13,6 +13,7 @@ import com.chauncy.common.util.StringUtils;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.user.UmRelUserLabelPo;
+import com.chauncy.data.domain.po.message.interact.MmFeedBackPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.user.add.AddUserDto;
 import com.chauncy.data.dto.app.user.add.BindUserDto;
@@ -21,6 +22,7 @@ import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
 import com.chauncy.data.dto.manage.user.update.UpdateUserDto;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.user.UmRelUserLabelMapper;
+import com.chauncy.data.mapper.message.interact.MmFeedBackMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.app.user.UserDataVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserDetailVo;
@@ -65,6 +67,9 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
 
     @Autowired
     private SmStoreMapper smStoreMapper;
+    @Autowired
+    private MmFeedBackMapper feedBackMapper;
+
 
     @Override
     public boolean validVerifyCode(String verifyCode, String phone, ValidCodeEnum validCodeEnum) {
@@ -220,5 +225,20 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     @Override
     public List<UmUserRelVo> getRelUsers(Long id) {
         return mapper.getRelUsers(id);
+    }
+
+    /**
+     *用户反馈信息
+     *
+     * @return
+     */
+    @Override
+    public void addFeedBack(String content, UmUserPo userPo) {
+        MmFeedBackPo feedBackPo = new MmFeedBackPo();
+        feedBackPo.setContent(content);
+        feedBackPo.setCreateBy(userPo.getName());
+        feedBackPo.setId(null);
+        feedBackPo.setUserId(userPo.getId());
+        feedBackMapper.insert(feedBackPo);
     }
 }

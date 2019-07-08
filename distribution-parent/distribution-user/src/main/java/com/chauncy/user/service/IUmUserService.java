@@ -119,5 +119,10 @@ public interface IUmUserService extends Service<UmUserPo> {
     List<UmUserRelVo>  getRelUsers(@Param("id") Long id);
 
 
-
+    /**
+     *用户反馈信息
+     *
+     * @return
+     */
+    void addFeedBack(String content, UmUserPo userPo);
 }

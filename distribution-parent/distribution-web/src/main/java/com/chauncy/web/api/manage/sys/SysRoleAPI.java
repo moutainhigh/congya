@@ -31,7 +31,7 @@ import java.util.Set;
  * @since 2019-05-24
  */
 @RestController
-@Api(description = "角色管理接口")
+@Api(tags = "平台-系统管理-角色管理接口")
 @RequestMapping("/sys-role-po")
 @Transactional
 public class SysRoleAPI {

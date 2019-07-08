@@ -15,6 +15,7 @@ import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.user.ShipAreaVo;
 import com.chauncy.data.vo.app.user.UserDataVo;
+import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.user.service.IUmAreaShippingService;
 import com.chauncy.user.service.IUmUserService;
 import com.chauncy.web.base.BaseApi;
@@ -49,6 +50,9 @@ public class UmUserDataApi extends BaseApi {
     @Autowired
     private IUmAreaShippingService shipService;
 
+    @Autowired
+    public SecurityUtil securityUtil;
+
     /**
      * 用户添加收货地址
      *
@@ -59,7 +63,10 @@ public class UmUserDataApi extends BaseApi {
     @ApiOperation("用户添加收货地址")
     public JsonViewData addArea(@RequestBody @ApiParam(required = true,name = "addAreaDto",value = "用户添加收货地址Dto")
                                 @Validated AddAreaDto addAreaDto){
-        shipService.addArea(addAreaDto);
+
+        UmUserPo userPo = securityUtil.getAppCurrUser();
+        shipService.addArea(addAreaDto,userPo);
+
         return new JsonViewData(ResultCode.SUCCESS);
     }
 
@@ -73,7 +80,10 @@ public class UmUserDataApi extends BaseApi {
     @ApiOperation("用户修改收货地址")
     public JsonViewData updateArea(@RequestBody @ApiParam(required = true,name = "updateAreaDto",value = "用户修改收货地址Dto")
                                    @Validated(IUpdateGroup.class) AddAreaDto updateAreaDto){
-        shipService.updateArea(updateAreaDto);
+
+        UmUserPo userPo = securityUtil.getAppCurrUser();
+        shipService.updateArea(updateAreaDto,userPo);
+
         return new JsonViewData(ResultCode.SUCCESS);
     }
 
@@ -103,6 +113,21 @@ public class UmUserDataApi extends BaseApi {
                                                        @PathVariable Long userId){
 
         return new JsonViewData(shipService.findShipArea(userId));
+    }
+
+    /**
+     *用户反馈信息
+     *
+     * @return
+     */
+    @PostMapping("/addFeedBack")
+    @ApiOperation("用户反馈信息")
+    public JsonViewData addFeedBack(@RequestParam(value = "content") String content){
+
+        UmUserPo userPo = securityUtil.getAppCurrUser();
+        service.addFeedBack(content,userPo);
+
+        return new JsonViewData(ResultCode.SUCCESS);
     }
 
     @PostMapping("/register")

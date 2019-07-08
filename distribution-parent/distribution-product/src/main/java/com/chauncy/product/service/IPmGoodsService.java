@@ -21,6 +21,7 @@ import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -108,7 +109,7 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @param goodsId
      * @return
      */
-    List<FindSkuAttributeVo> findSkuAttribute(Long goodsId);
+    List<Map<String,Object>> findSkuAttribute(Long goodsId);
 
     /**
      * 根据商品ID查找财务的sku信息
@@ -116,7 +117,7 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @param goodsId
      * @return
      */
-    List<FindSkuFinanceVo> findSkuFinance(Long goodsId);
+    GetSkuFinanceInfoVo findSkuFinance(Long goodsId);
 
     /**
      * 添加或更新财务信息

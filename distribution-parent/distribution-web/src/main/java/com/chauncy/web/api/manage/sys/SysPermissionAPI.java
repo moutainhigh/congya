@@ -43,7 +43,7 @@ import java.util.Set;
  */
 @RestController
 @RequestMapping("/sys-permission-po")
-@Api(description = "菜单/权限管理接口")
+@Api(tags = "平台-系统管理-权限管理接口")
 @Slf4j
 @CacheConfig(cacheNames = "permission")
 @Transactional

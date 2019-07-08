@@ -51,6 +51,12 @@ public class FindSkuFinanceVo {
     @ApiModelProperty(value = "库存数量")
     private Long stock;
 
-    @ApiModelProperty("sku属性以及属性值组合")
-    private List<List<Map<String,String>>> skuList;
+//    @ApiModelProperty("sku属性以及属性值组合")
+//    private List<List<Map<String,String>>> skuList;
+//
+//    @ApiModelProperty(value = "属性以及属性值组合")
+//    private List<Map<Long,StandardValueAndStatusVo>> attributeValues;
+
+//    @ApiModelProperty("sku属性Id以及属性名称")
+//    private FinanceStandardInfo financeStandardInfo;
 }

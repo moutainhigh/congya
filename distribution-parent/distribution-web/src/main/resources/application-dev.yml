@@ -116,6 +116,11 @@ distribution:
     domain: http://pt2wi8mc0.bkt.clouddn.com
     # 存储区域 -1自动判断 0华东 1华北 2华南 3北美 4东南亚
     zone: -1
+  # 极光推送配置
+  jpush:
+    APPKEY: 43fce926da40c017ab4b4818
+    MASTERSECRET: 328f5af7bc97bb017c715c77
+
   # mob api配置 mob官网注册申请即可
   mob:
     appKey: appKey

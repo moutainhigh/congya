@@ -27,6 +27,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author cheng
@@ -180,7 +181,7 @@ public class SmGoodsApi extends BaseApi {
      */
     @GetMapping("/findSkuAttribute/{goodsId}")
     @ApiOperation(value = "根据商品ID查找sku信息")
-    public JsonViewData<List<FindSkuAttributeVo>> findSkuAttribute(@ApiParam(required = true, name = "goodsId", value = "goodsId") @PathVariable Long goodsId) {
+    public JsonViewData<List<Map<String,Object>>> findSkuAttribute(@ApiParam(required = true, name = "goodsId", value = "goodsId") @PathVariable Long goodsId) {
 
         return setJsonViewData(service.findSkuAttribute(goodsId));
     }
@@ -193,7 +194,7 @@ public class SmGoodsApi extends BaseApi {
      */
     @GetMapping("/findSkuFinance/{goodsId}")
     @ApiOperation(value = "根据商品ID查找财务的sku信息")
-    public JsonViewData<List<FindSkuFinanceVo>> findSkuFinance(@ApiParam(required = true, name = "goodsId", value = "goodsId") @PathVariable Long goodsId){
+    public JsonViewData<GetSkuFinanceInfoVo> findSkuFinance(@ApiParam(required = true, name = "goodsId", value = "goodsId") @PathVariable Long goodsId){
 
         return  setJsonViewData(service.findSkuFinance(goodsId));
     }
