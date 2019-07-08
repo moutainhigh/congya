@@ -2,11 +2,13 @@ package com.chauncy.web.api.manage.message.information.comment;
 
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.manage.message.information.add.AddInformationCommentDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationCommentDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.message.information.comment.InformationMainCommentVo;
 import com.chauncy.data.vo.manage.message.information.comment.InformationViceCommentVo;
 import com.chauncy.message.information.comment.service.IMmInformationCommentService;
+import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -32,6 +34,9 @@ public class MmInformationCommentApi extends BaseApi {
     @Autowired
     private IMmInformationCommentService mmInformationCommentService;
 
+    @Autowired
+    private SecurityUtil securityUtil;
+
     /**
      * 条件查询
      * @param informationCommentDto
@@ -39,7 +44,7 @@ public class MmInformationCommentApi extends BaseApi {
      */
     @ApiOperation(value = "条件查询", notes = "根据ID、名称查询")
     @PostMapping("/searchPaging")
-    public JsonViewData<PageInfo<InformationMainCommentVo>> searchPaging(@RequestBody InformationCommentDto informationCommentDto) {
+    public JsonViewData<PageInfo<InformationViceCommentVo>> searchPaging(@RequestBody InformationCommentDto informationCommentDto) {
 
         PageInfo<InformationViceCommentVo> informationCategoryVoPageInfo = mmInformationCommentService.searchPaging(informationCommentDto);
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
@@ -74,6 +79,20 @@ public class MmInformationCommentApi extends BaseApi {
 
         mmInformationCommentService.delInfoCommentById(id);
         return new JsonViewData(ResultCode.SUCCESS, "删除成功");
+    }
+
+    /**
+     * 保存后台用户资讯评论
+     *
+     * @param addInformationCommentDto
+     * @return
+     */
+    @ApiOperation(value = "保存后台用户资讯评论", notes = "保存后台用户资讯评论")
+    @PostMapping("/saveInfoComment")
+    public JsonViewData saveInfoComment(@RequestBody AddInformationCommentDto addInformationCommentDto) {
+
+        mmInformationCommentService.saveInfoComment(addInformationCommentDto, Long.parseLong(securityUtil.getCurrUser().getId()));
+        return new JsonViewData(ResultCode.SUCCESS, "保存成功");
     }
 
 }

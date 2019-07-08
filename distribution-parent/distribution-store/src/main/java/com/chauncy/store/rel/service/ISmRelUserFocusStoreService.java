@@ -1,6 +1,6 @@
 package com.chauncy.store.rel.service;
 
-import com.chauncy.data.domain.po.store.rel.SmRelUserFoucsStorePo;
+import com.chauncy.data.domain.po.store.rel.SmRelUserFocusStorePo;
 import com.chauncy.data.core.Service;
 
 /**
@@ -11,6 +11,6 @@ import com.chauncy.data.core.Service;
  * @author huangwancheng
  * @since 2019-07-02
  */
-public interface ISmRelUserFoucsStoreService extends Service<SmRelUserFoucsStorePo> {
+public interface ISmRelUserFocusStoreService extends Service<SmRelUserFocusStorePo> {
 
 }

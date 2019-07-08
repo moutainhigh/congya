@@ -3,6 +3,7 @@ package com.chauncy.message.information.service;
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.message.information.select.SearchInfoByConditionDto;
+import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.information.add.InformationDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationSearchDto;
 import com.chauncy.data.vo.app.message.information.InformationBaseVo;
@@ -71,4 +72,16 @@ public interface IMmInformationService extends Service<MmInformationPo> {
      * @return
      */
     PageInfo<InformationPagingVo> searchPaging(SearchInfoByConditionDto searchInfoByConditionDto);
+    /**
+     * 用户点赞资讯
+     * @param infoId  资讯id
+     * @param userId  用户id
+     * @return
+     */
+    void likeInfo(Long infoId, Long userId);
+    /**
+     * 审核资讯
+     * @param baseUpdateStatusDto
+     */
+    void verifyInfo(BaseUpdateStatusDto baseUpdateStatusDto);
 }

@@ -119,4 +119,17 @@ public interface ISmStoreService extends Service<SmStorePo> {
      */
     PageInfo<RelStoreInfoVo> searchRelStoreInfo(StoreSearchByConditionDto storeSearchByConditionDto);
 
+    /**
+     * 用户关注店铺
+     * @param storeId  店铺id
+     * @param userId  用户id
+     * @return
+     */
+    void userFocusStore(Long storeId, Long userId);
+
+    /**
+     * 店铺解除绑定
+     * @return
+     */
+    void storeUnbound(Long id);
 }

@@ -3,6 +3,7 @@ package com.chauncy.message.information.comment.service;
 import com.chauncy.data.domain.po.message.information.comment.MmInformationCommentPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.manage.message.information.add.AddInformationCommentDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationCommentDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationViceCommentDto;
 import com.chauncy.data.vo.manage.message.information.comment.InformationMainCommentVo;
@@ -51,4 +52,9 @@ public interface IMmInformationCommentService extends Service<MmInformationComme
      * @param id
      */
     void delInfoCommentById(Long id);
+
+    /**
+     * 保存评论
+     */
+    void saveInfoComment(AddInformationCommentDto addInformationCommentDto, Long userId);
 }

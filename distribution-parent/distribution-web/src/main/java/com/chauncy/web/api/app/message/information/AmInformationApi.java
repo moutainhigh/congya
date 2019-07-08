@@ -2,6 +2,7 @@ package com.chauncy.web.api.app.message.information;
 
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.app.message.information.select.SearchInfoByConditionDto;
+import com.chauncy.data.dto.manage.message.information.add.AddInformationCommentDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationCommentDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationViceCommentDto;
 import com.chauncy.data.vo.JsonViewData;
@@ -15,9 +16,11 @@ import com.chauncy.message.information.category.service.IMmInformationCategorySe
 import com.chauncy.message.information.comment.service.IMmInformationCommentService;
 import com.chauncy.message.information.label.service.IMmInformationLabelService;
 import com.chauncy.message.information.service.IMmInformationService;
+import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +45,8 @@ public class AmInformationApi extends BaseApi {
     private IMmInformationLabelService mmInformationLabelService;
     @Autowired
     private IMmInformationCommentService mmInformationCommentService;
-
+    @Autowired
+    private SecurityUtil securityUtil;
 
     /**
      * 查询所有的资讯分类
@@ -122,6 +126,35 @@ public class AmInformationApi extends BaseApi {
 
         return new JsonViewData(ResultCode.SUCCESS, "查询成功",
                 mmInformationCommentService.searchViceCommentByMainId(informationViceCommentDto));
+    }
+
+    /**
+     * 保存app用户资讯评论
+     *
+     * @param addInformationCommentDto
+     * @return
+     */
+    @ApiOperation(value = "保存app用户资讯评论", notes = "保存app用户资讯评论")
+    @PostMapping("/save/userInfoComment")
+    public JsonViewData saveUserInfoComment(@RequestBody AddInformationCommentDto addInformationCommentDto) {
+
+        mmInformationCommentService.saveInfoComment(addInformationCommentDto, securityUtil.getAppCurrUser().getId());
+        return new JsonViewData(ResultCode.SUCCESS, "保存成功");
+    }
+
+    /**
+     * 用户点赞资讯
+     * @param infoId  资讯id
+     * @return
+     */
+    @ApiOperation(value = "用户点赞资讯", notes = "用户点赞资讯")
+    @ApiImplicitParam(name = "infoId", value = "资讯id", required = true, dataType = "Long", paramType = "path")
+    @GetMapping("/likeInfo/{infoId}")
+    public JsonViewData likeInfo(@PathVariable(value = "infoId")Long infoId) {
+
+        mmInformationService.likeInfo(infoId, securityUtil.getAppCurrUser().getId());
+        return new JsonViewData(ResultCode.SUCCESS, "关注成功");
+
     }
 
 
