@@ -117,7 +117,7 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @param goodsId
      * @return
      */
-    List<FindSkuFinanceVo> findSkuFinance(Long goodsId);
+    GetSkuFinanceInfoVo findSkuFinance(Long goodsId);
 
     /**
      * 添加或更新财务信息

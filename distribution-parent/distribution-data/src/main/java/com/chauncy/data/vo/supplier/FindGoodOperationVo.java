@@ -24,6 +24,9 @@ public class FindGoodOperationVo {
     @NotNull(message = "商品ID不能为空")
     private Long goodsId;
 
+    @ApiModelProperty(value = "商品类型")
+    private String goodsType;
+
     @ApiModelProperty(value = "活动成本比例")
     @NotNull(message = "活动成本比例不能为空")
     private BigDecimal activityCostRate;

@@ -37,7 +37,7 @@ public class AddSkuAttributeDto {
 
     @ApiModelProperty(value = "库存数量")
     @NotNull(message = "商品库存不能为空")
-    private Long stock;
+    private Integer stock;
 
     @ApiModelProperty(value = "添加规格到指定商品")
     @NotNull(message = "规格信息不能为空")
