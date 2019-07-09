@@ -33,7 +33,7 @@ public class SearchInfoByConditionDto  extends BaseSearchDto implements Serializ
     @NeedExistConstraint(tableName = "mm_information_category")
     private Long infoCategoryId;
 
-    @ApiModelProperty(value = "资讯类型：  关注  热榜")
+    @ApiModelProperty(value = "资讯类型：  关注->FOCUSLIST  热榜->HOTLIST")
     @EnumConstraint(target = InformationTypeEnum.class)
     private InformationTypeEnum informationTypeEnum;
 

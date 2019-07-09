@@ -1,4 +1,4 @@
-package com.chauncy.data.vo.supplier;
+package com.chauncy.data.vo.supplier.good;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
