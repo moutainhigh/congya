@@ -103,7 +103,7 @@
                 and b.supplier_price &lt;=highestSupplierPrice
             </if>
         </where>
-        GROUP BY a.id,d.id order by a.sort;
+        GROUP BY a.id,d.id order by a.create_time;
     </select>
 
 

@@ -2,6 +2,7 @@ package com.chauncy.data.mapper.area;
 
 import com.chauncy.data.domain.po.area.AreaRegionPo;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.area.AreaCityVo;
 import com.chauncy.data.vo.area.AreaVo;
 import org.apache.ibatis.annotations.Param;
 
@@ -31,4 +32,11 @@ public interface AreaRegionMapper extends IBaseMapper<AreaRegionPo> {
      * @return
      */
     List<AreaVo> findStreet(@Param("parentCode") String parentCode);
+
+    /**
+     * 获取省市
+     *
+     * @return
+     */
+    List<AreaCityVo> search();
 }

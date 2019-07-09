@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
+
 /**
  * @Author cheng
  * @create 2019-07-08 18:45
@@ -12,7 +14,9 @@ import lombok.experimental.Accessors;
 @ApiModel(description = "用户列表")
 @Data
 @Accessors(chain = true)
-public class UmUsersVo {
+public class UmUsersVo implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @ApiModelProperty("用户ID")
     private Long id;

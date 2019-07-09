@@ -241,4 +241,12 @@
         </if>
     </select>
 
+    <select id="getUsersByIds" resultType="com.chauncy.data.vo.manage.message.interact.push.UmUsersVo">
+        select id,phone,true_name,name
+        from um_user
+        where id in
+        <foreach item="item" collection="userIds" separator="," open="(" close=")" index="">  #{item, jdbcType=INTEGER}
+        </foreach>
+    </select>
+
 </mapper>

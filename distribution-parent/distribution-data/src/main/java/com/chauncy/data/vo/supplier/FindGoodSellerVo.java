@@ -27,4 +27,7 @@ public class FindGoodSellerVo {
 
     @ApiModelProperty(value = "限购数量")
     private Integer purchaseLimit;
+
+//    @ApiModelProperty(value = "发货地，返回省市的id")
+//    private String[] locationCodes;
 }

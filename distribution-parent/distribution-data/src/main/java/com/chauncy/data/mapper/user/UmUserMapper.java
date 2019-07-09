@@ -91,6 +91,10 @@ public interface UmUserMapper extends IBaseMapper<UmUserPo> {
      */
     List<UmUserRelVo>  getRelUsers(@Param("id") Long id);
 
-
-
+    /**
+     * 根据ids获取用户信息
+     * @param userIds
+     * @return
+     */
+    List<UmUsersVo> getUsersByIds(@Param("userIds") List<Long> userIds);
 }
