@@ -77,5 +77,5 @@ public enum PushTypeEnum implements BaseEnum {
 
     @Override
     public boolean isExist(Object field) {
-        return Objects.nonNull(getPushTypeEnumById(Integer.parseInt(field.toString())));
+        return Objects.nonNull(fromName(field.toString()));
     }}

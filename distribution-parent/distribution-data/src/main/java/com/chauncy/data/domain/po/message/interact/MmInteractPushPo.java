@@ -49,18 +49,17 @@ public class MmInteractPushPo implements Serializable {
     @TableLogic
     private Boolean delFlag;
 
-    @ApiModelProperty(value = "推送方式 1-通知栏推送 2-app内消息中心推送")
-    private Integer type;
+    @ApiModelProperty(value = "推送方式 NOTIFICATIONBAR-通知栏推送 APPMESSAGE-app内消息中心推送")
+    private String pushType;
 
     @ApiModelProperty(value = "消息标题")
     private String title;
 
     @ApiModelProperty(value = "图文详情")
-    @TableField("detailHtml")
     private String detailHtml;
 
-    @ApiModelProperty(value = "推送对象类型")
-    private Integer pushType;
+    @ApiModelProperty(value = "推送对象类型 ALLUSER—全部用户 SPECIFYUSER—指定用户 SPECIFYMEMBERLEVEL—指定会员等级")
+    private String objectType;
 
 
 }

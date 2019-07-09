@@ -1,11 +1,17 @@
 package com.chauncy.message.interact.service;
 
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.message.interact.MmInteractPushPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.manage.message.interact.add.AddPushMessageDto;
+import com.chauncy.data.dto.manage.message.interact.select.SearchPushDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
+import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.manage.message.interact.push.InteractPushVo;
 import com.chauncy.data.vo.manage.message.interact.push.UmUsersVo;
 import com.github.pagehelper.PageInfo;
+
+import java.util.List;
 
 /**
  * <p>
@@ -31,4 +37,27 @@ public interface IMmInteractPushService extends Service<MmInteractPushPo> {
      * @return
      */
     void addPushMessage(AddPushMessageDto addPushMessageDto);
+
+    /**
+     * 条件查询推送信息
+     *
+     * @param searchPushDto
+     * @return
+     */
+    PageInfo<InteractPushVo> search(SearchPushDto searchPushDto);
+
+    /**
+     * 根据推送信息ID批量删除
+     *
+     * @param ids
+     * @return
+     */
+    void delPushByIds(Long[] ids);
+
+    /**
+     * 查找所有会员等级id和名称
+     *
+     * @return
+     */
+    List<BaseVo> searchMemberLevel();
 }

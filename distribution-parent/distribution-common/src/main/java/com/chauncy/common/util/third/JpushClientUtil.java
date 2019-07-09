@@ -196,7 +196,7 @@ public class JpushClientUtil {
                         .addPlatformNotification(AndroidNotification.newBuilder()//android推送设置
                                 .setAlert(msg_title)//title对应的内容，紧跟着通知栏下面
                                 .setTitle(notification_title)//设置通知栏标题
-                                .addExtras(extrasparams)//设置附加字段map  也可以设置(key,value)格式
+//                                .addExtras(extrasparams)//设置附加字段map  也可以设置(key,value)格式
                                 .build()
                         )
                         .addPlatformNotification(IosNotification.newBuilder()//ios推送设置
@@ -207,7 +207,7 @@ public class JpushClientUtil {
                                 //此字段的值default表示系统默认声音；传sound.caf表示此推送以项目里面打包的sound.caf声音来提醒，
                                 // 如果系统没有此音频则以系统默认声音提醒；此字段如果传空字符串，iOS9及以上的系统是无声音提醒，以下的系统是默认声音
                                 .setSound("default")
-                                .addExtras(extrasparams)
+//                                .addExtras(extrasparams)
                                 //此项说明此推送是一个background推送，想了解background看：http://docs.jpush.io/client/ios_tutorials/#ios-7-background-remote-notification
                                 // .setContentAvailable(true)
                                 .build()
@@ -220,7 +220,7 @@ public class JpushClientUtil {
                 .setMessage(Message.newBuilder()
                         .setMsgContent(msg_content)//通知内容
                         .setTitle(msg_title)//通知内容标题
-                        .addExtras(extrasparams)//设置附加字段map,此字段为透传字段，不会显示在通知栏。
+//                        .addExtras(extrasparams)//设置附加字段map,此字段为透传字段，不会显示在通知栏。
                         .build())
                 .setOptions(Options.newBuilder()
                         //此字段的值是用来指定本推送要推送的apns环境，false表示开发，true表示生产；对android和自定义消息无意义
@@ -323,7 +323,7 @@ public class JpushClientUtil {
                         .addPlatformNotification(AndroidNotification.newBuilder()//android推送设置
                                 .setAlert(msg_title)
                                 .setTitle(notification_title)//设置通知标题
-                                .addExtras(extrasparams)//设置附加字段map  也可以设置(key,value)格式
+//                                .addExtras(extrasparams)//设置附加字段map  也可以设置(key,value)格式
                                 .build()
                         )
                         .addPlatformNotification(IosNotification.newBuilder()//ios推送设置
@@ -353,7 +353,7 @@ public class JpushClientUtil {
                 .setMessage(Message.newBuilder()
                         .setMsgContent(msg_content)
                         .setTitle(msg_title)
-                        .addExtras(extrasparams)
+//                        .addExtras(extrasparams)
                         .build())
 
                 .setOptions(Options.newBuilder()

@@ -1,32 +1,37 @@
 package com.chauncy.message.interact.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.message.PushObjectEnum;
 import com.chauncy.common.enums.message.PushTypeEnum;
+import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.common.util.third.JpushClientUtil;
+import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.interact.MmInteractPushPo;
 import com.chauncy.data.domain.po.message.interact.MmInteractRelMessageObjectPo;
 import com.chauncy.data.dto.manage.message.interact.add.AddPushMessageDto;
+import com.chauncy.data.dto.manage.message.interact.select.SearchPushDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
 import com.chauncy.data.mapper.message.interact.MmInteractPushMapper;
 import com.chauncy.data.mapper.message.interact.MmInteractRelMessageObjectMapper;
+import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
+import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.manage.message.interact.push.InteractPushVo;
 import com.chauncy.data.vo.manage.message.interact.push.UmUsersVo;
-import com.chauncy.data.vo.manage.user.list.UmUserListVo;
 import com.chauncy.message.interact.service.IMmInteractPushService;
-import com.chauncy.data.core.AbstractService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -55,6 +60,9 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
     @Autowired
     private SecurityUtil securityUtil;
 
+    @Autowired
+    private PmMemberLevelMapper memberLevelMapper;
+
     /**
      * 用户列表
      *
@@ -72,6 +80,8 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
         return umUsersVoPageInfo;
     }
 
+
+
     /**
      * 添加推送信息
      *
@@ -81,8 +91,8 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
     @Override
     public void addPushMessage(AddPushMessageDto addPushMessageDto) {
         //获取推送方式
-        PushTypeEnum pushType = PushTypeEnum.getPushTypeEnumById(addPushMessageDto.getPushType());
-        PushObjectEnum pushObject = PushObjectEnum.getPushObjectEnumById(addPushMessageDto.getObjectType());
+        PushTypeEnum pushType = PushTypeEnum.fromName(addPushMessageDto.getPushType());
+        PushObjectEnum pushObject = PushObjectEnum.fromName(addPushMessageDto.getObjectType());
         MmInteractPushPo interactPushPo = new MmInteractPushPo();
         BeanUtils.copyProperties(addPushMessageDto, interactPushPo);
         interactPushPo.setId(null);
@@ -104,6 +114,9 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
                         break;
                     //指定用户
                     case SPECIFYUSER:
+                        if (addPushMessageDto.getObjectIds()==null && addPushMessageDto.getObjectIds().size()==0){
+                            throw new ServiceException(ResultCode.NO_EXISTS,"请选择指定用户");
+                        }
                         addPushMessageDto.getObjectIds().forEach(a -> {
                             MmInteractRelMessageObjectPo relMessageObjectPo = new MmInteractRelMessageObjectPo();
                             relMessageObjectPo.setPushId(interactPushPo.getId());
@@ -123,8 +136,14 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
                         break;
                     //指定会员
                     case SPECIFYMEMBERLEVEL:
+                        if (addPushMessageDto.getObjectIds()==null && addPushMessageDto.getObjectIds().size()==0){
+                            throw new ServiceException(ResultCode.NO_EXISTS,"请选择指定会员等级");
+                        }
                         //通过会员ID获取对应的用户ID
                         Long memberLevelId = addPushMessageDto.getObjectIds().get(0);
+                        if (memberLevelMapper.selectById(memberLevelId)==null){
+                            throw new ServiceException(ResultCode.NO_EXISTS,"数据库不存在该会员等级，请检查");
+                        }
                         MmInteractRelMessageObjectPo relMessageObjectPo = new MmInteractRelMessageObjectPo();
                         relMessageObjectPo.setPushId(interactPushPo.getId());
                         relMessageObjectPo.setObjectId(memberLevelId);
@@ -173,5 +192,80 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
                 }
                 break;
         }
+    }
+
+    /**
+     * 条件查询推送信息
+     *
+     * @param searchPushDto
+     * @return
+     */
+    @Override
+    public PageInfo<InteractPushVo> search(SearchPushDto searchPushDto) {
+        Integer pageNo = searchPushDto.getPageNo() == null ? defaultPageNo : searchPushDto.getPageNo();
+        Integer pageSize = searchPushDto.getPageSize() == null ? defaultPageSize : searchPushDto.getPageSize();
+        PageInfo<InteractPushVo> interactPushVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> mapper.search(searchPushDto));
+        //根据不同推送对象获取对应的信息
+        interactPushVoPageInfo.getList().forEach(a->{
+            PushObjectEnum pushObject = PushObjectEnum.fromName(a.getObjectType());
+            switch (pushObject) {
+                case ALLUSER:
+                    a.setSpecifiedObject(pushObject.getName());
+                    break;
+                case SPECIFYUSER:
+                    QueryWrapper<MmInteractRelMessageObjectPo> query1 = new QueryWrapper<>();
+                    query1.eq("push_id",a.getId());
+                    List<Long> userIds = relMessageObjectMapper.selectList(query1).stream().map(d->d.getObjectId()).collect(Collectors.toList());
+                    List<UmUsersVo> usersVos = userMapper.getUsersByIds(userIds);
+                    a.setUserList(usersVos);
+                    a.setSpecifiedObject(pushObject.getName());
+                    break;
+                case SPECIFYMEMBERLEVEL:
+                    QueryWrapper<MmInteractRelMessageObjectPo> query = new QueryWrapper<>();
+                    query.eq("push_id",a.getId());
+                    Long memberLevelId = relMessageObjectMapper.selectOne(query).getId();
+                    a.setMemberLevelId(memberLevelId);
+                    String memberName = memberLevelMapper.selectById(memberLevelId).getLevelName();
+                    a.setSpecifiedObject(memberName);
+                    break;
+            }
+        });
+
+        return interactPushVoPageInfo;
+    }
+
+    /**
+     * 根据推送信息ID批量删除
+     *
+     * @param ids
+     * @return
+     */
+    @Override
+    public void delPushByIds(Long[] ids) {
+
+        List<Long> idList = Arrays.asList(ids);
+        idList.forEach(a->{
+            if (mapper.selectById(a)==null){
+                throw new ServiceException(ResultCode.NO_EXISTS,"数据库不存在该数据");
+            }
+            Map<String,Object> query = Maps.newHashMap();
+            query.put("push_id",a);
+            List<Long> relIds = relMessageObjectMapper.selectByMap(query).stream().map(b->b.getId()).collect(Collectors.toList());
+            relMessageObjectMapper.deleteBatchIds(relIds);
+            mapper.deleteById(a);
+        });
+
+    }
+
+    /**
+     * 查找所有会员等级id和名称
+     *
+     * @return
+     */
+    @Override
+    public List<BaseVo> searchMemberLevel() {
+
+        return memberLevelMapper.searchMemberLevel();
     }
 }
