@@ -1,5 +1,6 @@
 package com.chauncy.product.service;
 
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
 import com.chauncy.data.dto.manage.good.add.UpdateGoodsOperationDto;
@@ -233,4 +234,12 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @return
      */
     PageInfo<ExcelGoodVo> searchExcelGoods(SearchExcelDto searchExcelDto);
+
+    /**
+     * 批量删除商品
+     *
+     * @param ids
+     * @return
+     */
+    void delGoodsByIds(Long[] ids);
 }

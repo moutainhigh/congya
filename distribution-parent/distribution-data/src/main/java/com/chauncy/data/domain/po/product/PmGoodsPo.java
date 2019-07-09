@@ -2,6 +2,7 @@ package com.chauncy.data.domain.po.product;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chauncy.common.util.serializer.LongJsonSerializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -138,6 +139,7 @@ public class PmGoodsPo {
     private LocalDateTime updateTime;
 
     @ApiModelProperty(value = "删除标志 默认0 0->未删除；1->已删除")
+    @TableLogic
     private Boolean delFlag;
 
     @ApiModelProperty(value = "商品不通过驳回详情")

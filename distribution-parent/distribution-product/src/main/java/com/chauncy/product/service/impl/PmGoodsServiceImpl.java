@@ -11,6 +11,7 @@ import com.chauncy.common.util.JSONUtils;
 import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.area.AreaRegionPo;
 import com.chauncy.data.domain.po.product.*;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.dto.manage.good.update.RejectGoodsDto;
@@ -23,6 +24,7 @@ import com.chauncy.data.dto.supplier.good.update.UpdateGoodOperationDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodSellerDto;
 import com.chauncy.data.dto.supplier.good.update.UpdatePublishStatusDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
+import com.chauncy.data.mapper.area.AreaRegionMapper;
 import com.chauncy.data.mapper.product.*;
 import com.chauncy.data.mapper.sys.SysUserMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
@@ -107,6 +109,12 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
     @Autowired
     private PmMemberLevelMapper memberLevelMapper;
+
+    @Autowired
+    private PmGoodsRelAttributeValueGoodMapper relAttributeValueGoodMapper;
+
+    @Autowired
+    private AreaRegionMapper areaRegionMapper;
 
     @Autowired
     private SysUserMapper sysUserMapper;
@@ -1063,8 +1071,15 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         if (goodsPo == null) {
             return null;
         }
+        //查找省市ID
+        /*String cityCode = goodsPo.getLocation();
+        QueryWrapper<AreaRegionPo> queryWrapper = new QueryWrapper();
+        queryWrapper.eq("city_code",cityCode);
+        String provinceCode = areaRegionMapper.selectOne(queryWrapper).getParentCode();
+        String[] locationCodes = {cityCode,provinceCode};*/
         BeanUtils.copyProperties(goodsPo, findGoodSellerVo);
         findGoodSellerVo.setGoodsId(goodsId);
+//        findGoodSellerVo.setLocationCodes(locationCodes);
 
         return findGoodSellerVo;
     }
@@ -1354,6 +1369,57 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         PageInfo<ExcelGoodVo> excelGoodVoPageInfo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
                 .doSelectPageInfo(() -> mapper.searchExcelGoods(searchExcelDto));
         return excelGoodVoPageInfo;
+    }
+
+    /**
+     * 批量删除商品
+     *
+     * @param ids
+     * @return
+     */
+    @Override
+    public void delGoodsByIds(Long[] ids) {
+        List<Long> idList = Arrays.asList(ids);
+        idList.forEach(a->{
+            if (mapper.selectById(a)==null){
+                throw new ServiceException(ResultCode.NO_EXISTS,"数据库不存在该商品");
+            }
+        });
+        idList.forEach(b->{
+            //(商品有参数值前提下)删除参数值与商品关联表的信息(pm_goods_rel_attribute_value_good)、商品关联的参数值(属性值表)
+            Map<String,Object> query = new HashMap<>();
+            query.put("goods_id",b);
+            query.put("del_flag",false);
+            List<PmGoodsRelAttributeValueGoodPo> relAttributeValueGoodPos =relAttributeValueGoodMapper.selectByMap(query);
+            if (relAttributeValueGoodPos!=null && relAttributeValueGoodPos.size()!=0){
+                //1、删除商品关联的参数值(属性值表)
+                List<Long> valueIds = relAttributeValueGoodPos.stream().map(c->c.getGoodsAttributeValueId()).collect(Collectors.toList());
+                goodsAttributeMapper.deleteBatchIds(valueIds);
+                //2、删除参数值与商品关联表的信息
+                relAttributeValueGoodMapper.deleteByMap(query);
+
+            }
+            //3、删除商品与属性关联表
+            Map<String,Object> query3 = new HashMap<>();
+            query3.put("goods_good_id",b);
+            query3.put("del_flag",false);
+            goodsRelAttributeGoodMapper.deleteByMap(query3);
+            //4、删除sku与规格值关联表
+            List<PmGoodsSkuPo> goodsSkuPos = goodsSkuMapper.selectByMap(query);
+            if (goodsSkuPos.size()!=0 && goodsSkuPos!=null){
+                goodsSkuPos.forEach(d->{
+                    Map<String,Object> query2 = Maps.newHashMap();
+                    query2.put("goods_sku_id",d.getId());
+                    query2.put("del_flag",false);
+                    goodsRelAttributeValueSkuMapper.deleteByMap(query2);
+                });
+            }
+            //5、删除对应的sku
+            goodsSkuMapper.deleteByMap(query);
+            //6、删除商品
+            mapper.deleteById(b);
+        });
+
     }
 
 }
