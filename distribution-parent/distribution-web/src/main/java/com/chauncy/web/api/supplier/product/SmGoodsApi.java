@@ -292,9 +292,10 @@ public class SmGoodsApi extends BaseApi {
      * @param goodsIds
      * @return
      */
-    @GetMapping("/submitAudit/{ids}")
     @ApiOperation("提交商品审核")
-    public JsonViewData submitAudit(@ApiParam(required = true, name = "goodsIds", value = "商品id集合，以逗号隔开") @PathVariable Long[] goodsIds){
+    @GetMapping("/submitAudit/{goodsIds}")
+    public JsonViewData submitAudit(@ApiParam(required = true, name = "goodsIds", value = "商品id集合，以逗号隔开")
+                                    @PathVariable Long[] goodsIds){
 
         service.submitAudit(goodsIds);
         return setJsonViewData(ResultCode.SUCCESS,"提交审核成功");
