@@ -91,16 +91,16 @@
             and f.name like concat('%', #{storeName}, '%')
          </if>
             <if test="lowestSellPrice!=null">
-                and b.sell_price &gt;=lowestSellPrice
+                and b.sell_price &gt;=#{lowestSellPrice}
             </if>
             <if test="highestSellPrice!=null">
-                and b.sell_price &lt;=highestSellPrice
+                and b.sell_price &lt;=#{highestSellPrice}
             </if>
             <if test="lowestSupplierPrice!=null">
-                and b.supplier_price &gt;=lowestSupplierPrice
+                and b.supplier_price &gt;=#{lowestSupplierPrice}
             </if>
             <if test="highestSupplierPrice!=null">
-                and b.supplier_price &lt;=highestSupplierPrice
+                and b.supplier_price &lt;=#{highestSupplierPrice}
             </if>
         </where>
         GROUP BY a.id,d.id order by a.create_time
