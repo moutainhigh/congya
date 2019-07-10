@@ -821,6 +821,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         }
         Map<String, Object> map = new HashMap<>();
         map.put("goods_id", goodsId);
+        map.put("del_flag",false);
         List<PmGoodsSkuPo> goodsSkuPos = goodsSkuMapper.selectByMap(map);
         if (goodsSkuPos == null && goodsSkuPos.size() == 0) {
             return null;

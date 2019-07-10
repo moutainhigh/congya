@@ -5,6 +5,7 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
 import com.chauncy.data.vo.app.order.cart.CartVo;
 import com.chauncy.order.service.IOmShoppingCartService;
 import com.github.pagehelper.PageInfo;
@@ -32,6 +33,19 @@ public class OmShoppingCartApi {
 
     @Autowired
     private IOmShoppingCartService service;
+
+    /**
+     * 查看商品详情
+     *
+     * @param goodsId
+     * @return
+     */
+    @GetMapping("/selectSpecifiedGoods/{goodsId}")
+    @ApiOperation("查看具体商品详情")
+    public JsonViewData<SpecifiedGoodsVo> selectSpecifiedGoods(@ApiParam(required = true,name="goodsId",value="商品ID")
+                                             @PathVariable Long goodsId){
+        return new JsonViewData(service.selectSpecifiedGoods(goodsId));
+    }
 
     /**
      * 添加商品到购物车

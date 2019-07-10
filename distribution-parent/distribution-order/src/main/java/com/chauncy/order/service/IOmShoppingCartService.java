@@ -5,6 +5,7 @@ import com.chauncy.data.domain.po.order.OmShoppingCartPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
+import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
 import com.chauncy.data.vo.app.order.cart.CartVo;
 import com.github.pagehelper.PageInfo;
 
@@ -47,4 +48,12 @@ public interface IOmShoppingCartService extends Service<OmShoppingCartPo> {
      * @return
      */
     void updateCart(AddCartDto updateCartDto);
+
+    /**
+     * 查看商品详情
+     *
+     * @param goodsId
+     * @return
+     */
+    SpecifiedGoodsVo selectSpecifiedGoods(Long goodsId);
 }
