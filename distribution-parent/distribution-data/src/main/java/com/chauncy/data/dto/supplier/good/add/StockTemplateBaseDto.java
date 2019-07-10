@@ -18,7 +18,7 @@ import java.io.Serializable;
  * @since 2019/7/9 12:43
  */
 @Data
-@ApiModel(value = "AddStockTemplateDto对象", description = "新增编辑库存模板基本信息")
+@ApiModel(value = "StockTemplateBaseDto对象", description = "新增编辑库存模板基本信息")
 public class StockTemplateBaseDto implements Serializable {
 
     private static final long serialVersionUID = 1L;

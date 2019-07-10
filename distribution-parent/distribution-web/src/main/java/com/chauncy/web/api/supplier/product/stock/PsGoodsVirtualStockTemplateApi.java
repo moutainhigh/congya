@@ -34,8 +34,8 @@ import javax.validation.Valid;
  * @since 2019-07-08
  */
 @RestController
-@RequestMapping("/supplier/product/stock")
-@Api(tags = "商家_商品_库存_模板管理接口")
+@RequestMapping("/supplier/product/stock/template")
+@Api(tags = "商家_商品_库存模板管理接口")
 public class PsGoodsVirtualStockTemplateApi extends BaseApi {
 
     @Autowired
@@ -81,13 +81,13 @@ public class PsGoodsVirtualStockTemplateApi extends BaseApi {
      * @param type
      * @return
      */
-    @PostMapping("/findGoodsByType/{type}")
+    @PostMapping("/selectGoodsByType/{type}")
     @ApiOperation(value = "库存模板根据商品类型查询店铺商品信息 ")
-    public JsonViewData<BaseBo> findGoodsByType(@ApiParam(required = true, name = "type", value = "OWN_GOODS：自有商品 DISTRIBUTION_GOODS：分配商品")
+    public JsonViewData<BaseBo> selectGoodsByType(@ApiParam(required = true, name = "type", value = "OWN_GOODS：自有商品 DISTRIBUTION_GOODS：分配商品")
                                                     @PathVariable String type){
 
         return new JsonViewData(ResultCode.SUCCESS,"操作成功",
-                pmGoodsService.findGoodsByType(type));
+                pmGoodsService.selectGoodsByType(type));
     }
 
     /**

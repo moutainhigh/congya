@@ -1,5 +1,7 @@
 package com.chauncy.data.domain.po.product.stock;
 
+import java.math.BigDecimal;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 
@@ -17,7 +19,7 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 店铺-商品虚拟库存模板关联表
+ * 店铺分配库存信息表
  * </p>
  *
  * @author huangwancheng
@@ -26,27 +28,33 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("pm_store_rel_stock_template")
-@ApiModel(value = "PmStoreRelStockTemplatePo对象", description = "店铺-商品虚拟库存模板关联表")
-public class PmStoreRelStockTemplatePo implements Serializable {
+@TableName("pm_store_distribute_goods_stock")
+@ApiModel(value = "PmStoreRelGoodsStockBaseDtoPo对象", description = "店铺分配库存信息表")
+public class PmStoreRelGoodsStockPo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "店铺-商品虚拟库存模板关联表")
+    @ApiModelProperty(value = "店铺分配库存信息表id")
     @TableId(value = "id", type = IdType.ID_WORKER)
     private Long id;
 
-    @ApiModelProperty(value = "库存模板id")
-    private Long stockTemplateId;
+    @ApiModelProperty(value = "店铺库存id")
+    private Long storeStockId;
 
-    @ApiModelProperty(value = "商品所属店铺id")
-    private Long storeId;
+    @ApiModelProperty(value = "商品id")
+    private Long goodsId;
 
-    @ApiModelProperty(value = "分配店铺id")
-    private Long distributeStoreId;
+    @ApiModelProperty(value = "商品规格id")
+    private Long goodsSkuId;
 
-    @ApiModelProperty(value = "备注")
-    private String remark;
+    @ApiModelProperty(value = "分配供货价")
+    private BigDecimal distributePrice;
+
+    @ApiModelProperty(value = "分配库存")
+    private Integer distributeStockNum;
+
+    @ApiModelProperty(value = "本批次剩余库存")
+    private Integer remainingStockNum;
 
     @ApiModelProperty(value = "创建者")
     private String createBy;

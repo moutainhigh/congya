@@ -234,7 +234,7 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @param type
      * @return
      */
-    List<BaseBo> findGoodsByType(String type);
+    List<BaseBo> selectGoodsByType(String type);
     /**
     * 库存模板id获取询商品信息
     *

@@ -106,14 +106,14 @@
     GROUP BY pg.id
     </select>
 
-    <select id="findDistributionGoods" resultType="com.chauncy.data.bo.base.BaseBo">
+    <select id="selectDistributionGoods" resultType="com.chauncy.data.bo.base.BaseBo">
         select pg.id, pg.`name`
         from pm_goods_virtual_stock pgvs left join pm_goods pg on pg.id = pgvs.goods_id
         where pgvs.store_id = #{id} and pgvs.del_flag = 0 and pg.del_flag = 0
         order by pgvs.create_time desc
     </select>
 
-    <select id="findOwnGoods" resultType="com.chauncy.data.bo.base.BaseBo">
+    <select id="selectOwnGoods" resultType="com.chauncy.data.bo.base.BaseBo">
         select pg.id, pg.`name`
         from pm_goods pg
         where pg.store_id = #{id}  and pg.del_flag = 0

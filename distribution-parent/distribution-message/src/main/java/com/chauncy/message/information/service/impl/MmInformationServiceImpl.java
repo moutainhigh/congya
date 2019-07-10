@@ -77,6 +77,9 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
         BeanUtils.copyProperties(informationDto, mmInformationPo);
         //获取当前用户
         SysUserPo sysUserPo = securityUtil.getCurrUser();
+        if(null == sysUserPo.getStoreId()) {
+            throw  new ServiceException(ResultCode.FAIL, "当前登录用户不是商家用户");
+        }
         mmInformationPo.setCreateBy(sysUserPo.getUsername());
         mmInformationPo.setId(null);
         //新增资讯默认为待审核状态

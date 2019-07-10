@@ -1363,14 +1363,14 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
      * @return
      */
     @Override
-    public List<BaseBo> findGoodsByType(String type) {
+    public List<BaseBo> selectGoodsByType(String type) {
         Long storeId = securityUtil.getCurrUser().getStoreId();
         if(type.equals(StoreGoodsTypeEnum.DISTRIBUTION_GOODS.name())) {
             // 分配商品
-            return mapper.findDistributionGoods(storeId);
+            return mapper.selectDistributionGoods(storeId);
         } else if (type.equals(StoreGoodsTypeEnum.OWN_GOODS.name())) {
             // 自有商品
-            return mapper.findOwnGoods(storeId);
+            return mapper.selectOwnGoods(storeId);
         } else {
             return null;
         }

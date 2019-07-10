@@ -42,6 +42,9 @@ public class PmGoodsVirtualStockPo implements Serializable {
     @ApiModelProperty(value = "商品id")
     private Long goodsId;
 
+    @ApiModelProperty(value = "商品skuId")
+    private Long goodsSkuId;
+
     @ApiModelProperty(value = "库存数量")
     private Integer stockNum;
 

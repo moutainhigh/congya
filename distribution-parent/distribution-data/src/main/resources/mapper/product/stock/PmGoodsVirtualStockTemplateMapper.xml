@@ -41,4 +41,13 @@
         </where>
     </select>
 
+    <select id="selectStockTemplate" resultType="com.chauncy.data.bo.base.BaseBo">
+        select id, `name`
+        from pm_goods_virtual_stock_template
+        <where>
+            del_flag = 0
+            and store_id = #{storeId}
+        </where>
+    </select>
+
 </mapper>

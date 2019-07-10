@@ -61,14 +61,14 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
      * @param id  店铺id
      * @return
      */
-    List<BaseBo> findDistributionGoods(@Param("id") long id);
+    List<BaseBo> selectDistributionGoods(@Param("id") long id);
     /**
      * 库存模板获取自有店铺商品信息
      *
      * @param id  店铺id
      * @return
      */
-    List<BaseBo> findOwnGoods(@Param("id") long id);
+    List<BaseBo> selectOwnGoods(@Param("id") long id);
     /**
      * 库存模板id获取询商品信息
      *

@@ -1,11 +1,14 @@
 package com.chauncy.product.stock;
 
+import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockTemplatePo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.base.BaseSearchByTimeDto;
 import com.chauncy.data.dto.supplier.good.add.StockTemplateBaseDto;
 import com.chauncy.data.vo.supplier.good.GoodsStockTemplateVo;
 import com.github.pagehelper.PageInfo;
+
+import java.util.List;
 
 /**
  * <p>
@@ -48,4 +51,12 @@ public interface IPmGoodsVirtualStockTemplateService extends Service<PmGoodsVirt
      * @return
      */
     PageInfo<GoodsStockTemplateVo> searchPaging(BaseSearchByTimeDto baseSearchByTimeDto);
+
+    /**
+     * 查询当前店铺的库存模板信息
+     *
+     * @param
+     * @return
+     */
+    List<BaseBo> selectStockTemplate();
 }

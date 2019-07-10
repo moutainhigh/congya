@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.goods.StoreGoodsTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.domain.po.product.stock.PmGoodsRelStockTemplatePo;
 import com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockTemplatePo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
@@ -74,6 +75,9 @@ public class PmGoodsVirtualStockTemplateServiceImpl extends AbstractService<PmGo
 
         //获取当前店铺用户
         SysUserPo sysUserPo = securityUtil.getCurrUser();
+        if(null == sysUserPo.getStoreId()) {
+            throw  new ServiceException(ResultCode.FAIL, "当前登录用户不是商家用户");
+        }
         pmGoodsVirtualStockTemplatePo.setStoreId(sysUserPo.getStoreId());
         pmGoodsVirtualStockTemplatePo.setCreateBy(sysUserPo.getUsername());
         pmGoodsVirtualStockTemplatePo.setId(null);
@@ -215,5 +219,23 @@ public class PmGoodsVirtualStockTemplateServiceImpl extends AbstractService<PmGo
 
         PageInfo<GoodsStockTemplateVo> informationLabelVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> pmGoodsVirtualStockTemplateMapper.searchPaging(baseSearchByTimeDto));
-        return informationLabelVoPageInfo;    }
+        return informationLabelVoPageInfo;
+    }
+
+    /**
+     * 查询当前店铺的库存模板信息
+     *
+     * @param
+     * @return
+     */
+    @Override
+    public List<BaseBo> selectStockTemplate() {
+        //获取当前用户
+        Long storeId = securityUtil.getCurrUser().getStoreId();
+        if(null == storeId) {
+            throw  new ServiceException(ResultCode.FAIL, "当前登录用户不是商家用户");
+        }
+        return pmGoodsVirtualStockTemplateMapper.selectStockTemplate(storeId);
+    }
+
 }

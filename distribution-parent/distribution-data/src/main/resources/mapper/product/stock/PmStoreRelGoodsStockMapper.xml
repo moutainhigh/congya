@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chauncy.data.mapper.product.stock.PmStoreDistributeGoodsStockMapper">
+<mapper namespace="com.chauncy.data.mapper.product.stock.PmStoreRelGoodsStockMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.product.stock.PmStoreDistributeGoodsStockPo">
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.product.stock.PmStoreRelGoodsStockPo">
         <id column="id" property="id" />
         <result column="store_stock_id" property="storeStockId" />
         <result column="goods_id" property="goodsId" />

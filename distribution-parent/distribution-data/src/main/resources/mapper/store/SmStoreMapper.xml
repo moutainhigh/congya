@@ -193,5 +193,17 @@
         </where>
     </select>
 
+    <select id="searchBranchByName" resultType="com.chauncy.data.vo.supplier.store.BranchInfoVo">
+        select ss.id, ss.`name`, ss.`company_name`,  ss.company_addr, ss.company_mobile
+        from sm_store_rel_store ssrs left join sm_store ss
+        on ssrs.store_id = ss.id
+        <where>
+            ssrs.parent_id = #{storeId}
+            <if test="storeName != null and storeName !=''">
+                and ss.`name` like concat('%', #{storeName}, '%')
+            </if>
+        </where>
+    </select>
+
 
 </mapper>

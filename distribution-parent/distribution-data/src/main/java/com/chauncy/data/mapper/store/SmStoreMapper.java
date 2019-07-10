@@ -7,6 +7,7 @@ import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.manage.store.*;
 import com.chauncy.data.vo.manage.store.rel.SmRelStoreVo;
+import com.chauncy.data.vo.supplier.store.BranchInfoVo;
 import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 
@@ -89,4 +90,13 @@ public interface SmStoreMapper extends IBaseMapper<SmStorePo> {
      * @return
      */
     List<RelStoreInfoVo> searchRelStoreInfo(StoreSearchByConditionDto storeSearchByConditionDto);
+
+    /**
+     * 获取当前店铺的下级店铺(分店)（模糊搜索）
+     *
+     * @param storeId
+     * @param storeName
+     * @return
+     */
+    List<BranchInfoVo> searchBranchByName(@Param("storeId") Long storeId, @Param("storeName")String storeName);
 }

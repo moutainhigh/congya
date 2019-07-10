@@ -31,6 +31,7 @@ import com.chauncy.data.mapper.sys.SysRoleUserMapper;
 import com.chauncy.data.mapper.sys.SysUserMapper;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.store.*;
+import com.chauncy.data.vo.supplier.store.BranchInfoVo;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.store.rel.service.ISmRelStoreAttributeService;
 import com.chauncy.store.rel.service.ISmStoreRelStoreService;
@@ -450,4 +451,22 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
             throw new ServiceException(ResultCode.NO_EXISTS, "绑定的关系不存在");
         }
     }
+
+
+    /**
+     * 获取当前店铺的下级店铺(分店)（模糊搜索）
+     *
+     * @param storeName
+     * @return
+     */
+    @Override
+    public List<BranchInfoVo> searchBranchByName(String storeName) {
+        //获取当前用户
+        Long storeId = securityUtil.getCurrUser().getStoreId();
+        if(null == storeId) {
+            throw  new ServiceException(ResultCode.FAIL, "当前登录用户不是商家用户");
+        }
+        return smStoreMapper.searchBranchByName(storeId, storeName);
+    }
+
 }

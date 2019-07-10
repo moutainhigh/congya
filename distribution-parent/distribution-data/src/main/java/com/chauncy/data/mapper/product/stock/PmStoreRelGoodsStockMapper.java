@@ -1,6 +1,6 @@
 package com.chauncy.data.mapper.product.stock;
 
-import com.chauncy.data.domain.po.product.stock.PmStoreDistributeGoodsStockPo;
+import com.chauncy.data.domain.po.product.stock.PmStoreRelGoodsStockPo;
 import com.chauncy.data.mapper.IBaseMapper;
 
 /**
@@ -11,6 +11,6 @@ import com.chauncy.data.mapper.IBaseMapper;
  * @author huangwancheng
  * @since 2019-07-10
  */
-public interface PmStoreDistributeGoodsStockMapper extends IBaseMapper<PmStoreDistributeGoodsStockPo> {
+public interface PmStoreRelGoodsStockMapper extends IBaseMapper<PmStoreRelGoodsStockPo> {
 
 }

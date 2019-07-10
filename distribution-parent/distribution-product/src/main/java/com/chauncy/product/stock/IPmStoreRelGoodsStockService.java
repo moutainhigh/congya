@@ -1,6 +1,6 @@
 package com.chauncy.product.stock;
 
-import com.chauncy.data.domain.po.product.stock.PmStoreDistributeGoodsStockPo;
+import com.chauncy.data.domain.po.product.stock.PmStoreRelGoodsStockPo;
 import com.chauncy.data.core.Service;
 
 /**
@@ -11,6 +11,6 @@ import com.chauncy.data.core.Service;
  * @author huangwancheng
  * @since 2019-07-10
  */
-public interface IPmStoreDistributeGoodsStockService extends Service<PmStoreDistributeGoodsStockPo> {
+public interface IPmStoreRelGoodsStockService extends Service<PmStoreRelGoodsStockPo> {
 
 }
