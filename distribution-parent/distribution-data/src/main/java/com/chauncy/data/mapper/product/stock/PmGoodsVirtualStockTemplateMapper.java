@@ -1,4 +1,4 @@
-package com.chauncy.data.mapper.product;
+package com.chauncy.data.mapper.product.stock;
 
 import com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockTemplatePo;
 import com.chauncy.data.dto.base.BaseSearchByTimeDto;

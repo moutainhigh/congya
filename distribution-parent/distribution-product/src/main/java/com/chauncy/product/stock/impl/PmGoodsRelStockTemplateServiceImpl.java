@@ -1,7 +1,7 @@
 package com.chauncy.product.stock.impl;
 
 import com.chauncy.data.domain.po.product.stock.PmGoodsRelStockTemplatePo;
-import com.chauncy.data.mapper.product.PmGoodsRelStockTemplateMapper;
+import com.chauncy.data.mapper.product.stock.PmGoodsRelStockTemplateMapper;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.product.stock.IPmGoodsRelStockTemplateService;
 import org.springframework.stereotype.Service;

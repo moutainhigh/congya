@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chauncy.data.mapper.product.stock.PmGoodsRelStockTemplateMapper">
+<mapper namespace="com.chauncy.data.mapper.product.stock.PmStoreRelStockTemplateMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.product.stock.PmGoodsRelStockTemplatePo">
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.product.stock.PmStoreRelStockTemplatePo">
         <id column="id" property="id" />
         <result column="stock_template_id" property="stockTemplateId" />
-        <result column="goods_id" property="goodsId" />
+        <result column="store_id" property="storeId" />
+        <result column="distribute_store_id" property="distributeStoreId" />
+        <result column="remark" property="remark" />
         <result column="create_by" property="createBy" />
         <result column="create_time" property="createTime" />
         <result column="update_by" property="updateBy" />
@@ -16,7 +18,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, stock_template_id, goods_sku_id, create_by, create_time, update_by, update_time, del_flag
+        id, stock_template_id, store_id, distribute_store_id, remark, create_by, create_time, update_by, update_time, del_flag
     </sql>
 
 </mapper>

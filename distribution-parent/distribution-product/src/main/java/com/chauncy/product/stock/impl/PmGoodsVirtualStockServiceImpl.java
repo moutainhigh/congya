@@ -1,7 +1,7 @@
 package com.chauncy.product.stock.impl;
 
 import com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockPo;
-import com.chauncy.data.mapper.product.PmGoodsVirtualStockMapper;
+import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockMapper;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.product.stock.IPmGoodsVirtualStockService;
 import org.springframework.stereotype.Service;

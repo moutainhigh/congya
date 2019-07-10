@@ -25,6 +25,8 @@ import com.chauncy.data.dto.supplier.good.update.UpdateGoodSellerDto;
 import com.chauncy.data.dto.supplier.good.update.UpdatePublishStatusDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
 import com.chauncy.data.mapper.product.*;
+import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockMapper;
+import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockTemplateMapper;
 import com.chauncy.data.mapper.sys.SysUserMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.vo.BaseVo;

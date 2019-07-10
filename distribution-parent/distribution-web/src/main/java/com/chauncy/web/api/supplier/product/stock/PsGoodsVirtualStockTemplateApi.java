@@ -36,7 +36,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/supplier/product/stock")
 @Api(tags = "商家_商品_库存_模板管理接口")
-public class SpGoodsVirtualStockTemplateApi  extends BaseApi {
+public class PsGoodsVirtualStockTemplateApi extends BaseApi {
 
     @Autowired
     private IPmGoodsVirtualStockTemplateService pmGoodsVirtualStockTemplateService;

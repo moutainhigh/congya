@@ -1,4 +1,4 @@
-package com.chauncy.data.mapper.product;
+package com.chauncy.data.mapper.product.stock;
 
 import com.chauncy.data.domain.po.product.stock.PmGoodsRelStockTemplatePo;
 import com.chauncy.data.mapper.IBaseMapper;
