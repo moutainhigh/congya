@@ -58,7 +58,7 @@ public class AreaRegionServiceImpl extends AbstractService<AreaRegionMapper, Are
         List<AreaCityVo> city = mapper.search();
         List<AreaCityVo> areaCityVos = Lists.newArrayList();
         try {
-            areaCityVos = TreeUtil.getTree(city,"value","parentCode","children");
+            areaCityVos = TreeUtil.getTree(city,"cityCode","parentCode","children");
         } catch (Exception e) {
             e.printStackTrace();
         }

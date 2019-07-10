@@ -23,7 +23,7 @@ public class AreaCityVo {
 
     @ApiModelProperty("行政区划id")
     @JSONField(ordinal = 1)
-    private String value;
+    private String cityCode;
 
     @ApiModelProperty("父级id")
     @JSONField(ordinal = 2)
@@ -33,23 +33,27 @@ public class AreaCityVo {
     @JSONField(ordinal = 3)
     private String label;
 
-    @ApiModelProperty("省市区全称聚合")
+    @ApiModelProperty("行政区划全称")
     @JSONField(ordinal = 4)
+    private String value;
+
+    @ApiModelProperty("省市区全称聚合")
+    @JSONField(ordinal = 5)
     private String mergerName;
 
     @ApiModelProperty("邮编")
-    @JSONField(ordinal = 5)
+    @JSONField(ordinal = 6)
     private String zipCode;
 
     @ApiModelProperty("行政区划级别country:国家,province:省份,city:市,district:区县,street:街道")
-    @JSONField(ordinal = 6)
+    @JSONField(ordinal = 7)
     private String level;
 
     @ApiModelProperty("级别 0.国家，1.省(直辖市) 2.市 3.区(县),4.街道")
-    @JSONField(ordinal = 7)
+    @JSONField(ordinal = 8)
     private Integer levelType;
 
     @ApiModelProperty("邮编")
-    @JSONField(ordinal = 8)
+    @JSONField(ordinal = 9)
     private List<AreaCityVo> children;
 }

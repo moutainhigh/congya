@@ -63,7 +63,7 @@
     </select>
 
     <select id="searchGoodsInfo" resultType="com.chauncy.data.vo.supplier.PmGoodsVo">
-        SELECT a.id,a.icon,a.NAME as good_name,a.sort,a.sales_volume,a.star_status,a.publish_status,a.verify_status,
+        SELECT a.store_id,f.name as storeName,a.id,a.icon,a.NAME as good_name,a.sort,a.sales_volume,a.star_status,a.publish_status,a.verify_status,
         Min(b.supplier_price) AS supplier_price, Min(b.sell_price) AS sell_price,d.name as brandName
         from pm_goods a
         LEFT JOIN pm_goods_sku b on a.id = b.goods_id and b.del_flag = 0

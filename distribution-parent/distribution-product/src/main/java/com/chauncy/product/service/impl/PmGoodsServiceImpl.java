@@ -356,6 +356,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         String userId = securityUtil.getCurrUser().getId();
         Long storeId = sysUserMapper.selectById(userId).getStoreId();
         PmGoodsPo goodsPo = new PmGoodsPo();
+        //商家端操作
         if (storeId != null) {
             goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
         }
