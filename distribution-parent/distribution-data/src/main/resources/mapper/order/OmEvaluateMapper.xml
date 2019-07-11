@@ -27,7 +27,7 @@
     </sql>
 
     <select id="getGoodsEvaluate" resultType="com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo">
-        select a.photo as icon,a.name as nick_name,b.content,b.picture,b.id,ROUND((b.attitude_start_level+b.description_start_level+b.ship_start_level)/3) as startLevel
+        <!--select a.photo as icon,a.name as nick_name,b.content,b.picture,b.id,ROUND((b.attitude_start_level+b.description_start_level+b.ship_start_level)/3) as startLevel
         from um_user a,om_evaluate b,om_order c
         <where>
             isNull(b.parent_id) and b.order_id = c.id and c.um_user_id=a.id
@@ -35,7 +35,15 @@
                 and b.sku_id=#{t.skuId}
             </if>
         </where>
-        order by b.create_time
+        order by b.create_time-->
+        select a.photo as icon,a.name as nick_name,b.content,b.picture,b.id,ROUND((b.attitude_start_level+b.description_start_level+b.ship_start_level)/3) as startLevel
+                ,GROUP_CONCAT(CONCAT(h.`name`,":",g.`value`)) as sku
+        from um_user a,om_evaluate b,om_order c,pm_goods d,pm_goods_sku e,pm_goods_rel_attribute_value_sku f,pm_goods_attribute_value g,pm_goods_attribute h
+        where isNull(b.parent_id) and b.order_id = c.id and c.um_user_id=a.id and
+              b.sku_id = e.id and d.id = e.goods_id and d.id = #{t.goodsId}
+              and f.goods_sku_id = e.id and f.goods_attribute_value_id = g.id
+              and h.id = g.product_attribute_id
+              group by b.id
     </select>
 
     <select id="getPersonalEvaluate" resultType="com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo">

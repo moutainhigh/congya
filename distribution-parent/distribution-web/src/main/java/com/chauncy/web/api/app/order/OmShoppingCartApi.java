@@ -4,7 +4,9 @@ package com.chauncy.web.api.app.order;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
+import com.chauncy.data.dto.app.order.evaluate.select.GetEvaluatesDto;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo;
 import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
 import com.chauncy.data.vo.app.order.cart.CartVo;
 import com.chauncy.order.service.IOmShoppingCartService;
@@ -44,7 +46,7 @@ public class OmShoppingCartApi {
     @ApiOperation("查看具体商品详情")
     public JsonViewData<SpecifiedGoodsVo> selectSpecifiedGoods(@ApiParam(required = true,name="goodsId",value="商品ID")
                                              @PathVariable Long goodsId){
-        return new JsonViewData(service.selectSpecifiedGoods(goodsId));
+        return new JsonViewData<SpecifiedGoodsVo>(service.selectSpecifiedGoods(goodsId));
     }
 
     /**

@@ -12,20 +12,20 @@ import javax.validation.constraints.Min;
  * @Author cheng
  * @create 2019-07-01 18:28
  *
- * 用户获取商品对应的评价信息
+ * 获取商品对应的评价信息
  */
 @Data
-@ApiModel(description = "用户获取商品对应的评价信息")
+@ApiModel(description = "获取商品对应的评价信息")
 @Accessors(chain = true)
-public class GetPersonalEvaluateDto {
+public class GetEvaluatesDto {
 
     /*@ApiModelProperty("订单编号")
     @NeedExistConstraint(tableName = "om_order")
-    private Long orderId;
+    private Long orderId;*/
 
-    @ApiModelProperty("商品id goodsId,商品详情才用得上这个字段")
+    @ApiModelProperty("商品id goodsId")
     @NeedExistConstraint(tableName = "pm_goods")
-    private Long goodsId;*/
+    private Long goodsId;
 
     @Min(1)
     @ApiModelProperty(value = "页码")

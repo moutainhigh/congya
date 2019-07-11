@@ -21,6 +21,9 @@ public class SearchEvaluateDto {
     @ApiModelProperty(value = "sku Id")
     private Long skuId;
 
+    @ApiModelProperty(value = "goodsId")
+    private Long goodsId;
+
     @Min(1)
     @ApiModelProperty(value = "页码")
     private Integer pageNo;

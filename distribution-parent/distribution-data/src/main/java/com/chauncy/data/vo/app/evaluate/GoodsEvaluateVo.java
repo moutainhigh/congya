@@ -29,6 +29,9 @@ public class GoodsEvaluateVo {
     @ApiModelProperty("图片")
     private String picture;
 
+    @ApiModelProperty("sku信息")
+    private String sku;
+
     @ApiModelProperty(value = "评价 Id")
     private Long id;
 

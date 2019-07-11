@@ -1,6 +1,6 @@
 package com.chauncy.data.vo.app.goods;
 
-import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
+import com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo;
 import com.chauncy.data.vo.supplier.GoodsStandardVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -57,13 +57,16 @@ public class SpecifiedGoodsVo {
     private List<GoodsStandardVo> goodsStandardVoList;
 
     @ApiModelProperty("商品标题")
-    private String goodsTitle;
+    private String goodsName;
+
+    @ApiModelProperty("商品轮播图")
+    private String carousel;
 
     @ApiModelProperty("发货地")
     private String originPlace;
 
     @ApiModelProperty("默认运费")
-    private String defaultFreight;
+    private BigDecimal defaultFreight;
 
     @ApiModelProperty("月销量")
     private Integer salesVolumeMonthly;
@@ -77,10 +80,15 @@ public class SpecifiedGoodsVo {
     @ApiModelProperty("默认邮费")
     private BigDecimal defaultPostage;
 
-//    @ApiModelProperty("服务")
-//    private List<服务Vo> attributePoList;
-//
-//    @ApiModelProperty("参数")
-//    private List<c参数Vo> paramList;
+    @ApiModelProperty("活动")
+    private List<AttributeVo> activityVoList;
 
+    @ApiModelProperty("服务")
+    private List<AttributeVo> serviceList;
+
+    @ApiModelProperty("参数")
+    private List<AttributeVo> paramList;
+
+    @ApiModelProperty("店铺信息")
+    private StoreVo storeVo;
 }

@@ -1,6 +1,7 @@
 package com.chauncy.order.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.chauncy.common.enums.goods.GoodsAttributeTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.LoggerUtil;
@@ -9,13 +10,19 @@ import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.order.OmShoppingCartPo;
 import com.chauncy.data.domain.po.product.*;
+import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
+import com.chauncy.data.dto.app.order.evaluate.select.GetEvaluatesDto;
 import com.chauncy.data.mapper.order.OmShoppingCartMapper;
 import com.chauncy.data.mapper.product.*;
+import com.chauncy.data.mapper.store.SmStoreMapper;
+import com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo;
+import com.chauncy.data.vo.app.goods.AttributeVo;
 import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
 import com.chauncy.data.vo.app.goods.SpecifiedSkuVo;
+import com.chauncy.data.vo.app.goods.StoreVo;
 import com.chauncy.data.vo.app.order.cart.CartVo;
 import com.chauncy.data.vo.app.order.cart.StoreGoodsVo;
 import com.chauncy.data.vo.supplier.GoodsStandardVo;
@@ -31,11 +38,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -69,6 +78,18 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     @Autowired
     private PmGoodsAttributeValueMapper attributeValueMapper;
+
+    @Autowired
+    private PmShippingTemplateMapper shippingTemplateMapper;
+
+    @Autowired
+    private PmGoodsRelAttributeGoodMapper relAttributeGoodMapper;
+
+    @Autowired
+    private SmStoreMapper storeMapper;
+
+    @Autowired
+    private PmGoodsRelAttributeValueGoodMapper relAttributeValueGoodMapper;
 
     /**
      * 添加商品到购物车
@@ -268,6 +289,82 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             skuDetail.put(String.valueOf(relIds),specifiedSkuVo);
             specifiedGoodsVo.setSkuDetail(skuDetail);
         });
+        /**商品基本信息**/
+        specifiedGoodsVo.setGoodsName (goodsPo.getName ());
+        specifiedGoodsVo.setCarousel (goodsPo.getCarouselImage ());
+        specifiedGoodsVo.setOriginPlace (goodsPo.getLocation ());
+        specifiedGoodsVo.setIsPostage (goodsPo.getIsFreePostage ());
+        if (!goodsPo.getIsFreePostage ()){
+            //获取运费模板设置的默认运费
+            PmShippingTemplatePo shippingTemplatePo = shippingTemplateMapper.selectById (goodsPo.getShippingTemplateId ());
+            specifiedGoodsVo.setDefaultFreight (shippingTemplatePo.getDefaultFreight ());
+        }
+        Map<String,Object> query2 = Maps.newHashMap ();
+        query2.put("del_flag",false);
+        query2.put("goods_good_id",goodsId);
+        List<Long> attributeIds = relAttributeGoodMapper.selectByMap (query2).stream ().map (d->d.getGoodsAttributeId ()).collect(Collectors.toList());
+        List<PmGoodsAttributePo> pmGoodsAttributePoList = goodsAttributeMapper.selectBatchIds (attributeIds);
+        List<AttributeVo> serviceList = Lists.newArrayList ();
+        List<AttributeVo> paramList = Lists.newArrayList ();
+        List<AttributeVo> activityVoList = Lists.newArrayList ();
+        pmGoodsAttributePoList.forEach (e->{
+            GoodsAttributeTypeEnum attributeTypeEnum = GoodsAttributeTypeEnum.getGoodsAttributeById (e.getType ());
+            AttributeVo attributeVo = new AttributeVo ();
+            attributeVo.setValue (e.getContent ());
+            attributeVo.setName (e.getName ());
+            switch (attributeTypeEnum) {
+                case PLATFORM_SERVICE:
+                case MERCHANT_SERVICE:
+                    serviceList.add (attributeVo);
+                    break;
+                case PLATFORM_ACTIVITY:
+                    activityVoList.add (attributeVo);
+                    break;
+                case GOODS_PARAM:
+                    QueryWrapper queryWrapper = new QueryWrapper ();
+                    queryWrapper.eq("goods_id",goodsId);
+                    queryWrapper.eq("del_flag",false);
+                    String paramValue = attributeValueMapper.selectById (relAttributeValueGoodMapper.selectOne (queryWrapper).getGoodsAttributeValueId ()).getValue ();
+                    attributeVo.setValue (paramValue);
+                    paramList.add (attributeVo);
+                    break;
+                case LABEL:
+                    break;
+                case PURCHASE:
+                    break;
+                case STANDARD:
+                    break;
+                case BRAND:
+                    break;
+                case SENSITIVE:
+                    break;
+            }
+        });
+        specifiedGoodsVo.setServiceList (serviceList);
+        specifiedGoodsVo.setParamList (paramList);
+        specifiedGoodsVo.setActivityVoList (activityVoList);
+        /**店铺基本信息*/
+        StoreVo storeVo = new StoreVo ();
+        SmStorePo storePo = storeMapper.selectById (goodsId);
+        if (storePo!=null) {
+            storeVo.setStoreIcon (storePo.getStoreImage ());
+            storeVo.setStoreId (storePo.getId ());
+            storeVo.setStoreName (storePo.getName ());
+            //获取店铺的平均星级
+            storeVo.setBabyDescription (storePo.getBabyDescribeScore ());
+            storeVo.setLogisticsServices (storePo.getLogisticsServiceScore ());
+            storeVo.setSellerService (storePo.getServiceAttitudeScore ());
+            specifiedGoodsVo.setStoreVo (storeVo);
+        }
+
+        //显示商品价格，拼接
+        BigDecimal lowestPrice = skuMapper.getLowestPrice(goodsId);
+        BigDecimal highestPrice = skuMapper.getHighestPrice(goodsId);
+        StringBuffer price = new StringBuffer ();
+        price.append (lowestPrice).append ("-").append (highestPrice);
+        specifiedGoodsVo.setDisplayPrice (price.toString ());
+
         return specifiedGoodsVo;
     }
+
 }
