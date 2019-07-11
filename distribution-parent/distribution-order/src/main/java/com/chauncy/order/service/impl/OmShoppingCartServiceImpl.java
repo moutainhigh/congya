@@ -3,13 +3,20 @@ package com.chauncy.order.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.common.util.LoggerUtil;
+import com.chauncy.data.bo.base.BaseBo;
+import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.order.OmShoppingCartPo;
+import com.chauncy.data.domain.po.product.*;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.car.SettleAccountsDto;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
 import com.chauncy.data.mapper.order.OmShoppingCartMapper;
+import com.chauncy.data.mapper.product.*;
+import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
+import com.chauncy.data.vo.app.goods.SpecifiedSkuVo;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
 import com.chauncy.data.vo.app.car.CarGoodsVo;
@@ -18,11 +25,13 @@ import com.chauncy.data.vo.app.car.StoreOrderVo;
 import com.chauncy.data.vo.app.car.TotalCarVo;
 import com.chauncy.data.vo.app.order.cart.CartVo;
 import com.chauncy.data.vo.app.order.cart.StoreGoodsVo;
-import com.chauncy.data.vo.supplier.PmGoodsVo;
+import com.chauncy.data.vo.supplier.GoodsStandardVo;
+import com.chauncy.data.vo.supplier.StandardValueAndStatusVo;
 import com.chauncy.order.service.IOmShoppingCartService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Maps;
 import org.assertj.core.util.Lists;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +39,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.*;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -233,4 +247,92 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     }
 
 
+
+    /**
+     * 查看商品详情
+     *
+     * @param goodsId
+     * @return
+     */
+    @Override
+    public SpecifiedGoodsVo selectSpecifiedGoods(Long goodsId) {
+
+        SpecifiedGoodsVo specifiedGoodsVo = new SpecifiedGoodsVo();
+        List<GoodsStandardVo> goodsStandardVoList = Lists.newArrayList();
+
+        PmGoodsPo goodsPo = goodsMapper.selectById(goodsId);
+        //判断该商品是否存在
+        if (goodsPo==null){
+            throw new ServiceException(ResultCode.NO_EXISTS,"数据库不存在该商品！");
+        }
+
+        /**获取商品下的所有规格信息*/
+        //获取对应的分类ID
+        Long categoryId = goodsPo.getGoodsCategoryId();
+        //获取分类下所有的规格
+        List<BaseBo> goodsAttributePos = goodsAttributeMapper.findStandardName(categoryId);
+        //遍历规格名称
+        goodsAttributePos.forEach(x -> {
+            List<GoodsValueBo> goodsValues = goodsMapper.findGoodsValue(goodsId, x.getId());
+            if (goodsValues!=null && goodsValues.size()!=0) {
+                //获取规格名称和规格ID
+                GoodsStandardVo goodsStandardVo = new GoodsStandardVo();
+                goodsStandardVo.setAttributeId(x.getId());
+                goodsStandardVo.setAttributeName(x.getName());
+                //获取该商品下的属性下的所属的规格值信息
+                List<StandardValueAndStatusVo> attributeValueInfos = Lists.newArrayList();
+                goodsValues.forEach(a -> {
+                    StandardValueAndStatusVo standardValueAndStatusVo = new StandardValueAndStatusVo();
+                    standardValueAndStatusVo.setIsInclude(true);
+                    standardValueAndStatusVo.setAttributeValueId(a.getId());
+                    standardValueAndStatusVo.setAttributeValue(a.getName());
+                    attributeValueInfos.add(standardValueAndStatusVo);
+                });
+                goodsStandardVo.setAttributeValueInfos(attributeValueInfos);
+                goodsStandardVoList.add(goodsStandardVo);
+            }
+        });
+        specifiedGoodsVo.setGoodsStandardVoList(goodsStandardVoList);
+
+        /**获取商品规格的具体信息*/
+        Map<String, Object> query = new HashMap<>();
+        query.put("goods_id", goodsId);
+        query.put("del_flag",false);
+        List<PmGoodsSkuPo> goodsSkuPos = skuMapper.selectByMap(query);
+        if (goodsSkuPos == null && goodsSkuPos.size() == 0) {
+            return null;
+        }
+        Map<String,SpecifiedSkuVo> skuDetail = Maps.newHashMap();
+        //循环获取sku信息
+        goodsSkuPos.forEach(b->{
+            SpecifiedSkuVo specifiedSkuVo = new SpecifiedSkuVo();
+            specifiedSkuVo.setHoldQuantity(goodsPo.getPurchaseLimit());
+            specifiedSkuVo.setStock(b.getStock());
+            specifiedSkuVo.setSellAbleQuantity(b.getStock());
+            specifiedSkuVo.setOverSold(false);
+            specifiedSkuVo.setPrice(b.getSellPrice());
+            specifiedSkuVo.setSkuId(b.getId());
+            specifiedSkuVo.setPictrue(b.getPicture());
+            if (b.getStock()==0){
+                specifiedSkuVo.setOverSold(true);
+            }
+            QueryWrapper queryWrapper = new QueryWrapper();
+            queryWrapper.eq("del_flag",false);
+            queryWrapper.eq("goods_sku_id",b.getId());
+            List<PmGoodsRelAttributeValueSkuPo> relAttributeValueSkuPoList = relAttributeValueSkuMapper.selectList(queryWrapper);
+            //拼接规格ID和规格值ID
+            StringBuffer relIds = new StringBuffer(";");
+            relAttributeValueSkuPoList.forEach(c->{
+                PmGoodsAttributeValuePo attributeValuePo = attributeValueMapper.selectById(c.getGoodsAttributeValueId());
+
+                Long attributeValueId = attributeValuePo.getId();
+                String attributeValue = attributeValuePo.getValue();
+                Long attributeId = attributeValuePo.getProductAttributeId();
+                relIds.append(attributeId).append(":").append(attributeValueId).append(";");
+            });
+            skuDetail.put(String.valueOf(relIds),specifiedSkuVo);
+            specifiedGoodsVo.setSkuDetail(skuDetail);
+        });
+        return specifiedGoodsVo;
+    }
 }

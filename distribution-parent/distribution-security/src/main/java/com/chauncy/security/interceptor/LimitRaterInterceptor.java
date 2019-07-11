@@ -55,10 +55,10 @@ public class LimitRaterInterceptor extends HandlerInterceptorAdapter {
                              Object handler) throws Exception {
 
         // IP限流 在线Demo所需 一秒限10个请求
-        String token1 = redisRaterLimiter.acquireTokenFromBucket(ipInfoUtil.getIpAddr(request), 10, 1000);
-        if (StrUtil.isBlank(token1)) {
-            throw new ServiceException("你手速怎么这么快，请点慢一点");
-        }
+//        String token1 = redisRaterLimiter.acquireTokenFromBucket(ipInfoUtil.getIpAddr(request), 10, 1000);
+//        if (StrUtil.isBlank(token1)) {
+//            throw new ServiceException("你手速怎么这么快，请点慢一点");
+//        }
 
         if(rateLimitEnable){
             String token2 = redisRaterLimiter.acquireTokenFromBucket(SecurityConstant.LIMIT_ALL, limit, timeout);

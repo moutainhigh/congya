@@ -19,6 +19,12 @@ public class PmGoodsVo {
     @ApiModelProperty("商品ID")
     private Long id;
 
+    @ApiModelProperty("店铺ID")
+    private Long storeId;
+
+    @ApiModelProperty("店铺名称")
+    private String storeName;
+
     @ApiModelProperty("缩略图")
     private String icon;
 

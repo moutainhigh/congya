@@ -45,7 +45,7 @@
     </select>
 
     <select id="search" resultType="com.chauncy.data.vo.area.AreaCityVo">
-        select id, city_code as value, parent_code, name as label, merger_name, short_name, merger_short_name, level, level_type, telephone_code, zip_code, name_pinyin, name_jianpin, center, name_first_char, longitude, latitude, status, version, create_time, update_time, del_flag
+        select id, city_code, parent_code, name as label, name as value,merger_name, short_name, merger_short_name, level, level_type, telephone_code, zip_code, name_pinyin, name_jianpin, center, name_first_char, longitude, latitude, status, version, create_time, update_time, del_flag
         from area_region
         where level_type &gt;0 and level_type &lt;=2
     </select>

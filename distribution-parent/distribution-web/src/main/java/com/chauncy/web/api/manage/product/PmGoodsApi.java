@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,7 +41,7 @@ public class PmGoodsApi extends BaseApi {
      */
     @PostMapping("/rejectGoods")
     @ApiOperation("平台驳回商品")
-    public JsonViewData rejectGoods(@ApiParam(required = true, name = "goodsId", value = "goodsId") @Validated
+    public JsonViewData rejectGoods(@RequestBody @ApiParam(required = true, name = "rejectGoodsDto", value = "驳回商品Dto") @Validated
                                     RejectGoodsDto rejectGoodsDto){
 
         service.rejectGoods(rejectGoodsDto);

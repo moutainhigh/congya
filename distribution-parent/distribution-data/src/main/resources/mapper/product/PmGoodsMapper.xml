@@ -63,7 +63,7 @@
     </select>
 
     <select id="searchGoodsInfo" resultType="com.chauncy.data.vo.supplier.PmGoodsVo">
-        SELECT a.id,a.icon,a.NAME as good_name,a.sort,a.sales_volume,a.star_status,a.publish_status,a.verify_status,
+        SELECT a.store_id,f.name as storeName,a.id,a.icon,a.NAME as good_name,a.sort,a.sales_volume,a.star_status,a.publish_status,a.verify_status,
         Min(b.supplier_price) AS supplier_price, Min(b.sell_price) AS sell_price,d.name as brandName
         from pm_goods a
         LEFT JOIN pm_goods_sku b on a.id = b.goods_id and b.del_flag = 0
@@ -91,19 +91,19 @@
             and f.name like concat('%', #{storeName}, '%')
          </if>
             <if test="lowestSellPrice!=null">
-                and b.sell_price &gt;=lowestSellPrice
+                and b.sell_price &gt;=#{lowestSellPrice}
             </if>
             <if test="highestSellPrice!=null">
-                and b.sell_price &lt;=highestSellPrice
+                and b.sell_price &lt;=#{highestSellPrice}
             </if>
             <if test="lowestSupplierPrice!=null">
-                and b.supplier_price &gt;=lowestSupplierPrice
+                and b.supplier_price &gt;=#{lowestSupplierPrice}
             </if>
             <if test="highestSupplierPrice!=null">
-                and b.supplier_price &lt;=highestSupplierPrice
+                and b.supplier_price &lt;=#{highestSupplierPrice}
             </if>
         </where>
-        GROUP BY a.id,d.id order by a.create_time;
+        GROUP BY a.id,d.id order by a.create_time
     </select>
 
 

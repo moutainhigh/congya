@@ -356,6 +356,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         String userId = securityUtil.getCurrUser().getId();
         Long storeId = sysUserMapper.selectById(userId).getStoreId();
         PmGoodsPo goodsPo = new PmGoodsPo();
+        //商家端操作
         if (storeId != null) {
             goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
         }
@@ -820,6 +821,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         }
         Map<String, Object> map = new HashMap<>();
         map.put("goods_id", goodsId);
+        map.put("del_flag",false);
         List<PmGoodsSkuPo> goodsSkuPos = goodsSkuMapper.selectByMap(map);
         if (goodsSkuPos == null && goodsSkuPos.size() == 0) {
             return null;
