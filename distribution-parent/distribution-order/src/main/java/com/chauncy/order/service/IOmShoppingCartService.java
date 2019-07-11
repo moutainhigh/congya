@@ -3,10 +3,16 @@ package com.chauncy.order.service;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.order.OmShoppingCartPo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.dto.app.car.SettleAccountsDto;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
+import com.chauncy.data.vo.app.car.CarGoodsVo;
+import com.chauncy.data.vo.app.car.TotalCarVo;
 import com.chauncy.data.vo.app.order.cart.CartVo;
 import com.github.pagehelper.PageInfo;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * <p>
@@ -47,4 +53,12 @@ public interface IOmShoppingCartService extends Service<OmShoppingCartPo> {
      * @return
      */
     void updateCart(AddCartDto updateCartDto);
+
+
+    /**
+     * 根据店铺和商品类型拆单
+     * @param settleAccountsDtos
+     * @return
+     */
+    TotalCarVo searchByIds(@Param("ids") List<SettleAccountsDto> settleAccountsDtos);
 }

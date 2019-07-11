@@ -14,11 +14,28 @@
         <result column="area_shipping_id" property="areaShippingId" />
         <result column="evaluate_status" property="evaluateStatus" />
         <result column="store_id" property="storeId" />
+        <result column="status" property="status" />
+        <result column="activity_type" property="activityType" />
+        <result column="total_money" property="totalMoney" />
+        <result column="total_goods" property="totalGoods" />
+        <result column="type" property="type" />
+        <result column="pay_time" property="payTime" />
+        <result column="send_time" property="sendTime" />
+        <result column="receive_time" property="receiveTime" />
+        <result column="ramark" property="ramark" />
+        <result column="shop_ticket" property="shopTicket" />
+        <result column="red_envelops" property="redEnvelops" />
+        <result column="coupon" property="coupon" />
+        <result column="ship_money" property="shipMoney" />
+        <result column="tax_money" property="taxMoney" />
+        <result column="total_discount" property="totalDiscount" />
+        <result column="real_pay_money" property="realPayMoney" />
+        <result column="integral_money" property="integralMoney" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, create_by, create_time, update_by, update_time, del_flag, um_user_id, area_shipping_id,evaluate_status,store_id
+        id, create_by, create_time, update_by, update_time, del_flag, um_user_id, area_shipping_id, evaluate_status, store_id, status, activity_type, total_money, total_goods, type, pay_time, send_time, receive_time, ramark, shop_ticket, red_envelops, coupon, ship_money, tax_money, total_discount, real_pay_money, integral_money
     </sql>
 
 </mapper>

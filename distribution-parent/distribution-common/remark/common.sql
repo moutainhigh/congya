@@ -1,7 +1,7 @@
 
 -- 公用字段
 CREATE TABLE `aa` (
-                    `id` bigint(20) NOT NULL COMMENT '运费模版ID',
+                    `id` bigint(20) NOT NULL COMMENT 'id',
                     `create_by` varchar(255) NOT NULL COMMENT '创建者',
                     `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                     `update_by`  varchar(255) DEFAULT NULL COMMENT '修改者',
