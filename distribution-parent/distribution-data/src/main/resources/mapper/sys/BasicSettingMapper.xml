@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chauncy.data.mapper.sys.BasicSettingMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.sys.BasicSettingPo">
+        <id column="id" property="id" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="del_flag" property="delFlag" />
+        <result column="phone" property="phone" />
+        <result column="new_product_day" property="newProductDay" />
+        <result column="withdraw_commission" property="withdrawCommission" />
+        <result column="money_to_experience" property="moneyToExperience" />
+        <result column="last_level_experience" property="lastLevelExperience" />
+        <result column="last_two_level_experience" property="lastTwoLevelExperience" />
+        <result column="next_level_experience" property="nextLevelExperience" />
+        <result column="good_friend_register_experience" property="goodFriendRegisterExperience" />
+        <result column="good_friend_pay_experience" property="goodFriendPayExperience" />
+        <result column="day_first_login_integrate" property="dayFirstLoginIntegrate" />
+        <result column="money_to_integrate" property="moneyToIntegrate" />
+        <result column="last_level_integrate" property="lastLevelIntegrate" />
+        <result column="last_two_level_integrate" property="lastTwoLevelIntegrate" />
+        <result column="next_level_integrate" property="nextLevelIntegrate" />
+        <result column="good_friend_register_integrate" property="goodFriendRegisterIntegrate" />
+        <result column="good_friend_pay_integrate" property="goodFriendPayIntegrate" />
+        <result column="money_to_shop_ticket" property="moneyToShopTicket" />
+        <result column="money_to_current_red_envelops" property="moneyToCurrentRedEnvelops" />
+        <result column="auto_close_order_day" property="autoCloseOrderDay" />
+        <result column="auto_receive_day" property="autoReceiveDay" />
+        <result column="tax_refund_day" property="taxRefundDay" />
+        <result column="refund_day" property="refundDay" />
+        <result column="auto_comment_day" property="autoCommentDay" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, create_by, create_time, update_by, update_time, del_flag, phone, new_product_day, withdraw_commission, money_to_experience, last_level_experience, last_two_level_experience, next_level_experience, good_friend_register_experience, good_friend_pay_experience, day_first_login_integrate, money_to_integrate, last_level_integrate, last_two_level_integrate, next_level_integrate, good_friend_register_integrate, good_friend_pay_integrate, money_to_shop_ticket, money_to_current_red_envelops, auto_close_order_day, auto_receive_day, tax_refund_day, refund_day, auto_comment_day
+    </sql>
+
+</mapper>

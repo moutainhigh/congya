@@ -47,6 +47,5 @@ public class StoreGoodsVo {
     @ApiModelProperty("是否售罄")
     private Boolean isSoldOut;
 
-    //关联的商品促销活动待写
 
 }

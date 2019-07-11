@@ -1,5 +1,7 @@
 package com.chauncy.data.domain.po.order;
 
+import java.math.BigDecimal;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 
@@ -21,7 +23,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author huangwancheng
- * @since 2019-06-28
+ * @since 2019-07-09
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -62,4 +64,57 @@ public class OmOrderPo implements Serializable {
 
     @ApiModelProperty(value = "店铺ID")
     private Long storeId;
+
+    @ApiModelProperty(value = "订单状态:0-待付款 1-待发货 2-待收货 3-待评价 4-已完成 5-待使用 6-已使用 7-已取消")
+    private Integer status;
+
+    @ApiModelProperty(value = "活动类型0-无 1-秒杀 2-拼团 3-积分 4-满减")
+    private Integer activityType;
+
+    @ApiModelProperty(value = "金额")
+    private BigDecimal totalMoney;
+
+    @ApiModelProperty(value = "商品数量")
+    private Integer totalGoods;
+
+    @ApiModelProperty(value = "订单商品类型  0-普通 1-自取 2-海外直邮 3-保税仓 4-服务类 5-虚拟商品 ")
+    private Integer type;
+
+    @ApiModelProperty(value = "支付时间")
+    private LocalDateTime payTime;
+
+    @ApiModelProperty(value = "发货时间")
+    private LocalDateTime sendTime;
+
+    @ApiModelProperty(value = "收货时间")
+    private LocalDateTime receiveTime;
+
+    @ApiModelProperty(value = "备注")
+    private String remark;
+
+    @ApiModelProperty(value = "购物券")
+    private BigDecimal shopTicket;
+
+    @ApiModelProperty(value = "红包")
+    private BigDecimal redEnvelops;
+
+    @ApiModelProperty(value = "优惠券")
+    private BigDecimal coupon;
+
+    @ApiModelProperty(value = "运费")
+    private BigDecimal shipMoney;
+
+    @ApiModelProperty(value = "税费")
+    private BigDecimal taxMoney;
+
+    @ApiModelProperty(value = "总优惠")
+    private BigDecimal totalDiscount;
+
+    @ApiModelProperty(value = "实际付款")
+    private BigDecimal realPayMoney;
+
+    @ApiModelProperty(value = "积分抵扣")
+    private BigDecimal integralMoney;
+
+
 }

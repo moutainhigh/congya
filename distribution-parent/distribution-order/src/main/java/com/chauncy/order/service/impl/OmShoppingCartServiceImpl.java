@@ -12,6 +12,7 @@ import com.chauncy.data.domain.po.order.OmShoppingCartPo;
 import com.chauncy.data.domain.po.product.*;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.dto.app.car.SettleAccountsDto;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
 import com.chauncy.data.dto.app.order.evaluate.select.GetEvaluatesDto;
@@ -22,6 +23,12 @@ import com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo;
 import com.chauncy.data.vo.app.goods.AttributeVo;
 import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
 import com.chauncy.data.vo.app.goods.SpecifiedSkuVo;
+import com.chauncy.data.mapper.product.PmGoodsMapper;
+import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
+import com.chauncy.data.vo.app.car.CarGoodsVo;
+import com.chauncy.data.vo.app.car.GoodsTypeOrderVo;
+import com.chauncy.data.vo.app.car.StoreOrderVo;
+import com.chauncy.data.vo.app.car.TotalCarVo;
 import com.chauncy.data.vo.app.goods.StoreVo;
 import com.chauncy.data.vo.app.order.cart.CartVo;
 import com.chauncy.data.vo.app.order.cart.StoreGoodsVo;
@@ -37,6 +44,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.google.common.collect.*;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -44,6 +52,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -203,6 +213,69 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         BeanUtils.copyProperties(updateCartDto,cartPo);
         mapper.updateById(cartPo);
     }
+
+    @Override
+    public TotalCarVo searchByIds(List<SettleAccountsDto> settleAccountsDtos) {
+        List<Long> skuIds=settleAccountsDtos.stream().map(x->x.getSkuId()).collect(Collectors.toList());
+        List<CarGoodsVo> carGoodsVos = mapper.searchByIds(skuIds);
+        //拆单后的信息
+        List<StoreOrderVo> storeOrderVos = getBySkuIds(carGoodsVos);
+
+        TotalCarVo totalCarVo=new TotalCarVo();
+        totalCarVo.setStoreOrderVos(storeOrderVos);
+        //商品总额
+        BigDecimal totalMoney=settleAccountsDtos.stream().map(SettleAccountsDto::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+        //sku对应的数量
+        carGoodsVos.forEach(x->{
+            //为查询后的id匹配上用户下单的数量
+            x.setNumber(settleAccountsDtos.stream().filter(y->y.getSkuId()==x.getId()).findFirst().get().getNumber());
+        });
+        //总数量
+        int totalNumber=settleAccountsDtos.stream().mapToInt(x->x.getNumber()).sum();
+
+
+
+        return null;
+    }
+
+    /**
+     * 根据skuids组装成订单，并根据商家和商品类型进行拆单
+     * @param carGoodsVos
+     * @return
+     */
+    private List<StoreOrderVo> getBySkuIds( List<CarGoodsVo> carGoodsVos){
+
+        //加快sql查询，用代码对店铺和商品类型进行分组拆单
+        Map<String, Map<String, List<CarGoodsVo>>> map
+                = carGoodsVos.stream().collect(
+                Collectors.groupingBy(
+                        CarGoodsVo::getStoreName, Collectors.groupingBy(CarGoodsVo::getGoodsType)
+                )
+        );
+        //遍历map,将map组装成vo
+        //商家分组集合
+        List<StoreOrderVo> storeOrderVos= Lists.newArrayList();
+        Iterator<Map.Entry<String, Map<String, List<CarGoodsVo>>>> it = map.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, Map<String, List<CarGoodsVo>>> entry = it.next();
+            StoreOrderVo storeOrderVo = new StoreOrderVo();
+            storeOrderVo.setStoreName(entry.getKey());
+            //商品类型分组集合
+            List<GoodsTypeOrderVo> goodsTypeOrderVos= Lists.newArrayList();
+            for (Map.Entry<String, List<CarGoodsVo>> entry1 :entry.getValue().entrySet()) {
+                GoodsTypeOrderVo goodsTypeOrderVo = new GoodsTypeOrderVo();
+                goodsTypeOrderVo.setGoodsType(entry1.getKey());
+                goodsTypeOrderVo.setCarGoodsVos(entry1.getValue());
+                goodsTypeOrderVos.add(goodsTypeOrderVo);
+            }
+            storeOrderVo.setGoodsTypeOrderVos(goodsTypeOrderVos);
+            storeOrderVos.add(storeOrderVo);
+        }
+        return storeOrderVos;
+
+    }
+
+
 
     /**
      * 查看商品详情

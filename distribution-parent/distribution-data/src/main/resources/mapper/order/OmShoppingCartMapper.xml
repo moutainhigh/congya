@@ -41,5 +41,15 @@
 		    and d.goods_attribute_value_id = e.id and a.store_id = c.id
         group by f.id
     </select>
+    <select id="searchByIds" resultType="com.chauncy.data.vo.app.car.CarGoodsVo">
+        SELECT s.name storeName,g.name,g.icon,u.sell_price,g.goods_type,u.id,GROUP_CONCAT(av.`value`) standardStr
+        FROM pm_goods_sku u,pm_goods g,sm_store s,pm_goods_rel_attribute_value_sku sa,pm_goods_attribute_value av
+        where u.goods_id=g.id and g.store_id=s.id and sa.goods_sku_id=u.id and sa.goods_attribute_value_id=av.id
+        and u.id in
+        <foreach collection="ids" close=")" open="(" separator="," item="id">
+                 #{id}
+        </foreach>
+        GROUP BY u.id
+    </select>
 
 </mapper>
