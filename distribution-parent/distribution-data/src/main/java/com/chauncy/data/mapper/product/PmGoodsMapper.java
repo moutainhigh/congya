@@ -2,6 +2,7 @@ package com.chauncy.data.mapper.product;
 
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
+import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
 import com.chauncy.data.dto.supplier.good.select.SearchExcelDto;
 import com.chauncy.data.dto.supplier.good.select.SearchGoodInfosDto;
 import com.chauncy.data.mapper.IBaseMapper;
@@ -10,6 +11,7 @@ import com.chauncy.data.vo.supplier.InformationRelGoodsVo;
 import com.chauncy.data.vo.supplier.PmGoodsVo;
 import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -58,4 +60,10 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
 
     int updateStock(@Param("goodId") long goodId,@Param("number") int number);
 
+    /**
+     * 获取商品的id和name
+     *
+     * @param associationGoodsDto
+     */
+    List<BaseVo> selectIds (AssociationGoodsDto associationGoodsDto);
 }

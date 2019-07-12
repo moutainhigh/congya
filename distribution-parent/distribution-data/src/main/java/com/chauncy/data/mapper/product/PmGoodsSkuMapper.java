@@ -21,7 +21,7 @@ public interface PmGoodsSkuMapper extends IBaseMapper<PmGoodsSkuPo> {
      * @param goodsId
      * @return
      */
-    @Select ("select min(sell_price) from pm_goods_sku where goods_id = #{goodsId}")
+    @Select ("select min(sell_price) from pm_goods_sku where goods_id = #{goodsId} and del_flag=0")
     BigDecimal getLowestPrice (Long goodsId);
 
     /**
@@ -29,6 +29,6 @@ public interface PmGoodsSkuMapper extends IBaseMapper<PmGoodsSkuPo> {
      * @param goodsId
      * @return
      */
-    @Select ("select max(sell_price) from pm_goods_sku where goods_id = #{goodsId}")
+    @Select ("select max(sell_price) from pm_goods_sku where goods_id = #{goodsId} and del_flag=0")
     BigDecimal getHighestPrice (Long goodsId);
 }

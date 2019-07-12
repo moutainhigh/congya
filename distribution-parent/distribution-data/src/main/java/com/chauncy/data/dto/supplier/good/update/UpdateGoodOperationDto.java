@@ -49,7 +49,7 @@ public class UpdateGoodOperationDto {
     @ApiModelProperty(value="税率选择，即税率类型1--平台税率 2--自定义税率,只有在商品类型goodsType为保税仓或海外直邮才显示")
     private Integer taxRateType;
 
-    @ApiModelProperty(value="自定义税率，只有在税率选择，即税率类型 2--自定义税率且商品类型goodsType为保税仓或海外直邮才显示")
+    @ApiModelProperty(value="税率")
     private BigDecimal customTaxRate;
 
     @ApiModelProperty(value = "是否包邮 默认为0不包邮")

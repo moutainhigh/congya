@@ -90,6 +90,9 @@
          <if test="storeName!=null and storeName!=''">
             and f.name like concat('%', #{storeName}, '%')
          </if>
+            <if test="storeId!=null">
+                and f.id =#{storeId}
+            </if>
             <if test="lowestSellPrice!=null">
                 and b.sell_price &gt;=#{lowestSellPrice}
             </if>
@@ -129,6 +132,19 @@
             and name like concat('%', #{name}, '%')
         </if>
 
+    </select>
+    <select id="selectIds" resultType="com.chauncy.data.vo.BaseVo">
+        select id,name
+        from pm_goods
+        where id in
+        <foreach item="item" collection="idList" separator="," open="(" close=")" index="">  #{item}
+        </foreach>
+        <if test="id!=null">
+            and id = #{id}
+        </if>
+        <if test="name!=null and name!=''">
+            and name like concat('%', #{name}, '%')
+        </if>
     </select>
 
 

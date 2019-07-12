@@ -1,9 +1,9 @@
 package com.chauncy.product.service;
 
-import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
-import com.chauncy.data.dto.manage.good.add.UpdateGoodsOperationDto;
+import com.chauncy.data.dto.base.BaseSearchDto;
+import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
 import com.chauncy.data.dto.manage.good.update.RejectGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.AddAssociationGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.AddGoodBaseDto;
@@ -18,6 +18,7 @@ import com.chauncy.data.dto.supplier.good.update.UpdatePublishStatusDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.supplier.*;
+import com.chauncy.data.vo.supplier.good.AssociationGoodsVo;
 import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
 import com.github.pagehelper.PageInfo;
 
@@ -242,4 +243,27 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @return
      */
     void delGoodsByIds(Long[] ids);
+
+    /**
+     * 条件查询需要被关联商品信息
+     *
+     * @param associationGoodsDto
+     * @return
+     */
+    PageInfo<BaseVo> searchAssociationGoods (AssociationGoodsDto associationGoodsDto);
+
+    /**
+     * 查询已被关联的商品信息
+     * @param associationGoodsDto
+     * @return
+     */
+    PageInfo<AssociationGoodsVo> searchAssociatedGoods (AssociationGoodsDto associationGoodsDto);
+
+    /**
+     * 批量删除关联商品
+     *
+     * @param ids
+     * @return
+     */
+    void delAssociationsByIds (Long[] ids);
 }
