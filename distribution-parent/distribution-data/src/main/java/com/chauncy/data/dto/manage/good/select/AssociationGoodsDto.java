@@ -14,7 +14,7 @@ import java.util.List;
  * @Version 1.0
  */
 @Data
-@ApiModel (value = "列表查询")
+@ApiModel (description = "列表查询")
 public class AssociationGoodsDto {
 
     @ApiModelProperty (value = "搜索ID")
