@@ -154,5 +154,8 @@ public class PmGoodsPo {
     @ApiModelProperty(value = "限制会员等级id")
     private Long memberLevelId;
 
+    @ApiModelProperty (value = "收藏数量")
+    private Integer collectionNum;
+
 
 }
