@@ -2,7 +2,7 @@ package com.chauncy.data.vo.manage.message.information;
 
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.chauncy.data.vo.supplier.InformationRelGoodsVo;
+import com.chauncy.data.vo.supplier.good.InformationRelGoodsVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

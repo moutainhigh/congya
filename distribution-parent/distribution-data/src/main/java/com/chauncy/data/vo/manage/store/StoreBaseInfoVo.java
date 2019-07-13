@@ -17,7 +17,7 @@ import java.util.List;
  * @since 2019/6/19 22:44
  */
 @Data
-@ApiModel(value = "店铺账户信息")
+@ApiModel(value = "StoreBaseInfoVo对象", description  = "店铺账户信息")
 public class StoreBaseInfoVo implements Serializable {
 
     private static final long serialVersionUID = 1L;

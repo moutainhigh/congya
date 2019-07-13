@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockTemplateMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockTemplatePo">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="store_id" property="storeId" />
+        <result column="type" property="type" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="del_flag" property="delFlag" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, store_id, type, create_by, create_time, update_by, update_time, del_flag
+    </sql>
+
+
+    <select id="searchPaging" resultType="com.chauncy.data.vo.supplier.good.stock.GoodsStockTemplateVo">
+        select id, `name`, `type`, (case when `type`=1 then '自有商品' when `type`=2 then '分配商品' end) as typeName
+        from pm_goods_virtual_stock_template
+        <where>
+            del_flag = 0 and store_id = #{id}
+            <if test="name != null and name !=''">
+                and `name` like concat('%', #{name}, '%')
+            </if>
+            <if test="enabled != null">
+                and enabled =  #{enabled}
+            </if>
+            <if test="startTime != null">
+                and date(create_time) <![CDATA[<= ]]>  #{startTime}
+            </if>
+            <if test="endTime != null">
+                and date(create_time) <![CDATA[<= ]]> #{endTime}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectStockTemplate" resultType="com.chauncy.data.bo.base.BaseBo">
+        select id, `name`
+        from pm_goods_virtual_stock_template
+        <where>
+            del_flag = 0
+            and store_id = #{storeId}
+        </where>
+    </select>
+
+    <!--
+        根据商品库存模板Id获取商品规格信息  在店铺给分店分配库存的时候调用
+        1.每个店铺有自己的库存模板  所以当前用户选用库存模板去分配时只能根据当前选择的模板对应的商品下的规格去分配库存
+        2.通过每个具体的商品规格去查询用户剩余的的该规格的库存剩余件数，但是每一次分配库存的供货价可能不一样，
+          即每一个上级店铺分配给当前店铺的商品虚拟库存不同时间为不同的批次
+        3.当前店铺给每个对应规格虚拟库存分配给下级都只能将当前库存分配完成才能分配下一批次的商品
+    -->
+    <select id="searchSkuInfoByDistributionType" resultType="com.chauncy.data.vo.supplier.good.stock.StockTemplateSkuInfoVo">
+        select pgrst.stock_template_id, pg.id as goodsId, pgs.id as goodsSkuId, pg.`name` as goodName, pg.goods_type, pgs.sell_price,
+                t.remaining_stock_num, t.distribute_price as originalPrice, t.id as parentId, GROUP_CONCAT(CONCAT(pgav.`value`)) as skuName
+        from pm_goods_virtual_stock_template pgvst
+        left join pm_goods_rel_stock_template pgrst on pgvst.id = pgrst.stock_template_id and pgrst.del_flag = 0
+        left join pm_goods pg on pgrst.goods_id = pg.id
+        left join pm_goods_sku pgs on pgs.goods_id = pg.id and pgs.del_flag = 0
+		left join pm_goods_rel_attribute_value_sku pgrav on pgs.id = pgrav.goods_sku_id and pgrav.del_flag = 0
+		left join pm_goods_attribute_value pgav on pgav.id = pgrav.goods_attribute_value_id and pgrav.del_flag = 0,
+        (
+            select psrgs.id, psrgs.goods_sku_id,psrgs.remaining_stock_num, psrgs.distribute_price from pm_store_rel_goods_stock psrgs
+            where psrgs.store_id = #{storeId} and psrgs.remaining_stock_num > 0 and psrgs.create_time = (
+                select min(temp.create_time) from pm_store_rel_goods_stock temp
+                where temp.goods_sku_id = psrgs.goods_sku_id and temp.store_id= psrgs.store_id
+                group by temp.store_id,temp.goods_sku_id
+            )
+        ) as t
+        where pgvst.id = #{templateId} and pgvst.del_flag = 0 and pg.del_flag = 0 and t.goods_sku_id = pgs.id
+        group by pg.id, pgs.id, t.id;
+    </select>
+    <!--
+        根据商品库存模板Id获取商品规格信息  在店铺给分店分配库存的时候调用
+        当商品类型为自有商品时，可分配的商品库存，商品供货价从商品库存表（pm_goods_virtual_stock）获取
+    -->
+    <select id="searchSkuInfoByOwnType" resultType="com.chauncy.data.vo.supplier.good.stock.StockTemplateSkuInfoVo">
+        select pgrst.stock_template_id, pg.id as goodsId, pgs.id as goodsSkuId, pg.`name` as goodName, pg.goods_type, pgs.sell_price,
+                pgvs.stock_num as remaining_stock_num, pgs.supplier_price as originalPrice, GROUP_CONCAT(CONCAT(pgav.`value`)) as skuName
+        from pm_goods_virtual_stock_template pgvst
+        left join pm_goods_rel_stock_template pgrst on pgvst.id = pgrst.stock_template_id and pgrst.del_flag = 0
+        left join pm_goods pg on pgrst.goods_id = pg.id
+        left join pm_goods_sku pgs on pgs.goods_id = pg.id and pgs.del_flag = 0
+        left join pm_goods_virtual_stock pgvs on pgvs.store_id = #{storeId}  and goods_sku_id = pgs.id
+		left join pm_goods_rel_attribute_value_sku pgrav on pgs.id = pgrav.goods_sku_id and pgrav.del_flag = 0
+		left join pm_goods_attribute_value pgav on pgav.id = pgrav.goods_attribute_value_id and pgrav.del_flag = 0
+        where pgvst.id = #{templateId}  and pgvst.del_flag = 0 and pg.del_flag = 0
+        group by pgvst.id, pg.id, pgs.id, pgvs.id
+    </select>
+
+</mapper>
