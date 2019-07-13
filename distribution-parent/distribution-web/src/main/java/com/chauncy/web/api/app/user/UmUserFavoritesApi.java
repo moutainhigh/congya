@@ -56,7 +56,7 @@ public class UmUserFavoritesApi {
      * @param ids
      * @return
      */
-    @GetMapping("/delFavoritesByIds")
+    @PostMapping("/delFavoritesByIds")
     @ApiOperation ("批量删除收藏")
     public JsonViewData delFavoritesByIds(@ApiParam(required = true,name = "ids",value="收藏ids")
                                           @PathVariable Long[] ids){

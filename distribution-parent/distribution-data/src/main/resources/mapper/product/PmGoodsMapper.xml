@@ -40,6 +40,7 @@
         <result column="content" property="content"/>
         <result column="is_excel" property="isExcel"/>
         <result column="sales_volume" property="salesVolume"/>
+        <result column="collection_num" property="collectionNum"/>
     </resultMap>
 
     <update id="updateStock">

@@ -23,6 +23,9 @@ public class SearchFavoritesVo {
     @ApiModelProperty("商品id")
     public Long goodsId;
 
+    @ApiModelProperty("收藏人数")
+    public Integer collectionNum;
+
     @ApiModelProperty("店铺id")
     public Long storeId;
 

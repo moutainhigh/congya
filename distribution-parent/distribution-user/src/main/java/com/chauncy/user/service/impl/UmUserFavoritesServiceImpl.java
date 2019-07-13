@@ -4,10 +4,14 @@ import com.chauncy.common.enums.message.KeyWordTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.message.information.MmInformationPo;
+import com.chauncy.data.domain.po.product.PmGoodsPo;
+import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.user.UmUserFavoritesPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.user.favorites.add.AddFavoritesDto;
 import com.chauncy.data.dto.app.user.favorites.select.SelectFavoritesDto;
+import com.chauncy.data.dto.supplier.good.add.AddStandardToGoodDto;
 import com.chauncy.data.mapper.message.information.MmInformationMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
@@ -71,16 +75,29 @@ public class UmUserFavoritesServiceImpl extends AbstractService<UmUserFavoritesM
             case GOODS:
                 if (goodsMapper.selectById (addFavoritesDto.getFavoritesId ())==null){
                     throw new ServiceException (ResultCode.FAIL,"不存在该商品");
+                }else{
+                    PmGoodsPo goodsPo = new PmGoodsPo ();
+                    goodsPo = goodsMapper.selectById (addFavoritesDto.getFavoritesId ());
+                    goodsPo.setCollectionNum (goodsPo.getCollectionNum ()+1);
+                    goodsMapper.updateById (goodsPo);
                 }
                 break;
             case MERCHANT:
                 if (smStoreMapper.selectById (addFavoritesDto.getFavoritesId ())==null){
                     throw new ServiceException (ResultCode.FAIL,"不存在该店铺");
+                }else {
+                    SmStorePo storePo = smStoreMapper.selectById (addFavoritesDto.getFavoritesId ());
+//                    storePo.setCollectionNum(storePo.getCollectionNum()+1);
+                    smStoreMapper.updateById (storePo);
                 }
                 break;
             case INFORMATION:
                 if (informationMapper.selectById (addFavoritesDto.getFavoritesId ())==null){
                     throw new ServiceException (ResultCode.FAIL,"不存在该资讯");
+                }else{
+                    MmInformationPo informationPo = informationMapper.selectById (addFavoritesDto.getFavoritesId ());
+                    informationPo.setCollectionNum (informationPo.getCommentNum ()+1);
+                    informationMapper.updateById(informationPo);
                 }
                 break;
         }
