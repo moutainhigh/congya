@@ -11,6 +11,7 @@ import com.chauncy.data.domain.po.user.UmUserFavoritesPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.user.favorites.add.AddFavoritesDto;
 import com.chauncy.data.dto.app.user.favorites.select.SelectFavoritesDto;
+import com.chauncy.data.dto.app.user.favorites.update.DelFavaritesDto;
 import com.chauncy.data.dto.supplier.good.add.AddStandardToGoodDto;
 import com.chauncy.data.mapper.message.information.MmInformationMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
@@ -87,7 +88,7 @@ public class UmUserFavoritesServiceImpl extends AbstractService<UmUserFavoritesM
                     throw new ServiceException (ResultCode.FAIL,"不存在该店铺");
                 }else {
                     SmStorePo storePo = smStoreMapper.selectById (addFavoritesDto.getFavoritesId ());
-//                    storePo.setCollectionNum(storePo.getCollectionNum()+1);
+                    storePo.setCollectionNum(storePo.getCollectionNum()+1);
                     smStoreMapper.updateById (storePo);
                 }
                 break;
@@ -112,22 +113,54 @@ public class UmUserFavoritesServiceImpl extends AbstractService<UmUserFavoritesM
 
     /**
      * 批量删除收藏
-     * @param ids
+     * @param delFavaritesDto
      * @return
      */
     @Override
-    public void delFavoritesByIds (Long[] ids) {
+    public void delFavoritesByIds (DelFavaritesDto delFavaritesDto) {
 
-        List<Long> idList = Arrays.asList (ids);
-        if (idList.size()==0 && idList==null){
+        if (delFavaritesDto.getIds ().size()==0 && delFavaritesDto.getIds ()==null){
             throw new ServiceException (ResultCode.FAIL,"请选择宝贝");
         }
-        idList.forEach (a->{
+        delFavaritesDto.getIds ().forEach (a->{
             if (mapper.selectById (a)==null){
                 throw new ServiceException (ResultCode.FAIL,"出错了，宝贝不存在");
             }
+            KeyWordTypeEnum typeEnum = KeyWordTypeEnum.fromName (delFavaritesDto.getType ());
+            assert typeEnum != null;
+            switch (typeEnum) {
+                case GOODS:
+                    if (goodsMapper.selectById (a)==null){
+                        throw new ServiceException (ResultCode.FAIL,"不存在该商品");
+                    }else{
+                        PmGoodsPo goodsPo = new PmGoodsPo ();
+                        goodsPo = goodsMapper.selectById (a);
+                        goodsPo.setCollectionNum (goodsPo.getCollectionNum ()-1);
+                        goodsMapper.updateById (goodsPo);
+                    }
+                    break;
+                case MERCHANT:
+                    if (smStoreMapper.selectById (a)==null){
+                        throw new ServiceException (ResultCode.FAIL,"不存在该店铺");
+                    }else {
+                        SmStorePo storePo = smStoreMapper.selectById (a);
+                        storePo.setCollectionNum(storePo.getCollectionNum()-1);
+                        smStoreMapper.updateById (storePo);
+                    }
+                    break;
+                case INFORMATION:
+                    if (informationMapper.selectById (a)==null){
+                        throw new ServiceException (ResultCode.FAIL,"不存在该资讯");
+                    }else{
+                        MmInformationPo informationPo = informationMapper.selectById (a);
+                        informationPo.setCollectionNum (informationPo.getCommentNum ()-1);
+                        informationMapper.updateById(informationPo);
+                    }
+                    break;
+            }
+
         });
-        mapper.deleteBatchIds (idList);
+        mapper.deleteBatchIds (delFavaritesDto.getIds ());
     }
 
     /**

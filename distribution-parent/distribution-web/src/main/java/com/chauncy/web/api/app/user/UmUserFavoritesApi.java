@@ -5,6 +5,7 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.user.favorites.add.AddFavoritesDto;
 import com.chauncy.data.dto.app.user.favorites.select.SelectFavoritesDto;
+import com.chauncy.data.dto.app.user.favorites.update.DelFavaritesDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.user.favorites.SearchFavoritesVo;
 import com.chauncy.security.util.SecurityUtil;
@@ -53,14 +54,14 @@ public class UmUserFavoritesApi {
 
     /**
      * 批量删除收藏
-     * @param ids
+     * @param delFavaritesDto
      * @return
      */
     @PostMapping("/delFavoritesByIds")
     @ApiOperation ("批量删除收藏")
-    public JsonViewData delFavoritesByIds(@ApiParam(required = true,name = "ids",value="收藏ids")
-                                          @PathVariable Long[] ids){
-        service.delFavoritesByIds(ids);
+    public JsonViewData delFavoritesByIds(@RequestBody @ApiParam(required = true,name = "ids",value="收藏ids")
+                                          @Validated DelFavaritesDto delFavaritesDto){
+        service.delFavoritesByIds(delFavaritesDto);
         return new JsonViewData (ResultCode.SUCCESS);
     }
 
