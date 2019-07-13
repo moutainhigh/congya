@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * @Author: HUANGWANCHENG
  * @Date: 2019/07/11  10:46
@@ -25,12 +27,12 @@ public class StoreVo {
     private String storeIcon;
 
     @ApiModelProperty ("宝贝描述")
-    private Integer babyDescription;
+    private BigDecimal babyDescription;
 
     @ApiModelProperty ("卖家服务")
-    private Integer sellerService;
+    private BigDecimal sellerService;
 
     @ApiModelProperty ("物流服务")
-    private Integer logisticsServices;
+    private BigDecimal logisticsServices;
 
 }
