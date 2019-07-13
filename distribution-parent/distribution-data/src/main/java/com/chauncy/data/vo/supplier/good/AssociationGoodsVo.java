@@ -1,5 +1,6 @@
 package com.chauncy.data.vo.supplier.good;
 
+import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -12,6 +13,10 @@ import lombok.Data;
 @Data
 @ApiModel (value = "获取商品已经关联的商品信息")
 public class AssociationGoodsVo {
+
+    @ApiModelProperty("id")
+    @NeedExistConstraint (tableName = "pm_association_goods")
+    private Long id;
 
     @ApiModelProperty("商品id")
     private Long goodsId;

@@ -1176,6 +1176,8 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             associationGoodsPo.setId (null);
             associationGoodsPo.setGoodsId (associationDto.getGoodsId());
             associationGoodsPo.setAssociatedGoodsId (a);
+            associationGoodsPo.setCreateBy (securityUtil.getCurrUser().getUsername ());
+            associationGoodsPo.setStoreId (mapper.selectById (associationDto.getGoodsId ()).getStoreId ());
             associationGoodsPos.add (associationGoodsPo);
         });
         saveBatch2.saveBatch (associationGoodsPos);
@@ -1499,6 +1501,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             List<Long> associatedIds = associationGoodsPoList.stream().map (b->b.getAssociatedGoodsId ()).collect(Collectors.toList());
         //排除掉已经关联的商品和当前商品
         List<Long> idList = goodsPoList.stream().filter (d->!associatedIds.contains (d.getId ()) && !d.getId ().equals (associationGoodsDto.getGoodsId())).map (e->e.getId ()).collect(Collectors.toList());
+        if (idList.size ()==0 ){
+            return new PageInfo<>();
+        }
         Integer pageNo = associationGoodsDto.getPageNo() == null ? defaultPageNo : associationGoodsDto.getPageNo();
         Integer pageSize = associationGoodsDto.getPageSize() == null ? defaultPageSize : associationGoodsDto.getPageSize();
         PageInfo<BaseVo> goodsVos = new PageInfo<>();
@@ -1522,6 +1527,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         PageInfo<AssociationGoodsVo> associationGoodsVoPageInfo = new PageInfo<>();
         associationGoodsVoPageInfo = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
                 .doSelectPageInfo(() -> associationGoodsMapper.searchAssociatedGoods(associationGoodsDto));
+        if (associationGoodsVoPageInfo.getList ().size ()==0 && associationGoodsVoPageInfo.getList ()==null){
+            return new PageInfo<> ();
+        }
         associationGoodsVoPageInfo.getList ().forEach (a->{
             PmGoodsCategoryPo goodsCategoryPo3 = goodsCategoryMapper.selectById(mapper.selectById (associationGoodsDto.getGoodsId ()).getGoodsCategoryId ());
             String level3 = goodsCategoryPo3.getName();
@@ -1533,7 +1541,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             BigDecimal lowestSellPrice = goodsSkuMapper.getLowestPrice (associationGoodsDto.getGoodsId ());
             BigDecimal highestSellPrice = goodsSkuMapper.getHighestPrice (associationGoodsDto.getGoodsId ());
             String sellPrice ="";
-            if (lowestSellPrice==highestSellPrice){
+            if (lowestSellPrice.equals (highestSellPrice)){
                 sellPrice=lowestSellPrice.toString ();
             }else{
                 sellPrice = lowestSellPrice.toString ()+"-"+highestSellPrice;

@@ -418,9 +418,9 @@ public class SmGoodsApi extends BaseApi {
      * @param ids
      * @return
      */
-    @GetMapping("/delAssociationsByIds")
+    @GetMapping("/delAssociationsByIds/{ids}")
     @ApiOperation ("批量删除关联商品")
-    public JsonViewData delAssociationsByIds(@ApiParam(required=true,name = "ids",value = "关联id") Long[] ids){
+    public JsonViewData delAssociationsByIds(@ApiParam(required=true,name = "ids",value = "关联id") @PathVariable Long[] ids){
         service.delAssociationsByIds(ids);
         return new JsonViewData (ResultCode.SUCCESS);
     }

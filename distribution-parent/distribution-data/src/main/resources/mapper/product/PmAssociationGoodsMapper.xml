@@ -16,10 +16,10 @@
         <result column="del_flag" property="delFlag"/>
     </resultMap>
     <select id="searchAssociatedGoods" resultType="com.chauncy.data.vo.supplier.good.AssociationGoodsVo">
-      select b.id as goods_id,b.name as goods_name,c.id as store_id,c.name as storeName
+      select a.id,b.id as goods_id,b.name as goods_name,c.id as store_id,c.name as storeName
       from pm_association_goods a,pm_goods b,sm_store c
       <where>
-          a.goods_id = b.id and b.store_id =c.id and a.del_flag=0 and a.goods_id = #{goodsId}
+          a.associated_goods_id = b.id and b.store_id =c.id and a.del_flag=0 and a.goods_id = #{goodsId}
           <if test="id!=null">
           and a.associated_goods_id = #{id}
           </if>

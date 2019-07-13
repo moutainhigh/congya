@@ -33,7 +33,7 @@ public enum KeyWordTypeEnum implements BaseEnum {
     }
 
     //通过Id获取结果
-    public static KeyWordTypeEnum getArticalLocationById(Integer id) {
+    public static KeyWordTypeEnum getKeyWordTypeById(Integer id) {
         for (KeyWordTypeEnum type : KeyWordTypeEnum.values()) {
             if (type.getId() == id)
                 return type;
