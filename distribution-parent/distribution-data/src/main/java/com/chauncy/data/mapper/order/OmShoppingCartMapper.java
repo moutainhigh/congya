@@ -3,6 +3,7 @@ package com.chauncy.data.mapper.order;
 import com.chauncy.data.domain.po.order.OmShoppingCartPo;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.app.car.CarGoodsVo;
+import com.chauncy.data.vo.app.car.ShopTicketSoWithCarGoodVo;
 import com.chauncy.data.vo.app.order.cart.CartVo;
 import org.apache.ibatis.annotations.Param;
 
@@ -31,5 +32,5 @@ public interface OmShoppingCartMapper extends IBaseMapper<OmShoppingCartPo> {
      * @param ids
      * @return
      */
-    List<CarGoodsVo> searchByIds(@Param("ids") List<Long> ids);
+    List<ShopTicketSoWithCarGoodVo> searchByIds(@Param("ids") List<Long> ids);
 }
