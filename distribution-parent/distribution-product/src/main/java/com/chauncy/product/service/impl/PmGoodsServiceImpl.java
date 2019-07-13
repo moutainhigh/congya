@@ -6,6 +6,7 @@ import com.chauncy.common.enums.goods.GoodsAttributeTypeEnum;
 import com.chauncy.common.enums.goods.GoodsShipTemplateEnum;
 import com.chauncy.common.enums.goods.GoodsTypeEnum;
 import com.chauncy.common.enums.goods.TaxRateTypeEnum;
+import com.chauncy.common.enums.goods.StoreGoodsTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.JSONUtils;
@@ -14,21 +15,21 @@ import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.*;
 import com.chauncy.data.domain.po.sys.SysUserPo;
-import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
+import com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockPo;
+import com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockTemplatePo;
 import com.chauncy.data.dto.manage.good.update.RejectGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.*;
-import com.chauncy.data.dto.supplier.good.select.FindStandardDto;
-import com.chauncy.data.dto.supplier.good.select.SearchExcelDto;
-import com.chauncy.data.dto.supplier.good.select.SearchGoodInfosDto;
-import com.chauncy.data.dto.supplier.good.select.SelectAttributeDto;
+import com.chauncy.data.dto.supplier.good.select.*;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodOperationDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodSellerDto;
 import com.chauncy.data.dto.supplier.good.update.UpdatePublishStatusDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
 import com.chauncy.data.mapper.area.AreaRegionMapper;
 import com.chauncy.data.mapper.product.*;
+import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockMapper;
+import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockTemplateMapper;
 import com.chauncy.data.mapper.sys.SysUserMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.vo.BaseVo;
@@ -36,6 +37,8 @@ import com.chauncy.data.vo.supplier.*;
 import com.chauncy.data.vo.supplier.good.AssociationGoodsVo;
 import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
 import com.chauncy.product.service.IPmAssociationGoodsService;
+import com.chauncy.data.vo.supplier.good.stock.GoodsStockTemplateVo;
+import com.chauncy.data.vo.supplier.good.stock.StockTemplateGoodsInfoVo;
 import com.chauncy.product.service.IPmGoodsRelAttributeGoodService;
 import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.security.util.SecurityUtil;
@@ -43,7 +46,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.mapstruct.factory.Mappers;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -125,6 +127,12 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
     @Autowired
     private AreaRegionMapper areaRegionMapper;
+
+    @Autowired
+    private PmGoodsVirtualStockTemplateMapper pmGoodsVirtualStockTemplateMapper;
+
+    @Autowired
+    private PmGoodsVirtualStockMapper pmGoodsVirtualStockMapper;
 
     @Autowired
     private SysUserMapper sysUserMapper;
@@ -1415,6 +1423,62 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         attributeVo.setCategoryName(categoryName);
 
         return attributeVo;
+    }
+
+    /**
+     * 库存模板根据商品类型查询店铺商品信息
+     *
+     * @param type
+     * @return
+     */
+    @Override
+    public List<BaseBo> selectGoodsByType(String type) {
+        Long storeId = securityUtil.getCurrUser().getStoreId();
+        if(type.equals(StoreGoodsTypeEnum.DISTRIBUTION_GOODS.name())) {
+            // 分配商品
+            return mapper.selectDistributionGoods(storeId);
+        } else if (type.equals(StoreGoodsTypeEnum.OWN_GOODS.name())) {
+            // 自有商品
+            return mapper.selectOwnGoods(storeId);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * 库存模板id获取询商品信息
+     *
+     * @param baseSearchDto
+     */
+    @Override
+    public GoodsStockTemplateVo searchGoodsInfoByTemplateId(BaseSearchDto baseSearchDto) {
+        if(null == baseSearchDto.getId()) {
+            throw new ServiceException(ResultCode.PARAM_ERROR, "库存模板id不能为空") ;
+        }
+        PmGoodsVirtualStockTemplatePo pmGoodsVirtualStockTemplate = pmGoodsVirtualStockTemplateMapper.selectById(baseSearchDto.getId());
+        if(null == pmGoodsVirtualStockTemplate) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "库存模板不存在") ;
+        }
+        GoodsStockTemplateVo goodsStockTemplateVo = new GoodsStockTemplateVo();
+        BeanUtils.copyProperties(pmGoodsVirtualStockTemplate, goodsStockTemplateVo);
+        goodsStockTemplateVo.setTypeName(StoreGoodsTypeEnum.getById(goodsStockTemplateVo.getType()).getName());
+
+        Integer pageNo = baseSearchDto.getPageNo() == null ? defaultPageNo : baseSearchDto.getPageNo();
+        Integer pageSize = baseSearchDto.getPageSize() == null ? defaultPageSize : baseSearchDto.getPageSize();
+        PageInfo<StockTemplateGoodsInfoVo> stockTemplateGoodsInfoVoPageInfo = new PageInfo<>();
+
+        stockTemplateGoodsInfoVoPageInfo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
+                .doSelectPageInfo(() -> mapper.searchGoodsInfoByTemplateId(baseSearchDto.getId()));
+        stockTemplateGoodsInfoVoPageInfo.getList().forEach(a -> {
+            Map<String, Object> map = Maps.newHashMap();
+            map.put("goods_id", a.getGoodsId());
+            map.put("store_id", pmGoodsVirtualStockTemplate.getStoreId());
+            int stock = pmGoodsVirtualStockMapper.selectByMap(map).stream().map(PmGoodsVirtualStockPo::getStockNum).mapToInt(c -> c).sum();
+            a.setStock(stock);
+        });
+
+        goodsStockTemplateVo.setStockTemplateGoodsInfoPageInfo(stockTemplateGoodsInfoVoPageInfo);
+        return goodsStockTemplateVo;
     }
 
     @Override

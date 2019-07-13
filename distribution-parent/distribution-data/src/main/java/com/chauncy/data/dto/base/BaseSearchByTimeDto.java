@@ -1,4 +1,4 @@
-package com.chauncy.data.dto.manage.message.information.select;
+package com.chauncy.data.dto.base;
 
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -16,7 +16,7 @@ import java.time.LocalDate;
  */
 @Data
 @ApiModel("资讯查询条件")
-public class InformationSearchDto  extends BaseSearchDto implements Serializable {
+public class BaseSearchByTimeDto extends BaseSearchDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

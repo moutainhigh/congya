@@ -5,7 +5,7 @@ import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.message.information.select.SearchInfoByConditionDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.information.add.InformationDto;
-import com.chauncy.data.dto.manage.message.information.select.InformationSearchDto;
+import com.chauncy.data.dto.base.BaseSearchByTimeDto;
 import com.chauncy.data.vo.app.message.information.InformationBaseVo;
 import com.chauncy.data.vo.app.message.information.InformationPagingVo;
 import com.chauncy.data.vo.manage.message.information.InformationPageInfoVo;
@@ -62,10 +62,10 @@ public interface IMmInformationService extends Service<MmInformationPo> {
 
     /**
      * 后台分页条件查询
-     * @param informationSearchDto
+     * @param baseSearchByTimeDto
      * @return
      */
-    PageInfo<InformationPageInfoVo> searchPaging(InformationSearchDto informationSearchDto);
+    PageInfo<InformationPageInfoVo> searchPaging(BaseSearchByTimeDto baseSearchByTimeDto);
     /**
      * app分页条件查询
      * @param searchInfoByConditionDto

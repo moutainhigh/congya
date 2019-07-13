@@ -13,7 +13,7 @@ import java.io.Serializable;
  * @since 2019/6/24 10:52
  */
 @Data
-@ApiModel(value = "店铺可关联的店铺列表")
+@ApiModel(value = "RelStoreInfoVo对象", description = "店铺可关联的店铺列表")
 public class RelStoreInfoVo  implements Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -10,6 +10,7 @@ import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.dto.supplier.store.update.StoreBusinessLicenseDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.store.*;
+import com.chauncy.data.vo.supplier.store.BranchInfoVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiOperation;
 import org.apache.ibatis.annotations.Param;
@@ -132,4 +133,13 @@ public interface ISmStoreService extends Service<SmStorePo> {
      * @return
      */
     void storeUnbound(Long id);
+
+    /**
+     * 获取当前店铺的下级店铺(分店)（模糊搜索）
+     *
+     * @param storeName
+     * @return
+     */
+    List<BranchInfoVo> searchBranchByName(String storeName);
+
 }

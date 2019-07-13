@@ -110,7 +110,7 @@
     </select>
 
 
-    <select id="searchRelGoodsByInfoId" resultType="com.chauncy.data.vo.supplier.InformationRelGoodsVo">
+    <select id="searchRelGoodsByInfoId" resultType="com.chauncy.data.vo.supplier.good.InformationRelGoodsVo">
     SELECT mrig.id, pg.`name`, pg.goods_category_id, Min(pgs.sell_price) AS sell_price,pg.goods_type
     FROM mm_information_rel_goods mrig
          LEFT JOIN pm_goods pg on (pg.id = mrig.goods_id and pg.del_flag = 0)
@@ -120,6 +120,37 @@
     </where>
     GROUP BY pg.id
     </select>
+
+    <select id="selectDistributionGoods" resultType="com.chauncy.data.bo.base.BaseBo">
+        select pg.id, pg.`name`
+        from pm_goods_virtual_stock pgvs left join pm_goods pg on pg.id = pgvs.goods_id
+        where pgvs.store_id = #{id} and pgvs.del_flag = 0 and pg.del_flag = 0
+        order by pgvs.create_time desc
+    </select>
+
+    <select id="selectOwnGoods" resultType="com.chauncy.data.bo.base.BaseBo">
+        select pg.id, pg.`name`
+        from pm_goods pg
+        where pg.store_id = #{id}  and pg.del_flag = 0
+        order by pg.create_time desc
+    </select>
+
+    <select id="searchGoodsInfoByTemplateId" resultType="com.chauncy.data.vo.supplier.good.stock.StockTemplateGoodsInfoVo">
+        SELECT pgrst.id as relId , pg.id as goodsId,pg.icon,pg.NAME as good_name,pg.sort,pg.sales_volume,pg.star_status,
+        Min(pgs.supplier_price) AS supplier_price, Min(pgs.sell_price) AS sell_price,pga.`name` as brandName
+        from pm_goods_rel_stock_template pgrst
+        left join pm_goods pg on pg.id = pgrst.goods_id and pg.del_flag = 0
+        LEFT JOIN pm_goods_sku pgs on pg.id = pgs.goods_id
+        LEFT JOIN pm_goods_rel_attribute_good pgrag on pgrag.del_flag = 0 and pgrag.goods_good_id = pg.id
+        inner JOIN pm_goods_attribute pga on pgrag.goods_attribute_id = pga.id and pga.type=8
+        inner join pm_goods_category pgc on pgc.id = pg.goods_category_id
+        left join sm_store ss on ss.id = pg.store_id and ss.del_flag = 0
+        <where>
+            pgrst.stock_template_id = #{id}
+        </where>
+        group by pgrst.id,pga.id
+    </select>
+
 
     <select id="searchExcelGoods" resultType="com.chauncy.data.vo.supplier.good.ExcelGoodVo">
         select id,name,create_time import_time

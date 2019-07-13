@@ -12,7 +12,7 @@ import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.message.information.select.SearchInfoByConditionDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.information.add.InformationDto;
-import com.chauncy.data.dto.manage.message.information.select.InformationSearchDto;
+import com.chauncy.data.dto.base.BaseSearchByTimeDto;
 import com.chauncy.data.mapper.message.information.MmInformationMapper;
 import com.chauncy.data.mapper.message.information.rel.MmRelInformationGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
@@ -22,7 +22,7 @@ import com.chauncy.data.vo.app.message.information.InformationBaseVo;
 import com.chauncy.data.vo.app.message.information.InformationPagingVo;
 import com.chauncy.data.vo.manage.message.information.InformationPageInfoVo;
 import com.chauncy.data.vo.manage.message.information.InformationVo;
-import com.chauncy.data.vo.supplier.InformationRelGoodsVo;
+import com.chauncy.data.vo.supplier.good.InformationRelGoodsVo;
 import com.chauncy.message.information.rel.service.IMmRelInformationGoodsService;
 import com.chauncy.message.information.service.IMmInformationService;
 import com.chauncy.data.core.AbstractService;
@@ -77,6 +77,9 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
         BeanUtils.copyProperties(informationDto, mmInformationPo);
         //获取当前用户
         SysUserPo sysUserPo = securityUtil.getCurrUser();
+        if(null == sysUserPo.getStoreId()) {
+            throw  new ServiceException(ResultCode.FAIL, "当前登录用户不是商家用户");
+        }
         mmInformationPo.setCreateBy(sysUserPo.getUsername());
         mmInformationPo.setId(null);
         //新增资讯默认为待审核状态
@@ -232,17 +235,17 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
     /**
      * 后台分页条件查询
      *
-     * @param informationSearchDto
+     * @param baseSearchByTimeDto
      * @return
      */
     @Override
-    public PageInfo<InformationPageInfoVo> searchPaging(InformationSearchDto informationSearchDto) {
+    public PageInfo<InformationPageInfoVo> searchPaging(BaseSearchByTimeDto baseSearchByTimeDto) {
 
-        Integer pageNo = informationSearchDto.getPageNo()==null ? defaultPageNo : informationSearchDto.getPageNo();
-        Integer pageSize = informationSearchDto.getPageSize()==null ? defaultPageSize : informationSearchDto.getPageSize();
+        Integer pageNo = baseSearchByTimeDto.getPageNo()==null ? defaultPageNo : baseSearchByTimeDto.getPageNo();
+        Integer pageSize = baseSearchByTimeDto.getPageSize()==null ? defaultPageSize : baseSearchByTimeDto.getPageSize();
 
         PageInfo<InformationPageInfoVo> informationPageInfoVoPageInfo = PageHelper.startPage(pageNo, pageSize)
-                .doSelectPageInfo(() -> mmInformationMapper.searchInfoPaging(informationSearchDto));
+                .doSelectPageInfo(() -> mmInformationMapper.searchInfoPaging(baseSearchByTimeDto));
         return informationPageInfoVoPageInfo;
     }
 
