@@ -130,16 +130,16 @@ public class SmStorePo implements Serializable {
     private Boolean enabled;
 
     @ApiModelProperty(value = "店铺综合体验评分")
-    private Integer totalScore;
+    private BigDecimal totalScore;
 
     @ApiModelProperty(value = "宝贝描述评分")
-    private Integer babyDescribeScore;
+    private BigDecimal babyDescribeScore;
 
     @ApiModelProperty(value = "服务态度评分")
-    private Integer serviceAttitudeScore;
+    private BigDecimal serviceAttitudeScore;
 
     @ApiModelProperty(value = "物流服务评分")
-    private Integer logisticsServiceScore;
+    private BigDecimal logisticsServiceScore;
 
     @ApiModelProperty(value = "本店营业额")
     private BigDecimal storeTurnover;
@@ -149,6 +149,9 @@ public class SmStorePo implements Serializable {
 
     @ApiModelProperty(value = "旗下店铺数量")
     private Integer storeSubNum;
+
+    @ApiModelProperty(value = "收藏量")
+    private Integer collectionNum;
 
     @ApiModelProperty(value = "创建者")
     private String createBy;

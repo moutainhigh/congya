@@ -4,7 +4,6 @@ import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
 import com.chauncy.data.dto.base.BaseSearchDto;
-import com.chauncy.data.dto.manage.good.add.UpdateGoodsOperationDto;
 import com.chauncy.data.dto.manage.good.update.RejectGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.AddAssociationGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.AddGoodBaseDto;
@@ -17,7 +16,8 @@ import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.supplier.*;
 import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
-import com.chauncy.data.vo.supplier.good.StockTemplateGoodsInfoVo;
+import com.chauncy.data.vo.supplier.good.stock.GoodsStockTemplateVo;
+import com.chauncy.data.vo.supplier.good.stock.StockTemplateGoodsInfoVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -240,7 +240,7 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
     *
     * @param baseSearchDto
     */
-    PageInfo<StockTemplateGoodsInfoVo> searchGoodsInfoByTemplateId(BaseSearchDto baseSearchDto);
+    GoodsStockTemplateVo searchGoodsInfoByTemplateId(BaseSearchDto baseSearchDto);
 
     /**
      * 查询导入商品信息

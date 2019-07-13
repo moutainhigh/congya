@@ -19,6 +19,11 @@ public class StoreRelGoodsStockBaseDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+
+    @ApiModelProperty("可判断来自哪一批次的库存")
+    @NotNull(message="parent参数不能为空")
+    private Long parentId;
+
     @ApiModelProperty(value = "商品id")
     @NeedExistConstraint(tableName = "pm_goods")
     private Long goodsId;

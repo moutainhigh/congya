@@ -33,11 +33,11 @@ public class PmStoreGoodsStockPo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "店铺-商品虚拟库存模板关联表")
+    @ApiModelProperty(value = "店铺库存信息表")
     @TableId(value = "id", type = IdType.ID_WORKER)
     private Long id;
 
-    @ApiModelProperty(value = "分店库存名称")
+    @ApiModelProperty(value = "库存名称")
     private String name;
 
     @ApiModelProperty(value = "库存模板id")
@@ -48,6 +48,9 @@ public class PmStoreGoodsStockPo implements Serializable {
 
     @ApiModelProperty(value = "分配店铺id")
     private Long distributeStoreId;
+
+    @ApiModelProperty(value = "是否启用 1-是 0-否 默认为1")
+    private Boolean enabled;
 
     @ApiModelProperty(value = "备注")
     private String remark;

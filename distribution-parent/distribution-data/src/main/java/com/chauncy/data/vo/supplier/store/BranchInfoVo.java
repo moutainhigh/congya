@@ -12,7 +12,7 @@ import java.io.Serializable;
  * @since 2019/7/10 20:19
  */
 @Data
-@ApiModel(value = "查询分店信息")
+@ApiModel(value = "BranchInfoVo对象", description = "查询分店信息")
 public class BranchInfoVo  implements Serializable {
 
     private static final long serialVersionUID = 1L;

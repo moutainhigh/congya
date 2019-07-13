@@ -5,7 +5,8 @@ import com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockTemplatePo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.base.BaseSearchByTimeDto;
 import com.chauncy.data.dto.supplier.good.add.StockTemplateBaseDto;
-import com.chauncy.data.vo.supplier.good.GoodsStockTemplateVo;
+import com.chauncy.data.vo.supplier.good.stock.GoodsStockTemplateVo;
+import com.chauncy.data.vo.supplier.good.stock.StockTemplateSkuInfoVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -59,4 +60,11 @@ public interface IPmGoodsVirtualStockTemplateService extends Service<PmGoodsVirt
      * @return
      */
     List<BaseBo> selectStockTemplate();
+
+    /**
+     * 根据商品库存模板Id获取商品规格信息
+     * @param templateId
+     * @return
+     */
+    List<StockTemplateSkuInfoVo> searchSkuInfoByTemplateId(Long templateId);
 }

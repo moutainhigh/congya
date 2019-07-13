@@ -32,7 +32,8 @@ import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.supplier.*;
 import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
-import com.chauncy.data.vo.supplier.good.StockTemplateGoodsInfoVo;
+import com.chauncy.data.vo.supplier.good.stock.GoodsStockTemplateVo;
+import com.chauncy.data.vo.supplier.good.stock.StockTemplateGoodsInfoVo;
 import com.chauncy.product.service.IPmGoodsRelAttributeGoodService;
 import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.security.util.SecurityUtil;
@@ -1382,7 +1383,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
      * @param baseSearchDto
      */
     @Override
-    public PageInfo<StockTemplateGoodsInfoVo> searchGoodsInfoByTemplateId(BaseSearchDto baseSearchDto) {
+    public GoodsStockTemplateVo searchGoodsInfoByTemplateId(BaseSearchDto baseSearchDto) {
         if(null == baseSearchDto.getId()) {
             throw new ServiceException(ResultCode.PARAM_ERROR, "库存模板id不能为空") ;
         }
@@ -1390,6 +1391,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         if(null == pmGoodsVirtualStockTemplate) {
             throw new ServiceException(ResultCode.NO_EXISTS, "库存模板不存在") ;
         }
+        GoodsStockTemplateVo goodsStockTemplateVo = new GoodsStockTemplateVo();
+        BeanUtils.copyProperties(pmGoodsVirtualStockTemplate, goodsStockTemplateVo);
+        goodsStockTemplateVo.setTypeName(StoreGoodsTypeEnum.getById(goodsStockTemplateVo.getType()).getName());
 
         Integer pageNo = baseSearchDto.getPageNo() == null ? defaultPageNo : baseSearchDto.getPageNo();
         Integer pageSize = baseSearchDto.getPageSize() == null ? defaultPageSize : baseSearchDto.getPageSize();
@@ -1404,7 +1408,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             int stock = pmGoodsVirtualStockMapper.selectByMap(map).stream().map(PmGoodsVirtualStockPo::getStockNum).mapToInt(c -> c).sum();
             a.setStock(stock);
         });
-        return stockTemplateGoodsInfoVoPageInfo;
+
+        goodsStockTemplateVo.setStockTemplateGoodsInfoPageInfo(stockTemplateGoodsInfoVoPageInfo);
+        return goodsStockTemplateVo;
     }
 
     @Override

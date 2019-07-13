@@ -1,6 +1,7 @@
-package com.chauncy.data.vo.supplier.good;
+package com.chauncy.data.vo.supplier.good.stock;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -36,4 +37,6 @@ public class GoodsStockTemplateVo  implements Serializable {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateTime;
 
+    @ApiModelProperty(value = "库存模板对应的商品信息")
+    private PageInfo<StockTemplateGoodsInfoVo> stockTemplateGoodsInfoPageInfo;
 }

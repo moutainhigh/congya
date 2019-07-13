@@ -13,7 +13,8 @@ import com.chauncy.data.dto.supplier.good.add.StockTemplateBaseDto;
 import com.chauncy.data.mapper.product.stock.PmGoodsRelStockTemplateMapper;
 import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockTemplateMapper;
 import com.chauncy.data.core.AbstractService;
-import com.chauncy.data.vo.supplier.good.GoodsStockTemplateVo;
+import com.chauncy.data.vo.supplier.good.stock.GoodsStockTemplateVo;
+import com.chauncy.data.vo.supplier.good.stock.StockTemplateSkuInfoVo;
 import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.product.stock.IPmGoodsRelStockTemplateService;
 import com.chauncy.product.stock.IPmGoodsVirtualStockService;
@@ -21,6 +22,7 @@ import com.chauncy.product.stock.IPmGoodsVirtualStockTemplateService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Maps;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -236,6 +238,34 @@ public class PmGoodsVirtualStockTemplateServiceImpl extends AbstractService<PmGo
             throw  new ServiceException(ResultCode.FAIL, "当前登录用户不是商家用户");
         }
         return pmGoodsVirtualStockTemplateMapper.selectStockTemplate(storeId);
+    }
+
+    /**
+     * 根据商品库存模板Id获取商品规格信息（选择规格分配库存）
+     *
+     * @param templateId
+     * @return
+     */
+    public List<StockTemplateSkuInfoVo> searchSkuInfoByTemplateId(Long templateId) {
+        PmGoodsVirtualStockTemplatePo pmGoodsVirtualStockTemplate = pmGoodsVirtualStockTemplateMapper.selectById(templateId);
+        if(null == pmGoodsVirtualStockTemplate) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "库存模板不存在") ;
+        }
+        //获取当前店铺用户
+        Long storeId = securityUtil.getCurrUser().getStoreId();
+        if(null == storeId) {
+            throw  new ServiceException(ResultCode.FAIL, "当前登录用户不是商家用户");
+        }
+
+        List<StockTemplateSkuInfoVo> stockTemplateSkuInfoVoList = new ArrayList<>();
+        if(pmGoodsVirtualStockTemplate.getType().equals(StoreGoodsTypeEnum.OWN_GOODS.getId())) {
+            //自有商品类型
+            stockTemplateSkuInfoVoList = pmGoodsVirtualStockTemplateMapper.searchSkuInfoByOwnType(templateId, storeId);
+        } else if(pmGoodsVirtualStockTemplate.getType().equals(StoreGoodsTypeEnum.DISTRIBUTION_GOODS.getId())) {
+            //分配商品
+            stockTemplateSkuInfoVoList = pmGoodsVirtualStockTemplateMapper.searchSkuInfoByDistributionType(templateId, storeId);
+        }
+        return stockTemplateSkuInfoVoList ;
     }
 
 }

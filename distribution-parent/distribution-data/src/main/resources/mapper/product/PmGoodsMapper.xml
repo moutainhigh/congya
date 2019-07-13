@@ -120,7 +120,7 @@
         order by pg.create_time desc
     </select>
 
-    <select id="searchGoodsInfoByTemplateId" resultType="com.chauncy.data.vo.supplier.good.StockTemplateGoodsInfoVo">
+    <select id="searchGoodsInfoByTemplateId" resultType="com.chauncy.data.vo.supplier.good.stock.StockTemplateGoodsInfoVo">
         SELECT pgrst.id as relId , pg.id as goodsId,pg.icon,pg.NAME as good_name,pg.sort,pg.sales_volume,pg.star_status,
         Min(pgs.supplier_price) AS supplier_price, Min(pgs.sell_price) AS sell_price,pga.`name` as brandName
         from pm_goods_rel_stock_template pgrst

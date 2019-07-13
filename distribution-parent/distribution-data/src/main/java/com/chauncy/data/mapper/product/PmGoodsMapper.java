@@ -9,7 +9,7 @@ import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.supplier.good.InformationRelGoodsVo;
 import com.chauncy.data.vo.supplier.PmGoodsVo;
 import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
-import com.chauncy.data.vo.supplier.good.StockTemplateGoodsInfoVo;
+import com.chauncy.data.vo.supplier.good.stock.StockTemplateGoodsInfoVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

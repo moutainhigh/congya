@@ -4,7 +4,9 @@ import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockTemplatePo;
 import com.chauncy.data.dto.base.BaseSearchByTimeDto;
 import com.chauncy.data.mapper.IBaseMapper;
-import com.chauncy.data.vo.supplier.good.GoodsStockTemplateVo;
+import com.chauncy.data.vo.supplier.good.stock.GoodsStockTemplateVo;
+import com.chauncy.data.vo.supplier.good.stock.StockTemplateSkuInfoVo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -32,4 +34,20 @@ public interface PmGoodsVirtualStockTemplateMapper extends IBaseMapper<PmGoodsVi
      * @return
      */
     List<BaseBo> selectStockTemplate(Long storeId);
+    /**
+     * 根据商品库存模板Id获取商品规格信息
+     *
+     * @param templateId
+     * @param storeId
+     * @return
+     */
+    List<StockTemplateSkuInfoVo> searchSkuInfoByDistributionType(@Param("templateId") Long templateId, @Param("storeId") Long storeId);
+    /**
+     * 根据商品库存模板Id获取商品规格信息
+     *
+     * @param templateId
+     * @param storeId
+     * @return
+     */
+    List<StockTemplateSkuInfoVo> searchSkuInfoByOwnType(@Param("templateId") Long templateId, @Param("storeId") Long storeId);
 }

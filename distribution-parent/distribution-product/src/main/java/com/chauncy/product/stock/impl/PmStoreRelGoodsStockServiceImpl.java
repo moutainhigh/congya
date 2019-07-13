@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = Exception.class)
 public class PmStoreRelGoodsStockServiceImpl extends AbstractService<PmStoreRelGoodsStockMapper, PmStoreRelGoodsStockPo> implements IPmStoreRelGoodsStockService {
 
- @Autowired
- private PmStoreRelGoodsStockMapper mapper;
+    @Autowired
+    private PmStoreRelGoodsStockMapper mapper;
 
 }

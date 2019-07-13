@@ -6,11 +6,11 @@ import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.dto.base.BaseSearchByTimeDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.supplier.good.add.StockTemplateBaseDto;
-import com.chauncy.data.dto.supplier.good.select.FindGoodsByTypeDto;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.supplier.PmGoodsVo;
-import com.chauncy.data.vo.supplier.good.GoodsStockTemplateVo;
+import com.chauncy.data.vo.supplier.good.stock.GoodsStockTemplateVo;
+import com.chauncy.data.vo.supplier.good.stock.StockTemplateGoodsInfoVo;
 import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.product.stock.IPmGoodsVirtualStockTemplateService;
 import com.chauncy.web.base.BaseApi;
@@ -98,7 +98,7 @@ public class PsGoodsVirtualStockTemplateApi extends BaseApi {
      */
     @PostMapping("/searchGoodsInfoByTemplateId")
     @ApiOperation(value = "库存模板根据模板id查询店铺商品详细信息")
-    public JsonViewData<PageInfo<PmGoodsVo>> searchGoodsInfoByTemplateId(@RequestBody @ApiParam(name = "baseSearchDto",value = "模板id查询店铺商品详细信息")
+    public JsonViewData<GoodsStockTemplateVo> searchGoodsInfoByTemplateId(@RequestBody @ApiParam(name = "baseSearchDto",value = "模板id查询店铺商品详细信息")
                                                                          @Validated BaseSearchDto baseSearchDto){
 
         return new JsonViewData(ResultCode.SUCCESS,"操作成功",

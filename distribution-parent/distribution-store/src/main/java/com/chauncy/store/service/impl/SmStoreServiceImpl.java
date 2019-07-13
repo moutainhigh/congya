@@ -118,6 +118,7 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         bindingStore(smStorePo.getId(), storeBaseInfoDto.getStoreRelStoreDtoList());
 
         //批量插入店铺品牌关联记录
+        storeBaseInfoDto.setId(smStorePo.getId());
         saveBatchRelStoreAttribute(storeBaseInfoDto, userName);
 
         //添加店铺后台账号
@@ -201,6 +202,9 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
      * @param storeRelStoreDtoList
      */
     private void bindingStore(Long storeId, List<StoreRelStoreDto> storeRelStoreDtoList) {
+        if(null == storeRelStoreDtoList) {
+            return ;
+        }
         //删除店铺关系
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("store_id", storeId);

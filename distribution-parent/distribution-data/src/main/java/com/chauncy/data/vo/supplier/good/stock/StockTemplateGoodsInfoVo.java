@@ -1,9 +1,10 @@
-package com.chauncy.data.vo.supplier.good;
+package com.chauncy.data.vo.supplier.good.stock;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
@@ -12,7 +13,10 @@ import java.math.BigDecimal;
  */
 @Data
 @ApiModel(description = "库存模板下商品信息")
-public class StockTemplateGoodsInfoVo {
+public class StockTemplateGoodsInfoVo implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
 
     @ApiModelProperty("模板商品关联id")
     private Long relId;
