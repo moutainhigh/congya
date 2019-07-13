@@ -1,36 +1,44 @@
 package com.chauncy.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.chauncy.common.enums.common.VerifyStatusEnum;
 import com.chauncy.common.enums.goods.GoodsAttributeTypeEnum;
 import com.chauncy.common.enums.goods.GoodsShipTemplateEnum;
 import com.chauncy.common.enums.goods.GoodsTypeEnum;
-import com.chauncy.common.enums.common.VerifyStatusEnum;
+import com.chauncy.common.enums.goods.TaxRateTypeEnum;
+import com.chauncy.common.enums.goods.StoreGoodsTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.JSONUtils;
 import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.core.AbstractService;
-import com.chauncy.data.domain.po.area.AreaRegionPo;
 import com.chauncy.data.domain.po.product.*;
-import com.chauncy.data.domain.po.user.PmMemberLevelPo;
+import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.dto.base.BaseSearchDto;
+import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
+import com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockPo;
+import com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockTemplatePo;
 import com.chauncy.data.dto.manage.good.update.RejectGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.*;
-import com.chauncy.data.dto.supplier.good.select.FindStandardDto;
-import com.chauncy.data.dto.supplier.good.select.SearchExcelDto;
-import com.chauncy.data.dto.supplier.good.select.SearchGoodInfosDto;
-import com.chauncy.data.dto.supplier.good.select.SelectAttributeDto;
+import com.chauncy.data.dto.supplier.good.select.*;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodOperationDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodSellerDto;
 import com.chauncy.data.dto.supplier.good.update.UpdatePublishStatusDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
 import com.chauncy.data.mapper.area.AreaRegionMapper;
 import com.chauncy.data.mapper.product.*;
+import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockMapper;
+import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockTemplateMapper;
 import com.chauncy.data.mapper.sys.SysUserMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.supplier.*;
+import com.chauncy.data.vo.supplier.good.AssociationGoodsVo;
 import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
+import com.chauncy.product.service.IPmAssociationGoodsService;
+import com.chauncy.data.vo.supplier.good.stock.GoodsStockTemplateVo;
+import com.chauncy.data.vo.supplier.good.stock.StockTemplateGoodsInfoVo;
 import com.chauncy.product.service.IPmGoodsRelAttributeGoodService;
 import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.security.util.SecurityUtil;
@@ -43,6 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -67,6 +76,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
     @Autowired
     private IPmGoodsRelAttributeGoodService saveBatch;
+
+    @Autowired
+    private IPmAssociationGoodsService saveBatch2;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -115,6 +127,12 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
     @Autowired
     private AreaRegionMapper areaRegionMapper;
+
+    @Autowired
+    private PmGoodsVirtualStockTemplateMapper pmGoodsVirtualStockTemplateMapper;
+
+    @Autowired
+    private PmGoodsVirtualStockMapper pmGoodsVirtualStockMapper;
 
     @Autowired
     private SysUserMapper sysUserMapper;
@@ -681,6 +699,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             skuIds.forEach(id -> {
                 Map<String, Object> valueMap = new HashMap<>();
                 valueMap.put("goods_sku_id", id);
+                valueMap.put ("del_flag", false);
                 List<PmGoodsRelAttributeValueSkuPo> relAttributeValueSkuPos = goodsRelAttributeValueSkuMapper.selectByMap(valueMap);
                 //获取属性值ID集合
                 List<Long> valueIds = relAttributeValueSkuPos.stream().map(a -> a.getGoodsAttributeValueId()).collect(Collectors.toList());
@@ -934,7 +953,35 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     @Override
     public FindGoodOperationVo findGoodOperation(Long goodsId) {
 
-        //获取所有的会员列表
+        FindGoodOperationVo findGoodOperationVo = new FindGoodOperationVo();
+        PmGoodsPo goodsPo = mapper.selectById(goodsId);
+        if (goodsPo == null) {
+            return null;
+        }
+        BeanUtils.copyProperties(goodsPo, findGoodOperationVo);
+        List<MemberLevelInfos> memberLevelInfos = memberLevelMapper.memberLevelInfos ();
+        //获取最低等级
+        Integer lowestLevel = memberLevelMapper.getLowestLevelId();
+        memberLevelInfos.stream ().filter (a -> memberLevelMapper.selectById (a.getMemberLevelId ()).getLevel () == lowestLevel).forEach (a -> {
+            a.setLevelName (a.getLevelName () + "/全部用户");
+        });
+        findGoodOperationVo.setMemberLevelInfos (memberLevelInfos);
+
+        //获取分类下的税率
+        if (goodsPo.getGoodsType ()==GoodsTypeEnum.OVERSEA.getName () || goodsPo.getGoodsType ()==GoodsTypeEnum.BONDED.getName()) {
+            BigDecimal taxRate = goodsCategoryMapper.selectById (goodsPo.getGoodsCategoryId ()).getTaxRate ();
+            findGoodOperationVo.setTaxRate (taxRate);
+        }
+        findGoodOperationVo.setGoodsId (goodsId);
+        //获取当前的限制会员等级
+        if (goodsPo.getMemberLevelId ()!=null) {
+            findGoodOperationVo.setMemberLevelId (goodsPo.getMemberLevelId ());
+            if (memberLevelMapper.selectById (goodsPo.getMemberLevelId ()).getLevel () == lowestLevel)
+            findGoodOperationVo.setMemberLevelName (memberLevelMapper.selectById (goodsPo.getMemberLevelId ()).getLevelName ()+"/全部会员");
+        }
+        return findGoodOperationVo;
+
+       /* //获取所有的会员列表
         List<PmMemberLevelPo> memberLevelPos = memberLevelMapper.selectList(null);
         //存放会员信息列表
         List<MemberLevelInfos> memberLevelInfos = Lists.newArrayList();
@@ -977,7 +1024,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             findGoodOperationVo.setMemberLevelInfos(memberLevelInfos);
         }
         return findGoodOperationVo;
-        /*else {
+        else {
             BeanUtils.copyProperties(findGoodOperationVo, goodsPo);
             findGoodOperationVo.setGoodsId(goodsId);
             //根据商品ID查找关联的会员等级购买权限,商品和会员等级多对多的关系
@@ -1025,11 +1072,15 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         String userId = securityUtil.getCurrUser().getId();
         Long storeId = sysUserMapper.selectById(userId).getStoreId();
         PmGoodsPo goodsPo = mapper.selectById(updateGoodOperationDto.getGoodsId());
+        BeanUtils.copyProperties(updateGoodOperationDto, goodsPo);
+        if (goodsPo.getGoodsType ()!=GoodsTypeEnum.OVERSEA.getName () || goodsPo.getGoodsType ()!=GoodsTypeEnum.BONDED.getName()) {
+            goodsPo.setCustomTaxRate (null);
+            goodsPo.setTaxRateType (TaxRateTypeEnum.NULL_TAX_RATE.getId ());
+        }
         //商家端执行更新操作将审核状态修改为未审核状态
         if (storeId != null) {
             goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
         }
-        BeanUtils.copyProperties(updateGoodOperationDto, goodsPo);
         mapper.updateById(goodsPo);
 
         //删除商品对应的会员关系
@@ -1127,11 +1178,17 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
             mapper.updateById(goodsPo);
         }
-
-        PmAssociationGoodsPo associationGoodsPo = new PmAssociationGoodsPo();
-        BeanUtils.copyProperties(associationDto, associationGoodsPo);
-        associationGoodsMapper.insert(associationGoodsPo);
-
+        List<PmAssociationGoodsPo> associationGoodsPos = Lists.newArrayList ();
+        associationDto.getAssociatedGoodsId ().forEach (a->{
+            PmAssociationGoodsPo associationGoodsPo = new PmAssociationGoodsPo();
+            associationGoodsPo.setId (null);
+            associationGoodsPo.setGoodsId (associationDto.getGoodsId());
+            associationGoodsPo.setAssociatedGoodsId (a);
+            associationGoodsPo.setCreateBy (securityUtil.getCurrUser().getUsername ());
+            associationGoodsPo.setStoreId (mapper.selectById (associationDto.getGoodsId ()).getStoreId ());
+            associationGoodsPos.add (associationGoodsPo);
+        });
+        saveBatch2.saveBatch (associationGoodsPos);
     }
 
     /**
@@ -1221,6 +1278,10 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
      */
     @Override
     public PageInfo<PmGoodsVo> searchGoodsInfo(SearchGoodInfosDto searchGoodInfosDto) {
+        SysUserPo userPo = securityUtil.getCurrUser ();
+        if(userPo.getStoreId ()!=null){
+            searchGoodInfosDto.setStoreId (userPo.getStoreId ());
+        }
         Integer pageNo = searchGoodInfosDto.getPageNo() == null ? defaultPageNo : searchGoodInfosDto.getPageNo();
         Integer pageSize = searchGoodInfosDto.getPageSize() == null ? defaultPageSize : searchGoodInfosDto.getPageSize();
         PageInfo<PmGoodsVo> goodsVos = new PageInfo<>();
@@ -1364,6 +1425,62 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         return attributeVo;
     }
 
+    /**
+     * 库存模板根据商品类型查询店铺商品信息
+     *
+     * @param type
+     * @return
+     */
+    @Override
+    public List<BaseBo> selectGoodsByType(String type) {
+        Long storeId = securityUtil.getCurrUser().getStoreId();
+        if(type.equals(StoreGoodsTypeEnum.DISTRIBUTION_GOODS.name())) {
+            // 分配商品
+            return mapper.selectDistributionGoods(storeId);
+        } else if (type.equals(StoreGoodsTypeEnum.OWN_GOODS.name())) {
+            // 自有商品
+            return mapper.selectOwnGoods(storeId);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * 库存模板id获取询商品信息
+     *
+     * @param baseSearchDto
+     */
+    @Override
+    public GoodsStockTemplateVo searchGoodsInfoByTemplateId(BaseSearchDto baseSearchDto) {
+        if(null == baseSearchDto.getId()) {
+            throw new ServiceException(ResultCode.PARAM_ERROR, "库存模板id不能为空") ;
+        }
+        PmGoodsVirtualStockTemplatePo pmGoodsVirtualStockTemplate = pmGoodsVirtualStockTemplateMapper.selectById(baseSearchDto.getId());
+        if(null == pmGoodsVirtualStockTemplate) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "库存模板不存在") ;
+        }
+        GoodsStockTemplateVo goodsStockTemplateVo = new GoodsStockTemplateVo();
+        BeanUtils.copyProperties(pmGoodsVirtualStockTemplate, goodsStockTemplateVo);
+        goodsStockTemplateVo.setTypeName(StoreGoodsTypeEnum.getById(goodsStockTemplateVo.getType()).getName());
+
+        Integer pageNo = baseSearchDto.getPageNo() == null ? defaultPageNo : baseSearchDto.getPageNo();
+        Integer pageSize = baseSearchDto.getPageSize() == null ? defaultPageSize : baseSearchDto.getPageSize();
+        PageInfo<StockTemplateGoodsInfoVo> stockTemplateGoodsInfoVoPageInfo = new PageInfo<>();
+
+        stockTemplateGoodsInfoVoPageInfo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
+                .doSelectPageInfo(() -> mapper.searchGoodsInfoByTemplateId(baseSearchDto.getId()));
+        stockTemplateGoodsInfoVoPageInfo.getList().forEach(a -> {
+            Map<String, Object> map = Maps.newHashMap();
+            map.put("goods_id", a.getGoodsId());
+            map.put("store_id", pmGoodsVirtualStockTemplate.getStoreId());
+            int stock = pmGoodsVirtualStockMapper.selectByMap(map).stream().map(PmGoodsVirtualStockPo::getStockNum).mapToInt(c -> c).sum();
+            a.setStock(stock);
+        });
+
+        goodsStockTemplateVo.setStockTemplateGoodsInfoPageInfo(stockTemplateGoodsInfoVoPageInfo);
+        return goodsStockTemplateVo;
+    }
+
     @Override
     public PageInfo<ExcelGoodVo> searchExcelGoods(SearchExcelDto searchExcelDto) {
         Integer pageNo = searchExcelDto.getPageNo() == null ? defaultPageNo : searchExcelDto.getPageNo();
@@ -1422,6 +1539,92 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             mapper.deleteById(b);
         });
 
+    }
+
+    /**
+     * 条件查询需要被关联商品信息
+     *
+     * @param associationGoodsDto
+     * @return
+     */
+    @Override
+    public PageInfo<BaseVo> searchAssociationGoods (AssociationGoodsDto associationGoodsDto) {
+        //获取店铺下的所有商品信息
+        Long storeId = mapper.selectById (associationGoodsDto.getGoodsId ()).getStoreId ();
+        Map<String,Object> query = Maps.newHashMap ();
+        query.put ("del_flag" , 0);
+        query.put("store_id",storeId);
+        List<PmGoodsPo> goodsPoList = goodsMapper.selectByMap (query);
+        if (goodsPoList==null && goodsPoList.size ()==0) {
+            return null;
+        }
+        //获取该商品已经关联的商品
+        List<PmAssociationGoodsPo> associationGoodsPoList = associationGoodsMapper.selectList (new QueryWrapper<PmAssociationGoodsPo> ().lambda ().
+                eq(PmAssociationGoodsPo::getGoodsId,associationGoodsDto.getGoodsId ()).eq(PmAssociationGoodsPo::getDelFlag,false));
+//        if (associationGoodsPoList.size ()!=0 && associationGoodsPoList!=null){
+            List<Long> associatedIds = associationGoodsPoList.stream().map (b->b.getAssociatedGoodsId ()).collect(Collectors.toList());
+        //排除掉已经关联的商品和当前商品
+        List<Long> idList = goodsPoList.stream().filter (d->!associatedIds.contains (d.getId ()) && !d.getId ().equals (associationGoodsDto.getGoodsId())).map (e->e.getId ()).collect(Collectors.toList());
+        if (idList.size ()==0 ){
+            return new PageInfo<>();
+        }
+        Integer pageNo = associationGoodsDto.getPageNo() == null ? defaultPageNo : associationGoodsDto.getPageNo();
+        Integer pageSize = associationGoodsDto.getPageSize() == null ? defaultPageSize : associationGoodsDto.getPageSize();
+        PageInfo<BaseVo> goodsVos = new PageInfo<>();
+        associationGoodsDto.setIdList (idList);
+        goodsVos = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
+                .doSelectPageInfo(() -> mapper.selectIds (associationGoodsDto));
+
+        return goodsVos;
+    }
+
+    /**
+     * 查询已被关联的商品信息
+     * @param associationGoodsDto
+     * @return
+     */
+    @Override
+    public PageInfo<AssociationGoodsVo> searchAssociatedGoods (AssociationGoodsDto associationGoodsDto) {
+
+        Integer pageNo = associationGoodsDto.getPageNo() == null ? defaultPageNo : associationGoodsDto.getPageNo();
+        Integer pageSize = associationGoodsDto.getPageSize() == null ? defaultPageSize : associationGoodsDto.getPageSize();
+        PageInfo<AssociationGoodsVo> associationGoodsVoPageInfo = new PageInfo<>();
+        associationGoodsVoPageInfo = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
+                .doSelectPageInfo(() -> associationGoodsMapper.searchAssociatedGoods(associationGoodsDto));
+        if (associationGoodsVoPageInfo.getList ().size ()==0 && associationGoodsVoPageInfo.getList ()==null){
+            return new PageInfo<> ();
+        }
+        associationGoodsVoPageInfo.getList ().forEach (a->{
+            PmGoodsCategoryPo goodsCategoryPo3 = goodsCategoryMapper.selectById(mapper.selectById (associationGoodsDto.getGoodsId ()).getGoodsCategoryId ());
+            String level3 = goodsCategoryPo3.getName();
+            PmGoodsCategoryPo goodsCategoryPo2 = goodsCategoryMapper.selectById(goodsCategoryPo3.getParentId());
+            String level2 = goodsCategoryPo2.getName();
+            String level1 = goodsCategoryMapper.selectById(goodsCategoryPo2.getParentId()).getName();
+            String categoryName = level1 + "/" + level2 + "/" + level3;
+            a.setCategory (categoryName);
+            BigDecimal lowestSellPrice = goodsSkuMapper.getLowestPrice (associationGoodsDto.getGoodsId ());
+            BigDecimal highestSellPrice = goodsSkuMapper.getHighestPrice (associationGoodsDto.getGoodsId ());
+            String sellPrice ="";
+            if (lowestSellPrice.equals (highestSellPrice)){
+                sellPrice=lowestSellPrice.toString ();
+            }else{
+                sellPrice = lowestSellPrice.toString ()+"-"+highestSellPrice;
+            }
+            a.setSellPrice (sellPrice);
+        });
+
+        return associationGoodsVoPageInfo;
+    }
+
+    /**
+     * 批量删除关联商品
+     *
+     * @param ids
+     * @return
+     */
+    @Override
+    public void delAssociationsByIds (Long[] ids) {
+        associationGoodsMapper.deleteBatchIds (Arrays.asList (ids));
     }
 
 }

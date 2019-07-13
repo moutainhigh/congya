@@ -19,7 +19,7 @@ public class MemberLevelInfos {
 
     @ApiModelProperty("会员等级名称")
     private String levelName;
-
+/*
     @ApiModelProperty("显示给前端是否包含")
-    private Boolean isInclude;
+    private Boolean isInclude;*/
 }

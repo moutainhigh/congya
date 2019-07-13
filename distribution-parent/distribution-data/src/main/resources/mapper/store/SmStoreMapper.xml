@@ -37,7 +37,17 @@
         <result column="total_score" property="totalScore" />
         <result column="baby_describe_score" property="babyDescribeScore" />
         <result column="service_attitude_score" property="serviceAttitudeScore" />
+        <result column="store_turnover" property="storeTurnover" />
+        <result column="store_member_num" property="storeMemberNum" />
+        <result column="store_sub_num" property="storeSubNum" />
+        <result column="collection_num" property="collectionNum" />
         <result column="logistics_service_score" property="logisticsServiceScore" />
+        <result column="logistics_service_score" property="logisticsServiceScore" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="del_flag" property="delFlag" />
     </resultMap>
 
 
@@ -189,6 +199,18 @@
             </if>
             <if test="name != null and name !=''">
                 and name like concat('%', #{name}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="searchBranchByName" resultType="com.chauncy.data.vo.supplier.store.BranchInfoVo">
+        select ss.id, ss.`name`, ss.`company_name`,  ss.company_addr, ss.company_mobile
+        from sm_store_rel_store ssrs left join sm_store ss
+        on ssrs.store_id = ss.id
+        <where>
+            ssrs.parent_id = #{storeId}
+            <if test="storeName != null and storeName !=''">
+                and ss.`name` like concat('%', #{storeName}, '%')
             </if>
         </where>
     </select>

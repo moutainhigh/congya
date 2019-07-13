@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chauncy.data.mapper.product.stock.PmStoreGoodsStockMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.product.stock.PmStoreGoodsStockPo">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="stock_template_id" property="stockTemplateId" />
+        <result column="store_id" property="storeId" />
+        <result column="distribute_store_id" property="distributeStoreId" />
+        <result column="remark" property="remark" />
+        <result column="enabled" property="enabled" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="del_flag" property="delFlag" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, stock_template_id, store_id, distribute_store_id, remark, create_by, create_time, update_by, update_time, del_flag
+    </sql>
+    <select id="findById" resultType="com.chauncy.data.vo.supplier.good.stock.StoreGoodsStockVo">
+        select psgs.id, psgs.`name`, psgs.stock_template_id, pgvst.`name` as stockTemplateName, psgs.store_id, ss.`name` as storeName, psgs.remark
+        from pm_store_goods_stock psgs left join sm_store ss on psgs.store_id = ss.id
+        left join pm_goods_virtual_stock_template pgvst on psgs.stock_template_id = pgvst.id
+        where psgs.id = #{id}
+    </select>
+    <select id="searchSkuInfoByStockId"  resultType="com.chauncy.data.vo.supplier.good.stock.StockTemplateSkuInfoVo">
+        select psrgs.id as relId, pg.id as goodsId, pg.`name` as goodName, pgs.id as goodsSkuId, pg.goods_type, pgs.sell_price,
+                IFNULL(psrgs1.distribute_price,pgs.sell_price) as originalPrice, psrgs.distribute_price,
+				psrgs.distribute_stock_num, pgvs.stock_num as remainingStockNum,  GROUP_CONCAT(CONCAT(pgav.`value`))
+        from pm_store_rel_goods_stock psrgs
+        left join pm_goods pg on psrgs.goods_id = pg.id
+        left join pm_goods_sku pgs on pgs.id = psrgs.goods_sku_id
+		left join pm_store_rel_goods_stock psrgs1 on psrgs1.id = psrgs.parent_id
+		left join pm_goods_virtual_stock pgvs on pgvs.store_id = psrgs.store_id and pgvs.goods_sku_id = psrgs.goods_sku_id
+		left join pm_goods_rel_attribute_value_sku pgrav on pgs.id = pgrav.goods_sku_id and pgrav.del_flag = 0
+		left join pm_goods_attribute_value pgav on pgav.id = pgrav.goods_attribute_value_id and pgrav.del_flag = 0
+        where psrgs.store_stock_id = #{id} and psrgs.del_flag = 0
+        group by psrgs.id, pgvs.id;
+    </select>
+    <select id="searchPaging" resultType="com.chauncy.data.vo.supplier.good.stock.StoreGoodsStockVo">
+        select psgs.id, psgs.`name`, ss.`name` as storeName, psgs.enabled, psgs.create_time,
+                    sum(psrgs.distribute_stock_num) as distributeStockSum
+        from pm_store_goods_stock psgs left join sm_store ss on ss.id = psgs.distribute_store_id
+        left join pm_store_rel_goods_stock psrgs on psrgs.store_stock_id = psgs.id and psrgs.del_flag = 0
+        <where>
+            psgs.store_id = #{storeId} and psgs.del_flag = 0
+            <if test="stockName !=null and stockName !=''">
+                and psgs.`name` like concat('%', #{stockName}, '%')
+            </if>
+            <if test="storeName != null and storeName !=''">
+                and ss.`name` like concat('%', #{storeName}, '%')
+            </if>
+            <if test="startTime != null">
+                and date(psgs.create_time) <![CDATA[<= ]]>  #{startTime}
+            </if>
+            <if test="endTime != null">
+                and date(psgs.create_time) <![CDATA[<= ]]> #{endTime}
+            </if>
+            <if test="enabled != null ">
+                and psgs.enabled = #{enabled}
+            </if>
+        </where>
+        GROUP BY psgs.id
+        <if test="minStockNum != null and maxStockNum != null ">
+            having distributeStockSum <![CDATA[>= ]]> #{minStockNum}
+            and distributeStockSum <![CDATA[<= ]]> #{maxStockNum}
+        </if>
+        <if test="maxStockNum != null and minStockNum == null ">
+            having distributeStockSum <![CDATA[<= ]]> #{maxStockNum}
+        </if>
+        <if test="minStockNum != null and maxStockNum == null ">
+            having distributeStockSum <![CDATA[>= ]]> #{minStockNum}
+        </if>
+        ORDER BY psgs.create_time desc
+    </select>
+
+</mapper>

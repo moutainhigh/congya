@@ -29,8 +29,8 @@ public class SearchGoodInfosDto {
     @ApiModelProperty(value = "分页大小")
     private Integer pageSize;
 
-//    @ApiModelProperty(value = "店铺id")
-//    private Long storeId;
+    @ApiModelProperty(value = "店铺id")
+    private Long storeId;
 
     @ApiModelProperty("商品名称")
     private String goodName;

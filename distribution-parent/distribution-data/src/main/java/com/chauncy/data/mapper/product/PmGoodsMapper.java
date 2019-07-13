@@ -1,15 +1,19 @@
 package com.chauncy.data.mapper.product;
 
+import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
+import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
 import com.chauncy.data.dto.supplier.good.select.SearchExcelDto;
 import com.chauncy.data.dto.supplier.good.select.SearchGoodInfosDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
-import com.chauncy.data.vo.supplier.InformationRelGoodsVo;
+import com.chauncy.data.vo.supplier.good.InformationRelGoodsVo;
 import com.chauncy.data.vo.supplier.PmGoodsVo;
 import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
+import com.chauncy.data.vo.supplier.good.stock.StockTemplateGoodsInfoVo;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -54,8 +58,33 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
      * @return
      */
     List<InformationRelGoodsVo> searchRelGoodsByInfoId(@Param("id") long id);
-
+    /**
+     * 库存模板获取分配店铺商品信息
+     *
+     * @param id  店铺id
+     * @return
+     */
+    List<BaseBo> selectDistributionGoods(@Param("id") long id);
+    /**
+     * 库存模板获取自有店铺商品信息
+     *
+     * @param id  店铺id
+     * @return
+     */
+    List<BaseBo> selectOwnGoods(@Param("id") long id);
+    /**
+     * 库存模板id获取询商品信息
+     *
+     * @param id
+     */
+    List<StockTemplateGoodsInfoVo> searchGoodsInfoByTemplateId(@Param("id") long id);
 
     int updateStock(@Param("goodId") long goodId,@Param("number") int number);
 
+    /**
+     * 获取商品的id和name
+     *
+     * @param associationGoodsDto
+     */
+    List<BaseVo> selectIds (AssociationGoodsDto associationGoodsDto);
 }

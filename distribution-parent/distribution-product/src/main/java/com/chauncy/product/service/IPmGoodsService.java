@@ -1,24 +1,24 @@
 package com.chauncy.product.service;
 
-import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
-import com.chauncy.data.dto.manage.good.add.UpdateGoodsOperationDto;
+import com.chauncy.data.dto.base.BaseSearchDto;
+import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
 import com.chauncy.data.dto.manage.good.update.RejectGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.AddAssociationGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.AddGoodBaseDto;
 import com.chauncy.data.dto.supplier.good.add.AddOrUpdateSkuAttributeDto;
-import com.chauncy.data.dto.supplier.good.select.FindStandardDto;
-import com.chauncy.data.dto.supplier.good.select.SearchExcelDto;
-import com.chauncy.data.dto.supplier.good.select.SearchGoodInfosDto;
-import com.chauncy.data.dto.supplier.good.select.SelectAttributeDto;
+import com.chauncy.data.dto.supplier.good.select.*;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodOperationDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodSellerDto;
 import com.chauncy.data.dto.supplier.good.update.UpdatePublishStatusDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.supplier.*;
+import com.chauncy.data.vo.supplier.good.AssociationGoodsVo;
 import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
+import com.chauncy.data.vo.supplier.good.stock.GoodsStockTemplateVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -110,7 +110,7 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @param goodsId
      * @return
      */
-    List<Map<String,Object>> findSkuAttribute(Long goodsId);
+    List<Map<String, Object>> findSkuAttribute(Long goodsId);
 
     /**
      * 根据商品ID查找财务的sku信息
@@ -138,7 +138,7 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
 
     /**
      * 添加或更新运营信息
-     *
+     * <p>
      * 平台审核并更新运营信息
      *
      * @param updateGoodOperationDto
@@ -179,10 +179,11 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
 
     /**
      * 增加商品库存
+     *
      * @param goodId 商品id
      * @param number 增量
      */
-    boolean  updateStock(long goodId,int number);
+    boolean updateStock(long goodId, int number);
 
     /**
      * 提交商品审核
@@ -229,7 +230,22 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
     AttributeVo findAttributes(Long categoryId);
 
     /**
+     * 库存模板根据商品类型查询店铺商品信息
+     *
+     * @param type
+     * @return
+     */
+    List<BaseBo> selectGoodsByType(String type);
+    /**
+    * 库存模板id获取询商品信息
+    *
+    * @param baseSearchDto
+    */
+    GoodsStockTemplateVo searchGoodsInfoByTemplateId(BaseSearchDto baseSearchDto);
+
+    /**
      * 查询导入商品信息
+     *
      * @param searchExcelDto
      * @return
      */
@@ -242,4 +258,27 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @return
      */
     void delGoodsByIds(Long[] ids);
+
+    /**
+     * 条件查询需要被关联商品信息
+     *
+     * @param associationGoodsDto
+     * @return
+     */
+    PageInfo<BaseVo> searchAssociationGoods (AssociationGoodsDto associationGoodsDto);
+
+    /**
+     * 查询已被关联的商品信息
+     * @param associationGoodsDto
+     * @return
+     */
+    PageInfo<AssociationGoodsVo> searchAssociatedGoods (AssociationGoodsDto associationGoodsDto);
+
+    /**
+     * 批量删除关联商品
+     *
+     * @param ids
+     * @return
+     */
+    void delAssociationsByIds (Long[] ids);
 }

@@ -1,6 +1,7 @@
 package com.chauncy.web.api.supplier.product;
 
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.AddAssociationGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.AddGoodBaseDto;
 import com.chauncy.data.dto.supplier.good.add.AddOrUpdateSkuAttributeDto;
@@ -15,6 +16,7 @@ import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.supplier.*;
+import com.chauncy.data.vo.supplier.good.AssociationGoodsVo;
 import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
@@ -385,4 +387,41 @@ public class SmGoodsApi extends BaseApi {
         return new JsonViewData(ResultCode.SUCCESS);
     }
 
+    /**
+     * 条件查询需要被关联商品信息
+     *
+     * @param associationGoodsDto
+     * @return
+     */
+    @PostMapping("/searchAssociationGoods")
+    @ApiOperation ("条件查询需要被关联商品信息")
+    public JsonViewData<PageInfo<BaseVo>> searchAssociationGoods(@RequestBody @ApiParam(required = true,name = "associationGoodsDto",value = "条件查询关联商品信息")
+                                                                 @Validated AssociationGoodsDto associationGoodsDto){
+        return new JsonViewData<PageInfo<BaseVo>>(service.searchAssociationGoods(associationGoodsDto));
+    }
+
+    /**
+     * 查询已被关联的商品信息
+     * @param associationGoodsDto
+     * @return
+     */
+    @PostMapping("/searchAssociatedGoods")
+    @ApiOperation ("查询已被关联的商品信息")
+    public JsonViewData<PageInfo<AssociationGoodsVo>> searchAssociatedGoods(@RequestBody @ApiParam(required = true,name = "associationGoodsDto",value = "条件查询关联商品信息")
+                                                                            @Validated AssociationGoodsDto associationGoodsDto){
+        return new JsonViewData(service.searchAssociatedGoods(associationGoodsDto));
+    }
+
+    /**
+     * 批量删除关联商品
+     *
+     * @param ids
+     * @return
+     */
+    @GetMapping("/delAssociationsByIds/{ids}")
+    @ApiOperation ("批量删除关联商品")
+    public JsonViewData delAssociationsByIds(@ApiParam(required=true,name = "ids",value = "关联id") @PathVariable Long[] ids){
+        service.delAssociationsByIds(ids);
+        return new JsonViewData (ResultCode.SUCCESS);
+    }
 }

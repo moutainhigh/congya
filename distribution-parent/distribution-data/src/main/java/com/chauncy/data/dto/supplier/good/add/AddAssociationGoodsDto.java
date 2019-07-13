@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * @Author cheng
@@ -22,14 +23,14 @@ public class AddAssociationGoodsDto {
     @NeedExistConstraint(tableName = "pm_goods")
     private Long goodsId;
 
-    @ApiModelProperty("店铺ID")
+    /*@ApiModelProperty("店铺ID")
     @NotNull(message = "店铺ID不能为空")
     @NeedExistConstraint(tableName = "sm_store")
-    private Long storeId;
+    private Long storeId;*/
 
     @ApiModelProperty("被关联的商品ID")
     @NotNull(message = "被关联商品ID不能为空")
     @NeedExistConstraint(tableName = "pm_goods")
-    private Long associatedGoodsId;
+    private List<Long> associatedGoodsId;
 
 }
