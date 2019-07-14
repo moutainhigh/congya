@@ -41,6 +41,7 @@ import com.chauncy.data.vo.supplier.good.stock.GoodsStockTemplateVo;
 import com.chauncy.data.vo.supplier.good.stock.StockTemplateGoodsInfoVo;
 import com.chauncy.product.service.IPmGoodsRelAttributeGoodService;
 import com.chauncy.product.service.IPmGoodsService;
+import com.chauncy.product.service.IPmGoodsSkuService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -79,6 +80,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
     @Autowired
     private IPmAssociationGoodsService saveBatch2;
+
+    @Autowired
+    private IPmGoodsSkuService skuSaveBatch;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -684,40 +688,132 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         //通过goodsID商品ID获取sku信息
         Map<String, Object> skuMaps = new HashMap<>();
         skuMaps.put("goods_id", addOrUpdateSkuAttributeDto.getGoodsId());
+        //获取该商品下的sku信息
         List<PmGoodsSkuPo> skus = goodsSkuMapper.selectByMap(skuMaps);
+        //获取该商品下的skuIds,为与前端传过来的skuid对比
+        List<Long> skuIds = skus.stream().map(a -> a.getId()).collect(Collectors.toList());
+        List<Long> compareSkuIds = Lists.newArrayList (skuIds);
+        //获取前端传来的sku数据
+        List<AddSkuAttributeDto> skuAttributeDtoList = addOrUpdateSkuAttributeDto.getSkuAttributeDtos ();
+        List<Long> webSkuIds = skuAttributeDtoList.stream().map (b->b.getSkuId ()).collect(Collectors.toList());
+        //保存需要添加的sku信息
+        List<AddSkuAttributeDto> addSkuAttributeDtos = Lists.newArrayList();
+        /**全部是添加*/
         //如果skuPos为空，则新增sku
         if (skus.size() == 0 && skus == null) {
-            addSkus(addOrUpdateSkuAttributeDto, /*stock,*/ user);
-        }
-        //如果skuPos不为空，则更新sku
-        else {
-            //根据删除所有sku关联关系，pm_goods_sku删除该商品的sku,pm_goods_rel_attribute_value_sku获取该商品
-            //下对应的自定义属性值pm_goods_attribute_value并删除，删除sku与属性值的关联关系
-            //先获取自定义属性值并删除
-            List<Long> skuIds = skus.stream().map(a -> a.getId()).collect(Collectors.toList());
-            //根据skuId获取信息
-            skuIds.forEach(id -> {
-                Map<String, Object> valueMap = new HashMap<>();
-                valueMap.put("goods_sku_id", id);
-                valueMap.put ("del_flag", false);
-                List<PmGoodsRelAttributeValueSkuPo> relAttributeValueSkuPos = goodsRelAttributeValueSkuMapper.selectByMap(valueMap);
-                //获取属性值ID集合
-                List<Long> valueIds = relAttributeValueSkuPos.stream().map(a -> a.getGoodsAttributeValueId()).collect(Collectors.toList());
-                List<PmGoodsAttributeValuePo> goodsAttributeValuePos = goodsAttributeValueMapper.selectBatchIds(valueIds);
-                //获取自定义属性值并删除
-                goodsAttributeValuePos.stream().filter(a -> a.getIsCustom()).forEach(b -> {
-                    goodsAttributeValueMapper.deleteById(b.getId());
-                });
-                //删除sku与属性值关联表的信息
-                goodsRelAttributeValueSkuMapper.deleteByMap(valueMap);
-                //最后删除该条sku
-                goodsSkuMapper.deleteById(id);
+            addSkus (addOrUpdateSkuAttributeDto.getSkuAttributeDtos (),addOrUpdateSkuAttributeDto.getGoodsId (), user);
+        }else{
+            addOrUpdateSkuAttributeDto.getSkuAttributeDtos ().forEach (a->{
+                //判断是否为新增
+                if (a.getSkuId ()==0){
+                    addSkuAttributeDtos.add (a);
+                }else{
+                    PmGoodsSkuPo goodsSkuPo = goodsSkuMapper.selectById (a.getSkuId ());
+                    BeanUtils.copyProperties (a, goodsSkuPo);
+                    goodsSkuMapper.updateById (goodsSkuPo);
+                }
             });
-
-            /**
-             * 重新添加sku相关信息
-             */
-            addSkus(addOrUpdateSkuAttributeDto, /*stock,*/ user);
+            //新增
+            addSkus (addSkuAttributeDtos,addOrUpdateSkuAttributeDto.getGoodsId (), user);
+            //获取被删除的sku
+           compareSkuIds.removeAll (webSkuIds);
+           if (compareSkuIds!=null && compareSkuIds.size ()!=0){
+               compareSkuIds.forEach (id->{
+                   Map<String, Object> valueMap = new HashMap<>();
+                   valueMap.put("goods_sku_id", id);
+                   valueMap.put ("del_flag", false);
+                   List<PmGoodsRelAttributeValueSkuPo> relAttributeValueSkuPos = goodsRelAttributeValueSkuMapper.selectByMap(valueMap);
+                   //获取属性值ID集合
+                   List<Long> valueIds = relAttributeValueSkuPos.stream().map(a -> a.getGoodsAttributeValueId()).collect(Collectors.toList());
+                   List<PmGoodsAttributeValuePo> goodsAttributeValuePos = goodsAttributeValueMapper.selectBatchIds(valueIds);
+                   //获取自定义属性值并删除
+                   goodsAttributeValuePos.stream().filter(a -> a.getIsCustom()).forEach(b -> {
+                       goodsAttributeValueMapper.deleteById(b.getId());
+                   });
+                   //删除sku与属性值关联表的信息
+                   goodsRelAttributeValueSkuMapper.deleteByMap(valueMap);
+                   //最后删除该条sku
+                   goodsSkuMapper.deleteById(id);
+               });
+           }
+//        }
+//        else if (!compareSkuIds.retainAll (webSkuIds)){
+//            //删除已有的记录
+//            //根据skuId获取信息
+//            skuIds.forEach(id -> {
+//                Map<String, Object> valueMap = new HashMap<>();
+//                valueMap.put("goods_sku_id", id);
+//                valueMap.put ("del_flag", false);
+//                List<PmGoodsRelAttributeValueSkuPo> relAttributeValueSkuPos = goodsRelAttributeValueSkuMapper.selectByMap(valueMap);
+//                //获取属性值ID集合
+//                List<Long> valueIds = relAttributeValueSkuPos.stream().map(a -> a.getGoodsAttributeValueId()).collect(Collectors.toList());
+//                List<PmGoodsAttributeValuePo> goodsAttributeValuePos = goodsAttributeValueMapper.selectBatchIds(valueIds);
+//                //获取自定义属性值并删除
+//                goodsAttributeValuePos.stream().filter(a -> a.getIsCustom()).forEach(b -> {
+//                    goodsAttributeValueMapper.deleteById(b.getId());
+//                });
+//                //删除sku与属性值关联表的信息
+//                goodsRelAttributeValueSkuMapper.deleteByMap(valueMap);
+//                //最后删除该条sku
+//                goodsSkuMapper.deleteById(id);
+//            });
+//            addSkus (addOrUpdateSkuAttributeDto.getSkuAttributeDtos (),addOrUpdateSkuAttributeDto.getGoodsId (), user);
+//        }
+//        /***/
+//        else{
+//            Collections.sort(skuIds);
+//            Collections.sort(webSkuIds);
+//            boolean notDel = skuIds.equals (webSkuIds);
+//            //全部是修改
+//            if (notDel) {
+//                skuAttributeDtoList.forEach (x -> {
+//                    PmGoodsSkuPo goodsSkuPo = goodsSkuMapper.selectById (x.getSkuId ());
+//                    BeanUtils.copyProperties (x, goodsSkuPo);
+//                    goodsSkuMapper.updateById (goodsSkuPo);
+//                });
+//            }
+//
+//            //过滤出skuid为0的数据
+//            List<AddSkuAttributeDto> addSkuAttributeDtoList = skuAttributeDtoList.stream ().filter (c->c.getSkuId ()==0).collect(Collectors.toList());
+//            //只修改查出来sku,有可能删除
+//            if (addSkuAttributeDtoList==null && addSkuAttributeDtoList.size ()==0){
+//
+//            }else{
+//                addSkus (addSkuAttributeDtoList,addOrUpdateSkuAttributeDto.getGoodsId (), user);
+//            }
+//            //过滤出skuId不为0的数据
+//            List<AddSkuAttributeDto> updateSkuAttributeDtoList = skuAttributeDtoList.stream ().filter (d->d.getSkuId ()!=0).collect(Collectors.toList());
+//
+//        }
+//        //如果skuPos不为空，则更新sku
+//        else {
+//            //根据删除所有sku关联关系，pm_goods_sku删除该商品的sku,pm_goods_rel_attribute_value_sku获取该商品
+//            //下对应的自定义属性值pm_goods_attribute_value并删除，删除sku与属性值的关联关系
+//            //先获取自定义属性值并删除
+//            List<Long> skuIds = skus.stream().map(a -> a.getId()).collect(Collectors.toList());
+//            //根据skuId获取信息
+//            skuIds.forEach(id -> {
+//                Map<String, Object> valueMap = new HashMap<>();
+//                valueMap.put("goods_sku_id", id);
+//                valueMap.put ("del_flag", false);
+//                List<PmGoodsRelAttributeValueSkuPo> relAttributeValueSkuPos = goodsRelAttributeValueSkuMapper.selectByMap(valueMap);
+//                //获取属性值ID集合
+//                List<Long> valueIds = relAttributeValueSkuPos.stream().map(a -> a.getGoodsAttributeValueId()).collect(Collectors.toList());
+//                List<PmGoodsAttributeValuePo> goodsAttributeValuePos = goodsAttributeValueMapper.selectBatchIds(valueIds);
+//                //获取自定义属性值并删除
+//                goodsAttributeValuePos.stream().filter(a -> a.getIsCustom()).forEach(b -> {
+//                    goodsAttributeValueMapper.deleteById(b.getId());
+//                });
+//                //删除sku与属性值关联表的信息
+//                goodsRelAttributeValueSkuMapper.deleteByMap(valueMap);
+//                //最后删除该条sku
+//                goodsSkuMapper.deleteById(id);
+//            });
+//
+//            /**
+//             * 重新添加sku相关信息
+//             */
+//            addSkus(addOrUpdateSkuAttributeDto, /*stock,*/ user);
         }
 
     }
@@ -728,13 +824,13 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
      * @param addOrUpdateSkuAttributeDto
      * @param user
      */
-    private void addSkus(AddOrUpdateSkuAttributeDto addOrUpdateSkuAttributeDto,/* int stock,*/ String user) {
-        for (AddSkuAttributeDto addSkuAttributeDto : addOrUpdateSkuAttributeDto.getSkuAttributeDtos()) {
+    private void addSkus(List<AddSkuAttributeDto> skuAttributeDtoList,Long goodsId,String user) {
+        for (AddSkuAttributeDto addSkuAttributeDto : skuAttributeDtoList) {
             //保存非关联信息到sku
             PmGoodsSkuPo goodsSkuPo = new PmGoodsSkuPo();
             BeanUtils.copyProperties(addSkuAttributeDto, goodsSkuPo);
             goodsSkuPo.setCreateBy(user);
-            goodsSkuPo.setGoodsId(addOrUpdateSkuAttributeDto.getGoodsId());
+            goodsSkuPo.setGoodsId(goodsId);
             goodsSkuMapper.insert(goodsSkuPo);
             //获取前端传的规格信息
             List<AddStandardToGoodDto> standardToGoodDtos = addSkuAttributeDto.getStandardInfos();
