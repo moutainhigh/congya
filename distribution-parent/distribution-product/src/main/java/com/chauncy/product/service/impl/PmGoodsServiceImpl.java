@@ -716,7 +716,8 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             //新增
             addSkus (addSkuAttributeDtos,addOrUpdateSkuAttributeDto.getGoodsId (), user);
             //获取被删除的sku
-           compareSkuIds.removeAll (webSkuIds);
+            List<Long> webSkuRemainIds = webSkuIds.stream ().filter (y->y!=0).collect(Collectors.toList());
+           compareSkuIds.removeAll (webSkuRemainIds);
            if (compareSkuIds!=null && compareSkuIds.size ()!=0){
                compareSkuIds.forEach (id->{
                    Map<String, Object> valueMap = new HashMap<>();
