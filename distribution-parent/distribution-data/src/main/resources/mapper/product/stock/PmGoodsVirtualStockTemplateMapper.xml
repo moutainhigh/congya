@@ -75,7 +75,7 @@
             )
         ) as t
         where pgvst.id = #{templateId} and pgvst.del_flag = 0 and pg.del_flag = 0 and t.goods_sku_id = pgs.id
-        group by pg.id, pgs.id, t.id;
+        group by pg.id, pgs.id, t.id
     </select>
     <!--
         根据商品库存模板Id获取商品规格信息  在店铺给分店分配库存的时候调用

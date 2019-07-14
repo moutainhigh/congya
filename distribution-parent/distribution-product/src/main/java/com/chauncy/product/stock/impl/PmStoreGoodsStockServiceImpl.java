@@ -2,9 +2,13 @@ package com.chauncy.product.stock.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.chauncy.common.enums.goods.StoreGoodsTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.common.util.BigDecimalUtil;
+import com.chauncy.data.domain.po.product.PmGoodsSkuPo;
 import com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockPo;
+import com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockTemplatePo;
 import com.chauncy.data.domain.po.product.stock.PmStoreGoodsStockPo;
 import com.chauncy.data.domain.po.product.stock.PmStoreRelGoodsStockPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
@@ -12,6 +16,7 @@ import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.supplier.good.add.StoreGoodsStockBaseDto;
 import com.chauncy.data.dto.supplier.good.add.StoreRelGoodsStockBaseDto;
 import com.chauncy.data.dto.supplier.good.select.SearchStoreGoodsStockDto;
+import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
 import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockMapper;
 import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockTemplateMapper;
 import com.chauncy.data.mapper.product.stock.PmStoreGoodsStockMapper;
@@ -30,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,6 +59,8 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
     private PmStoreGoodsStockMapper pmStoreGoodsStockMapper;
     @Autowired
     private PmGoodsVirtualStockMapper pmGoodsVirtualStockMapper;
+    @Autowired
+    private PmGoodsSkuMapper pmGoodsSkuMapper;
     @Autowired
     private IPmGoodsVirtualStockService pmGoodsVirtualStockService;
     @Autowired
@@ -117,13 +125,37 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
      */
     private void insertStoreRelGoodsStock(PmStoreGoodsStockPo pmStoreGoodsStockPo, List<StoreRelGoodsStockBaseDto> storeRelGoodsStockBaseDtoList) {
         List<PmStoreRelGoodsStockPo> pmStoreRelGoodsStockPoList = new ArrayList<>();
+        PmGoodsVirtualStockTemplatePo pmGoodsVirtualStockTemplatePo = pmGoodsVirtualStockTemplateMapper.selectById(pmStoreGoodsStockPo.getStockTemplateId());
         for(StoreRelGoodsStockBaseDto storeRelGoodsStockBaseDto : storeRelGoodsStockBaseDtoList) {
-            //查询剩余库存
-            QueryWrapper queryWrapper = new QueryWrapper();
-            queryWrapper.eq("goods_sku_id", storeRelGoodsStockBaseDto.getGoodsSkuId());
-            queryWrapper.eq("store_id", pmStoreGoodsStockPo.getStoreId());
-            PmGoodsVirtualStockPo pmGoodsVirtualStockPo = pmGoodsVirtualStockService.getOne(queryWrapper);
-            if(pmGoodsVirtualStockPo.getStockNum() >= storeRelGoodsStockBaseDto.getDistributeStockNum()) {
+            PmGoodsSkuPo pmGoodsSkuPo = pmGoodsSkuMapper.selectById(storeRelGoodsStockBaseDto.getGoodsSkuId());
+            //商品销售价
+            BigDecimal sellPrice = pmGoodsSkuPo.getSellPrice();
+            //原始供货价
+            BigDecimal supplierPrice ;
+            Integer stockNum ;
+            if(pmGoodsVirtualStockTemplatePo.getType().equals(StoreGoodsTypeEnum.OWN_GOODS.getId())) {
+                //自有商品 查询剩余库存 从PmGoodsVirtualStockPo查找
+                QueryWrapper queryWrapper = new QueryWrapper();
+                queryWrapper.eq("goods_sku_id", storeRelGoodsStockBaseDto.getGoodsSkuId());
+                queryWrapper.eq("store_id", pmStoreGoodsStockPo.getStoreId());
+                PmGoodsVirtualStockPo pmGoodsVirtualStockPo = pmGoodsVirtualStockService.getOne(queryWrapper);
+                stockNum = pmGoodsVirtualStockPo.getStockNum();
+                //自有商品  原始供货价为PmGoodsSkuPo的供货价
+                supplierPrice = pmGoodsSkuPo.getSupplierPrice();
+            } else if(pmGoodsVirtualStockTemplatePo.getType().equals(StoreGoodsTypeEnum.DISTRIBUTION_GOODS.getId())) {
+                //分配商品 查询剩余库存 从PmStoreRelGoodsStockPo查找
+                PmStoreRelGoodsStockPo pmStoreRelGoodsStockPo = pmStoreRelGoodsStockService.getById(storeRelGoodsStockBaseDto.getParentId());
+                stockNum = pmStoreRelGoodsStockPo.getRemainingStockNum();
+                //分配商品 原始供货价为分配库存的上级店铺分配对应库存批次的分配供货价
+                supplierPrice = pmStoreRelGoodsStockPo.getDistributePrice();
+            } else {
+                throw new ServiceException(ResultCode.FAIL, "操作失败");
+            }
+            if(stockNum >= storeRelGoodsStockBaseDto.getDistributeStockNum()) {
+                if(storeRelGoodsStockBaseDto.getDistributePrice().compareTo(sellPrice) == 1 || storeRelGoodsStockBaseDto.getDistributePrice().compareTo(supplierPrice) == -1) {
+                    //分配的供货价 > 销售价  或者  分配的供货价 < 原始供货价
+                    throw new ServiceException(ResultCode.PARAM_ERROR, "供货价出错");
+                }
                 //库存充足 分配库存详情插入
                 PmStoreRelGoodsStockPo pmStoreRelGoodsStockPo = new PmStoreRelGoodsStockPo();
                 pmStoreRelGoodsStockPo.setStoreStockId(pmStoreGoodsStockPo.getId());
@@ -131,16 +163,18 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
                 pmStoreRelGoodsStockPo.setGoodsId(storeRelGoodsStockBaseDto.getGoodsId());
                 pmStoreRelGoodsStockPo.setCreateBy(pmStoreGoodsStockPo.getCreateBy());
                 pmStoreRelGoodsStockPo.setDistributeStockNum(storeRelGoodsStockBaseDto.getDistributeStockNum());
+                pmStoreRelGoodsStockPo.setRemainingStockNum(storeRelGoodsStockBaseDto.getDistributeStockNum());
                 pmStoreRelGoodsStockPo.setParentId(storeRelGoodsStockBaseDto.getParentId());
-
-                //todo  需要判断供货价是否满足条件
+                //分配商家的id
+                pmStoreRelGoodsStockPo.setStoreId(pmStoreGoodsStockPo.getDistributeStoreId());
+                //需要判断供货价是否满足条件
                 pmStoreRelGoodsStockPo.setDistributePrice(storeRelGoodsStockBaseDto.getDistributePrice());
                 pmStoreRelGoodsStockPoList.add(pmStoreRelGoodsStockPo);
 
                 //分配库存成功 修改库存信息
                 int result = pmGoodsVirtualStockMapper.updateGoodsVirtualStock(pmStoreGoodsStockPo.getStoreId(), pmStoreGoodsStockPo.getDistributeStoreId(),
                         storeRelGoodsStockBaseDto.getGoodsSkuId(), storeRelGoodsStockBaseDto.getDistributeStockNum());
-                if(result < 2) {
+                if(result < 1) {
                     //没有更新两条数据
                     throw new ServiceException(ResultCode.PARAM_ERROR, "库存不足");
                 }
@@ -152,6 +186,7 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
     }
 
     /**
+     *
      * 根据ID查找店铺库存信息
      *
      * @param id 库存id
@@ -209,9 +244,14 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
                     parentRelpo.getRemainingStockNum() + pmStoreRelGoodsStockPo.getDistributeStockNum());
             pmStoreRelGoodsStockService.update(updateWrapper);
         }
+        PmStoreGoodsStockPo pmStoreGoodsStockPo = pmStoreGoodsStockMapper.selectById(pmStoreRelGoodsStockPo.getStoreStockId());
         //用户对应的商品规格库存修改
-        pmGoodsVirtualStockMapper.updateGoodsVirtualStock(pmStoreRelGoodsStockPo.getStoreId(), parentRelpo.getStoreId(),
+        Integer result = pmGoodsVirtualStockMapper.updateGoodsVirtualStock(pmStoreRelGoodsStockPo.getStoreId(), pmStoreGoodsStockPo.getStoreId(),
                 pmStoreRelGoodsStockPo.getGoodsSkuId(), pmStoreRelGoodsStockPo.getDistributeStockNum());
+        if(result < 1) {
+            //没有更新两条数据
+            throw new ServiceException(ResultCode.PARAM_ERROR, "库存不足");
+        }
         //删除关联
         pmStoreRelGoodsStockService.removeById(pmStoreRelGoodsStockPo.getId());
     }
@@ -267,4 +307,6 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
         //删除店铺库存记录
         pmStoreGoodsStockMapper.deleteById(pmStoreGoodsStockPo.getId());
     }
+
+
 }

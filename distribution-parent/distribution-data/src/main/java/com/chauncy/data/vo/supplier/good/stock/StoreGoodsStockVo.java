@@ -28,7 +28,7 @@ public class StoreGoodsStockVo  implements Serializable {
     private Long stockTemplateId;
 
     @ApiModelProperty(value = "库存模板名称")
-    private Long stockTemplateName;
+    private String stockTemplateName;
 
     @ApiModelProperty(value = "商品所属店铺id")
     private Long storeId;

@@ -31,7 +31,7 @@
     <select id="searchSkuInfoByStockId"  resultType="com.chauncy.data.vo.supplier.good.stock.StockTemplateSkuInfoVo">
         select psrgs.id as relId, pg.id as goodsId, pg.`name` as goodName, pgs.id as goodsSkuId, pg.goods_type, pgs.sell_price,
                 IFNULL(psrgs1.distribute_price,pgs.sell_price) as originalPrice, psrgs.distribute_price,
-				psrgs.distribute_stock_num, pgvs.stock_num as remainingStockNum,  GROUP_CONCAT(CONCAT(pgav.`value`))
+				psrgs.distribute_stock_num, pgvs.stock_num as remainingStockNum,  GROUP_CONCAT(CONCAT(pgav.`value`)) as skuName
         from pm_store_rel_goods_stock psrgs
         left join pm_goods pg on psrgs.goods_id = pg.id
         left join pm_goods_sku pgs on pgs.id = psrgs.goods_sku_id
@@ -40,7 +40,7 @@
 		left join pm_goods_rel_attribute_value_sku pgrav on pgs.id = pgrav.goods_sku_id and pgrav.del_flag = 0
 		left join pm_goods_attribute_value pgav on pgav.id = pgrav.goods_attribute_value_id and pgrav.del_flag = 0
         where psrgs.store_stock_id = #{id} and psrgs.del_flag = 0
-        group by psrgs.id, pgvs.id;
+        group by psrgs.id, pgvs.id
     </select>
     <select id="searchPaging" resultType="com.chauncy.data.vo.supplier.good.stock.StoreGoodsStockVo">
         select psgs.id, psgs.`name`, ss.`name` as storeName, psgs.enabled, psgs.create_time,
