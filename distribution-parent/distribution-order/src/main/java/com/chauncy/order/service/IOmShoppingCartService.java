@@ -3,6 +3,7 @@ package com.chauncy.order.service;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.order.OmShoppingCartPo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.car.SettleAccountsDto;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
@@ -63,7 +64,7 @@ public interface IOmShoppingCartService extends Service<OmShoppingCartPo> {
      * @param settleAccountsDtos
      * @return
      */
-    TotalCarVo searchByIds(@Param("ids") List<SettleAccountsDto> settleAccountsDtos);
+    TotalCarVo searchByIds(@Param("ids") List<SettleAccountsDto> settleAccountsDtos, UmUserPo umUserPo);
 
     /**
      * 查看商品详情
