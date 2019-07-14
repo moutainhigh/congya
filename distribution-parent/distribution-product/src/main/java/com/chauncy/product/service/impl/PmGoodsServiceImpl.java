@@ -1073,7 +1073,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         Long storeId = sysUserMapper.selectById(userId).getStoreId();
         PmGoodsPo goodsPo = mapper.selectById(updateGoodOperationDto.getGoodsId());
         BeanUtils.copyProperties(updateGoodOperationDto, goodsPo);
-        if (goodsPo.getGoodsType ()!=GoodsTypeEnum.OVERSEA.getName () || goodsPo.getGoodsType ()!=GoodsTypeEnum.BONDED.getName()) {
+        if (!goodsPo.getGoodsType ().equals (GoodsTypeEnum.OVERSEA.getName ()) && !goodsPo.getGoodsType ().equals (GoodsTypeEnum.BONDED.getName())) {
             goodsPo.setCustomTaxRate (null);
             goodsPo.setTaxRateType (TaxRateTypeEnum.NULL_TAX_RATE.getId ());
         }
@@ -1103,9 +1103,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         }*/
         //如果是审核通过，则删除对应的驳回详情
         if (updateGoodOperationDto.getVerifyStatus() == VerifyStatusEnum.CHECKED.getId()) {
-            PmGoodsPo goodsPo1 = new PmGoodsPo();
+
+            PmGoodsPo goodsPo1 = mapper.selectById (updateGoodOperationDto.getGoodsId());
             goodsPo1.setContent(null);
-            goodsPo1.setId(updateGoodOperationDto.getGoodsId());
             mapper.updateById(goodsPo1);
         }
     }
