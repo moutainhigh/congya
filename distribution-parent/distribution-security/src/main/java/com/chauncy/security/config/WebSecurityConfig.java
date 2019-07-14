@@ -123,9 +123,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 //允许网页iframe
                 .headers().frameOptions().disable()
                 .and()
-                .logout()
-//                    .logoutUrl("/signOut")
-                .logoutSuccessUrl("/")
+                .logout()//退出登录相关配置
+//                    .logoutUrl("/signOut")  //自定义退出登录页面
+                .logoutSuccessUrl("/common/logout") //退出成功后跳转的页面
                 .permitAll()
                 .and()
                 .authorizeRequests()
