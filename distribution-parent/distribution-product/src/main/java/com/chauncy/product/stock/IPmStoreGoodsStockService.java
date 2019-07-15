@@ -30,11 +30,18 @@ public interface IPmStoreGoodsStockService extends Service<PmStoreGoodsStockPo> 
     Long saveStoreGoodsStock(StoreGoodsStockBaseDto storeGoodsStockBaseDto);
 
     /**
-     * 根据ID查找店铺库存信息
+     * 根据ID查找店铺分配给分店的库存信息
      * @param id
      * @return
      */
-    StoreGoodsStockVo findById(Long id);
+    StoreGoodsStockVo findBranchStockById(Long id);
+
+    /**
+     * 根据ID查找直属商家分配给店铺的库存信息
+     * @param id
+     * @return
+     */
+    StoreGoodsStockVo findStockById(Long id);
 
     /**
      * 根据reld删除库存关联 退回库存
@@ -43,12 +50,20 @@ public interface IPmStoreGoodsStockService extends Service<PmStoreGoodsStockPo> 
     void delRelById(Long id);
 
     /**
-     * 分页条件查询
+     * 分页条件查询分配给分店的库存信息
      * 根据库存名称，创建时间，状态，分配商家，库存数量查询
      * @param searchStoreGoodsStockDto
      * @return
      */
-    PageInfo<StoreGoodsStockVo> searchPaging(SearchStoreGoodsStockDto searchStoreGoodsStockDto);
+    PageInfo<StoreGoodsStockVo> searchPagingBranchStock(SearchStoreGoodsStockDto searchStoreGoodsStockDto);
+
+    /**
+     * 分页条件查询直属商家分配的库存信息
+     * 根据库存名称，创建时间，直属商家，库存数量查询
+     * @param searchStoreGoodsStockDto
+     * @return
+     */
+    PageInfo<StoreGoodsStockVo> searchPagingStock(SearchStoreGoodsStockDto searchStoreGoodsStockDto);
 
     /**
      * 店铺库存禁用启用

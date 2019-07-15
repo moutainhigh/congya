@@ -33,7 +33,7 @@ public class StoreGoodsStockVo  implements Serializable {
     @ApiModelProperty(value = "商品所属店铺id")
     private Long storeId;
 
-    @ApiModelProperty(value = "店铺名称")
+    @ApiModelProperty(value = "分店店铺名称/直属商家名称")
     private String storeName;
 
     @ApiModelProperty(value = "是否启用 1-是 0-否 默认为1")

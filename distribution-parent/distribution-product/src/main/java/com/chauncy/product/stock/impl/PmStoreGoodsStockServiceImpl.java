@@ -187,13 +187,13 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
 
     /**
      *
-     * 根据ID查找店铺库存信息
+     * 根据ID查找店铺分配给分店的库存信息
      *
      * @param id 库存id
      * @return
      */
     @Override
-    public StoreGoodsStockVo findById(Long id) {
+    public StoreGoodsStockVo findBranchStockById(Long id) {
         PmStoreGoodsStockPo pmStoreGoodsStockPo = pmStoreGoodsStockMapper.selectById(id);
         if(null == pmStoreGoodsStockPo) {
             throw new ServiceException(ResultCode.NO_EXISTS, "记录不存在");
@@ -201,7 +201,33 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
 
         //店铺库存基本信息
         StoreGoodsStockVo storeGoodsStockVo = new StoreGoodsStockVo();
-        storeGoodsStockVo = pmStoreGoodsStockMapper.findById(id);
+        storeGoodsStockVo = pmStoreGoodsStockMapper.findById(id, true);
+
+        //店铺库存对应的分配库存详情
+        List<StockTemplateSkuInfoVo> stockTemplateSkuInfoVoList = new ArrayList<>();
+        stockTemplateSkuInfoVoList = pmStoreGoodsStockMapper.searchSkuInfoByStockId(id);
+        storeGoodsStockVo.setStockTemplateSkuInfoVoList(stockTemplateSkuInfoVoList);
+
+        return storeGoodsStockVo;
+    }
+
+
+    /**
+     * 根据ID查找直属商家分配给店铺的库存信息
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public StoreGoodsStockVo findStockById(Long id) {
+        PmStoreGoodsStockPo pmStoreGoodsStockPo = pmStoreGoodsStockMapper.selectById(id);
+        if(null == pmStoreGoodsStockPo) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "记录不存在");
+        }
+
+        //店铺库存基本信息
+        StoreGoodsStockVo storeGoodsStockVo = new StoreGoodsStockVo();
+        storeGoodsStockVo = pmStoreGoodsStockMapper.findById(id, false);
 
         //店铺库存对应的分配库存详情
         List<StockTemplateSkuInfoVo> stockTemplateSkuInfoVoList = new ArrayList<>();
@@ -257,14 +283,13 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
     }
 
     /**
-     * 分页条件查询
+     * 分页条件查询分配给分店的库存信息
      * 根据库存名称，创建时间，状态，分配商家，库存数量查询
-     *
      * @param searchStoreGoodsStockDto
      * @return
      */
     @Override
-    public PageInfo<StoreGoodsStockVo> searchPaging(SearchStoreGoodsStockDto searchStoreGoodsStockDto) {
+    public PageInfo<StoreGoodsStockVo> searchPagingBranchStock(SearchStoreGoodsStockDto searchStoreGoodsStockDto) {
         Long storeId = securityUtil.getCurrUser().getStoreId();
         searchStoreGoodsStockDto.setStoreId(storeId);
 
@@ -272,7 +297,26 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
         Integer pageSize = searchStoreGoodsStockDto.getPageSize()==null ? defaultPageSize : searchStoreGoodsStockDto.getPageSize();
 
         PageInfo<StoreGoodsStockVo> informationLabelVoPageInfo = PageHelper.startPage(pageNo, pageSize)
-                .doSelectPageInfo(() -> pmStoreGoodsStockMapper.searchPaging(searchStoreGoodsStockDto));
+                .doSelectPageInfo(() -> pmStoreGoodsStockMapper.searchPagingBranchStock(searchStoreGoodsStockDto));
+        return informationLabelVoPageInfo;
+    }
+
+    /**
+     * 分页条件查询直属商家分配的库存信息
+     * 根据库存名称，创建时间，直属商家，库存数量查询
+     * @param searchStoreGoodsStockDto
+     * @return
+     */
+    @Override
+    public PageInfo<StoreGoodsStockVo> searchPagingStock(SearchStoreGoodsStockDto searchStoreGoodsStockDto) {
+        Long storeId = securityUtil.getCurrUser().getStoreId();
+        searchStoreGoodsStockDto.setStoreId(storeId);
+
+        Integer pageNo = searchStoreGoodsStockDto.getPageNo()==null ? defaultPageNo : searchStoreGoodsStockDto.getPageNo();
+        Integer pageSize = searchStoreGoodsStockDto.getPageSize()==null ? defaultPageSize : searchStoreGoodsStockDto.getPageSize();
+
+        PageInfo<StoreGoodsStockVo> informationLabelVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> pmStoreGoodsStockMapper.searchPagingStock(searchStoreGoodsStockDto));
         return informationLabelVoPageInfo;
     }
 
