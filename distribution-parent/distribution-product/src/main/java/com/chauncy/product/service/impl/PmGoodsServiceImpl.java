@@ -380,9 +380,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         Long storeId = sysUserMapper.selectById(userId).getStoreId();
         PmGoodsPo goodsPo = new PmGoodsPo();
         //商家端操作
-        if (storeId != null) {
-            goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
-        }
+//        if (storeId != null) {
+//            goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
+//        }
         //保存非关联信息
         BeanUtils.copyProperties(updateGoodBaseDto, goodsPo);
         goodsPo.setUpdateBy(user);
@@ -680,12 +680,12 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         //判断用户属于平台后台或者商家端
         String userId = securityUtil.getCurrUser().getId();
         Long storeId = sysUserMapper.selectById(userId).getStoreId();
-        if (storeId != null) {
-            PmGoodsPo goodsPo = new PmGoodsPo();
-            goodsPo.setId(addOrUpdateSkuAttributeDto.getGoodsId());
-            goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
-            mapper.updateById(goodsPo);
-        }
+//        if (storeId != null) {
+//            PmGoodsPo goodsPo = new PmGoodsPo();
+//            goodsPo.setId(addOrUpdateSkuAttributeDto.getGoodsId());
+//            goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
+//            mapper.updateById(goodsPo);
+//        }
         //通过goodsID商品ID获取sku信息
         Map<String, Object> skuMaps = new HashMap<>();
         skuMaps.put("goods_id", addOrUpdateSkuAttributeDto.getGoodsId());
@@ -1029,12 +1029,12 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         String userId = securityUtil.getCurrUser().getId();
         Long storeId = sysUserMapper.selectById(userId).getStoreId();
         //商家端执行更新操作将审核状态修改为未审核状态
-        if (storeId != null) {
-            PmGoodsPo goodsPo = new PmGoodsPo();
-            goodsPo.setId(goodsId);
-            goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
-            mapper.updateById(goodsPo);
-        }
+//        if (storeId != null) {
+//            PmGoodsPo goodsPo = new PmGoodsPo();
+//            goodsPo.setId(goodsId);
+//            goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
+//            mapper.updateById(goodsPo);
+//        }
         updateSkuFinanceDtos.forEach(updateSkuFinanceDto -> {
             PmGoodsSkuPo goodsSkuPo = goodsSkuMapper.selectById(updateSkuFinanceDto.getSkuId());
             BeanUtils.copyProperties(updateSkuFinanceDto, goodsSkuPo);
@@ -1176,9 +1176,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             goodsPo.setTaxRateType (TaxRateTypeEnum.NULL_TAX_RATE.getId ());
         }
         //商家端执行更新操作将审核状态修改为未审核状态
-        if (storeId != null) {
-            goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
-        }
+//        if (storeId != null) {
+//            goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
+//        }
         mapper.updateById(goodsPo);
 
         //删除商品对应的会员关系
@@ -1249,9 +1249,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         String userId = securityUtil.getCurrUser().getId();
         Long storeId = sysUserMapper.selectById(userId).getStoreId();
         //商家端执行更新操作将审核状态修改为未审核状态
-        if (storeId != null) {
-            goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
-        }
+//        if (storeId != null) {
+//            goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
+//        }
         BeanUtils.copyProperties(updateGoodSellerDto, goodsPo);
         mapper.updateById(goodsPo);
 
@@ -1272,10 +1272,10 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         PmGoodsPo goodsPo = new PmGoodsPo();
         goodsPo.setId(associationDto.getGoodsId());
         //商家端执行更新操作将审核状态修改为未审核状态
-        if (storeId != null) {
-            goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
-            mapper.updateById(goodsPo);
-        }
+//        if (storeId != null) {
+//            goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
+//            mapper.updateById(goodsPo);
+//        }
         List<PmAssociationGoodsPo> associationGoodsPos = Lists.newArrayList ();
         associationDto.getAssociatedGoodsId ().forEach (a->{
             PmAssociationGoodsPo associationGoodsPo = new PmAssociationGoodsPo();
@@ -1320,8 +1320,8 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         //根据ID获取商品信息
         List<PmGoodsPo> goodsPos = mapper.selectBatchIds(Arrays.asList(goodsIds));
         goodsPos.forEach(a -> {
-            if (a.getVerifyStatus() != VerifyStatusEnum.UNCHECKED.getId()) {
-                throw new ServiceException(ResultCode.FAIL, "该商品状态不是待提交状态", a.getName());
+            if (a.getVerifyStatus() != VerifyStatusEnum.UNCHECKED.getId() && a.getVerifyStatus() != VerifyStatusEnum.NOT_APPROVED.getId()) {
+                throw new ServiceException(ResultCode.FAIL, "该商品状态不是待提交状态或不通过状态", a.getName());
             } else {
                 //修改商品状态
                 a.setVerifyStatus(VerifyStatusEnum.WAIT_CONFIRM.getId());

@@ -337,6 +337,19 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
      */
     @Override
     public JsonViewData updateStatus(BaseUpdateStatusDto baseUpdateStatusDto) {
+
+        //判断是否存在引用
+        for (Long id : baseUpdateStatusDto.getId()) {
+            List<PmGoodsRelAttributeCategoryPo> list1 = attributeCategoryMapper.findByAttributeId(id);
+            List<PmGoodsRelAttributeGoodPo> list2 = attributeGoodMapper.findByAttributeId(id);
+            List<PmGoodsRelAttributeSkuPo> list3 = attributeSkuMapper.findByAttributeId(id);
+            boolean a = list1 != null && list1.size() > 0;
+            boolean b = list2 != null && list2.size() > 0;
+            boolean c = list3 != null && list3.size() > 0;
+            if (a == true || b == true || c == true) {
+                return new JsonViewData(ResultCode.FAIL, "禁用失败，包含正被商品或类目或sku使用关联的属性");
+            }
+        }
         for (Long id : baseUpdateStatusDto.getId()) {
             PmGoodsAttributePo goodsAttributePo = mapper.selectById(id);
             goodsAttributePo.setEnabled(baseUpdateStatusDto.getEnabled());
