@@ -6,10 +6,12 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.SearchAttributeByNamePageDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.manage.product.GoodsCategoryTreeVo;
 import com.chauncy.data.vo.manage.product.SearchAttributeVo;
 import com.chauncy.data.vo.manage.product.SearchCategoryVo;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 import java.util.Map;
@@ -96,4 +98,12 @@ public interface PmGoodsCategoryMapper extends IBaseMapper<PmGoodsCategoryPo> {
      */
     List<String> loadParentName(@Param("id") Long id);
 
+    /**
+     * 获取一级分类列表
+     * @return
+     */
+    @Select("select id,name\n" +
+            "from pm_goods_category\n" +
+            "where `level`=1")
+    List<BaseVo> getFirstCategory ();
 }

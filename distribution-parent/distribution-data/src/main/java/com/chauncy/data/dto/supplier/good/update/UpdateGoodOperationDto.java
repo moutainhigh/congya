@@ -57,6 +57,6 @@ public class UpdateGoodOperationDto {
     private Boolean isFreePostage;
 
     @ApiModelProperty(value = "审核状态：1->待提交；2->待审核 3->审核通过；4->审核不通过")
-    @EnumConstraint(target = VerifyStatusEnum.class)
+//    @EnumConstraint(target = VerifyStatusEnum.class)
     private Integer verifyStatus;
 }

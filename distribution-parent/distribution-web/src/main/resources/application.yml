@@ -25,7 +25,9 @@ mybatis-plus:
   type-aliases-package: com.chauncy.*.domain.po.*
   mapper-locations: classpath*:/mapper/**/*Mapper.xml
   typeEnumsPackage: com.chauncy.common.enums.store
-
+  global-config:
+    db-config:
+      logic-delete-value: del_flag
 #jwt:
 #  header: Authorization
 #  secret: mySecret

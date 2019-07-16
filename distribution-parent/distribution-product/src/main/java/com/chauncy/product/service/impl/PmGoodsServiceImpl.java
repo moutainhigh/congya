@@ -45,6 +45,7 @@ import com.chauncy.product.service.IPmGoodsSkuService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.base.Verify;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.springframework.beans.BeanUtils;
@@ -1296,9 +1297,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     @Override
     public void rejectGoods(RejectGoodsDto rejectGoodsDto) {
 
-        PmGoodsPo goodsPo = new PmGoodsPo();
-        goodsPo.setId(rejectGoodsDto.getGoodsId());
+        PmGoodsPo goodsPo = mapper.selectById (rejectGoodsDto.getGoodsId ());
         goodsPo.setContent(rejectGoodsDto.getContent());
+        goodsPo.setVerifyStatus (VerifyStatusEnum.NOT_APPROVED.getId ());
         mapper.updateById(goodsPo);
 
     }
@@ -1389,7 +1390,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             Map<String, Object> map = Maps.newHashMap();
             map.put("goods_id", a.getId());
             int stock = goodsSkuMapper.selectByMap(map).stream().map(PmGoodsSkuPo::getStock).mapToInt(c -> c).sum();
+            int saleVolumn = goodsSkuMapper.selectByMap(map).stream().map(PmGoodsSkuPo::getSalesVolume).mapToInt(c -> c).sum();
             a.setStock(stock);
+            a.setSalesVolume (saleVolumn);
         });
         return goodsVos;
     }

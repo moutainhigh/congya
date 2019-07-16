@@ -6,12 +6,19 @@ import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.JSONUtils;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.*;
+import com.chauncy.data.dto.app.brand.SearchGoodsDto;
+import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.good.add.AddOrUpdateAttValueDto;
 import com.chauncy.data.dto.manage.good.add.GoodAttributeDto;
 import com.chauncy.data.dto.manage.good.select.FindAttributeInfoByConditionDto;
 import com.chauncy.data.mapper.product.*;
+import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.app.brand.BrandGoodsListVo;
+import com.chauncy.data.vo.app.brand.BrandInfoVo;
+import com.chauncy.data.vo.app.brand.BrandListVo;
+import com.chauncy.data.vo.app.brand.GoodsVo;
 import com.chauncy.data.vo.manage.product.AttributeIdNameTypeVo;
 import com.chauncy.data.vo.manage.product.PmGoodsAttributeVo;
 import com.chauncy.product.service.IPmGoodsAttributeService;
@@ -65,6 +72,9 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
 
     @Autowired
     private IPmGoodsAttributeValueService valueService;
+
+    @Autowired
+    private PmGoodsCategoryMapper goodsCategoryMapper;
 
     private static int defaultPageSize = 10;
 
@@ -484,6 +494,59 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
     @Override
     public List<AttributeIdNameTypeVo> findAttributeIdNameTypeVos(List<Integer> types) {
         return mapper.loadAttributeIdNameTypeVos(types);
+    }
+
+    /**
+     * 获取一级分类列表
+     * @return
+     */
+    @Override
+    public List<BaseVo> getFirstCategory () {
+
+        return goodsCategoryMapper.getFirstCategory();
+    }
+
+    /**
+     * 条件分页获取品牌下的商品
+     *
+     * @param searchGoodsDto
+     * @return
+     */
+    @Override
+    public BrandGoodsListVo getBrandGoodsList (SearchGoodsDto searchGoodsDto) {
+        BrandGoodsListVo brandGoodsListVo = mapper.getBrandById(searchGoodsDto.getBrandId ());
+        Integer pageNo = searchGoodsDto.getPageNo() == null ? defaultPageNo : searchGoodsDto.getPageNo();
+        Integer pageSize = searchGoodsDto.getPageSize() == null ? defaultPageSize : searchGoodsDto.getPageSize();
+        //三级分类分页
+        PageInfo<GoodsVo> goodsVoPageInfo = PageHelper.startPage(pageNo, pageSize/*, "id desc"*/)
+                .doSelectPageInfo(() -> mapper.getBrandGoodsList(searchGoodsDto.getBrandId (),searchGoodsDto.getCategoryId ()));
+        return null;
+    }
+
+    /**
+     * 获取品牌列表
+     * @return
+     */
+    @Override
+    public PageInfo<BrandListVo> getBrandList (BaseSearchDto baseSearchDto) {
+
+        Integer pageNo = baseSearchDto.getPageNo() == null ? defaultPageNo : baseSearchDto.getPageNo();
+        Integer pageSize = baseSearchDto.getPageSize() == null ? defaultPageSize : baseSearchDto.getPageSize();
+        //三级分类分页
+        PageInfo<BrandListVo> brandListVo = PageHelper.startPage(pageNo, pageSize/*, "id desc"*/)
+                .doSelectPageInfo(() -> mapper.getThirdCategory(baseSearchDto.getId ()));
+        brandListVo.getList ().forEach (a->{
+            List<BrandInfoVo>  brandInfo = mapper.getBrandList (a.getCategoryId ());
+            a.setBrandInfo (brandInfo);
+        });
+
+//        Map<String, List<BrandListVo>> collect = brandListVo.getList ().stream ().collect (Collectors.groupingBy (x->x.getCategoryName ()));
+//        List<Map<String, List<BrandListVo>>> maps = Lists.newArrayList ();
+//        maps.add (collect);
+//        PageInfo<Map<String, List<BrandListVo>>> mapPageInfo = new PageInfo<> ();
+//        mapPageInfo.setList (maps);
+
+        return brandListVo;
     }
 
 }
