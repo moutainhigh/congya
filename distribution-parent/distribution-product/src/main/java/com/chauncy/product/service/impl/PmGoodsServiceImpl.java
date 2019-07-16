@@ -823,7 +823,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     /**
      * 添加sku列表
      *
-     * @param addOrUpdateSkuAttributeDto
+     * @param goodsId
      * @param user
      */
     private void addSkus(List<AddSkuAttributeDto> skuAttributeDtoList,Long goodsId,String user) {

@@ -533,6 +533,8 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
         //三级分类分页
         PageInfo<GoodsVo> goodsVoPageInfo = PageHelper.startPage(pageNo, pageSize/*, "id desc"*/)
                 .doSelectPageInfo(() -> mapper.getBrandGoodsList(searchGoodsDto.getBrandId (),searchGoodsDto.getCategoryId ()));
+        brandGoodsListVo.setGoodsVos(goodsVoPageInfo);
+
         return null;
     }
 
