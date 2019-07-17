@@ -2,6 +2,7 @@ package com.chauncy.data.mapper.product;
 
 import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
+import com.chauncy.data.dto.app.brand.SearchGoodsDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.brand.BrandGoodsListVo;
@@ -129,8 +130,7 @@ public interface PmGoodsAttributeMapper extends IBaseMapper<PmGoodsAttributePo> 
     /**
      * 查询类目下的分类下的商品
      *
-     * @param brandId
-     * @param categoryId
+     * @param searchGoodsDto
      */
-    List<GoodsVo> getBrandGoodsList (@Param ("brandId") Long brandId, @Param ("categoryId") Long categoryId);
+    List<GoodsVo> getBrandGoodsList (SearchGoodsDto searchGoodsDto);
 }

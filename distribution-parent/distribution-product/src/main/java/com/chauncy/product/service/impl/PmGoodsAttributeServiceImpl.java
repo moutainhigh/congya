@@ -534,13 +534,12 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
         BrandGoodsListVo brandGoodsListVo = mapper.getBrandById(searchGoodsDto.getBrandId ());
         Integer pageNo = searchGoodsDto.getPageNo() == null ? defaultPageNo : searchGoodsDto.getPageNo();
         Integer pageSize = searchGoodsDto.getPageSize() == null ? defaultPageSize : searchGoodsDto.getPageSize();
-        List<GoodsVo> a = mapper.getBrandGoodsList(searchGoodsDto.getBrandId (),searchGoodsDto.getCategoryId ());
 
         //三级分类分页
         PageInfo<GoodsVo> goodsVoPageInfo = PageHelper.startPage(pageNo, pageSize/*, "id desc"*/)
-                .doSelectPageInfo(() -> mapper.getBrandGoodsList(searchGoodsDto.getBrandId (),searchGoodsDto.getCategoryId ()));
+                .doSelectPageInfo(() -> mapper.getBrandGoodsList(searchGoodsDto));
         //销量、销售价格、划线价格
-        goodsVoPageInfo.getList().forEach(b->{
+        /*goodsVoPageInfo.getList().forEach(b->{
             Map<String, Object> map = Maps.newHashMap();
             map.put("goods_id", b.getGoodsId());
             if (skuMapper.selectByMap(map)!=null && skuMapper.selectByMap(map).size()!=0) {
@@ -550,7 +549,7 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
                 int saleVolume = skuMapper.selectByMap(map).stream().map(PmGoodsSkuPo::getSalesVolume).mapToInt(c -> c).sum();
                 b.setSalesVolume(saleVolume);
             }
-        });
+        });*/
         brandGoodsListVo.setGoodsVos(goodsVoPageInfo);
 
         return brandGoodsListVo;

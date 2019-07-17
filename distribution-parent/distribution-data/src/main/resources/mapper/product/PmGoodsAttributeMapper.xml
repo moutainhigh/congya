@@ -115,10 +115,27 @@
     </select>
 
     <select id="getBrandGoodsList" resultType="com.chauncy.data.vo.app.brand.GoodsVo">
-      select a.id as goodsId,a.name as goodsName,a.sales_volume as salesVolume
+     <!-- select a.id as goodsId,a.name as goodsName,a.sales_volume as salesVolume
      from pm_goods a, pm_goods_rel_attribute_good as b
      where b.goods_attribute_id = #{brandId} and a.goods_category_id = #{categoryId}
-     and b.goods_good_id = a.id and a.del_flag = 0 and b.del_flag = 0
+     and b.goods_good_id = a.id and a.del_flag = 0 and b.del_flag = 0-->
+     select a.id as goods_id,a.name as goods_name,c.sales_volume,c.line_price,c.sell_price as sale_price
+     from pm_goods a, pm_goods_rel_attribute_good as b,pm_goods_sku as c
+     where b.goods_attribute_id = #{brandId} and a.goods_category_id = #{categoryId}
+            and b.goods_good_id = a.id and c.goods_id = a.id and c.sell_price = (select min(sell_price) from pm_goods_sku as d where d.goods_id =a.id  and del_flag=0)
+            and a.del_flag = 0 and b.del_flag = 0 and c.del_flag = 0
+        <if test="sortFile.equals('PRICE_SORT') ">
+            order by sale_price
+        </if>
+        <if test="sortFile.equals('COMPREHENSIVE_SORT')">
+            order by c.sales_volume
+        </if>
+        <if test="sortFile.equals('SALES_SORT')">
+            order by c.sales_volume
+        </if>
+        <if test="sortWay !=null and sortWay !='' ">
+            ${sortWay}
+        </if>
     </select>
 
 

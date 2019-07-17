@@ -1,5 +1,8 @@
 package com.chauncy.data.dto.app.brand;
 
+import com.chauncy.common.enums.app.sort.SortFileEnum;
+import com.chauncy.common.enums.app.sort.SortWayEnum;
+import com.chauncy.data.valid.annotation.EnumConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -25,11 +28,13 @@ public class SearchGoodsDto {
     @ApiModelProperty(value = "品牌id")
     private Long brandId;
 
-    @ApiModelProperty(value = "排序字段")
-    private String file;
+    @ApiModelProperty(value = "排序字段 COMPREHENSIVE_SORT--综合排序,SALES_SORT--销量排序,PRICE_SORT--价格排序")
+    @EnumConstraint(target = SortFileEnum.class)
+    private String sortFile;
 
-    @ApiModelProperty(value = "排序方式")
-    private String type;
+    @ApiModelProperty(value = "排序方式 desc--降序 asc--升序")
+    @EnumConstraint(target = SortWayEnum.class)
+    private String sortWay;
 
     @Min (1)
     @ApiModelProperty(value = "页码")
