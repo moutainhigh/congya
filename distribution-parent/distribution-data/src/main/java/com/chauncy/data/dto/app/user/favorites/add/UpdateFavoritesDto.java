@@ -20,18 +20,15 @@ import javax.validation.constraints.NotNull;
 @Data
 @ApiModel(description = "用户添加收藏信息")
 @Accessors(chain = true)
-public class AddFavoritesDto {
+public class UpdateFavoritesDto {
 
     @ApiModelProperty (value = "收藏宝贝的id")
-    @NeedExistConstraint (tableName = "um_user_favorites",isNeedExists = false,message = "已收藏")
     private Long favoritesId;
 
-    @ApiModelProperty (value = "收藏类型 商品 店铺 资讯")
+    @ApiModelProperty (value = "收藏类型 商品 店铺 资讯 品牌")
     @EnumConstraint (target = KeyWordTypeEnum.class)
     private String type;
 
-    /*@ApiModelProperty (value = "用户id")
-    @NeedExistConstraint (tableName = "um_user")
-    @NotNull(message = "用户id不能为空")
-    private Long userId;*/
+    @ApiModelProperty (value = "操作 1--收藏 0--取消收藏")
+    private Boolean operation;
 }

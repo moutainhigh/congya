@@ -138,4 +138,5 @@ public interface IPmGoodsAttributeService extends Service<PmGoodsAttributePo> {
      * @return
      */
     BrandGoodsListVo getBrandGoodsList (SearchGoodsDto searchGoodsDto);
+
 }

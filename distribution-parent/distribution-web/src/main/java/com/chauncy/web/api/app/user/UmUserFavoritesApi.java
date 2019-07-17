@@ -3,7 +3,7 @@ package com.chauncy.web.api.app.user;
 
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.user.UmUserPo;
-import com.chauncy.data.dto.app.user.favorites.add.AddFavoritesDto;
+import com.chauncy.data.dto.app.user.favorites.add.UpdateFavoritesDto;
 import com.chauncy.data.dto.app.user.favorites.select.SelectFavoritesDto;
 import com.chauncy.data.dto.app.user.favorites.update.DelFavaritesDto;
 import com.chauncy.data.vo.JsonViewData;
@@ -38,17 +38,17 @@ public class UmUserFavoritesApi {
     private SecurityUtil securityUtil;
 
     /**
-     * 添加用户收藏信息
-     * @param addFavoritesDto
+     * 更新用户收藏信息
+     * @param updateFavoritesDto
      * @return
      */
-    @PostMapping("/addFavorites")
-    @ApiOperation ("添加用户收藏信息")
-    public JsonViewData addFavorites(@RequestBody @ApiParam(required = true,name = "addFavoritesDto",value = "用户添加收藏")
-                                     @Validated AddFavoritesDto addFavoritesDto){
+    @PostMapping("/updateFavorites")
+    @ApiOperation ("更新用户收藏信息，收藏或取消收藏")
+    public JsonViewData updateFavorites(@RequestBody @ApiParam(required = true,name = "updateFavoritesDto",value = "用户添加收藏")
+                                     @Validated UpdateFavoritesDto updateFavoritesDto){
 
         UmUserPo userPo = securityUtil.getAppCurrUser ();
-        service.addFavorites(addFavoritesDto,userPo);
+        service.updateFavorites(updateFavoritesDto,userPo);
         return new JsonViewData (ResultCode.SUCCESS);
     }
 

@@ -14,7 +14,8 @@ public enum KeyWordTypeEnum implements BaseEnum {
 
     GOODS(1,"商品"),
     MERCHANT(2,"店铺"),
-    INFORMATION(3,"资讯");
+    INFORMATION(3,"资讯"),
+    BRAND(4,"品牌");
 
     private Integer id;
     private String name;

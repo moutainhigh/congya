@@ -1,5 +1,6 @@
 package com.chauncy.web.api.app.brand;
 
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.dto.app.brand.SearchGoodsDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
