@@ -104,8 +104,8 @@
         select DISTINCT d.name as category_name,b.id as brand_id,b.logo_image as brand_picture,b.name as brand_name
         from pm_goods a,pm_goods_attribute b,pm_goods_rel_attribute_good c,pm_goods_category d
         where a.goods_category_id = #{categoryId}
-        and b.id = c.goods_attribute_id and c.goods_good_id = a.id and b.type = 8 and a.del_flag=0 and b.del_flag
-        and c.del_flag and d.del_flag and d.id = a.goods_category_id
+        and b.id = c.goods_attribute_id and c.goods_good_id = a.id and b.type = 8 and a.del_flag=0 and b.del_flag=0
+        and c.del_flag=0 and d.del_flag=0 and d.id = a.goods_category_id
     </select>
 
     <select id="getThirdCategory" resultType="com.chauncy.data.vo.app.brand.BrandListVo">
@@ -115,7 +115,7 @@
     </select>
 
     <select id="getBrandGoodsList" resultType="com.chauncy.data.vo.app.brand.GoodsVo">
-      select *
+      select a.id as goodsId,a.name as goodsName,a.sales_volume as salesVolume
      from pm_goods a, pm_goods_rel_attribute_good as b
      where b.goods_attribute_id = #{brandId} and a.goods_category_id = #{categoryId}
      and b.goods_good_id = a.id and a.del_flag = 0 and b.del_flag = 0

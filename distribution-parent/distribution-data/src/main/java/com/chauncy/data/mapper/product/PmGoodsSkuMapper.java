@@ -2,9 +2,11 @@ package com.chauncy.data.mapper.product;
 
 import com.chauncy.data.domain.po.product.PmGoodsSkuPo;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.app.brand.GoodsVo;
 import org.apache.ibatis.annotations.Select;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * <p>
@@ -31,4 +33,14 @@ public interface PmGoodsSkuMapper extends IBaseMapper<PmGoodsSkuPo> {
      */
     @Select ("select max(sell_price) from pm_goods_sku where goods_id = #{goodsId} and del_flag=0")
     BigDecimal getHighestPrice (Long goodsId);
+
+    /**
+     * 获取最低价格对应的相关信息
+     *
+     * @param goodsId
+     * @return
+     */
+    @Select("select a.id,a.sell_price as sale_price,a.line_price from pm_goods_sku as a where sell_price =\n" +
+            "(select min(sell_price) from pm_goods_sku where goods_id = #{goodsId} and del_flag=0)")
+    List<GoodsVo> getPrice(Long goodsId);
 }

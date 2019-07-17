@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -75,6 +76,9 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
 
     @Autowired
     private PmGoodsCategoryMapper goodsCategoryMapper;
+
+    @Autowired
+    private PmGoodsSkuMapper skuMapper;
 
     private static int defaultPageSize = 10;
 
@@ -530,12 +534,26 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
         BrandGoodsListVo brandGoodsListVo = mapper.getBrandById(searchGoodsDto.getBrandId ());
         Integer pageNo = searchGoodsDto.getPageNo() == null ? defaultPageNo : searchGoodsDto.getPageNo();
         Integer pageSize = searchGoodsDto.getPageSize() == null ? defaultPageSize : searchGoodsDto.getPageSize();
+        List<GoodsVo> a = mapper.getBrandGoodsList(searchGoodsDto.getBrandId (),searchGoodsDto.getCategoryId ());
+
         //三级分类分页
         PageInfo<GoodsVo> goodsVoPageInfo = PageHelper.startPage(pageNo, pageSize/*, "id desc"*/)
                 .doSelectPageInfo(() -> mapper.getBrandGoodsList(searchGoodsDto.getBrandId (),searchGoodsDto.getCategoryId ()));
+        //销量、销售价格、划线价格
+        goodsVoPageInfo.getList().forEach(b->{
+            Map<String, Object> map = Maps.newHashMap();
+            map.put("goods_id", b.getGoodsId());
+            if (skuMapper.selectByMap(map)!=null && skuMapper.selectByMap(map).size()!=0) {
+                GoodsVo goodsVo = skuMapper.getPrice(b.getGoodsId()).get(0);
+                b.setSalePrice(goodsVo.getSalePrice());
+                b.setLinePrice(goodsVo.getLinePrice());
+                int saleVolume = skuMapper.selectByMap(map).stream().map(PmGoodsSkuPo::getSalesVolume).mapToInt(c -> c).sum();
+                b.setSalesVolume(saleVolume);
+            }
+        });
         brandGoodsListVo.setGoodsVos(goodsVoPageInfo);
 
-        return null;
+        return brandGoodsListVo;
     }
 
     /**
