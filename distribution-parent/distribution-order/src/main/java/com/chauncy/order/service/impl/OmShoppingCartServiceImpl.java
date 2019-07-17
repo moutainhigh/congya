@@ -1,35 +1,31 @@
 package com.chauncy.order.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.chauncy.common.enums.goods.GoodsAttributeTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.common.util.BigDecimalUtil;
+import com.chauncy.common.util.ListUtil;
 import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.order.OmShoppingCartPo;
 import com.chauncy.data.domain.po.product.*;
-import com.chauncy.data.domain.po.store.SmStorePo;
+import com.chauncy.data.domain.po.sys.BasicSettingPo;
+import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.car.SettleAccountsDto;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
-import com.chauncy.data.dto.app.order.evaluate.select.GetEvaluatesDto;
 import com.chauncy.data.mapper.order.OmShoppingCartMapper;
 import com.chauncy.data.mapper.product.*;
-import com.chauncy.data.mapper.store.SmStoreMapper;
-import com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo;
-import com.chauncy.data.vo.app.goods.AttributeVo;
+import com.chauncy.data.mapper.sys.BasicSettingMapper;
+import com.chauncy.data.mapper.user.PmMemberLevelMapper;
+import com.chauncy.data.vo.app.car.*;
 import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
 import com.chauncy.data.vo.app.goods.SpecifiedSkuVo;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
-import com.chauncy.data.vo.app.car.CarGoodsVo;
-import com.chauncy.data.vo.app.car.GoodsTypeOrderVo;
-import com.chauncy.data.vo.app.car.StoreOrderVo;
-import com.chauncy.data.vo.app.car.TotalCarVo;
-import com.chauncy.data.vo.app.goods.StoreVo;
 import com.chauncy.data.vo.app.order.cart.CartVo;
 import com.chauncy.data.vo.app.order.cart.StoreGoodsVo;
 import com.chauncy.data.vo.supplier.GoodsStandardVo;
@@ -39,6 +35,7 @@ import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
+import lombok.experimental.Accessors;
 import org.assertj.core.util.Lists;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +43,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.*;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -90,16 +86,13 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     private PmGoodsAttributeValueMapper attributeValueMapper;
 
     @Autowired
-    private PmShippingTemplateMapper shippingTemplateMapper;
+    private BasicSettingMapper basicSettingMapper;
 
     @Autowired
-    private PmGoodsRelAttributeGoodMapper relAttributeGoodMapper;
+    private PmMemberLevelMapper levelMapper;
 
-    @Autowired
-    private SmStoreMapper storeMapper;
-
-    @Autowired
-    private PmGoodsRelAttributeValueGoodMapper relAttributeValueGoodMapper;
+    //需要进行实行认证且计算税率的商品类型
+    private final List<String> needRealGoodsType=Lists.newArrayList("BONDED","OVERSEA");
 
     /**
      * 添加商品到购物车
@@ -215,23 +208,59 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     }
 
     @Override
-    public TotalCarVo searchByIds(List<SettleAccountsDto> settleAccountsDtos) {
+    public TotalCarVo searchByIds(List<SettleAccountsDto> settleAccountsDtos,UmUserPo currentUser) {
         List<Long> skuIds=settleAccountsDtos.stream().map(x->x.getSkuId()).collect(Collectors.toList());
-        List<CarGoodsVo> carGoodsVos = mapper.searchByIds(skuIds);
-        //拆单后的信息
-        List<StoreOrderVo> storeOrderVos = getBySkuIds(carGoodsVos);
+        List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVos = mapper.searchByIds(skuIds);
 
-        TotalCarVo totalCarVo=new TotalCarVo();
-        totalCarVo.setStoreOrderVos(storeOrderVos);
-        //商品总额
-        BigDecimal totalMoney=settleAccountsDtos.stream().map(SettleAccountsDto::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
         //sku对应的数量
-        carGoodsVos.forEach(x->{
+        shopTicketSoWithCarGoodVos.forEach(x->{
             //为查询后的id匹配上用户下单的数量
             x.setNumber(settleAccountsDtos.stream().filter(y->y.getSkuId()==x.getId()).findFirst().get().getNumber());
         });
+
+        TotalCarVo totalCarVo=new TotalCarVo();
+
+
+        //判断商品是否保税仓或者海外直邮，是则需要进行实名认证，且计算税率
+        List<ShopTicketSoWithCarGoodVo> needRealSkuList = shopTicketSoWithCarGoodVos.stream().filter(x -> needRealGoodsType.contains(x)).collect(Collectors.toList());
+        if (!ListUtil.isListNullAndEmpty(needRealSkuList)){
+            // TODO: 2019/7/14  实名认证
+            //商品的税率=数量*销售价*百分比/100
+           BigDecimal taxMoney=needRealSkuList.stream().map(x-> BigDecimalUtil.safeMultiply(x.getNumber(),
+                    BigDecimalUtil.safeMultiply(x.getSellPrice(),transfromDecimal(x.getCustomTaxRate())))).
+                    reduce(BigDecimal.ZERO, BigDecimal::add);
+           totalCarVo.setTaxMoney(taxMoney);
+
+        }
+
+        //获取系统基本设置
+        BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
+
+        //设置会员等级比例和购物券比例
+        setPurchasePresentAndMoneyToShopTicket(shopTicketSoWithCarGoodVos,currentUser,basicSettingPo);
+        //拆单后的信息
+        List<StoreOrderVo> storeOrderVos = getBySkuIds(shopTicketSoWithCarGoodVos);
+
+        totalCarVo.setStoreOrderVos(storeOrderVos);
+
+        //商品总额=数量*单价
+        BigDecimal totalMoney=shopTicketSoWithCarGoodVos.stream().map(x-> BigDecimalUtil.safeMultiply(x.getNumber(),x.getSellPrice())).
+                reduce(BigDecimal.ZERO, BigDecimal::add);
         //总数量
         int totalNumber=settleAccountsDtos.stream().mapToInt(x->x.getNumber()).sum();
+        //奖励购物券
+        BigDecimal rewardShopTicket=shopTicketSoWithCarGoodVos.stream().map(x->BigDecimalUtil.safeMultiply(x.getNumber(),x.getRewardShopTicket()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        totalCarVo.setTotalMoney(totalMoney).setTotalNumber(totalNumber).setRewardShopTicket(rewardShopTicket);
+        //设置可用红包、购物券、可抵扣金额4
+        setDiscount(totalCarVo,currentUser,basicSettingPo);
+
+
+
+
+
+
+
 
 
 
@@ -240,32 +269,33 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     /**
      * 根据skuids组装成订单，并根据商家和商品类型进行拆单
-     * @param carGoodsVos
+     * @param shopTicketSoWithCarGoodVo
      * @return
      */
-    private List<StoreOrderVo> getBySkuIds( List<CarGoodsVo> carGoodsVos){
+    private List<StoreOrderVo> getBySkuIds( List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVo){
 
         //加快sql查询，用代码对店铺和商品类型进行分组拆单
-        Map<String, Map<String, List<CarGoodsVo>>> map
-                = carGoodsVos.stream().collect(
+        Map<String, Map<String, List<ShopTicketSoWithCarGoodVo>>> map
+                = shopTicketSoWithCarGoodVo.stream().collect(
                 Collectors.groupingBy(
-                        CarGoodsVo::getStoreName, Collectors.groupingBy(CarGoodsVo::getGoodsType)
+                        ShopTicketSoWithCarGoodVo::getStoreName, Collectors.groupingBy(ShopTicketSoWithCarGoodVo::getGoodsType)
                 )
         );
+
         //遍历map,将map组装成vo
         //商家分组集合
         List<StoreOrderVo> storeOrderVos= Lists.newArrayList();
-        Iterator<Map.Entry<String, Map<String, List<CarGoodsVo>>>> it = map.entrySet().iterator();
+        Iterator<Map.Entry<String, Map<String, List<ShopTicketSoWithCarGoodVo>>>> it = map.entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry<String, Map<String, List<CarGoodsVo>>> entry = it.next();
+            Map.Entry<String, Map<String, List<ShopTicketSoWithCarGoodVo>>> entry = it.next();
             StoreOrderVo storeOrderVo = new StoreOrderVo();
             storeOrderVo.setStoreName(entry.getKey());
             //商品类型分组集合
             List<GoodsTypeOrderVo> goodsTypeOrderVos= Lists.newArrayList();
-            for (Map.Entry<String, List<CarGoodsVo>> entry1 :entry.getValue().entrySet()) {
+            for (Map.Entry<String, List<ShopTicketSoWithCarGoodVo>> entry1 :entry.getValue().entrySet()) {
                 GoodsTypeOrderVo goodsTypeOrderVo = new GoodsTypeOrderVo();
                 goodsTypeOrderVo.setGoodsType(entry1.getKey());
-                goodsTypeOrderVo.setCarGoodsVos(entry1.getValue());
+                goodsTypeOrderVo.setShopTicketSoWithCarGoodVos(entry1.getValue());
                 goodsTypeOrderVos.add(goodsTypeOrderVo);
             }
             storeOrderVo.setGoodsTypeOrderVos(goodsTypeOrderVos);
@@ -273,6 +303,69 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         }
         return storeOrderVos;
 
+    }
+
+    /**
+     * 设置会员等级比例和购物券比例
+     * @param shopTicketSoWithCarGoodVoList
+     */
+    private void setPurchasePresentAndMoneyToShopTicket(List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVoList
+    ,UmUserPo currentUser,BasicSettingPo basicSettingPo
+    ){
+        PmMemberLevelPo memberLevelPo = levelMapper.selectById(currentUser.getMemberLevelId());
+        shopTicketSoWithCarGoodVoList.forEach(x->x.setPurchasePresent(memberLevelPo.getPurchasePresent())
+        .setMoneyToShopTicket(basicSettingPo.getMoneyToShopTicket())
+        );
+
+    }
+    /**
+     * 设置可用红包、购物券、可抵扣金额
+     * @param totalCarVo
+     */
+    private void setDiscount(TotalCarVo totalCarVo,UmUserPo currentUser,BasicSettingPo basicSettingPo){
+        //一个购物券=多少元
+        BigDecimal shopTicketToMoney=BigDecimalUtil.safeDivide(1,basicSettingPo.getMoneyToShopTicket());
+        //一个红包=多少元
+        BigDecimal redEnvelopsToMoney=BigDecimalUtil.safeDivide(1,basicSettingPo.getMoneyToCurrentRedEnvelops());
+        //当前用户所拥有的红包折算后的金额
+        BigDecimal redEnvelopMoney = BigDecimalUtil.safeMultiply(redEnvelopsToMoney, currentUser.getCurrentRedEnvelops());
+        //当前用户所拥有的购物券折算后的金额
+        BigDecimal shopTicketMoney = BigDecimalUtil.safeMultiply(shopTicketToMoney, currentUser.getCurrentShopTicket());
+        //-1表示小于，0是等于，1是大于。
+        //如果总金额<=红包折算后的金额
+        if (totalCarVo.getTotalMoney().compareTo(redEnvelopMoney)<=0){
+            //需要用多少个红包
+           totalCarVo.setRedEnvelops(BigDecimalUtil.safeMultiply(totalCarVo.getTotalMoney(),basicSettingPo.getMoneyToCurrentRedEnvelops()));
+           totalCarVo.setShopTicket(BigDecimal.ZERO);
+           totalCarVo.setDeductionMoney(totalCarVo.getTotalMoney());
+        }
+        else {
+            //总金额>红包，红包可以全用
+            totalCarVo.setRedEnvelops(currentUser.getCurrentRedEnvelops());
+            //红包抵扣后还剩下多少钱
+            BigDecimal removeRed=BigDecimalUtil.safeSubtract(totalCarVo.getTotalMoney(),redEnvelopMoney);
+            //如果剩下的金额小于等于购物券折算后的金额
+            if (removeRed.compareTo(shopTicketMoney)<=0){
+                totalCarVo.setShopTicket(BigDecimalUtil.safeMultiply(removeRed,basicSettingPo.getMoneyToShopTicket()));
+                totalCarVo.setDeductionMoney(totalCarVo.getTotalMoney());
+            }
+            else {
+                //剩下金额大于可抵扣优惠券，优惠券可以全用
+                totalCarVo.setShopTicket(currentUser.getCurrentShopTicket());
+                //扣除优惠券和红包剩下的金额
+                totalCarVo.setDeductionMoney(BigDecimalUtil.safeAdd(redEnvelopMoney,shopTicketMoney));
+
+            }
+        }
+    }
+
+    /**
+     * 将百分比转换成小数
+     * @param bigDecimal
+     * @return
+     */
+    private BigDecimal transfromDecimal(BigDecimal bigDecimal){
+        return BigDecimalUtil.safeDivide(bigDecimal,100);
     }
 
 
@@ -362,82 +455,6 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             skuDetail.put(String.valueOf(relIds),specifiedSkuVo);
             specifiedGoodsVo.setSkuDetail(skuDetail);
         });
-        /**商品基本信息**/
-        specifiedGoodsVo.setGoodsName (goodsPo.getName ());
-        specifiedGoodsVo.setCarousel (goodsPo.getCarouselImage ());
-        specifiedGoodsVo.setOriginPlace (goodsPo.getLocation ());
-        specifiedGoodsVo.setIsPostage (goodsPo.getIsFreePostage ());
-        if (!goodsPo.getIsFreePostage ()){
-            //获取运费模板设置的默认运费
-            PmShippingTemplatePo shippingTemplatePo = shippingTemplateMapper.selectById (goodsPo.getShippingTemplateId ());
-            specifiedGoodsVo.setDefaultFreight (shippingTemplatePo.getDefaultFreight ());
-        }
-        Map<String,Object> query2 = Maps.newHashMap ();
-        query2.put("del_flag",false);
-        query2.put("goods_good_id",goodsId);
-        List<Long> attributeIds = relAttributeGoodMapper.selectByMap (query2).stream ().map (d->d.getGoodsAttributeId ()).collect(Collectors.toList());
-        List<PmGoodsAttributePo> pmGoodsAttributePoList = goodsAttributeMapper.selectBatchIds (attributeIds);
-        List<AttributeVo> serviceList = Lists.newArrayList ();
-        List<AttributeVo> paramList = Lists.newArrayList ();
-        List<AttributeVo> activityVoList = Lists.newArrayList ();
-        pmGoodsAttributePoList.forEach (e->{
-            GoodsAttributeTypeEnum attributeTypeEnum = GoodsAttributeTypeEnum.getGoodsAttributeById (e.getType ());
-            AttributeVo attributeVo = new AttributeVo ();
-            attributeVo.setValue (e.getContent ());
-            attributeVo.setName (e.getName ());
-            switch (attributeTypeEnum) {
-                case PLATFORM_SERVICE:
-                case MERCHANT_SERVICE:
-                    serviceList.add (attributeVo);
-                    break;
-                case PLATFORM_ACTIVITY:
-                    activityVoList.add (attributeVo);
-                    break;
-                case GOODS_PARAM:
-                    QueryWrapper queryWrapper = new QueryWrapper ();
-                    queryWrapper.eq("goods_id",goodsId);
-                    queryWrapper.eq("del_flag",false);
-                    String paramValue = attributeValueMapper.selectById (relAttributeValueGoodMapper.selectOne (queryWrapper).getGoodsAttributeValueId ()).getValue ();
-                    attributeVo.setValue (paramValue);
-                    paramList.add (attributeVo);
-                    break;
-                case LABEL:
-                    break;
-                case PURCHASE:
-                    break;
-                case STANDARD:
-                    break;
-                case BRAND:
-                    break;
-                case SENSITIVE:
-                    break;
-            }
-        });
-        specifiedGoodsVo.setServiceList (serviceList);
-        specifiedGoodsVo.setParamList (paramList);
-        specifiedGoodsVo.setActivityVoList (activityVoList);
-        /**店铺基本信息*/
-        StoreVo storeVo = new StoreVo ();
-        SmStorePo storePo = storeMapper.selectById (goodsId);
-        if (storePo!=null) {
-            storeVo.setStoreIcon (storePo.getStoreImage ());
-            storeVo.setStoreId (storePo.getId ());
-            storeVo.setStoreName (storePo.getName ());
-            //获取店铺的平均星级
-            storeVo.setBabyDescription (storePo.getBabyDescribeScore ());
-            storeVo.setLogisticsServices (storePo.getLogisticsServiceScore ());
-            storeVo.setSellerService (storePo.getServiceAttitudeScore ());
-            specifiedGoodsVo.setStoreVo (storeVo);
-        }
-
-        //显示商品价格，拼接
-        BigDecimal lowestPrice = skuMapper.getLowestPrice(goodsId);
-        BigDecimal highestPrice = skuMapper.getHighestPrice(goodsId);
-        StringBuffer price = new StringBuffer ();
-        price.append (lowestPrice).append ("-").append (highestPrice);
-        specifiedGoodsVo.setDisplayPrice (price.toString ());
-
         return specifiedGoodsVo;
     }
-
 }

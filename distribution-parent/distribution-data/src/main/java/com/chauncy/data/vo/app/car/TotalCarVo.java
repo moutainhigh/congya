@@ -17,11 +17,6 @@ import java.util.List;
 @Accessors(chain = true)
 public class TotalCarVo {
 
-    @ApiModelProperty(value = "当前购物券,按后台设置比例换算")
-    private BigDecimal currentShopTicket;
-
-    @ApiModelProperty(value = "当前红包,按后台设置比例换算，优先扣红包")
-    private BigDecimal currentRedEnvelops;
 
     @ApiModelProperty(value = "可抵扣金额")
     private BigDecimal deductionMoney;
@@ -32,10 +27,10 @@ public class TotalCarVo {
     @ApiModelProperty(value = "预计奖励购物券")
     private BigDecimal rewardShopTicket;
 
-    @ApiModelProperty(value = "购物券")
+    @ApiModelProperty(value = "使用购物券")
     private BigDecimal shopTicket;
 
-    @ApiModelProperty(value = "红包")
+    @ApiModelProperty(value = "使用红包")
     private BigDecimal redEnvelops;
 
     @ApiModelProperty(value = "运费")
@@ -44,7 +39,7 @@ public class TotalCarVo {
     @ApiModelProperty(value = "税费")
     private BigDecimal taxMoney;
 
-    @ApiModelProperty("根据店铺拆单列表")
+    @ApiModelProperty("根据店铺与商品类型拆单列表")
     private List<StoreOrderVo> storeOrderVos;
 
     @ApiModelProperty(value = "总数量")

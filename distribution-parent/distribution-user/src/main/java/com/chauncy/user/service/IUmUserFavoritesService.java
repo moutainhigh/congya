@@ -5,6 +5,7 @@ import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.user.favorites.add.AddFavoritesDto;
 import com.chauncy.data.dto.app.user.favorites.select.SelectFavoritesDto;
+import com.chauncy.data.dto.app.user.favorites.update.DelFavaritesDto;
 import com.chauncy.data.vo.app.user.favorites.SearchFavoritesVo;
 import com.github.pagehelper.PageInfo;
 
@@ -27,10 +28,10 @@ public interface IUmUserFavoritesService extends Service<UmUserFavoritesPo> {
 
     /**
      * 批量删除收藏
-     * @param ids
+     * @param delFavaritesDto
      * @return
      */
-    void delFavoritesByIds (Long[] ids);
+    void delFavoritesByIds (DelFavaritesDto delFavaritesDto);
 
     /**
      * 条件查询收藏信息

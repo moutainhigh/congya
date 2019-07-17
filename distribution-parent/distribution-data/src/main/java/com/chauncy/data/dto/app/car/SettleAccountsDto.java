@@ -28,11 +28,5 @@ public class SettleAccountsDto {
     @Min(1)
     private int number;
 
-    @Min(1)
-    @ApiModelProperty(value = "单价")
-    private BigDecimal sellPrice;
 
-    @Min(1)
-    @ApiModelProperty(value = "总价=数量*单价")
-    private BigDecimal totalPrice;
 }

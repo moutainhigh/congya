@@ -19,7 +19,7 @@ public class GoodsTypeOrderVo {
 
 
     @ApiModelProperty("购物车商品详情")
-    private List<CarGoodsVo> carGoodsVos;
+    private List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVos;
 
     @ApiModelProperty("商品类型")
     private String goodsType;

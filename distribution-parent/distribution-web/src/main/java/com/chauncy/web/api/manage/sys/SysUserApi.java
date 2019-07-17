@@ -374,7 +374,7 @@ public class SysUserApi {
  }
 
  /**
-  * 线上demo不允许测试账号改密码
+  *
   * @param password
   * @param newPass
   * @return

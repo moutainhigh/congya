@@ -19,6 +19,9 @@ import java.util.List;
 @ApiModel(value = "AddSkuAttributeDto", description = "商品sku信息表")
 public class AddSkuAttributeDto {
 
+    @ApiModelProperty(value = "skuId")
+    private Long skuId;
+
     @ApiModelProperty(value = "货号")
     private String articleNumber;
 
@@ -26,9 +29,11 @@ public class AddSkuAttributeDto {
     private String barCode;
 
     @ApiModelProperty(value = "图片")
+    @NotNull(message = "图片不能为空")
     private String picture;
 
     @ApiModelProperty(value = "销售价格")
+    @NotNull(message = "销售价格不能为空")
     private BigDecimal sellPrice;
 
     @ApiModelProperty(value = "划线价格")

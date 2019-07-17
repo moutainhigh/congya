@@ -21,6 +21,7 @@
         <result column="update_time" property="updateTime"/>
         <result column="del_flag" property="delFlag"/>
         <result column="store_id" property="storeId"/>
+        <result column="collection_num" property="collectionNum"/>
     </resultMap>
 
     <sql id="find">
@@ -97,6 +98,27 @@
         select *
         from pm_goods_attribute
         where type = #{type}
+    </select>
+
+    <select id="getBrandList" resultType="com.chauncy.data.vo.app.brand.BrandInfoVo">
+        select DISTINCT d.name as category_name,b.id as brand_id,b.logo_image as brand_picture,b.name as brand_name
+        from pm_goods a,pm_goods_attribute b,pm_goods_rel_attribute_good c,pm_goods_category d
+        where a.goods_category_id = #{categoryId}
+        and b.id = c.goods_attribute_id and c.goods_good_id = a.id and b.type = 8 and a.del_flag=0 and b.del_flag=0
+        and c.del_flag=0 and d.del_flag=0 and d.id = a.goods_category_id
+    </select>
+
+    <select id="getThirdCategory" resultType="com.chauncy.data.vo.app.brand.BrandListVo">
+        select a.id as categoryId,a.name as categoryName
+        from pm_goods_category a
+        where a.del_flag=0 and a.parent_id in(SELECT id from pm_goods_category where parent_id =#{categoryId})
+    </select>
+
+    <select id="getBrandGoodsList" resultType="com.chauncy.data.vo.app.brand.GoodsVo">
+      select a.id as goodsId,a.name as goodsName,a.sales_volume as salesVolume
+     from pm_goods a, pm_goods_rel_attribute_good as b
+     where b.goods_attribute_id = #{brandId} and a.goods_category_id = #{categoryId}
+     and b.goods_good_id = a.id and a.del_flag = 0 and b.del_flag = 0
     </select>
 
 
