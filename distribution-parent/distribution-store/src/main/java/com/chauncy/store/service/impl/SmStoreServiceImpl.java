@@ -3,10 +3,12 @@ package com.chauncy.store.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.constant.SecurityConstant;
+import com.chauncy.common.enums.goods.GoodsCategoryLevelEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.enums.system.SysRoleTypeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.store.rel.SmRelStoreAttributePo;
 import com.chauncy.data.domain.po.store.rel.SmRelUserFocusStorePo;
@@ -14,6 +16,8 @@ import com.chauncy.data.domain.po.store.rel.SmStoreRelStorePo;
 import com.chauncy.data.domain.po.sys.SysRolePo;
 import com.chauncy.data.domain.po.sys.SysRoleUserPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.dto.app.store.FindStoreCategoryDto;
+import com.chauncy.data.dto.app.store.SearchStoreDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.add.StoreAccountInfoDto;
 import com.chauncy.data.dto.manage.store.add.StoreBaseInfoDto;
@@ -22,6 +26,7 @@ import com.chauncy.data.dto.manage.store.select.StoreSearchByConditionDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.dto.supplier.store.update.StoreBusinessLicenseDto;
 import com.chauncy.data.mapper.product.PmGoodsAttributeMapper;
+import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.store.rel.SmRelStoreAttributeMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.store.rel.SmRelUserFocusStoreMapper;
@@ -30,6 +35,10 @@ import com.chauncy.data.mapper.sys.SysRoleMapper;
 import com.chauncy.data.mapper.sys.SysRoleUserMapper;
 import com.chauncy.data.mapper.sys.SysUserMapper;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
+import com.chauncy.data.vo.app.message.information.InformationPagingVo;
+import com.chauncy.data.vo.app.store.StorePagingVo;
+import com.chauncy.data.vo.manage.product.SearchCategoryVo;
 import com.chauncy.data.vo.manage.store.*;
 import com.chauncy.data.vo.supplier.store.BranchInfoVo;
 import com.chauncy.security.util.SecurityUtil;
@@ -79,10 +88,18 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
     @Autowired
     private SmStoreRelStoreMapper smStoreRelStoreMapper;
     @Autowired
+    private PmGoodsCategoryMapper pmGoodsCategoryMapper;
+    @Autowired
     private ISmStoreRelStoreService smStoreRelStoreService;
     @Autowired
     private ISmRelStoreAttributeService smRelStoreAttributeService;
-
+    /**
+     * APP店铺列表中店铺展示商品列表默认展示排序前四个
+     */
+    private final static int DEFAULT_SHOW_GOODS_NUM = 4;
+    /**
+     *  店铺用户默认密码
+     */
     private final static String DEFAULT_PASSWORD = "123456";
     /**
      * 保存店铺基本信息
@@ -473,4 +490,82 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         return smStoreMapper.searchBranchByName(storeId, storeName);
     }
 
+    /**
+     * app查询店铺列表
+     *
+     * @return
+     */
+    @Override
+    public PageInfo<StorePagingVo> searchPaging(SearchStoreDto searchStoreDto) {
+
+        Integer pageNo = searchStoreDto.getPageNo()==null ? defaultPageNo : searchStoreDto.getPageNo();
+        Integer pageSize = searchStoreDto.getPageSize()==null ? defaultPageSize : searchStoreDto.getPageSize();
+        if(null == searchStoreDto.getGoodsNum()) {
+            searchStoreDto.setGoodsNum(DEFAULT_SHOW_GOODS_NUM);
+        }
+
+        PageInfo<StorePagingVo> storePagingVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> smStoreMapper.searchPaging(searchStoreDto));
+        return storePagingVoPageInfo;
+
+    }
+
+    /**
+     * app获取店铺信息
+     *
+     * @param storeId
+     * @return
+     */
+    @Override
+    public StorePagingVo findById(Long storeId) {
+        SmStorePo smStorePo = smStoreMapper.selectById(storeId);
+        if(null == smStorePo) {
+            throw new ServiceException(ResultCode.NO_EXISTS,"店铺不存在");
+        } else if(smStorePo.getEnabled().equals(false)) {
+            throw new ServiceException(ResultCode.PARAM_ERROR,"店铺已被禁用");
+        }
+
+        return smStoreMapper.findStoreById(storeId);
+    }
+
+    /**
+     * 获取店铺下商品分类信息
+     *
+     * @return
+     */
+    @Override
+    public List<SearchCategoryVo> findGoodsCategory(FindStoreCategoryDto findStoreCategoryDto) {
+        List<SearchCategoryVo> searchCategoryVoList = new ArrayList<>();
+        if(null == findStoreCategoryDto.getGoodsCategoryId()) {
+            //根据店铺id获取该店铺下一级分类
+            searchCategoryVoList = pmGoodsCategoryMapper.findFirstCategoryByStoreId(findStoreCategoryDto);
+        } else {
+            PmGoodsCategoryPo pmGoodsCategoryPo = pmGoodsCategoryMapper.selectById(findStoreCategoryDto.getGoodsCategoryId());
+            if (pmGoodsCategoryPo.getLevel().equals(GoodsCategoryLevelEnum.FIRST_CATEGORY.getLevel())) {
+                if(null == findStoreCategoryDto.getGoodsCategoryId())  {
+                    throw new ServiceException(ResultCode.PARAM_ERROR,"分类id不能为空");
+                }
+                //根据店铺id获取该店铺一级分类下的二级分类
+                searchCategoryVoList = pmGoodsCategoryMapper.findSecondCategoryByStoreId(findStoreCategoryDto);
+            } else if (pmGoodsCategoryPo.getLevel().equals(GoodsCategoryLevelEnum.SECOND_CATEGORY.getLevel())) {
+                if(null == findStoreCategoryDto.getGoodsCategoryId())  {
+                    throw new ServiceException(ResultCode.PARAM_ERROR,"分类id不能为空");
+                }
+                //根据店铺id获取该店铺二级分类下的下三级分类
+                searchCategoryVoList = pmGoodsCategoryMapper.findThirdCategoryByStoreId(findStoreCategoryDto);
+            }
+        }
+        return searchCategoryVoList;
+    }
+
+
+    /**
+     * 获取店铺下商品列表
+     *
+     * @return
+     */
+    @Override
+    public PageInfo<GoodsBaseInfoVo> searchStoreGoodsPaging(FindStoreCategoryDto findStoreCategoryDto) {
+        return null;
+    }
 }

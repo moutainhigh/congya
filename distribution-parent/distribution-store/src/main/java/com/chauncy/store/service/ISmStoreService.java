@@ -2,6 +2,8 @@ package com.chauncy.store.service;
 
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.dto.app.store.FindStoreCategoryDto;
+import com.chauncy.data.dto.app.store.SearchStoreDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.add.StoreAccountInfoDto;
 import com.chauncy.data.dto.manage.store.add.StoreBaseInfoDto;
@@ -9,6 +11,9 @@ import com.chauncy.data.dto.manage.store.select.StoreSearchByConditionDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.dto.supplier.store.update.StoreBusinessLicenseDto;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
+import com.chauncy.data.vo.app.store.StorePagingVo;
+import com.chauncy.data.vo.manage.product.SearchCategoryVo;
 import com.chauncy.data.vo.manage.store.*;
 import com.chauncy.data.vo.supplier.store.BranchInfoVo;
 import com.github.pagehelper.PageInfo;
@@ -142,4 +147,28 @@ public interface ISmStoreService extends Service<SmStorePo> {
      */
     List<BranchInfoVo> searchBranchByName(String storeName);
 
+    /**
+     * app查询店铺列表
+     * @return
+     */
+    PageInfo<StorePagingVo> searchPaging(SearchStoreDto searchStoreDto);
+
+    /**
+     * app获取店铺信息
+     * @param storeId
+     * @return
+     */
+    StorePagingVo findById(Long storeId);
+
+    /**
+     * 获取店铺下商品分类信息
+     * @return
+     */
+    List<SearchCategoryVo> findGoodsCategory(FindStoreCategoryDto findStoreCategoryDto);
+
+    /**
+     * 获取店铺下商品列表
+     * @return
+     */
+    PageInfo<GoodsBaseInfoVo> searchStoreGoodsPaging(FindStoreCategoryDto findStoreCategoryDto);
 }

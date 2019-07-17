@@ -12,11 +12,13 @@ import com.chauncy.data.vo.manage.message.information.category.InformationCatego
 import com.chauncy.data.vo.manage.message.information.comment.InformationMainCommentVo;
 import com.chauncy.data.vo.manage.message.information.comment.InformationViceCommentVo;
 import com.chauncy.data.vo.manage.message.information.label.InformationLabelVo;
+import com.chauncy.data.vo.manage.store.StoreBaseInfoVo;
 import com.chauncy.message.information.category.service.IMmInformationCategoryService;
 import com.chauncy.message.information.comment.service.IMmInformationCommentService;
 import com.chauncy.message.information.label.service.IMmInformationLabelService;
 import com.chauncy.message.information.service.IMmInformationService;
 import com.chauncy.security.util.SecurityUtil;
+import com.chauncy.store.service.ISmStoreService;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -31,7 +33,7 @@ import org.springframework.web.bind.annotation.*;
  * @author yeJH
  * @since 2019/7/1 22:24
  */
-@Api(tags = "APP_资讯管理接口")
+@Api(tags = "APP_资讯专区接口")
 @RestController
 @RequestMapping("/app/information")
 @Slf4j
@@ -39,6 +41,8 @@ public class AmInformationApi extends BaseApi {
 
     @Autowired
     private IMmInformationService mmInformationService;
+    @Autowired
+    private ISmStoreService smStoreService;
     @Autowired
     private IMmInformationCategoryService mmInformationCategoryService;
     @Autowired
@@ -153,6 +157,21 @@ public class AmInformationApi extends BaseApi {
     public JsonViewData likeInfo(@PathVariable(value = "infoId")Long infoId) {
 
         mmInformationService.likeInfo(infoId, securityUtil.getAppCurrUser().getId());
+        return new JsonViewData(ResultCode.SUCCESS, "关注成功");
+
+    }
+
+    /**
+     * 用户关注店铺
+     * @param storeId  店铺id
+     * @return
+     */
+    @ApiOperation(value = "用户关注店铺", notes = "用户关注店铺")
+    @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, dataType = "Long", paramType = "path")
+    @GetMapping("/findBaseById/{storeId}")
+    public JsonViewData<StoreBaseInfoVo> userFocusStore(@PathVariable(value = "storeId")Long storeId) {
+
+        smStoreService.userFocusStore(storeId, securityUtil.getAppCurrUser().getId());
         return new JsonViewData(ResultCode.SUCCESS, "关注成功");
 
     }

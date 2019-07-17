@@ -3,6 +3,7 @@ package com.chauncy.data.mapper.product;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.chauncy.data.dto.app.store.FindStoreCategoryDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.SearchAttributeByNamePageDto;
 import com.chauncy.data.mapper.IBaseMapper;
@@ -96,4 +97,24 @@ public interface PmGoodsCategoryMapper extends IBaseMapper<PmGoodsCategoryPo> {
      */
     List<String> loadParentName(@Param("id") Long id);
 
+    /**
+     * 获取店铺下商品一级分类信息
+     *
+     * @return
+     */
+    List<SearchCategoryVo> findFirstCategoryByStoreId(FindStoreCategoryDto findStoreCategoryDto);
+
+    /**
+     * 获取店铺下商品一级分类信息
+     *
+     * @return
+     */
+    List<SearchCategoryVo> findSecondCategoryByStoreId(FindStoreCategoryDto findStoreCategoryDto);
+
+    /**
+     * 获取店铺下商品一级分类信息
+     *
+     * @return
+     */
+    List<SearchCategoryVo> findThirdCategoryByStoreId(FindStoreCategoryDto findStoreCategoryDto);
 }
