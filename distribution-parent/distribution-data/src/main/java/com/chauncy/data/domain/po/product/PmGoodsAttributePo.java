@@ -124,6 +124,9 @@ public class PmGoodsAttributePo implements Serializable {
     @ApiModelProperty(value = "店铺ID")
     private Long storeId;
 
+    @ApiModelProperty (value = "收藏数量")
+    private Integer collectionNum;
+
     /*@Transient
     @TableField(exist=false)
     @ApiModelProperty(value = "商品属性值")

@@ -300,7 +300,7 @@ public class SmGoodsApi extends BaseApi {
                                     @PathVariable Long[] goodsIds){
 
         service.submitAudit(goodsIds);
-        return setJsonViewData(ResultCode.SUCCESS,"提交审核成功");
+        return setJsonViewData(ResultCode.SUCCESS,"提交成功");
     }
 
     /**

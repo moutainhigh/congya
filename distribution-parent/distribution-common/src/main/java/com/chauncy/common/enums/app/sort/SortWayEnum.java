@@ -1,25 +1,28 @@
-package com.chauncy.common.enums.message;
+package com.chauncy.common.enums.app.sort;
 
 import com.chauncy.common.enums.BaseEnum;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
 
 import java.util.Objects;
 
 /**
  * @Author cheng
- * @create 2019-06-26 18:07
- *
- * 类别 1--商品 2--店铺 3--资讯
+ * @create 2019-07-17 13:37
  */
-public enum KeyWordTypeEnum implements BaseEnum {
+@ApiModel("前端app排序方式")
+@Getter
+public enum SortWayEnum implements BaseEnum {
 
-    GOODS(1,"商品"),
-    MERCHANT(2,"店铺"),
-    INFORMATION(3,"资讯"),
-    BRAND(4,"品牌");
+    @ApiModelProperty("降序")
+    DESC(1,"desc"),
+    @ApiModelProperty("降序")
+    ASC(2,"asc");
 
     private Integer id;
     private String name;
-    KeyWordTypeEnum(Integer id, String name){
+    SortWayEnum(Integer id, String name){
         this.id = id;
         this.name = name;
     }
@@ -34,16 +37,16 @@ public enum KeyWordTypeEnum implements BaseEnum {
     }
 
     //通过Id获取结果
-    public static KeyWordTypeEnum getKeyWordTypeById(Integer id) {
-        for (KeyWordTypeEnum type : KeyWordTypeEnum.values()) {
+    public static SortWayEnum getSortWayEnumById(Integer id) {
+        for (SortWayEnum type : SortWayEnum.values()) {
             if (type.getId() == id)
                 return type;
         }
         return null;
     }
     //通过名称来获取结果
-    public static KeyWordTypeEnum fromName(String name) {
-        for (KeyWordTypeEnum type : KeyWordTypeEnum.values()) {
+    public static SortWayEnum fromName(String name) {
+        for (SortWayEnum type : SortWayEnum.values()) {
             if (type.getName().equals(name))
                 return type;
         }
@@ -70,5 +73,3 @@ public enum KeyWordTypeEnum implements BaseEnum {
     public boolean isExist(Object field) {
         return Objects.nonNull(fromName(field.toString()));
     }}
-
-
