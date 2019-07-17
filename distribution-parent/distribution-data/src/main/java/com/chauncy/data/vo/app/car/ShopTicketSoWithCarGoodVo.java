@@ -18,20 +18,37 @@ import java.math.BigDecimal;
 public class ShopTicketSoWithCarGoodVo {
 
     //销售价
+    @ApiModelProperty("销售价")
     private BigDecimal sellPrice;
 
     //商品活动百分比
+    @ApiModelProperty(hidden = true)
+    @JSONField(serialize = false)
     private BigDecimal activityCostRate;
 
     //让利成本比例
+    @ApiModelProperty(hidden = true)
+    @JSONField(serialize = false)
     private BigDecimal profitsRate;
+
     //利润比例
+    @ApiModelProperty(hidden = true)
+    @JSONField(serialize = false)
     private BigDecimal profitRate;
+
     //供货价
+    @ApiModelProperty(hidden = true)
+    @JSONField(serialize = false)
     private BigDecimal supplierPrice;
     //运营成本
+
+    @ApiModelProperty(hidden = true)
+    @JSONField(serialize = false)
     private BigDecimal operationCost;
+
     //自定义税率
+    @ApiModelProperty(hidden = true)
+    @JSONField(serialize = false)
     private BigDecimal customTaxRate;
 
     @ApiModelProperty("skuid")
@@ -50,16 +67,33 @@ public class ShopTicketSoWithCarGoodVo {
     @ApiModelProperty("数量")
     private int number;
 
+    @ApiModelProperty(hidden = true)
     @JSONField(serialize = false)
     private String storeName;
 
+    @ApiModelProperty(hidden = true)
     @JSONField(serialize = false)
     private String goodsType;
 
     //会员等级比例
+    @ApiModelProperty(hidden = true)
+    @JSONField(serialize = false)
     private BigDecimal purchasePresent;
+
     //购物券比例
+    @ApiModelProperty(hidden = true)
+    @JSONField(serialize = false)
     private BigDecimal moneyToShopTicket;
+
+    //运费模板id
+    @ApiModelProperty(hidden = true)
+    @JSONField(serialize = false)
+    private Long shippingTemplateId;
+
+    //是否包邮
+    @ApiModelProperty(hidden = true)
+    @JSONField(serialize = false)
+    private Boolean isFreePostage;
 
 
     /**
@@ -67,6 +101,8 @@ public class ShopTicketSoWithCarGoodVo {
      * 没有活动和优惠券  付现价=销售价
      * @return
      */
+    @ApiModelProperty(hidden = true)
+    @JSONField(serialize = false)
     public BigDecimal getRewardShopTicket(){
         //固定成本=供货价+运营成本（%）+利润比例（%）（都是乘以销售价）
         BigDecimal fixedCost= BigDecimalUtil.safeAdd(supplierPrice,BigDecimalUtil.safeMultiply(transfromDecimal(operationCost),sellPrice)
@@ -81,7 +117,7 @@ public class ShopTicketSoWithCarGoodVo {
         BigDecimal a=BigDecimalUtil.safeSubtract(true,sellPrice,fixedCost,activityCost);
 
         //让利成本（%）(商品详情页面)X该用户所属的会员等级反购物券比例X购物券比例设置(参数设置)
-        BigDecimal b=BigDecimalUtil.safeMultiply(BigDecimalUtil.safeMultiply(transfromDecimal(profitsRate),purchasePresent),moneyToShopTicket);
+        BigDecimal b=BigDecimalUtil.safeMultiply(BigDecimalUtil.safeMultiply(transfromDecimal(profitsRate),transfromDecimal(purchasePresent)),moneyToShopTicket);
 
         //购物券
         return BigDecimalUtil.safeMultiply(a,b);

@@ -2,14 +2,18 @@ package com.chauncy.web.api.app.order;
 
 
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.dto.app.car.SettleAccountsDto;
+import com.chauncy.data.dto.app.car.SettleDto;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
 import com.chauncy.data.dto.app.order.evaluate.select.GetEvaluatesDto;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.app.car.TotalCarVo;
 import com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo;
 import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
 import com.chauncy.data.vo.app.order.cart.CartVo;
 import com.chauncy.order.service.IOmShoppingCartService;
+import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -31,7 +35,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/app/order/shopCart")
 @Api(tags = "app_用户_购物车")
-public class OmShoppingCartApi {
+public class OmShoppingCartApi extends BaseApi {
 
     @Autowired
     private IOmShoppingCartService service;
@@ -100,5 +104,12 @@ public class OmShoppingCartApi {
                                    @Validated AddCartDto updateCartDto){
         service.updateCart(updateCartDto);
         return new JsonViewData(ResultCode.SUCCESS);
+    }
+
+    @PostMapping("/settle")
+    @ApiOperation("购物车结算")
+    public JsonViewData<TotalCarVo> updateCart(@RequestBody @Validated SettleDto settleDto){
+        TotalCarVo totalCarVo = service.searchByIds(settleDto, getAppCurrUser());
+        return new JsonViewData(totalCarVo);
     }
 }

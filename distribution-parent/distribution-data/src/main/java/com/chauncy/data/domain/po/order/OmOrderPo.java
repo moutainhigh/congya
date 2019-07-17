@@ -59,7 +59,7 @@ public class OmOrderPo implements Serializable {
     @ApiModelProperty(value = "收货地址ID")
     private Long areaShippingId;
 
-    @ApiModelProperty(value = "评价状态: 1--待评价 2--已评价")
+    @ApiModelProperty(value = "评价状态: 1--待评价 2--已评价 3--还不能评价")
     private Integer evaluateStatus;
 
     @ApiModelProperty(value = "店铺ID")
@@ -71,14 +71,14 @@ public class OmOrderPo implements Serializable {
     @ApiModelProperty(value = "活动类型0-无 1-秒杀 2-拼团 3-积分 4-满减")
     private Integer activityType;
 
-    @ApiModelProperty(value = "金额")
+    @ApiModelProperty(value = "商品金额")
     private BigDecimal totalMoney;
 
     @ApiModelProperty(value = "商品数量")
-    private Integer totalGoods;
+    private Integer totalNumber;
 
     @ApiModelProperty(value = "订单商品类型  0-普通 1-自取 2-海外直邮 3-保税仓 4-服务类 5-虚拟商品 ")
-    private Integer type;
+    private String goodsType;
 
     @ApiModelProperty(value = "支付时间")
     private LocalDateTime payTime;

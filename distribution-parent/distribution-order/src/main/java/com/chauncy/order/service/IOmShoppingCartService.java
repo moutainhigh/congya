@@ -5,6 +5,8 @@ import com.chauncy.data.domain.po.order.OmShoppingCartPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.car.SettleAccountsDto;
+import com.chauncy.data.dto.app.car.SettleDto;
+import com.chauncy.data.dto.app.car.SubmitOrderDto;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
 import com.chauncy.data.dto.app.order.evaluate.select.GetEvaluatesDto;
@@ -61,10 +63,10 @@ public interface IOmShoppingCartService extends Service<OmShoppingCartPo> {
 
     /**
      * 根据店铺和商品类型拆单
-     * @param settleAccountsDtos
+     * @param settleDto
      * @return
      */
-    TotalCarVo searchByIds(@Param("ids") List<SettleAccountsDto> settleAccountsDtos, UmUserPo umUserPo);
+    TotalCarVo searchByIds(SettleDto settleDto, UmUserPo umUserPo);
 
     /**
      * 查看商品详情
@@ -73,5 +75,11 @@ public interface IOmShoppingCartService extends Service<OmShoppingCartPo> {
      * @return
      */
     SpecifiedGoodsVo selectSpecifiedGoods(Long goodsId);
+
+    /**
+     * 提交订单
+     * @param submitOrderDto
+     */
+    void submitOrder(SubmitOrderDto submitOrderDto, UmUserPo currentUser);
 
 }

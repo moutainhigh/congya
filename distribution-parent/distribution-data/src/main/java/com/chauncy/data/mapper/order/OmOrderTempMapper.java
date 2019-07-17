@@ -1,6 +1,6 @@
 package com.chauncy.data.mapper.order;
 
-import com.chauncy.data.domain.po.order.OmOrderTempPo;
+import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.mapper.IBaseMapper;
 
 /**
@@ -9,8 +9,8 @@ import com.chauncy.data.mapper.IBaseMapper;
  * </p>
  *
  * @author huangwancheng
- * @since 2019-07-09
+ * @since 2019-07-15
  */
-public interface OmOrderTempMapper extends IBaseMapper<OmOrderTempPo> {
+public interface OmOrderTempMapper extends IBaseMapper<OmGoodsTempPo> {
 
 }
