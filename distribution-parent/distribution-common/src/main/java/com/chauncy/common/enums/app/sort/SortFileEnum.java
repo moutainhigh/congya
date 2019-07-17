@@ -18,16 +18,14 @@ import java.util.Objects;
 public enum SortFileEnum implements BaseEnum {
 
     @ApiModelProperty("综合排序")
-    COMPREHENSIVE_SORT(1, ""),
+    COMPREHENSIVE_SORT(1, "综合排序"),
     @ApiModelProperty("销量排序")
-    SALES_SORT(2, ""),
+    SALES_SORT(2, "销量排序"),
     @ApiModelProperty("价格排序")
-    PRICE_SORT(3, "");
+    PRICE_SORT(3, "价格排序");
 
     private Integer id;
-    /**
-     * 手机验证码模板
-     */
+
     private String name;
 
     SortFileEnum(Integer id, String name) {
