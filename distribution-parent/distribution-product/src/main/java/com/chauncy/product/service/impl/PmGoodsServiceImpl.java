@@ -1,12 +1,10 @@
 package com.chauncy.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.chauncy.common.enums.app.sort.SortFileEnum;
+import com.chauncy.common.enums.app.sort.SortWayEnum;
 import com.chauncy.common.enums.common.VerifyStatusEnum;
-import com.chauncy.common.enums.goods.GoodsAttributeTypeEnum;
-import com.chauncy.common.enums.goods.GoodsShipTemplateEnum;
-import com.chauncy.common.enums.goods.GoodsTypeEnum;
-import com.chauncy.common.enums.goods.TaxRateTypeEnum;
-import com.chauncy.common.enums.goods.StoreGoodsTypeEnum;
+import com.chauncy.common.enums.goods.*;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.JSONUtils;
@@ -14,7 +12,9 @@ import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.*;
+import com.chauncy.data.domain.po.sys.BasicSettingPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
 import com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockPo;
@@ -27,9 +27,11 @@ import com.chauncy.data.mapper.area.AreaRegionMapper;
 import com.chauncy.data.mapper.product.*;
 import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockMapper;
 import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockTemplateMapper;
+import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.mapper.sys.SysUserMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.supplier.*;
 import com.chauncy.data.vo.supplier.good.AssociationGoodsVo;
 import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
@@ -117,6 +119,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
     @Autowired
     private PmGoodsMapper goodsMapper;
+
+    @Autowired
+    private BasicSettingMapper basicSettingMapper;
 
     @Autowired
     private PmGoodsRelAttributeCategoryMapper goodsRelAttributeCategoryMapper;
@@ -1636,6 +1641,44 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             mapper.deleteById(b);
         });
 
+    }
+
+
+    /**
+     *
+     * 获取店铺下商品列表
+     * 店铺id
+     * 一级分类id
+     * 商品列表： 1.店铺全部商品； 2.店铺推荐商品； 3.店铺新品列表； 4.店铺活动商品； 5.明星单品列表（按时间降序）； 6.最新推荐（按排序数值降序）
+     * 排序内容;  1.综合排序  2.销量排序  3.价格排序
+     * 排序方式   1.降序   2.升序
+     *
+     * @return
+     */
+    @Override
+    public PageInfo<GoodsBaseInfoVo> searchStoreGoodsPaging(SearchStoreGoodsDto searchStoreGoodsDto) {
+        Integer pageNo = searchStoreGoodsDto.getPageNo()==null ? defaultPageNo : searchStoreGoodsDto.getPageNo();
+        Integer pageSize = searchStoreGoodsDto.getPageSize()==null ? defaultPageSize : searchStoreGoodsDto.getPageSize();
+
+        if(null == searchStoreGoodsDto.getSortFileEnum()) {
+            //默认综合排序
+            searchStoreGoodsDto.setSortFileEnum(SortFileEnum.COMPREHENSIVE_SORT);
+        }
+        if(null == searchStoreGoodsDto.getSortWayEnum()) {
+            //默认降序
+            searchStoreGoodsDto.setSortWayEnum(SortWayEnum.DESC);
+        }
+        if(null == searchStoreGoodsDto.getStoreGoodsListTypeEnum()) {
+            //默认全部商品列表
+            searchStoreGoodsDto.setStoreGoodsListTypeEnum(StoreGoodsListTypeEnum.ALL_LIST);
+        } else if(searchStoreGoodsDto.getStoreGoodsListTypeEnum().equals(StoreGoodsListTypeEnum.NEW_LIST)) {
+            //获取系统基本设置
+            BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
+            searchStoreGoodsDto.setNewGoodsDays(basicSettingPo.getNewProductDay());
+        }
+        PageInfo<GoodsBaseInfoVo> goodsBaseInfoVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> mapper.searchInfoBasePaging(searchStoreGoodsDto));
+        return goodsBaseInfoVoPageInfo;
     }
 
     /**

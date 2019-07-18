@@ -5,6 +5,10 @@ import com.chauncy.common.enums.BaseEnum;
 import java.util.Objects;
 
 /**
+ *  店铺分配虚拟库存给分店
+ *  1.店铺自己的商品为 自有商品
+ *  2.店铺被上级分配的商品为  分配商品
+ *
  * @author yeJH
  * @since 2019/7/8 21:35
  */

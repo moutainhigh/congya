@@ -22,7 +22,8 @@ public enum SortFileEnum implements BaseEnum {
     @ApiModelProperty("销量排序")
     SALES_SORT(2, "销量排序"),
     @ApiModelProperty("价格排序")
-    PRICE_SORT(3, "价格排序");
+    PRICE_SORT(3, "价格排序"),
+    ;
 
     private Integer id;
 
@@ -31,6 +32,11 @@ public enum SortFileEnum implements BaseEnum {
     SortFileEnum(Integer id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    @Override
+    public String toString(){
+        return this.name + "_" + this.name();
     }
 
     //通过name获取结果

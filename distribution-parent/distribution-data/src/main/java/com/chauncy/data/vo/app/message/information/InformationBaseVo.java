@@ -1,5 +1,6 @@
 package com.chauncy.data.vo.app.message.information;
 
+import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -60,4 +61,10 @@ public class InformationBaseVo implements Serializable {
 
     @ApiModelProperty(value = "所属店铺粉丝数量")
     private Integer fansNum;
+
+    @ApiModelProperty(value = "是否关注过店铺 true 已关注 false 未关注")
+    private Boolean focusStatus;
+
+    @ApiModelProperty(value = "资讯关联的商品列表按最晚添加时间的第一个商品信息")
+    private GoodsBaseInfoVo goodsBaseInfoVo;
 }

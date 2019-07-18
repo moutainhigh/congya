@@ -3,6 +3,7 @@ package com.chauncy.product.service;
 import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
+import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
 import com.chauncy.data.dto.manage.good.update.RejectGoodsDto;
@@ -12,6 +13,7 @@ import com.chauncy.data.dto.supplier.good.add.AddOrUpdateSkuAttributeDto;
 import com.chauncy.data.dto.supplier.good.select.*;
 import com.chauncy.data.dto.supplier.good.update.*;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.supplier.*;
 import com.chauncy.data.vo.supplier.good.AssociationGoodsVo;
 import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
@@ -255,6 +257,19 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @return
      */
     void delGoodsByIds(Long[] ids);
+
+    /**
+     *
+     * 获取店铺下商品列表
+     * 店铺id
+     * 一级分类id
+     * 商品列表： 1.店铺全部商品； 2.店铺推荐商品； 3.店铺新品列表； 4.店铺活动商品； 5.明星单品列表（按时间降序）； 6.最新推荐（按排序数值降序）
+     * 排序内容;  1.综合排序  2.销量排序  3.价格排序
+     * 排序方式   1.降序   2.升序
+     *
+     * @return
+     */
+    PageInfo<GoodsBaseInfoVo> searchStoreGoodsPaging(SearchStoreGoodsDto searchStoreGoodsDto);
 
     /**
      * 条件查询需要被关联商品信息
