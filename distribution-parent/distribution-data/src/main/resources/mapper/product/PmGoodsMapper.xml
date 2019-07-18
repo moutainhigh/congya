@@ -152,6 +152,82 @@
         group by pgrst.id,pga.id
     </select>
 
+    <select id="searchInfoBasePaging" resultType="com.chauncy.data.vo.app.goods.GoodsBaseInfoVo">
+        SELECT
+                pg.store_id,
+                pg.id AS goodsId,
+                pg.`name` AS goodsName,
+                MIN(pgs.sell_price) AS sellPrice,
+                MIN(pgs.line_price) AS linePrice,
+                SUM(pgs.`sales_volume`) AS salesVolume,
+                pg.icon
+        FROM pm_goods pg
+        LEFT JOIN pm_goods_sku pgs ON pgs.goods_id = pg.id
+        <if test="goodsCategoryId != null">
+            LEFT JOIN pm_goods_category pgc3 ON pgc3.id = pg.goods_category_id
+	        LEFT JOIN pm_goods_category pgc2 ON pgc2.id = pgc3.parent_id AND pgc3.del_flag = 0
+	        LEFT JOIN pm_goods_category pgc1 ON pgc1.id = pgc2.parent_id AND pgc2.del_flag = 0
+        </if>
+	    <where>
+            pg.store_id = #{storeId}
+            AND pg.verify_status = 3
+            AND pg.del_flag = 0
+            AND pgs.del_flag = 0
+            <if test="goodsCategoryId != null">
+                AND pgc1.id = #{goodsCategoryId}
+                AND pgc1.del_flag = 0
+            </if>
+            <if test="storeGoodsListTypeEnum.name() == 'NEW_LIST' ">
+                AND DATEDIFF(now(), pg.update_time) > #{newGoodsDays}
+            </if>
+            <if test="storeGoodsListTypeEnum.name() == 'RECOMMEND_LIST' ">
+                AND pg.recommand_status = 1
+            </if>
+            <if test="storeGoodsListTypeEnum.name() == 'START_LIST' ">
+                AND pg.star_status = 1
+            </if>
+        </where>
+        GROUP BY pg.id
+        <if test="sortFileEnum.name() == 'COMPREHENSIVE_SORT'">
+            ORDER BY salesVolume*5 ${sortFileEnum.name()}
+        </if>
+        <if test="sortFileEnum.name() == 'SALES_SORT'">
+            ORDER BY pg.`sales_volume` ${sortFileEnum.name()}
+        </if>
+        <if test="sortFileEnum.name() == 'PRICE_SORT'">
+            ORDER BY sellPrice ${sortFileEnum.name()}
+        </if>
+        <if test="StoreGoodsListTypeEnum.name() == 'NEWEST_RECOMMEND_LIST'">
+            ORDER BY pg.sort desc
+        </if>
+        <if test="StoreGoodsListTypeEnum.name() == 'START_LIST'">
+            ORDER BY pg.update_time desc
+        </if>
+    </select>
+
+    <select id="searchGoodsByInfoId" resultType="com.chauncy.data.vo.app.goods.GoodsBaseInfoVo">
+        SELECT
+                pg.store_id,
+                pg.id AS goodsId,
+                pg.`name` AS goodsName,
+                MIN(pgs.sell_price) AS sellPrice,
+                MIN(pgs.line_price) AS linePrice,
+                SUM(pgs.`sales_volume`) AS salesVolume,
+                pg.icon
+        FROM mm_information_rel_goods mirg
+        LEFT JOIN pm_goods pg
+        ON mirg.`goods_id` = pg.`id` AND mirg.`information_id` = #{id} AND mirg.`del_flag` = 0
+        LEFT JOIN pm_goods_sku pgs
+        ON pgs.goods_id = pg.id
+        <where>
+            mi.id = #{id}
+            AND pg.verify_status = 3
+            AND pg.del_flag = 0
+            AND pgs.del_flag = 0
+        </where>
+        GROUP BY pg.id
+        ORDER BY pg.update_time DESC
+    </select>
 
     <select id="searchExcelGoods" resultType="com.chauncy.data.vo.supplier.good.ExcelGoodVo">
         select id,name,create_time import_time

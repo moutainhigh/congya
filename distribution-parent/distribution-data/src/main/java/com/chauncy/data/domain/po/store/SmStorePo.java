@@ -150,7 +150,7 @@ public class SmStorePo implements Serializable {
     @ApiModelProperty(value = "旗下店铺数量")
     private Integer storeSubNum;
 
-    @ApiModelProperty(value = "收藏量")
+    @ApiModelProperty(value = "收藏量/粉丝数")
     private Integer collectionNum;
 
     @ApiModelProperty(value = "创建者")

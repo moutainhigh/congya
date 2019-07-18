@@ -102,19 +102,36 @@ public class PsStoreGoodsStockApi extends BaseApi {
     }
 
     /**
-     * 根据ID查找店铺库存信息
+     * 根据ID查找店铺分配给分店的库存信息
      *
      * @param id
      * @return
      */
-    @ApiOperation(value = "查找店铺库存信息", notes = "根据库存ID查找")
-    @GetMapping("/findById/{id}")
-    public JsonViewData findById(@ApiParam(required = true, value = "id")
+    @ApiOperation(value = "根据ID查找店铺分配给分店的库存信息", notes = "根据库存ID查找")
+    @GetMapping("/findBranchStockById/{id}")
+    public JsonViewData findBranchStockById(@ApiParam(required = true, value = "id")
                                  @PathVariable Long id) {
 
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
-                pmStoreGoodsStockService.findById(id));
+                pmStoreGoodsStockService.findBranchStockById(id));
+
+    }
+
+    /**
+     * 根据ID查找直属商家分配给店铺的库存信息
+     *
+     * @param id
+     * @return
+     */
+    @ApiOperation(value = "库存管理_根据ID查找直属商家分配给店铺的库存信息", notes = "根据库存ID查找")
+    @GetMapping("/findStockById/{id}")
+    public JsonViewData findStockById(@ApiParam(required = true, value = "id")
+                                 @PathVariable Long id) {
+
+
+        return new JsonViewData(ResultCode.SUCCESS, "查找成功",
+                pmStoreGoodsStockService.findStockById(id));
 
     }
 
@@ -134,15 +151,28 @@ public class PsStoreGoodsStockApi extends BaseApi {
     }
 
     /**
-     * 分页条件查询
+     * 分页条件查询分配给分店的库存信息
      * @param searchStoreGoodsStockDto
      * @return
      */
-    @ApiOperation(value = "分页条件查询店铺库存", notes = "根据库存名称，创建时间，状态，分配商家，库存数量查询")
-    @PostMapping("/searchPaging")
-    public JsonViewData<PageInfo<StoreGoodsStockVo>> searchPaging(@RequestBody SearchStoreGoodsStockDto searchStoreGoodsStockDto) {
+    @ApiOperation(value = "分页条件查询分配给分店的库存信息", notes = "根据库存名称，创建时间，状态，分配商家，库存数量查询")
+    @PostMapping("/searchPagingBranchStock")
+    public JsonViewData<PageInfo<StoreGoodsStockVo>> searchPagingBranchStock(@RequestBody SearchStoreGoodsStockDto searchStoreGoodsStockDto) {
 
-        PageInfo<StoreGoodsStockVo> storeGoodsStockVoPageInfo = pmStoreGoodsStockService.searchPaging(searchStoreGoodsStockDto);
+        PageInfo<StoreGoodsStockVo> storeGoodsStockVoPageInfo = pmStoreGoodsStockService.searchPagingBranchStock(searchStoreGoodsStockDto);
+        return new JsonViewData(ResultCode.SUCCESS, "查询成功", storeGoodsStockVoPageInfo);
+    }
+
+    /**
+     * 分页条件查询直属商家分配的库存信息
+     * @param searchStoreGoodsStockDto
+     * @return
+     */
+    @ApiOperation(value = "库存管理_分页条件查询直属商家分配的库存信息", notes = "根据库存名称，分配时间，直属商家，库存数量查询")
+    @PostMapping("/searchPagingStock")
+    public JsonViewData<PageInfo<StoreGoodsStockVo>> searchPagingStock(@RequestBody SearchStoreGoodsStockDto searchStoreGoodsStockDto) {
+
+        PageInfo<StoreGoodsStockVo> storeGoodsStockVoPageInfo = pmStoreGoodsStockService.searchPagingStock(searchStoreGoodsStockDto);
         return new JsonViewData(ResultCode.SUCCESS, "查询成功", storeGoodsStockVoPageInfo);
     }
 
