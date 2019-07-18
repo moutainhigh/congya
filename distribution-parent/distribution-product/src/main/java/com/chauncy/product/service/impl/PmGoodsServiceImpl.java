@@ -22,10 +22,7 @@ import com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockTemplatePo;
 import com.chauncy.data.dto.manage.good.update.RejectGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.*;
 import com.chauncy.data.dto.supplier.good.select.*;
-import com.chauncy.data.dto.supplier.good.update.UpdateGoodOperationDto;
-import com.chauncy.data.dto.supplier.good.update.UpdateGoodSellerDto;
-import com.chauncy.data.dto.supplier.good.update.UpdatePublishStatusDto;
-import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
+import com.chauncy.data.dto.supplier.good.update.*;
 import com.chauncy.data.mapper.area.AreaRegionMapper;
 import com.chauncy.data.mapper.product.*;
 import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockMapper;
@@ -1356,14 +1353,14 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     /**
      * 修改应用标签
      *
-     * @param updatePublishStatusDto
+     * @param updateStarStatusDto
      */
     @Override
-    public void updateStarStatus(UpdatePublishStatusDto updatePublishStatusDto) {
+    public void updateStarStatus(UpdateStarStatusDto updateStarStatusDto) {
 
-        List<PmGoodsPo> goodsPos = mapper.selectBatchIds(Arrays.asList(updatePublishStatusDto.getGoodIds()));
+        List<PmGoodsPo> goodsPos = mapper.selectBatchIds(Arrays.asList(updateStarStatusDto.getGoodIds()));
         goodsPos.forEach(a -> {
-            a.setStarStatus(updatePublishStatusDto.getPulishStatus());
+            a.setStarStatus(updateStarStatusDto.getStarStatus());
             mapper.updateById(a);
         });
 

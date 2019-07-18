@@ -28,7 +28,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @TableName("cp_rel_coupon_goods")
 @ApiModel(value = "CpRelCouponGoodsPo对象", description = "优惠券和商品关联表")
-public class CpRelCouponGoodsPo implements Serializable {
+public class AmCouponRelCouponGoodsPo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

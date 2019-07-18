@@ -10,10 +10,7 @@ import com.chauncy.data.dto.supplier.good.add.AddAssociationGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.AddGoodBaseDto;
 import com.chauncy.data.dto.supplier.good.add.AddOrUpdateSkuAttributeDto;
 import com.chauncy.data.dto.supplier.good.select.*;
-import com.chauncy.data.dto.supplier.good.update.UpdateGoodOperationDto;
-import com.chauncy.data.dto.supplier.good.update.UpdateGoodSellerDto;
-import com.chauncy.data.dto.supplier.good.update.UpdatePublishStatusDto;
-import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
+import com.chauncy.data.dto.supplier.good.update.*;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.supplier.*;
 import com.chauncy.data.vo.supplier.good.AssociationGoodsVo;
@@ -202,9 +199,9 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
     /**
      * 修改应用标签
      *
-     * @param updatePublishStatusDto
+     * @param updateStarStatusDto
      */
-    void updateStarStatus(UpdatePublishStatusDto updatePublishStatusDto);
+    void updateStarStatus(UpdateStarStatusDto updateStarStatusDto);
 
     /**
      * 条件查询商品信息

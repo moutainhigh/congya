@@ -28,9 +28,9 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("cp_coupon")
-@ApiModel(value = "CpCouponPo对象", description = "优惠券")
-public class CpCouponPo implements Serializable {
+@TableName("am_coupon")
+@ApiModel(value = "AmCouponPo对象", description = "优惠券")
+public class AmCouponPo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

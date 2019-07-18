@@ -1,6 +1,6 @@
 package com.chauncy.activity.coupon;
 
-import com.chauncy.data.domain.po.activity.CpRelCouponGoodsPo;
+import com.chauncy.data.domain.po.activity.AmCouponRelCouponGoodsPo;
 import com.chauncy.data.core.Service;
 
 /**
@@ -11,6 +11,6 @@ import com.chauncy.data.core.Service;
  * @author huangwancheng
  * @since 2019-07-18
  */
-public interface ICpRelCouponGoodsService extends Service<CpRelCouponGoodsPo> {
+public interface IAmCouponRelCouponGoodsService extends Service<AmCouponRelCouponGoodsPo> {
 
 }

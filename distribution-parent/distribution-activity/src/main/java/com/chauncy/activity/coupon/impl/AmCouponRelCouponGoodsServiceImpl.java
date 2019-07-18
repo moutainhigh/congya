@@ -1,8 +1,8 @@
 package com.chauncy.activity.coupon.impl;
 
-import com.chauncy.data.domain.po.activity.CpRelCouponGoodsPo;
-import com.chauncy.data.mapper.activity.CpRelCouponGoodsMapper;
-import com.chauncy.activity.coupon.ICpRelCouponGoodsService;
+import com.chauncy.data.domain.po.activity.AmCouponRelCouponGoodsPo;
+import com.chauncy.data.mapper.activity.AmCouponRelCouponGoodsMapper;
+import com.chauncy.activity.coupon.IAmCouponRelCouponGoodsService;
 import com.chauncy.data.core.AbstractService;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class CpRelCouponGoodsServiceImpl extends AbstractService<CpRelCouponGoodsMapper,CpRelCouponGoodsPo> implements ICpRelCouponGoodsService {
+public class AmCouponRelCouponGoodsServiceImpl extends AbstractService<AmCouponRelCouponGoodsMapper, AmCouponRelCouponGoodsPo> implements IAmCouponRelCouponGoodsService {
 
  @Autowired
- private CpRelCouponGoodsMapper mapper;
+ private AmCouponRelCouponGoodsMapper mapper;
 
 }

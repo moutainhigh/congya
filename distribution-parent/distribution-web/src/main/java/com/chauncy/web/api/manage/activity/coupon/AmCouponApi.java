@@ -18,7 +18,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import io.swagger.annotations.Api;
-import com.chauncy.activity.coupon.ICpCouponService;
+import com.chauncy.activity.coupon.IAmCouponService;
 
 import java.util.List;
 
@@ -33,10 +33,10 @@ import java.util.List;
 @RestController
 @RequestMapping("manage/activity/coupon")
 @Api(tags = "平台—活动管理-优惠券管理")
-public class CpCouponApi {
+public class AmCouponApi {
 
     @Autowired
-    private ICpCouponService service;
+    private IAmCouponService service;
 
     @Autowired
     private IPmGoodsCategoryService goodsCategoryService;
@@ -84,7 +84,7 @@ public class CpCouponApi {
      * @return
      */
     @PostMapping("/saveCoupon")
-    @ApiOperation("保存优惠券--添加或者修改")
+    @ApiOperation("保存优惠券--添加或者修改,当ID为0时为添加，不为0时为修改")
     public JsonViewData saveCoupon(@RequestBody @ApiParam(required = true,name = "saveCouponDto",value = "保存优惠券信息")
                                    @Validated(IUpdateGroup.class) SaveCouponDto saveCouponDto){
 

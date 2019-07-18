@@ -1,6 +1,6 @@
 package com.chauncy.data.mapper.activity;
 
-import com.chauncy.data.domain.po.activity.CpCouponPo;
+import com.chauncy.data.domain.po.activity.AmCouponPo;
 import com.chauncy.data.mapper.IBaseMapper;
 
 /**
@@ -11,6 +11,6 @@ import com.chauncy.data.mapper.IBaseMapper;
  * @author huangwancheng
  * @since 2019-07-18
  */
-public interface CpCouponMapper extends IBaseMapper<CpCouponPo> {
+public interface AmCouponMapper extends IBaseMapper<AmCouponPo> {
 
 }
