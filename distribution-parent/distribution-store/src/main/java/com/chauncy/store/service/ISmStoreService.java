@@ -2,6 +2,7 @@ package com.chauncy.store.service;
 
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
 import com.chauncy.data.dto.app.store.FindStoreCategoryDto;
 import com.chauncy.data.dto.app.store.SearchStoreDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
@@ -12,6 +13,7 @@ import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.dto.supplier.store.update.StoreBusinessLicenseDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
+import com.chauncy.data.vo.app.store.StoreDetailVo;
 import com.chauncy.data.vo.app.store.StorePagingVo;
 import com.chauncy.data.vo.manage.product.SearchCategoryVo;
 import com.chauncy.data.vo.manage.store.*;
@@ -167,8 +169,8 @@ public interface ISmStoreService extends Service<SmStorePo> {
     List<SearchCategoryVo> findGoodsCategory(FindStoreCategoryDto findStoreCategoryDto);
 
     /**
-     * 获取店铺下商品列表
+     * app获取店铺详情
      * @return
      */
-    PageInfo<GoodsBaseInfoVo> searchStoreGoodsPaging(FindStoreCategoryDto findStoreCategoryDto);
+    StoreDetailVo findDetailById(Long storeId);
 }

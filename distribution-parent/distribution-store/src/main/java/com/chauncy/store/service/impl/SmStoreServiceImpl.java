@@ -3,6 +3,8 @@ package com.chauncy.store.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.constant.SecurityConstant;
+import com.chauncy.common.enums.app.sort.SortFileEnum;
+import com.chauncy.common.enums.app.sort.SortWayEnum;
 import com.chauncy.common.enums.goods.GoodsCategoryLevelEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.enums.system.SysRoleTypeEnum;
@@ -16,6 +18,7 @@ import com.chauncy.data.domain.po.store.rel.SmStoreRelStorePo;
 import com.chauncy.data.domain.po.sys.SysRolePo;
 import com.chauncy.data.domain.po.sys.SysRoleUserPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
 import com.chauncy.data.dto.app.store.FindStoreCategoryDto;
 import com.chauncy.data.dto.app.store.SearchStoreDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
@@ -37,6 +40,7 @@ import com.chauncy.data.mapper.sys.SysUserMapper;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.app.message.information.InformationPagingVo;
+import com.chauncy.data.vo.app.store.StoreDetailVo;
 import com.chauncy.data.vo.app.store.StorePagingVo;
 import com.chauncy.data.vo.manage.product.SearchCategoryVo;
 import com.chauncy.data.vo.manage.store.*;
@@ -558,14 +562,24 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         return searchCategoryVoList;
     }
 
-
     /**
-     * 获取店铺下商品列表
+     * app获取店铺详情
      *
      * @return
      */
     @Override
-    public PageInfo<GoodsBaseInfoVo> searchStoreGoodsPaging(FindStoreCategoryDto findStoreCategoryDto) {
-        return null;
+    public StoreDetailVo findDetailById(Long storeId) {
+        SmStorePo smStorePo = smStoreMapper.selectById(storeId);
+        if(null == smStorePo) {
+            throw new ServiceException(ResultCode.NO_EXISTS,"店铺不存在");
+        } else if(smStorePo.getEnabled().equals(false)) {
+            throw new ServiceException(ResultCode.PARAM_ERROR,"店铺已被禁用");
+        }
+
+        StoreDetailVo storeDetailVo = smStoreMapper.findDetailById(storeId);;
+        if(null != storeDetailVo.getBusinessLicense()) {
+            storeDetailVo.setBusinessLicenseList(Arrays.asList(storeDetailVo.getBusinessLicense().split(",")));
+        }
+        return storeDetailVo;
     }
 }

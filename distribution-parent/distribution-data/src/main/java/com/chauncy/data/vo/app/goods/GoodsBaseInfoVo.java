@@ -32,4 +32,7 @@ public class GoodsBaseInfoVo implements Serializable {
     @ApiModelProperty(value = "商品缩略图")
     private String icon;
 
+    @ApiModelProperty(value = "销量")
+    private Integer salesVolume;
+
 }

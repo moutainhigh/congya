@@ -259,10 +259,28 @@
                 and ss.`name` like concat('%', #{keyword}, '%')
             </if>
         </where>
+        order by ss.sort desc
     </select>
     <select id="findStoreById" resultType="com.chauncy.data.vo.app.store.StorePagingVo">
         select ss.id as storeId, ss.`name` as storeName, ss.logo_image, ss.background_image,
                 ss.collection_num, ss.store_describe
+        from sm_store ss
+        where ss.id = #{storeId}
+    </select>
+    <select id="findDetailById" resultType="com.chauncy.data.vo.app.store.StoreDetailVo">
+        select ss.id as storeId,
+                ss.name as storeName,
+                ss.logo_image,
+                ss.collection_num,
+                ss.total_score,
+                ss.store_describe,
+                ss.baby_describe_score,
+                ss.service_attitude_score,
+                ss.logistics_service_score,
+                ss.owner_name,
+                ss.company_addr,
+                DATE(ss.create_time) as createDate,
+                ss.business_license
         from sm_store ss
         where ss.id = #{storeId}
     </select>

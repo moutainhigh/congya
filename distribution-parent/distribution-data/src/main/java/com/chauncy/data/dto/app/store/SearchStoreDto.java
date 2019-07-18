@@ -21,7 +21,6 @@ public class SearchStoreDto  implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "模糊搜索关键字")
-    @EnumConstraint(target = InformationTypeEnum.class)
     private String keyword;
 
     @ApiModelProperty(value = "店铺分类id")
