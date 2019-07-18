@@ -2,6 +2,7 @@ package com.chauncy.activity.coupon;
 
 import com.chauncy.data.domain.po.activity.CpCouponPo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.dto.manage.activity.coupon.SaveCouponDto;
 
 /**
  * <p>
@@ -13,4 +14,11 @@ import com.chauncy.data.core.Service;
  */
 public interface ICpCouponService extends Service<CpCouponPo> {
 
+    /**
+     * 保存优惠券--添加或者修改
+     *
+     * @param saveCouponDto
+     * @return
+     */
+    void saveCoupon(SaveCouponDto saveCouponDto);
 }

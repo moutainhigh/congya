@@ -3,6 +3,8 @@ package com.chauncy.common.enums.app.coupon;
 import com.chauncy.common.enums.BaseEnum;
 import lombok.Getter;
 
+import java.util.Objects;
+
 /**
  * @Author cheng
  * @create 2019-07-18 12:36
@@ -33,7 +35,7 @@ public enum CouponFormEnum implements BaseEnum {
     }
 
     //通过Id获取结果
-    public static CouponFormEnum getCouponFormEnum(Integer id) {
+    public static CouponFormEnum getCouponFormEnumById(Integer id) {
         for (CouponFormEnum type : CouponFormEnum.values()) {
             if (type.getId() == id)
                 return type;
@@ -61,6 +63,6 @@ public enum CouponFormEnum implements BaseEnum {
 
     @Override
     public boolean isExist(Object field) {
-        return false;
+        return Objects.nonNull(getCouponFormEnumById(Integer.parseInt(field.toString())));
     }
 }

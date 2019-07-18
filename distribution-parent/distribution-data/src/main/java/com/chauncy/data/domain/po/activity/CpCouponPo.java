@@ -3,6 +3,7 @@ package com.chauncy.data.domain.po.activity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -68,11 +69,24 @@ public class CpCouponPo implements Serializable {
     @ApiModelProperty(value = "有效天数")
     private Integer effectiveDay;
 
-    @ApiModelProperty(value = "优惠形式 0-满减 1-固定折扣 2-包邮")
+    @ApiModelProperty(value = "优惠形式 1-满减 2-固定折扣 3-包邮")
     private Integer type;
 
-    @ApiModelProperty(value = "指定范围 0-所有商品 1-指定分类 2-指定商品")
+    @ApiModelProperty(value = "指定范围 1-所有商品 2-指定分类 3-指定商品")
     private Integer scope;
 
+    @ApiModelProperty(value = "折扣比例")
+    private BigDecimal discount;
 
+    @ApiModelProperty(value = "折扣满金额")
+    private BigDecimal discountFullMoney;
+
+    @ApiModelProperty(value = "满减满金额条件")
+    private BigDecimal reductionFullMoney;
+
+    @ApiModelProperty(value = "满减金额")
+    private BigDecimal reductionPostMoney;
+
+    @ApiModelProperty(value = "是否启用 true-启用 false-禁用")
+    private Boolean enable;
 }

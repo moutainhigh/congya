@@ -2,6 +2,7 @@ package com.chauncy.activity.coupon.impl;
 
 import com.chauncy.activity.coupon.ICpCouponService;
 import com.chauncy.data.domain.po.activity.CpCouponPo;
+import com.chauncy.data.dto.manage.activity.coupon.SaveCouponDto;
 import com.chauncy.data.mapper.activity.CpCouponMapper;
 import com.chauncy.data.core.AbstractService;
 import org.springframework.stereotype.Service;
@@ -23,4 +24,14 @@ public class CpCouponServiceImpl extends AbstractService<CpCouponMapper, CpCoupo
     @Autowired
     private CpCouponMapper mapper;
 
+    /**
+     * 保存优惠券--添加或者修改
+     *
+     * @param saveCouponDto
+     * @return
+     */
+    @Override
+    public void saveCoupon(SaveCouponDto saveCouponDto) {
+
+    }
 }
