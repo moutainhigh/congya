@@ -282,20 +282,21 @@ public class ExcelGoodApi extends BaseApi {
                 continue;
             }
             String shipName;
-            Long shipId;
+            List<Long> shipIds;
             if (!StringUtils.isAllBlank(rowDataList.get(11))) {
                 shipName = rowDataList.get(11);
-                shipId = categoryService.findIdByNamesInAndTableName(Lists.newArrayList(shipName), "pm_shipping_template", "and type=1").get(0);
+                shipIds = categoryService.findIdByNamesInAndTableName(Lists.newArrayList(shipName), "pm_shipping_template", "and type=1");
             } else {
                 shipName = rowDataList.get(12);
-                shipId = categoryService.findIdByNamesInAndTableName(Lists.newArrayList(shipName), "pm_shipping_template", "and type=2").get(0);
+                shipIds = categoryService.findIdByNamesInAndTableName(Lists.newArrayList(shipName), "pm_shipping_template", "and type=2");
             }
-            if (shipId == null) {
+            if (shipIds == null) {
                 excelImportErrorLogVo.setRowNumber(i + 1);
                 excelImportErrorLogVo.setErrorMessage("运费模板不存在");
                 excelImportErrorLogVos.add(excelImportErrorLogVo);
                 continue;
             }
+            Long shipId=shipIds.get(0);
 
             //商品参数与参数值
             List<String> attributeNames;

@@ -29,11 +29,23 @@
         <result column="trade_type" property="tradeType" />
         <result column="return_url" property="returnUrl" />
         <result column="refund_amount" property="refundAmount" />
+        <result column="ship_name" property="shipName" />
+        <result column="ship_address" property="shipAddress" />
+        <result column="phone" property="phone" />
+        <result column="real_pay_money" property="realPayMoney" />
+        <result column="total_discount" property="totalDiscount" />
+        <result column="ship_money" property="shipMoney" />
+        <result column="tax_money" property="taxMoney" />
+        <result column="red_envelops" property="redEnvelops" />
+        <result column="shop_ticket" property="shopTicket" />
+        <result column="total_money" property="totalMoney" />
+        <result column="total_number" property="totalNumber" />
+        <result column="total_reward_shop_ticket" property="totalRewardShopTicket" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, pay_type_code, pay_order_no, trade_pay_no, pre_pay_id, pay_id, user_ip, pay_amount, pay_time, status, error_code, error_msg, start_time, expire_time, open_id, buyer_logon_id, notify_url, extra, subject, detail, code_url, merchant_id, trade_type, return_url, refund_amount
+        id, pay_type_code, pay_order_no, trade_pay_no, pre_pay_id, pay_id, user_ip, pay_amount, pay_time, status, error_code, error_msg, start_time, expire_time, open_id, buyer_logon_id, notify_url, extra, subject, detail, code_url, merchant_id, trade_type, return_url, refund_amount, ship_name, ship_address, phone, real_pay_money, total_discount, ship_money, tax_money, red_envelops, shop_ticket, total_money, total_number, total_reward_shop_ticket
     </sql>
 
 </mapper>

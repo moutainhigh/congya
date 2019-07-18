@@ -23,4 +23,5 @@ public class StoreOrderVo {
     @ApiModelProperty("供应商")
     private String storeName;
 
+
 }

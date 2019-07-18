@@ -1,6 +1,6 @@
 package com.chauncy.data.temp.order.service.impl;
 
-import com.chauncy.data.domain.po.order.OmOrderTempPo;
+import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.mapper.order.OmOrderTempMapper;
 import com.chauncy.data.temp.order.service.IOmOrderTempService;
 import com.chauncy.data.core.AbstractService;
@@ -14,11 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
  * </p>
  *
  * @author huangwancheng
- * @since 2019-07-09
+ * @since 2019-07-15
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class OmOrderTempServiceImpl extends AbstractService<OmOrderTempMapper,OmOrderTempPo> implements IOmOrderTempService {
+public class OmOrderTempServiceImpl extends AbstractService<OmOrderTempMapper, OmGoodsTempPo> implements IOmOrderTempService {
 
  @Autowired
  private OmOrderTempMapper mapper;

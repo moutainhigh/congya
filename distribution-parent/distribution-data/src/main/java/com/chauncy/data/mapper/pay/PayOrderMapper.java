@@ -9,7 +9,7 @@ import com.chauncy.data.mapper.IBaseMapper;
  * </p>
  *
  * @author huangwancheng
- * @since 2019-07-09
+ * @since 2019-07-15
  */
 public interface PayOrderMapper extends IBaseMapper<PayOrderPo> {
 

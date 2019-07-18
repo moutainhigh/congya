@@ -1,6 +1,6 @@
 package com.chauncy.data.temp.order.service;
 
-import com.chauncy.data.domain.po.order.OmOrderTempPo;
+import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.core.Service;
 
 /**
@@ -9,8 +9,8 @@ import com.chauncy.data.core.Service;
  * </p>
  *
  * @author huangwancheng
- * @since 2019-07-09
+ * @since 2019-07-15
  */
-public interface IOmOrderTempService extends Service<OmOrderTempPo> {
+public interface IOmOrderTempService extends Service<OmGoodsTempPo> {
 
 }

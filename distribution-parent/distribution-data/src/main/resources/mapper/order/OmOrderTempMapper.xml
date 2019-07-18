@@ -3,39 +3,24 @@
 <mapper namespace="com.chauncy.data.mapper.order.OmOrderTempMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.order.OmOrderTempPo">
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.order.OmGoodsTempPo">
         <id column="id" property="id" />
         <result column="create_by" property="createBy" />
         <result column="create_time" property="createTime" />
         <result column="update_by" property="updateBy" />
         <result column="update_time" property="updateTime" />
         <result column="del_flag" property="delFlag" />
-        <result column="status" property="status" />
-        <result column="ship_name" property="shipName" />
-        <result column="ship_address" property="shipAddress" />
-        <result column="store_name" property="storeName" />
-        <result column="phone" property="phone" />
-        <result column="goods" property="goods" />
-        <result column="goods_type" property="goodsType" />
-        <result column="total_money" property="totalMoney" />
-        <result column="reward_shop_ticket" property="rewardShopTicket" />
-        <result column="shop_ticket" property="shopTicket" />
-        <result column="coupon" property="coupon" />
-        <result column="red_envelops" property="redEnvelops" />
-        <result column="ship_money" property="shipMoney" />
-        <result column="tax_money" property="taxMoney" />
-        <result column="real_pay_money" property="realPayMoney" />
-        <result column="total_discount" property="totalDiscount" />
-        <result column="remark" property="remark" />
-        <result column="order_time" property="orderTime" />
-        <result column="pay_time" property="payTime" />
-        <result column="trade_pay_no" property="tradePayNo" />
-        <result column="send_time" property="sendTime" />
+        <result column="number" property="number" />
+        <result column="icon" property="icon" />
+        <result column="standard_str" property="standardStr" />
+        <result column="name" property="name" />
+        <result column="sell_price" property="sellPrice" />
+        <result column="pay_order_id" property="payOrderId" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, create_by, create_time, update_by, update_time, del_flag, status, ship_name, ship_address, store_name, phone, goods, goods_type, total_money, reward_shop_ticket, shop_ticket, coupon, red_envelops, ship_money, tax_money, real_pay_money, total_discount, remark, order_time, pay_time, trade_pay_no, send_time
+        id, create_by, create_time, update_by, update_time, del_flag, number, icon, standard_str, name, sell_price, pay_order_id
     </sql>
 
 </mapper>

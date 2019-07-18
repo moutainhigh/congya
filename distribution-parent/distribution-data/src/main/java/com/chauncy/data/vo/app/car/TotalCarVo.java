@@ -1,5 +1,6 @@
 package com.chauncy.data.vo.app.car;
 
+import com.chauncy.common.util.BigDecimalUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -18,32 +19,46 @@ import java.util.List;
 public class TotalCarVo {
 
 
-    @ApiModelProperty(value = "可抵扣金额")
-    private BigDecimal deductionMoney;
+    @ApiModelProperty(value = "总订单可抵扣金额")
+    private BigDecimal totalDeductionMoney;
 
-    @ApiModelProperty(value = "商品总额")
+    @ApiModelProperty(value = "总订单商品总额")
     private BigDecimal totalMoney;
 
-    @ApiModelProperty(value = "预计奖励购物券")
-    private BigDecimal rewardShopTicket;
+    @ApiModelProperty(value = "总订单预计奖励购物券")
+    private BigDecimal totalRewardShopTicket;
 
-    @ApiModelProperty(value = "使用购物券")
-    private BigDecimal shopTicket;
+    @ApiModelProperty(value = "总订单使用购物券")
+    private BigDecimal totalShopTicket;
 
-    @ApiModelProperty(value = "使用红包")
-    private BigDecimal redEnvelops;
+    @ApiModelProperty(value = "购物券抵扣了多少钱")
+    private BigDecimal totalShopTicketMoney;
 
-    @ApiModelProperty(value = "运费")
-    private BigDecimal shipMoney;
+    @ApiModelProperty(value = "总订单使用红包")
+    private BigDecimal totalRedEnvelops;
 
-    @ApiModelProperty(value = "税费")
-    private BigDecimal taxMoney;
+    @ApiModelProperty(value = "红包抵扣了多少钱")
+    private BigDecimal totalRedEnvelopsMoney;
+
+    @ApiModelProperty(value = "总订单运费")
+    private BigDecimal totalShipMoney;
+
+    @ApiModelProperty(value = "总订单税费")
+    private BigDecimal totalTaxMoney;
 
     @ApiModelProperty("根据店铺与商品类型拆单列表")
     private List<StoreOrderVo> storeOrderVos;
 
-    @ApiModelProperty(value = "总数量")
+    @ApiModelProperty(value = "总订单数量")
     private int totalNumber;
+
+    @ApiModelProperty(value = "总订单合计优惠")
+    private BigDecimal totalDiscount;
+
+    @ApiModelProperty(value = "总订单应付总额")
+    private BigDecimal totalRealPayMoney;
+
+
 
 
 
