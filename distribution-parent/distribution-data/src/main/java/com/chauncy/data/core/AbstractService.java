@@ -4,8 +4,14 @@ package com.chauncy.data.core;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.manage.common.FindGoodsBaseByConditionDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.manage.common.goods.GoodsBaseVo;
+import com.chauncy.data.vo.supplier.MemberLevelInfos;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -70,5 +76,44 @@ public abstract class AbstractService<M extends BaseMapper<T>,T> extends Service
         updateWrapper.in("id", baseUpdateStatusDto.getId());
         updateWrapper.set("enabled", baseUpdateStatusDto.getEnabled());
         this.update(updateWrapper);
+    }
+
+    /**
+     * 获取全部会员ID和名称
+     * @return
+     */
+    @Override
+    public List<MemberLevelInfos> findAllMemberLevel() {
+        List<MemberLevelInfos> memberLevelInfos = IBaseMapper.memberLevelInfos ();
+        memberLevelInfos.stream ().filter (a -> a.getLevel() == 1).forEach (a -> {
+            a.setLevelName (a.getLevelName () + "/全部用户");
+        });
+        return memberLevelInfos;
+    }
+
+    /**
+     * 条件获取商品的基础信息，作为给需要选择的功能的展示
+     *
+     * @param findGoodsBaseByConditionDto
+     * @return
+     */
+    @Override
+    public PageInfo<GoodsBaseVo> findGoodsBaseByCondition(FindGoodsBaseByConditionDto findGoodsBaseByConditionDto) {
+
+        Integer pageNo = findGoodsBaseByConditionDto.getPageNo() == null ? defaultPageNo : findGoodsBaseByConditionDto.getPageNo();
+        Integer pageSize = findGoodsBaseByConditionDto.getPageSize() == null ? defaultPageSize : findGoodsBaseByConditionDto.getPageSize();
+        PageInfo<GoodsBaseVo> goodsBaseVoPageInfo = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
+                .doSelectPageInfo(() -> IBaseMapper.findGoodsBaseByCondition(findGoodsBaseByConditionDto));
+        goodsBaseVoPageInfo.getList().forEach(a->{
+            PmGoodsCategoryPo goodsCategoryPo3 = IBaseMapper.findCategoryById(a.getCategoryId());
+            String level3 = goodsCategoryPo3.getName();
+            PmGoodsCategoryPo goodsCategoryPo2 = IBaseMapper.findCategoryById(goodsCategoryPo3.getParentId());
+            String level2 = goodsCategoryPo2.getName();
+            String level1 = IBaseMapper.findCategoryById(goodsCategoryPo2.getParentId()).getName();
+            String categoryName = level1 + "/" + level2 + "/" + level3;
+            a.setCategoryName (categoryName);
+        });
+
+        return goodsBaseVoPageInfo;
     }
 }

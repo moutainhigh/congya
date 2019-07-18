@@ -66,4 +66,25 @@
         ${concatWhereSql}
     </select>
 
+    <select id="findGoodsBaseByCondition" resultType="com.chauncy.data.vo.manage.common.goods.GoodsBaseVo">
+        select a.id as goods_id,a.name as goods_name,b.id as category_id
+        from pm_goods as a,pm_goods_category b
+        <where>
+            a.del_flag = 0 and b.del_flag=0 and a.goods_category_id = b.id and b.`level`=3
+            <if test="goodsId != null">
+                and a.id = #{goodsId}
+            </if>
+            <if test="goodsName != null and goodsName != '' ">
+                and a.name like concat('%', #{goodsName}, '%')
+            </if>
+            <if test="categoryId != null">
+                and b.id = #{categoryId}
+            </if>
+            <if test="categoryName != null and categoryName != '' ">
+                and b.name like concat('%', #{categoryName}, '%')
+            </if>
+        </where>
+
+    </select>
+
 </mapper>
