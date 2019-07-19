@@ -1,13 +1,9 @@
 package com.chauncy.data.vo.manage.activity.coupon;
 
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 /**
  * @Author cheng
