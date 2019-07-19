@@ -1,8 +1,7 @@
 package com.chauncy.data.temp.order.service.impl;
 
-import com.chauncy.data.domain.po.order.OmGoodsTempPo;
-import com.chauncy.data.mapper.order.OmOrderTempMapper;
-import com.chauncy.data.temp.order.service.IOmOrderTempService;
+import com.chauncy.data.mapper.order.OmGoodsTempMapper;
+import com.chauncy.data.temp.order.service.IOmGoodsTempService;
 import com.chauncy.data.core.AbstractService;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class OmOrderTempServiceImpl extends AbstractService<OmOrderTempMapper, OmGoodsTempPo> implements IOmOrderTempService {
+public class OmGoodsTempServiceImpl extends AbstractService<OmGoodsTempMapper, com.chauncy.data.domain.po.order.OmGoodsTempPo> implements IOmGoodsTempService {
 
  @Autowired
- private OmOrderTempMapper mapper;
+ private OmGoodsTempMapper mapper;
 
 }

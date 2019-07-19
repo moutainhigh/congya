@@ -28,14 +28,14 @@ public class TotalCarVo {
     @ApiModelProperty(value = "总订单预计奖励购物券")
     private BigDecimal totalRewardShopTicket;
 
-    @ApiModelProperty(value = "总订单使用购物券")
-    private BigDecimal totalShopTicket;
+/*    @ApiModelProperty(value = "总订单使用购物券")
+    private BigDecimal totalShopTicket;*/
 
     @ApiModelProperty(value = "购物券抵扣了多少钱")
     private BigDecimal totalShopTicketMoney;
 
-    @ApiModelProperty(value = "总订单使用红包")
-    private BigDecimal totalRedEnvelops;
+   /* @ApiModelProperty(value = "总订单使用红包")
+    private BigDecimal totalRedEnvelops;*/
 
     @ApiModelProperty(value = "红包抵扣了多少钱")
     private BigDecimal totalRedEnvelopsMoney;
@@ -57,6 +57,12 @@ public class TotalCarVo {
 
     @ApiModelProperty(value = "总订单应付总额")
     private BigDecimal totalRealPayMoney;
+
+      //计算出应付金额=商品总额+运费+税费-总优惠
+    public BigDecimal calculationRealPayMoney(){
+        BigDecimal a = BigDecimalUtil.safeAdd(totalMoney, totalShipMoney, totalTaxMoney);
+        return BigDecimalUtil.safeSubtract(a,totalDiscount);
+    }
 
 
 

@@ -28,30 +28,30 @@ public class SubmitOrderDto {
     @NotNull(message = "是否使用葱鸭钱包不能为空！")
     private Boolean isUseWallet;
 
-    @ApiModelProperty(value = "使用购物券")
-    private BigDecimal shopTicket;
+
+    @ApiModelProperty(value = "购物券抵扣了多少钱")
+    private BigDecimal totalShopTicketMoney;
 
 
+    @ApiModelProperty(value = "红包抵扣了多少钱")
+    private BigDecimal totalRedEnvelopsMoney;
 
-    @ApiModelProperty(value = "使用红包")
-    private BigDecimal redEnvelops;
-
-    @ApiModelProperty(value = "可抵扣金额")
-    private BigDecimal deductionMoney;
+   /* @ApiModelProperty(value = "可抵扣金额")
+    private BigDecimal deductionMoney;*/
 
     @ApiModelProperty(value = "商品总额")
     private BigDecimal totalMoney;
 
-    @ApiModelProperty(value = "预计奖励购物券")
-    private BigDecimal rewardShopTicket;
+    /*@ApiModelProperty(value = "预计奖励购物券")
+    private BigDecimal rewardShopTicket;*/
 
 
 
     @ApiModelProperty(value = "运费")
-    private BigDecimal shipMoney;
+    private BigDecimal totalShipMoney;
 
     @ApiModelProperty(value = "税费")
-    private BigDecimal taxMoney;
+    private BigDecimal totalTaxMoney;
 
     @ApiModelProperty("根据店铺与商品类型拆单列表")
     private List<StoreOrderVo> storeOrderVos;
@@ -63,5 +63,5 @@ public class SubmitOrderDto {
     private BigDecimal totalDiscount;
 
     @ApiModelProperty(value = "应付总额")
-    private BigDecimal realPayMoney;
+    private BigDecimal totalRealPayMoney;
 }

@@ -11,6 +11,6 @@ import com.chauncy.data.core.Service;
  * @author huangwancheng
  * @since 2019-07-15
  */
-public interface IOmOrderTempService extends Service<OmGoodsTempPo> {
+public interface IOmGoodsTempService extends Service<OmGoodsTempPo> {
 
 }

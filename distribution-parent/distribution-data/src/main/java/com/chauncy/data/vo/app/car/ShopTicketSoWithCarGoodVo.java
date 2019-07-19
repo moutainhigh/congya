@@ -52,7 +52,7 @@ public class ShopTicketSoWithCarGoodVo {
     private BigDecimal customTaxRate;
 
     @ApiModelProperty("skuid")
-    private long id;
+    private Long id;
 
     @ApiModelProperty("商品缩略图")
     private String icon;
@@ -65,11 +65,15 @@ public class ShopTicketSoWithCarGoodVo {
 
 
     @ApiModelProperty("数量")
-    private int number;
+    private Integer number;
 
     @ApiModelProperty(hidden = true)
     @JSONField(serialize = false)
     private String storeName;
+
+    @ApiModelProperty(hidden = true)
+    @JSONField(serialize = false)
+    private Long storeId;
 
     @ApiModelProperty(hidden = true)
     @JSONField(serialize = false)

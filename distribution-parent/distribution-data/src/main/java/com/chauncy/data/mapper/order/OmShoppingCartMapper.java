@@ -1,12 +1,14 @@
 package com.chauncy.data.mapper.order;
 
 import com.chauncy.data.domain.po.order.OmShoppingCartPo;
+import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.app.car.CarGoodsVo;
 import com.chauncy.data.vo.app.car.ShopTicketSoWithCarGoodVo;
 import com.chauncy.data.vo.app.order.cart.CartVo;
 import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -33,4 +35,13 @@ public interface OmShoppingCartMapper extends IBaseMapper<OmShoppingCartPo> {
      * @return
      */
     List<ShopTicketSoWithCarGoodVo> searchByIds(@Param("ids") List<Long> ids);
+
+    /**
+     * 减去红包和购物券
+     * @param
+     * @return
+     */
+    int updateDiscount(@Param("redEnvelops") BigDecimal redEnvelops,@Param("shopTicket") BigDecimal shopTicket,
+    @Param("id") Long id
+    );
 }

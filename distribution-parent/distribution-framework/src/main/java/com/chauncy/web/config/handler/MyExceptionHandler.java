@@ -31,7 +31,7 @@ public class MyExceptionHandler {
         LoggerUtil.error(e);
         if(e instanceof ServiceException){
             ServiceException serviceException = (ServiceException) e;
-            return new JsonViewData(serviceException.getResultCode(),serviceException.getLocalizedMessage());
+            return new JsonViewData(serviceException.getResultCode(),serviceException.getLocalizedMessage(),serviceException.getData());
         }else if (e instanceof MethodArgumentNotValidException){
             FieldError fieldError = ((MethodArgumentNotValidException) e).getBindingResult().getFieldError();
             Object errorMessage= fieldError.getDefaultMessage();

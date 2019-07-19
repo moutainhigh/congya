@@ -4,6 +4,7 @@ package com.chauncy.web.api.app.order;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.app.car.SettleAccountsDto;
 import com.chauncy.data.dto.app.car.SettleDto;
+import com.chauncy.data.dto.app.car.SubmitOrderDto;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
 import com.chauncy.data.dto.app.order.evaluate.select.GetEvaluatesDto;
@@ -111,5 +112,13 @@ public class OmShoppingCartApi extends BaseApi {
     public JsonViewData<TotalCarVo> updateCart(@RequestBody @Validated SettleDto settleDto){
         TotalCarVo totalCarVo = service.searchByIds(settleDto, getAppCurrUser());
         return new JsonViewData(totalCarVo);
+    }
+
+    @PostMapping("/submitOrder")
+    @ApiOperation("购物车提交订单")
+    public JsonViewData submitOrder(@RequestBody @Validated SubmitOrderDto submitOrderDto){
+    service.submitOrder(submitOrderDto,getAppCurrUser());
+    return new JsonViewData(ResultCode.SUCCESS);
+
     }
 }

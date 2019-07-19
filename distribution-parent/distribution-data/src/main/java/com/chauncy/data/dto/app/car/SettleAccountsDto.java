@@ -22,7 +22,7 @@ import java.math.BigDecimal;
 public class SettleAccountsDto {
 
     @ApiModelProperty(value = "sku的id")
-    private long skuId;
+    private Long skuId;
 
     @ApiModelProperty(value = "数量")
     @Min(1)
