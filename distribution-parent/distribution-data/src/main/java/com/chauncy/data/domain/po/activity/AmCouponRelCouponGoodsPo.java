@@ -26,8 +26,8 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("cp_rel_coupon_goods")
-@ApiModel(value = "CpRelCouponGoodsPo对象", description = "优惠券和商品关联表")
+@TableName("am_coupon_rel_coupon_goods")
+@ApiModel(value = "AmCouponRelCouponGoodsPo对象", description = "优惠券和商品关联表")
 public class AmCouponRelCouponGoodsPo implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -48,8 +48,8 @@ public class AmCouponRelCouponGoodsPo implements Serializable {
     @ApiModelProperty(value = "修改时间")
     private LocalDateTime updateTime;
 
-    @ApiModelProperty(value = "商品ID")
-    private Long goodsId;
+    @ApiModelProperty(value = "关联ID:商品ID或分类ID")
+    private Long associationId;
 
     @ApiModelProperty(value = "优惠券ID")
     private Long couponId;

@@ -1,16 +1,20 @@
 package com.chauncy.web.api.manage.activity.coupon;
 
 
-import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.MyBaseTree;
-import com.chauncy.data.dto.manage.activity.coupon.SaveCouponDto;
+import com.chauncy.data.dto.manage.activity.coupon.add.SaveCouponDto;
+import com.chauncy.data.dto.manage.activity.coupon.select.SearchCouponListDto;
 import com.chauncy.data.dto.manage.common.FindGoodsBaseByConditionDto;
-import com.chauncy.data.valid.group.IUpdateGroup;
+import com.chauncy.data.dto.manage.good.select.SearchGoodCategoryDto;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.manage.activity.coupon.SaveCouponResultVo;
+import com.chauncy.data.vo.manage.activity.coupon.SearchCouponListVo;
 import com.chauncy.data.vo.manage.common.goods.GoodsBaseVo;
 import com.chauncy.data.vo.manage.product.GoodsCategoryTreeVo;
+import com.chauncy.data.vo.manage.product.SearchCategoryVo;
 import com.chauncy.data.vo.supplier.MemberLevelInfos;
 import com.chauncy.product.service.IPmGoodsCategoryService;
+import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -20,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import io.swagger.annotations.Api;
 import com.chauncy.activity.coupon.IAmCouponService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -33,7 +38,7 @@ import java.util.List;
 @RestController
 @RequestMapping("manage/activity/coupon")
 @Api(tags = "平台—活动管理-优惠券管理")
-public class AmCouponApi {
+public class AmCouponApi extends BaseApi {
 
     @Autowired
     private IAmCouponService service;
@@ -69,11 +74,21 @@ public class AmCouponApi {
      * 联动查询所有分类
      * @return
      */
-    @PostMapping("/find_all_category")
-    @ApiOperation(value = "联动查询所有分类")
-    public JsonViewData findGoodsCategoryTreeVo(){
-        List<GoodsCategoryTreeVo> goodsCategoryTreeVo = goodsCategoryService.findGoodsCategoryTreeVo();
-        return new JsonViewData(MyBaseTree.build(goodsCategoryTreeVo));
+//    @PostMapping("/find_all_category")
+//    @ApiOperation(value = "联动查询所有分类")
+//    public JsonViewData findGoodsCategoryTreeVo(){
+//        List<GoodsCategoryTreeVo> goodsCategoryTreeVo = goodsCategoryService.findGoodsCategoryTreeVo();
+//        return new JsonViewData(MyBaseTree.build(goodsCategoryTreeVo));
+//    }
+
+    @PostMapping("/search")
+    @ApiOperation(value = "查看商品分类列表")
+
+    public JsonViewData<SearchCategoryVo> search(@RequestBody @Valid @ApiParam(required = true, name = "baseSearchDto", value = "分类列表查询条件")
+                                                         SearchGoodCategoryDto categoryDto) {
+        Integer pageNo=categoryDto.getPageNo()==null?defaultPageNo:categoryDto.getPageNo();
+        Integer pageSize=categoryDto.getPageSize()==null?defaultPageSize:categoryDto.getPageSize();
+        return setJsonViewData(goodsCategoryService.searchList(categoryDto,pageNo,pageSize));
     }
 
     /**
@@ -85,11 +100,25 @@ public class AmCouponApi {
      */
     @PostMapping("/saveCoupon")
     @ApiOperation("保存优惠券--添加或者修改,当ID为0时为添加，不为0时为修改")
-    public JsonViewData saveCoupon(@RequestBody @ApiParam(required = true,name = "saveCouponDto",value = "保存优惠券信息")
-                                   @Validated(IUpdateGroup.class) SaveCouponDto saveCouponDto){
+    public JsonViewData<SaveCouponResultVo> saveCoupon(@RequestBody @ApiParam(required = true,name = "saveCouponDto",value = "保存优惠券信息")
+                                   @Validated SaveCouponDto saveCouponDto){
 
-        service.saveCoupon(saveCouponDto);
-        return new JsonViewData(ResultCode.SUCCESS);
+
+        return new JsonViewData(service.saveCoupon(saveCouponDto));
+    }
+
+    /**
+     * 条件分页查询优惠券列表
+     *
+     * @param searchCouponListDto
+     * @return
+     */
+    @PostMapping("/searchCouponList")
+    @ApiOperation("条件分页查询优惠券列表")
+    public JsonViewData<PageInfo<SearchCouponListVo>> searchCouponList(@RequestBody @ApiParam(required = true,name = "searchCouponListDto",value = "条件查询优惠券列表")
+                                     @Validated SearchCouponListDto searchCouponListDto){
+
+        return new JsonViewData(service.searchCouponList(searchCouponListDto));
     }
 
 }
