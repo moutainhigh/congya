@@ -8,10 +8,7 @@ import com.chauncy.data.dto.supplier.good.add.AddOrUpdateSkuAttributeDto;
 import com.chauncy.data.dto.supplier.good.select.FindStandardDto;
 import com.chauncy.data.dto.supplier.good.select.SearchGoodInfosDto;
 import com.chauncy.data.dto.supplier.good.select.SelectAttributeDto;
-import com.chauncy.data.dto.supplier.good.update.UpdateGoodOperationDto;
-import com.chauncy.data.dto.supplier.good.update.UpdateGoodSellerDto;
-import com.chauncy.data.dto.supplier.good.update.UpdatePublishStatusDto;
-import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
+import com.chauncy.data.dto.supplier.good.update.*;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
@@ -320,14 +317,14 @@ public class SmGoodsApi extends BaseApi {
     /**
      * 修改应用标签
      *
-     * @param updatePublishStatusDto
+     * @param updateStarStatusDto
      * @return
      */
     @PostMapping("/updateStarStatus")
     @ApiOperation("修改应用标签")
-    public JsonViewData updateStarStatus(@RequestBody @Validated @ApiParam(required = true, name = "publishStatusDto", value = "上下架商品条件") UpdatePublishStatusDto updatePublishStatusDto){
+    public JsonViewData updateStarStatus(@RequestBody @Validated @ApiParam(required = true, name = "updateStarStatusDto", value = "修改应用标签状态") UpdateStarStatusDto updateStarStatusDto){
 
-        service.updateStarStatus(updatePublishStatusDto);
+        service.updateStarStatus(updateStarStatusDto);
         return setJsonViewData(ResultCode.SUCCESS,"操作成功");
     }
 

@@ -24,14 +24,20 @@
     </sql>
     <select id="findById" resultType="com.chauncy.data.vo.supplier.good.stock.StoreGoodsStockVo">
         select psgs.id, psgs.`name`, psgs.stock_template_id, pgvst.`name` as stockTemplateName, psgs.store_id, ss.`name` as storeName, psgs.remark
-        from pm_store_goods_stock psgs left join sm_store ss on psgs.store_id = ss.id
+        from pm_store_goods_stock psgs left join sm_store ss
+        <if test="isBranch !=null and isBranch == true">
+            on psgs.store_id = ss.id
+        </if>
+        <if test="isBranch !=null and isBranch == false ">
+            on psgs.distribute_store_id = ss.id
+        </if>
         left join pm_goods_virtual_stock_template pgvst on psgs.stock_template_id = pgvst.id
         where psgs.id = #{id}
     </select>
     <select id="searchSkuInfoByStockId"  resultType="com.chauncy.data.vo.supplier.good.stock.StockTemplateSkuInfoVo">
         select psrgs.id as relId, pg.id as goodsId, pg.`name` as goodName, pgs.id as goodsSkuId, pg.goods_type, pgs.sell_price,
                 IFNULL(psrgs1.distribute_price,pgs.sell_price) as originalPrice, psrgs.distribute_price,
-				psrgs.distribute_stock_num, pgvs.stock_num as remainingStockNum,  GROUP_CONCAT(CONCAT(pgav.`value`))
+				psrgs.distribute_stock_num, pgvs.stock_num as remainingStockNum,  GROUP_CONCAT(CONCAT(pgav.`value`)) as skuName
         from pm_store_rel_goods_stock psrgs
         left join pm_goods pg on psrgs.goods_id = pg.id
         left join pm_goods_sku pgs on pgs.id = psrgs.goods_sku_id
@@ -40,9 +46,9 @@
 		left join pm_goods_rel_attribute_value_sku pgrav on pgs.id = pgrav.goods_sku_id and pgrav.del_flag = 0
 		left join pm_goods_attribute_value pgav on pgav.id = pgrav.goods_attribute_value_id and pgrav.del_flag = 0
         where psrgs.store_stock_id = #{id} and psrgs.del_flag = 0
-        group by psrgs.id, pgvs.id;
+        group by psrgs.id, pgvs.id
     </select>
-    <select id="searchPaging" resultType="com.chauncy.data.vo.supplier.good.stock.StoreGoodsStockVo">
+    <select id="searchPagingBranchStock" resultType="com.chauncy.data.vo.supplier.good.stock.StoreGoodsStockVo">
         select psgs.id, psgs.`name`, ss.`name` as storeName, psgs.enabled, psgs.create_time,
                     sum(psrgs.distribute_stock_num) as distributeStockSum
         from pm_store_goods_stock psgs left join sm_store ss on ss.id = psgs.distribute_store_id
@@ -77,6 +83,41 @@
             having distributeStockSum <![CDATA[>= ]]> #{minStockNum}
         </if>
         ORDER BY psgs.create_time desc
+    </select>
+    <select id="searchPagingStock" resultType="com.chauncy.data.vo.supplier.good.stock.StoreGoodsStockVo">
+        select psgs.id, psgs.`name`, ss.`name` as storename, psgs.create_time, sum(psrgs.distribute_stock_num) as distributestocksum
+        from pm_store_goods_stock psgs
+        left join sm_store ss
+        on ss.id = psgs.store_id
+        left join pm_store_rel_goods_stock psrgs
+        on psrgs.store_stock_id = psgs.id and psrgs.del_flag = 0
+        <where>
+            psgs.distribute_store_id = #{storeId} and psgs.del_flag = 0
+            <if test="stockName !=null and stockName !=''">
+                and psgs.`name` like concat('%', #{stockName}, '%')
+            </if>
+            <if test="storeName != null and storeName !=''">
+                and ss.`name` like concat('%', #{storeName}, '%')
+            </if>
+            <if test="startTime != null">
+                and date(psgs.create_time) <![CDATA[<= ]]>  #{startTime}
+            </if>
+            <if test="endTime != null">
+                and date(psgs.create_time) <![CDATA[<= ]]> #{endTime}
+            </if>
+        </where>
+        group by psgs.id
+        <if test="minStockNum != null and maxStockNum != null ">
+            having distributeStockSum <![CDATA[>= ]]> #{minStockNum}
+            and distributeStockSum <![CDATA[<= ]]> #{maxStockNum}
+        </if>
+        <if test="maxStockNum != null and minStockNum == null ">
+            having distributeStockSum <![CDATA[<= ]]> #{maxStockNum}
+        </if>
+        <if test="minStockNum != null and maxStockNum == null ">
+            having distributeStockSum <![CDATA[>= ]]> #{minStockNum}
+        </if>
+        order by psgs.create_time desc
     </select>
 
 </mapper>

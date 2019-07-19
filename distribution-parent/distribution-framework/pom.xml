@@ -70,9 +70,17 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
+        <!--订单模块-->
         <dependency>
             <groupId>com.chauncy</groupId>
             <artifactId>distribution-order</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <!--活动模块-->
+        <dependency>
+            <groupId>com.chauncy</groupId>
+            <artifactId>distribution-activity</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
 

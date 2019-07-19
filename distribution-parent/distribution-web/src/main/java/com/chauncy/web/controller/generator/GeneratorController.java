@@ -64,9 +64,9 @@ public class GeneratorController {
         gc.setEntityName("%sPo");
         gc.setXmlName("%sMapper");
         gc.setControllerName("%sApi");
-        gc.setOpen(false);
+        gc.setOpen(false); // 是否打开输出目录
         gc.setSwagger2(true); //实体属性 Swagger2 注解
-        gc.setFileOverride(true);
+        gc.setFileOverride(true);// 开启文件覆盖
         // ID 策略 AUTO->("数据库ID自增") INPUT->(用户输入ID") ID_WORKER->("全局唯一ID") UUID->("全局唯一ID")
         gc.setIdType(IdType.ID_WORKER);
         mpg.setGlobalConfig(gc);
@@ -158,6 +158,7 @@ public class GeneratorController {
         strategy.setControllerMappingHyphenStyle(true);
         strategy.setEntitySerialVersionUID(true);
         strategy.setTablePrefix(pc.getModuleName() + "_");
+        strategy.setLogicDeleteFieldName("del_flag");
         mpg.setStrategy(strategy);
         mpg.setTemplateEngine(new FreemarkerTemplateEngine());
         mpg.execute();

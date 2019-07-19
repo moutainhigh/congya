@@ -2,6 +2,10 @@ package com.chauncy.data.core;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.manage.common.FindGoodsBaseByConditionDto;
+import com.chauncy.data.vo.manage.common.goods.GoodsBaseVo;
+import com.chauncy.data.vo.supplier.MemberLevelInfos;
+import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 
 import java.io.Serializable;
@@ -53,4 +57,17 @@ public interface Service<T> extends IService<T>{
      * @param baseUpdateStatusDto
      */
     void editEnabledBatch(BaseUpdateStatusDto baseUpdateStatusDto);
+
+    /**
+     * 获取全部会员ID和名称
+     */
+    List<MemberLevelInfos> findAllMemberLevel();
+
+    /**
+     * 条件获取商品的基础信息，作为给需要选择的功能的展示
+     *
+     * @param findGoodsBaseByConditionDto
+     * @return
+     */
+    PageInfo<GoodsBaseVo> findGoodsBaseByCondition(FindGoodsBaseByConditionDto findGoodsBaseByConditionDto);
 }

@@ -21,9 +21,9 @@ public class StoreGoodsStockBaseDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "店铺-商品虚拟库存模板关联表")
+    /*@ApiModelProperty(value = "店铺-商品虚拟库存模板关联表")
     @NotNull(groups = IUpdateGroup.class)
-    private Long id;
+    private Long id;*/
 
     @ApiModelProperty(value = "分店库存名称")
     @NotBlank
@@ -40,7 +40,7 @@ public class StoreGoodsStockBaseDto implements Serializable {
     @ApiModelProperty(value = "备注")
     private String remark;
 
-    @ApiModelProperty(value = "备注")
+    @ApiModelProperty(value = "店铺分配商品库存基本信息")
     private List<StoreRelGoodsStockBaseDto> storeRelGoodsStockBaseDtoList;
 
 

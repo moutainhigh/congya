@@ -216,4 +216,73 @@
     </select>
 
 
+    <resultMap id="appStoreBaseResult" type="com.chauncy.data.vo.app.store.StorePagingVo">
+        <id column="storeId" property="storeId"/>
+        <result column="storeName" property="storeName"/>
+        <result column="logo_image" property="logoImage"/>
+        <result column="background_image" property="backgroundImage"/>
+        <result column="store_describe" property="storeDescribe"/>
+        <result column="collection_num" property="collectionNum"/>
+        <result column="storeDescribe" property="storeDescribe"/>
+        <!-- collection定义关联集合类型的属性封装规则
+        offType:指定集合中的元素类型
+        -->
+        <collection property="goodsBaseInfoVoList" ofType="com.chauncy.data.vo.app.goods.GoodsBaseInfoVo">
+            <result column="goodsId" property="goodsId"/>
+            <result column="goodsName" property="goodsName"/>
+            <result column="sellPrice" property="sellPrice"/>
+            <result column="linePrice" property="linePrice"/>
+            <result column="icon" property="icon"/>
+        </collection>
+    </resultMap>
+    <select id="searchPaging"  resultMap="appStoreBaseResult">
+        select ss.id as storeId, ss.`name` as storeName, ss.logo_image, ss.background_image,
+                ss.collection_num, ss.store_describe, goods.goodsId, goods.goodsName,
+                goods.sellPrice, goods.linePrice, goods.icon
+        from sm_store ss
+        left join (
+            select pg.store_id, pg.id as goodsId, pg.`name` as goodsName, min(pgs.sell_price) as sellPrice,
+                    min(pgs.line_price) as linePrice, pg.icon
+            from pm_goods pg left join pm_goods_sku pgs on pgs.goods_id = pg.id
+            where pg.del_flag = 0 and pgs.del_flag = 0
+            group by pg.id
+            order by pg.sort desc
+            limit ${goodsNum}
+        ) as goods
+        on ss.id = goods.store_id
+        <where>
+            ss.enabled = 1 and ss.del_flag = 0
+            <if test="storeCategoryId != null">
+                and ss.store_category_id = #{storeCategoryId}
+            </if>
+            <if test="keyword != null and keyword !=''">
+                and ss.`name` like concat('%', #{keyword}, '%')
+            </if>
+        </where>
+        order by ss.sort desc
+    </select>
+    <select id="findStoreById" resultType="com.chauncy.data.vo.app.store.StorePagingVo">
+        select ss.id as storeId, ss.`name` as storeName, ss.logo_image, ss.background_image,
+                ss.collection_num, ss.store_describe
+        from sm_store ss
+        where ss.id = #{storeId}
+    </select>
+    <select id="findDetailById" resultType="com.chauncy.data.vo.app.store.StoreDetailVo">
+        select ss.id as storeId,
+                ss.name as storeName,
+                ss.logo_image,
+                ss.collection_num,
+                ss.total_score,
+                ss.store_describe,
+                ss.baby_describe_score,
+                ss.service_attitude_score,
+                ss.logistics_service_score,
+                ss.owner_name,
+                ss.company_addr,
+                DATE(ss.create_time) as createDate,
+                ss.business_license
+        from sm_store ss
+        where ss.id = #{storeId}
+    </select>
+
 </mapper>

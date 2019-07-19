@@ -22,7 +22,7 @@ public class UpdateStarStatusDto {
     @NeedExistConstraint(tableName = "pm_goods")
     private Long[] goodIds;
 
-    @ApiModelProperty("是否是明星单品")
+    @ApiModelProperty("是否是明星单品 false--否，true--是")
     @NotNull(message = "明星单品不能为空")
     private Boolean starStatus;
 }

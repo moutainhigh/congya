@@ -27,5 +27,8 @@ public class SmStoreCategoryVo implements Serializable {
     @ApiModelProperty(value = "是否启用 1-是 0-否 默认为1")
     private Boolean enabled;
 
+    @ApiModelProperty(value = "分类缩略图")
+    private String icon;
+
 
 }
