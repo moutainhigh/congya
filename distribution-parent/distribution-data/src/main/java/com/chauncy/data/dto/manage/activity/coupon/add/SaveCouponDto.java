@@ -1,4 +1,4 @@
-package com.chauncy.data.dto.manage.activity.coupon;
+package com.chauncy.data.dto.manage.activity.coupon.add;
 
 import com.chauncy.common.enums.app.coupon.CouponFormEnum;
 import com.chauncy.data.valid.annotation.EnumConstraint;
@@ -25,7 +25,6 @@ import java.util.List;
 public class SaveCouponDto {
 
     @ApiModelProperty("id")
-    @NeedExistConstraint(tableName = "cp_coupon")
     private Long id;
 
     @ApiModelProperty("优惠券名称")
@@ -44,7 +43,7 @@ public class SaveCouponDto {
     @NotNull(message = "指定会员不能为空")
     private Long levelId;
 
-    @ApiModelProperty(value = "有效天数")
+    @ApiModelProperty(value = "有效天数 0为不限时间使用")
     @NotNull(message = "有效天数不能为空")
     private Integer effectiveDay;
 
@@ -52,7 +51,7 @@ public class SaveCouponDto {
     @EnumConstraint(target = CouponFormEnum.class)
     private Integer type;
 
-    @ApiModelProperty(value = "指定范围 1-所有商品 2-指定商品")
+    @ApiModelProperty(value = "指定范围 1-所有商品 2-指定类目 3-指定商品")
     private Integer scope;
 
     @ApiModelProperty(value = "折扣比例")
@@ -67,7 +66,7 @@ public class SaveCouponDto {
     @ApiModelProperty(value = "满减金额")
     private BigDecimal reductionPostMoney;
 
-    @ApiModelProperty(value = "商品ID集合")
-    private List<Long> goodsIds;
+    @ApiModelProperty(value = "商品ID或分类ID集合")
+    private List<Long> idList;
 
 }

@@ -17,18 +17,18 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 优惠券和商品关联表
+ * 优惠券和用户关联表
  * </p>
  *
  * @author huangwancheng
- * @since 2019-07-18
+ * @since 2019-07-19
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("am_coupon_rel_coupon_goods")
-@ApiModel(value = "AmCouponRelCouponGoodsPo对象", description = "优惠券和商品关联表")
-public class AmCouponRelCouponGoodsPo implements Serializable {
+@TableName("am_coupon_rel_coupon_user")
+@ApiModel(value = "AmCouponRelCouponUserPo对象", description = "优惠券和用户关联表")
+public class AmCouponRelCouponUserPo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,20 +39,17 @@ public class AmCouponRelCouponGoodsPo implements Serializable {
     @ApiModelProperty(value = "创建者")
     private String createBy;
 
-    @ApiModelProperty(value = "创建时间")
-    private LocalDateTime createTime;
+    @ApiModelProperty(value = "领取时间")
+    private LocalDateTime receiveTime;
 
-    @ApiModelProperty(value = "修改者")
-    private String updateBy;
-
-    @ApiModelProperty(value = "修改时间")
-    private LocalDateTime updateTime;
-
-    @ApiModelProperty(value = "关联ID:商品ID或分类ID")
-    private Long associationId;
-
-    @ApiModelProperty(value = "优惠券ID")
+    @ApiModelProperty(value = "优惠券id")
     private Long couponId;
+
+    @ApiModelProperty(value = "用户id")
+    private Long userId;
+
+    @ApiModelProperty(value = "优惠券是否已使用:1-已使用 0-未使用")
+    private Boolean useStatus;
 
 
 }
