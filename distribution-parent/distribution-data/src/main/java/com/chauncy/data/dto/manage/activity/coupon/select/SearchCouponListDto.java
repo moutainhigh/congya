@@ -24,7 +24,7 @@ public class SearchCouponListDto {
     private Long id;
 
     @ApiModelProperty(value = "是否启用 1-是 0-否 默认为1")
-    private Boolean enabled;
+    private Boolean enable;
 
     @ApiModelProperty(value = "模糊查询名称")
     private String name;
@@ -42,7 +42,6 @@ public class SearchCouponListDto {
     private Integer highestUseNum;
 
     @ApiModelProperty(value = "优惠形式 1-满减 2-固定折扣 3-包邮")
-    @EnumConstraint(target = CouponFormEnum.class)
     private Integer type;
 
     @Min(1)

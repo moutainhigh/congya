@@ -57,7 +57,7 @@ public class AmCouponPo implements Serializable {
     @ApiModelProperty(value = "优惠券名称")
     private String name;
 
-    @ApiModelProperty(value = "可发放总数")
+    @ApiModelProperty(value = "发放总数")
     private Integer totalNum;
 
     @ApiModelProperty(value = "每人限领数量")

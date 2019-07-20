@@ -23,5 +23,80 @@
     <sql id="Base_Column_List">
         id, create_by, create_time, update_by, update_time, del_flag, name, total_num, every_limit_num, level_id, effective_day, type, scope
     </sql>
+    <select id="searchCouponList" resultType="com.chauncy.data.vo.manage.activity.coupon.SearchCouponListVo">
+        select a.id as coupon_id,a.name,a.enable,a.total_num,count(b.id) as receive_num,(a.total_num-count(b.id))as enable_num
+        from am_coupon as a
+        LEFT JOIN am_coupon_rel_coupon_user as b on a.id = b.coupon_id
+        where a.del_flag = 0
+        <if test="enable !=null">
+            and a.enable = #{enable}
+        </if>
+        <if test="name !=null and name != ''">
+            and a.name like concat('%', #{name}, '%')
+        </if>
+        <if test="type !=null">
+            and a.type = #{type}
+        </if>
+        group by a.id
+        having 1=1
+        <if test="lowestUseNum !=null">
+            and use_num &gt;= #{lowestUseNum}
+        </if>
+        <if test="highestUseNum !=null">
+            and use_num &lt;= #{highestUseNum}
+        </if>
+        <if test="lowestNotUseNum !=null">
+            and not_use_num &gt;= #{lowestUseNum}
+        </if>
+        <if test="highestNotUseNum !=null">
+            and not_use_num &lt;= #{highestUseNum}
+        </if>
+    </select>
+    <select id="searchReceiveRecord"
+            resultType="com.chauncy.data.vo.manage.activity.coupon.SearchReceiveRecordVo">
+        select c.id as user_id,a.name as coupon_name,c.name as user_name,c.phone,b.id as order_id,d.use_status,d.receive_time,b.create_time as use_time
+        from am_coupon a,om_order b,um_user	c,am_coupon_rel_coupon_user d
+        where a.id = b.coupon_id and a.del_flag	=0 and a.id =#{id} and c.id = b.um_user_id and d.user_id = c.id and d.coupon_id = a.id
+            <if test="userId != null">
+                and c.id = #{userId}
+            </if>
+            <if test="phone != null and phone != ''">
+                and c.phone = #{phone}
+            </if>
+            <if test="useStatus != null">
+                and d.use_status = #{useStatus}
+            </if>
+
+    </select>
+    <select id="findCouponDetailById"
+            resultType="com.chauncy.data.vo.manage.activity.coupon.FindCouponDetailByIdVo">
+        SELECT a.name,a.total_num,a.every_limit_num,a.level_id,b.level_name,a.effective_day,a.type,a.scope
+        from am_coupon a,pm_member_level b
+        where a.level_id = b.id and a.id = #{id};
+    </select>
+    <select id="searchDetailCategory"
+            resultType="com.chauncy.data.vo.manage.activity.coupon.SearchDetailAssociationsVo">
+        select b.id,b.name,b.level
+        from am_coupon_rel_coupon_goods a,pm_goods_category b
+        where a.coupon_id = #{id} and a.association_id = b.id
+        <if test="searchId != null">
+            and b.id = #{searchId}
+        </if>
+        <if test="name != null and name != ''">
+            and b.name like concat('%', #{name} ,'%')
+        </if>
+    </select>
+    <select id="searchDetailGoods"
+            resultType="com.chauncy.data.vo.manage.activity.coupon.SearchDetailAssociationsVo">
+        select b.id,b.name,b.goods_category_id
+        from am_coupon_rel_coupon_goods a,pm_goods b
+        where a.coupon_id = #{id} and a.association_id = b.id
+        <if test="searchId != null">
+            and b.id = #{searchId}
+        </if>
+        <if test="name != null and name != ''">
+            and b.name like concat('%', #{name} ,'%')
+        </if>
+    </select>
 
 </mapper>

@@ -1,11 +1,12 @@
 package com.chauncy.activity.coupon;
 
-import com.chauncy.data.domain.po.activity.AmCouponPo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.domain.po.activity.AmCouponPo;
 import com.chauncy.data.dto.manage.activity.coupon.add.SaveCouponDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchCouponListDto;
-import com.chauncy.data.vo.manage.activity.coupon.SaveCouponResultVo;
-import com.chauncy.data.vo.manage.activity.coupon.SearchCouponListVo;
+import com.chauncy.data.dto.manage.activity.coupon.select.SearchDetailAssociationsDto;
+import com.chauncy.data.dto.manage.activity.coupon.select.SearchReceiveRecordDto;
+import com.chauncy.data.vo.manage.activity.coupon.*;
 import com.github.pagehelper.PageInfo;
 
 /**
@@ -33,4 +34,33 @@ public interface IAmCouponService extends Service<AmCouponPo> {
      * @return
      */
     PageInfo<SearchCouponListVo> searchCouponList(SearchCouponListDto searchCouponListDto);
+
+    /**
+     * 批量删除优惠券
+     * @param ids
+     * @return
+     */
+    void delByIds(Long[] ids);
+
+    /**
+     * 根据优惠券查找领取记录
+     * @param searchReceiveRecordDto
+     * @return
+     */
+    PageInfo<SearchReceiveRecordVo> searchReceiveRecord(SearchReceiveRecordDto searchReceiveRecordDto);
+
+    /**
+     * 根据ID查询优惠券详情除关联商品外的信息
+     * @param id
+     * @return
+     */
+    FindCouponDetailByIdVo findCouponDetailById(Long id);
+
+    /***
+     * 条件分页获取优惠券详情下指定的商品信息
+     *
+     * @param searchDetailAssociationsDto
+     * @return
+     */
+    PageInfo<SearchDetailAssociationsVo> searchDetailAssociations(SearchDetailAssociationsDto searchDetailAssociationsDto);
 }

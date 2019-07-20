@@ -22,17 +22,23 @@ public class SearchCouponListVo {
     @ApiModelProperty(value = "优惠券名称")
     private String name;
 
-    @ApiModelProperty(value = "可发放总数")
+    @ApiModelProperty(value = "发放总数")
     private Integer totalNum;
+
+    @ApiModelProperty(value = "剩余发放总数")
+    private Integer enableNum;
 
     @ApiModelProperty(value = "领取总数")
     private Integer receiveNum;
 
-    @ApiModelProperty(value = "使用总数")
-    private Integer useNum;
+    @ApiModelProperty(value = "使用总数,初始化为0")
+    private Integer useNum = 0;
 
-    @ApiModelProperty(value = "未使用总数")
-    private Integer notUseNum;
+    @ApiModelProperty(value = "未使用总数,初始化为0")
+    private Integer notUseNum = 0;
+
+    @ApiModelProperty(value = "已失效总数,初始化为0")
+    private Integer failureNum = 0;
 
     @ApiModelProperty(value = "是否启用 true-启用 false-禁用")
     private Boolean enable;

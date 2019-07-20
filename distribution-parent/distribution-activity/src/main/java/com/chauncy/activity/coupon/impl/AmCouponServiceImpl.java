@@ -4,25 +4,30 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.activity.coupon.IAmCouponService;
 import com.chauncy.common.enums.app.coupon.CouponFormEnum;
 import com.chauncy.common.enums.app.coupon.CouponScopeEnum;
+import com.chauncy.common.enums.app.coupon.CouponUseStatusEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
+import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.activity.AmCouponPo;
 import com.chauncy.data.domain.po.activity.AmCouponRelCouponGoodsPo;
+import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.product.PmGoodsSkuPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.manage.activity.coupon.add.SaveCouponDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchCouponListDto;
+import com.chauncy.data.dto.manage.activity.coupon.select.SearchDetailAssociationsDto;
+import com.chauncy.data.dto.manage.activity.coupon.select.SearchReceiveRecordDto;
 import com.chauncy.data.mapper.activity.AmCouponMapper;
 import com.chauncy.data.mapper.activity.AmCouponRelCouponGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
 import com.chauncy.data.vo.BaseVo;
-import com.chauncy.data.vo.manage.activity.coupon.SaveCouponResultVo;
-import com.chauncy.data.vo.manage.activity.coupon.SearchCouponListVo;
+import com.chauncy.data.vo.manage.activity.coupon.*;
 import com.chauncy.security.util.SecurityUtil;
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Lists;
@@ -32,6 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -331,6 +337,176 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
      */
     @Override
     public PageInfo<SearchCouponListVo> searchCouponList(SearchCouponListDto searchCouponListDto) {
+
+        Integer pageNo = searchCouponListDto.getPageNo() == null ? defaultPageNo : searchCouponListDto.getPageNo();
+        Integer pageSize = searchCouponListDto.getPageSize() == null ? defaultPageSize : searchCouponListDto.getPageSize();
+        PageInfo<SearchCouponListVo> searchCouponListVo = new PageInfo<>();
+        searchCouponListVo = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
+                .doSelectPageInfo(() -> mapper.searchCouponList(searchCouponListDto));
+        if (ListUtil.isListNullAndEmpty(searchCouponListVo.getList())){
+            return new PageInfo<> ();
+        }
+        searchCouponListVo.getList().forEach(a->{
+            //已使用个数
+            Integer usedNum = mapper.countNum(a.getCouponId(),CouponUseStatusEnum.USED.getId());
+            //未使用个数
+            Integer notUseNum = mapper.countNum(a.getCouponId(),CouponUseStatusEnum.NOT_USED.getId());
+            //已失效个数
+            Integer failureNum = mapper.countNum(a.getCouponId(),CouponUseStatusEnum.FAILURE.getId());
+            a.setUseNum(usedNum);
+            a.setNotUseNum(notUseNum);
+            a.setFailureNum(failureNum);
+        });
+
+        return searchCouponListVo;
+    }
+
+    /**
+     * 批量删除优惠券
+     * @param ids
+     * @return
+     */
+    @Override
+    public void delByIds(Long[] ids) {
+        Arrays.asList(ids).forEach(a->{
+            if (mapper.selectById(a)==null){
+                throw new ServiceException(ResultCode.FAIL,"数据库不存在该优惠券");
+            }
+        });
+        mapper.deleteBatchIds(Arrays.asList(ids));
+    }
+
+    /**
+     * 根据优惠券查找领取记录
+     * @param searchReceiveRecordDto
+     * @return
+     */
+    @Override
+    public PageInfo<SearchReceiveRecordVo> searchReceiveRecord(SearchReceiveRecordDto searchReceiveRecordDto) {
+
+        Integer pageNo = searchReceiveRecordDto.getPageNo() == null ? defaultPageNo : searchReceiveRecordDto.getPageNo();
+        Integer pageSize = searchReceiveRecordDto.getPageSize() == null ? defaultPageSize : searchReceiveRecordDto.getPageSize();
+        PageInfo<SearchReceiveRecordVo> searchReceiveRecordVoPageInfo = new PageInfo<>();
+        searchReceiveRecordVoPageInfo = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
+                .doSelectPageInfo(() -> mapper.searchReceiveRecord(searchReceiveRecordDto));
+        if (ListUtil.isListNullAndEmpty(searchReceiveRecordVoPageInfo.getList())){
+            return new PageInfo<> ();
+        }
+        return searchReceiveRecordVoPageInfo;
+    }
+
+    /**
+     * 根据ID查询优惠券详情除关联商品外的信息
+     * @param id
+     * @return
+     */
+    @Override
+    public FindCouponDetailByIdVo findCouponDetailById(Long id) {
+        if (mapper.selectById(id)==null){
+            throw new ServiceException(ResultCode.FAIL,String.format("不存在该优惠券:[s%],请检查",id));
+        }
+
+        return mapper.findCouponDetailById(id);
+    }
+
+    /***
+     * 条件分页获取优惠券详情下指定的商品信息
+     *
+     * @param searchDetailAssociationsDto
+     * @return
+     */
+    @Override
+    public PageInfo<SearchDetailAssociationsVo> searchDetailAssociations(SearchDetailAssociationsDto searchDetailAssociationsDto) {
+        Integer pageNo = searchDetailAssociationsDto.getPageNo() == null ? defaultPageNo : searchDetailAssociationsDto.getPageNo();
+        Integer pageSize = searchDetailAssociationsDto.getPageSize() == null ? defaultPageSize : searchDetailAssociationsDto.getPageSize();
+
+        AmCouponPo couponPo = mapper.selectById(searchDetailAssociationsDto.getId());
+        CouponFormEnum couponFormEnum = CouponFormEnum.getCouponFormEnumById(couponPo.getType());
+        CouponScopeEnum couponScopeEnum = CouponScopeEnum.getCouponScopeEnumById(couponPo.getScope());
+        PageInfo<SearchDetailAssociationsVo> searchDetailAssociationsVoPageInfo = new PageInfo<>();
+        //获取优惠形式 type 1-满减 2-固定折扣 3-包邮
+        switch (couponFormEnum) {
+            case WITH_PREFERENTIAL_REDUCTION://满减
+            case FIXED_DISCOUNT://固定折扣
+                switch (couponScopeEnum) {
+                    case ALL_GOODS:
+                        break;
+                    case SPECIFIED_CATEGORY:
+                        break;
+                    //指定商品
+                    case SPECIFIED_GOODS:
+                        searchDetailAssociationsVoPageInfo = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
+                                .doSelectPageInfo(() -> mapper.searchDetailGoods(searchDetailAssociationsDto));
+                        if (ListUtil.isListNullAndEmpty(searchDetailAssociationsVoPageInfo.getList())){
+                            return new PageInfo<> ();
+                        }
+                        searchDetailAssociationsVoPageInfo.getList().forEach(b->{
+                            PmGoodsCategoryPo goodsCategoryPo = categoryMapper.selectById(b.getGoodsCategoryId());
+                            String level3 = goodsCategoryPo.getName();
+                            PmGoodsCategoryPo goodsCategoryPo2 = categoryMapper.selectById(goodsCategoryPo.getParentId());
+                            String level2 = goodsCategoryPo2.getName();
+                            String level1 = categoryMapper.selectById(goodsCategoryPo2.getParentId()).getName();
+                            String categoryName = level1 + "/" + level2 + "/" + level3;
+                            b.setCategoryName (categoryName);
+                        });
+                        return searchDetailAssociationsVoPageInfo;
+                }
+                break;
+            //包邮
+            case PACKAGE_MAIL:
+                switch (couponScopeEnum) {
+                    //所有商品
+                    case ALL_GOODS:
+                        break;
+                    //指定分类
+                    case SPECIFIED_CATEGORY:
+                        searchDetailAssociationsVoPageInfo = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
+                                .doSelectPageInfo(() -> mapper.searchDetailCategory(searchDetailAssociationsDto));
+                        if (ListUtil.isListNullAndEmpty(searchDetailAssociationsVoPageInfo.getList())){
+                            return new PageInfo<> ();
+                        }
+                        searchDetailAssociationsVoPageInfo.getList().forEach(a->{
+                            PmGoodsCategoryPo goodsCategoryPo = categoryMapper.selectById(a.getId());
+                            if (a.getLevel()==1){
+                                a.setCategoryName(goodsCategoryPo.getName().toString());
+                            }else if (a.getLevel()==2){
+                                String level2 = goodsCategoryPo.getName();
+                                String level1 = categoryMapper.selectById(goodsCategoryPo.getParentId()).getName();
+                                String categoryName = level1 + "/" + level2;
+                                a.setCategoryName(categoryName);
+                            }else if (a.getLevel()==3){
+                                String level3 = goodsCategoryPo.getName();
+                                PmGoodsCategoryPo goodsCategoryPo2 = categoryMapper.selectById(goodsCategoryPo.getParentId());
+                                String level2 = goodsCategoryPo2.getName();
+                                String level1 = categoryMapper.selectById(goodsCategoryPo2.getParentId()).getName();
+                                String categoryName = level1 + "/" + level2 + "/" + level3;
+                                a.setCategoryName (categoryName);
+                            }
+                        });
+                        return searchDetailAssociationsVoPageInfo;
+
+                    //指定商品
+                    case SPECIFIED_GOODS:
+                        searchDetailAssociationsVoPageInfo = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
+                                .doSelectPageInfo(() -> mapper.searchDetailGoods(searchDetailAssociationsDto));
+                        if (ListUtil.isListNullAndEmpty(searchDetailAssociationsVoPageInfo.getList())){
+                            return new PageInfo<> ();
+                        }
+                        searchDetailAssociationsVoPageInfo.getList().forEach(b->{
+                            PmGoodsCategoryPo goodsCategoryPo = categoryMapper.selectById(b.getGoodsCategoryId());
+                            String level3 = goodsCategoryPo.getName();
+                            PmGoodsCategoryPo goodsCategoryPo2 = categoryMapper.selectById(goodsCategoryPo.getParentId());
+                            String level2 = goodsCategoryPo2.getName();
+                            String level1 = categoryMapper.selectById(goodsCategoryPo2.getParentId()).getName();
+                            String categoryName = level1 + "/" + level2 + "/" + level3;
+                            b.setCategoryName (categoryName);
+                        });
+                        return searchDetailAssociationsVoPageInfo;
+                }
+                break;
+        }
+        //获取优惠券添加商品指定范围 scope 1-所有商品 2-指定分类 3-指定商品
+
         return null;
     }
 }

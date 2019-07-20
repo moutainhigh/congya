@@ -1,28 +1,29 @@
 package com.chauncy.web.api.manage.activity.coupon;
 
 
-import com.chauncy.data.domain.MyBaseTree;
+import com.chauncy.activity.coupon.IAmCouponService;
+import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.activity.coupon.add.SaveCouponDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchCouponListDto;
+import com.chauncy.data.dto.manage.activity.coupon.select.SearchDetailAssociationsDto;
+import com.chauncy.data.dto.manage.activity.coupon.select.SearchReceiveRecordDto;
 import com.chauncy.data.dto.manage.common.FindGoodsBaseByConditionDto;
 import com.chauncy.data.dto.manage.good.select.SearchGoodCategoryDto;
 import com.chauncy.data.vo.JsonViewData;
-import com.chauncy.data.vo.manage.activity.coupon.SaveCouponResultVo;
-import com.chauncy.data.vo.manage.activity.coupon.SearchCouponListVo;
+import com.chauncy.data.vo.manage.activity.coupon.*;
 import com.chauncy.data.vo.manage.common.goods.GoodsBaseVo;
-import com.chauncy.data.vo.manage.product.GoodsCategoryTreeVo;
 import com.chauncy.data.vo.manage.product.SearchCategoryVo;
 import com.chauncy.data.vo.supplier.MemberLevelInfos;
 import com.chauncy.product.service.IPmGoodsCategoryService;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import io.swagger.annotations.Api;
-import com.chauncy.activity.coupon.IAmCouponService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -119,6 +120,72 @@ public class AmCouponApi extends BaseApi {
                                      @Validated SearchCouponListDto searchCouponListDto){
 
         return new JsonViewData(service.searchCouponList(searchCouponListDto));
+    }
+
+    /**
+     * 批量启用或禁用
+     * @param baseUpdateStatusDto
+     * @return
+     */
+    @PostMapping("/editEnable")
+    @ApiOperation("批量启用或禁用")
+    public JsonViewData editEnable(@Validated @RequestBody  @ApiParam(required = true, name = "baseUpdateStatusDto", value = "资讯id、修改的状态值")
+                                           BaseUpdateStatusDto baseUpdateStatusDto){
+        service.editEnabledBatch(baseUpdateStatusDto);
+        return new JsonViewData(ResultCode.SUCCESS,"操作成功");
+    }
+
+    /**
+     * 批量删除优惠券
+     * @param ids
+     * @return
+     */
+    @ApiOperation(value = "批量删除优惠券", notes = "根据id批量删除")
+    @GetMapping("/delByIds/{ids}")
+    public JsonViewData delByIds(@ApiParam(required = true, name = "ids", value = "id集合")
+                                 @PathVariable Long[] ids) {
+        service.delByIds(ids);
+        return new JsonViewData(ResultCode.SUCCESS,"删除成功");
+    }
+
+    /**
+     * 根据优惠券查找领取记录
+     * @param searchReceiveRecordDto
+     * @return
+     */
+    @ApiOperation("根据优惠券id查找领取记录")
+    @PostMapping("/searchReceiveRecord")
+    public JsonViewData<PageInfo<SearchReceiveRecordVo>> searchReceiveRecord(@RequestBody @ApiParam(required = true, name = "searchReceiveRecordDto", value = "根据优惠券id查找领取记录")
+                                                                       @Validated SearchReceiveRecordDto searchReceiveRecordDto){
+        return new JsonViewData(service.searchReceiveRecord(searchReceiveRecordDto));
+    }
+
+    //TODO 查找优惠券详情,分开两个接口获取，findCouponDetailById()获取除关联商品外的信息，另一个接口查询关联商品，需要不同范围的条件分页查询
+
+    /**
+     * 根据ID查询优惠券详情除关联商品外的信息
+     * @param id
+     * @return
+     */
+    @ApiOperation("根据ID查询优惠券详情除关联商品外的信息")
+    @GetMapping("/findCouponDetailById/{id}")
+    public JsonViewData<FindCouponDetailByIdVo> findCouponDetailById(@ApiParam(required = true,name="id",value="优惠券ID")
+                                                                     @PathVariable Long id){
+        return new JsonViewData<FindCouponDetailByIdVo>(service.findCouponDetailById(id));
+    }
+
+    /***
+     * 条件分页获取优惠券详情下指定的商品信息
+     *
+     * @param searchDetailAssociationsDto
+     * @return
+     */
+    @ApiOperation("条件分页获取优惠券详情下指定的商品信息")
+    @PostMapping("/searchDetailAssociations")
+    public JsonViewData<PageInfo<SearchDetailAssociationsVo>> searchDetailAssociations(@RequestBody @ApiParam(required = true, name = "分页查询优惠券关联商品信息Dto", value = "searchDetailAssociationsDto")
+                                                       @Validated SearchDetailAssociationsDto searchDetailAssociationsDto){
+
+        return new JsonViewData<PageInfo<SearchDetailAssociationsVo>>(service.searchDetailAssociations(searchDetailAssociationsDto));
     }
 
 }
