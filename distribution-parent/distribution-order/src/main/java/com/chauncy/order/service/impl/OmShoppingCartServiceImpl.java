@@ -13,7 +13,10 @@ import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.order.OmShoppingCartPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
-import com.chauncy.data.domain.po.product.*;
+import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
+import com.chauncy.data.domain.po.product.PmGoodsPo;
+import com.chauncy.data.domain.po.product.PmGoodsRelAttributeValueSkuPo;
+import com.chauncy.data.domain.po.product.PmGoodsSkuPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.sys.BasicSettingPo;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
@@ -25,8 +28,6 @@ import com.chauncy.data.dto.app.car.SubmitOrderDto;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
 import com.chauncy.data.mapper.area.AreaRegionMapper;
-import com.chauncy.data.mapper.order.OmOrderMapper;
-import com.chauncy.data.mapper.order.OmGoodsTempMapper;
 import com.chauncy.data.mapper.order.OmShoppingCartMapper;
 import com.chauncy.data.mapper.pay.PayOrderMapper;
 import com.chauncy.data.mapper.product.*;
@@ -38,8 +39,6 @@ import com.chauncy.data.temp.order.service.IOmGoodsTempService;
 import com.chauncy.data.vo.app.car.*;
 import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
 import com.chauncy.data.vo.app.goods.SpecifiedSkuVo;
-import com.chauncy.data.mapper.product.PmGoodsMapper;
-import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
 import com.chauncy.data.vo.app.order.cart.CartVo;
 import com.chauncy.data.vo.app.order.cart.StoreGoodsVo;
 import com.chauncy.data.vo.supplier.GoodsStandardVo;
@@ -56,10 +55,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -618,9 +613,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         //获取系统基本参数
         BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
         //红包金额换算成红包个数
-        BigDecimal totalRedEnvelops = BigDecimalUtil.safeDivide(submitOrderDto.getTotalRedEnvelopsMoney(), basicSettingPo.getMoneyToCurrentRedEnvelops());
+        BigDecimal totalRedEnvelops = BigDecimalUtil.safeMultiply(submitOrderDto.getTotalRedEnvelopsMoney(), basicSettingPo.getMoneyToCurrentRedEnvelops());
         //优惠券金额换算成优惠券个数
-        BigDecimal totalShopTicket = BigDecimalUtil.safeDivide(submitOrderDto.getTotalShopTicketMoney(), basicSettingPo.getMoneyToShopTicket());
+        BigDecimal totalShopTicket = BigDecimalUtil.safeMultiply(submitOrderDto.getTotalShopTicketMoney(), basicSettingPo.getMoneyToShopTicket());
 
 
         //生成商品快照

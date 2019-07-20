@@ -105,4 +105,7 @@ public class OmOrderPo implements Serializable {
     @ApiModelProperty(value = "总支付单id")
     private Long payOrderId;
 
+    @ApiModelProperty(value = "优惠券id")
+    private Long couponId;
+
 }

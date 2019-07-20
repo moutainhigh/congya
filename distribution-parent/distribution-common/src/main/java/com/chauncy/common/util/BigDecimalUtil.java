@@ -258,11 +258,8 @@ public class BigDecimalUtil {
         if (null == b1 ||  null == b2) {
 
             return BigDecimal.ZERO;
-
         }
-
         return BigDecimal.valueOf(b1.doubleValue()).multiply(BigDecimal.valueOf(b2.doubleValue())).setScale(2, BigDecimal.ROUND_HALF_UP);
-
     }
 
 
