@@ -35,7 +35,7 @@ public class OmGoodsTempPo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "订单快照id")
+    @ApiModelProperty(value = "商品快照id")
     @TableId(value = "id", type = IdType.ID_WORKER)
     private Long id;
 
@@ -71,7 +71,10 @@ public class OmGoodsTempPo implements Serializable {
     private BigDecimal sellPrice;
 
     @ApiModelProperty(value = "支付单id")
-    private Long payOrderId;
+    private Long orderId;
+
+    @ApiModelProperty(value = "skuId")
+    private Long skuId;
 
 
 }

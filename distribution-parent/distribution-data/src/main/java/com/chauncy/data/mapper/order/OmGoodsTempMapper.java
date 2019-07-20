@@ -11,6 +11,6 @@ import com.chauncy.data.mapper.IBaseMapper;
  * @author huangwancheng
  * @since 2019-07-15
  */
-public interface OmOrderTempMapper extends IBaseMapper<OmGoodsTempPo> {
+public interface OmGoodsTempMapper extends IBaseMapper<com.chauncy.data.domain.po.order.OmGoodsTempPo> {
 
 }

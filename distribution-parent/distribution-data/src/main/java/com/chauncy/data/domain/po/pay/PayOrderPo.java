@@ -33,7 +33,7 @@ public class PayOrderPo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+    private Long id;
 
     @ApiModelProperty(value = "支付类型，微信 ，支付宝")
     private String payTypeCode;
@@ -114,22 +114,22 @@ public class PayOrderPo implements Serializable {
     private String phone;
 
     @ApiModelProperty(value = "实际支付金额")
-    private BigDecimal realPayMoney;
+    private BigDecimal totalRealPayMoney;
 
     @ApiModelProperty(value = "总优惠")
     private BigDecimal totalDiscount;
 
     @ApiModelProperty(value = "总运费")
-    private BigDecimal shipMoney;
+    private BigDecimal totalShipMoney;
 
     @ApiModelProperty(value = "总税费")
-    private BigDecimal taxMoney;
+    private BigDecimal totalTaxMoney;
 
     @ApiModelProperty(value = "总使用红包")
-    private BigDecimal redEnvelops;
+    private BigDecimal totalRedEnvelops;
 
     @ApiModelProperty(value = "总使用购物券")
-    private BigDecimal shopTicket;
+    private BigDecimal totalShopTicket;
 
     @ApiModelProperty(value = "商品总额")
     private BigDecimal totalMoney;
@@ -137,8 +137,15 @@ public class PayOrderPo implements Serializable {
     @ApiModelProperty(value = "总数量")
     private Integer totalNumber;
 
-    @ApiModelProperty(value = "预计奖励购物券")
-    private BigDecimal totalRewardShopTicket;
+ /*   @ApiModelProperty(value = "预计奖励购物券")
+    private BigDecimal totalRewardShopTicket;*/
+
+    @ApiModelProperty(value = "购物券抵扣了多少钱")
+    private BigDecimal totalShopTicketMoney;
+
+
+    @ApiModelProperty(value = "红包抵扣了多少钱")
+    private BigDecimal totalRedEnvelopsMoney;
 
 
 }
