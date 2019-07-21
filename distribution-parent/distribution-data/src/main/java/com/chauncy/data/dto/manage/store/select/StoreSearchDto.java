@@ -7,6 +7,7 @@ import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.valid.annotation.EnumConstraint;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -17,13 +18,12 @@ import java.io.Serializable;
  * @Date: 2019/6/12 10:14
  */
 @Data
+@ApiModel(value = "StoreSearchDto对象", description = "查找平台店铺参数")
 public class StoreSearchDto extends BaseSearchDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
 
-    @JsonSerialize(using = LongJsonSerializer.class)
-    @JsonDeserialize(using = LongJsonDeserializer.class)
     @ApiModelProperty(value = "店铺id")
     private Long id;
 

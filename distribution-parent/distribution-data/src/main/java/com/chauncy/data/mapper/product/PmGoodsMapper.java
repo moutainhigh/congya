@@ -8,6 +8,7 @@ import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
 import com.chauncy.data.dto.supplier.good.select.SearchExcelDto;
 import com.chauncy.data.dto.supplier.good.select.SearchGoodInfosDto;
+import com.chauncy.data.dto.supplier.store.update.SelectStockTemplateGoodsDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
@@ -83,17 +84,17 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
     /**
      * 库存模板获取分配店铺商品信息
      *
-     * @param id  店铺id
+     * @param selectStockTemplateGoodsDto
      * @return
      */
-    List<BaseBo> selectDistributionGoods(@Param("id") long id);
+    List<BaseBo> selectDistributionGoods(SelectStockTemplateGoodsDto selectStockTemplateGoodsDto);
     /**
      * 库存模板获取自有店铺商品信息
      *
-     * @param id  店铺id
+     * @param selectStockTemplateGoodsDto
      * @return
      */
-    List<BaseBo> selectOwnGoods(@Param("id") long id);
+    List<BaseBo> selectOwnGoods(SelectStockTemplateGoodsDto selectStockTemplateGoodsDto);
     /**
      * 库存模板id获取询商品信息
      *

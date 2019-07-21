@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -24,7 +25,8 @@ public class StockTemplateBaseDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "id,当新增时为空")
-    @NotNull(groups = IUpdateGroup.class)
+    //@NotNull(groups = IUpdateGroup.class)
+    @Min(value = 0, message = "模板id参数错误")
     private Long id;
 
     @ApiModelProperty(value = "库存模板名称")
