@@ -1,6 +1,6 @@
-package com.chauncy.data.mapper.activity;
+package com.chauncy.data.mapper.activity.coupon;
 
-import com.chauncy.data.domain.po.activity.AmCouponRelCouponUserPo;
+import com.chauncy.data.domain.po.activity.coupon.AmCouponRelCouponUserPo;
 import com.chauncy.data.mapper.IBaseMapper;
 
 /**

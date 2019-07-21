@@ -1,4 +1,4 @@
-package com.chauncy.data.domain.po.activity;
+package com.chauncy.data.domain.po.activity.coupon;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;

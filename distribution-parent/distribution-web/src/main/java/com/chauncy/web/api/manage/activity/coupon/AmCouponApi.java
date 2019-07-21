@@ -82,10 +82,10 @@ public class AmCouponApi extends BaseApi {
 //        return new JsonViewData(MyBaseTree.build(goodsCategoryTreeVo));
 //    }
 
-    @PostMapping("/search")
+    @PostMapping("/searchCategory")
     @ApiOperation(value = "查看商品分类列表")
 
-    public JsonViewData<SearchCategoryVo> search(@RequestBody @Valid @ApiParam(required = true, name = "baseSearchDto", value = "分类列表查询条件")
+    public JsonViewData<SearchCategoryVo> searchCategory(@RequestBody @Valid @ApiParam(required = true, name = "baseSearchDto", value = "分类列表查询条件")
                                                          SearchGoodCategoryDto categoryDto) {
         Integer pageNo=categoryDto.getPageNo()==null?defaultPageNo:categoryDto.getPageNo();
         Integer pageSize=categoryDto.getPageSize()==null?defaultPageSize:categoryDto.getPageSize();
@@ -145,6 +145,20 @@ public class AmCouponApi extends BaseApi {
     public JsonViewData delByIds(@ApiParam(required = true, name = "ids", value = "id集合")
                                  @PathVariable Long[] ids) {
         service.delByIds(ids);
+        return new JsonViewData(ResultCode.SUCCESS,"删除成功");
+    }
+
+    /**
+     * 批量删除指定商品
+     *
+     * @param relIds
+     * @return
+     */
+    @ApiOperation(value = "批量删除指定商品/分类关联表", notes = "根据relId批量删除")
+    @GetMapping("/delByAssociationsId/{relIds}")
+    public JsonViewData delByAssociationsId(@ApiParam(required = true, name = "relIds", value = "指定商品/分类ID")
+                                 @PathVariable Long[] relIds) {
+        service.delByAssociationsId(relIds);
         return new JsonViewData(ResultCode.SUCCESS,"删除成功");
     }
 

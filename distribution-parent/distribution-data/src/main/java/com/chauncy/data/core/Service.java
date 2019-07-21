@@ -63,11 +63,4 @@ public interface Service<T> extends IService<T>{
      */
     List<MemberLevelInfos> findAllMemberLevel();
 
-    /**
-     * 条件获取商品的基础信息，作为给需要选择的功能的展示
-     *
-     * @param findGoodsBaseByConditionDto
-     * @return
-     */
-    PageInfo<GoodsBaseVo> findGoodsBaseByCondition(FindGoodsBaseByConditionDto findGoodsBaseByConditionDto);
 }

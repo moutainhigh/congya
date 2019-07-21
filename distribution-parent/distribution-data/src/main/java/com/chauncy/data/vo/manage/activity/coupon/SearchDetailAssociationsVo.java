@@ -17,6 +17,9 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class SearchDetailAssociationsVo {
 
+    @ApiModelProperty("指定商品记录ID")
+    private Long relId;
+
     @ApiModelProperty("id")
     private Long id;
 

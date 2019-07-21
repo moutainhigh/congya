@@ -1,7 +1,7 @@
 package com.chauncy.activity.coupon.impl;
 
-import com.chauncy.data.domain.po.activity.AmCouponRelCouponUserPo;
-import com.chauncy.data.mapper.activity.AmCouponRelCouponUserMapper;
+import com.chauncy.data.domain.po.activity.coupon.AmCouponRelCouponUserPo;
+import com.chauncy.data.mapper.activity.coupon.AmCouponRelCouponUserMapper;
 import com.chauncy.activity.coupon.IAmCouponRelCouponUserService;
 import com.chauncy.data.core.AbstractService;
 import org.springframework.stereotype.Service;

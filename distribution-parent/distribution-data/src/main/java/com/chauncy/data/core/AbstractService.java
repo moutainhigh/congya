@@ -91,29 +91,4 @@ public abstract class AbstractService<M extends BaseMapper<T>,T> extends Service
         return memberLevelInfos;
     }
 
-    /**
-     * 条件获取商品的基础信息，作为给需要选择的功能的展示
-     *
-     * @param findGoodsBaseByConditionDto
-     * @return
-     */
-    @Override
-    public PageInfo<GoodsBaseVo> findGoodsBaseByCondition(FindGoodsBaseByConditionDto findGoodsBaseByConditionDto) {
-
-        Integer pageNo = findGoodsBaseByConditionDto.getPageNo() == null ? defaultPageNo : findGoodsBaseByConditionDto.getPageNo();
-        Integer pageSize = findGoodsBaseByConditionDto.getPageSize() == null ? defaultPageSize : findGoodsBaseByConditionDto.getPageSize();
-        PageInfo<GoodsBaseVo> goodsBaseVoPageInfo = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
-                .doSelectPageInfo(() -> IBaseMapper.findGoodsBaseByCondition(findGoodsBaseByConditionDto));
-        goodsBaseVoPageInfo.getList().forEach(a->{
-            PmGoodsCategoryPo goodsCategoryPo3 = IBaseMapper.findCategoryById(a.getCategoryId());
-            String level3 = goodsCategoryPo3.getName();
-            PmGoodsCategoryPo goodsCategoryPo2 = IBaseMapper.findCategoryById(goodsCategoryPo3.getParentId());
-            String level2 = goodsCategoryPo2.getName();
-            String level1 = IBaseMapper.findCategoryById(goodsCategoryPo2.getParentId()).getName();
-            String categoryName = level1 + "/" + level2 + "/" + level3;
-            a.setCategoryName (categoryName);
-        });
-
-        return goodsBaseVoPageInfo;
-    }
 }

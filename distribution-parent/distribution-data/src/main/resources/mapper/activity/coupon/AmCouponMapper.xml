@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.chauncy.data.mapper.activity.AmCouponMapper">
+<mapper namespace="com.chauncy.data.mapper.activity.coupon.AmCouponMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.activity.AmCouponPo">
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.activity.coupon.AmCouponPo">
         <id column="id" property="id" />
         <result column="create_by" property="createBy" />
         <result column="create_time" property="createTime" />
@@ -76,7 +76,7 @@
     </select>
     <select id="searchDetailCategory"
             resultType="com.chauncy.data.vo.manage.activity.coupon.SearchDetailAssociationsVo">
-        select b.id,b.name,b.level
+        select a.id as rel_id,b.id,b.name,b.level
         from am_coupon_rel_coupon_goods a,pm_goods_category b
         where a.coupon_id = #{id} and a.association_id = b.id
         <if test="searchId != null">
@@ -88,7 +88,7 @@
     </select>
     <select id="searchDetailGoods"
             resultType="com.chauncy.data.vo.manage.activity.coupon.SearchDetailAssociationsVo">
-        select b.id,b.name,b.goods_category_id
+        select a.id as rel_id,b.id,b.name,b.goods_category_id
         from am_coupon_rel_coupon_goods a,pm_goods b
         where a.coupon_id = #{id} and a.association_id = b.id
         <if test="searchId != null">
@@ -97,6 +97,33 @@
         <if test="name != null and name != ''">
             and b.name like concat('%', #{name} ,'%')
         </if>
+    </select>
+
+    <select id="findGoodsBaseByCondition" resultType="com.chauncy.data.vo.manage.common.goods.GoodsBaseVo">
+        select a.id as goods_id,a.name as goods_name,b.id as category_id
+        from pm_goods as a,pm_goods_category b
+        <where>
+            a.del_flag = 0 and b.del_flag=0 and a.goods_category_id = b.id and b.`level`=3
+            <if test="ids !=null">
+            and a.id not in
+            <foreach collection="ids" close=")" open="(" separator="," item="id">
+                #{id}
+            </foreach>
+            </if>
+            <if test="t.goodsId != null">
+                and a.id = #{goodsId}
+            </if>
+            <if test="t.goodsName != null and t.goodsName != '' ">
+                and a.name like concat('%', #{goodsName}, '%')
+            </if>
+            <if test="t.categoryId != null">
+                and b.id = #{categoryId}
+            </if>
+            <if test="t.categoryName != null and t.categoryName != '' ">
+                and b.name like concat('%', #{categoryName}, '%')
+            </if>
+        </where>
+
     </select>
 
 </mapper>

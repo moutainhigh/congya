@@ -1,12 +1,15 @@
 package com.chauncy.activity.coupon;
 
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.Service;
-import com.chauncy.data.domain.po.activity.AmCouponPo;
+import com.chauncy.data.domain.po.activity.coupon.AmCouponPo;
 import com.chauncy.data.dto.manage.activity.coupon.add.SaveCouponDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchCouponListDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchDetailAssociationsDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchReceiveRecordDto;
+import com.chauncy.data.dto.manage.common.FindGoodsBaseByConditionDto;
 import com.chauncy.data.vo.manage.activity.coupon.*;
+import com.chauncy.data.vo.manage.common.goods.GoodsBaseVo;
 import com.github.pagehelper.PageInfo;
 
 /**
@@ -63,4 +66,20 @@ public interface IAmCouponService extends Service<AmCouponPo> {
      * @return
      */
     PageInfo<SearchDetailAssociationsVo> searchDetailAssociations(SearchDetailAssociationsDto searchDetailAssociationsDto);
+
+    /**
+     * 条件获取商品的基础信息，作为给需要选择的功能的展示
+     *
+     * @param findGoodsBaseByConditionDto
+     * @return
+     */
+    PageInfo<GoodsBaseVo> findGoodsBaseByCondition(FindGoodsBaseByConditionDto findGoodsBaseByConditionDto);
+
+    /**
+     * 批量删除指定商品
+     *
+     * @param relIds
+     * @return
+     */
+    void delByAssociationsId(Long[] relIds);
 }

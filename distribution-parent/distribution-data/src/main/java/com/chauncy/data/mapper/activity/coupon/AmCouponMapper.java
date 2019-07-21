@@ -1,14 +1,16 @@
-package com.chauncy.data.mapper.activity;
+package com.chauncy.data.mapper.activity.coupon;
 
-import com.chauncy.data.domain.po.activity.AmCouponPo;
+import com.chauncy.data.domain.po.activity.coupon.AmCouponPo;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchCouponListDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchDetailAssociationsDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchReceiveRecordDto;
+import com.chauncy.data.dto.manage.common.FindGoodsBaseByConditionDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.manage.activity.coupon.FindCouponDetailByIdVo;
 import com.chauncy.data.vo.manage.activity.coupon.SearchCouponListVo;
 import com.chauncy.data.vo.manage.activity.coupon.SearchDetailAssociationsVo;
 import com.chauncy.data.vo.manage.activity.coupon.SearchReceiveRecordVo;
+import com.chauncy.data.vo.manage.common.goods.GoodsBaseVo;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
@@ -70,4 +72,12 @@ public interface AmCouponMapper extends IBaseMapper<AmCouponPo> {
      */
     @Select("select count(id) from am_coupon_rel_coupon_user where use_status = #{status} and coupon_id =#{couponId}")
     Integer countNum(@Param("couponId") Long couponId, @Param("status") Integer status);
+
+    /**
+     * 条件获取商品的基础信息，作为给需要选择的功能的展示
+     *
+     * @param findGoodsBaseByConditionDto
+     * @return
+     */
+    List<GoodsBaseVo> findGoodsBaseByCondition(@Param("t") FindGoodsBaseByConditionDto findGoodsBaseByConditionDto,@Param("ids") List<Long> ids);
 }
