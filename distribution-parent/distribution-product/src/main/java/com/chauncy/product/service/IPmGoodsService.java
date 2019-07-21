@@ -15,6 +15,7 @@ import com.chauncy.data.dto.supplier.good.update.UpdateGoodOperationDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodSellerDto;
 import com.chauncy.data.dto.supplier.good.update.UpdatePublishStatusDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
+import com.chauncy.data.dto.supplier.store.update.SelectStockTemplateGoodsDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.supplier.*;
@@ -234,10 +235,10 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
     /**
      * 库存模板根据商品类型查询店铺商品信息
      *
-     * @param type
+     * @param selectStockTemplateGoodsDto
      * @return
      */
-    List<BaseBo> selectGoodsByType(String type);
+    PageInfo<BaseBo> selectGoodsByType(SelectStockTemplateGoodsDto selectStockTemplateGoodsDto);
     /**
     * 库存模板id获取询商品信息
     *

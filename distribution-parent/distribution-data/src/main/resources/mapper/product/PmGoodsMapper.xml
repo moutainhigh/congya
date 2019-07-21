@@ -125,14 +125,34 @@
     <select id="selectDistributionGoods" resultType="com.chauncy.data.bo.base.BaseBo">
         select pg.id, pg.`name`
         from pm_goods_virtual_stock pgvs left join pm_goods pg on pg.id = pgvs.goods_id
-        where pgvs.store_id = #{id} and pgvs.del_flag = 0 and pg.del_flag = 0
+        where pgvs.store_id = #{storeId} and pgvs.del_flag = 0 and pg.del_flag = 0
+        <if test="null != id">
+            AND NOT EXISTS
+            (
+            SELECT id
+            FROM  pm_goods_rel_stock_template pgrst
+            WHERE pgrst.`goods_id` = pg.`id`
+            AND pgrst.`del_flag` = 0
+            AND pgrst.stock_template_id = #{id}
+            )
+        </if>
         order by pgvs.create_time desc
     </select>
 
     <select id="selectOwnGoods" resultType="com.chauncy.data.bo.base.BaseBo">
         select pg.id, pg.`name`
         from pm_goods pg
-        where pg.store_id = #{id}  and pg.del_flag = 0
+        where pg.store_id = #{storeId}  and pg.del_flag = 0
+        <if test="null != id">
+            AND NOT EXISTS
+            (
+                SELECT id
+                FROM  pm_goods_rel_stock_template pgrst
+                WHERE pgrst.`goods_id` = pg.`id`
+                AND pgrst.`del_flag` = 0
+                AND pgrst.stock_template_id = #{id}
+            )
+        </if>
         order by pg.create_time desc
     </select>
 

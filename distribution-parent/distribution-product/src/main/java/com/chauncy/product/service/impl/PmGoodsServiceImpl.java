@@ -26,6 +26,7 @@ import com.chauncy.data.dto.supplier.good.update.UpdateGoodOperationDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateGoodSellerDto;
 import com.chauncy.data.dto.supplier.good.update.UpdatePublishStatusDto;
 import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
+import com.chauncy.data.dto.supplier.store.update.SelectStockTemplateGoodsDto;
 import com.chauncy.data.mapper.area.AreaRegionMapper;
 import com.chauncy.data.mapper.product.*;
 import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockMapper;
@@ -1533,18 +1534,25 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     /**
      * 库存模板根据商品类型查询店铺商品信息
      *
-     * @param type
+     * @param selectStockTemplateGoodsDto
      * @return
      */
     @Override
-    public List<BaseBo> selectGoodsByType(String type) {
+    public PageInfo<BaseBo> selectGoodsByType(SelectStockTemplateGoodsDto selectStockTemplateGoodsDto) {
         Long storeId = securityUtil.getCurrUser().getStoreId();
-        if(type.equals(StoreGoodsTypeEnum.DISTRIBUTION_GOODS.name())) {
+        selectStockTemplateGoodsDto.setStoreId(storeId);
+
+        Integer pageNo = selectStockTemplateGoodsDto.getPageNo() == null ? defaultPageNo : selectStockTemplateGoodsDto.getPageNo();
+        Integer pageSize = selectStockTemplateGoodsDto.getPageSize() == null ? defaultPageSize : selectStockTemplateGoodsDto.getPageSize();
+
+        if(selectStockTemplateGoodsDto.getType().equals(StoreGoodsTypeEnum.DISTRIBUTION_GOODS.name())) {
             // 分配商品
-            return mapper.selectDistributionGoods(storeId);
-        } else if (type.equals(StoreGoodsTypeEnum.OWN_GOODS.name())) {
+            return PageHelper.startPage(pageNo,pageSize).
+                    doSelectPageInfo(()->mapper.selectDistributionGoods(selectStockTemplateGoodsDto));
+        } else if (selectStockTemplateGoodsDto.getType().equals(StoreGoodsTypeEnum.OWN_GOODS.name())) {
             // 自有商品
-            return mapper.selectOwnGoods(storeId);
+            return PageHelper.startPage(pageNo,pageSize).
+                    doSelectPageInfo(()->mapper.selectOwnGoods(selectStockTemplateGoodsDto));
         } else {
             return null;
         }

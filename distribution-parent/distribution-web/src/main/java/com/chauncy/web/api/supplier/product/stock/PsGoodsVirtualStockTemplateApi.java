@@ -6,6 +6,7 @@ import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.dto.base.BaseSearchByTimeDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.supplier.good.add.StockTemplateBaseDto;
+import com.chauncy.data.dto.supplier.store.update.SelectStockTemplateGoodsDto;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.supplier.PmGoodsVo;
@@ -64,7 +65,7 @@ public class PsGoodsVirtualStockTemplateApi extends BaseApi {
      * @param stockTemplateBaseDto
      * @return
      */
-    @PostMapping("/edit")
+    /*@PostMapping("/edit")
     @ApiOperation(value = "编辑库存模板信息")
     @Transactional(rollbackFor = Exception.class)
     public JsonViewData edit(@Validated(IUpdateGroup.class)  @RequestBody @ApiParam(required = true, name = "stockTemplateBaseDto", value = "库存模板信息")
@@ -73,21 +74,21 @@ public class PsGoodsVirtualStockTemplateApi extends BaseApi {
 
         return new JsonViewData(ResultCode.SUCCESS, "编辑成功",
                 pmGoodsVirtualStockTemplateService.editStockTemplate(stockTemplateBaseDto));
-    }
+    }*/
 
     /**
      * 库存模板根据商品类型查询店铺商品信息
      *
-     * @param type
+     * @param selectStockTemplateGoodsDto
      * @return
      */
-    @PostMapping("/selectGoodsByType/{type}")
+    @PostMapping("/selectGoodsByType")
     @ApiOperation(value = "库存模板根据商品类型查询店铺商品信息 ")
-    public JsonViewData<BaseBo> selectGoodsByType(@ApiParam(required = true, name = "type", value = "OWN_GOODS：自有商品 DISTRIBUTION_GOODS：分配商品")
-                                                    @PathVariable String type){
+    public JsonViewData<PageInfo<BaseBo>> selectGoodsByType(@RequestBody @ApiParam(name = "selectStockTemplateGoodsDto", value = "根据商品类型查询店铺商品信息")
+                                                    @Validated SelectStockTemplateGoodsDto selectStockTemplateGoodsDto){
 
         return new JsonViewData(ResultCode.SUCCESS,"操作成功",
-                pmGoodsService.selectGoodsByType(type));
+                pmGoodsService.selectGoodsByType(selectStockTemplateGoodsDto));
     }
 
     /**
