@@ -1,6 +1,7 @@
 package com.chauncy.data.domain.po.sys;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chauncy.common.base.SysBaseEntity;
 import io.swagger.annotations.ApiModel;
@@ -66,6 +67,7 @@ public class SysUserPo extends SysBaseEntity {
     private String username;
 
     @ApiModelProperty(value = "删除标志 默认0")
+    @TableLogic
     private Integer delFlag;
 
     @ApiModelProperty(value = "所属部门id")
