@@ -6,6 +6,7 @@ import com.chauncy.data.dto.manage.activity.coupon.select.SearchDetailAssociatio
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchReceiveRecordDto;
 import com.chauncy.data.dto.manage.common.FindGoodsBaseByConditionDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.manage.activity.coupon.FindCouponDetailByIdVo;
 import com.chauncy.data.vo.manage.activity.coupon.SearchCouponListVo;
 import com.chauncy.data.vo.manage.activity.coupon.SearchDetailAssociationsVo;
@@ -80,4 +81,12 @@ public interface AmCouponMapper extends IBaseMapper<AmCouponPo> {
      * @return
      */
     List<GoodsBaseVo> findGoodsBaseByCondition(@Param("t") FindGoodsBaseByConditionDto findGoodsBaseByConditionDto,@Param("ids") List<Long> ids);
+
+    /**
+     * 获取全部优惠券
+     *
+     * @return
+     */
+    @Select("select id,name from am_coupon")
+    List<BaseVo> findAllCoupon();
 }

@@ -79,5 +79,9 @@ public class AmGiftOrderPo implements Serializable {
     @ApiModelProperty(value = "积分")
     private Integer integrals;
 
+    @ApiModelProperty("礼包图片")
+    private String picture;
 
+    @ApiModelProperty("图文详情")
+    private String detailHtml;
 }

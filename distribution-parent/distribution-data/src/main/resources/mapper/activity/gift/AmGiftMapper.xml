@@ -17,7 +17,7 @@
         <result column="vouchers" property="vouchers" />
         <result column="integrals" property="integrals" />
         <result column="purchase_price" property="purchasePrice" />
-        <result column="pictrue" property="pictrue" />
+        <result column="picture" property="picture" />
         <result column="detail_html" property="detailHtml" />
     </resultMap>
 
@@ -25,5 +25,69 @@
     <sql id="Base_Column_List">
         id, create_by, create_time, update_by, update_time, del_flag, type, enable, name, experience, vouchers, integrals, purchase_price, pictrue, detail_html
     </sql>
+    <select id="findAssociationed" resultType="com.chauncy.data.vo.BaseVo">
+        SELECT b.coupon_id as id,c.name
+        from am_gift a,am_gift_rel_gift_coupon b,am_coupon c
+        where a.id =#{id} and a.id = b.gift_id and c.id = b.coupon_id;
+    </select>
+
+    <select id="searchGiftList" resultType="com.chauncy.data.vo.manage.activity.gift.SearchGiftListVo">
+        select *
+        from am_gift
+        where del_flag = 0 and type = #{type}
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="name != null and name != ''">
+            and name like concat('%', #{name} ,'%')
+        </if>
+    </select>
+    <select id="searchReceiveRecord"
+            resultType="com.chauncy.data.vo.manage.activity.gift.SearchReceiveGiftRecordVo">
+        select c.id,b.id as gift_id,a.id as user_id,a.true_name as user_name,a.phone,c.create_time as receive_time,b.name as gift_name,b.experience,b.vouchers,b.integrals
+        from um_user a,am_gift b,am_gift_rel_gift_user c
+        where c.gift_id = b.id and c.user_id = a.id
+        <if test="userId != null">
+            and a.id = #{userId}
+        </if>
+        <if test="userName != null and userName != ''">
+            and a.true_name like concat('%', #{userName} ,'%')
+        </if>
+        <if test="phone != null and phone != ''">
+            and a.phone = #{phone}
+        </if>
+        <if test="startTime != null">
+            and DATE_FORMAT(c.create_time,'%Y-%m-%d') &gt;= #{startTime}
+        </if>
+
+        <if test="lastTime != null">
+            and DATE_FORMAT(c.create_time,'%Y-%m-%d') &lt;= #{lastTime}
+        </if>
+    </select>
+    <select id="searchBuyGiftRecord"
+            resultType="com.chauncy.data.vo.manage.activity.gift.SearchBuyGiftRecordVo">
+        select a.id as user_id,a.true_name as user_name,a.phone,c.create_time,c.gift_name,c.experience,c.vouchers,c.integrals,c.gift_id,c.id as order_id,c.picture,c.detail_html
+        from um_user a,am_gift_order c
+        where c.user_id = a.id
+        <if test="userId != null">
+            and a.id = #{userId}
+        </if>
+        <if test="orderId != null">
+            and c.id = #{orderId}
+        </if>
+        <if test="userName != null and userName != ''">
+            and a.true_name like concat('%', #{userName} ,'%')
+        </if>
+        <if test="phone != null and phone != ''">
+            and a.phone = #{phone}
+        </if>
+        <if test="startTime != null">
+            and DATE_FORMAT(c.create_time,'%Y-%m-%d') &gt;= #{startTime}
+        </if>
+
+        <if test="lastTime != null">
+            and DATE_FORMAT(c.create_time,'%Y-%m-%d') &lt;= #{lastTime}
+        </if>
+    </select>
 
 </mapper>

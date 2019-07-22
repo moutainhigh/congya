@@ -77,7 +77,7 @@ public class AmGiftPo implements Serializable {
     private BigDecimal purchasePrice;
 
     @ApiModelProperty(value = "图片")
-    private String pictrue;
+    private String picture;
 
     @ApiModelProperty(value = "图文详情")
     private String detailHtml;
