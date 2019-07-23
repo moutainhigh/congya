@@ -1580,16 +1580,17 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         Integer pageSize = baseSearchDto.getPageSize() == null ? defaultPageSize : baseSearchDto.getPageSize();
         PageInfo<StockTemplateGoodsInfoVo> stockTemplateGoodsInfoVoPageInfo = new PageInfo<>();
 
+        //获取跟库存模板关联的商品信息
         stockTemplateGoodsInfoVoPageInfo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
                 .doSelectPageInfo(() -> mapper.searchGoodsInfoByTemplateId(baseSearchDto.getId()));
         stockTemplateGoodsInfoVoPageInfo.getList().forEach(a -> {
             Map<String, Object> map = Maps.newHashMap();
             map.put("goods_id", a.getGoodsId());
             map.put("store_id", pmGoodsVirtualStockTemplate.getStoreId());
+            //获取库存模板关联的商品对应的库存
             int stock = pmGoodsVirtualStockMapper.selectByMap(map).stream().map(PmGoodsVirtualStockPo::getStockNum).mapToInt(c -> c).sum();
             a.setStock(stock);
         });
-
         goodsStockTemplateVo.setStockTemplateGoodsInfoPageInfo(stockTemplateGoodsInfoVoPageInfo);
         return goodsStockTemplateVo;
     }

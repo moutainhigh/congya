@@ -137,7 +137,7 @@ public class SmInformationApi extends BaseApi {
      */
     @ApiOperation(value = "分页条件查询", notes = "根据资讯ID、标题以及创建时间查询")
     @PostMapping("/searchPaging")
-    public JsonViewData<PageInfo<InformationPageInfoVo>> searchPaging(@RequestBody BaseSearchByTimeDto baseSearchByTimeDto) {
+    public JsonViewData<PageInfo<InformationPageInfoVo>> searchPaging(@Validated @RequestBody BaseSearchByTimeDto baseSearchByTimeDto) {
 
         PageInfo<InformationPageInfoVo> smStoreBaseVoPageInfo = mmInformationService.searchPaging(baseSearchByTimeDto);
         return new JsonViewData(ResultCode.SUCCESS, "查询成功",

@@ -34,10 +34,9 @@
     <select id="searchPlatformLogPaging" resultType="com.chauncy.data.vo.manage.order.log.SearchPlatformLogVo">
         select ooal.pay_order_id,
                 po.pay_id,
-                ooal.um_user_id,<!-- pay_order 的下单人id -->
+                ooal.create_by as phone,
                 ooal.log_type,
                 ooal.log_matter,
-				ooal.um_user_id as phone, <!-- pay_order 的下单人手机号码 -->
 				po.total_real_pay_money,
 				ooal.payment_way,
 				ooal.arrival_way,
@@ -62,10 +61,10 @@
                 and po.log_matter == #{logMatter}
             </if>
             <if test="phone != null and phone != ''">
-                and po.log_matter == #{phone}  <!-- pay_order 的下单人手机号码 -->
+                and ooal.create_by == #{phone}
             </if>
             <if test="startTime != null">
-                and date(ooal.create_time) <![CDATA[<= ]]>  #{startTime}
+                and date(ooal.create_time) <![CDATA[>= ]]>  #{startTime}
             </if>
             <if test="endTime != null">
                 and date(ooal.create_time) <![CDATA[<= ]]> #{endTime}

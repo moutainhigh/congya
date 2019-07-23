@@ -67,7 +67,7 @@
                 and mi.name like concat('%', #{name}, '%')
             </if>
             <if test="startTime != null">
-                and date(mi.create_time) <![CDATA[<= ]]>  #{startTime}
+                and date(mi.create_time) <![CDATA[>= ]]>  #{startTime}
             </if>
             <if test="endTime != null">
                 and date(mi.create_time) <![CDATA[<= ]]> #{endTime}

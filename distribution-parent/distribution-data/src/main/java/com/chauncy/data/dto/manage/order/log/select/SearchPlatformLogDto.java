@@ -18,7 +18,7 @@ import java.time.LocalDate;
  */
 @Data
 @ApiModel(value = "SearchPlatformLogDto对象", description = "查找平台流水参数")
-public class SearchPlatformLogDto  implements Serializable {
+public class SearchPlatformLogDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
