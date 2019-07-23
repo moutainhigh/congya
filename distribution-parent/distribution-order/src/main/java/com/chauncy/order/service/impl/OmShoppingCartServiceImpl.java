@@ -1,10 +1,12 @@
 package com.chauncy.order.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.chauncy.common.constant.RabbitConstants;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.common.util.ListUtil;
+import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.common.util.SnowFlakeUtil;
 import com.chauncy.data.bo.app.car.MoneyShipBo;
 import com.chauncy.data.bo.base.BaseBo;
@@ -29,7 +31,7 @@ import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
 import com.chauncy.data.mapper.area.AreaRegionMapper;
 import com.chauncy.data.mapper.order.OmShoppingCartMapper;
-import com.chauncy.data.mapper.pay.PayOrderMapper;
+import com.chauncy.data.mapper.pay.IPayOrderMapper;
 import com.chauncy.data.mapper.product.*;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.sys.BasicSettingMapper;
@@ -50,12 +52,14 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import org.assertj.core.util.Lists;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -111,13 +115,16 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     private PmMoneyShippingMapper moneyShippingMapper;
 
     @Autowired
-    private PayOrderMapper payOrderMapper;
+    private IPayOrderMapper payOrderMapper;
 
     @Autowired
     private IOmGoodsTempService goodsTempService;
 
     @Autowired
     private IOmOrderService omOrderService;
+
+    @Autowired
+    private  RabbitTemplate rabbitTemplate;
 
 
     //需要进行实行认证且计算税率的商品类型
@@ -640,7 +647,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         UmAreaShippingPo umAreaShippingPo = umAreaShippingMapper.selectById(submitOrderDto.getUmAreaShipId());
         savePayOrderPo.setShipName(umAreaShippingPo.getShipName()).setPhone(umAreaShippingPo.getMobile())
                 .setShipAddress(umAreaShippingPo.getDetailedAddress()).setTotalRedEnvelops(totalRedEnvelops)
-        .setTotalShopTicket(totalShopTicket);
+        .setTotalShopTicket(totalShopTicket).setUmUserId(currentUser.getId());
         //生成支付单
         payOrderMapper.insert(savePayOrderPo);
 
@@ -667,13 +674,16 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     com.chauncy.data.domain.po.order.OmGoodsTempPo saveGoodsTemp = new com.chauncy.data.domain.po.order.OmGoodsTempPo();
                     BeanUtils.copyProperties(g,saveGoodsTemp);
                     saveGoodsTemp.setCreateBy(currentUser.getPhone()).setOrderId(saveOrder.getId()).setSkuId(g.getId());
+                    saveGoodsTemp.setId(null);
                     saveGoodsTemps.add(saveGoodsTemp);
 
                 });
             });
         });
 
+        //保存订单
        omOrderService.saveBatch(saveOrders);
+       //保存商品快照
        goodsTempService.saveBatch(saveGoodsTemps);
        //减去库存
        skuMapper.updateStock(shopTicketSoWithCarGoodVoList);
@@ -682,7 +692,13 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                totalShopTicket
        ,currentUser.getId()
        );
-
+        // 添加延时队列
+        this.rabbitTemplate.convertAndSend(RabbitConstants.REGISTER_DELAY_EXCHANGE, RabbitConstants.DELAY_ROUTING_KEY, savePayOrderPo.getId(), message -> {
+            // TODO 如果配置了 params.put("x-message-ttl", 5 * 1000); 那么这一句也可以省略,具体根据业务需要是声明 Queue 的时候就指定好延迟时间还是在发送自己控制时间
+            message.getMessageProperties().setExpiration(30 * 1000 + "");
+            return message;
+        });
+        LoggerUtil.info("【发送时间】:"+LocalDateTime.now());
     }
 
     /**

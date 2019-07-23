@@ -50,7 +50,7 @@ spring:
 #    connection-timeout: 10000
     listener:
       simple:
-        acknowledge-mode: auto # 自动应答 manual手动应答
+        acknowledge-mode: MANUAL # 自动应答 manual手动应答
         auto-startup: true
         default-requeue-rejected: false # 不重回队列
         concurrency: 5

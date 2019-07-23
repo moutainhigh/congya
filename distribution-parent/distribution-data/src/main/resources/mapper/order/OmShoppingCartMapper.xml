@@ -25,7 +25,6 @@
             <result column="num" property="num" />
             <result column="sum" property="sum" />
             <result column="value" property="value" />
-
         </collection>
     </resultMap>
 
@@ -36,7 +35,6 @@
     <update id="updateDiscount">
              update um_user set  current_red_envelops=current_red_envelops-#{redEnvelops},
              current_shop_ticket=current_shop_ticket-#{shopTicket} where id=#{id}
-
     </update>
 
     <select id="searchCart" resultMap="CartVo">

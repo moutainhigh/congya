@@ -25,9 +25,9 @@
         <foreach collection="list" item="item" index="index" open="" close="" separator=";">
             update pm_goods_sku
             <set>
-                stock=stock-${item.number},
+                stock=stock-#{item.number},
             </set>
-            where id = ${item.id}
+            where id = #{item.id}
         </foreach>
     </update>
 
