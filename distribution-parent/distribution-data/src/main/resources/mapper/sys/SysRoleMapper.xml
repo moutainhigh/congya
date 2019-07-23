@@ -27,5 +27,13 @@
         <include refid="Base_Column_List"/>
         where default_role = #{defaultRole}
     </select>
+    <select id="getRoleByPage" resultType="com.chauncy.data.domain.po.sys.SysRolePo">
+        select *
+        from sys_role
+        where del_flag = 0
+        <if test="name !=null and name != ''">
+            and name like concat('%', #{name}, '%')
+        </if>
+    </select>
 
 </mapper>

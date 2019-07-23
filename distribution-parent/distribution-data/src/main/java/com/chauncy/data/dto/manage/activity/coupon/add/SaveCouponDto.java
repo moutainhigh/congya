@@ -1,6 +1,7 @@
 package com.chauncy.data.dto.manage.activity.coupon.add;
 
 import com.chauncy.common.enums.app.coupon.CouponFormEnum;
+import com.chauncy.common.enums.app.coupon.CouponScopeEnum;
 import com.chauncy.data.valid.annotation.EnumConstraint;
 import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import com.chauncy.data.valid.group.IUpdateGroup;
@@ -52,6 +53,7 @@ public class SaveCouponDto {
     private Integer type;
 
     @ApiModelProperty(value = "指定范围 1-所有商品 2-指定类目 3-指定商品")
+    @EnumConstraint(target = CouponScopeEnum.class)
     private Integer scope;
 
     @ApiModelProperty(value = "折扣比例")

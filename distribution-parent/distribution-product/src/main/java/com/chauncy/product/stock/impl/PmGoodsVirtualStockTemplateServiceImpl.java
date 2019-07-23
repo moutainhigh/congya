@@ -65,26 +65,42 @@ public class PmGoodsVirtualStockTemplateServiceImpl extends AbstractService<PmGo
      */
     @Override
     public Long saveStockTemplate(StockTemplateBaseDto stockTemplateBaseDto) {
-        QueryWrapper<PmGoodsVirtualStockTemplatePo> queryWrapper = new QueryWrapper();
-        queryWrapper.eq("name", stockTemplateBaseDto.getName());
-        if(this.count(queryWrapper) > 0) {
-            throw  new ServiceException(ResultCode.DUPLICATION, "库存模板名称重复");
-        }
-
-        PmGoodsVirtualStockTemplatePo pmGoodsVirtualStockTemplatePo = new PmGoodsVirtualStockTemplatePo();
-        pmGoodsVirtualStockTemplatePo.setName(stockTemplateBaseDto.getName());
-        pmGoodsVirtualStockTemplatePo.setType(stockTemplateBaseDto.getType());
-
+        PmGoodsVirtualStockTemplatePo pmGoodsVirtualStockTemplatePo = this.getById(stockTemplateBaseDto.getId());
         //获取当前店铺用户
         SysUserPo sysUserPo = securityUtil.getCurrUser();
         if(null == sysUserPo.getStoreId()) {
             throw  new ServiceException(ResultCode.FAIL, "当前登录用户不是商家用户");
         }
+
+        QueryWrapper<PmGoodsVirtualStockTemplatePo> queryWrapper = new QueryWrapper();
+        queryWrapper.eq("name", stockTemplateBaseDto.getName());
+        /*if(this.count(queryWrapper) > 0) {
+            throw  new ServiceException(ResultCode.DUPLICATION, "库存模板名称重复");
+        }*/
+        if(null != stockTemplateBaseDto.getId()) {
+            //编辑时
+            PmGoodsVirtualStockTemplatePo oldTemplatePo = this.getOne(queryWrapper);
+            if(null != oldTemplatePo && !pmGoodsVirtualStockTemplatePo.getName().equals(oldTemplatePo.getName())) {
+                throw  new ServiceException(ResultCode.DUPLICATION, "库存模板名称重复");
+            }
+        } else {
+            //新增时
+            if(this.count(queryWrapper) > 0) {
+                throw  new ServiceException(ResultCode.DUPLICATION, "库存模板名称重复");
+            }
+            pmGoodsVirtualStockTemplatePo = new PmGoodsVirtualStockTemplatePo();
+            pmGoodsVirtualStockTemplatePo.setType(stockTemplateBaseDto.getType());
+            pmGoodsVirtualStockTemplatePo.setCreateBy(sysUserPo.getUsername());
+        }
+        pmGoodsVirtualStockTemplatePo.setName(stockTemplateBaseDto.getName());
         pmGoodsVirtualStockTemplatePo.setStoreId(sysUserPo.getStoreId());
-        pmGoodsVirtualStockTemplatePo.setCreateBy(sysUserPo.getUsername());
-        pmGoodsVirtualStockTemplatePo.setId(null);
+        pmGoodsVirtualStockTemplatePo.setUpdateBy(sysUserPo.getUsername());
         pmGoodsVirtualStockTemplatePo.setUpdateTime(LocalDateTime.now());
-        pmGoodsVirtualStockTemplateMapper.insert(pmGoodsVirtualStockTemplatePo);
+        if(null != stockTemplateBaseDto.getId()) {
+            pmGoodsVirtualStockTemplateMapper.updateById(pmGoodsVirtualStockTemplatePo);
+        } else {
+            pmGoodsVirtualStockTemplateMapper.insert(pmGoodsVirtualStockTemplatePo);
+        }
 
         //库存模板商品关联插入
         insertGoodsRelStockTemplate(pmGoodsVirtualStockTemplatePo, stockTemplateBaseDto.getGoodsIds());

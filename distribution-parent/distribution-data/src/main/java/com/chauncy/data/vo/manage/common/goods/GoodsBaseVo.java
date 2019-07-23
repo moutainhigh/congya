@@ -24,4 +24,7 @@ public class GoodsBaseVo {
 
     @ApiModelProperty("类目名称")
     private String categoryName;
+
+//    @ApiModelProperty("是否包含")
+//    private Boolean isInclude = false;
 }

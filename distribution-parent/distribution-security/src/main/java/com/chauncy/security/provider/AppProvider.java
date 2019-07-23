@@ -51,6 +51,9 @@ public class AppProvider implements AuthenticationProvider {
                 if (!bCryptPasswordEncoder.matches(password, userInfo.getPassword())) {
                     throw new BadCredentialsException("密码不正确");
                 }
+                if (userInfo.getStatus()==-1){
+                    throw new LockedException("账户被禁用，请联系管理员");
+                }
                 Collection<? extends GrantedAuthority> authorities = userInfo.getAuthorities();
                 // 构建返回的用户登录成功的token
                 return new UsernamePasswordAuthenticationToken(userInfo, password, authorities);

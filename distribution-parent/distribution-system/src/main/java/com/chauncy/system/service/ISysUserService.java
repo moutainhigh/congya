@@ -2,7 +2,9 @@ package com.chauncy.system.service;
 
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.dto.manage.sys.user.select.SearchUsersByConditionDto;
 import com.chauncy.data.vo.sys.SearchVo;
+import com.chauncy.data.vo.sys.permission.SearchUsersByConditionVo;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -63,4 +65,11 @@ public interface ISysUserService extends Service<SysUserPo> {
      */
     List<SysUserPo> findByDepartmentId(String departmentId);
 
+    /**
+     * 多条件分页获取用户列表
+     *
+     * @param searchUsersByConditionDto
+     * @return
+     */
+    List<SearchUsersByConditionVo> searchUsersByCondition(SearchUsersByConditionDto searchUsersByConditionDto);
 }

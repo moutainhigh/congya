@@ -1,7 +1,9 @@
 package com.chauncy.data.mapper.sys;
 
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.dto.manage.sys.user.select.SearchUsersByConditionDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.sys.permission.SearchUsersByConditionVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -44,4 +46,11 @@ public interface SysUserMapper extends IBaseMapper<SysUserPo> {
      */
     List<SysUserPo> findByDepartmentId(@Param("departmentId") String departmentId);
 
+    /**
+     * 多条件分页获取用户列表
+     *
+     * @param searchUsersByConditionDto
+     * @return
+     */
+    List<SearchUsersByConditionVo> searchUsersByCondition(SearchUsersByConditionDto searchUsersByConditionDto);
 }

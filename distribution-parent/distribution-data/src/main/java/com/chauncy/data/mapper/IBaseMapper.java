@@ -72,19 +72,4 @@ public interface IBaseMapper<T> extends BaseMapper<T> {
     @Select("select id as memberLevelId,level_name as levelName,level from `pm_member_level` where del_flag=false")
     List<MemberLevelInfos> memberLevelInfos();
 
-    /**
-     * 条件获取商品的基础信息，作为给需要选择的功能的展示
-     *
-     * @param findGoodsBaseByConditionDto
-     * @return
-     */
-    List<GoodsBaseVo> findGoodsBaseByCondition(FindGoodsBaseByConditionDto findGoodsBaseByConditionDto);
-
-    /**
-     * 获取分类
-     * @param categoryId
-     * @return
-     */
-    @Select("select * from pm_goods_category where id = #{categoryId} ")
-    PmGoodsCategoryPo findCategoryById(Long categoryId);
 }
