@@ -62,7 +62,7 @@
                 and ss.`name` like concat('%', #{storeName}, '%')
             </if>
             <if test="startTime != null">
-                and date(psgs.create_time) <![CDATA[<= ]]>  #{startTime}
+                and date(psgs.create_time) <![CDATA[>= ]]>  #{startTime}
             </if>
             <if test="endTime != null">
                 and date(psgs.create_time) <![CDATA[<= ]]> #{endTime}
@@ -100,7 +100,7 @@
                 and ss.`name` like concat('%', #{storeName}, '%')
             </if>
             <if test="startTime != null">
-                and date(psgs.create_time) <![CDATA[<= ]]>  #{startTime}
+                and date(psgs.create_time) <![CDATA[>= ]]>  #{startTime}
             </if>
             <if test="endTime != null">
                 and date(psgs.create_time) <![CDATA[<= ]]> #{endTime}
