@@ -667,7 +667,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 BeanUtils.copyProperties(y, saveOrder);
                 saveOrder.setUmUserId(currentUser.getId()).setAreaShippingId(submitOrderDto.getUmAreaShipId())
                         .setStoreId(storeId).setPayOrderId(savePayOrderPo.getId()).setCreateBy(currentUser.getPhone())
-                .setId(SnowFlakeUtil.getFlowIdInstance().nextId()).setStatus(OrderStatusEnum.ALREADY_FINISH);
+                .setId(SnowFlakeUtil.getFlowIdInstance().nextId());
                 //设置一些优惠信息
                 setDiscountMessage(saveOrder,savePayOrderPo);
                 saveOrders.add(saveOrder);
@@ -698,7 +698,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         // 添加延时队列
         this.rabbitTemplate.convertAndSend(RabbitConstants.REGISTER_DELAY_EXCHANGE, RabbitConstants.DELAY_ROUTING_KEY, savePayOrderPo.getId(), message -> {
             // TODO 如果配置了 params.put("x-message-ttl", 5 * 1000); 那么这一句也可以省略,具体根据业务需要是声明 Queue 的时候就指定好延迟时间还是在发送自己控制时间
-            message.getMessageProperties().setExpiration(30 * 1000 + "");
+            message.getMessageProperties().setExpiration(30*60* 1000 + "");
             return message;
         });
         LoggerUtil.info("【发送时间】:"+LocalDateTime.now());
