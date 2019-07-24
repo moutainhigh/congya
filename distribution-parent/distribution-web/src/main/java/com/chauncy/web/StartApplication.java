@@ -3,6 +3,7 @@ package com.chauncy.web;
 import com.baomidou.mybatisplus.core.injector.ISqlInjector;
 import com.baomidou.mybatisplus.extension.injector.LogicSqlInjector;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -23,6 +24,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @ComponentScan(basePackages = {"com.chauncy"})
 @EnableSwagger2
 @EnableRedisRepositories
+@EnableRabbit
 //@EnableAspectJAutoProxy //aop编程
 public class StartApplication extends SpringBootServletInitializer {
 

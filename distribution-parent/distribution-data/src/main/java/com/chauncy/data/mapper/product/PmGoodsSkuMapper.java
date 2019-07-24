@@ -47,4 +47,5 @@ public interface PmGoodsSkuMapper extends IBaseMapper<PmGoodsSkuPo> {
     List<GoodsVo> getPrice(Long goodsId);
 
     int updateStock(@Param("list") List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVos);
+
 }

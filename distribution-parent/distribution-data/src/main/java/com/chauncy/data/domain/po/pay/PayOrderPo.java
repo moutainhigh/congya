@@ -32,7 +32,7 @@ public class PayOrderPo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.ID_WORKER)
     private Long id;
 
     @ApiModelProperty(value = "支付类型，微信 ，支付宝")
@@ -113,8 +113,9 @@ public class PayOrderPo implements Serializable {
     @ApiModelProperty(value = "收货人手机")
     private String phone;
 
-    @ApiModelProperty(value = "实际支付金额")
+    @ApiModelProperty(value = "实际应付金额")
     private BigDecimal totalRealPayMoney;
+
 
     @ApiModelProperty(value = "总优惠")
     private BigDecimal totalDiscount;
@@ -146,6 +147,8 @@ public class PayOrderPo implements Serializable {
 
     @ApiModelProperty(value = "红包抵扣了多少钱")
     private BigDecimal totalRedEnvelopsMoney;
+
+    private Long umUserId;
 
 
 }

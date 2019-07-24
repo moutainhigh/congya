@@ -11,6 +11,6 @@ import com.chauncy.data.mapper.IBaseMapper;
  * @author huangwancheng
  * @since 2019-07-15
  */
-public interface PayOrderMapper extends IBaseMapper<PayOrderPo> {
+public interface IPayOrderMapper extends IBaseMapper<PayOrderPo> {
 
 }
