@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 
 import java.io.Serializable;
 
+import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -68,7 +69,7 @@ public class OmOrderPo implements Serializable {
     private Long storeId;
 
     @ApiModelProperty(value = "订单状态:0-待付款 1-待发货 2-待收货 3-待评价 4-已完成 5-待使用 6-已使用 7-已取消")
-    private Integer status;
+    private OrderStatusEnum status;
 
     @ApiModelProperty(value = "活动类型0-无 1-秒杀 2-拼团 3-积分 4-满减")
     private Integer activityType;
@@ -109,5 +110,20 @@ public class OmOrderPo implements Serializable {
 
     @ApiModelProperty(value = "优惠券id")
     private Long couponId;
+
+    @ApiModelProperty(value = "订单总金额")
+    private BigDecimal sumMoney;
+
+    @ApiModelProperty(value = "使用红包")
+    private BigDecimal redEnvelops;
+
+    @ApiModelProperty(value = "使用购物券")
+    private BigDecimal shopTicket;
+
+    @ApiModelProperty(value = "红包抵扣金额")
+    private BigDecimal shopTicketMoney;
+
+    @ApiModelProperty(value = "购物券抵扣金额")
+    private BigDecimal redEnvelopsMoney;
 
 }

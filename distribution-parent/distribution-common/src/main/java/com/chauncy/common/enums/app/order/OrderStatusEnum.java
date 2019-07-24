@@ -1,5 +1,7 @@
 package com.chauncy.common.enums.app.order;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.baomidou.mybatisplus.core.enums.IEnum;
 import com.chauncy.common.enums.BaseEnum;
 import lombok.Getter;
 
@@ -23,9 +25,10 @@ public enum OrderStatusEnum implements BaseEnum {
     ALREADY_USE(6,"已使用"),
     ALREADY_CANCEL(7,"已取消");
 
-    private Integer id;
+    @EnumValue
+    private final Integer id;
 
-    private String name;
+    private final String name;
 
     OrderStatusEnum(Integer id, String name) {
         this.id = id;
@@ -46,5 +49,10 @@ public enum OrderStatusEnum implements BaseEnum {
     @Override
     public boolean isExist(Object field) {
         return Objects.nonNull(getOrderStatusEnum(Integer.valueOf(field.toString())));
+    }
+
+    @Override
+    public String toString() {
+        return this.getName();
     }
 }
