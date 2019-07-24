@@ -4,13 +4,17 @@ package com.chauncy.web.api.manage.activity.reduced;
 import com.chauncy.activity.integrals.IAmIntegralsService;
 import com.chauncy.activity.reduced.IAmReducedService;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.dto.manage.activity.EditEnableDto;
+import com.chauncy.data.dto.manage.activity.SearchActivityListDto;
 import com.chauncy.data.dto.manage.activity.SearchCategoryByActivityIdDto;
 import com.chauncy.data.dto.manage.activity.reduced.add.SaveReducedDto;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.manage.activity.SearchActivityListVo;
 import com.chauncy.data.vo.manage.activity.SearchCategoryByActivityIdVo;
 import com.chauncy.data.vo.manage.activity.group.FindActivityGroupsVo;
 import com.chauncy.data.vo.supplier.MemberLevelInfos;
 import com.chauncy.web.base.BaseApi;
+import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -31,8 +35,8 @@ import java.util.Map;
  * @since 2019-07-23
  */
 @RestController
-@RequestMapping("am-reduced-po")
-@Api(tags = "满减活动管理")
+@RequestMapping("/manage/activity/reduced")
+@Api(tags = "平台—活动管理-满减活动管理")
 public class AmReducedApi extends BaseApi {
 
     @Autowired
@@ -97,4 +101,43 @@ public class AmReducedApi extends BaseApi {
         return setJsonViewData(ResultCode.SUCCESS,"保存成功");
     }
 
+    /**
+     * 条件查询满减活动信息
+     *
+     * @param searchActivityListDto
+     * @return
+     */
+    @ApiOperation("条件查询满减活动信息")
+    @PostMapping("/searchReduceList")
+    public JsonViewData<PageInfo<SearchActivityListVo>> searchReduceList(@RequestBody @ApiParam(required = true,name="searchIntegralsListDto",value = "条件查询积分活动信息")
+                                                                            @Validated SearchActivityListDto searchActivityListDto){
+        return setJsonViewData(service.searchReduceList(searchActivityListDto));
+    }
+
+    /**
+     * 批量删除活动
+     *
+     * @param ids
+     * @return
+     */
+    @ApiOperation("批量删除活动")
+    @GetMapping("/delByIds/{ids}")
+    public JsonViewData delByIds(@ApiParam(required = true,name="ids",value = "活动ID")
+                                 @PathVariable List<Long> ids){
+        service.delByIds(ids);
+        return setJsonViewData(ResultCode.SUCCESS,"删除成功");
+    }
+
+    /**
+     * 批量结束
+     * @param enableDto
+     * @return
+     */
+    @ApiOperation("批量禁用启用")
+    @PostMapping("/editEnable")
+    public JsonViewData editEnable(@RequestBody @ApiParam(required = true,name="enableDto",value="批量禁用启用")
+                                   @Validated EditEnableDto enableDto){
+        service.editEnable(enableDto);
+        return setJsonViewData(ResultCode.SUCCESS,"修改成功");
+    }
 }

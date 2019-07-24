@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import javax.validation.constraints.Future;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -62,8 +63,10 @@ public class SaveIntegralsDto {
     private Boolean enable = true;
 
     @ApiModelProperty(value = "分组id")
+    @NotNull(message = "分组不能为空")
     private Long groupId;
 
     @ApiModelProperty("绑定分类")
+    @NotNull(message = "分类不能为空")
     private List<Long> categoryIds;
 }

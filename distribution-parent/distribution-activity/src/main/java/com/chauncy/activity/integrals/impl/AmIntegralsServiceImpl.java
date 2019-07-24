@@ -119,6 +119,9 @@ public class AmIntegralsServiceImpl extends AbstractService<AmIntegralsMapper, A
             if (categoryMapper.selectById(a)==null){
                 throw new ServiceException(ResultCode.NO_EXISTS,String.format("该分类不存在:[%s]",a));
             }
+            else if (categoryMapper.selectById(a).getLevel()!=3){
+                throw new ServiceException(ResultCode.NO_EXISTS,String.format("该分类:[%s]不是三级分类",categoryMapper.selectById(a).getName()));
+            }
         });
         //时间判断
         LocalDateTime registrationStartTime = saveIntegralsDto.getRegistrationStartTime();

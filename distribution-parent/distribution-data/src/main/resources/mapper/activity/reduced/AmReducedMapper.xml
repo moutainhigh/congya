@@ -32,5 +32,59 @@
     <sql id="Base_Column_List">
         id, create_by, create_time, update_by, update_time, del_flag, name, sort, picture, member_level_id, registration_start_time, registration_end_time, activity_start_time, activity_end_time, activity_description, activity_introduction, activity_title, activity_subtitle, reduction_full_money, reduction_post_money, enable, group_id
     </sql>
+    <select id="searchReduceList" resultType="com.chauncy.data.vo.manage.activity.SearchActivityListVo">
+        select a.*,c.level_name as member_name
+        from am_reduced a,pm_member_level c
+        where a.del_flag = 0 and a.member_level_id = c.id
+        <if test="id != null">
+            and a.id = #{id}
+        </if>
+        <if test="name != null and name != ''">
+            and a.name like concat('%', #{name} ,'%')
+        </if>
+        <if test="activityStatus != null">
+            <if test="activityStatus == 1">
+                and a.activity_start_time &gt; now()
+            </if>
+            <if test="activityStatus == 2">
+                and a.activity_start_time &lt;= now() and now() &gt;= a.activity_end_time
+            </if>
+            <if test="activityStatus == 4">
+                and now() &lt; a.activity_end_time
+            </if>
+        </if>
+        <if test="registrationStatus != null">
+            <if test="registrationStatus == 1">
+                and a.registration_start_time &gt; now()
+            </if>
+            <if test="registrationStatus == 3">
+                and a.registration_start_time &lt;= now() and now() &gt;= a.registration_end_time
+            </if>
+            <if test="registrationStatus == 4">
+                and a.registration_start_time &gt; now()
+            </if>
+        </if>
+        <if test="activityStartTime != null">
+            and activity_start_time &gt;= #{activityStartTime}
+        </if>
+        <if test="activityEndTime != null">
+            and activity_end_time &lt;= #{activityEndTime}
+        </if>
+        <if test="registrationStartTime != null">
+            and registration_start_time &gt;= #{registrationStartTime}
+        </if>
+        <if test="registrationEndTime != null">
+            and registration_end_time &lt;= #{registrationEndTime}
+        </if>
+        <if test="groupId != null">
+            and group_id = #{groupId}
+        </if>
+        <if test="title != null and title != ''">
+            and title like concat('%', #{title} ,'%')
+        </if>
+        <if test="subtitle != null and subtitle != ''">
+            and subtitle like concat('%', #{subtitle} ,'%')
+        </if>
+    </select>
 
 </mapper>
