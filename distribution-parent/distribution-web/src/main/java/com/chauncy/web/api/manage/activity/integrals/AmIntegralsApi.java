@@ -49,7 +49,7 @@ public class AmIntegralsApi extends BaseApi {
      */
     @PostMapping("/searchCategory")
     @ApiOperation("获取分类信息")
-    public JsonViewData<SearchCategoryByActivityIdVo> searchCategory(@RequestBody @ApiParam(required = true, name = "baseSearchDto", value = "分类列表查询条件")
+    public JsonViewData<SearchCategoryByActivityIdVo> searchCategory(@RequestBody @ApiParam(required = true, name = "searchCategoryByActivityIdDto", value = "分类列表查询条件")
                                                                      @Validated SearchCategoryByActivityIdDto searchCategoryByActivityIdDto) {
         Map<String, Object> map = Maps.newHashMap();
         try {

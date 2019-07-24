@@ -1,7 +1,11 @@
 package com.chauncy.data.mapper.activity.seckill;
 
 import com.chauncy.data.domain.po.activity.seckill.AmSeckillPo;
+import com.chauncy.data.dto.manage.activity.SearchActivityListDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.manage.activity.SearchActivityListVo;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +17,11 @@ import com.chauncy.data.mapper.IBaseMapper;
  */
 public interface AmSeckillMapper extends IBaseMapper<AmSeckillPo> {
 
+    /**
+     * 条件查询秒杀活动信息
+     *
+     * @param searchActivityListDto
+     * @return
+     */
+    List<SearchActivityListVo> searchSeckillList(SearchActivityListDto searchActivityListDto);
 }

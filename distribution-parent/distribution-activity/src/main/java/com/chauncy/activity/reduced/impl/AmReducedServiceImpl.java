@@ -109,7 +109,7 @@ public class AmReducedServiceImpl extends AbstractService<AmReducedMapper, AmRed
                     AmActivityRelActivityCategoryPo relActivityCategoryPo = new AmActivityRelActivityCategoryPo();
                     relActivityCategoryPo.setCategoryId(a);
                     relActivityCategoryPo.setCreateBy(userPo.getUsername());
-                    relActivityCategoryPo.setActivityType(ActivityTypeEnum.INTEGRALS.getId());
+                    relActivityCategoryPo.setActivityType(ActivityTypeEnum.REDUCED.getId());
                     relActivityCategoryPo.setActivityId(reducedPo.getId());
                     relActivityCategoryMapper.insert(relActivityCategoryPo);
                 });
