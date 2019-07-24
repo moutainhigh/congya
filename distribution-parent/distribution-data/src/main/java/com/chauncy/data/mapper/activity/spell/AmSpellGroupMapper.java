@@ -1,7 +1,11 @@
 package com.chauncy.data.mapper.activity.spell;
 
 import com.chauncy.data.domain.po.activity.spell.AmSpellGroupPo;
+import com.chauncy.data.dto.manage.activity.SearchActivityListDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.manage.activity.SearchActivityListVo;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +17,11 @@ import com.chauncy.data.mapper.IBaseMapper;
  */
 public interface AmSpellGroupMapper extends IBaseMapper<AmSpellGroupPo> {
 
+    /**
+     * 条件查询拼团活动信息
+     *
+     * @param searchActivityListDto
+     * @return
+     */
+    List<SearchActivityListVo> searchSpellList(SearchActivityListDto searchActivityListDto);
 }

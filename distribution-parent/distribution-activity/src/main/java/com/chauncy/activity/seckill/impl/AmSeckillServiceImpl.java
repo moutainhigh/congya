@@ -53,9 +53,6 @@ public class AmSeckillServiceImpl extends AbstractService<AmSeckillMapper, AmSec
     private SecurityUtil securityUtil;
 
     @Autowired
-    private AmActivityGroupMapper activityGroupMapper;
-
-    @Autowired
     private PmGoodsCategoryMapper categoryMapper;
 
     @Autowired
