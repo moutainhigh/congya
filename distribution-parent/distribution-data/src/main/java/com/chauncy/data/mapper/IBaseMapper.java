@@ -3,6 +3,7 @@ package com.chauncy.data.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.dto.manage.common.FindGoodsBaseByConditionDto;
+import com.chauncy.data.vo.manage.activity.group.FindActivityGroupsVo;
 import com.chauncy.data.vo.manage.common.goods.GoodsBaseVo;
 import com.chauncy.data.vo.supplier.MemberLevelInfos;
 import org.apache.ibatis.annotations.Param;
@@ -72,4 +73,10 @@ public interface IBaseMapper<T> extends BaseMapper<T> {
     @Select("select id as memberLevelId,level_name as levelName,level from `pm_member_level` where del_flag=false")
     List<MemberLevelInfos> memberLevelInfos();
 
+    /**
+     * 获取全部的可用的活动分组
+     * @return
+     */
+    @Select("select id as group_id,name as group_name,picture,type from am_activity_group where del_flag = 0 and enable = 1")
+    List<FindActivityGroupsVo> FindAllActivityGroup();
 }

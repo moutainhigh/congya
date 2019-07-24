@@ -8,6 +8,7 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.activity.gift.AmGiftOrderPo;
 import com.chauncy.data.domain.po.activity.gift.AmGiftPo;
 import com.chauncy.data.domain.po.activity.gift.AmGiftRelGiftCouponPo;
 import com.chauncy.data.domain.po.activity.gift.AmGiftRelGiftUserPo;
@@ -19,6 +20,7 @@ import com.chauncy.data.dto.manage.activity.gift.select.SearchGiftDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchReceiveGiftRecordDto;
 import com.chauncy.data.mapper.activity.coupon.AmCouponMapper;
 import com.chauncy.data.mapper.activity.gift.AmGiftMapper;
+import com.chauncy.data.mapper.activity.gift.AmGiftOrderMapper;
 import com.chauncy.data.mapper.activity.gift.AmGiftRelGiftCouponMapper;
 import com.chauncy.data.mapper.activity.gift.AmGiftRelGiftUserMapper;
 import com.chauncy.data.vo.BaseVo;
@@ -67,6 +69,9 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
 
     @Autowired
     private AmGiftRelGiftUserMapper relGiftUserMapper;
+
+    @Autowired
+    private AmGiftOrderMapper giftOrderMapper;
 
     /**
      * 保存礼包
@@ -194,7 +199,17 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
             if (mapper.selectById(a)==null){
                 throw new ServiceException(ResultCode.FAIL, String.format("不存在该礼包:[%s],请检查",a));
             }
+            //礼包被领取或者被购买了则不能删除
+            AmGiftRelGiftUserPo giftRelGiftUserPo = relGiftUserMapper.selectOne(new QueryWrapper<AmGiftRelGiftUserPo>().eq("gift_id",a));
+            if (giftRelGiftUserPo!=null){
+                throw new ServiceException(ResultCode.FAIL,String.format("该礼包[%s]已被领取,不能删除",mapper.selectById(a).getName()));
+            }
+            List<AmGiftOrderPo> giftOrderPos = giftOrderMapper.selectList(new QueryWrapper<AmGiftOrderPo>().eq("gift_id",a));
+            if (!ListUtil.isListNullAndEmpty(giftOrderPos)){
+                throw new ServiceException(ResultCode.FAIL,String.format("该礼包[%s]已被购买,不能删除",mapper.selectById(a).getName()));
+            }
         });
+
         mapper.deleteBatchIds(ids);
     }
 

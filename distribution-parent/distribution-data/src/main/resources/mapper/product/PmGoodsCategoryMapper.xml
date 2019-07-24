@@ -209,4 +209,41 @@ FROM
 		group by pgc3.id
 		order by pgc3.sort desc
 	</select>
+	<select id="count" resultType="java.lang.Integer">
+		SELECT count(*)
+		FROM pm_goods_category
+		WHERE
+		del_flag=0 and level=1 and enabled = 1
+		<if test="p.name!=null and p.name!=''">
+			and name like concat('%',#{t.name},'%')
+		</if>
+		<if test="p.id!=null and p.id!=0">
+			and id=#{p.id}
+		</if>
+	</select>
+	<select id="searchCategoryByActivityId"
+			resultType="com.chauncy.data.vo.manage.activity.SearchCategoryByActivityIdVo">
+		WITH RECURSIVE childrenIds (id,name,sort,icon,enabled,level,parent_id) AS
+		(
+		(SELECT id,name,sort,icon,enabled,level,parent_id
+		FROM pm_goods_category
+		WHERE
+		del_flag=0 and level=1 and enabled =1
+		<if test="t.name!=null and t.name!=''">
+			and name like concat('%',#{t.name},'%')
+		</if>
+		<if test="t.id!=null and t.id!=0">
+			and id=#{t.id}
+		</if>
+		order by sort desc
+		limit #{offset},#{pageSize}
+		)
+		UNION ALL
+		SELECT c.id,c.name,c.sort,c.icon,c.enabled,c.level,c.parent_id
+		FROM childrenIds AS p JOIN pm_goods_category AS c
+		ON p.id = c.parent_id
+		where c.del_flag=0
+		)
+		SELECT id,name,sort,icon,enabled,level,parent_id FROM childrenIds
+	</select>
 </mapper>

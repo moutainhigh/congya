@@ -4,6 +4,7 @@ package com.chauncy.web.api.manage.activity.gift;
 import com.chauncy.activity.gift.IAmGiftService;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.manage.activity.EditEnableDto;
 import com.chauncy.data.dto.manage.activity.gift.add.SaveGiftDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchBuyGiftRecordDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchGiftDto;
@@ -96,14 +97,14 @@ public class AmGiftApi extends BaseApi {
 
     /**
      * 批量禁用启用
-     * @param baseUpdateStatusDto
+     * @param enableDto
      * @return
      */
     @ApiOperation("批量禁用启用")
     @PostMapping("/editEnable")
-    public JsonViewData editEnable(@ApiParam(required = true,name="ids",value="礼包ID集合")
-                                       @Validated BaseUpdateStatusDto baseUpdateStatusDto){
-        service.editEnabledBatch(baseUpdateStatusDto);
+    public JsonViewData editEnable(@RequestBody @ApiParam(required = true,name="enableDto",value="批量禁用启用")
+                                       @Validated EditEnableDto enableDto){
+        service.editEnable(enableDto);
         return setJsonViewData(ResultCode.SUCCESS,"修改成功");
     }
 
