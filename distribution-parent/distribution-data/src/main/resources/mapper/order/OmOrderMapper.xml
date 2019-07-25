@@ -2,40 +2,48 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chauncy.data.mapper.order.OmOrderMapper">
 
-    <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.order.OmOrderPo">
-        <id column="id" property="id" />
-        <result column="create_by" property="createBy" />
-        <result column="create_time" property="createTime" />
-        <result column="update_by" property="updateBy" />
-        <result column="update_time" property="updateTime" />
-        <result column="del_flag" property="delFlag" />
-        <result column="um_user_id" property="umUserId" />
-        <result column="area_shipping_id" property="areaShippingId" />
-        <result column="evaluate_status" property="evaluateStatus" />
-        <result column="store_id" property="storeId" />
-        <result column="status" property="status" />
-        <result column="activity_type" property="activityType" />
-        <result column="total_money" property="totalMoney" />
-        <result column="total_goods" property="totalGoods" />
-        <result column="type" property="type" />
-        <result column="pay_time" property="payTime" />
-        <result column="send_time" property="sendTime" />
-        <result column="receive_time" property="receiveTime" />
-        <result column="ramark" property="ramark" />
-        <result column="shop_ticket" property="shopTicket" />
-        <result column="red_envelops" property="redEnvelops" />
-        <result column="coupon" property="coupon" />
-        <result column="ship_money" property="shipMoney" />
-        <result column="tax_money" property="taxMoney" />
-        <result column="total_discount" property="totalDiscount" />
-        <result column="real_pay_money" property="realPayMoney" />
-        <result column="integral_money" property="integralMoney" />
-    </resultMap>
 
-    <!-- 通用查询结果列 -->
-    <sql id="Base_Column_List">
-        id, create_by, create_time, update_by, update_time, del_flag, um_user_id, area_shipping_id, evaluate_status, store_id, status, activity_type, total_money, total_goods, type, pay_time, send_time, receive_time, ramark, shop_ticket, red_envelops, coupon, ship_money, tax_money, total_discount, real_pay_money, integral_money
-    </sql>
+    <select id="search" resultType="com.chauncy.data.vo.manage.order.SearchOrderVo">
+        SELECT
+        o.id,s.id,s.`name`,u.`name`,u.phone,o.total_number,o.sum_money,o.sum_money needPayMoney,o.real_money,a.ship_name,a.detailed_address,a.mobile,o.activity_type,o.`status`,o.create_time
+        from om_order o,sm_store s,um_user u,um_area_shipping a
+        where o.store_id=s.id and o.um_user_id=u.id and o.area_shipping_id=a.id
+        and o.del_flag=0 and s.del_flag=0 and u.del_flag=0 and a.del_flag=0
+        <if test="orderId!=null">
+            and o.id=#{orderId}
+        </if>
+        <if test="userId!=null">
+            and u.id=#{userId}
+        </if>
+        <if test="phone!=null">
+            and u.phone like concat('%', #{phone}, '%')
+        </if>
+        <if test="storeId!=null">
+            AND s.id=#{storeId}
+        </if>
+        <if test="storeName!=null">
+            and s.name like concat('%', #{storeName}, '%')
+        </if>
+        <if test="startCreateTime!=null">
+            and o.create_time &gt;=#{startCreateTime}
+        </if>
+        <if test="endCreateTime!=null">
+            and o.create_time &lt;=#{startCreateTime}
+        </if>
+        <if test="orderStatus!=null">
+            and o.`status`=#{orderStatus}
+        </if>
+        <if test="minMoney!=null">
+            and o.`sum_money` &gt;=#{minMoney}
+        </if>
+        <if test="maxMoney!=null">
+            and o.`status` &lt;=#{maxMoney}
+        </if>
+        <if test="activityTypeEnum!=null">
+            and activity_type=#{activityTypeEnum}
+        </if>
+
+
+    </select>
 
 </mapper>

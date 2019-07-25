@@ -1,5 +1,7 @@
 package com.chauncy.data.vo.manage.order;
 
+import com.chauncy.common.enums.app.activity.type.ActivityTypeEnum;
+import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -55,10 +57,10 @@ public class SearchOrderVo {
     private String mobile;
 
     @ApiModelProperty("活动类型")
-    private String activityType;
+    private ActivityTypeEnum activityType;
 
     @ApiModelProperty("订单状态")
-    private String status;
+    private OrderStatusEnum status;
 
     @ApiModelProperty("下单时间")
     private LocalDateTime createTime;
@@ -68,9 +70,4 @@ public class SearchOrderVo {
 
     @ApiModelProperty("更新时间")
     private LocalDateTime updateTime;
-
-
-
-
-
 }

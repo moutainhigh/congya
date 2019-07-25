@@ -1,5 +1,6 @@
 package com.chauncy.common.enums.app.activity.type;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.chauncy.common.enums.BaseEnum;
 import lombok.Getter;
 
@@ -14,12 +15,13 @@ import java.util.Objects;
 @Getter
 public enum ActivityTypeEnum implements BaseEnum {
 
-
+    NON(0,"无活动"),
     REDUCED(1,"满减"),
     INTEGRALS(2,"积分"),
     SECKILL(3,"秒杀"),
     SPRLL_GROUP(4,"拼团");
 
+    @EnumValue
     private Integer id;
 
     private String name;
@@ -31,7 +33,7 @@ public enum ActivityTypeEnum implements BaseEnum {
 
     @Override
     public String toString(){
-        return this.id + "_" + this.name;
+        return this.name;
     }
 
     public static String value(String name){
@@ -69,6 +71,8 @@ public enum ActivityTypeEnum implements BaseEnum {
     public boolean isExist(Object field) {
         return Objects.nonNull(getActivityTypeEnumById(Integer.parseInt(field.toString())));
     }
+
+
 
 
 }
