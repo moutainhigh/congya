@@ -10,6 +10,11 @@ import java.util.Objects;
  */
 public enum InformationTypeEnum implements BaseEnum {
 
+    /**
+     * 资讯标签
+     * 1-关注  用户关注的店铺发布的资讯
+     * 2-热榜  店铺发布的资讯按浏览量排序
+     */
     FOCUSLIST(1,"关注"),
     HOTLIST(2,"热榜"),
     ;

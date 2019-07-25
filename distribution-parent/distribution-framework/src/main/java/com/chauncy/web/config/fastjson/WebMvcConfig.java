@@ -53,7 +53,8 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
                 SerializerFeature.WriteNullBooleanAsFalse,
                 SerializerFeature.DisableCircularReferenceDetect,
                 SerializerFeature.DisableCheckSpecialChar,
-                SerializerFeature.WriteMapNullValue
+                SerializerFeature.WriteMapNullValue,
+                SerializerFeature.WriteEnumUsingToString
 
         );
 

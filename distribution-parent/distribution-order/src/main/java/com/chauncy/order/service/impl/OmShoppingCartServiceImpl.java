@@ -2,6 +2,7 @@ package com.chauncy.order.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.constant.RabbitConstants;
+import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
@@ -667,6 +668,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 saveOrder.setUmUserId(currentUser.getId()).setAreaShippingId(submitOrderDto.getUmAreaShipId())
                         .setStoreId(storeId).setPayOrderId(savePayOrderPo.getId()).setCreateBy(currentUser.getPhone())
                 .setId(SnowFlakeUtil.getFlowIdInstance().nextId());
+                //设置一些优惠信息
+                setDiscountMessage(saveOrder,savePayOrderPo);
                 saveOrders.add(saveOrder);
 
                 //生成商品快照
@@ -695,10 +698,30 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         // 添加延时队列
         this.rabbitTemplate.convertAndSend(RabbitConstants.REGISTER_DELAY_EXCHANGE, RabbitConstants.DELAY_ROUTING_KEY, savePayOrderPo.getId(), message -> {
             // TODO 如果配置了 params.put("x-message-ttl", 5 * 1000); 那么这一句也可以省略,具体根据业务需要是声明 Queue 的时候就指定好延迟时间还是在发送自己控制时间
-            message.getMessageProperties().setExpiration(30 * 1000 + "");
+            message.getMessageProperties().setExpiration(30*60* 1000 + "");
             return message;
         });
         LoggerUtil.info("【发送时间】:"+LocalDateTime.now());
+    }
+
+    /**
+     * 保存订单一些优惠信息
+     * @param saveOrder
+     * @param payOrderPo
+     */
+    private void setDiscountMessage(OmOrderPo saveOrder,PayOrderPo payOrderPo){
+        /**
+         * 订单金额
+         */
+        BigDecimal orderMoney=BigDecimalUtil.safeAdd(saveOrder.getTotalMoney(),saveOrder.getShipMoney(),saveOrder.getTaxMoney());
+        //总支付单
+        BigDecimal payMoney=BigDecimalUtil.safeAdd(payOrderPo.getTotalMoney(), payOrderPo.getTotalShipMoney(),payOrderPo.getTotalTaxMoney());
+        //订单占总金额的比例
+        BigDecimal ration=BigDecimalUtil.safeDivide(orderMoney,payMoney);
+        saveOrder.setRedEnvelops(BigDecimalUtil.safeMultiply(ration,payOrderPo.getTotalRedEnvelops()));
+        saveOrder.setRedEnvelopsMoney(BigDecimalUtil.safeMultiply(ration,payOrderPo.getTotalRedEnvelopsMoney()));
+        saveOrder.setShopTicket(BigDecimalUtil.safeMultiply(ration,payOrderPo.getTotalShopTicket()));
+        saveOrder.setShopTicketMoney(BigDecimalUtil.safeMultiply(ration,payOrderPo.getTotalShopTicketMoney()));
     }
 
     /**

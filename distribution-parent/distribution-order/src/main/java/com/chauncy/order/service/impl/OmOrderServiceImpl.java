@@ -70,7 +70,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
         //修改状态
         OmOrderPo updateOrder=new OmOrderPo();
-        updateOrder.setStatus(OrderStatusEnum.ALREADY_CANCEL.getId());
+        updateOrder.setStatus(OrderStatusEnum.ALREADY_CANCEL);
         UpdateWrapper updateWrapper=new UpdateWrapper();
         updateWrapper.in("id",orderIds);
         this.update(updateOrder,updateWrapper);

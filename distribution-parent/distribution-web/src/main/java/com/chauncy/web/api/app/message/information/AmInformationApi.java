@@ -33,6 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 /**
  * @author yeJH
  * @since 2019/7/1 22:24
@@ -87,7 +89,8 @@ public class AmInformationApi extends BaseApi {
      */
     @ApiOperation(value = "条件查询资讯", notes = "根据店铺ID，资讯分类，标签，关注，热榜以及内容、标题模糊搜索资讯")
     @PostMapping("/searchPaging")
-    public JsonViewData<PageInfo<InformationPagingVo>> searchPaging(@RequestBody SearchInfoByConditionDto searchInfoByConditionDto) {
+    public JsonViewData<PageInfo<InformationPagingVo>> searchPaging(@Valid @ApiParam(required = true, name = "searchInfoByConditionDto", value = "查询条件")
+            @RequestBody SearchInfoByConditionDto searchInfoByConditionDto) {
 
         PageInfo<InformationPagingVo> smStoreBaseVoPageInfo = mmInformationService.searchPaging(searchInfoByConditionDto);
         return new JsonViewData(ResultCode.SUCCESS, "查询成功",
