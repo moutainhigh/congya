@@ -84,5 +84,12 @@
         </if>
 
     </select>
+    <select id="findSeckillById" resultType="com.chauncy.data.vo.manage.activity.SearchActivityListVo">
+        select <include refid="Base_Column_List"></include>
+        ,( CASE WHEN ( now( ) &lt; registration_start_time ) THEN '待开始' WHEN ( now( ) &gt; registration_end_time ) THEN '已结束' ELSE '报名中' END ) AS registration_status,
+        ( CASE WHEN ( now( ) &lt; activity_start_time ) THEN '待开始' WHEN ( now( ) &gt; activity_end_time ) THEN '已结束' ELSE '活动中' END ) AS activity_status
+        from am_seckill
+        where id = #{id}
+    </select>
 
 </mapper>

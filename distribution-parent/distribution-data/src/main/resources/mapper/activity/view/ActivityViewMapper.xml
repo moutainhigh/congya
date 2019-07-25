@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chauncy.data.mapper.activity.view.ActivityViewMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.activity.view.ActivityViewPo">
+        <result column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="activity_start_time" property="activityStartTime" />
+        <result column="activity_end_time" property="activityEndTime" />
+        <result column="registration_start_time" property="registrationStartTime" />
+        <result column="registration_end_time" property="registrationEndTime" />
+        <result column="type" property="type" />
+        <result column="registration_status" property="registrationStatus" />
+        <result column="activity_status" property="activityStatus" />
+        <result column="create_time" property="createTime" />
+        <result column="enable" property="enable" />
+        <result column="del_flag" property="delFlag" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, activity_start_time, activity_end_time, registration_start_time, registration_end_time, type, registration_status, activity_status, create_time, enable, del_flag
+    </sql>
+    <select id="searchAllActivitiesVo"
+            resultType="com.chauncy.data.domain.po.activity.view.ActivityViewPo">
+        select *
+        from activity_view
+        <where>
+            del_flag = 0 and enable = 1
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                and name like concat('%', #{name} ,'%')
+            </if>
+            <if test="registrationStatus != null and registrationStatus != ''">
+                and registration_status = #{registrationStatus}
+            </if>
+            <if test="activityStatus != null and activityStatus != ''">
+                and activity_status = #{activityStatus}
+            </if>
+        </where>
+        order by create_time
+    </select>
+
+</mapper>

@@ -18,7 +18,7 @@ public enum ActivityTypeEnum implements BaseEnum {
     REDUCED(1,"满减"),
     INTEGRALS(2,"积分"),
     SECKILL(3,"秒杀"),
-    SPRLL_GROUP(4,"拼团");
+    SPELL_GROUP(4,"拼团");
 
     private Integer id;
 
@@ -67,7 +67,7 @@ public enum ActivityTypeEnum implements BaseEnum {
 
     @Override
     public boolean isExist(Object field) {
-        return Objects.nonNull(getActivityTypeEnumById(Integer.parseInt(field.toString())));
+        return Objects.nonNull(fromName(field.toString()));
     }
 
 

@@ -24,4 +24,11 @@ public interface AmSpellGroupMapper extends IBaseMapper<AmSpellGroupPo> {
      * @return
      */
     List<SearchActivityListVo> searchSpellList(SearchActivityListDto searchActivityListDto);
+
+    /**
+     * 查询拼团详情
+     * @param id
+     * @return
+     */
+    SearchActivityListVo findSpellGroupById(Long id);
 }

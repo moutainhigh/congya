@@ -24,4 +24,12 @@ public interface AmReducedMapper extends IBaseMapper<AmReducedPo> {
      * @return
      */
     List<SearchActivityListVo> searchReduceList(SearchActivityListDto searchActivityListDto);
+
+    /**
+     * 查看满减详情
+     *
+     * @param id
+     * @return
+     */
+    SearchActivityListVo findReducedById(Long id);
 }
