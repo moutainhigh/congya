@@ -33,7 +33,7 @@ public class SearchPlatformLogVo  implements Serializable {
     private String logType;
 
     @ApiModelProperty(value = "流水事由")
-    private String logMatter;
+    private Integer logMatter;
 
     @ApiModelProperty(value = "下单用户手机号码")
     private String phone;

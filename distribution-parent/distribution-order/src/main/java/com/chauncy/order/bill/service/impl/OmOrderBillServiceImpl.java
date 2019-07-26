@@ -215,6 +215,11 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
      */
     @Override
     public void billDeduction(BillDeductionDto billDeductionDto) {
+        OmOrderBillPo omOrderBillPo = omOrderBillMapper.selectById(billDeductionDto.getBillId());
+        if(billDeductionDto.getDeductedAmount().compareTo(omOrderBillPo.getTotalAmount()) > -1) {
+            //扣除金额大于等于账单总货款/总利润
+            throw new ServiceException(ResultCode.NO_EXISTS, "扣除金额大于等于账单总额");
+        }
         UpdateWrapper updateWrapper = new UpdateWrapper();
         updateWrapper.eq("id", billDeductionDto.getBillId());
         updateWrapper.set("deducted_amount", billDeductionDto.getDeductedAmount());

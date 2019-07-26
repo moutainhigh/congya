@@ -37,7 +37,7 @@ public class SearchPlatformLogDto implements Serializable {
 
     @ApiModelProperty(value = "流水事由")
     @EnumConstraint(target = AccountLogMatterEnum.class)
-    private String logMatter;
+    private Integer logMatter;
 
     @ApiModelProperty(value = "下单用户手机号码")
     private String phone;

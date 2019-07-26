@@ -4,7 +4,7 @@ package com.chauncy.web.api.manage.order.log;
 import com.chauncy.data.dto.manage.order.log.select.SearchPlatformLogDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.order.log.SearchPlatformLogVo;
-import com.chauncy.order.log.service.IOmOrderAccountLogService;
+import com.chauncy.order.log.service.IOmAccountLogService;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiOperation;
@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class OmFinanceApi extends BaseApi {
 
     @Autowired
-    private IOmOrderAccountLogService omOrderAccountLogService;
+    private IOmAccountLogService omAccountLogService;
 
 
     /**
@@ -42,7 +42,7 @@ public class OmFinanceApi extends BaseApi {
     @PostMapping("/searchPlatformLogPaging")
     public JsonViewData<PageInfo<SearchPlatformLogVo>> searchPlatformLogPaging(@RequestBody SearchPlatformLogDto searchPlatformLogDto) {
 
-        PageInfo<SearchPlatformLogVo> searchPlatformLogVoPageInfo = omOrderAccountLogService.searchPlatformLogPaging(searchPlatformLogDto);
+        PageInfo<SearchPlatformLogVo> searchPlatformLogVoPageInfo = omAccountLogService.searchPlatformLogPaging(searchPlatformLogDto);
         return setJsonViewData(searchPlatformLogVoPageInfo);
     }
 

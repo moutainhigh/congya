@@ -24,6 +24,10 @@ public enum AccountLogMatterEnum implements BaseEnum {
      * 9.商品售出  平台收入
      * 10.订单取消  平台支出
      * 11.用户提现  平台支出
+     * 12.商家货款提现  平台支出
+     * 13.商家利润提现  平台支出
+     * 14.货款收入  店铺收入
+     * 15.利润收入  店铺收入
      */
     ORDER_PAYMENT(1, "订单支付"),
     WITHDRAWAL(2, "提现"),
@@ -36,6 +40,10 @@ public enum AccountLogMatterEnum implements BaseEnum {
     GOODS_SALES(9, "商品售出"),
     ORDER_CANCEL(10, "订单取消"),
     USER_WITHDRAWAL(11, "用户提现"),
+    PAYMENT_WITHDRAWAL(12, "商家货款提现"),
+    PROFIT_WITHDRAWAL(13, "商家利润提现"),
+    PAYMENT_INCOME(14, "货款收入"),
+    PROFIT_INCOME(15, "利润收入"),
     ;
 
     private Integer id;
@@ -51,9 +59,9 @@ public enum AccountLogMatterEnum implements BaseEnum {
     }
 
     //通过名称来获取结果
-    public static AccountLogMatterEnum getByName(String name) {
+    public static AccountLogMatterEnum getById(Integer id) {
         for (AccountLogMatterEnum type : AccountLogMatterEnum.values()) {
-            if (type.getName().equals(name))
+            if (type.getId().equals(id))
                 return type;
         }
         return null;
@@ -78,7 +86,7 @@ public enum AccountLogMatterEnum implements BaseEnum {
     @Override
     public boolean isExist(Object field) {
 
-        return Objects.nonNull(getByName(field.toString()));
+        return Objects.nonNull(getById(Integer.parseInt(field.toString())));
     }
 
 

@@ -1,6 +1,6 @@
 package com.chauncy.data.mapper.order.log;
 
-import com.chauncy.data.domain.po.order.log.OmOrderAccountLogPo;
+import com.chauncy.data.domain.po.order.log.OmAccountLogPo;
 import com.chauncy.data.dto.manage.order.log.select.SearchPlatformLogDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.manage.order.log.SearchPlatformLogVo;
@@ -14,7 +14,7 @@ import com.github.pagehelper.PageInfo;
  * @author huangwancheng
  * @since 2019-07-20
  */
-public interface OmOrderAccountLogMapper extends IBaseMapper<OmOrderAccountLogPo> {
+public interface OmAccountLogMapper extends IBaseMapper<OmAccountLogPo> {
 
     /**
      * 平台流水
