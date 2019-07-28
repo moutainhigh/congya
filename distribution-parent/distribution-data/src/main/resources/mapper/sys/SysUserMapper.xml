@@ -73,9 +73,9 @@
 
     <select id="searchUsersByCondition"
             resultType="com.chauncy.data.vo.sys.permission.SearchUsersByConditionVo">
-        select a.id,avatar,mobile,nick_name,password,sex,status,type,username,a.create_time,c.name
+        select distinct a.id,avatar,mobile,email,nick_name,password,sex,status,type,username,a.create_time
         from sys_user a,sys_role_user b,sys_role c
-        where a.id = b.user_id and c.id = b.role_id and b.del_flag = 0
+        where a.id = b.user_id and c.id = b.role_id
             <if test="mobile != null and mobile != ''">
                 and a.mobile like concat('%', #{mobile} ,'%')
             </if>
