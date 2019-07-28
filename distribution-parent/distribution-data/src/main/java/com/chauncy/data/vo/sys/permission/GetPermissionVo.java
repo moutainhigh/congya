@@ -26,7 +26,7 @@ public class GetPermissionVo {
     private String title;
 
     @ApiModelProperty("该角色是否包含该权限")
-    private Boolean isInclude = false;
+    private Boolean checked = true;
 
     @ApiModelProperty("父级ID")
     private String parentId;

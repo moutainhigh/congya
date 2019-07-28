@@ -158,9 +158,9 @@ public class SysUserApi {
   if(!old.getMobile().equals(u.getMobile())&&userService.findByMobile(u.getMobile())!=null){
    return new JsonViewData(ResultCode.DUPLICATION,"该手机号已绑定其他账户");
   }
-  if(!old.getEmail().equals(u.getEmail())&&userService.findByEmail(u.getEmail())!=null){
+  /*if(!old.getEmail().equals(u.getEmail())&&userService.findByEmail(u.getEmail())!=null){
    return new JsonViewData(ResultCode.DUPLICATION,"该邮箱已绑定其他账户");
-  }
+  }*/
   if (u.getPassword() !=null) {
    if (!new BCryptPasswordEncoder().matches(u.getPassword(), old.getPassword())) {
     u.setPassword(new BCryptPasswordEncoder().encode(u.getPassword()));
