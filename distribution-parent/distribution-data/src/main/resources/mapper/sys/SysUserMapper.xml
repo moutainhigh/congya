@@ -38,8 +38,9 @@
     <select id="findByUsername" resultType="com.chauncy.data.domain.po.sys.SysUserPo">
         <include refid="Base_Column_List"/>
         <where>
+        del_flag = 0
             <if test="username !=null || username!=''">
-                username = #{username}
+              and  username = #{username}
             </if>
         </where>
     </select>

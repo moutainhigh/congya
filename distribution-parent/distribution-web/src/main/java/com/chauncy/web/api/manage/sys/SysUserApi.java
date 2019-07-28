@@ -100,8 +100,9 @@ public class SysUserApi {
   String encryptPass = new BCryptPasswordEncoder().encode(u.getPassword());
   u.setPassword(encryptPass);
   SysUserPo sysUserPo = new SysUserPo();
+  u.setId(sysUserPo.getId());
   BeanUtils.copyProperties(u,sysUserPo);
-  sysUserPo.setId(null);
+//  sysUserPo.setId(null);
   SysUserPo currentUser = securityUtil.getCurrUser();
   if (currentUser.getStoreId()==null){
    sysUserPo.setSystemType(1);
@@ -225,6 +226,14 @@ public class SysUserApi {
 
   String encryptPass = new BCryptPasswordEncoder().encode(u.getPassword());
   u.setPassword(encryptPass);
+  SysUserPo currentUser = securityUtil.getCurrUser();
+  if (currentUser.getStoreId()==null){
+   u.setSystemType(1);
+  }else{
+   u.setSystemType(2);
+   u.setStoreId(currentUser.getStoreId());
+  }
+  u.setCreateBy(currentUser.getUsername());
   boolean s = userService.save(u);
   if(!s){
    return new ResultUtil<Object>().setErrorMsg("添加失败");
@@ -235,6 +244,7 @@ public class SysUserApi {
     SysRoleUserPo ur = new SysRoleUserPo();
     ur.setUserId(u.getId());
     ur.setRoleId(roleId);
+    ur.setCreateBy(currentUser.getUsername());
     iUserRoleService.save(ur);
    }
   }
