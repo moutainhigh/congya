@@ -141,6 +141,7 @@ public class SysUserApi {
                             @RequestParam(required = false) String[] role){
 
   SysUserPo old = userService.getById(u.getId());
+  SysUserPo userPos = securityUtil.getCurrUser();
   //若修改了用户名
   if(!old.getUsername().equals(u.getUsername())){
    //若修改用户名删除原用户名缓存
@@ -160,15 +161,25 @@ public class SysUserApi {
   if(!old.getEmail().equals(u.getEmail())&&userService.findByEmail(u.getEmail())!=null){
    return new JsonViewData(ResultCode.DUPLICATION,"该邮箱已绑定其他账户");
   }
+  if (u.getPassword() !=null) {
+   if (!new BCryptPasswordEncoder().matches(u.getPassword(), old.getPassword())) {
+    u.setPassword(new BCryptPasswordEncoder().encode(u.getPassword()));
+   } else {
+    return new JsonViewData(ResultCode.FAIL,"不能和原来密码一样");
+   }
+   }else {
+   u.setPassword(old.getPassword());
+  }
 
-  u.setPassword(old.getPassword());
 //  UpdateWrapper<SysUserPo> updateWrapper = new UpdateWrapper<>(u);
   SysUserPo userPo = new SysUserPo();
   BeanUtils.copyProperties(u,userPo);
-  boolean s = userService.saveOrUpdate(userPo);
+  userPo.setUpdateBy(userPos.getUsername());
+  userService.updateById(userPo);
+  /*boolean s = userService.updateById(userPo);
   if(!s){
    return new JsonViewData(ResultCode.FAIL,"修改失败");
-  }
+  }*/
   //删除该用户角色
   iUserRoleService.deleteByUserId(u.getId());
   if(role!=null&&role.length>0){
