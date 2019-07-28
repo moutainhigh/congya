@@ -30,7 +30,8 @@ public class SysRoleUserServiceImpl extends AbstractService<SysRoleUserMapper, S
 
  @Override
  public void deleteByUserId(String userId) {
-   mapper.deleteByUserId(userId);
+//   mapper.deleteByUserId(userId);
+  mapper.deleteById(userId);
  }
 
 }

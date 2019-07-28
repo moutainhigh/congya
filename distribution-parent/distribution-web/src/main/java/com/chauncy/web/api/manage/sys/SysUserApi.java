@@ -101,6 +101,7 @@ public class SysUserApi {
   u.setPassword(encryptPass);
   SysUserPo sysUserPo = new SysUserPo();
   BeanUtils.copyProperties(u,sysUserPo);
+  sysUserPo.setId(null);
   SysUserPo currentUser = securityUtil.getCurrUser();
   if (currentUser.getStoreId()==null){
    sysUserPo.setSystemType(1);
