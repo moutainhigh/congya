@@ -81,6 +81,6 @@ public interface SysPermissionMapper extends IBaseMapper<SysPermissionPo> {
      * 获取全部权限列表
      * @return
      */
-    @Select("select id,title,parent_id from sys_permission")
+    @Select("list id,title,parent_id from sys_permission")
     List<GetPermissionVo> selectAll();
 }

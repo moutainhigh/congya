@@ -8,6 +8,7 @@ import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
+import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.mapper.order.OmGoodsTempMapper;
 import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.core.AbstractService;
@@ -15,13 +16,15 @@ import com.chauncy.data.mapper.order.OmShoppingCartMapper;
 import com.chauncy.data.mapper.pay.IPayOrderMapper;
 import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
 import com.chauncy.data.vo.app.car.ShopTicketSoWithCarGoodVo;
+import com.chauncy.data.vo.manage.order.list.SearchOrderVo;
 import com.chauncy.order.service.IOmOrderService;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -96,5 +99,12 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
 
         return true;
+    }
+
+    @Override
+    public PageInfo<SearchOrderVo> search(SearchOrderDto searchOrderDto) {
+        PageInfo<SearchOrderVo> searchOrderVoPageInfo = PageHelper.startPage(searchOrderDto.getPageNo(), searchOrderDto.getPageSize())
+                .doSelectPageInfo(() -> mapper.search(searchOrderDto));
+        return searchOrderVoPageInfo;
     }
 }

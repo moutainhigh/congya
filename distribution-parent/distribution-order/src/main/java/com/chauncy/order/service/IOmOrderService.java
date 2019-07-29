@@ -2,7 +2,9 @@ package com.chauncy.order.service;
 
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.core.Service;
-import com.chauncy.data.domain.po.pay.PayOrderPo;
+import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
+import com.chauncy.data.vo.manage.order.list.SearchOrderVo;
+import com.github.pagehelper.PageInfo;
 
 /**
  * <p>
@@ -19,5 +21,13 @@ public interface IOmOrderService extends Service<OmOrderPo> {
      * @param payOrderId
      */
     boolean closeOrder(Long payOrderId);
+
+    /**
+     *
+     * @param searchOrderDto
+     * @return
+     */
+    PageInfo<SearchOrderVo> search(SearchOrderDto searchOrderDto);
+
 
 }

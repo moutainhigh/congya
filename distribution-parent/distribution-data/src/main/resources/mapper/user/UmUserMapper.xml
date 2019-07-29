@@ -249,4 +249,47 @@
         </foreach>
     </select>
 
+    <select id="getUserStoreId" resultType="java.lang.Long">
+        WITH RECURSIVE childrenIds (id,store_id,parent_id) AS
+        (
+        SELECT id,store_id,parent_id
+        FROM um_user
+        WHERE
+            del_flag=0 and
+			id=#{userId}
+        UNION ALL
+        SELECT c.id,c.store_id,c.parent_id
+        FROM childrenIds AS p JOIN um_user AS c
+        ON p.parent_id = c.id
+        where c.del_flag=0
+        )
+        SELECT store_id FROM childrenIds where store_id is not null limit 1
+    </select>
+    <select id="getPayUserMessage" resultType="com.chauncy.data.bo.manage.pay.PayUserMessage">
+
+
+					WITH RECURSIVE temp (id,level,parent_id) AS
+                (
+                SELECT u.id,m.level,u.parent_id
+                FROM um_user u,pm_member_level m
+                WHERE
+                    u.del_flag=0 and m.del_flag=0 and
+                    u.member_level_id=m.id and u.id=1146432777142534145
+                UNION ALL
+                SELECT u1.id,m1.level,u1.parent_id
+								FROM um_user u1,pm_member_level m1,temp t
+								WHERE
+								    u1.del_flag=0 and m1.del_flag=0
+										AND u1.member_level_id=m1.id and u1.id=t.parent_id
+
+                )
+				SELECT u2.id userId,m2.level
+                FROM um_user u2,pm_member_level m2
+                WHERE
+                    u2.del_flag=0 and m2.del_flag=0 and
+                    u2.member_level_id=m2.id and u2.parent_id=1146432777142534145
+                UNION ALL
+                SELECT id,level FROM temp
+    </select>
+
 </mapper>

@@ -100,6 +100,8 @@ public class ShopTicketSoWithCarGoodVo {
     private Boolean isFreePostage;
 
 
+
+
     /**
      * 根据公式算出返回预计购物券
      * 没有活动和优惠券  付现价=销售价

@@ -126,7 +126,7 @@ public interface PmGoodsCategoryMapper extends IBaseMapper<PmGoodsCategoryPo> {
      * 获取一级分类列表
      * @return
      */
-    @Select("select id,name\n" +
+    @Select("list id,name\n" +
             "from pm_goods_category\n" +
             "where `level`=1")
     List<BaseVo> getFirstCategory ();
