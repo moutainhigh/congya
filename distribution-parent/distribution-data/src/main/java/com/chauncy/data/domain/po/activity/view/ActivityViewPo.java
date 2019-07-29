@@ -12,11 +12,13 @@ import com.baomidou.mybatisplus.annotation.TableLogic;
 import java.io.Serializable;
 
 import com.chauncy.data.vo.supplier.activity.ActivityVo;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * <p>
@@ -45,18 +47,26 @@ public class ActivityViewPo implements Serializable {
 
     @ApiModelProperty(value = "活动开始时间")
     @JSONField(ordinal = 2)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime activityStartTime;
 
     @ApiModelProperty(value = "活动结束时间")
     @JSONField(ordinal = 3)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime activityEndTime;
 
     @ApiModelProperty(value = "报名开始时间")
     @JSONField(ordinal = 4)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime registrationStartTime;
 
     @ApiModelProperty(value = "报名结束时间")
     @JSONField(ordinal = 5)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime registrationEndTime;
 
     @ApiModelProperty(value = "活动类型 满减、积分、秒杀、拼团")
@@ -73,6 +83,8 @@ public class ActivityViewPo implements Serializable {
 
     @ApiModelProperty(value = "创建时间")
     @JSONField(ordinal = 9)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
 
     @ApiModelProperty(value = "结束为0，默认为1启用")

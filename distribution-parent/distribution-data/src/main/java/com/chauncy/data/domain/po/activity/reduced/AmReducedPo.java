@@ -3,6 +3,7 @@ package com.chauncy.data.domain.po.activity.reduced;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -90,10 +91,10 @@ public class AmReducedPo implements Serializable {
     private String activitySubtitle;
 
     @ApiModelProperty(value = "满减活动满金额条件")
-    private String reductionFullMoney;
+    private BigDecimal reductionFullMoney;
 
     @ApiModelProperty(value = "满减活动减金额")
-    private String reductionPostMoney;
+    private BigDecimal reductionPostMoney;
 
     @ApiModelProperty(value = "结束为0，默认为1启用")
     private Boolean enable;

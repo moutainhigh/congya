@@ -114,7 +114,7 @@
 
     <select id="searchPlatTempByConditions" resultMap="ShipResult">
         select a.id as templateId,a.name as templateName,a.product_address_id,c1.merger_name as dispatch,a.calculate_way,
-        a.create_by,a.create_time,a.default_freight,a.default_full_money,a.default_post_money,
+        a.create_by,a.create_time,a.default_freight,a.default_full_money,a.default_post_money,a.default_max_number,a.default_max_number_money,a.default_addtional_number,a.default_addtional_freight,
         b.id as amountId,b.destination_id,d.destination_id as destinationIdd,b.destination_basis_freight,b.destination_full_money,b.destination_post_money,
         c.merger_name as destinationName,c2.merger_name as destinationNamee,
         d.destination_addtional_freight,d.destination_addtional_number,d.destination_max_number,d.destination_max_number_money,d.id as numberId,
