@@ -100,7 +100,9 @@ public class SysUserApi {
   String encryptPass = new BCryptPasswordEncoder().encode(u.getPassword());
   u.setPassword(encryptPass);
   SysUserPo sysUserPo = new SysUserPo();
+  u.setId(sysUserPo.getId());
   BeanUtils.copyProperties(u,sysUserPo);
+//  sysUserPo.setId(null);
   SysUserPo currentUser = securityUtil.getCurrUser();
   if (currentUser.getStoreId()==null){
    sysUserPo.setSystemType(1);
@@ -140,6 +142,7 @@ public class SysUserApi {
                             @RequestParam(required = false) String[] role){
 
   SysUserPo old = userService.getById(u.getId());
+  SysUserPo userPos = securityUtil.getCurrUser();
   //若修改了用户名
   if(!old.getUsername().equals(u.getUsername())){
    //若修改用户名删除原用户名缓存
@@ -156,18 +159,28 @@ public class SysUserApi {
   if(!old.getMobile().equals(u.getMobile())&&userService.findByMobile(u.getMobile())!=null){
    return new JsonViewData(ResultCode.DUPLICATION,"该手机号已绑定其他账户");
   }
-  if(!old.getEmail().equals(u.getEmail())&&userService.findByEmail(u.getEmail())!=null){
+  /*if(!old.getEmail().equals(u.getEmail())&&userService.findByEmail(u.getEmail())!=null){
    return new JsonViewData(ResultCode.DUPLICATION,"该邮箱已绑定其他账户");
+  }*/
+  if (u.getPassword() !=null) {
+   if (!new BCryptPasswordEncoder().matches(u.getPassword(), old.getPassword())) {
+    u.setPassword(new BCryptPasswordEncoder().encode(u.getPassword()));
+   } else {
+    return new JsonViewData(ResultCode.FAIL,"不能和原来密码一样");
+   }
+   }else {
+   u.setPassword(old.getPassword());
   }
 
-  u.setPassword(old.getPassword());
 //  UpdateWrapper<SysUserPo> updateWrapper = new UpdateWrapper<>(u);
   SysUserPo userPo = new SysUserPo();
   BeanUtils.copyProperties(u,userPo);
-  boolean s = userService.saveOrUpdate(userPo);
+  userPo.setUpdateBy(userPos.getUsername());
+  userService.updateById(userPo);
+  /*boolean s = userService.updateById(userPo);
   if(!s){
    return new JsonViewData(ResultCode.FAIL,"修改失败");
-  }
+  }*/
   //删除该用户角色
   iUserRoleService.deleteByUserId(u.getId());
   if(role!=null&&role.length>0){
@@ -213,6 +226,14 @@ public class SysUserApi {
 
   String encryptPass = new BCryptPasswordEncoder().encode(u.getPassword());
   u.setPassword(encryptPass);
+  SysUserPo currentUser = securityUtil.getCurrUser();
+  if (currentUser.getStoreId()==null){
+   u.setSystemType(1);
+  }else{
+   u.setSystemType(2);
+   u.setStoreId(currentUser.getStoreId());
+  }
+  u.setCreateBy(currentUser.getUsername());
   boolean s = userService.save(u);
   if(!s){
    return new ResultUtil<Object>().setErrorMsg("添加失败");
@@ -223,6 +244,7 @@ public class SysUserApi {
     SysRoleUserPo ur = new SysRoleUserPo();
     ur.setUserId(u.getId());
     ur.setRoleId(roleId);
+    ur.setCreateBy(currentUser.getUsername());
     iUserRoleService.save(ur);
    }
   }

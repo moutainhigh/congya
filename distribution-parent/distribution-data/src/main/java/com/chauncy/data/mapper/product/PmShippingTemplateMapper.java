@@ -4,6 +4,8 @@ import com.chauncy.data.domain.po.product.PmShippingTemplatePo;
 import com.chauncy.data.dto.manage.ship.select.SearchPlatTempDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.manage.ship.AmountVo;
+import com.chauncy.data.vo.manage.ship.NumberVo;
 import com.chauncy.data.vo.manage.ship.PlatTemplateVo;
 
 import java.util.List;
@@ -32,4 +34,18 @@ public interface PmShippingTemplateMapper extends IBaseMapper<PmShippingTemplate
      * @return
      */
     List<BaseVo> findByType(Integer type);
+
+    /**
+     *查找按金额计算运费列表
+     *
+     * @return
+     */
+    List<AmountVo> getAmountCalculateList();
+
+    /**
+     * 查找按件数计算运费列表
+     *
+     * @return
+     */
+    List<NumberVo> getNumberCalculateList();
 }

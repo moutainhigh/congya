@@ -24,4 +24,12 @@ public interface AmIntegralsMapper extends IBaseMapper<AmIntegralsPo> {
      * @return
      */
     List<SearchActivityListVo> searchIntegralsList(SearchActivityListDto searchActivityListDto);
+
+    /**
+     * 查找积分详情
+     *
+     * @param id
+     * @return
+     */
+    SearchActivityListVo findIntegralById(Long id);
 }

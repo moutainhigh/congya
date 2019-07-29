@@ -38,8 +38,9 @@
     <select id="findByUsername" resultType="com.chauncy.data.domain.po.sys.SysUserPo">
         <include refid="Base_Column_List"/>
         <where>
+        del_flag = 0
             <if test="username !=null || username!=''">
-                username = #{username}
+              and  username = #{username}
             </if>
         </where>
     </select>
@@ -73,11 +74,11 @@
 
     <select id="searchUsersByCondition"
             resultType="com.chauncy.data.vo.sys.permission.SearchUsersByConditionVo">
-        select a.id,avatar,mobile,nick_name,password,sex,status,type,username,a.create_time,c.name
+        select distinct a.id,avatar,mobile,email,nick_name,password,sex,status,type,username,a.create_time
         from sys_user a,sys_role_user b,sys_role c
         where a.id = b.user_id and c.id = b.role_id
             <if test="mobile != null and mobile != ''">
-                and a.mobile = #{mobile}
+                and a.mobile like concat('%', #{mobile} ,'%')
             </if>
             <if test="status != null">
                 and a.status = #{status}
@@ -86,10 +87,11 @@
                 and a.type = #{type}
             </if>
             <if test="username != null and username != ''">
-                and a.username = #{username}
+                and a.username like concat('%', #{username} ,'%')
+
             </if>
             <if test="roleName != null and roleName != ''">
-                and c.name = #{roleName}
+                and c.name like concat('%', #{roleName} ,'%')
             </if>
     </select>
 

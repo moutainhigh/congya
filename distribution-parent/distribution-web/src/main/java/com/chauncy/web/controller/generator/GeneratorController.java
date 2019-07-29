@@ -26,11 +26,11 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/generator")
-@Api(tags = "代码自动生成")
+@Api(tags = "后台业务测试")
 public class GeneratorController {
 
     @PostMapping("/create")
-    @ApiOperation("代码自动生成")
+    @ApiOperation("后台业务测试")
     public void generator(@RequestParam(value = "model") String model,
                           @RequestParam(value = "tableName") String tableName,
                           @RequestParam(value = "dataBaseName") String dataBaseName
@@ -152,7 +152,7 @@ public class GeneratorController {
         strategy.setSuperMapperClass("com.chauncy.data.mapper.IBaseMapper");
         strategy.setEntityLombokModel(true);
         strategy.setRestControllerStyle(true);
-        strategy.setSuperControllerClass("com.chauncy.web.base.BaseApi;");
+        strategy.setSuperControllerClass("com.chauncy.web.base.BaseApi");
         strategy.setInclude(tableName/*scanner("表名，多个英文逗号分割").split(",")*/);
 //        strategy.setSuperEntityColumns("id");
         strategy.setControllerMappingHyphenStyle(true);
