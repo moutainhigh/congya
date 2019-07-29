@@ -61,6 +61,9 @@ public class UmAreaShippingPo implements Serializable {
     @ApiModelProperty(value = "地区ID")
     private Long areaId;
 
+    @ApiModelProperty(value = "地区name")
+    private String areaName;
+
     @ApiModelProperty(value = "详细地址")
     private String detailedAddress;
 

@@ -71,7 +71,7 @@ public interface AmCouponMapper extends IBaseMapper<AmCouponPo> {
      * @param status
      * @return
      */
-    @Select("select count(id) from am_coupon_rel_coupon_user where use_status = #{status} and coupon_id =#{couponId}")
+    @Select("list count(id) from am_coupon_rel_coupon_user where use_status = #{status} and coupon_id =#{couponId}")
     Integer countNum(@Param("couponId") Long couponId, @Param("status") Integer status);
 
     /**
@@ -87,6 +87,6 @@ public interface AmCouponMapper extends IBaseMapper<AmCouponPo> {
      *
      * @return
      */
-    @Select("select id,name from am_coupon")
+    @Select("list id,name from am_coupon")
     List<BaseVo> findAllCoupon();
 }

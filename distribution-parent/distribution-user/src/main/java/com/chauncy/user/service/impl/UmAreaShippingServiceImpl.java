@@ -1,5 +1,6 @@
 package com.chauncy.user.service.impl;
 
+import com.chauncy.data.domain.po.area.AreaRegionPo;
 import com.chauncy.data.domain.po.user.UmAreaShippingPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.user.add.AddAreaDto;
@@ -101,7 +102,7 @@ public class UmAreaShippingServiceImpl extends AbstractService<UmAreaShippingMap
 
     private UmAreaShippingPo updateDefault(AddAreaDto updateAreaDto) {
         if (updateAreaDto.getIsDefault()) {
-            //判断当前用户是否已有默认收货地址，若有则更新置为0
+            //判断当前用户是否已有默认收货地址，若有则把之前的置为0
             Map<String, Object> map = new HashMap<>();
             map.put("is_default", true);
             if (mapper.selectByMap(map) != null && mapper.selectByMap(map).size() != 0) {
@@ -110,8 +111,10 @@ public class UmAreaShippingServiceImpl extends AbstractService<UmAreaShippingMap
                 mapper.updateById(po);
             }
         }
+        AreaRegionPo queryAreaRegion = areaRegionMapper.selectById(updateAreaDto.getAreaId());
         UmAreaShippingPo areaShippingPo = new UmAreaShippingPo();
         BeanUtils.copyProperties(updateAreaDto, areaShippingPo);
+        areaShippingPo.setAreaName(queryAreaRegion.getMergerName());
         return areaShippingPo;
     }
 }

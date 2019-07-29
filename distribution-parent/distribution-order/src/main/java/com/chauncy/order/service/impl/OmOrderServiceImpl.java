@@ -16,7 +16,7 @@ import com.chauncy.data.mapper.order.OmShoppingCartMapper;
 import com.chauncy.data.mapper.pay.IPayOrderMapper;
 import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
 import com.chauncy.data.vo.app.car.ShopTicketSoWithCarGoodVo;
-import com.chauncy.data.vo.manage.order.SearchOrderVo;
+import com.chauncy.data.vo.manage.order.list.SearchOrderVo;
 import com.chauncy.order.service.IOmOrderService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;

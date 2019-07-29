@@ -19,7 +19,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class OmShoppingCartServiceImplTest {
 
     @Autowired
-    private IOmShoppingCartService shoppingCartService;
+    private OmShoppingCartServiceImpl shoppingCartService;
     @Autowired
     private OmOrderServiceImpl orderService;
 
@@ -38,6 +38,21 @@ public class OmShoppingCartServiceImplTest {
    public void searchByIds() {
        OmOrderPo byId = orderService.getById(166379421408694272l);
        LoggerUtil.info(byId.toString());
+       int a=1;
+       switch (a){
+           case 1:
+               System.err.println(1);
+               break;
+           case 2:
+               System.err.println(2);
+               break;
+
+       }
+   }
+
+   @Test
+    public void firstSecond(){
+       shoppingCartService.getPayUserMessage(1146432777142534145l);
    }
 
 }

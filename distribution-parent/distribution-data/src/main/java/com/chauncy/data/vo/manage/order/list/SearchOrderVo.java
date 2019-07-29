@@ -1,4 +1,4 @@
-package com.chauncy.data.vo.manage.order;
+package com.chauncy.data.vo.manage.order.list;
 
 import com.chauncy.common.enums.app.activity.type.ActivityTypeEnum;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;

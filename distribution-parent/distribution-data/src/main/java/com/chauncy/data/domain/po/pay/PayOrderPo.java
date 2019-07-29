@@ -52,8 +52,8 @@ public class PayOrderPo implements Serializable {
 
     private String userIp;
 
-    @ApiModelProperty(value = "支付金额，精确到分")
-    private Integer payAmount;
+    @ApiModelProperty(value = "支付金额")
+    private BigDecimal payAmount;
 
     @ApiModelProperty(value = "支付时间")
     private LocalDateTime payTime;

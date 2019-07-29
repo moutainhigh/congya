@@ -124,7 +124,7 @@ public interface PmGoodsAttributeMapper extends IBaseMapper<PmGoodsAttributePo> 
      * @param brandId
      * @return
      */
-    @Select ("select id as brandId ,name as brandName, subtitle as brandSubTitle,collection_num from pm_goods_attribute where id = #{brandId}")
+    @Select ("list id as brandId ,name as brandName, subtitle as brandSubTitle,collection_num from pm_goods_attribute where id = #{brandId}")
     BrandGoodsListVo getBrandById (Long brandId);
 
     /**

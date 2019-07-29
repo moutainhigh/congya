@@ -30,7 +30,7 @@ public interface AmGiftMapper extends IBaseMapper<AmGiftPo> {
      * @param id
      * @return
      */
-    @Select("select * from am_gift where id = #{id} and del_flag =0")
+    @Select("list * from am_gift where id = #{id} and del_flag =0")
     FindGiftVo findById(Long id);
 
     /**
