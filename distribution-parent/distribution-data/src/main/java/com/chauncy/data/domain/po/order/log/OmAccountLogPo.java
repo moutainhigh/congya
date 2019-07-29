@@ -88,7 +88,7 @@ public class OmAccountLogPo implements Serializable {
     private String updateBy;
 
     @ApiModelProperty(value = "修改时间")
-    private LocalDateTime updateTime;
+    private LocalDateTime eventTime;
 
     @ApiModelProperty(value = "删除标志 1-删除 0未删除")
     @TableLogic

@@ -21,13 +21,13 @@
         <result column="create_by" property="createBy" />
         <result column="create_time" property="createTime" />
         <result column="update_by" property="updateBy" />
-        <result column="update_time" property="updateTime" />
+        <result column="event_time" property="eventTime" />
         <result column="del_flag" property="delFlag" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, parent_id, balance, last_balance, user_id, account_type, amount, om_order_id, log_type, user_type, payment_way, arrival_way, log_matter, pay_order_id, create_by, create_time, update_by, update_time, del_flag
+        id, parent_id, balance, last_balance, user_id, account_type, amount, om_order_id, log_type, user_type, payment_way, arrival_way, log_matter, pay_order_id, create_by, create_time, update_by, event_time, del_flag
     </sql>
 
 
@@ -70,6 +70,19 @@
                 and date(ooal.create_time) <![CDATA[<= ]]> #{endTime}
             </if>
         </where>
+    </select>
+    <select id="searchUserLogPaging" resultType="com.chauncy.data.vo.manage.order.log.UserLogDetailVo">
+        SELECT oal.id as logId,
+            oal.`log_type`,
+            oal.`amount`,
+            oal.`log_matter`,
+            oal.`event_time`,
+            oal.`payment_way`,
+            oal.`arrival_way`
+        FROM om_account_log oal
+        WHERE oal.user_id = #{userId}
+        AND account_type = #{accountTypeEnum}
+        ORDER BY oal.`event_time`
     </select>
 
 </mapper>

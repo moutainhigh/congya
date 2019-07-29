@@ -5,7 +5,7 @@ import com.chauncy.data.mapper.IBaseMapper;
 
 /**
  * <p>
- * 'distribution.activity_view' is not BASE TABLE Mapper 接口
+ * App用户提现信息 Mapper 接口
  * </p>
  *
  * @author huangwancheng

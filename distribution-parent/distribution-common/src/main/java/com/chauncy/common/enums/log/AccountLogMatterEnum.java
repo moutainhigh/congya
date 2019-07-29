@@ -1,5 +1,6 @@
 package com.chauncy.common.enums.log;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.chauncy.common.enums.BaseEnum;
 
 import java.util.Objects;
@@ -14,7 +15,7 @@ public enum AccountLogMatterEnum implements BaseEnum {
     /**
      * 账目流水事由
      * 1.订单支付  用户支出
-     * 2.提现  用户收入
+     * 2.提现  用户支出
      * 3.审核不通过返款  用户支出
      * 4.充值  用户收入
      * 5.平台赠送  用户收入
@@ -46,6 +47,7 @@ public enum AccountLogMatterEnum implements BaseEnum {
     PROFIT_INCOME(15, "利润收入"),
     ;
 
+    @EnumValue
     private Integer id;
     private String name;
     AccountLogMatterEnum(Integer id, String name){
@@ -55,7 +57,7 @@ public enum AccountLogMatterEnum implements BaseEnum {
 
     @Override
     public String toString(){
-        return this.name() + ":"  + this.name;
+        return this.getName();
     }
 
     //通过名称来获取结果

@@ -5,7 +5,7 @@ import com.chauncy.data.core.Service;
 
 /**
  * <p>
- * 'distribution.activity_view' is not BASE TABLE 服务类
+ * App用户提现信息 服务类
  * </p>
  *
  * @author huangwancheng

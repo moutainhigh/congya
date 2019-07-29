@@ -32,7 +32,7 @@ public enum LogTypeEnm  implements BaseEnum {
 
     @Override
     public String toString(){
-        return this.name() + ":"  + this.name;
+        return this.getName();
     }
 
     //通过名称来获取结果

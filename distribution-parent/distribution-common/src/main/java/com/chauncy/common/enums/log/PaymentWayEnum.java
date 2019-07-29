@@ -17,13 +17,14 @@ public enum PaymentWayEnum implements BaseEnum {
      * 1.微信
      * 2.支付宝
      * 3.银行卡
-     * 4.线下支付
+     * 4.账目余额
+     * 5.线下支付
      */
     WECHAT(1, "微信"),
     ALIPAY(2, "支付宝"),
     BANK_CARD(3, "银行卡"),
-    OFF_LINE(4, "线下支付"),
-    ACCOUNT(4, "账目余额"),
+    OFF_LINE(4, "账目余额"),
+    ACCOUNT(5, "线下支付"),
     ;
 
 
@@ -37,7 +38,7 @@ public enum PaymentWayEnum implements BaseEnum {
 
     @Override
     public String toString(){
-        return this.name() + ":"  + this.name;
+        return this.getName();
     }
 
     //通过名称来获取结果

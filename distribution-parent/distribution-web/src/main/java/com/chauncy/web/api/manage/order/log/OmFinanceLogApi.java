@@ -8,6 +8,8 @@ import com.chauncy.order.log.service.IOmAccountLogService;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/manage/finance")
 @Api(tags = "平台_财务管理接口")
-public class OmFinanceApi extends BaseApi {
+public class OmFinanceLogApi extends BaseApi {
 
     @Autowired
     private IOmAccountLogService omAccountLogService;
@@ -40,7 +42,8 @@ public class OmFinanceApi extends BaseApi {
      */
     @ApiOperation(value = "查询平台流水", notes = "条件查询平台流水")
     @PostMapping("/searchPlatformLogPaging")
-    public JsonViewData<PageInfo<SearchPlatformLogVo>> searchPlatformLogPaging(@RequestBody SearchPlatformLogDto searchPlatformLogDto) {
+    public JsonViewData<PageInfo<SearchPlatformLogVo>> searchPlatformLogPaging(@RequestBody @ApiParam(required = true, name = "searchPlatformLogDto", value = "查询平台流水") @Validated
+                                                                                           SearchPlatformLogDto searchPlatformLogDto) {
 
         PageInfo<SearchPlatformLogVo> searchPlatformLogVoPageInfo = omAccountLogService.searchPlatformLogPaging(searchPlatformLogDto);
         return setJsonViewData(searchPlatformLogVoPageInfo);

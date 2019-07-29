@@ -2,6 +2,7 @@ package com.chauncy.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.chauncy.common.enums.log.AccountTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.enums.user.ValidCodeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
@@ -24,6 +25,7 @@ import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.user.UmRelUserLabelMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.app.user.UserDataVo;
+import com.chauncy.data.vo.manage.order.log.SearchUserLogVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserDetailVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserRelVo;
 import com.chauncy.data.vo.manage.user.idCard.SearchIdCardVo;
@@ -31,12 +33,14 @@ import com.chauncy.data.vo.manage.user.list.UmUserListVo;
 import com.chauncy.user.service.IUmUserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.catalina.security.SecurityUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -124,6 +128,23 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     @Override
     public boolean updateLogin(String phone) {
         return mapper.updateLogin(phone)>0;
+    }
+
+    /**
+     * 获取用户的账户余额
+     *
+     * @param accountType
+     * @return
+     */
+    @Override
+    public BigDecimal getAccount(AccountTypeEnum accountType, UmUserPo umUserPo) {
+        BigDecimal amount = new BigDecimal(0);
+        if(accountType.equals(AccountTypeEnum.RED_ENVELOPS)) {
+            amount = umUserPo.getCurrentRedEnvelops();
+        } else if(accountType.equals(AccountTypeEnum.SHOP_TICKET)) {
+            amount = umUserPo.getCurrentShopTicket();
+        }
+        return amount;
     }
 
     @Override

@@ -1,10 +1,14 @@
 package com.chauncy.data.mapper.order.log;
 
 import com.chauncy.data.domain.po.order.log.OmAccountLogPo;
+import com.chauncy.data.dto.app.order.log.SearchUserLogDto;
 import com.chauncy.data.dto.manage.order.log.select.SearchPlatformLogDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.manage.order.log.SearchPlatformLogVo;
+import com.chauncy.data.vo.manage.order.log.UserLogDetailVo;
 import com.github.pagehelper.PageInfo;
+
+import java.util.List;
 
 /**
  * <p>
@@ -22,5 +26,13 @@ public interface OmAccountLogMapper extends IBaseMapper<OmAccountLogPo> {
      * @param searchPlatformLogDto
      * @return
      */
-    PageInfo<SearchPlatformLogVo> searchPlatformLogPaging(SearchPlatformLogDto searchPlatformLogDto);
+    List<SearchPlatformLogVo> searchPlatformLogPaging(SearchPlatformLogDto searchPlatformLogDto);
+
+    /**
+     * 查询用户红包，购物券流水
+     *
+     * @param searchUserLogDto
+     * @return
+     */
+    List<UserLogDetailVo> searchUserLogPaging(SearchUserLogDto searchUserLogDto);
 }

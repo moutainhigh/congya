@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
- * 'distribution.activity_view' is not BASE TABLE 服务实现类
+ * App用户提现信息 服务实现类
  * </p>
  *
  * @author huangwancheng

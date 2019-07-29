@@ -7,18 +7,26 @@ import com.chauncy.common.enums.user.UserTypeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.data.bo.order.log.AddAccountLogBo;
+import com.chauncy.data.domain.po.order.OmUserWithdrawalPo;
 import com.chauncy.data.domain.po.order.bill.OmOrderBillPo;
 import com.chauncy.data.domain.po.order.log.OmAccountLogPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.dto.app.order.log.SearchUserLogDto;
+import com.chauncy.data.dto.app.order.log.UserWithdrawalDto;
 import com.chauncy.data.dto.manage.order.log.select.SearchPlatformLogDto;
+import com.chauncy.data.mapper.order.OmUserWithdrawalMapper;
 import com.chauncy.data.mapper.order.bill.OmOrderBillMapper;
 import com.chauncy.data.mapper.order.log.OmAccountLogMapper;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.vo.manage.order.log.SearchPlatformLogVo;
+import com.chauncy.data.vo.manage.order.log.SearchUserLogVo;
+import com.chauncy.data.vo.manage.order.log.UserLogDetailVo;
 import com.chauncy.order.log.service.IOmAccountLogService;
 import com.chauncy.security.util.SecurityUtil;
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +56,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
     private SmStoreMapper smStoreMapper;
 
     @Autowired
+    private OmUserWithdrawalMapper omUserWithdrawalMapper;
+
+    @Autowired
     private SecurityUtil securityUtil;
 
 
@@ -60,7 +71,12 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
     @Override
     public PageInfo<SearchPlatformLogVo> searchPlatformLogPaging(SearchPlatformLogDto searchPlatformLogDto) {
 
-        return omAccountLogMapper.searchPlatformLogPaging(searchPlatformLogDto);
+        Integer pageNo = searchPlatformLogDto.getPageNo()==null ? defaultPageNo : searchPlatformLogDto.getPageNo();
+        Integer pageSize = searchPlatformLogDto.getPageSize()==null ? defaultPageSize : searchPlatformLogDto.getPageSize();
+
+        PageInfo<SearchPlatformLogVo> searchPlatformLogVoPageInfo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
+                .doSelectPageInfo(() -> omAccountLogMapper.searchPlatformLogPaging(searchPlatformLogDto));
+        return searchPlatformLogVoPageInfo;
     }
 
 
@@ -141,5 +157,80 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         } else {
             //todo  如何保证数据生成
         }
+    }
+
+
+    /**
+     * 查询用户红包，购物券流水
+     *
+     * @param searchUserLogDto
+     * @return
+     */
+    @Override
+    public SearchUserLogVo searchUserLogPaging(SearchUserLogDto searchUserLogDto) {
+        //获取当前店铺用户
+        UmUserPo umUserPo = securityUtil.getAppCurrUser();
+        if(null == umUserPo) {
+            throw  new ServiceException(ResultCode.NO_LOGIN, "未登陆或登陆已超时");
+        }
+        searchUserLogDto.setUserId(umUserPo.getId());
+        SearchUserLogVo searchUserLogVo = new SearchUserLogVo();
+        if(searchUserLogDto.getAccountTypeEnum().equals(AccountTypeEnum.RED_ENVELOPS)) {
+            searchUserLogVo.setAmount(umUserPo.getCurrentRedEnvelops());
+        } else if(searchUserLogDto.getAccountTypeEnum().equals(AccountTypeEnum.SHOP_TICKET)) {
+            searchUserLogVo.setAmount(umUserPo.getCurrentShopTicket());
+        }
+
+
+        Integer pageNo = searchUserLogDto.getPageNo()==null ? defaultPageNo : searchUserLogDto.getPageNo();
+        Integer pageSize = searchUserLogDto.getPageSize()==null ? defaultPageSize : searchUserLogDto.getPageSize();
+
+        PageInfo<UserLogDetailVo> userLogDetailVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> omAccountLogMapper.searchUserLogPaging(searchUserLogDto));
+        searchUserLogVo.setUserLogDetailVoPageInfo(userLogDetailVoPageInfo);
+
+        return searchUserLogVo;
+
+
+    }
+
+
+    /**
+     * 用户红包提现
+     *
+     * @param userWithdrawalDto
+     * @return
+     */
+    @Override
+    public void userWithdrawal(UserWithdrawalDto userWithdrawalDto) {
+        //获取当前店铺用户
+        UmUserPo umUserPo = securityUtil.getAppCurrUser();
+        if(null == umUserPo) {
+            throw  new ServiceException(ResultCode.NO_LOGIN, "未登陆或登陆已超时");
+        }
+        if(userWithdrawalDto.getWithdrawalAmount().compareTo(new BigDecimal(0))  < 1 ) {
+            throw  new ServiceException(ResultCode.PARAM_ERROR, "提现金额必须大于0");
+        }
+        if(userWithdrawalDto.getWithdrawalAmount().compareTo(umUserPo.getTotalRedEnvelops())  < 1 ) {
+            throw  new ServiceException(ResultCode.PARAM_ERROR, "提现金额大于用户余额");
+        }
+
+        OmUserWithdrawalPo omUserWithdrawalPo = new OmUserWithdrawalPo();
+        //提现用户
+        omUserWithdrawalPo.setUmUserId(umUserPo.getId());
+        omUserWithdrawalPo.setWithdrawalStatus(WithdrawalStatusEnum.TO_BE_AUDITED.getId());
+        omUserWithdrawalPo.setWithdrawalAmount(userWithdrawalDto.getWithdrawalAmount());
+        omUserWithdrawalPo.setRealName(userWithdrawalDto.getRealName());
+        if(userWithdrawalDto.getWithdrawalWayEnum().equals(WithdrawalWayEnum.ALIPAY)) {
+            //申请支付宝提现
+            omUserWithdrawalPo.setAlipay(userWithdrawalDto.getAccount());
+            omUserWithdrawalPo.setWithdrawalWay(WithdrawalWayEnum.ALIPAY.getId());
+        } else if(userWithdrawalDto.getWithdrawalWayEnum().equals(WithdrawalWayEnum.WECHAT)) {
+            //申请微信提现
+            omUserWithdrawalPo.setWechat(userWithdrawalDto.getAccount());
+            omUserWithdrawalPo.setWithdrawalWay(WithdrawalWayEnum.WECHAT.getId());
+        }
+        omUserWithdrawalMapper.insert(omUserWithdrawalPo);
+
     }
 }

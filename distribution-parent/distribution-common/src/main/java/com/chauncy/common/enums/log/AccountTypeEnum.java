@@ -1,6 +1,5 @@
 package com.chauncy.common.enums.log;
 
-import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.chauncy.common.enums.BaseEnum;
 
 import java.util.Objects;
@@ -26,7 +25,6 @@ public enum AccountTypeEnum  implements BaseEnum {
     ;
 
 
-    @EnumValue
     private Integer id;
     private String name;
     AccountTypeEnum(Integer id, String name){
@@ -36,13 +34,20 @@ public enum AccountTypeEnum  implements BaseEnum {
 
     @Override
     public String toString(){
-        return this.name() + ":"  + this.name;
+        return this.getName();
     }
 
-    //通过名称来获取结果
     public static AccountTypeEnum getById(Integer id) {
         for (AccountTypeEnum type : AccountTypeEnum.values()) {
             if (type.getId().equals(id))
+                return type;
+        }
+        return null;
+    }
+
+    public static AccountTypeEnum fromName(String name) {
+        for (AccountTypeEnum type : AccountTypeEnum.values()) {
+            if (type.name().equals(name))
                 return type;
         }
         return null;
@@ -67,7 +72,7 @@ public enum AccountTypeEnum  implements BaseEnum {
     @Override
     public boolean isExist(Object field) {
 
-        return Objects.nonNull(getById(Integer.parseInt(field.toString())));
+        return Objects.nonNull(fromName(field.toString()));
     }
 
 }

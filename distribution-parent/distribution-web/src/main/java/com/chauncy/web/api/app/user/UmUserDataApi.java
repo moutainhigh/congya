@@ -1,8 +1,10 @@
 package com.chauncy.web.api.app.user;
 
 
+import com.chauncy.common.enums.log.AccountTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.enums.user.ValidCodeEnum;
+import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.user.add.AddAreaDto;
 import com.chauncy.data.dto.app.user.add.AddIdCardDto;
@@ -98,6 +100,26 @@ public class UmUserDataApi extends BaseApi {
                                 @PathVariable Long id){
         shipService.delArea(id);
         return new JsonViewData(ResultCode.SUCCESS);
+
+    }
+
+    /**
+     * 获取用户的账户余额
+     * @param accountType
+     * @return
+     */
+    @GetMapping("/getAccount/{accountType}")
+    @ApiOperation("获取用户的账户余额")
+    public JsonViewData getAccount(@ApiParam(required = true,name = "accountType",value = "accountType账目类型   \nRED_ENVELOPS(红包)   \nSHOP_TICKET(购物券)")
+                                @PathVariable AccountTypeEnum accountType){
+
+
+        //获取当前店铺用户
+        UmUserPo umUserPo = securityUtil.getAppCurrUser();
+        if(null == umUserPo) {
+            return new JsonViewData(ResultCode.NO_LOGIN, "未登陆或登陆已超时");
+        }
+        return new JsonViewData(ResultCode.SUCCESS, "查询成功", umUserService.getAccount(accountType, umUserPo));
 
     }
 

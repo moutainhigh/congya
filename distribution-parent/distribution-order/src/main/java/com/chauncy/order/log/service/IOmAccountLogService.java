@@ -1,10 +1,14 @@
 package com.chauncy.order.log.service;
 
+import com.chauncy.common.enums.log.AccountTypeEnum;
 import com.chauncy.data.bo.order.log.AddAccountLogBo;
 import com.chauncy.data.domain.po.order.log.OmAccountLogPo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.dto.app.order.log.SearchUserLogDto;
+import com.chauncy.data.dto.app.order.log.UserWithdrawalDto;
 import com.chauncy.data.dto.manage.order.log.select.SearchPlatformLogDto;
 import com.chauncy.data.vo.manage.order.log.SearchPlatformLogVo;
+import com.chauncy.data.vo.manage.order.log.SearchUserLogVo;
 import com.github.pagehelper.PageInfo;
 
 /**
@@ -31,5 +35,17 @@ public interface IOmAccountLogService extends Service<OmAccountLogPo> {
      */
     void saveAccountLog(AddAccountLogBo addAccountLogBo);
 
+    /**
+     * 查询用户红包，购物券流水
+     * @param searchUserLogDto
+     * @return
+     */
+    SearchUserLogVo searchUserLogPaging(SearchUserLogDto searchUserLogDto);
 
+    /**
+     * 用户红包提现
+     * @param userWithdrawalDto
+     * @return
+     */
+    void userWithdrawal(UserWithdrawalDto userWithdrawalDto);
 }
