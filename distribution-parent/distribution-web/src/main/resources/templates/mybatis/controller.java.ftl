@@ -17,7 +17,7 @@ import ${superControllerClassPackage};
 
 /**
  * <p>
- * ${table.comment!} 前端控制器
+ * <#--${table.comment!}--> 前端控制器
  * </p>
  *
  * @author ${author}
@@ -29,7 +29,7 @@ import ${superControllerClassPackage};
 @Controller
 </#if>
 @RequestMapping("<#--<#if package.ModuleName??>/${package.ModuleName}</#if>/--><#if controllerMappingHyphenStyle??>${controllerMappingHyphen}<#else>${table.entityPath}</#if>")
-@Api(tags = "${table.comment!}")
+@Api(tags = "<#--${table.comment!}-->")
 <#if kotlin>
 class ${table.controllerName}<#if superControllerClass??> : ${superControllerClass}()</#if>
 <#else>

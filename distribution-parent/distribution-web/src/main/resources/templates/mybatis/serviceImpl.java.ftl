@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
- * ${table.comment!} 服务实现类
+ * <#--${table.comment!}--> 服务实现类
  * </p>
  *
  * @author ${author}

@@ -26,11 +26,11 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/generator")
-@Api(tags = "代码自动生成")
+@Api(tags = "后台业务测试")
 public class GeneratorController {
 
     @PostMapping("/create")
-    @ApiOperation("代码自动生成")
+    @ApiOperation("后台业务测试")
     public void generator(@RequestParam(value = "model") String model,
                           @RequestParam(value = "tableName") String tableName,
                           @RequestParam(value = "dataBaseName") String dataBaseName
