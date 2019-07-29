@@ -40,12 +40,12 @@ public interface PmShippingTemplateMapper extends IBaseMapper<PmShippingTemplate
      *
      * @return
      */
-    List<AmountVo> getAmountCalculateList();
+    List<AmountVo> getAmountCalculateList(Long templateId);
 
     /**
      * 查找按件数计算运费列表
      *
      * @return
      */
-    List<NumberVo> getNumberCalculateList();
+    List<NumberVo> getNumberCalculateList(Long templateId);
 }
