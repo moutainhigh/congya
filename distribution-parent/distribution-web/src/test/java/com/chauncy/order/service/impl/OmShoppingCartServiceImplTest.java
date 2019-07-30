@@ -2,7 +2,6 @@ package com.chauncy.order.service.impl;
 
 import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.data.domain.po.order.OmOrderPo;
-import com.chauncy.order.service.IOmShoppingCartService;
 import com.chauncy.web.StartApplication;
 import org.junit.Test;
 import org.junit.runner.RunWith;

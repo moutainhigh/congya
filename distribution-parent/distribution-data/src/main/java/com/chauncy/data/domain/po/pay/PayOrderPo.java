@@ -151,4 +151,7 @@ public class PayOrderPo implements Serializable {
     private Long umUserId;
 
 
+    private String areaName;
+
+
 }
