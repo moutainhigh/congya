@@ -78,13 +78,13 @@
     <select id="getAmountCalculateList" resultType="com.chauncy.data.vo.manage.ship.AmountVo">
         SELECT a.id as amount_id,destination_id,merger_name as destination_name,destination_basis_freight,destination_full_money,destination_post_money
         FROM pm_money_shipping a,area_region b
-        WHERE shipping_id = #{template_id} and a.shipping_id = b.id
+        WHERE shipping_id = #{template_id} and a.destination_id = b.id
     </select>
 
     <select id="getNumberCalculateList" resultType="com.chauncy.data.vo.manage.ship.NumberVo">
         SELECT a.id as number_id,destination_id as destination_idd,merger_name as destination_namee,destination_max_number,destination_max_number_money,destination_addtional_number,destination_addtional_freight
         FROM pm_number_shipping a,area_region b
-        WHERE shipping_id = #{template_id} and a.shipping_id = b.id
+        WHERE shipping_id = #{template_id} and a.destination_id = b.id
     </select>
 
 <!--<resultMap id="Amount" type="com.chauncy.data.vo.manage.ship.PlatTemplateVo" extends="ShipResult">
