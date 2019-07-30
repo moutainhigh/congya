@@ -70,13 +70,13 @@ public interface IBaseMapper<T> extends BaseMapper<T> {
      * 获取全部会员ID和名称
      * @return
      */
-    @Select("list id as memberLevelId,level_name as levelName,level from `pm_member_level` where del_flag=false")
+    @Select("select id as memberLevelId,level_name as levelName,level from `pm_member_level` where del_flag=false")
     List<MemberLevelInfos> memberLevelInfos();
 
     /**
      * 获取全部的可用的活动分组
      * @return
      */
-    @Select("list id as group_id,name as group_name,picture,type from am_activity_group where del_flag = 0 and enable = 1")
+    @Select("select id as group_id,name as group_name,picture,type from am_activity_group where del_flag = 0 and enable = 1")
     List<FindActivityGroupsVo> FindAllActivityGroup();
 }

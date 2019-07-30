@@ -30,8 +30,8 @@
     </resultMap>
 
     <resultMap id="ShipResult" type="com.chauncy.data.vo.manage.ship.PlatTemplateVo">
-        <id column="templateId" property="templateId" />
-        <result column="templateName" property="templateName" />
+        <id column="template_id" property="templateId" />
+        <result column="template_name" property="templateName" />
         <result column="product_address_id" property="productAddressId" />
         <result column="dispatch" property="dispatch" />
         <result column="calculate_way" property="calculateWay" />
@@ -40,8 +40,8 @@
         <result column="default_freight" property="defaultFreight" />
         <result column="default_full_money" property="defaultFullMoney" />
         <result column="default_post_money" property="defaultPostMoney" />
-        <result column="storeId" property="storeId" />
-        <result column="storeName" property="storeName" />
+        <result column="store_id" property="storeId" />
+        <result column="store_name" property="storeName" />
         <result column="submit_time" property="submitTime" />
         <result column="verify_time" property="verifyTime" />
         <result column="verify_status" property="verifyStatus" />
@@ -49,9 +49,9 @@
         <!-- collection定义关联集合类型的属性封装规则
         offType:指定集合中的元素类型
         -->
-        <collection property="amountCalculateList" column="id" select="com.chauncy.data.mapper.product.getAmountCalculateList">
+        <collection property="amountCalculateList" column="template_id" select="com.chauncy.data.mapper.product.PmShippingTemplateMapper.getAmountCalculateList">
         </collection>
-        <collection property="numberCalculateList" column="id" select="com.chauncy.data.mapper.product.getNumberCalculateList">
+        <collection property="numberCalculateList" column="template_id" select="com.chauncy.data.mapper.product.PmShippingTemplateMapper.getNumberCalculateList">
         </collection>
 
 
@@ -76,15 +76,15 @@
 </resultMap>
 
     <select id="getAmountCalculateList" resultType="com.chauncy.data.vo.manage.ship.AmountVo">
-        SELECT id as amount_id,destination_id,merger_name as destination_name,destination_basis_freight,destination_full_money,destination_post_money
+        SELECT a.id as amount_id,destination_id,merger_name as destination_name,destination_basis_freight,destination_full_money,destination_post_money
         FROM pm_money_shipping a,area_region b
-        WHERE shipping_id = #{id} and a.shipping_id = b.id
+        WHERE shipping_id = #{template_id} and a.destination_id = b.id
     </select>
 
     <select id="getNumberCalculateList" resultType="com.chauncy.data.vo.manage.ship.NumberVo">
-        SELECT id as number_id,destination_id as destination_idd,merger_name as destination_namee,destination_max_number,destination_max_number_money,destination_addtional_number,destination_addtional_freight
+        SELECT a.id as number_id,destination_id as destination_idd,merger_name as destination_namee,destination_max_number,destination_max_number_money,destination_addtional_number,destination_addtional_freight
         FROM pm_number_shipping a,area_region b
-        WHERE shipping_id = #{id} and a.shipping_id = b.id
+        WHERE shipping_id = #{template_id} and a.destination_id = b.id
     </select>
 
 <!--<resultMap id="Amount" type="com.chauncy.data.vo.manage.ship.PlatTemplateVo" extends="ShipResult">
@@ -113,12 +113,12 @@
 </resultMap>-->
 
     <select id="searchPlatTempByConditions" resultMap="ShipResult">
-        select a.id as templateId,a.name as templateName,a.product_address_id,c1.merger_name as dispatch,a.calculate_way,
-        a.create_by,a.create_time,a.default_freight,a.default_full_money,a.default_post_money,
-        b.id as amountId,b.destination_id,d.destination_id as destinationIdd,b.destination_basis_freight,b.destination_full_money,b.destination_post_money,
-        c.merger_name as destinationName,c2.merger_name as destinationNamee,
-        d.destination_addtional_freight,d.destination_addtional_number,d.destination_max_number,d.destination_max_number_money,d.id as numberId,
-        e.id as storeId,e.name as storeName,a.submit_time,a.verify_time,a.verify_status,a.auditor
+        select a.id as template_id,a.name as template_name,a.product_address_id,c1.merger_name as dispatch,a.calculate_way,
+        a.create_by,a.create_time,a.default_freight,a.default_full_money,a.default_post_money,a.default_max_number,a.default_max_number_money,a.default_addtional_number,a.default_addtional_freight,
+        b.id as amount_id,b.destination_id,d.destination_id as destination_idd,b.destination_basis_freight,b.destination_full_money,b.destination_post_money,
+        c.merger_name as destination_name,c2.merger_name as destination_namee,
+        d.destination_addtional_freight,d.destination_addtional_number,d.destination_max_number,d.destination_max_number_money,d.id as number_id,
+        e.id as store_id,e.name as store_name,a.submit_time,a.verify_time,a.verify_status,a.auditor
         from pm_shipping_template a
         left join pm_money_shipping b on a.id=b.shipping_id
         left join pm_number_shipping d on a.id = d.shipping_id

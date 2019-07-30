@@ -6,12 +6,14 @@ import com.chauncy.data.domain.po.product.PmGoodsPo;
 import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
+import com.chauncy.data.dto.supplier.activity.select.SearchAssociatedGoodsDto;
 import com.chauncy.data.dto.supplier.good.select.SearchExcelDto;
 import com.chauncy.data.dto.supplier.good.select.SearchGoodInfosDto;
 import com.chauncy.data.dto.supplier.store.update.SelectStockTemplateGoodsDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
+import com.chauncy.data.vo.supplier.activity.SearchAssociatedGoodsVo;
 import com.chauncy.data.vo.supplier.good.InformationRelGoodsVo;
 import com.chauncy.data.vo.supplier.PmGoodsVo;
 import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
@@ -110,4 +112,14 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
      * @param associationGoodsDto
      */
     List<BaseVo> selectIds (AssociationGoodsDto associationGoodsDto);
+
+    /**
+     * 查找某活动下某商家参与的全部商品
+     *
+     * @param searchAssociatedGoodsDto
+     * @param activityId
+     * @param storeId
+     * @return
+     */
+    List<SearchAssociatedGoodsVo> searchAssociatedGoods(@Param("t") SearchAssociatedGoodsDto searchAssociatedGoodsDto, @Param("activityId") Long activityId, @Param("storeId")Long storeId,@Param("categoryIds")List<Long> categoryIds);
 }

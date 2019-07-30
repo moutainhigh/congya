@@ -33,14 +33,14 @@ public interface PmMemberLevelMapper extends IBaseMapper<PmMemberLevelPo> {
      *
      * @return
      */
-    @Select("list id,level_name as name from `pm_member_level` where del_flag=false")
+    @Select("select id,level_name as name from `pm_member_level` where del_flag=false")
     List<BaseVo> searchMemberLevel();
 
     /**
      * 查找所有会员等级id和名称
      * @return
      */
-    @Select("list id as memberLevelId,level_name as levelName from `pm_member_level` where del_flag=false")
+    @Select("select id as memberLevelId,level_name as levelName from `pm_member_level` where del_flag=false")
     List<MemberLevelInfos> memberLevelInfos ();
 
     /**

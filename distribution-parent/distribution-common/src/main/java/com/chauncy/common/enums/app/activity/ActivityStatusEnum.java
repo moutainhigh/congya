@@ -1,5 +1,6 @@
 package com.chauncy.common.enums.app.activity;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.chauncy.common.enums.BaseEnum;
 import lombok.Getter;
 
@@ -20,6 +21,7 @@ public enum ActivityStatusEnum implements BaseEnum {
     REGISTRATION(3,"报名中"),
     HAS_ENDED(4,"已结束");
 
+    @EnumValue
     private Integer id;
 
     private String name;
@@ -31,7 +33,7 @@ public enum ActivityStatusEnum implements BaseEnum {
 
     @Override
     public String toString(){
-        return this.id + "_" + this.name;
+        return this.name;
     }
 
     public static String value(String name){

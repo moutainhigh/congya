@@ -52,6 +52,18 @@ public class PlatTemplateVo {
     @ApiModelProperty(value = "默认满足金额条件后的运费默认满足金额条件后的运费默认满足金额条件后的运费")
     private BigDecimal defaultPostMoney;
 
+    @ApiModelProperty(value = "默认运费的最大件数")
+    private Integer defaultMaxNumber;
+
+    @ApiModelProperty(value = "默认最大件数内的运费")
+    private BigDecimal defaultMaxNumberMoney;
+
+    @ApiModelProperty(value = "默认超过最大件数每增加件数")
+    private Integer defaultAddtionalNumber;
+
+    @ApiModelProperty(value = "默认每增加件数就增加的运费")
+    private BigDecimal defaultAddtionalFreight;
+
     @ApiModelProperty("指定地区按金额的运费计算列表")
     private List<AmountVo> amountCalculateList;
 

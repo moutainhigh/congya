@@ -25,7 +25,7 @@ public interface PmGoodsSkuMapper extends IBaseMapper<PmGoodsSkuPo> {
      * @param goodsId
      * @return
      */
-    @Select ("list min(sell_price) from pm_goods_sku where goods_id = #{goodsId} and del_flag=0")
+    @Select ("select min(sell_price) from pm_goods_sku where goods_id = #{goodsId} and del_flag=0")
     BigDecimal getLowestPrice (Long goodsId);
 
     /**
@@ -33,7 +33,7 @@ public interface PmGoodsSkuMapper extends IBaseMapper<PmGoodsSkuPo> {
      * @param goodsId
      * @return
      */
-    @Select ("list max(sell_price) from pm_goods_sku where goods_id = #{goodsId} and del_flag=0")
+    @Select ("select max(sell_price) from pm_goods_sku where goods_id = #{goodsId} and del_flag=0")
     BigDecimal getHighestPrice (Long goodsId);
 
     /**
@@ -42,8 +42,8 @@ public interface PmGoodsSkuMapper extends IBaseMapper<PmGoodsSkuPo> {
      * @param goodsId
      * @return
      */
-    @Select("list a.id,a.sell_price as sale_price,a.line_price from pm_goods_sku as a where sell_price =\n" +
-            "(list min(sell_price) from pm_goods_sku where goods_id = #{goodsId} and del_flag=0)")
+    @Select("select a.id,a.sell_price as sale_price,a.line_price from pm_goods_sku as a where sell_price =\n" +
+            "(select min(sell_price) from pm_goods_sku where goods_id = #{goodsId} and del_flag=0)")
     List<GoodsVo> getPrice(Long goodsId);
 
     int updateStock(@Param("list") List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVos);

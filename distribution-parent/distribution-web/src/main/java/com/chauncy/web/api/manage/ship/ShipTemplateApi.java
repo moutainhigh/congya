@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
  *
  * 平台运费模版管理
  */
-@Api(tags = "运费模版管理")
+@Api(tags = "商家端_运费模版管理")
 @RestController
 @RequestMapping("/manage/ship")
 @Slf4j

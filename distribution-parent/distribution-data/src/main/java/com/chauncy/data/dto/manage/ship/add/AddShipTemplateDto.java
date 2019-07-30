@@ -45,16 +45,25 @@ public class AddShipTemplateDto {
 //    private Integer type;
 
     @ApiModelProperty(value = "默认(基础)运费")
-    @NotNull(message = "默认(基础)运费不能为空")
     private BigDecimal defaultFreight;
 
     @ApiModelProperty(value = "默认满金额(满足条件金额)")
-    @NotNull(message = "默认满金额(满足条件金额不能为空")
     private BigDecimal defaultFullMoney;
 
     @ApiModelProperty(value = "默认满足金额条件后的运费默认满足金额条件后的运费默认满足金额条件后的运费")
-    @NotNull(message = "默认满足金额条件后的运费默认满足金额条件后的运费默认满足金额条件后的运费不能为空")
     private BigDecimal defaultPostMoney;
+
+    @ApiModelProperty(value = "默认运费的最大件数")
+    private Integer defaultMaxNumber;
+
+    @ApiModelProperty(value = "默认最大件数内的运费")
+    private BigDecimal defaultMaxNumberMoney;
+
+    @ApiModelProperty(value = "默认超过最大件数每增加件数")
+    private Integer defaultAddtionalNumber;
+
+    @ApiModelProperty(value = "默认每增加件数就增加的运费")
+    private BigDecimal defaultAddtionalFreight;
 
     @ApiModelProperty(value = "商品地址")
     @NeedExistConstraint(tableName = "area_region")

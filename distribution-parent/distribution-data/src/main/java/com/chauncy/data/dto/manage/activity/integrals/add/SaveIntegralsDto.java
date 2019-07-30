@@ -1,9 +1,11 @@
 package com.chauncy.data.dto.manage.activity.integrals.add;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
@@ -48,21 +50,29 @@ public class SaveIntegralsDto {
     @ApiModelProperty(value = "报名开始时间")
     @Future(message = "报名开始时间需要在当前时间之后")
     @NotNull(message = "报名开始时间不能为空")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime registrationStartTime;
 
     @ApiModelProperty(value = "报名结束时间")
     @Future(message = "报名结束时间需要在当前时间之后")
     @NotNull(message = "报名结束时间不能为空")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime registrationEndTime;
 
     @ApiModelProperty(value = "活动开始时间")
     @Future(message = "活动开始时间需要在当前时间之后")
     @NotNull(message = "活动开始时间不能为空")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime activityStartTime;
 
     @ApiModelProperty(value = "活动结束时间")
     @Future(message = "活动结束时间需要在当前时间之后")
     @NotNull(message = "活动结束时间不能为空")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime activityEndTime;
 
     @ApiModelProperty(value = "活动说明")
