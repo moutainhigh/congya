@@ -410,6 +410,7 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
                     PmShippingTemplatePo shippingTemplatePo = new PmShippingTemplatePo();
                     shippingTemplatePo.setId(a);
                     shippingTemplatePo.setVerifyStatus(verifyTemplateDto.getVerifyStatus());
+                    shippingTemplatePo.setContent(verifyTemplateDto.getContent());
                     shippingTemplatePos.add(shippingTemplatePo);
                 });
                 shippingTemplateService.updateBatchById(shippingTemplatePos);
