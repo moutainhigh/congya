@@ -321,8 +321,8 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
         Arrays.asList(templateIds).forEach(a->{
             //判断该模版是否已被应用
             List<PmGoodsPo> goodsPos = goodsMapper.selectList(new QueryWrapper<PmGoodsPo>().eq("shipping_template_id",a));
-            if (ListUtil.isListNullAndEmpty(goodsPos)){
-                throw new ServiceException(ResultCode.FAIL,"该模版:[%s]已被商品引用,不能删除!",shippingTemplateMapper.selectById(a).getName());
+            if (!ListUtil.isListNullAndEmpty(goodsPos)){
+                throw new ServiceException(ResultCode.FAIL,String.format("该模版:[%s]已被商品引用,不能删除!",shippingTemplateMapper.selectById(a).getName()));
             }
             if (shippingTemplateMapper.selectById(a)==null){
                 throw new ServiceException(ResultCode.FAIL,"操作失败,"+a+"不存在");
