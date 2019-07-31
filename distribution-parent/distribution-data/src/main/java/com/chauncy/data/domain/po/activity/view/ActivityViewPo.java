@@ -31,7 +31,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("activity_view")
+@TableName("zz_activity_view")
 @ApiModel(value = "ActivityViewPo对象", description = "VIEW")
 public class ActivityViewPo implements Serializable {
 
