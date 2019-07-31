@@ -50,7 +50,7 @@ public enum WithdrawalStatusEnum  implements BaseEnum {
     }
   public static WithdrawalStatusEnum fromName(String name) {
         for (WithdrawalStatusEnum type : WithdrawalStatusEnum.values()) {
-            if (type.name() == name)
+            if (type.name().equals(name))
                 return type;
         }
         return null;

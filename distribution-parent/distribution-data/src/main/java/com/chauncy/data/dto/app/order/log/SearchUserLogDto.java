@@ -1,6 +1,5 @@
 package com.chauncy.data.dto.app.order.log;
 
-import com.chauncy.common.enums.log.AccountLogMatterEnum;
 import com.chauncy.common.enums.log.AccountTypeEnum;
 import com.chauncy.data.valid.annotation.EnumConstraint;
 import com.fasterxml.jackson.annotation.JsonIgnore;

@@ -1,28 +1,29 @@
 package com.chauncy.common.enums.log;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.chauncy.common.enums.BaseEnum;
 
 import java.util.Objects;
 
 /**
  * @author yeJH
- * @since 2019/7/25 17:42
+ * @since 2019/7/31 0:15
  */
-public enum  LogTriggerEventEnum  implements BaseEnum {
+public enum StoreLogMatterEnum  implements BaseEnum {
+
 
     /**
-     * 流水触发的事件
-     * 1.店铺利润、货款账单提现
-     * 2.APP用户提现
+     * 11.货款收入  店铺收入
+     * 12.利润收入  店铺收入
      */
-    STORE_WITHDRAWAL(1, "店铺利润、货款账单提现"),
-    APP_WITHDRAWAL(2, "APP用户提现红包"),
+    PAYMENT_INCOME(11, "货款收入"),
+    PROFIT_INCOME(12, "利润收入"),
     ;
 
-
+    @EnumValue
     private Integer id;
     private String name;
-    LogTriggerEventEnum(Integer id, String name){
+    StoreLogMatterEnum(Integer id, String name){
         this.id = id;
         this.name = name;
     }
@@ -33,8 +34,8 @@ public enum  LogTriggerEventEnum  implements BaseEnum {
     }
 
     //通过名称来获取结果
-    public static LogTriggerEventEnum getById(Integer id) {
-        for (LogTriggerEventEnum type : LogTriggerEventEnum.values()) {
+    public static StoreLogMatterEnum getById(Integer id) {
+        for (StoreLogMatterEnum type : StoreLogMatterEnum.values()) {
             if (type.getId().equals(id))
                 return type;
         }
@@ -64,4 +65,6 @@ public enum  LogTriggerEventEnum  implements BaseEnum {
     }
 
 
+
 }
+

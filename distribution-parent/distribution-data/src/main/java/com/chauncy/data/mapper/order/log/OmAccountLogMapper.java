@@ -3,8 +3,10 @@ package com.chauncy.data.mapper.order.log;
 import com.chauncy.data.domain.po.order.log.OmAccountLogPo;
 import com.chauncy.data.dto.app.order.log.SearchUserLogDto;
 import com.chauncy.data.dto.manage.order.log.select.SearchPlatformLogDto;
+import com.chauncy.data.dto.manage.order.log.select.SearchUserWithdrawalDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.manage.order.log.SearchPlatformLogVo;
+import com.chauncy.data.vo.manage.order.log.SearchUserWithdrawalVo;
 import com.chauncy.data.vo.manage.order.log.UserLogDetailVo;
 import com.github.pagehelper.PageInfo;
 
@@ -35,4 +37,6 @@ public interface OmAccountLogMapper extends IBaseMapper<OmAccountLogPo> {
      * @return
      */
     List<UserLogDetailVo> searchUserLogPaging(SearchUserLogDto searchUserLogDto);
+
+    List<SearchUserWithdrawalVo> searchUserWithdrawalPaging(SearchUserWithdrawalDto searchUserWithdrawalDto);
 }

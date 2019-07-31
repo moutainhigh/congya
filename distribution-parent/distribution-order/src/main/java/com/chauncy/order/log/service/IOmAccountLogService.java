@@ -6,9 +6,12 @@ import com.chauncy.data.domain.po.order.log.OmAccountLogPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.order.log.SearchUserLogDto;
 import com.chauncy.data.dto.app.order.log.UserWithdrawalDto;
+import com.chauncy.data.dto.manage.order.bill.update.BillBatchAuditDto;
 import com.chauncy.data.dto.manage.order.log.select.SearchPlatformLogDto;
+import com.chauncy.data.dto.manage.order.log.select.SearchUserWithdrawalDto;
 import com.chauncy.data.vo.manage.order.log.SearchPlatformLogVo;
 import com.chauncy.data.vo.manage.order.log.SearchUserLogVo;
+import com.chauncy.data.vo.manage.order.log.SearchUserWithdrawalVo;
 import com.github.pagehelper.PageInfo;
 
 /**
@@ -48,4 +51,12 @@ public interface IOmAccountLogService extends Service<OmAccountLogPo> {
      * @return
      */
     void userWithdrawal(UserWithdrawalDto userWithdrawalDto);
+
+    /**
+     * 用户提现列表
+     * @param searchUserWithdrawalDto
+     * @return
+     */
+    PageInfo<SearchUserWithdrawalVo> searchUserWithdrawalPaging(SearchUserWithdrawalDto searchUserWithdrawalDto);
+
 }

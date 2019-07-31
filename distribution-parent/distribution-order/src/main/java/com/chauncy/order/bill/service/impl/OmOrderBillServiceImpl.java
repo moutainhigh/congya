@@ -1,10 +1,13 @@
 package com.chauncy.order.bill.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.chauncy.common.enums.log.LogTriggerEventEnum;
 import com.chauncy.common.enums.order.BillSettlementEnum;
 import com.chauncy.common.enums.order.BillStatusEnum;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.enums.user.UserTypeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.data.bo.order.log.AddAccountLogBo;
 import com.chauncy.data.domain.po.order.bill.OmOrderBillPo;
 import com.chauncy.data.domain.po.store.rel.SmStoreBankCardPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
@@ -19,6 +22,7 @@ import com.chauncy.data.vo.manage.order.bill.BillDetailVo;
 import com.chauncy.data.vo.manage.order.bill.BillSettlementVo;
 import com.chauncy.order.bill.service.IOmOrderBillService;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.order.log.service.IOmAccountLogService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -48,6 +52,9 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
 
     @Autowired
     private SmStoreBankCardMapper smStoreBankCardMapper;
+
+    @Autowired
+    private IOmAccountLogService omAccountLogService;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -234,6 +241,10 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
      */
     @Override
     public void billSettlementSuccess(Long id) {
+
+        //获取当前店铺用户
+        SysUserPo sysUserPo = securityUtil.getCurrUser();
+
         OmOrderBillPo omOrderBillPo = omOrderBillMapper.selectById(id);
         if(null == omOrderBillPo) {
             throw new ServiceException(ResultCode.NO_EXISTS, "记录不存在");
@@ -247,5 +258,11 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
         updateWrapper.set("bill_status", BillStatusEnum.SETTLEMENT_SUCCESS.getId());
         this.update(updateWrapper);
 
+        //生成流水
+        AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
+        addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.STORE_WITHDRAWAL);
+        addAccountLogBo.setRelId(omOrderBillPo.getId());
+        addAccountLogBo.setOperator(sysUserPo.getUsername());
+        omAccountLogService.saveAccountLog(addAccountLogBo);
     }
 }

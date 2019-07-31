@@ -70,6 +70,7 @@
                 and date(ooal.create_time) <![CDATA[<= ]]> #{endTime}
             </if>
         </where>
+        order by ooal.create_time
     </select>
     <select id="searchUserLogPaging" resultType="com.chauncy.data.vo.manage.order.log.UserLogDetailVo">
         SELECT oal.id as logId,
@@ -80,9 +81,48 @@
             oal.`payment_way`,
             oal.`arrival_way`
         FROM om_account_log oal
+
         WHERE oal.user_id = #{userId}
-        AND account_type = #{accountTypeEnum}
+        AND account_type = #{accountTypeEnum.id}
         ORDER BY oal.`event_time`
+    </select>
+    <select id="searchUserWithdrawalPaging" resultType="com.chauncy.data.vo.manage.order.log.SearchUserWithdrawalVo">
+        SELECT ouw.id,
+                ouw.`um_user_id`,
+                uu.`name`,
+                uu.`phone`,
+                ouw.`withdrawal_way`,
+                ouw.`withdrawal_amount`,
+                ouw.`actual_amount`,
+                ouw.`alipay`,
+                ouw.`wechat`,
+                ouw.`real_name`,
+                ouw.`withdrawal_status`,
+                ouw.`create_time`
+        FROM om_user_withdrawal ouw
+        LEFT JOIN um_user uu
+        ON ouw.`um_user_id` = uu.`id`
+        <where>
+            <if test="userId != null">
+                and ouw.um_user_id == #{userId}
+            </if>
+            <if test="withdrawalStatus != null">
+                and ouw.withdrawal_status == #{withdrawalStatus}
+            </if>
+            <if test="name != null and name != ''">
+                and uu.name like concat('%',#{name},'%')
+            </if>
+            <if test="phone != null and phone != ''">
+                and uu.phone like concat('%',#{phone},'%')
+            </if>
+            <if test="startTime != null">
+                and date(ouw.create_time) <![CDATA[>= ]]>  #{startTime}
+            </if>
+            <if test="endTime != null">
+                and date(ouw.create_time) <![CDATA[<= ]]> #{endTime}
+            </if>
+        </where>
+        order by ouw.create_time
     </select>
 
 </mapper>

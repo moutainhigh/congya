@@ -34,7 +34,7 @@ public enum AccountTypeEnum  implements BaseEnum {
 
     @Override
     public String toString(){
-        return this.getName();
+        return this.name();
     }
 
     public static AccountTypeEnum getById(Integer id) {

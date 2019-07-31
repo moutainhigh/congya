@@ -118,7 +118,7 @@ public class OmOrderBillApi  extends BaseApi {
     @ApiOperation(value = "标记已处理", notes = "平台标记状态为处理中的店铺账单为已处理")
     @GetMapping("/billSettlementSuccess")
     @ApiImplicitParam(name = "id", value = "账单id", required = true, dataType = "Long", paramType = "path")
-    public JsonViewData<StoreBankCardVo> billSettlementSuccess(@PathVariable(value = "id")Long id) {
+    public JsonViewData billSettlementSuccess(@PathVariable(value = "id")Long id) {
 
         omOrderBillService.billSettlementSuccess(id);
         return new JsonViewData(ResultCode.SUCCESS, "操作成功");

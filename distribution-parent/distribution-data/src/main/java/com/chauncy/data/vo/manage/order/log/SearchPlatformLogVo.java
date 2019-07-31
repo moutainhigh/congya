@@ -1,7 +1,5 @@
 package com.chauncy.data.vo.manage.order.log;
 
-import com.chauncy.common.enums.log.AccountLogMatterEnum;
-import com.chauncy.data.valid.annotation.EnumConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

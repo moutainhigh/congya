@@ -1,7 +1,5 @@
 package com.chauncy.data.dto.manage.order.log.select;
 
-import com.chauncy.common.enums.log.PlatformLogMatterEnum;
-import com.chauncy.data.valid.annotation.EnumConstraint;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -14,43 +12,37 @@ import java.time.LocalDate;
 
 /**
  * @author yeJH
- * @since 2019/7/20 21:51
+ * @since 2019/7/30 12:38
  */
 @Data
 @ApiModel(value = "SearchPlatformLogDto对象", description = "查找平台流水参数")
-public class SearchPlatformLogDto implements Serializable {
+public class SearchUserWithdrawalDto  implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @ApiModelProperty(value = "用户id")
+    private Long userId;
 
-    @ApiModelProperty(value = "总支付单id/关联订单号")
-    private Long payOrderId;
+    @ApiModelProperty(value = "昵称")
+    private String name;
 
-    @ApiModelProperty(value = "交易流水（微信支付宝交易号）")
-    private Long payId;
 
-    @ApiModelProperty(value = "下单用户id")
-    private Long umUserId;
-
-    @ApiModelProperty(value = "流水类型 收入  支出")
-    private String logType;
-
-    @ApiModelProperty(value = "流水事由")
-    @EnumConstraint(target = PlatformLogMatterEnum.class)
-    private Integer logMatter;
-
-    @ApiModelProperty(value = "下单用户手机号码")
+    @ApiModelProperty(value = "手机号码")
     private String phone;
+
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @ApiModelProperty(value = "创建时间")
+    @ApiModelProperty(value = "申请时间")
     private LocalDate startTime;
 
     @JsonFormat( pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @ApiModelProperty(value = "创建时间")
+    @ApiModelProperty(value = "申请时间")
     private LocalDate endTime;
+
+    @ApiModelProperty(value = "状态 1.待审核 2.处理中 3.提现成功 4.驳回")
+    private Integer withdrawalStatus;
 
     @Min(1)
     @ApiModelProperty(value = "页码")

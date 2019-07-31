@@ -1,6 +1,6 @@
 package com.chauncy.data.vo.manage.order.log;
 
-import com.chauncy.common.enums.log.AccountLogMatterEnum;
+import com.chauncy.common.enums.log.PlatformLogMatterEnum;
 import com.chauncy.common.enums.log.PaymentWayEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -27,7 +27,7 @@ public class UserLogDetailVo implements Serializable {
     private BigDecimal amount;
 
     @ApiModelProperty(value = "流水事由")
-    private AccountLogMatterEnum logMatter;
+    private PlatformLogMatterEnum logMatter;
 
     @ApiModelProperty(value = "流水类型 收入  支出")
     private String logType;

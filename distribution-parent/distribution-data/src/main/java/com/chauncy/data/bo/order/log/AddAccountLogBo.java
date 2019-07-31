@@ -1,6 +1,5 @@
 package com.chauncy.data.bo.order.log;
 
-import com.chauncy.common.enums.log.AccountLogMatterEnum;
 import com.chauncy.common.enums.log.LogTriggerEventEnum;
 import com.chauncy.data.valid.annotation.EnumConstraint;
 import io.swagger.annotations.ApiModel;

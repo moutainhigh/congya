@@ -1,28 +1,35 @@
 package com.chauncy.common.enums.log;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.chauncy.common.enums.BaseEnum;
 
 import java.util.Objects;
 
 /**
  * @author yeJH
- * @since 2019/7/25 17:42
+ * @since 2019/7/31 0:26
  */
-public enum  LogTriggerEventEnum  implements BaseEnum {
-
+public enum ShopTicketLogMatterEnum implements BaseEnum {
+    
     /**
-     * 流水触发的事件
-     * 1.店铺利润、货款账单提现
-     * 2.APP用户提现
+     * APP用户购物券流水
+     * 31.消费抵扣  用户支出
+     * 32.购物奖励  用户支出
+     * 33.经验包  用户收入
+     * 34.系统赠送  用户收入
+     * 35.新人礼包  用户收入
      */
-    STORE_WITHDRAWAL(1, "店铺利润、货款账单提现"),
-    APP_WITHDRAWAL(2, "APP用户提现红包"),
+    ORDER_PAYMENT(31, "消费抵扣"),
+    SHOPPING_REWARD(32, "购物奖励"),
+    EXPERIENCE_PACK(33, "经验包"),
+    PLATFORM_GIVE(34, "系统赠送"),
+    NEW_GIFT(35, "新人礼包"),
     ;
 
-
+    @EnumValue
     private Integer id;
     private String name;
-    LogTriggerEventEnum(Integer id, String name){
+    ShopTicketLogMatterEnum(Integer id, String name){
         this.id = id;
         this.name = name;
     }
@@ -33,8 +40,8 @@ public enum  LogTriggerEventEnum  implements BaseEnum {
     }
 
     //通过名称来获取结果
-    public static LogTriggerEventEnum getById(Integer id) {
-        for (LogTriggerEventEnum type : LogTriggerEventEnum.values()) {
+    public static ShopTicketLogMatterEnum getById(Integer id) {
+        for (ShopTicketLogMatterEnum type : ShopTicketLogMatterEnum.values()) {
             if (type.getId().equals(id))
                 return type;
         }
@@ -62,6 +69,7 @@ public enum  LogTriggerEventEnum  implements BaseEnum {
 
         return Objects.nonNull(getById(Integer.parseInt(field.toString())));
     }
+
 
 
 }
