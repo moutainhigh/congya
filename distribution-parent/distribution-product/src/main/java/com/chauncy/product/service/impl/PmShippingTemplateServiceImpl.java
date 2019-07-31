@@ -21,6 +21,8 @@ import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.product.PmMoneyShippingMapper;
 import com.chauncy.data.mapper.product.PmNumberShippingMapper;
 import com.chauncy.data.mapper.product.PmShippingTemplateMapper;
+import com.chauncy.data.vo.manage.ship.AmountVo;
+import com.chauncy.data.vo.manage.ship.NumberVo;
 import com.chauncy.data.vo.manage.ship.PlatTemplateVo;
 import com.chauncy.product.service.IPmMoneyShippingService;
 import com.chauncy.product.service.IPmNumberShippingService;
@@ -359,6 +361,20 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
         PageInfo<PlatTemplateVo> platTemplateVos = new PageInfo<>();
         platTemplateVos = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
                 .doSelectPageInfo(() -> shippingTemplateMapper.searchPlatTempByConditions(searchPlatTempDto));
+        platTemplateVos.getList().forEach(a->{
+            ShipCalculateWayEnum shipCalculateWayEnum = ShipCalculateWayEnum.getWayById(a.getCalculateWay());
+            switch (shipCalculateWayEnum) {
+                case AMOUNT:
+                    List<AmountVo> amountVos = shippingTemplateMapper.getAmountCalculateList(a.getTemplateId());
+                    a.setAmountCalculateList(amountVos);
+                    break;
+                case NUMBER:
+                    List<NumberVo> numberVos = shippingTemplateMapper.getNumberCalculateList(a.getTemplateId());
+                    a.setNumberCalculateList(numberVos);
+                    break;
+            }
+
+        });
 
         return platTemplateVos;
     }
