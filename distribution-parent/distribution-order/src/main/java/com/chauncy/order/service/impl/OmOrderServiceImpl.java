@@ -8,7 +8,9 @@ import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
+import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
+import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
 import com.chauncy.data.mapper.order.OmGoodsTempMapper;
 import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.core.AbstractService;
@@ -16,7 +18,10 @@ import com.chauncy.data.mapper.order.OmShoppingCartMapper;
 import com.chauncy.data.mapper.pay.IPayOrderMapper;
 import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
 import com.chauncy.data.vo.app.car.ShopTicketSoWithCarGoodVo;
+import com.chauncy.data.vo.manage.order.list.OrderDetailVo;
 import com.chauncy.data.vo.manage.order.list.SearchOrderVo;
+import com.chauncy.data.vo.supplier.order.SmOrderDetailVo;
+import com.chauncy.data.vo.supplier.order.SmSearchOrderVo;
 import com.chauncy.order.service.IOmOrderService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -106,5 +111,28 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         PageInfo<SearchOrderVo> searchOrderVoPageInfo = PageHelper.startPage(searchOrderDto.getPageNo(), searchOrderDto.getPageSize())
                 .doSelectPageInfo(() -> mapper.search(searchOrderDto));
         return searchOrderVoPageInfo;
+    }
+
+    @Override
+    public PageInfo<SmSearchOrderVo> searchSmOrderList(SmSearchOrderDto smSearchOrderDto) {
+        PageInfo<SmSearchOrderVo> searchOrderVoPageInfo = PageHelper.startPage(smSearchOrderDto.getPageNo(), smSearchOrderDto.getPageSize())
+                .doSelectPageInfo(() -> mapper.searchSmOrder(smSearchOrderDto));
+        return searchOrderVoPageInfo;
+    }
+
+
+    @Override
+    public OrderDetailVo getDetailById(Long id) {
+        OrderDetailVo orderDetailVo = mapper.loadById(id);
+        orderDetailVo.setGoodsTempVos(mapper.searchGoodsTempVos(id));
+        return orderDetailVo;
+    }
+
+    @Override
+    public SmOrderDetailVo getSmDetailById(Long id) {
+        SmOrderDetailVo smOrderDetailVo = mapper.loadSmById(id);
+        smOrderDetailVo.setGoodsTempVos(mapper.searchGoodsTempVos(id));
+
+        return smOrderDetailVo;
     }
 }

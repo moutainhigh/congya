@@ -129,5 +129,8 @@ public class OmOrderPo implements Serializable {
     @ApiModelProperty(value = "购物券抵扣金额")
     private BigDecimal redEnvelopsMoney;
 
+    @ApiModelProperty(value = "实际总付")
+    private BigDecimal realMoney;
+
 
 }
