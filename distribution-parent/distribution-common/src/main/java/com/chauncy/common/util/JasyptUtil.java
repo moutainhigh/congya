@@ -54,8 +54,8 @@ public class JasyptUtil {
     public static void main(String[] args){
 
         //加密
-        System.out.println(encyptPwd("xboot","root"));
+        System.out.println(encyptPwd("123456","root"));
         //解密
-        System.out.println(decyptPwd("xboot","F4B0s6u9xcDw3V+P0qC4CA=="));
+        System.out.println(decyptPwd("123456","3xY3RXlQPFgTTpokoEBnOg=="));
     }
 }
