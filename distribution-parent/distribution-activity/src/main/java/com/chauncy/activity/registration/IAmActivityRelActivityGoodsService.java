@@ -1,7 +1,9 @@
 package com.chauncy.activity.registration;
 
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.activity.registration.AmActivityRelActivityGoodsPo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.dto.manage.activity.spell.select.SearchSpellRecordDto;
 import com.chauncy.data.dto.supplier.activity.add.SaveRegistrationDto;
 import com.chauncy.data.dto.supplier.activity.delete.CancelRegistrationDto;
 import com.chauncy.data.dto.supplier.activity.select.FindActivitySkuDto;
@@ -10,6 +12,7 @@ import com.chauncy.data.dto.supplier.activity.select.SearchSupplierActivityDto;
 import com.chauncy.data.dto.supplier.activity.select.UpdateVerifyStatusDto;
 import com.chauncy.data.vo.supplier.activity.GetActivitySkuInfoVo;
 import com.chauncy.data.vo.supplier.activity.SearchAssociatedGoodsVo;
+import com.chauncy.data.vo.supplier.activity.SearchSpellRecordVo;
 import com.chauncy.data.vo.supplier.activity.SearchSupplierActivityVo;
 import com.github.pagehelper.PageInfo;
 
@@ -77,4 +80,11 @@ public interface IAmActivityRelActivityGoodsService extends Service<AmActivityRe
      * @return
      */
     void updateVerifyStatus(UpdateVerifyStatusDto updateVerifyStatusDto);
+
+    /**
+     *  条件查询拼团记录
+     * @param searchSpellRecordDto
+     * @return
+     */
+    PageInfo<SearchSpellRecordVo> searchSpellRecord(SearchSpellRecordDto searchSpellRecordDto);
 }

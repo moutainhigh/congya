@@ -1,9 +1,12 @@
 //package com.chauncy.poi;
 //
+//import com.chauncy.data.areaService.IAreaShopLogisticsService;
+//import com.chauncy.data.domain.po.area.AreaShopLogisticsPo;
 //import com.chauncy.data.domain.po.test.UserPO;
 //import com.chauncy.poi.util.ReadExcelUtil;
-//import com.chauncy.test.com.chauncy.user.service.UserService;
+//import com.chauncy.test.service.UserService;
 //import com.chauncy.web.StartApplication;
+//import com.google.common.collect.Lists;
 //import lombok.extern.slf4j.Slf4j;
 //import org.junit.Test;
 //import org.junit.runner.RunWith;
@@ -28,7 +31,10 @@
 //public class ReadExcelUtilTest {
 //
 //    @Autowired
-//    private UserService com.chauncy.user.service;
+//    private UserService service;
+//
+//    @Autowired
+//    private IAreaShopLogisticsService areaShopLogisticsService;
 //
 //    /**
 //     * 测试ReadExcelUtil工具类的readExcelInfo()方法
@@ -56,19 +62,22 @@
 //    @Test
 //    public void readExcelInfosTest(){
 //        try {
-//            List<Map<String,String>> list = ReadExcelUtil.readExcelInfos("/Users/huangwancheng/Desktop/poi/工作簿1.xlsx");
+//            List<Map<String,String>> list = ReadExcelUtil.readExcelInfos("/Users/cheng/document/ship/快递100快递公司标准编码-20190801113704.xlsx");
 //            System.out.println(list);
+//            List<AreaShopLogisticsPo> areaShopLogisticsPos = Lists.newArrayList();
 //            //遍历数据
 //            for (Map<String,String> map : list){
-//                UserPO userPO = new UserPO();
+//                AreaShopLogisticsPo areaShopLogisticsPo = new AreaShopLogisticsPo();
 //                /**
 //                 * 通过map.getKey()获取对应的值
 //                 */
-//                userPO.setName((map.get("名字")==null||map.get("名字")==" ")?null:map.get("名字"));
-//                userPO.setAge((map.get("年龄")==null||map.get("年龄")==" ")?null:Integer.valueOf(map.get("年龄")));
-//                userPO.setSalary((map.get("薪水")==null||map.get("薪水")==" ")?null:Double.valueOf(map.get("薪水")));
-//                com.chauncy.user.service.insert(userPO);
+//                areaShopLogisticsPo.setLogiName((map.get("公司名称")==null||map.get("公司名称")==" ")?null:map.get("公司名称"));
+//                areaShopLogisticsPo.setLogiCode((map.get("公司编码")==null||map.get("公司编码")==" ")?null:map.get("公司编码"));
+//                areaShopLogisticsPo.setSort((map.get("sort")==null||map.get("sort")==" ")?null:Integer.valueOf(map.get("sort")));
+////                areaShopLogisticsService.save(areaShopLogisticsPo);
+//                areaShopLogisticsPos.add(areaShopLogisticsPo);
 //            }
+//            areaShopLogisticsService.saveBatch(areaShopLogisticsPos);
 //
 //        } catch (Exception e) {
 //            e.getStackTrace();

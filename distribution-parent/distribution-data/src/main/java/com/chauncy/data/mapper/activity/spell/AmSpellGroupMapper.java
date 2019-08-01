@@ -2,8 +2,10 @@ package com.chauncy.data.mapper.activity.spell;
 
 import com.chauncy.data.domain.po.activity.spell.AmSpellGroupPo;
 import com.chauncy.data.dto.manage.activity.SearchActivityListDto;
+import com.chauncy.data.dto.manage.activity.spell.select.SearchSpellRecordDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.manage.activity.SearchActivityListVo;
+import com.chauncy.data.vo.supplier.activity.SearchSpellRecordVo;
 
 import java.util.List;
 
@@ -31,4 +33,5 @@ public interface AmSpellGroupMapper extends IBaseMapper<AmSpellGroupPo> {
      * @return
      */
     SearchActivityListVo findSpellGroupById(Long id);
+
 }

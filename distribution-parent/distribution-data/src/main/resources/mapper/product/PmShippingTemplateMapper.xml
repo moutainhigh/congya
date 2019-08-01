@@ -75,7 +75,7 @@
     </collection>-->
 </resultMap>
 
-    <select id="getAmountCalculateList" resultType="com.chauncy.data.vo.manage.ship.AmountVo">
+    <!--<select id="getAmountCalculateList" resultType="com.chauncy.data.vo.manage.ship.AmountVo">
         SELECT a.id as amount_id,destination_id,merger_name as destination_name,destination_basis_freight,destination_full_money,destination_post_money
         FROM pm_money_shipping a,area_region b
         WHERE shipping_id = #{template_id} and a.destination_id = b.id
@@ -85,7 +85,7 @@
         SELECT a.id as number_id,destination_id as destination_idd,merger_name as destination_namee,destination_max_number,destination_max_number_money,destination_addtional_number,destination_addtional_freight
         FROM pm_number_shipping a,area_region b
         WHERE shipping_id = #{template_id} and a.destination_id = b.id
-    </select>
+    </select>-->
 
 <!--<resultMap id="Amount" type="com.chauncy.data.vo.manage.ship.PlatTemplateVo" extends="ShipResult">
 
@@ -112,7 +112,7 @@
     </collection>
 </resultMap>-->
 
-    <select id="searchPlatTempByConditions" resultMap="ShipResult">
+    <!--<select id="searchPlatTempByConditions" resultMap="ShipResult">
         select a.id as template_id,a.name as template_name,a.product_address_id,c1.merger_name as dispatch,a.calculate_way,
         a.create_by,a.create_time,a.default_freight,a.default_full_money,a.default_post_money,a.default_max_number,a.default_max_number_money,a.default_addtional_number,a.default_addtional_freight,
         b.id as amount_id,b.destination_id,d.destination_id as destination_idd,b.destination_basis_freight,b.destination_full_money,b.destination_post_money,
@@ -154,12 +154,69 @@
                 and e.name like concat('%', #{storeName}, '%')
             </if>
         </where>
-    </select>
+    </select>-->
     <select id="findByType" resultType="com.chauncy.data.vo.BaseVo">
 
         select id,name
         from pm_shipping_template
         where type = #{type}
+    </select>
+    <select id="searchPlatTempByConditions" resultType="com.chauncy.data.vo.manage.ship.PlatTemplateVo">
+
+        select a.id as template_id,a.name as template_name,a.product_address_id,c1.merger_name as dispatch,a.calculate_way,
+        a.create_by,a.create_time,a.default_freight,a.default_full_money,a.default_post_money,a.default_max_number,a.default_max_number_money,a.default_addtional_number,a.default_addtional_freight,
+        e.id as store_id,e.name as store_name,a.submit_time,a.verify_time,a.verify_status,a.auditor
+        from pm_shipping_template a
+        left join area_region c1 on c1.id = a.product_address_id
+        left join sm_store e on (e.id = a.store_id and e.del_flag=0)
+        <where>
+            a.del_flag=0
+            <if test="type !=null">
+                and a.type=#{type}
+            </if>
+            <if test="name !=null and name!=''">
+                and a.name like concat('%', #{name}, '%')
+            </if>
+            <if test="createTime !=null">
+                and DATE_FORMAT(a.create_time,'%Y-%m-%d') &gt;= #{createTime}
+            </if>
+            <if test="createEndTime !=null">
+                and DATE_FORMAT(a.create_time,'%Y-%m-%d') &lt;= #{createEndTime}
+            </if>
+            <if test="submitTime !=null">
+                and DATE_FORMAT(a.submit_time,'%Y-%m-%d') &gt;= #{submitTime}
+            </if>
+            <if test="submitEndTime !=null">
+                and DATE_FORMAT(a.submit_time,'%Y-%m-%d') &lt;= #{submitEndTime}
+            </if>
+            <if test="verifyTime !=null">
+                and DATE_FORMAT(a.verify_time,'%Y-%m-%d') &gt;= #{verifyTime}
+            </if>
+            <if test="verifyEndTime !=null">
+                and DATE_FORMAT(a.verify_time,'%Y-%m-%d') &lt;= #{verifyEndTime}
+            </if>
+            <if test="verifyStatus !=null">
+                and a.verify_status=#{verifyStatus}
+            </if>
+            <if test="storeId !=null">
+                and a.store_id=#{storeId}
+            </if>
+            <if test="storeName !=null and storeName!=''">
+                and e.name like concat('%', #{storeName}, '%')
+            </if>
+        </where>
+
+    </select>
+    <select id="getAmountCalculateList" resultType="com.chauncy.data.vo.manage.ship.AmountVo">
+        SELECT a.id as amount_id,destination_id,merger_name as destination_name,destination_basis_freight,destination_full_money,destination_post_money
+        FROM pm_money_shipping a,area_region b
+        WHERE shipping_id = #{template_id} and a.destination_id = b.id
+    </select>
+
+    <select id="getNumberCalculateList" resultType="com.chauncy.data.vo.manage.ship.NumberVo">
+        SELECT a.id as number_id,destination_id as destination_idd,merger_name as destination_namee,destination_max_number,destination_max_number_money,destination_addtional_number,destination_addtional_freight
+        FROM pm_number_shipping a,area_region b
+        WHERE shipping_id = #{template_id} and a.destination_id = b.id
     </select>
 
 </mapper>

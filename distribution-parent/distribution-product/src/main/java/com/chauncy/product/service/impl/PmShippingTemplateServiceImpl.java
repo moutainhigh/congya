@@ -21,6 +21,8 @@ import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.product.PmMoneyShippingMapper;
 import com.chauncy.data.mapper.product.PmNumberShippingMapper;
 import com.chauncy.data.mapper.product.PmShippingTemplateMapper;
+import com.chauncy.data.vo.manage.ship.AmountVo;
+import com.chauncy.data.vo.manage.ship.NumberVo;
 import com.chauncy.data.vo.manage.ship.PlatTemplateVo;
 import com.chauncy.product.service.IPmMoneyShippingService;
 import com.chauncy.product.service.IPmNumberShippingService;
@@ -321,8 +323,8 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
         Arrays.asList(templateIds).forEach(a->{
             //判断该模版是否已被应用
             List<PmGoodsPo> goodsPos = goodsMapper.selectList(new QueryWrapper<PmGoodsPo>().eq("shipping_template_id",a));
-            if (ListUtil.isListNullAndEmpty(goodsPos)){
-                throw new ServiceException(ResultCode.FAIL,"该模版:[%s]已被商品引用,不能删除!",shippingTemplateMapper.selectById(a).getName());
+            if (!ListUtil.isListNullAndEmpty(goodsPos)){
+                throw new ServiceException(ResultCode.FAIL,String.format("该模版:[%s]已被商品引用,不能删除!",shippingTemplateMapper.selectById(a).getName()));
             }
             if (shippingTemplateMapper.selectById(a)==null){
                 throw new ServiceException(ResultCode.FAIL,"操作失败,"+a+"不存在");
@@ -359,6 +361,20 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
         PageInfo<PlatTemplateVo> platTemplateVos = new PageInfo<>();
         platTemplateVos = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
                 .doSelectPageInfo(() -> shippingTemplateMapper.searchPlatTempByConditions(searchPlatTempDto));
+        platTemplateVos.getList().forEach(a->{
+            ShipCalculateWayEnum shipCalculateWayEnum = ShipCalculateWayEnum.getWayById(a.getCalculateWay());
+            switch (shipCalculateWayEnum) {
+                case AMOUNT:
+                    List<AmountVo> amountVos = shippingTemplateMapper.getAmountCalculateList(a.getTemplateId());
+                    a.setAmountCalculateList(amountVos);
+                    break;
+                case NUMBER:
+                    List<NumberVo> numberVos = shippingTemplateMapper.getNumberCalculateList(a.getTemplateId());
+                    a.setNumberCalculateList(numberVos);
+                    break;
+            }
+
+        });
 
         return platTemplateVos;
     }

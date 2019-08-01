@@ -1,10 +1,10 @@
 package com.chauncy.web.api.supplier.activity;
 
-import com.alipay.api.domain.Activity;
 import com.chauncy.activity.registration.IAmActivityRelActivityGoodsService;
 import com.chauncy.activity.view.IActivityViewService;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.activity.view.ActivityViewPo;
+import com.chauncy.data.dto.manage.activity.spell.select.SearchSpellRecordDto;
 import com.chauncy.data.dto.supplier.activity.add.SaveRegistrationDto;
 import com.chauncy.data.dto.supplier.activity.add.SearchAllActivitiesDto;
 import com.chauncy.data.dto.supplier.activity.delete.CancelRegistrationDto;
@@ -14,7 +14,10 @@ import com.chauncy.data.dto.supplier.activity.select.SearchAssociatedGoodsDto;
 import com.chauncy.data.dto.supplier.activity.select.SearchSupplierActivityDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.activity.SearchActivityListVo;
-import com.chauncy.data.vo.supplier.activity.*;
+import com.chauncy.data.vo.supplier.activity.GetActivitySkuInfoVo;
+import com.chauncy.data.vo.supplier.activity.SearchAssociatedGoodsVo;
+import com.chauncy.data.vo.supplier.activity.SearchSpellRecordVo;
+import com.chauncy.data.vo.supplier.activity.SearchSupplierActivityVo;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -153,5 +156,17 @@ public class RegistrationActivityApi extends BaseApi {
 
         service.cancelRegistration(cancelRegistrationDtos);
         return setJsonViewData(ResultCode.SUCCESS,"取消成功");
+    }
+
+    /**
+     *  条件查询拼团记录
+     * @param searchSpellRecordDto
+     * @return
+     */
+    @PostMapping("/searchSpellRecord")
+    @ApiOperation("条件查询拼团记录")
+    public JsonViewData<PageInfo<SearchSpellRecordVo>> searchSpellRecord(@RequestBody @ApiParam(required = true,name = "",value = "")
+                                                      @Validated SearchSpellRecordDto searchSpellRecordDto){
+        return setJsonViewData(service.searchSpellRecord(searchSpellRecordDto));
     }
 }

@@ -26,6 +26,7 @@ import com.chauncy.data.domain.po.product.PmGoodsRelAttributeValueSkuPo;
 import com.chauncy.data.domain.po.product.PmGoodsSkuPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.app.user.favorites.add.UpdateFavoritesDto;
+import com.chauncy.data.dto.manage.activity.spell.select.SearchSpellRecordDto;
 import com.chauncy.data.dto.supplier.activity.add.SaveRegistrationDto;
 import com.chauncy.data.dto.supplier.activity.delete.CancelRegistrationDto;
 import com.chauncy.data.dto.supplier.activity.select.FindActivitySkuDto;
@@ -38,14 +39,12 @@ import com.chauncy.data.mapper.activity.reduced.AmReducedMapper;
 import com.chauncy.data.mapper.activity.registration.AmActivityRelActivityGoodsMapper;
 import com.chauncy.data.mapper.activity.registration.AmActivityRelGoodsSkuMapper;
 import com.chauncy.data.mapper.activity.seckill.AmSeckillMapper;
+import com.chauncy.data.mapper.activity.spell.AmSpellGroupMainMapper;
 import com.chauncy.data.mapper.activity.spell.AmSpellGroupMapper;
 import com.chauncy.data.mapper.product.*;
 import com.chauncy.data.vo.supplier.GoodsStandardVo;
 import com.chauncy.data.vo.supplier.StandardValueAndStatusVo;
-import com.chauncy.data.vo.supplier.activity.FindActivitySkuVo;
-import com.chauncy.data.vo.supplier.activity.GetActivitySkuInfoVo;
-import com.chauncy.data.vo.supplier.activity.SearchAssociatedGoodsVo;
-import com.chauncy.data.vo.supplier.activity.SearchSupplierActivityVo;
+import com.chauncy.data.vo.supplier.activity.*;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -116,6 +115,10 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
 
     @Autowired
     private AmActivityRelActivityGoodsMapper activityRelActivityGoodsMapper;
+
+    @Autowired
+    private AmSpellGroupMainMapper spellGroupMainMapper;
+
 
     /**
      * 条件查询需要被选参与活动的商品
@@ -879,5 +882,23 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
         relActivityGoodsPo.setVerifier(securityUtil.getCurrUser().getUsername());
         relActivityGoodsPo.setVerifyTime(LocalDateTime.now());
         activityRelActivityGoodsMapper.updateById(relActivityGoodsPo);
+    }
+
+    /**
+     *  条件查询拼团记录
+     * @param searchSpellRecordDto
+     * @return
+     */
+    @Override
+    public PageInfo<SearchSpellRecordVo> searchSpellRecord(SearchSpellRecordDto searchSpellRecordDto) {
+
+        SysUserPo userPo = securityUtil.getCurrUser();
+        searchSpellRecordDto.setStoreId(userPo.getStoreId());
+        Integer pageNo = searchSpellRecordDto.getPageNo() == null ? defaultPageNo : searchSpellRecordDto.getPageNo();
+        Integer pageSize = searchSpellRecordDto.getPageSize() == null ? defaultPageSize : searchSpellRecordDto.getPageSize();
+        PageInfo<SearchSpellRecordVo> searchSpellRecordDtoPageInfo = PageHelper.startPage(pageNo,pageSize)
+                .doSelectPageInfo(()->spellGroupMainMapper.searchSpellRecord(searchSpellRecordDto));
+
+        return searchSpellRecordDtoPageInfo;
     }
 }
