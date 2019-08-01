@@ -3,12 +3,15 @@ package com.chauncy.data.mapper.order;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
+import com.chauncy.data.dto.supplier.order.SmSendOrderDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.manage.order.list.GoodsTempVo;
 import com.chauncy.data.vo.manage.order.list.OrderDetailVo;
 import com.chauncy.data.vo.manage.order.list.SearchOrderVo;
 import com.chauncy.data.vo.supplier.order.SmOrderDetailVo;
 import com.chauncy.data.vo.supplier.order.SmSearchOrderVo;
+import com.chauncy.data.vo.supplier.order.SmSendGoodsTempVo;
+import com.chauncy.data.vo.supplier.order.SmSendOrderVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -53,11 +56,25 @@ public interface OmOrderMapper extends IBaseMapper<OmOrderPo> {
 
 
     /**
-     * 查询订单商品快照
+     * 商家端查询订单商品快照
      * @param orderId
      * @return
      */
     List<GoodsTempVo> searchGoodsTempVos(Long orderId);
+
+    /**
+     * 商家端查询发货订单列表
+     * @param smSendOrderDto
+     * @return
+     */
+    List<SmSendOrderVo> searchSendOrderVos(SmSendOrderDto smSendOrderDto);
+
+    /**
+     * 商家端查询发货商品详情
+     * @param orderId
+     * @return
+     */
+    List<SmSendGoodsTempVo> searchSendGoodsTemp(Long orderId);
 
 
 

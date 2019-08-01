@@ -114,8 +114,6 @@ public class OmOrderPo implements Serializable {
     @ApiModelProperty(value = "优惠券id")
     private Long couponId;
 
-    @ApiModelProperty(value = "订单总金额")
-    private BigDecimal sumMoney;
 
     @ApiModelProperty(value = "使用红包")
     private BigDecimal redEnvelops;
@@ -129,8 +127,6 @@ public class OmOrderPo implements Serializable {
     @ApiModelProperty(value = "购物券抵扣金额")
     private BigDecimal redEnvelopsMoney;
 
-    @ApiModelProperty(value = "实际总付")
-    private BigDecimal realMoney;
 
 
 }
