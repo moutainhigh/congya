@@ -1,5 +1,6 @@
 package com.chauncy.data.vo.app.order.logistics;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

@@ -100,7 +100,7 @@ ignored:
 # 配置快递100
 logistics:
   key: JAQwnglU8950
-  callbackUrl: http://www.baidu.com
+  callbackUrl: http://47.102.104.124:80/distribution/app/order/logistics/callback
 
 # 配置文件加密key
 jasypt:

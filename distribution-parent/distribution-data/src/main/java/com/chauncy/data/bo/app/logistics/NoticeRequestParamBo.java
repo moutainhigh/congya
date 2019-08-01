@@ -31,5 +31,6 @@ public class NoticeRequestParamBo {
     //最新查询结果，若在订阅报文中通过interCom字段开通了国际版，则此lastResult表示出发国的查询结果，全量，倒序（即时间最新的在最前
     private LastResultBo lastResult;
 
-    //
+    //表示最新的目的国家的查询结果，只有在订阅报文中通过interCom=1字段开通了国际版才会显示此数据元，全量，倒序（即时间最新的在最前）
+    private DestResultBo destResult;
 }

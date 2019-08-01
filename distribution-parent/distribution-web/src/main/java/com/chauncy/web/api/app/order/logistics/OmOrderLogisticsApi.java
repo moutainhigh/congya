@@ -39,15 +39,14 @@ public class OmOrderLogisticsApi extends BaseApi {
      *
      * 快递100订阅请求接口
      *
-     * @param orderId
      * @param taskRequestDto
      * @return
      */
     @ApiOperation("订单订阅物流信息请求接口")
-    @PostMapping("/subscribe/{orderId")
-    public JsonViewData<String> subscribleLogistics(@RequestBody @ApiParam(required = true,name="taskRequestDto",value = "订单订阅物流信息")
-                                            @PathVariable long orderId,@Validated TaskRequestDto taskRequestDto) {
-        return setJsonViewData(service.subscribleLogistics(taskRequestDto, orderId));
+    @PostMapping("/subscribe")
+    public JsonViewData<String> subscribleLogistics(@RequestBody @ApiParam(required = true, name = "taskRequestDto", value = "订单订阅物流信息")
+                                                    @Validated TaskRequestDto taskRequestDto) {
+        return setJsonViewData(service.subscribleLogistics(taskRequestDto));
     }
 
     /**
@@ -64,5 +63,18 @@ public class OmOrderLogisticsApi extends BaseApi {
         String param = request.getParameter("param");
         log.info("订单物流回调开始，入参为：" + param);
         return setJsonViewData(service.updateExpressInfo(param, orderId));
+    }
+
+    /**
+     * 根据订单号查询物流信息
+     *
+     * @param orderId
+     * @return
+     */
+    @GetMapping("/findLogicDetail/{orderId}")
+    @ApiOperation("根据订单号查询物流信息")
+    public JsonViewData<Object> getLogistics(@PathVariable long orderId) {
+
+        return setJsonViewData(service.getLogistics(orderId));
     }
 }

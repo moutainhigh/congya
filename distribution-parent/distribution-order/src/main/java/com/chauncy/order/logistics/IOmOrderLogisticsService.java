@@ -20,10 +20,9 @@ public interface IOmOrderLogisticsService extends Service<OmOrderLogisticsPo> {
      * 订单订阅物流信息
      *
      * @param taskRequestDto
-     * @param orderId
      * @return
      */
-    String subscribleLogistics(TaskRequestDto taskRequestDto, long orderId);
+    String subscribleLogistics(TaskRequestDto taskRequestDto);
 
     /**
      * 快递100订阅推送数据
@@ -34,4 +33,12 @@ public interface IOmOrderLogisticsService extends Service<OmOrderLogisticsPo> {
      * @return
      */
     NoticeResponseVo updateExpressInfo(String param, String orderId);
+
+    /**
+     * 根据订单号查询物流信息
+     *
+     * @param orderId
+     * @return
+     */
+    Object getLogistics(long orderId);
 }

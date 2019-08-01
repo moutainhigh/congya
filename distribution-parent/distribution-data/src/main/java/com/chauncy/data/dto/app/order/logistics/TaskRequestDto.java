@@ -65,6 +65,9 @@ public class TaskRequestDto {
     @ApiModelProperty("快递单号")
     private String number;
 
+    @ApiModelProperty("订单编号")
+    private Long orderId;
+
     @ApiModelProperty(value = "出发地城市",hidden = true)
     private String from;
 
