@@ -1,5 +1,7 @@
 package com.chauncy.data.dto.manage.order.log.select;
 
+import com.chauncy.common.enums.log.WithdrawalStatusEnum;
+import com.chauncy.data.valid.annotation.EnumConstraint;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -15,7 +17,7 @@ import java.time.LocalDate;
  * @since 2019/7/30 12:38
  */
 @Data
-@ApiModel(value = "SearchPlatformLogDto对象", description = "查找平台流水参数")
+@ApiModel(value = "SearchUserWithdrawalDto对象", description = "查找用户流水参数")
 public class SearchUserWithdrawalDto  implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -42,6 +44,7 @@ public class SearchUserWithdrawalDto  implements Serializable {
     private LocalDate endTime;
 
     @ApiModelProperty(value = "状态 1.待审核 2.处理中 3.提现成功 4.驳回")
+    @EnumConstraint(target = WithdrawalStatusEnum.class)
     private Integer withdrawalStatus;
 
     @Min(1)

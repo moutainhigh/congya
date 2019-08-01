@@ -23,7 +23,7 @@ public enum PlatformLogMatterEnum implements BaseEnum {
     /**
      * 1.订单收入  平台收入
      * 2.售后退款  平台支出
-     * 3.售后退款  平台支出
+     * 3.订单取消  平台支出
      * 4.用户提现  平台支出
      * 5.商家货款提现  平台支出
      * 6.商家利润提现  平台支出
@@ -53,6 +53,15 @@ public enum PlatformLogMatterEnum implements BaseEnum {
     public static PlatformLogMatterEnum getById(Integer id) {
         for (PlatformLogMatterEnum type : PlatformLogMatterEnum.values()) {
             if (type.getId().equals(id))
+                return type;
+        }
+        return null;
+    }
+
+    //通过名称来获取结果
+    public static PlatformLogMatterEnum fromName(String name) {
+        for (PlatformLogMatterEnum type : PlatformLogMatterEnum.values()) {
+            if (type.name().equals(name))
                 return type;
         }
         return null;

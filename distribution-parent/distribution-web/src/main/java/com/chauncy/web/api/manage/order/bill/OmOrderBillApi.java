@@ -43,17 +43,14 @@ public class OmOrderBillApi  extends BaseApi {
     @Autowired
     private IOmOrderBillService omOrderBillService;
 
-    @Autowired
-    private ISmStoreBankCardService smStoreBankCardService;
-
     /**
      * 查询账单列表
      * @param searchBillDto
      * @return
      */
-    @ApiOperation(value = "查询账单列表",
+    @ApiOperation(value = "查询货款、利润账单列表",
             notes = "根据年，期数，提现状态，时间，审核状态，金额范围等条件查询   \n" +
-                    "账单状态(billStatus)  1.待提现 2.待审核  3.处理中 4.结算完成  5.审核失败   \n" +
+                    "账单状态   \nbillStatus  1.待提现 2.待审核  3.处理中 4.结算完成  5.审核失败   \n" +
                     "平台   \nbillStatus为2.待审核    操作：审核、扣款   \nbillStatus为3.处理中  操作：标记已处理  \n")
     @PostMapping("/searchBillPaging")
     public JsonViewData<PageInfo<BillBaseInfoVo>> searchBillPaging(@Valid @RequestBody @ApiParam(required = true, name = "searchBillDto", value = "查询条件")

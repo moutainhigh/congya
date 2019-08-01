@@ -6,6 +6,7 @@ import com.chauncy.common.enums.app.sort.SortFileEnum;
 import com.chauncy.common.enums.app.sort.SortWayEnum;
 import com.chauncy.common.enums.common.VerifyStatusEnum;
 import com.chauncy.common.enums.goods.StoreGoodsListTypeEnum;
+import com.chauncy.common.enums.message.InformationTypeEnum;
 import com.chauncy.common.enums.message.KeyWordTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
@@ -290,6 +291,17 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
      */
     @Override
     public PageInfo<InformationPagingVo> searchPaging(SearchInfoByConditionDto searchInfoByConditionDto) {
+
+        if(null != searchInfoByConditionDto.getInformationTypeEnum() &&
+                searchInfoByConditionDto.getInformationTypeEnum().equals(InformationTypeEnum.FOCUSLIST)) {
+            //获取当前app用户信息
+            UmUserPo umUserPo = securityUtil.getAppCurrUser();
+            if(null == umUserPo) {
+                throw new ServiceException(ResultCode.NO_LOGIN,"未登陆或登陆已超时");
+            } else {
+                searchInfoByConditionDto.setUserId(umUserPo.getId());
+            }
+        }
 
         Integer pageNo = searchInfoByConditionDto.getPageNo()==null ? defaultPageNo : searchInfoByConditionDto.getPageNo();
         Integer pageSize = searchInfoByConditionDto.getPageSize()==null ? defaultPageSize : searchInfoByConditionDto.getPageSize();

@@ -48,7 +48,8 @@ public class OmFinanceLogApi extends BaseApi {
      * @param searchPlatformLogDto
      * @return
      */
-    @ApiOperation(value = "查询平台流水", notes = "条件查询平台流水")
+    @ApiOperation(value = "查询平台流水", notes = "条件查询平台流水   \nlogMatter   \n1.订单收入   \n2.售后退款   \n" +
+            "4.用户提现   \n5.商家货款提现   \n6.商家利润提现   \nlogType    \n收入  支出")
     @PostMapping("/searchPlatformLogPaging")
     public JsonViewData<PageInfo<SearchPlatformLogVo>> searchPlatformLogPaging(@RequestBody @ApiParam(required = true, name = "searchPlatformLogDto", value = "查询平台流水") @Validated
                                                                                            SearchPlatformLogDto searchPlatformLogDto) {
@@ -63,7 +64,8 @@ public class OmFinanceLogApi extends BaseApi {
      * @param searchUserWithdrawalDto
      * @return
      */
-    @ApiOperation(value = "用户提现列表", notes = "用户提现列表")
+    @ApiOperation(value = "用户提现列表", notes = "用户提现列表   \nwithdrawalStatus   \n1.待审核   \n2.处理中   \n" +
+            "3.提现成功   \n4.驳回")
     @PostMapping("/searchUserWithdrawalPaging")
     public JsonViewData<PageInfo<SearchUserWithdrawalVo>> searchUserWithdrawalPaging(@RequestBody @ApiParam(required = true, name = "searchPlatformLogDto", value = "查询平台流水")
                                                                                    @Validated SearchUserWithdrawalDto searchUserWithdrawalDto) {

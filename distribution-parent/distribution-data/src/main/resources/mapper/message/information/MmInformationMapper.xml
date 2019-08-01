@@ -79,6 +79,9 @@
     <select id="searchInfoBasePaging" resultType="com.chauncy.data.vo.app.message.information.InformationPagingVo">
         select mi.id, mi.title, mi.update_time, left(mi.pure_text,100) as pureText , mi.author, mi.browsing_num
         from mm_information mi
+        <if test="informationTypeEnum != null and informationTypeEnum.getId() == 1">
+            left join um_user_favorites uuf on mi.store_id = uuf.favorites_id
+        </if>
         <where>
             mi.del_flag = 0
             <if test="storeId !=null and storeId !=0 ">
@@ -94,8 +97,7 @@
                 and (mi.title  like concat('%', #{keyword}, '%') or mi.pure_text  like concat('%', #{keyword}, '%'))
             </if>
             <if test="informationTypeEnum != null and informationTypeEnum.getId() == 1">
-            /*关注店铺*/
-                and
+                and uuf.del_flag = 0 and uuf.user_id = #{userId}
             </if>
         </where>
         <choose>

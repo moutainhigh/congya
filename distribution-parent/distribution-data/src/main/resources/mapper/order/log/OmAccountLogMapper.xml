@@ -32,45 +32,49 @@
 
 
     <select id="searchPlatformLogPaging" resultType="com.chauncy.data.vo.manage.order.log.SearchPlatformLogVo">
-        select ooal.pay_order_id,
+        select oal.pay_order_id,
                 po.pay_id,
-                ooal.create_by as phone,
-                ooal.log_type,
-                ooal.log_matter,
+                oal.create_by as phone,
+                oal.log_type,
+                oal.log_matter,
 				po.total_real_pay_money,
-				ooal.payment_way,
-				ooal.arrival_way,
-				ooal.create_time
-        from om_order_account_log ooal
+				oal.payment_way,
+				oal.arrival_way,
+				oal.create_time
+        from om_account_log oal
         left join pay_order po
-        on ooal.pay_order_id = po.id
+        on oal.pay_order_id = po.id
+        <if test="phone != null and phone != ''">
+            left join um_user uu
+            on uu.id = po.um_user_id
+        </if>
         <where>
             <if test="payOrderId != null">
-                and ooal.pay_order_id == #{payOrderId}
+                and oal.pay_order_id = #{payOrderId}
             </if>
             <if test="payId != null">
-                and po.pay_id == #{payId}
+                and po.pay_id = #{payId}
             </if>
             <if test="umUserId != null">
-                and po.um_user_id == #{umUserId}
+                and po.um_user_id = #{umUserId}
             </if>
             <if test="logType != null and logType != ''">
-                and po.log_type == #{logType}
+                and oal.log_type = #{logType}
             </if>
             <if test="logMatter != null">
-                and po.log_matter == #{logMatter}
+                and oal.log_matter = #{logMatter}
             </if>
             <if test="phone != null and phone != ''">
-                and ooal.create_by == #{phone}
+                and uu.phone = #{phone}
             </if>
             <if test="startTime != null">
-                and date(ooal.create_time) <![CDATA[>= ]]>  #{startTime}
+                and date(oal.create_time) <![CDATA[>= ]]>  #{startTime}
             </if>
             <if test="endTime != null">
-                and date(ooal.create_time) <![CDATA[<= ]]> #{endTime}
+                and date(oal.create_time) <![CDATA[<= ]]> #{endTime}
             </if>
         </where>
-        order by ooal.create_time
+        order by oal.create_time
     </select>
     <select id="searchUserLogPaging" resultType="com.chauncy.data.vo.manage.order.log.UserLogDetailVo">
         SELECT oal.id as logId,
@@ -104,10 +108,10 @@
         ON ouw.`um_user_id` = uu.`id`
         <where>
             <if test="userId != null">
-                and ouw.um_user_id == #{userId}
+                and ouw.um_user_id = #{userId}
             </if>
             <if test="withdrawalStatus != null">
-                and ouw.withdrawal_status == #{withdrawalStatus}
+                and ouw.withdrawal_status = #{withdrawalStatus}
             </if>
             <if test="name != null and name != ''">
                 and uu.name like concat('%',#{name},'%')

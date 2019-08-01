@@ -1,5 +1,6 @@
 package com.chauncy.data.dto.manage.order.bill.select;
 
+import com.chauncy.common.enums.order.BillStatusEnum;
 import com.chauncy.common.enums.order.BillTypeEnum;
 import com.chauncy.data.valid.annotation.EnumConstraint;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -33,7 +34,8 @@ public class SearchBillDto  implements Serializable {
     @ApiModelProperty(value = "期数")
     private String monthDay;
 
-    @ApiModelProperty(value = "状态 1.待提现 2.待审核 3.处理中 4.结算完成 5.结算失败")
+    @ApiModelProperty(value = "状态 1.待提现 2.待审核 3.处理中 4.结算完成 5.审核失败")
+    @EnumConstraint(target = BillStatusEnum.class)
     private Integer billStatus;
 
     @ApiModelProperty(value = "提现时间")

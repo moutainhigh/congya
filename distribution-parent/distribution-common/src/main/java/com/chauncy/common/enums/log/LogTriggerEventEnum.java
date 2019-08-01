@@ -13,10 +13,12 @@ public enum  LogTriggerEventEnum  implements BaseEnum {
     /**
      * 流水触发的事件
      * 1.店铺利润、货款账单提现
-     * 2.APP用户提现
+     * 2.APP用户提现红包
+     * 3.订单下单
      */
     STORE_WITHDRAWAL(1, "店铺利润、货款账单提现"),
     APP_WITHDRAWAL(2, "APP用户提现红包"),
+    APP_ORDER(3, "订单下单"),
     ;
 
 
