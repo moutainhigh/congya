@@ -32,6 +32,7 @@ import javax.annotation.Resource;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -74,7 +75,7 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
      * @return
      */
     @Override
-    public String subscribleLogistics(TaskRequestDto taskRequestDto) {
+    public TaskResponseBo subscribleLogistics(TaskRequestDto taskRequestDto) {
 
         Long orderId = taskRequestDto.getOrderId();
         //回调Url
@@ -121,6 +122,8 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
 
                 //	是否签收标记
                 String isCheck = result.getIscheck();
+
+                log.error(isCheck);
 
                 String data = JSONUtils.toJSONString(result.getData());
 
@@ -177,11 +180,12 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
     }
 
 
-    private String post(TaskRequestDto taskRequestDto, Map<String, String> parameters, Long orderId) {
+    private TaskResponseBo post(TaskRequestDto taskRequestDto, Map<String, String> parameters, Long orderId){
 
         StringBuffer response = new StringBuffer("");
 
         BufferedReader reader = null;
+        TaskResponseBo resp = new TaskResponseBo();
         try {
             StringBuilder builder = new StringBuilder();
             for (Map.Entry<String, String> param : parameters.entrySet()) {
@@ -212,36 +216,9 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
             while ((line = reader.readLine()) != null) {
                 response.append(line);
             }
-            //获取结果后进行处理
-            TaskResponseBo resp = JSONUtils.toBean(response.toString(), TaskResponseBo.class);
-            if (resp.getResult() != true) {
-                if (resp.getReturnCode().equals("600")) {
-                    throw new ServiceException(ResultCode.LOGISTICS_ERROR1, "POLL:KEY已过期");
-                } else if (resp.getReturnCode().equals("601")) {
-                    throw new ServiceException(ResultCode.LOGISTICS_ERROR2, "您不是合法的订阅者（即授权Key出错）");
-                } else if (resp.getReturnCode().equals("500")) {
-                    throw new ServiceException(ResultCode.LOGISTICS_ERROR3, "服务器错误");
-                } else if (resp.getReturnCode().equals("501")) {
-                    throw new ServiceException(ResultCode.LOGISTICS_ERROR4, "重复订阅");
-                } else if (resp.getReturnCode().equals("700")) {
-                    throw new ServiceException(ResultCode.LOGISTICS_ERROR5, "订阅方的订阅数据存在错误（如不支持的快递公司、单号为空、单号超长等）或错误的回调地址）");
-                } else if (resp.getReturnCode().equals("701")) {
-                    throw new ServiceException(ResultCode.LOGISTICS_ERROR7, "拒绝订阅的快递公司 ");
-                } else if (resp.getReturnCode().equals("702")) {
-                    throw new ServiceException(ResultCode.LOGISTICS_ERROR6, "POLL:识别不到该单号对应的快递公司 ");
-                }
-            } else {
-                //同步快递单号，修改订单状态为已发货
-                OmOrderPo order = orderMapper.selectById(orderId);
-                if (order != null) {
-                    order.setStatus(OrderStatusEnum.NEED_RECEIVE_GOODS);
-                    orderMapper.updateById(order);
-                }
-                log.info("订阅物流信息成功，订单号为:【{}】,物流单号为:【{}】", orderId, taskRequestDto.getNumber());
-                return response.toString();
-            }
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ServiceException(ResultCode.LOGISTICS_ERROR3,"快递100订单订阅物流信息连接错误");
         } finally {
             try {
                 if (null != reader) {
@@ -251,7 +228,36 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
                 e.printStackTrace();
             }
         }
-        return response.toString();
+        //获取结果后进行处理
+        resp = JSONUtils.toBean(response.toString(), TaskResponseBo.class);
+        if (resp.getResult() != true) {
+            if (resp.getReturnCode().equals("600")) {
+                throw new ServiceException(ResultCode.FAIL, "POLL:KEY已过期");
+            } else if (resp.getReturnCode().equals("601")) {
+                throw new ServiceException(ResultCode.FAIL, "您不是合法的订阅者（即授权Key出错）");
+            } else if (resp.getReturnCode().equals("500")) {
+                throw new ServiceException(ResultCode.FAIL, "服务器错误");
+            } else if (resp.getReturnCode().equals("501")) {
+                throw new ServiceException(ResultCode.FAIL, "重复订阅,运单号重复");
+            } else if (resp.getReturnCode().equals("700")) {
+                throw new ServiceException(ResultCode.FAIL, "订阅方的订阅数据存在错误（如不支持的快递公司、单号为空、单号超长等）或错误的回调地址）");
+            } else if (resp.getReturnCode().equals("701")) {
+                throw new ServiceException(ResultCode.FAIL, "拒绝订阅的快递公司 ");
+            } else if (resp.getReturnCode().equals("702")) {
+                throw new ServiceException(ResultCode.FAIL, "POLL:识别不到该单号对应的快递公司 ");
+            }
+        } else {
+            //同步快递单号，修改订单状态为已发货
+            OmOrderPo order = orderMapper.selectById(orderId);
+            if (order != null) {
+                order.setStatus(OrderStatusEnum.NEED_RECEIVE_GOODS);
+                orderMapper.updateById(order);
+            }
+            log.info("订阅物流信息成功，订单号为:【{}】,物流单号为:【{}】", orderId, taskRequestDto.getNumber());
+            return resp;
+        }
+        System.out.println(response.toString());
+        return resp;
     }
 
 }
