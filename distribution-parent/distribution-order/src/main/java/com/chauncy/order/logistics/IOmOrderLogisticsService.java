@@ -1,10 +1,13 @@
 package com.chauncy.order.logistics;
 
+import com.chauncy.data.bo.app.logistics.TaskResponseBo;
 import com.chauncy.data.domain.po.order.OmOrderLogisticsPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.order.logistics.TaskRequestDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.order.logistics.NoticeResponseVo;
+
+import java.io.IOException;
 
 /**
  * <p>
@@ -20,10 +23,9 @@ public interface IOmOrderLogisticsService extends Service<OmOrderLogisticsPo> {
      * 订单订阅物流信息
      *
      * @param taskRequestDto
-     * @param orderId
      * @return
      */
-    String subscribleLogistics(TaskRequestDto taskRequestDto, long orderId);
+    TaskResponseBo subscribleLogistics(TaskRequestDto taskRequestDto);
 
     /**
      * 快递100订阅推送数据
@@ -34,4 +36,12 @@ public interface IOmOrderLogisticsService extends Service<OmOrderLogisticsPo> {
      * @return
      */
     NoticeResponseVo updateExpressInfo(String param, String orderId);
+
+    /**
+     * 根据订单号查询物流信息
+     *
+     * @param orderId
+     * @return
+     */
+    Object getLogistics(long orderId);
 }

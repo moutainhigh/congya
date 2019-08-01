@@ -43,7 +43,7 @@ public class OmOrderLogisticsPo implements Serializable {
     private LocalDateTime createTime;
 
     @ApiModelProperty(value = "运单号 ")
-    private Integer logisticsNo;
+    private String logisticsNo;
 
     @ApiModelProperty(value = "物流公司编码")
     private String logiCode;

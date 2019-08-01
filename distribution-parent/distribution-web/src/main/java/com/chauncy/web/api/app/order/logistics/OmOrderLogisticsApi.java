@@ -1,6 +1,8 @@
 package com.chauncy.web.api.app.order.logistics;
 
 
+import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.bo.app.logistics.TaskResponseBo;
 import com.chauncy.data.dto.app.order.logistics.TaskRequestDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.order.logistics.NoticeResponseVo;
@@ -39,15 +41,19 @@ public class OmOrderLogisticsApi extends BaseApi {
      *
      * 快递100订阅请求接口
      *
-     * @param orderId
      * @param taskRequestDto
      * @return
      */
     @ApiOperation("订单订阅物流信息请求接口")
-    @PostMapping("/subscribe/{orderId")
-    public JsonViewData<String> subscribleLogistics(@RequestBody @ApiParam(required = true,name="taskRequestDto",value = "订单订阅物流信息")
-                                            @PathVariable long orderId,@Validated TaskRequestDto taskRequestDto) {
-        return setJsonViewData(service.subscribleLogistics(taskRequestDto, orderId));
+    @PostMapping("/subscribe")
+    public JsonViewData subscribleLogistics(@RequestBody @ApiParam(required = true, name = "taskRequestDto", value = "订单订阅物流信息")
+                                                    @Validated TaskRequestDto taskRequestDto) {
+        TaskResponseBo taskResponseBo = service.subscribleLogistics(taskRequestDto);
+        if (taskResponseBo.getResult()){
+            return setJsonViewData(ResultCode.SUCCESS,taskResponseBo.getMessage());
+        }else{
+            return setJsonViewData(ResultCode.FAIL,taskResponseBo.getMessage());
+        }
     }
 
     /**
@@ -60,9 +66,27 @@ public class OmOrderLogisticsApi extends BaseApi {
      */
     @PostMapping("/callback/{orderId}")
     @ApiOperation("快递结果回调接口")
-    public JsonViewData<NoticeResponseVo> expressCallback(HttpServletRequest request, @PathVariable String orderId) {
+    public JsonViewData expressCallback(HttpServletRequest request, @PathVariable String orderId) {
         String param = request.getParameter("param");
         log.info("订单物流回调开始，入参为：" + param);
-        return setJsonViewData(service.updateExpressInfo(param, orderId));
+        NoticeResponseVo noticeResponseVo = service.updateExpressInfo(param, orderId);
+        if (noticeResponseVo.getResult()) {
+            return setJsonViewData(ResultCode.SUCCESS, noticeResponseVo.getMessage());
+        } else {
+            return setJsonViewData(ResultCode.FAIL, noticeResponseVo.getMessage());
+        }
+    }
+
+    /**
+     * 根据订单号查询物流信息
+     *
+     * @param orderId
+     * @return
+     */
+    @GetMapping("/findLogicDetail/{orderId}")
+    @ApiOperation("根据订单号查询物流信息")
+    public JsonViewData<Object> getLogistics(@PathVariable long orderId) {
+
+        return setJsonViewData(service.getLogistics(orderId));
     }
 }
