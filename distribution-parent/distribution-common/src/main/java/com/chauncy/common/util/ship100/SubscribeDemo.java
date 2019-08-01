@@ -19,9 +19,9 @@ public class SubscribeDemo {
 	public static void main(String[] args) {
 		String key = "JAQwnglU8950";					//企业授权key
 		String company = "zhongtong";			//快递公司编码
-		String number = "75160521114876";	//快递单号
-		String from = "";					//出发地城市
-		String to = "";						//目的地城市
+		String number = "75153320181455";	//快递单号
+		String from = "广东省广州市";					//出发地城市
+		String to = "陕西省山西市";						//目的地城市
 		String callbackurl = "http:www.baidu.com";			//回调地址
 		String salt = "";					//加密串
 		int resultv2 = 1;					//行政区域解析
