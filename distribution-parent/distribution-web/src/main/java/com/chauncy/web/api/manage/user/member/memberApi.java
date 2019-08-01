@@ -2,9 +2,11 @@ package com.chauncy.web.api.manage.user.member;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.util.StringUtils;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.add.AddMemberLevelDto;
+import com.chauncy.data.dto.manage.user.select.SearchLevelDto;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.user.service.IPmMemberLevelService;
@@ -77,10 +79,17 @@ public class memberApi extends BaseApi {
 
     @PostMapping("/search")
     @ApiOperation("查找会员等级分页")
-    public JsonViewData<PageInfo<PmMemberLevelPo>> search( @Validated @RequestBody @ApiParam(required = true, name = "baseSearchDto", value = "分页列表查询条件") BaseSearchDto baseSearchDto){
-        Integer pageNo=baseSearchDto.getPageNo()==null?defaultPageNo:baseSearchDto.getPageNo();
-        Integer pageSize=baseSearchDto.getPageSize()==null?defaultPageSize:baseSearchDto.getPageSize();
-        PageInfo<PmMemberLevelPo> memberLevelPos = PageHelper.startPage(pageNo, pageSize).doSelectPageInfo(() -> memberLevelService.list());
+    public JsonViewData<PageInfo<PmMemberLevelPo>> search( @Validated @RequestBody SearchLevelDto searchLevelDto){
+        Integer pageNo=searchLevelDto.getPageNo()==null?defaultPageNo:searchLevelDto.getPageNo();
+        Integer pageSize=searchLevelDto.getPageSize()==null?defaultPageSize:searchLevelDto.getPageSize();
+        QueryWrapper queryWrapper=new QueryWrapper();
+        if (StringUtils.isNotBlank(searchLevelDto.getActor())){
+            queryWrapper.like("actor",searchLevelDto.getActor());
+        }
+        if (StringUtils.isNotBlank(searchLevelDto.getLevelName())){
+            queryWrapper.like("level_name",searchLevelDto.getLevelName());
+        }
+        PageInfo<PmMemberLevelPo> memberLevelPos = PageHelper.startPage(pageNo, pageSize).doSelectPageInfo(() -> memberLevelService.list(queryWrapper));
         return setJsonViewData(memberLevelPos);
     }
 

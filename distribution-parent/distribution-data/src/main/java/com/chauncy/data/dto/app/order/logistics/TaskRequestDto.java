@@ -7,6 +7,7 @@ import lombok.Data;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.Resource;
+import javax.validation.constraints.NotBlank;
 import java.util.HashMap;
 
 /**
@@ -60,9 +61,11 @@ import java.util.HashMap;
 public class TaskRequestDto {
 
     @ApiModelProperty("快递公司编码")
+    @NotBlank(message = "快递公司编码不能为空！！")
     private String company;
 
     @ApiModelProperty("快递单号")
+    @NotBlank(message = "快递单号不能为空！")
     private String number;
 
     @ApiModelProperty("订单编号")
