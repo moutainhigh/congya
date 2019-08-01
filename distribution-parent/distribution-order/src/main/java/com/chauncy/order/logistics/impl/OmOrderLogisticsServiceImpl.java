@@ -3,6 +3,7 @@ package com.chauncy.order.logistics.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.constant.logistics.LogisticsContantsConfig;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
+import com.chauncy.common.enums.order.LogisticsStatusEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.JSONUtils;
@@ -36,6 +37,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -176,7 +178,34 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
      */
     @Override
     public Object getLogistics(long orderId) {
-        return null;
+//        根据物流单号获取物流信息
+        OmOrderLogisticsPo orderLogistics = mapper.selectOne(new QueryWrapper<OmOrderLogisticsPo>().eq("order_id",orderId));
+        OmOrderPo order = orderMapper.selectById(orderId);
+        if (order ==null){
+            throw new ServiceException(ResultCode.NO_EXISTS,"该订单不存在");
+        }
+        if (orderLogistics ==null){
+            throw new ServiceException(ResultCode.NO_EXISTS,"该物流单号不存在");
+        }
+        //解析物流信息
+        JSONArray obj = JSONUtils.toJSONArray(orderLogistics.getData());
+        // int index = 1;
+        // for (Object o : obj) {
+        //    Map<String, Object> m = (Map) o;
+        //    m.put("index", index++);
+        // }
+        Map<String, Object> map = new HashMap<>();
+        map.put("expressCompanyCode", orderLogistics.getLogiCode());
+        map.put("expressCompanyName", orderLogistics.getLogiName());
+        map.put("logisticsNo", orderLogistics.getLogisticsNo());
+        map.put("address", "详细地址");//待修改
+        map.put("logisticsData", obj);
+        map.put("statusCode", orderLogistics.getStatus());
+        map.put("statusName", LogisticsStatusEnum.fromName(orderLogistics.getStatus()));
+        map.put("isCheck", orderLogistics.getIsCheck());
+        map.put("receiveName", "收货人");
+        map.put("receiveTel", "手机号");
+        return map;
     }
 
 
