@@ -81,7 +81,7 @@
             and o.create_time &gt;=#{startCreateTime}
         </if>
         <if test="endCreateTime!=null">
-            and o.create_time &lt;=#{startCreateTime}
+            and o.create_time &lt;=#{endCreateTime}
         </if>
         <if test="startUpdateTime!=null">
             and o.update_time &gt;=#{startUpdateTime}
@@ -102,6 +102,41 @@
             where o.pay_order_id=p.id  and o.um_user_id=u.id
             and o.del_flag=0 and u.del_flag=0
             and o.id=#{id}
+    </select>
+    <select id="searchSendOrderVos" resultType="com.chauncy.data.vo.supplier.order.SmSendOrderVo">
+            SELECT
+            o.id orderId,o.create_time,u.id userId,u.true_name,p.area_name,p.ship_address ,p.ship_name,
+            p.ship_address shipAddress,p.phone mobile,p.area_name areaName,o.send_time
+            from om_order o,pay_order p,um_user u
+            where o.store_id=#{storeId} and o.pay_order_id=p.id and u.id=o.um_user_id
+            and o.del_flag=0 and u.del_flag=0
+            <if test="orderId!=null">
+                and o.id=#{orderId}
+            </if>
+            <if test="userId!=null">
+                and o.um_user_id=#{userId}
+            </if>
+            <if test="phone!=null">
+                and u.phone like concat('%', #{phone}, '%')
+            </if>
+            <if test="shipName!=null">
+                and p.ship_name like concat('%', #{shipName}, '%')
+            </if>
+            <if test="mobile!=null">
+                and p.phone like concat('%', #{mobile}, '%')
+            </if>
+            <if test="startCreateTime!=null">
+                and o.create_time &gt;=#{startCreateTime}
+            </if>
+            <if test="endCreateTime!=null">
+                and o.create_time &lt;=#{endCreateTime}
+            </if>
+            and o.`status`=#{orderStatus}
+    </select>
+    <select id="searchSendGoodsTemp" resultType="com.chauncy.data.vo.supplier.order.SmSendGoodsTempVo">
+            select `name`,standard_str,sell_price,number,icon
+            from om_goods_temp
+            where order_id=#{orderId}
     </select>
 
 </mapper>

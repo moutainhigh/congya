@@ -11,6 +11,7 @@ import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
+import com.chauncy.data.dto.supplier.order.SmSendOrderDto;
 import com.chauncy.data.mapper.order.OmGoodsTempMapper;
 import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.core.AbstractService;
@@ -22,10 +23,13 @@ import com.chauncy.data.vo.manage.order.list.OrderDetailVo;
 import com.chauncy.data.vo.manage.order.list.SearchOrderVo;
 import com.chauncy.data.vo.supplier.order.SmOrderDetailVo;
 import com.chauncy.data.vo.supplier.order.SmSearchOrderVo;
+import com.chauncy.data.vo.supplier.order.SmSendGoodsTempVo;
+import com.chauncy.data.vo.supplier.order.SmSendOrderVo;
 import com.chauncy.order.service.IOmOrderService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,7 +66,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean closeOrder(Long payOrderId) {
+    public boolean closeOrderByPayId(Long payOrderId) {
         //修改支付单状态
         PayOrderPo payOrderPo=new PayOrderPo();
         payOrderPo.setExpireTime(LocalDateTime.now()).setStatus(PayOrderStatusEnum.ALREADY_CANCEL.getId())
@@ -91,9 +95,9 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVoList= Lists.newArrayList();
         goodsTemps.forEach(x->{
             ShopTicketSoWithCarGoodVo shopTicketSoWithCarGoodVo=new ShopTicketSoWithCarGoodVo();
-            shopTicketSoWithCarGoodVo.setId(x.getId());
             //加库存要变为负数
             shopTicketSoWithCarGoodVo.setNumber(x.getNumber()*-1);
+            shopTicketSoWithCarGoodVo.setId(x.getSkuId());
             shopTicketSoWithCarGoodVoList.add(shopTicketSoWithCarGoodVo);
         });
         goodsSkuMapper.updateStock(shopTicketSoWithCarGoodVoList);
@@ -103,6 +107,38 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 BigDecimalUtil.safeMultiply(-1,queryPayOrder.getTotalShopTicket()),queryPayOrder.getUmUserId() );
 
 
+        return true;
+    }
+
+    @Override
+    public boolean closeOrderByOrderId(Long orderId) {
+        //把支付单删掉,以后该支付单下的其他订单都单独生成支付单
+        OmOrderPo orderPo = mapper.selectById(orderId);
+        //支付单失效
+        PayOrderPo updatePayOrder=new PayOrderPo();
+        updatePayOrder.setId(orderPo.getPayOrderId()).setEnabled(false);
+        payOrderMapper.updateById(updatePayOrder);
+        //订单改状态
+        orderPo.setStatus(OrderStatusEnum.ALREADY_CANCEL);
+        this.updateById(orderPo);
+
+        //查找skuid和数量
+        QueryWrapper goodsTempWrapper=new QueryWrapper();
+        goodsTempWrapper.eq("order_id",orderId);
+        List<OmGoodsTempPo> goodsTemps = goodsTempMapper.selectList(goodsTempWrapper);
+        //把库存加回去
+        List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVoList= Lists.newArrayList();
+        goodsTemps.forEach(x->{
+            ShopTicketSoWithCarGoodVo shopTicketSoWithCarGoodVo=new ShopTicketSoWithCarGoodVo();
+            shopTicketSoWithCarGoodVo.setId(x.getSkuId());
+            //加库存要变为负数
+            shopTicketSoWithCarGoodVo.setNumber(x.getNumber()*-1);
+            shopTicketSoWithCarGoodVoList.add(shopTicketSoWithCarGoodVo);
+        });
+        goodsSkuMapper.updateStock(shopTicketSoWithCarGoodVoList);
+
+        shoppingCartMapper.updateDiscount(BigDecimalUtil.safeMultiply(-1,orderPo.getRedEnvelops()),
+                BigDecimalUtil.safeMultiply(-1,orderPo.getShopTicket()),orderPo.getUmUserId() );
         return true;
     }
 
@@ -118,6 +154,18 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         PageInfo<SmSearchOrderVo> searchOrderVoPageInfo = PageHelper.startPage(smSearchOrderDto.getPageNo(), smSearchOrderDto.getPageSize())
                 .doSelectPageInfo(() -> mapper.searchSmOrder(smSearchOrderDto));
         return searchOrderVoPageInfo;
+    }
+
+    @Override
+    public PageInfo<SmSendOrderVo> searchSmSendOrderList(SmSendOrderDto smSendOrderDto) {
+        PageInfo<SmSendOrderVo> smSendOrderVoPageInfo = PageHelper.startPage(smSendOrderDto.getPageNo(), smSendOrderDto.getPageSize())
+                .doSelectPageInfo(() -> mapper.searchSendOrderVos(smSendOrderDto));
+        smSendOrderVoPageInfo.getList().forEach(x->{
+            List<SmSendGoodsTempVo> smSendGoodsTempVos = mapper.searchSendGoodsTemp(x.getOrderId());
+            x.setSmSendGoodsTempVos(smSendGoodsTempVos);
+        });
+
+        return smSendOrderVoPageInfo;
     }
 
 
