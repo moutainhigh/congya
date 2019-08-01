@@ -23,6 +23,18 @@ public class SmSendOrderVo {
     @ApiModelProperty("订单id")
     private Long orderId;
 
+    @ApiModelProperty("订单类型")
+    private String goodsType;
+
+    @ApiModelProperty("商品数量")
+    private Integer totalNumber;
+
+    @ApiModelProperty("商品金额")
+    private Integer totalMoney;
+
+    @ApiModelProperty("运费")
+    private BigDecimal shipMoney;
+
     @ApiModelProperty("下单时间")
     private LocalDateTime createTime;
 

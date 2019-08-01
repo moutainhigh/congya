@@ -105,8 +105,8 @@
     </select>
     <select id="searchSendOrderVos" resultType="com.chauncy.data.vo.supplier.order.SmSendOrderVo">
             SELECT
-            o.id orderId,o.create_time,u.id userId,u.true_name,p.area_name,p.ship_address ,p.ship_name,
-            p.ship_address shipAddress,p.phone mobile,p.area_name areaName,o.send_time
+            o.id orderId,o.goods_type,o.total_number,o.total_money,o.ship_money,o.create_time,u.id userId,u.true_name,p.area_name,p.ship_address ,p.ship_name,
+            p.ship_address shipAddress,p.phone mobile,p.area_name areaNam,o.send_time
             from om_order o,pay_order p,um_user u
             where o.store_id=#{storeId} and o.pay_order_id=p.id and u.id=o.um_user_id
             and o.del_flag=0 and u.del_flag=0
@@ -134,7 +134,7 @@
             and o.`status`=#{orderStatus}
     </select>
     <select id="searchSendGoodsTemp" resultType="com.chauncy.data.vo.supplier.order.SmSendGoodsTempVo">
-            select `name`,standard_str,sell_price,number,icon
+            select `name`,standard_str,sell_price,number,icon,article_number
             from om_goods_temp
             where order_id=#{orderId}
     </select>

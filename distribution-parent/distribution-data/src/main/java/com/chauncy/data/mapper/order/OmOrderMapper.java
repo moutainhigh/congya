@@ -69,6 +69,11 @@ public interface OmOrderMapper extends IBaseMapper<OmOrderPo> {
      */
     List<SmSendOrderVo> searchSendOrderVos(SmSendOrderDto smSendOrderDto);
 
+    /**
+     * 商家端查询发货商品详情
+     * @param orderId
+     * @return
+     */
     List<SmSendGoodsTempVo> searchSendGoodsTemp(Long orderId);
 
 

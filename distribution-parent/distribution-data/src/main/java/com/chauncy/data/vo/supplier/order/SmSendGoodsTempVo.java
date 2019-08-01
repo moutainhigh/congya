@@ -29,6 +29,9 @@ public class SmSendGoodsTempVo {
     @ApiModelProperty(value = "商品图片")
     private String icon;
 
+    @ApiModelProperty(value = "商品货号")
+    private String articleNumber;
+
 
 
 }
