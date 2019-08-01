@@ -32,7 +32,7 @@ public class TaskResponseBo {
     @ApiModelProperty("true表示成功，false表示失败")
     private Boolean result;
 
-    @ApiModelProperty("返回的轧状态码")
+    @ApiModelProperty("返回的状态码")
     private String returnCode;
 
     @ApiModelProperty("返回的提示")
