@@ -94,8 +94,8 @@
         <if test="trueName!=null and trueName!=''">
             AND u.true_name LIKE concat('%', #{trueName}, '%')
         </if>
-        <if test="levelId!=null and levelId!=0">
-            AND m.id = #{levelId}
+        <if test="levelName!=null and levelName!=''">
+            AND m.level_name LIKE concat('%', #{levelName}, '%')
         </if>
         <if test="enabled!=null ">
             AND u.enabled = #{enabled}
