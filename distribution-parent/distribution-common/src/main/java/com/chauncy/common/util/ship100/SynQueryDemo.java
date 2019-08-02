@@ -1,4 +1,6 @@
 package com.chauncy.common.util.ship100;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,17 +18,18 @@ import java.util.Map;
  * @author Administrator
  *
  */
+@Slf4j
 public class SynQueryDemo {
 	
 	public static void main(String[] args) {
 		String key = "JAQwnglU8950";				//贵司的授权key
 		String customer = "B68940AC663A6C2576F8469305BE6AE6";			//贵司的查询公司编号
-		String com = "danniao";			//快递公司编码
-		String num = "611089768131012";	//快递单号
-		String phone = "1233";				//手机号码后四位
+		String com = "jym56";			//快递公司编码
+		String num = "1134040809";	//快递单号
+		String phone = "";				//手机号码后四位
 		String from = "";				//出发地
 		String to = "";					//目的地
-		int resultv2 = 0;				//开启行政规划解析
+		int resultv2 = 1;				//开启行政规划解析
 		
 		SynQueryDemo demo = new SynQueryDemo(key, customer);
 		String result = demo.synQueryData(com, num, phone, from, to, resultv2);
@@ -70,13 +73,20 @@ public class SynQueryDemo {
 			param.append(",\"resultv2\":0");
 		}
 		param.append("}");
-		
+
+		System.out.println(param);
+
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("customer", this.customer);
 		String sign = MD5Utils.encode(param + this.key + this.customer);
+
+		log.error(sign);
+
 		params.put("sign", sign);
 		params.put("param", param.toString());
-		
+
+		System.out.println(params);
+
 		return this.post(params);
 	}
 	

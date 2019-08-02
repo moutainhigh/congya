@@ -1,5 +1,7 @@
 package com.chauncy.order.logistics.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.constant.logistics.LogisticsContantsConfig;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
@@ -7,37 +9,41 @@ import com.chauncy.common.enums.order.LogisticsStatusEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.JSONUtils;
-import com.chauncy.data.bo.app.logistics.LogisticsDataBo;
-import com.chauncy.data.bo.app.logistics.LastResultBo;
-import com.chauncy.data.bo.app.logistics.NoticeRequestParamBo;
-import com.chauncy.data.bo.app.logistics.TaskResponseBo;
+import com.chauncy.common.util.MD5Utils;
+import com.chauncy.data.bo.app.logistics.*;
+import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.area.AreaShopLogisticsPo;
 import com.chauncy.data.domain.po.order.OmOrderLogisticsPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
+import com.chauncy.data.domain.po.user.UmAreaShippingPo;
+import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.dto.app.order.logistics.SynQueryLogisticsDto;
+import com.chauncy.data.dto.app.order.logistics.SynQueryParamDto;
 import com.chauncy.data.dto.app.order.logistics.TaskRequestDto;
 import com.chauncy.data.mapper.area.AreaShopLogisticsMapper;
 import com.chauncy.data.mapper.order.OmOrderLogisticsMapper;
-import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.mapper.order.OmOrderMapper;
+import com.chauncy.data.mapper.user.UmAreaShippingMapper;
+import com.chauncy.data.mapper.user.UmUserMapper;
+import com.chauncy.data.vo.app.order.logistics.FindLogicDetailVo;
 import com.chauncy.data.vo.app.order.logistics.NoticeResponseVo;
+import com.chauncy.data.vo.app.order.logistics.SynQueryLogisticsVo;
 import com.chauncy.order.logistics.IOmOrderLogisticsService;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -65,10 +71,21 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
     @Autowired
     private AreaShopLogisticsMapper logisticsMapper;
 
-    /**
-     * 实时查询请求地址
-     */
-    private static final String SUBSCRIBE_URL = "http://poll.kuaidi100.com/poll";
+    @Autowired
+    private UmAreaShippingMapper areaShippingMapper;
+
+    @Autowired
+    private UmUserMapper userMapper;
+
+//    /**
+//     * 实时订阅查询请求地址
+//     */
+//    private static final String SUBSCRIBE_URL = "http://poll.kuaidi100.com/poll";
+//
+//    /**
+//     * 实时查询请求地址
+//     */
+//    private static final String SYNQUERY_URL = "http://poll.kuaidi100.com/poll/query.do";
 
     /**
      * 订单订阅物流信息
@@ -82,16 +99,20 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
         Long orderId = taskRequestDto.getOrderId();
         //回调Url
         String url = logisticsProperties.getCallbackUrl().concat("/").concat(String.valueOf(orderId));
-        taskRequestDto.getParameters().put("callbackurl", url);
+//        taskRequestDto.getParameters().put("callbackurl", url);
+        LogisticsRequestParametersBo parametersBo = new LogisticsRequestParametersBo();
+        parametersBo.setCallbackurl(url);
+        parametersBo.setResultv2(logisticsProperties.getResultv2());
+        parametersBo.setAutoCom(logisticsProperties.getAutoCom());
+        parametersBo.setInterCom(logisticsProperties.getInterCom());
+        taskRequestDto.setParameters(parametersBo);
         taskRequestDto.setKey(logisticsProperties.getKey());
-        taskRequestDto.setFrom(null);
-        taskRequestDto.setTo(null);
+//        taskRequestDto.setFrom(null);
+//        taskRequestDto.setTo(null);
         Map<String, String> p = Maps.newHashMap();
         p.put("schema", "json");
         p.put("param", String.valueOf(JSONObject.fromObject(taskRequestDto)));
         log.info("物流信息订阅开始,订单号:【{}】,入参为：【{}】", orderId, p);
-//        System.out.println(p);
-//        log.error(JSONUtils.toJSONString(taskRequestDto));
         System.out.println(JSONObject.fromObject(taskRequestDto));
         //发送 Post 请求
         return this.post(taskRequestDto, p, orderId);
@@ -130,16 +151,16 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
                 String data = JSONUtils.toJSONString(result.getData());
 
                 //根据物流单号获取原来的物流信息，首次记录是返回null
-                OmOrderLogisticsPo oldOrderLogistics = mapper.selectOne(new QueryWrapper<OmOrderLogisticsPo>().eq("order_id",orderId));
+                OmOrderLogisticsPo oldOrderLogistics = mapper.selectOne(new QueryWrapper<OmOrderLogisticsPo>().eq("order_id", orderId));
 
                 //根据物流单号删除物流信息，首次记录是返回0
-                int changeRows = mapper.delete(new QueryWrapper<OmOrderLogisticsPo>().eq("logistics_no",logisticsNo));
+                int changeRows = mapper.delete(new QueryWrapper<OmOrderLogisticsPo>().eq("logistics_no", logisticsNo));
 
                 //根据物流单号和订单号查询订单
 //                OmOrderPo order = orderMapper.findByOrderIdAndOrderLogisticsNo(Long.valueOf(orderId), logisticsNo);
 
 
-                AreaShopLogisticsPo logisticsPo = logisticsMapper.selectOne(new QueryWrapper<AreaShopLogisticsPo>().eq("logi_code",expressCompanyCode));
+                AreaShopLogisticsPo logisticsPo = logisticsMapper.selectOne(new QueryWrapper<AreaShopLogisticsPo>().eq("logi_code", expressCompanyCode));
                 // 快递公司名称
                 String expressCompanyName = logisticsPo.getLogiName();
                 OmOrderLogisticsPo orderLogistics = new OmOrderLogisticsPo();
@@ -177,39 +198,172 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
      * @return
      */
     @Override
-    public Object getLogistics(long orderId) {
+    public FindLogicDetailVo getLogistics(long orderId) {
 //        根据物流单号获取物流信息
-        OmOrderLogisticsPo orderLogistics = mapper.selectOne(new QueryWrapper<OmOrderLogisticsPo>().eq("order_id",orderId));
+        OmOrderLogisticsPo orderLogistics = mapper.selectOne(new QueryWrapper<OmOrderLogisticsPo>().eq("order_id", orderId));
         OmOrderPo order = orderMapper.selectById(orderId);
-        if (order ==null){
-            throw new ServiceException(ResultCode.NO_EXISTS,"该订单不存在");
+        if (order == null) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "该订单不存在");
         }
-        if (orderLogistics ==null){
-            throw new ServiceException(ResultCode.NO_EXISTS,"该物流单号不存在");
+        if (orderLogistics == null) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "该物流单号不存在");
         }
         //解析物流信息
-        JSONArray obj = JSONUtils.toJSONArray(orderLogistics.getData());
+//        JSONArray obj = JSONUtils.toJSONArray(orderLogistics.getData());
         // int index = 1;
         // for (Object o : obj) {
         //    Map<String, Object> m = (Map) o;
         //    m.put("index", index++);
         // }
-        Map<String, Object> map = new HashMap<>();
-        map.put("expressCompanyCode", orderLogistics.getLogiCode());
-        map.put("expressCompanyName", orderLogistics.getLogiName());
-        map.put("logisticsNo", orderLogistics.getLogisticsNo());
-        map.put("address", "详细地址");//待修改
-        map.put("logisticsData", obj);
-        map.put("statusCode", orderLogistics.getStatus());
-        map.put("statusName", LogisticsStatusEnum.fromName(orderLogistics.getStatus()));
-        map.put("isCheck", orderLogistics.getIsCheck());
-        map.put("receiveName", "收货人");
-        map.put("receiveTel", "手机号");
-        return map;
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("expressCompanyCode", orderLogistics.getLogiCode());
+//        map.put("expressCompanyName", orderLogistics.getLogiName());
+//        map.put("logisticsNo", orderLogistics.getLogisticsNo());
+//        map.put("address", "详细地址");//待修改
+//        map.put("logisticsData", obj);
+//        map.put("statusCode", orderLogistics.getStatus());
+//        map.put("statusName", LogisticsStatusEnum.fromName(orderLogistics.getStatus()));
+//        map.put("isCheck", orderLogistics.getIsCheck());
+//        map.put("receiveName", "收货人");
+//        map.put("receiveTel", "手机号");
+
+        //获取用户详细收货地址
+        Long areaShippingId = order.getAreaShippingId();
+        UmAreaShippingPo areaShippingPo = areaShippingMapper.selectById(areaShippingId);
+        String areaName = areaShippingPo.getAreaName().replace(",", "");
+        String detail = areaShippingPo.getDetailedAddress();
+        String address = areaName.concat(detail);
+        UmUserPo userPo = userMapper.selectById(areaShippingPo.getUmUserId());
+
+        List<LogisticsDataBo> logisticsDataBos = JSONUtils.toJSONArray(orderLogistics.getData());
+        FindLogicDetailVo findLogicDetailVo = new FindLogicDetailVo();
+        log.error(orderLogistics.getStatus());
+        findLogicDetailVo.setLogisticsData(logisticsDataBos)
+                .setAddress(address)
+                .setExpressCompanyCode(orderLogistics.getLogiCode())
+                .setExpressCompanyName(orderLogistics.getLogiName())
+                .setIsCheck(orderLogistics.getIsCheck())
+                .setLogisticsNo(orderLogistics.getLogisticsNo())
+                .setReceiveName(userPo.getTrueName())
+                .setReceiveTel(userPo.getPhone())
+                .setStatusCode(orderLogistics.getStatus())
+                .setStatusName(LogisticsStatusEnum.getLogisticsStatusEnumById(orderLogistics.getStatus()).getName());
+
+        return findLogicDetailVo;
     }
 
 
-    private TaskResponseBo post(TaskRequestDto taskRequestDto, Map<String, String> parameters, Long orderId){
+    /**
+     * 实时查询物流信息
+     *
+     * @param synQueryLogisticsDto
+     * @return
+     */
+    @Override
+    public SynQueryLogisticsVo synQueryLogistics(SynQueryLogisticsDto synQueryLogisticsDto) {
+
+        SynQueryParamDto param = synQueryLogisticsDto.getParam();
+        param.setResultv2(logisticsProperties.getResultv2());
+
+//        JSONObject jsonObject = JSONObject.fromObject(param);
+
+        //fastjson序列化空属性
+        String jsonObject = JSON.toJSONString(param, SerializerFeature.WriteMapNullValue,SerializerFeature.WriteNullStringAsEmpty);
+        System.out.println(jsonObject);
+
+        String sign = MD5Utils.encode(jsonObject + logisticsProperties.getKey() + logisticsProperties.getCustomer());
+
+//        param.setKey(logisticsProperties.getKey());
+
+        Map<String, String> params = Maps.newHashMap();
+        params.put("customer", logisticsProperties.getCustomer());
+        params.put("sign", sign);
+        params.put("param", JSON.toJSONString(param, SerializerFeature.WriteMapNullValue,SerializerFeature.WriteNullStringAsEmpty));
+
+
+        System.out.println(params);
+
+        String result = this.postSynQuery(params);
+
+        SynQueryLogisticsVo synQueryLogisticsVo = JSONUtils.toBean(result,SynQueryLogisticsVo.class);
+        synQueryLogisticsVo.setData(JSONUtils.toJSONArray(synQueryLogisticsVo.getData()));
+
+        return synQueryLogisticsVo;
+    }
+
+    /**
+     * 实时查询快递单号
+     *
+     */
+    public String postSynQuery(Map<String, String> params) {
+
+        StringBuffer response = new StringBuffer("");
+
+        BufferedReader reader = null;
+        try {
+            StringBuilder builder = new StringBuilder();
+            for (Map.Entry<String, String> param : params.entrySet()) {
+                if (builder.length() > 0) {
+                    builder.append('&');
+                }
+                builder.append(URLEncoder.encode(param.getKey(), "UTF-8"));
+                builder.append('=');
+                builder.append(URLEncoder.encode(String.valueOf(param.getValue()), "UTF-8"));
+            }
+            byte[] bytes = builder.toString().getBytes("UTF-8");
+
+            URL url = new URL(logisticsProperties.getSynqueryUrl());
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setConnectTimeout(3000);
+            conn.setReadTimeout(3000);
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("accept", "*/*");
+            conn.setRequestProperty("connection", "Keep-Alive");
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            conn.setRequestProperty("Content-Length", String.valueOf(bytes.length));
+            conn.setDoOutput(true);
+            conn.getOutputStream().write(bytes);
+
+            reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ServiceException(ResultCode.FAIL,"实时查询物流连接异常,请稍会再试！");
+        } finally {
+            try {
+                if (null != reader) {
+                    reader.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        Map<String,Object> map = JSONUtils.toHashMap(response.toString());
+        if (map.get("result") != null) {
+            TaskResponseBo taskResponseBo = JSONUtils.toBean(response.toString(), TaskResponseBo.class);
+            if (!taskResponseBo.getResult()) {
+                throw new ServiceException(ResultCode.FAIL, taskResponseBo.getMessage());
+            }
+        }
+
+        return response.toString();
+    }
+
+
+    /**
+     * 发送post请求订阅物流信息
+     *
+     * @param taskRequestDto
+     * @param parameters
+     * @param orderId
+     * @return
+     */
+    private TaskResponseBo post(TaskRequestDto taskRequestDto, Map<String, String> parameters, Long orderId) {
 
         StringBuffer response = new StringBuffer("");
 
@@ -227,7 +381,7 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
             }
             byte[] bytes = builder.toString().getBytes("UTF-8");
 
-            URL url = new URL(SUBSCRIBE_URL);
+            URL url = new URL(logisticsProperties.getSubscribeUrl());
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setConnectTimeout(3000);
             conn.setReadTimeout(3000);
@@ -247,7 +401,7 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
             }
         } catch (Exception e) {
             e.printStackTrace();
-            throw new ServiceException(ResultCode.LOGISTICS_ERROR3,"快递100订单订阅物流信息连接错误");
+            throw new ServiceException(ResultCode.LOGISTICS_ERROR3, "快递100订单订阅物流信息连接错误");
         } finally {
             try {
                 if (null != reader) {

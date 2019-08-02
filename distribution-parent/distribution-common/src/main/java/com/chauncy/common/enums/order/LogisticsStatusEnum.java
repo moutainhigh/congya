@@ -15,20 +15,20 @@ import java.util.Objects;
  */
 @Getter
 public enum LogisticsStatusEnum implements BaseEnum {
-    IN_TRANSIT(0,"在途"),
-    LANSHOU(1,"揽收"),
-    DIFFICULT(2,"疑难"),
-    RECEIVING(3,"签收"),
-    BACK(4,"退签"),
-    SEND(5,"派件"),
-    BACKTO(6,"退回");
+    IN_TRANSIT("0","在途"),
+    LANSHOU("1","揽收"),
+    DIFFICULT("2","疑难"),
+    RECEIVING("3","签收"),
+    BACK("4","退签"),
+    SEND("5","派件"),
+    BACKTO("6","退回");
 
     @EnumValue
-    private Integer id;
+    private String id;
 
     private String name;
 
-    LogisticsStatusEnum(Integer id, String name) {
+    LogisticsStatusEnum(String id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -43,9 +43,9 @@ public enum LogisticsStatusEnum implements BaseEnum {
     }
 
     //通过Id获取结果
-    public static LogisticsStatusEnum getLogisticsStatusEnumById(Integer id) {
+    public static LogisticsStatusEnum getLogisticsStatusEnumById(String id) {
         for (LogisticsStatusEnum type : LogisticsStatusEnum.values()) {
-            if (type.getId() == id)
+            if (type.getId().equals(id))
                 return type;
         }
         return null;
@@ -71,7 +71,7 @@ public enum LogisticsStatusEnum implements BaseEnum {
 
     @Override
     public boolean isExist(Object field) {
-        return Objects.nonNull(getLogisticsStatusEnumById(Integer.parseInt(field.toString())));
+        return Objects.nonNull(getLogisticsStatusEnumById(field.toString()));
     }
 
 }

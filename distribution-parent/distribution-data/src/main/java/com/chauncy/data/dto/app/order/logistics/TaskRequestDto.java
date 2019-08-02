@@ -1,6 +1,7 @@
 package com.chauncy.data.dto.app.order.logistics;
 
 import com.chauncy.common.constant.logistics.LogisticsContantsConfig;
+import com.chauncy.data.bo.app.logistics.LogisticsRequestParametersBo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -80,6 +81,10 @@ public class TaskRequestDto {
     @ApiModelProperty(value = "企业授权key",hidden = true)
     private String key;
 
-    @ApiModelProperty(value = "parameters",hidden = true)
-    private HashMap<String, String> parameters = new HashMap<String, String>();
+    @ApiModelProperty(value = "parameters")
+    private LogisticsRequestParametersBo parameters;
+
+//    @ApiModelProperty(value = "parameter",hidden = true)
+//    private HashMap<String, String> parameters = new HashMap<String, String>();
+
 }

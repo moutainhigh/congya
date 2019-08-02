@@ -1,5 +1,7 @@
-package com.chauncy.data.bo.app.logistics;
+package com.chauncy.data.vo.app.order.logistics;
 
+import com.chauncy.data.bo.app.logistics.LogisticsDataBo;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -12,7 +14,8 @@ import java.util.List;
  * 快递100订阅推送数据
  */
 @Data
-public class LastResultBo {
+@ApiModel(description = "快递100订阅推送数据")
+public class SynQueryLogisticsVo {
 
     //快递单号
     @ApiModelProperty("快递单号")

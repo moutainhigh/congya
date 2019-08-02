@@ -1,5 +1,7 @@
 package com.chauncy.data.bo.app.logistics;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -12,21 +14,30 @@ import lombok.Data;
 public class LogisticsDataBo {
 
     //物流轨迹节点内容
+    @ApiModelProperty("物流轨迹节点内容")
     private String context;
 
     //时间，原始格式
+    @ApiModelProperty("时间，原始格式")
     private String time;
 
     //格式化后时间
+    @ApiModelProperty("格式化后时间")
     private String ftime;
 
     //本数据元对应的签收状态。只有在开通签收状态服务（见上面"status"后的说明）且在订阅接口中提交resultv2标记后才会出现
+    @ApiModelProperty(value = "本数据元对应的签收状态",hidden = true)
+//    @JSONField(serialize = false)
     private String status;
 
     //本数据元对应的行政区域的编码，只有在开通签收状态服务（见上面"status"后的说明）且在订阅接口中提交resultv2标记后才会出现
+    @ApiModelProperty(value = "本数据元对应的行政区域的编码",hidden = true)
+//    @JSONField(serialize = false)
     private String areaCode;
 
     //本数据元对应的行政区域的名称，开通签收状态服务（见上面"status"后的说明）且在订阅接口中提交resultv2标记后才会出现
+    @ApiModelProperty(value = "本数据元对应的行政区域的名称",hidden = true)
+//    @JSONField(serialize = false)
     private String areaName;
 
 }
