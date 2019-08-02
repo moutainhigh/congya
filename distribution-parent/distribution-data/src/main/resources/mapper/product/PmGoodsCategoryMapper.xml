@@ -174,6 +174,76 @@ FROM
 		     from pm_goods_category
 		     where del_flag=0 and enabled=1
 	</select>
-
-
+	<select id="findFirstCategoryByStoreId" resultType="com.chauncy.data.vo.manage.product.SearchCategoryVo">
+		select pgc1.id, pgc1.`name`, pgc1.icon, pgc1.`level`
+		from pm_goods pg left join pm_goods_category pgc3 on pgc3.id = pg.goods_category_id
+		left join pm_goods_category pgc2 on pgc2.id = pgc3.parent_id
+		left join pm_goods_category pgc1 on pgc1.id = pgc2.parent_id
+		where pg.store_id = #{storeId}
+			and pg.verify_status = 3
+			and pgc2.del_flag = 0
+			and pgc1.del_flag = 0
+			and pgc3.del_flag = 0
+		group by pgc1.id
+		order by pgc1.sort desc
+	</select>
+	<select id="findSecondCategoryByStoreId" resultType="com.chauncy.data.vo.manage.product.SearchCategoryVo">
+		select pgc2.id, pgc2.`name`, pgc2.icon, pgc2.`level`
+		from pm_goods pg left join pm_goods_category pgc3 on pgc3.id = pg.goods_category_id
+		left join pm_goods_category pgc2 on pgc2.id = pgc3.parent_id
+		left join pm_goods_category pgc1 on pgc1.id = pgc2.parent_id
+		where pg.store_id =  #{storeId}
+			and pgc2.del_flag = 0
+			and pgc3.del_flag = 0
+			and pgc1.id = #{goodsCategoryId}
+		group by pgc2.id
+		order by pgc2.sort desc
+	</select>
+	<select id="findThirdCategoryByStoreId" resultType="com.chauncy.data.vo.manage.product.SearchCategoryVo">
+		select pgc3.id, pgc3.`name`, pgc3.icon, pgc3.`level`
+		from pm_goods pg left join pm_goods_category pgc3 on pgc3.id = pg.goods_category_id
+		left join pm_goods_category pgc2 on pgc2.id = pgc3.parent_id
+		where pg.store_id =  #{storeId}
+			and pgc3.del_flag = 0
+			and pgc2.id = #{goodsCategoryId}
+		group by pgc3.id
+		order by pgc3.sort desc
+	</select>
+	<select id="count" resultType="java.lang.Integer">
+		SELECT count(*)
+		FROM pm_goods_category
+		WHERE
+		del_flag=0 and level=1 and enabled = 1
+		<if test="p.name!=null and p.name!=''">
+			and name like concat('%',#{t.name},'%')
+		</if>
+		<if test="p.id!=null and p.id!=0">
+			and id=#{p.id}
+		</if>
+	</select>
+	<select id="searchCategoryByActivityId"
+			resultType="com.chauncy.data.vo.manage.activity.SearchCategoryByActivityIdVo">
+		WITH RECURSIVE childrenIds (id,name,sort,icon,enabled,level,parent_id) AS
+		(
+		(SELECT id,name,sort,icon,enabled,level,parent_id
+		FROM pm_goods_category
+		WHERE
+		del_flag=0 and level=1 and enabled =1
+		<if test="t.name!=null and t.name!=''">
+			and name like concat('%',#{t.name},'%')
+		</if>
+		<if test="t.id!=null and t.id!=0">
+			and id=#{t.id}
+		</if>
+		order by sort desc
+		limit #{offset},#{pageSize}
+		)
+		UNION ALL
+		SELECT c.id,c.name,c.sort,c.icon,c.enabled,c.level,c.parent_id
+		FROM childrenIds AS p JOIN pm_goods_category AS c
+		ON p.id = c.parent_id
+		where c.del_flag=0
+		)
+		SELECT id,name,sort,icon,enabled,level,parent_id FROM childrenIds
+	</select>
 </mapper>

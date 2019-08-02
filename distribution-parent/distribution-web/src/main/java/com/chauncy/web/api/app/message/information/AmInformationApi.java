@@ -2,21 +2,26 @@ package com.chauncy.web.api.app.message.information;
 
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.app.message.information.select.SearchInfoByConditionDto;
+import com.chauncy.data.dto.base.BaseSearchByTimeDto;
+import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.message.information.add.AddInformationCommentDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationCommentDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationViceCommentDto;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.app.message.information.InformationBaseVo;
 import com.chauncy.data.vo.app.message.information.InformationPagingVo;
 import com.chauncy.data.vo.manage.message.information.category.InformationCategoryVo;
 import com.chauncy.data.vo.manage.message.information.comment.InformationMainCommentVo;
 import com.chauncy.data.vo.manage.message.information.comment.InformationViceCommentVo;
 import com.chauncy.data.vo.manage.message.information.label.InformationLabelVo;
+import com.chauncy.data.vo.manage.store.StoreBaseInfoVo;
 import com.chauncy.message.information.category.service.IMmInformationCategoryService;
 import com.chauncy.message.information.comment.service.IMmInformationCommentService;
 import com.chauncy.message.information.label.service.IMmInformationLabelService;
 import com.chauncy.message.information.service.IMmInformationService;
 import com.chauncy.security.util.SecurityUtil;
+import com.chauncy.store.service.ISmStoreService;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -25,13 +30,16 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 /**
  * @author yeJH
  * @since 2019/7/1 22:24
  */
-@Api(tags = "APP_资讯管理接口")
+@Api(tags = "APP_资讯专区接口")
 @RestController
 @RequestMapping("/app/information")
 @Slf4j
@@ -39,6 +47,8 @@ public class AmInformationApi extends BaseApi {
 
     @Autowired
     private IMmInformationService mmInformationService;
+    @Autowired
+    private ISmStoreService smStoreService;
     @Autowired
     private IMmInformationCategoryService mmInformationCategoryService;
     @Autowired
@@ -79,7 +89,8 @@ public class AmInformationApi extends BaseApi {
      */
     @ApiOperation(value = "条件查询资讯", notes = "根据店铺ID，资讯分类，标签，关注，热榜以及内容、标题模糊搜索资讯")
     @PostMapping("/searchPaging")
-    public JsonViewData<PageInfo<InformationPagingVo>> searchPaging(@RequestBody SearchInfoByConditionDto searchInfoByConditionDto) {
+    public JsonViewData<PageInfo<InformationPagingVo>> searchPaging(@Valid @ApiParam(required = true, name = "searchInfoByConditionDto", value = "查询条件")
+            @RequestBody SearchInfoByConditionDto searchInfoByConditionDto) {
 
         PageInfo<InformationPagingVo> smStoreBaseVoPageInfo = mmInformationService.searchPaging(searchInfoByConditionDto);
         return new JsonViewData(ResultCode.SUCCESS, "查询成功",
@@ -99,6 +110,24 @@ public class AmInformationApi extends BaseApi {
         return new JsonViewData(ResultCode.SUCCESS, "查询成功",
                 mmInformationService.findBaseById(id));
     }
+
+
+    /**
+     * 根据资讯id获取关联的商品
+     *
+     * @param baseSearchDto
+     * @return
+     */
+    @ApiOperation(value = "查找资讯关联商品", notes = "根据资讯id获取关联的商品")
+    @GetMapping("/searchGoodsById")
+    public JsonViewData<PageInfo<GoodsBaseInfoVo>> searchGoodsById(@Validated @RequestBody  @ApiParam(required = true, value = "baseSearchDto")
+                                                                           BaseSearchDto baseSearchDto) {
+
+        return new JsonViewData(ResultCode.SUCCESS, "查找成功",
+                mmInformationService.searchGoodsById(baseSearchDto));
+
+    }
+
 
     /**
      * app根据资讯ID查找资讯评论
@@ -156,6 +185,21 @@ public class AmInformationApi extends BaseApi {
         return new JsonViewData(ResultCode.SUCCESS, "关注成功");
 
     }
+
+    /**
+     * 用户关注店铺资讯   改为用户收藏店铺
+     * @param storeId  店铺id
+     * @return
+     */
+   /* @ApiOperation(value = "用户关注店铺", notes = "用户关注店铺")
+    @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, dataType = "Long", paramType = "path")
+    @GetMapping("/userFocusStore/{storeId}")
+    public JsonViewData userFocusStore(@PathVariable(value = "storeId")Long storeId) {
+
+        smStoreService.userFocusStore(storeId, securityUtil.getAppCurrUser().getId());
+        return new JsonViewData(ResultCode.SUCCESS, "关注成功");
+
+    }*/
 
 
 }

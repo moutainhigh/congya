@@ -20,6 +20,9 @@ public class MemberLevelInfos {
     @ApiModelProperty("会员等级名称")
     private String levelName;
 
+    @ApiModelProperty(value = "会员等级",hidden = true)
+    private Integer level;
+/*
     @ApiModelProperty("显示给前端是否包含")
-    private Boolean isInclude;
+    private Boolean isInclude;*/
 }

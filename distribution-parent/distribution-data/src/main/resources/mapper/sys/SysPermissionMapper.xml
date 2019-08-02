@@ -102,4 +102,10 @@
         </where>
     </select>
 
+    <select id="getPermission" resultType="com.chauncy.data.vo.sys.permission.GetPermissionVo">
+        select a.id,a.name,a.title,a.parent_id
+        from sys_permission a,sys_role_permission b
+        where a.id = b.permission_id and b.role_id = #{roleId};
+    </select>
+
 </mapper>

@@ -63,15 +63,13 @@ public class NeedExistValidator implements ConstraintValidator<NeedExistConstrai
             for (String id:ids){
                 int count = baseMapper.countById(id, tableName,field,concatWhereSql);
                 if (count==0){
-                    constraintValidatorContext.disableDefaultConstraintViolation();//禁用默认的message的值
-                    //重新添加错误提示语句
-                    constraintValidatorContext
-                            .buildConstraintViolationWithTemplate(String.format("%s为【%s】在数据库中不存在！",field,id)).addConstraintViolation();
-                    return false;
-                   /* //如果数据库不存在
-                    if (isNeedExists){
-                        throw new ServiceException(ResultCode.PARAM_ERROR,"%s为【%s】在数据库中不存在！",field,id);
-                    }*/
+                    if (isNeedExists) {
+                        constraintValidatorContext.disableDefaultConstraintViolation();//禁用默认的message的值
+                        //重新添加错误提示语句
+                        constraintValidatorContext
+                                .buildConstraintViolationWithTemplate(String.format("%s为【%s】在数据库中不存在！", field, id)).addConstraintViolation();
+                        return false;
+                    }
                 }
                 else {
                     if (!isNeedExists){

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chauncy.data.mapper.pay.IPayOrderMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.pay.PayOrderPo">
+        <id column="id" property="id" />
+        <result column="pay_type_code" property="payTypeCode" />
+        <result column="pay_order_no" property="payOrderNo" />
+        <result column="trade_pay_no" property="tradePayNo" />
+        <result column="pre_pay_id" property="prePayId" />
+        <result column="pay_id" property="payId" />
+        <result column="user_ip" property="userIp" />
+        <result column="pay_amount" property="payAmount" />
+        <result column="pay_time" property="payTime" />
+        <result column="status" property="status" />
+        <result column="error_code" property="errorCode" />
+        <result column="error_msg" property="errorMsg" />
+        <result column="start_time" property="startTime" />
+        <result column="expire_time" property="expireTime" />
+        <result column="open_id" property="openId" />
+        <result column="buyer_logon_id" property="buyerLogonId" />
+        <result column="notify_url" property="notifyUrl" />
+        <result column="extra" property="extra" />
+        <result column="subject" property="subject" />
+        <result column="detail" property="detail" />
+        <result column="code_url" property="codeUrl" />
+        <result column="merchant_id" property="merchantId" />
+        <result column="trade_type" property="tradeType" />
+        <result column="return_url" property="returnUrl" />
+        <result column="refund_amount" property="refundAmount" />
+        <result column="ship_name" property="shipName" />
+        <result column="ship_address" property="shipAddress" />
+        <result column="phone" property="phone" />
+        <result column="real_pay_money" property="realPayMoney" />
+        <result column="total_discount" property="totalDiscount" />
+        <result column="ship_money" property="shipMoney" />
+        <result column="tax_money" property="taxMoney" />
+        <result column="red_envelops" property="redEnvelops" />
+        <result column="shop_ticket" property="shopTicket" />
+        <result column="total_money" property="totalMoney" />
+        <result column="total_number" property="totalNumber" />
+        <result column="total_reward_shop_ticket" property="totalRewardShopTicket" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, pay_type_code, pay_order_no, trade_pay_no, pre_pay_id, pay_id, user_ip, pay_amount, pay_time, status, error_code, error_msg, start_time, expire_time, open_id, buyer_logon_id, notify_url, extra, subject, detail, code_url, merchant_id, trade_type, return_url, refund_amount, ship_name, ship_address, phone, real_pay_money, total_discount, ship_money, tax_money, red_envelops, shop_ticket, total_money, total_number, total_reward_shop_ticket
+    </sql>
+
+</mapper>

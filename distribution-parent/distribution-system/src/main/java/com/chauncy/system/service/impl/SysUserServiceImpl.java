@@ -7,11 +7,13 @@ import com.chauncy.data.domain.po.sys.SysDepartmentPo;
 import com.chauncy.data.domain.po.sys.SysPermissionPo;
 import com.chauncy.data.domain.po.sys.SysRolePo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.dto.manage.sys.user.select.SearchUsersByConditionDto;
 import com.chauncy.data.mapper.sys.SysDepartmentMapper;
 import com.chauncy.data.mapper.sys.SysPermissionMapper;
 import com.chauncy.data.mapper.sys.SysRoleUserMapper;
 import com.chauncy.data.mapper.sys.SysUserMapper;
 import com.chauncy.data.vo.sys.SearchVo;
+import com.chauncy.data.vo.sys.permission.SearchUsersByConditionVo;
 import com.chauncy.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -188,6 +190,18 @@ public class SysUserServiceImpl extends AbstractService<SysUserMapper, SysUserPo
     public List<SysUserPo> findByDepartmentId(String departmentId) {
 
         return mapper.findByDepartmentId(departmentId);
+    }
+
+    /**
+     * 多条件分页获取用户列表
+     *
+     * @param searchUsersByConditionDto
+     * @return
+     */
+    @Override
+    public List<SearchUsersByConditionVo> searchUsersByCondition(SearchUsersByConditionDto searchUsersByConditionDto) {
+
+        return mapper.searchUsersByCondition(searchUsersByConditionDto);
     }
 
 }

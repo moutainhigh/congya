@@ -2,6 +2,8 @@ package com.chauncy.order.evaluate.service.impl;
 
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.order.OmEvaluatePo;
+import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.evaluate.add.AddValuateDto;
 import com.chauncy.data.dto.app.order.evaluate.add.SearchEvaluateDto;
 import com.chauncy.data.dto.app.order.evaluate.select.GetPersonalEvaluateDto;
@@ -54,11 +56,12 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
 
         //判断是否是第一次评论
         if (addValuateDto.getId() == 0) {
+            SysUserPo user= securityUtil.getCurrUser ();
             OmEvaluatePo omEvaluatePo = new OmEvaluatePo();
             BeanUtils.copyProperties(addValuateDto, omEvaluatePo);
-            omEvaluatePo.setId(null);
+            omEvaluatePo.setId(Long.valueOf (user.getId ()));
             omEvaluatePo.setParentId(null);
-            omEvaluatePo.setCreateBy("获取的当前用户");
+            omEvaluatePo.setCreateBy(user.getUsername ());
 
             mapper.insert(omEvaluatePo);
             //商家回复
@@ -89,7 +92,17 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
         goodsEvaluateVo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> mapper.getGoodsEvaluate(searchEvaluateDto));
 
-        return getReply(goodsEvaluateVo);
+        if (goodsEvaluateVo.getList().size() != 0 && goodsEvaluateVo.getList() != null) {
+            goodsEvaluateVo.getList ().forEach (a -> {
+                Map<String, Object> map1 = new HashMap<> ();
+                map1.put ("parent_id", a.getId ());
+                List<OmEvaluatePo> evaluatePo = mapper.selectByMap (map1);
+                if (evaluatePo != null && evaluatePo.size () != 0) {
+                    a.setReply (evaluatePo.get (0).getContent ());
+                }
+            });
+        }
+        return goodsEvaluateVo;
 
     }
 
@@ -102,7 +115,8 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
     public PageInfo<GoodsEvaluateVo> getPersonalEvaluate(GetPersonalEvaluateDto getPersonalEvaluateDto) {
 
         //获取当前用户id
-        Long userId = 1L;
+        UmUserPo userPo = securityUtil.getAppCurrUser ();
+        Long userId = userPo.getId ();
         Integer pageNo = getPersonalEvaluateDto.getPageNo() == null ? defaultPageNo : getPersonalEvaluateDto.getPageNo();
         Integer pageSize = getPersonalEvaluateDto.getPageSize() == null ? defaultPageSize : getPersonalEvaluateDto.getPageSize();
         PageInfo<GoodsEvaluateVo> goodsEvaluateVo = new PageInfo<>();

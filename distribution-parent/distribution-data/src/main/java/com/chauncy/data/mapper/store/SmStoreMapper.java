@@ -1,11 +1,18 @@
 package com.chauncy.data.mapper.store;
 
 import com.chauncy.data.domain.po.store.SmStorePo;
+import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
+import com.chauncy.data.dto.app.store.SearchStoreDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchByConditionDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
+import com.chauncy.data.vo.app.store.StoreDetailVo;
+import com.chauncy.data.vo.app.store.StorePagingVo;
 import com.chauncy.data.vo.manage.store.*;
+import com.chauncy.data.vo.manage.store.rel.SmRelStoreVo;
+import com.chauncy.data.vo.supplier.store.BranchInfoVo;
 import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 
@@ -28,6 +35,13 @@ public interface SmStoreMapper extends IBaseMapper<SmStorePo> {
      * @return
      */
     Long findStoreIdByName(@Param("userName") String userName);
+
+    /**
+     * 根据账店铺id获取绑定店铺的列表
+     * @param id
+     * @return
+     */
+    List<SmRelStoreVo> findBindingStore(@Param("id") Long id);
 
     /**
      * 修改店铺经营状态
@@ -81,4 +95,34 @@ public interface SmStoreMapper extends IBaseMapper<SmStorePo> {
      * @return
      */
     List<RelStoreInfoVo> searchRelStoreInfo(StoreSearchByConditionDto storeSearchByConditionDto);
+
+    /**
+     * 获取当前店铺的下级店铺(分店)（模糊搜索）
+     *
+     * @param storeId
+     * @param storeName
+     * @return
+     */
+    List<BranchInfoVo> searchBranchByName(@Param("storeId") Long storeId, @Param("storeName")String storeName);
+
+    /**
+     * 通过店铺搜索，店铺分类查询店铺列表
+     * @param searchStoreDto
+     * @return
+     */
+    List<StorePagingVo> searchPaging(SearchStoreDto searchStoreDto);
+
+    /**
+     * app获取店铺信息
+     * @param storeId
+     * @return
+     */
+    StorePagingVo findStoreById(Long storeId);
+
+    /**
+     * 获取店铺详情
+     * @param storeId
+     * @return
+     */
+    StoreDetailVo findDetailById(Long storeId);
 }

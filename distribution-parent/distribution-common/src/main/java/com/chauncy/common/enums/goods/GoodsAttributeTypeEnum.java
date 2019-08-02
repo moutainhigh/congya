@@ -50,7 +50,7 @@ public enum GoodsAttributeTypeEnum implements BaseEnum {
     //通过名称来获取结果
     public static GoodsAttributeTypeEnum fromName(String name) {
         for (GoodsAttributeTypeEnum attribute : GoodsAttributeTypeEnum.values()) {
-            if (attribute.getName() == name)
+            if (attribute.getName().equals(name) )
                 return attribute;
         }
         throw new IllegalArgumentException(name);

@@ -2,6 +2,12 @@ package com.chauncy.data.core;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.manage.activity.EditEnableDto;
+import com.chauncy.data.dto.manage.common.FindGoodsBaseByConditionDto;
+import com.chauncy.data.vo.manage.activity.group.FindActivityGroupsVo;
+import com.chauncy.data.vo.manage.common.goods.GoodsBaseVo;
+import com.chauncy.data.vo.supplier.MemberLevelInfos;
+import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 
 import java.io.Serializable;
@@ -53,4 +59,24 @@ public interface Service<T> extends IService<T>{
      * @param baseUpdateStatusDto
      */
     void editEnabledBatch(BaseUpdateStatusDto baseUpdateStatusDto);
+
+    /**
+     * 获取全部会员ID和名称
+     */
+    List<MemberLevelInfos> findAllMemberLevel();
+
+    /**
+     * 批量禁用启用
+     * @param enableDto
+     * @return
+     */
+    void editEnable(EditEnableDto enableDto);
+
+    /**
+     * 获取全部的可用的活动分组
+     *
+     * @return
+     */
+    List<FindActivityGroupsVo> FindAllActivityGroup();
+
 }

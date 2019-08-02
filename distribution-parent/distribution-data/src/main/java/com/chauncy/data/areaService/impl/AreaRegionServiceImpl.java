@@ -5,6 +5,7 @@ import com.chauncy.data.domain.po.area.AreaRegionPo;
 import com.chauncy.data.mapper.area.AreaRegionMapper;
 import com.chauncy.data.areaService.IAreaRegionService;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.vo.area.AreaCityVo;
 import com.chauncy.data.vo.area.AreaVo;
 import org.assertj.core.util.Lists;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,24 @@ public class AreaRegionServiceImpl extends AbstractService<AreaRegionMapper, Are
             e.printStackTrace();
         }
         return areaVoList;
+    }
+
+    /**
+     * 获取省市
+     *
+     * @return
+     */
+    @Override
+    public List<AreaCityVo> search() {
+
+        List<AreaCityVo> city = mapper.search();
+        List<AreaCityVo> areaCityVos = Lists.newArrayList();
+        try {
+            areaCityVos = TreeUtil.getTree(city,"cityCode","parentCode","children");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return areaCityVos;
     }
 
     /**

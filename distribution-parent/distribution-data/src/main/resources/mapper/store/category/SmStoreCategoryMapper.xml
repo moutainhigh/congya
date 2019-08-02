@@ -41,7 +41,7 @@
     </select>
 
     <select id="selectAll" resultType="com.chauncy.data.vo.manage.store.category.SmStoreCategoryVo">
-        select <include refid="Base_Column_List"/>
+        select id, `name`, sort, enabled, icon
         from sm_store_category
         where enabled = true and del_flag = 0
         order by create_time desc

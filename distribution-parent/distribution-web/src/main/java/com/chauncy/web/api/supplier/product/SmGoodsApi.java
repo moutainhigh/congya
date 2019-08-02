@@ -1,20 +1,19 @@
 package com.chauncy.web.api.supplier.product;
 
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.AddAssociationGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.AddGoodBaseDto;
 import com.chauncy.data.dto.supplier.good.add.AddOrUpdateSkuAttributeDto;
 import com.chauncy.data.dto.supplier.good.select.FindStandardDto;
 import com.chauncy.data.dto.supplier.good.select.SearchGoodInfosDto;
 import com.chauncy.data.dto.supplier.good.select.SelectAttributeDto;
-import com.chauncy.data.dto.supplier.good.update.UpdateGoodOperationDto;
-import com.chauncy.data.dto.supplier.good.update.UpdateGoodSellerDto;
-import com.chauncy.data.dto.supplier.good.update.UpdatePublishStatusDto;
-import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
+import com.chauncy.data.dto.supplier.good.update.*;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.supplier.*;
+import com.chauncy.data.vo.supplier.good.AssociationGoodsVo;
 import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
@@ -27,6 +26,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author cheng
@@ -180,7 +180,7 @@ public class SmGoodsApi extends BaseApi {
      */
     @GetMapping("/findSkuAttribute/{goodsId}")
     @ApiOperation(value = "根据商品ID查找sku信息")
-    public JsonViewData<List<FindSkuAttributeVo>> findSkuAttribute(@ApiParam(required = true, name = "goodsId", value = "goodsId") @PathVariable Long goodsId) {
+    public JsonViewData<List<Map<String,Object>>> findSkuAttribute(@ApiParam(required = true, name = "goodsId", value = "goodsId") @PathVariable Long goodsId) {
 
         return setJsonViewData(service.findSkuAttribute(goodsId));
     }
@@ -193,7 +193,7 @@ public class SmGoodsApi extends BaseApi {
      */
     @GetMapping("/findSkuFinance/{goodsId}")
     @ApiOperation(value = "根据商品ID查找财务的sku信息")
-    public JsonViewData<List<FindSkuFinanceVo>> findSkuFinance(@ApiParam(required = true, name = "goodsId", value = "goodsId") @PathVariable Long goodsId){
+    public JsonViewData<GetSkuFinanceInfoVo> findSkuFinance(@ApiParam(required = true, name = "goodsId", value = "goodsId") @PathVariable Long goodsId){
 
         return  setJsonViewData(service.findSkuFinance(goodsId));
     }
@@ -291,12 +291,13 @@ public class SmGoodsApi extends BaseApi {
      * @param goodsIds
      * @return
      */
-    @GetMapping("/submitAudit/{ids}")
     @ApiOperation("提交商品审核")
-    public JsonViewData submitAudit(@ApiParam(required = true, name = "goodsIds", value = "商品id集合，以逗号隔开") @PathVariable Long[] goodsIds){
+    @GetMapping("/submitAudit/{goodsIds}")
+    public JsonViewData submitAudit(@ApiParam(required = true, name = "goodsIds", value = "商品id集合，以逗号隔开")
+                                    @PathVariable Long[] goodsIds){
 
         service.submitAudit(goodsIds);
-        return setJsonViewData(ResultCode.SUCCESS,"提交审核成功");
+        return setJsonViewData(ResultCode.SUCCESS,"提交成功");
     }
 
     /**
@@ -316,14 +317,14 @@ public class SmGoodsApi extends BaseApi {
     /**
      * 修改应用标签
      *
-     * @param updatePublishStatusDto
+     * @param updateStarStatusDto
      * @return
      */
     @PostMapping("/updateStarStatus")
     @ApiOperation("修改应用标签")
-    public JsonViewData updateStarStatus(@RequestBody @Validated @ApiParam(required = true, name = "publishStatusDto", value = "上下架商品条件") UpdatePublishStatusDto updatePublishStatusDto){
+    public JsonViewData updateStarStatus(@RequestBody @Validated @ApiParam(required = true, name = "updateStarStatusDto", value = "修改应用标签状态") UpdateStarStatusDto updateStarStatusDto){
 
-        service.updateStarStatus(updatePublishStatusDto);
+        service.updateStarStatus(updateStarStatusDto);
         return setJsonViewData(ResultCode.SUCCESS,"操作成功");
     }
 
@@ -369,4 +370,55 @@ public class SmGoodsApi extends BaseApi {
         return new JsonViewData<>(service.findAttributes(categoryId));
     }
 
+    /**
+     * 批量删除商品
+     *
+     * @param ids
+     * @return
+     */
+    @GetMapping("/delGoodsById/{ids}")
+    @ApiOperation("批量删除商品")
+    public JsonViewData delGoodsByIds(@PathVariable Long[] ids){
+
+        service.delGoodsByIds(ids);
+        return new JsonViewData(ResultCode.SUCCESS);
+    }
+
+    /**
+     * 条件查询需要被关联商品信息
+     *
+     * @param associationGoodsDto
+     * @return
+     */
+    @PostMapping("/searchAssociationGoods")
+    @ApiOperation ("条件查询需要被关联商品信息")
+    public JsonViewData<PageInfo<BaseVo>> searchAssociationGoods(@RequestBody @ApiParam(required = true,name = "associationGoodsDto",value = "条件查询关联商品信息")
+                                                                 @Validated AssociationGoodsDto associationGoodsDto){
+        return new JsonViewData<PageInfo<BaseVo>>(service.searchAssociationGoods(associationGoodsDto));
+    }
+
+    /**
+     * 查询已被关联的商品信息
+     * @param associationGoodsDto
+     * @return
+     */
+    @PostMapping("/searchAssociatedGoods")
+    @ApiOperation ("查询已被关联的商品信息")
+    public JsonViewData<PageInfo<AssociationGoodsVo>> searchAssociatedGoods(@RequestBody @ApiParam(required = true,name = "associationGoodsDto",value = "条件查询关联商品信息")
+                                                                            @Validated AssociationGoodsDto associationGoodsDto){
+        return new JsonViewData(service.searchAssociatedGoods(associationGoodsDto));
+    }
+
+    /**
+     * 批量删除关联商品
+     *
+     * @param ids
+     * @return
+     */
+    @GetMapping("/delAssociationsByIds/{ids}")
+    @ApiOperation ("批量删除关联商品")
+    public JsonViewData delAssociationsByIds(@ApiParam(required=true,name = "ids",value = "关联id") @PathVariable Long[] ids){
+        service.delAssociationsByIds(ids);
+        return new JsonViewData (ResultCode.SUCCESS);
+    }
 }

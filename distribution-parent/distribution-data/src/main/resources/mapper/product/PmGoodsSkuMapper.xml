@@ -21,5 +21,14 @@
         <result column="update_time" property="updateTime" />
         <result column="del_flag" property="delFlag" />
     </resultMap>
+    <update id="updateStock">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update pm_goods_sku
+            <set>
+                stock=stock-#{item.number},
+            </set>
+            where id = #{item.id}
+        </foreach>
+    </update>
 
 </mapper>

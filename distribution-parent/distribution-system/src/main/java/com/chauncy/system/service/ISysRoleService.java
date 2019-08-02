@@ -2,6 +2,8 @@ package com.chauncy.system.service;
 
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.sys.SysRolePo;
+import com.chauncy.data.dto.base.BaseSearchDto;
+import com.github.pagehelper.PageInfo;
 
 import java.util.List;
 
@@ -22,6 +24,11 @@ public interface ISysRoleService extends Service<SysRolePo> {
      */
     List<SysRolePo> findByDefaultRole(Boolean defaultRole);
 
-
-
+    /**
+     * 分页获取角色
+     *
+     * @param baseSearchDto
+     * @return
+     */
+    PageInfo<SysRolePo> getRoleByPage(BaseSearchDto baseSearchDto);
 }

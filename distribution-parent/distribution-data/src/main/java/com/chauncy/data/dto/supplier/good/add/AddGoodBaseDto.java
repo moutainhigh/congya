@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -74,6 +75,7 @@ public class AddGoodBaseDto {
 
     @ApiModelProperty(value = "服务说明ID")
     @NeedExistConstraint(tableName = "pm_goods_attribute")
+    @NotEmpty(message = "服务ID不能为空")
     private Long[] serviceId;
 
     @ApiModelProperty(value = "商品参数信息")

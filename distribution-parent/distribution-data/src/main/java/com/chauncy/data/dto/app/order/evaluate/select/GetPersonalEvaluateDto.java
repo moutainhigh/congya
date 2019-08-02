@@ -23,9 +23,9 @@ public class GetPersonalEvaluateDto {
     @NeedExistConstraint(tableName = "om_order")
     private Long orderId;
 
-    @ApiModelProperty("sku ID")
-    @NeedExistConstraint(tableName = "pm_goods_sku")
-    private Long skuId;*/
+    @ApiModelProperty("商品id goodsId,商品详情才用得上这个字段")
+    @NeedExistConstraint(tableName = "pm_goods")
+    private Long goodsId;*/
 
     @Min(1)
     @ApiModelProperty(value = "页码")

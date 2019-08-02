@@ -75,7 +75,7 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
         for(GrantedAuthority g : authorities){
             list.add(g.getAuthority());
         }
-        ipInfoUtil.getUrl(request);
+//        ipInfoUtil.getUrl(request);
         // 登陆成功生成token
         String token;
         if(tokenRedis){

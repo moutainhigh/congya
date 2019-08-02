@@ -31,7 +31,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("sm_rel_store_attribute")
+@TableName("sm_store_rel_attribute")
 @ApiModel(value = "SmRelStoreAttributePo对象", description = "店铺品牌关联表")
 public class SmRelStoreAttributePo implements Serializable {
 

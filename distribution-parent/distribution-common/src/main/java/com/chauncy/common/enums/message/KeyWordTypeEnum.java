@@ -14,7 +14,8 @@ public enum KeyWordTypeEnum implements BaseEnum {
 
     GOODS(1,"商品"),
     MERCHANT(2,"店铺"),
-    INFORMATION(3,"资讯");
+    INFORMATION(3,"资讯"),
+    BRAND(4,"品牌");
 
     private Integer id;
     private String name;
@@ -33,7 +34,7 @@ public enum KeyWordTypeEnum implements BaseEnum {
     }
 
     //通过Id获取结果
-    public static KeyWordTypeEnum getArticalLocationById(Integer id) {
+    public static KeyWordTypeEnum getKeyWordTypeById(Integer id) {
         for (KeyWordTypeEnum type : KeyWordTypeEnum.values()) {
             if (type.getId() == id)
                 return type;

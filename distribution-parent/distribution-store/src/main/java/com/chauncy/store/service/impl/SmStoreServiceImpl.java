@@ -3,33 +3,51 @@ package com.chauncy.store.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.constant.SecurityConstant;
+import com.chauncy.common.enums.app.sort.SortFileEnum;
+import com.chauncy.common.enums.app.sort.SortWayEnum;
+import com.chauncy.common.enums.goods.GoodsCategoryLevelEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.enums.system.SysRoleTypeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.store.rel.SmRelStoreAttributePo;
 import com.chauncy.data.domain.po.store.rel.SmRelUserFocusStorePo;
+import com.chauncy.data.domain.po.store.rel.SmStoreRelStorePo;
 import com.chauncy.data.domain.po.sys.SysRolePo;
 import com.chauncy.data.domain.po.sys.SysRoleUserPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
+import com.chauncy.data.dto.app.store.FindStoreCategoryDto;
+import com.chauncy.data.dto.app.store.SearchStoreDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.add.StoreAccountInfoDto;
 import com.chauncy.data.dto.manage.store.add.StoreBaseInfoDto;
+import com.chauncy.data.dto.manage.store.add.StoreRelStoreDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchByConditionDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.dto.supplier.store.update.StoreBusinessLicenseDto;
 import com.chauncy.data.mapper.product.PmGoodsAttributeMapper;
+import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.store.rel.SmRelStoreAttributeMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.store.rel.SmRelUserFocusStoreMapper;
+import com.chauncy.data.mapper.store.rel.SmStoreRelStoreMapper;
 import com.chauncy.data.mapper.sys.SysRoleMapper;
 import com.chauncy.data.mapper.sys.SysRoleUserMapper;
 import com.chauncy.data.mapper.sys.SysUserMapper;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
+import com.chauncy.data.vo.app.message.information.InformationPagingVo;
+import com.chauncy.data.vo.app.store.StoreDetailVo;
+import com.chauncy.data.vo.app.store.StorePagingVo;
+import com.chauncy.data.vo.manage.product.SearchCategoryVo;
 import com.chauncy.data.vo.manage.store.*;
+import com.chauncy.data.vo.supplier.store.BranchInfoVo;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.store.rel.service.ISmRelStoreAttributeService;
+import com.chauncy.store.rel.service.ISmStoreRelStoreService;
 import com.chauncy.store.service.ISmStoreService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -72,8 +90,20 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
     @Autowired
     private SmRelUserFocusStoreMapper smRelUserFocusStoreMapper;
     @Autowired
+    private SmStoreRelStoreMapper smStoreRelStoreMapper;
+    @Autowired
+    private PmGoodsCategoryMapper pmGoodsCategoryMapper;
+    @Autowired
+    private ISmStoreRelStoreService smStoreRelStoreService;
+    @Autowired
     private ISmRelStoreAttributeService smRelStoreAttributeService;
-
+    /**
+     * APP店铺列表中店铺展示商品列表默认展示排序前四个
+     */
+    private final static int DEFAULT_SHOW_GOODS_NUM = 4;
+    /**
+     *  店铺用户默认密码
+     */
     private final static String DEFAULT_PASSWORD = "123456";
     /**
      * 保存店铺基本信息
@@ -105,7 +135,11 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         smStorePo.setId(null);
         smStoreMapper.insert(smStorePo);
 
+        //绑定店铺关系
+        bindingStore(smStorePo.getId(), storeBaseInfoDto.getStoreRelStoreDtoList());
+
         //批量插入店铺品牌关联记录
+        storeBaseInfoDto.setId(smStorePo.getId());
         saveBatchRelStoreAttribute(storeBaseInfoDto, userName);
 
         //添加店铺后台账号
@@ -140,7 +174,7 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         //获取当前用户
         String userName = securityUtil.getCurrUser().getUsername();
         oldSmStore.setCreateBy(userName);
-        //店铺信息插入
+        //店铺信息修改
         smStoreMapper.updateById(oldSmStore);
         //查询新更改的品牌中缺少的已有品牌是否有关联的商品  如果有则编辑失败
         List<Long> oldAttributeIds = smStoreMapper.selectAttributeIdsById(storeBaseInfoDto.getId());
@@ -150,6 +184,10 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         if(null != reduceList && reduceList.size() > 0 ) {
             throw  new ServiceException(ResultCode.PARAM_ERROR, "修改失败，包含正被使用的关联的品牌");
         }
+
+
+        //绑定店铺关系
+        bindingStore(oldSmStore.getId(), storeBaseInfoDto.getStoreRelStoreDtoList());
 
         //将店铺与品牌关联表的记录删除
         Map<String, Object> map = new HashMap<>();
@@ -177,6 +215,38 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
             smRelStoreAttributePoList.add(smRelStoreAttributePo);
         }
         smRelStoreAttributeService.saveBatch(smRelStoreAttributePoList);
+    }
+
+    /**
+     * 绑定店铺关系
+     * @param storeId
+     * @param storeRelStoreDtoList
+     */
+    private void bindingStore(Long storeId, List<StoreRelStoreDto> storeRelStoreDtoList) {
+        if(null == storeRelStoreDtoList) {
+            return ;
+        }
+        //删除店铺关系
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("store_id", storeId);
+        smStoreRelStoreMapper.delete(queryWrapper);
+
+        List<SmStoreRelStorePo> smStoreRelStorePoList = new ArrayList<>();
+        for(StoreRelStoreDto storeRelStoreDto : storeRelStoreDtoList) {
+            SmStoreRelStorePo smStoreRelStorePo = new SmStoreRelStorePo();
+            smStoreRelStorePo.setStoreId(storeId);
+            smStoreRelStorePo.setParentId(storeRelStoreDto.getParentId());
+            smStoreRelStorePo.setType(storeRelStoreDto.getType());
+            QueryWrapper<SmStoreRelStorePo> relQueryWrapper = new QueryWrapper<>(smStoreRelStorePo);
+            Integer count = smStoreRelStoreMapper.selectCount(relQueryWrapper);
+            if(count > 0) {
+                //关系已存在
+            } else {
+                //关系不存在
+                smStoreRelStorePoList.add(smStoreRelStorePo);
+            }
+        }
+        smStoreRelStoreService.saveBatch(smStoreRelStorePoList);
     }
 
     /**
@@ -209,6 +279,7 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         sysRoleUserMapper.insert(sysRoleUserPo);
 
     }
+
 
 
     /**
@@ -391,4 +462,124 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         smRelUserFocusStoreMapper.insert(smRelUserFocusStorePo);
     }
 
+    /**
+     * 店铺解除绑定
+     *
+     * @return
+     */
+    @Override
+    public void storeUnbound(Long id) {
+        SmStoreRelStorePo smStoreRelStorePo = smStoreRelStoreMapper.selectById(id);
+        if(null != smStoreRelStorePo) {
+            smStoreRelStoreMapper.deleteById(id);
+        } else {
+            throw new ServiceException(ResultCode.NO_EXISTS, "绑定的关系不存在");
+        }
+    }
+
+
+    /**
+     * 获取当前店铺的下级店铺(分店)（模糊搜索）
+     *
+     * @param storeName
+     * @return
+     */
+    @Override
+    public List<BranchInfoVo> searchBranchByName(String storeName) {
+        //获取当前用户
+        Long storeId = securityUtil.getCurrUser().getStoreId();
+        if(null == storeId) {
+            throw  new ServiceException(ResultCode.FAIL, "当前登录用户不是商家用户");
+        }
+        return smStoreMapper.searchBranchByName(storeId, storeName);
+    }
+
+    /**
+     * app查询店铺列表
+     *
+     * @return
+     */
+    @Override
+    public PageInfo<StorePagingVo> searchPaging(SearchStoreDto searchStoreDto) {
+
+        Integer pageNo = searchStoreDto.getPageNo()==null ? defaultPageNo : searchStoreDto.getPageNo();
+        Integer pageSize = searchStoreDto.getPageSize()==null ? defaultPageSize : searchStoreDto.getPageSize();
+        if(null == searchStoreDto.getGoodsNum()) {
+            searchStoreDto.setGoodsNum(DEFAULT_SHOW_GOODS_NUM);
+        }
+
+        PageInfo<StorePagingVo> storePagingVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> smStoreMapper.searchPaging(searchStoreDto));
+        return storePagingVoPageInfo;
+
+    }
+
+    /**
+     * app获取店铺信息
+     *
+     * @param storeId
+     * @return
+     */
+    @Override
+    public StorePagingVo findById(Long storeId) {
+        SmStorePo smStorePo = smStoreMapper.selectById(storeId);
+        if(null == smStorePo) {
+            throw new ServiceException(ResultCode.NO_EXISTS,"店铺不存在");
+        } else if(smStorePo.getEnabled().equals(false)) {
+            throw new ServiceException(ResultCode.PARAM_ERROR,"店铺已被禁用");
+        }
+
+        return smStoreMapper.findStoreById(storeId);
+    }
+
+    /**
+     * 获取店铺下商品分类信息
+     *
+     * @return
+     */
+    @Override
+    public List<SearchCategoryVo> findGoodsCategory(FindStoreCategoryDto findStoreCategoryDto) {
+        List<SearchCategoryVo> searchCategoryVoList = new ArrayList<>();
+        if(null == findStoreCategoryDto.getGoodsCategoryId()) {
+            //根据店铺id获取该店铺下一级分类
+            searchCategoryVoList = pmGoodsCategoryMapper.findFirstCategoryByStoreId(findStoreCategoryDto);
+        } else {
+            PmGoodsCategoryPo pmGoodsCategoryPo = pmGoodsCategoryMapper.selectById(findStoreCategoryDto.getGoodsCategoryId());
+            if (pmGoodsCategoryPo.getLevel().equals(GoodsCategoryLevelEnum.FIRST_CATEGORY.getLevel())) {
+                if(null == findStoreCategoryDto.getGoodsCategoryId())  {
+                    throw new ServiceException(ResultCode.PARAM_ERROR,"分类id不能为空");
+                }
+                //根据店铺id获取该店铺一级分类下的二级分类
+                searchCategoryVoList = pmGoodsCategoryMapper.findSecondCategoryByStoreId(findStoreCategoryDto);
+            } else if (pmGoodsCategoryPo.getLevel().equals(GoodsCategoryLevelEnum.SECOND_CATEGORY.getLevel())) {
+                if(null == findStoreCategoryDto.getGoodsCategoryId())  {
+                    throw new ServiceException(ResultCode.PARAM_ERROR,"分类id不能为空");
+                }
+                //根据店铺id获取该店铺二级分类下的下三级分类
+                searchCategoryVoList = pmGoodsCategoryMapper.findThirdCategoryByStoreId(findStoreCategoryDto);
+            }
+        }
+        return searchCategoryVoList;
+    }
+
+    /**
+     * app获取店铺详情
+     *
+     * @return
+     */
+    @Override
+    public StoreDetailVo findDetailById(Long storeId) {
+        SmStorePo smStorePo = smStoreMapper.selectById(storeId);
+        if(null == smStorePo) {
+            throw new ServiceException(ResultCode.NO_EXISTS,"店铺不存在");
+        } else if(smStorePo.getEnabled().equals(false)) {
+            throw new ServiceException(ResultCode.PARAM_ERROR,"店铺已被禁用");
+        }
+
+        StoreDetailVo storeDetailVo = smStoreMapper.findDetailById(storeId);;
+        if(null != storeDetailVo.getBusinessLicense()) {
+            storeDetailVo.setBusinessLicenseList(Arrays.asList(storeDetailVo.getBusinessLicense().split(",")));
+        }
+        return storeDetailVo;
+    }
 }

@@ -1,5 +1,8 @@
 package com.chauncy.common.util;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -125,5 +128,21 @@ public class ListUtil
     {
         Map<Object, Boolean> seen = new ConcurrentHashMap<>();
         return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+    }
+
+    /**
+     * List<Long>转List<String>
+     * @param fromList
+     * @return
+     */
+    public static List<String> transferLongToString(List<Long> fromList){
+
+        return Lists.transform(fromList, new com.google.common.base.Function<Long, String>() {
+            @Override
+            public String apply(Long input) {
+                Preconditions.checkArgument(null!=input && !"".equals(input),"inpur is null");
+                return String.valueOf(input);
+            }
+        });
     }
 }

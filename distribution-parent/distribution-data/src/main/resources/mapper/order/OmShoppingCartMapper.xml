@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chauncy.data.mapper.order.OmShoppingCartMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.order.OmShoppingCartPo">
+        <id column="id" property="id" />
+        <result column="create_by" property="createBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="user_id" property="userId" />
+        <result column="sku_id" property="skuId" />
+        <result column="num" property="num" />
+    </resultMap>
+
+    <resultMap id="CartVo" type="com.chauncy.data.vo.app.order.cart.CartVo">
+        <id column="store_id" property="storeId" />
+        <result column="store_name" property="storeName" />
+
+        <collection property="storeGoodsVoList" ofType="com.chauncy.data.vo.app.order.cart.StoreGoodsVo">
+            <result column="subtitle" property="subtitle" />
+            <result column="goods_name" property="goodsName" />
+            <result column="picture" property="picture" />
+            <result column="sku_id" property="skuId" />
+            <result column="sell_price" property="sellPrice" />
+            <result column="num" property="num" />
+            <result column="sum" property="sum" />
+            <result column="value" property="value" />
+        </collection>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, create_by, update_time, user_id, sku_id, num
+    </sql>
+    <update id="updateDiscount">
+             update um_user set  current_red_envelops=current_red_envelops-#{redEnvelops},
+             current_shop_ticket=current_shop_ticket-#{shopTicket} where id=#{id}
+    </update>
+
+    <select id="searchCart" resultMap="CartVo">
+        select f.sku_id,b.picture,b.sell_price,f.num,a.subtitle,a.name as goods_name,c.id as store_id,c.name as store_name,GROUP_CONCAT(e.value) as value
+        from om_shopping_cart f,pm_goods_sku b,pm_goods a,pm_goods_rel_attribute_value_sku d ,pm_goods_attribute_value e,sm_store c
+        where f.user_id =#{userId} and f.sku_id = b.id and b.goods_id = a.id and d.goods_sku_id = f.sku_id
+		    and d.goods_attribute_value_id = e.id and a.store_id = c.id
+        group by f.id
+    </select>
+    <select id="searchByIds" resultType="com.chauncy.data.vo.app.car.ShopTicketSoWithCarGoodVo">
+        SELECT g.custom_tax_rate,s.id storeId,s.name storeName,g.name,g.icon,u.sell_price,g.goods_type,u.id,GROUP_CONCAT(av.`value`) standardStr,
+        g.activity_cost_rate,g.profits_rate,u.profit_rate,u.supplier_price,u.operation_cost,g.shipping_template_id,g.is_free_postage
+        FROM pm_goods_sku u,pm_goods g,sm_store s,pm_goods_rel_attribute_value_sku sa,pm_goods_attribute_value av
+        where u.goods_id=g.id and g.store_id=s.id and sa.goods_sku_id=u.id and sa.goods_attribute_value_id=av.id
+        and u.del_flag=0 and g.del_flag=0 and s.del_flag=0 and sa.del_flag=0 and av.del_flag=0
+        and u.id in
+        <foreach collection="ids" close=")" open="(" separator="," item="id">
+                 #{id}
+        </foreach>
+        GROUP BY u.id
+    </select>
+
+</mapper>

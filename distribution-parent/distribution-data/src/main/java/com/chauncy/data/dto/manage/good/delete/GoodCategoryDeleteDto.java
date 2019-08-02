@@ -13,7 +13,7 @@ import java.util.List;
  * @Date 2019/6/12 12:39
  **/
 @Data
-@ApiModel(value = "分类删除dto", description = "分类删除dto")
+@ApiModel( description = "分类删除dto")
 public class GoodCategoryDeleteDto {
 
     @NotEmpty

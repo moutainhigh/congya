@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chauncy.data.mapper.activity.gift.AmGiftRelGiftCouponMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.activity.gift.AmGiftRelGiftCouponPo">
+        <id column="id" property="id" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="gift_id" property="giftId" />
+        <result column="coupon_id" property="couponId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, create_by, create_time, gift_id, coupon_id
+    </sql>
+
+</mapper>

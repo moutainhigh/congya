@@ -3,13 +3,11 @@ package com.chauncy.web.api.supplier.message.information;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.information.add.InformationDto;
-import com.chauncy.data.dto.manage.message.information.select.InformationSearchDto;
+import com.chauncy.data.dto.base.BaseSearchByTimeDto;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.message.information.InformationPageInfoVo;
 import com.chauncy.data.vo.manage.message.information.InformationVo;
-import com.chauncy.data.vo.supplier.InformationRelGoodsVo;
-import com.chauncy.message.information.sensitive.service.IMmInformationSensitiveService;
 import com.chauncy.message.information.service.IMmInformationService;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
@@ -134,14 +132,14 @@ public class SmInformationApi extends BaseApi {
 
     /**
      * 分页条件查询
-     * @param informationSearchDto
+     * @param baseSearchByTimeDto
      * @return
      */
     @ApiOperation(value = "分页条件查询", notes = "根据资讯ID、标题以及创建时间查询")
     @PostMapping("/searchPaging")
-    public JsonViewData<PageInfo<InformationPageInfoVo>> searchPaging(@RequestBody InformationSearchDto informationSearchDto) {
+    public JsonViewData<PageInfo<InformationPageInfoVo>> searchPaging(@Validated @RequestBody BaseSearchByTimeDto baseSearchByTimeDto) {
 
-        PageInfo<InformationPageInfoVo> smStoreBaseVoPageInfo = mmInformationService.searchPaging(informationSearchDto);
+        PageInfo<InformationPageInfoVo> smStoreBaseVoPageInfo = mmInformationService.searchPaging(baseSearchByTimeDto);
         return new JsonViewData(ResultCode.SUCCESS, "查询成功",
                 smStoreBaseVoPageInfo);
     }

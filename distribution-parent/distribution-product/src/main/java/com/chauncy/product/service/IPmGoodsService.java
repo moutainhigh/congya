@@ -1,24 +1,28 @@
 package com.chauncy.product.service;
 
+import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
-import com.chauncy.data.dto.manage.good.add.UpdateGoodsOperationDto;
+import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
+import com.chauncy.data.dto.base.BaseSearchDto;
+import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
 import com.chauncy.data.dto.manage.good.update.RejectGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.AddAssociationGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.AddGoodBaseDto;
 import com.chauncy.data.dto.supplier.good.add.AddOrUpdateSkuAttributeDto;
-import com.chauncy.data.dto.supplier.good.select.FindStandardDto;
-import com.chauncy.data.dto.supplier.good.select.SearchGoodInfosDto;
-import com.chauncy.data.dto.supplier.good.select.SelectAttributeDto;
-import com.chauncy.data.dto.supplier.good.update.UpdateGoodOperationDto;
-import com.chauncy.data.dto.supplier.good.update.UpdateGoodSellerDto;
-import com.chauncy.data.dto.supplier.good.update.UpdatePublishStatusDto;
-import com.chauncy.data.dto.supplier.good.update.UpdateSkuFinanceDto;
+import com.chauncy.data.dto.supplier.good.select.*;
+import com.chauncy.data.dto.supplier.good.update.*;
+import com.chauncy.data.dto.supplier.store.update.SelectStockTemplateGoodsDto;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.supplier.*;
+import com.chauncy.data.vo.supplier.good.AssociationGoodsVo;
+import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
+import com.chauncy.data.vo.supplier.good.stock.GoodsStockTemplateVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -106,7 +110,7 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @param goodsId
      * @return
      */
-    List<FindSkuAttributeVo> findSkuAttribute(Long goodsId);
+    List<Map<String, Object>> findSkuAttribute(Long goodsId);
 
     /**
      * 根据商品ID查找财务的sku信息
@@ -114,7 +118,7 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @param goodsId
      * @return
      */
-    List<FindSkuFinanceVo> findSkuFinance(Long goodsId);
+    GetSkuFinanceInfoVo findSkuFinance(Long goodsId);
 
     /**
      * 添加或更新财务信息
@@ -134,7 +138,7 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
 
     /**
      * 添加或更新运营信息
-     *
+     * <p>
      * 平台审核并更新运营信息
      *
      * @param updateGoodOperationDto
@@ -175,10 +179,11 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
 
     /**
      * 增加商品库存
+     *
      * @param goodId 商品id
      * @param number 增量
      */
-    boolean  updateStock(long goodId,int number);
+    boolean updateStock(long goodId, int number);
 
     /**
      * 提交商品审核
@@ -197,9 +202,9 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
     /**
      * 修改应用标签
      *
-     * @param updatePublishStatusDto
+     * @param updateStarStatusDto
      */
-    void updateStarStatus(UpdatePublishStatusDto updatePublishStatusDto);
+    void updateStarStatus(UpdateStarStatusDto updateStarStatusDto);
 
     /**
      * 条件查询商品信息
@@ -223,4 +228,70 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @return
      */
     AttributeVo findAttributes(Long categoryId);
+
+    /**
+     * 库存模板根据商品类型查询店铺商品信息
+     *
+     * @param selectStockTemplateGoodsDto
+     * @return
+     */
+    PageInfo<BaseBo> selectGoodsByType(SelectStockTemplateGoodsDto selectStockTemplateGoodsDto);
+    /**
+    * 库存模板id获取询商品信息
+    *
+    * @param baseSearchDto
+    */
+    GoodsStockTemplateVo searchGoodsInfoByTemplateId(BaseSearchDto baseSearchDto);
+
+    /**
+     * 查询导入商品信息
+     *
+     * @param searchExcelDto
+     * @return
+     */
+    PageInfo<ExcelGoodVo> searchExcelGoods(SearchExcelDto searchExcelDto);
+
+    /**
+     * 批量删除商品
+     *
+     * @param ids
+     * @return
+     */
+    void delGoodsByIds(Long[] ids);
+
+    /**
+     *
+     * 获取店铺下商品列表
+     * 店铺id
+     * 一级分类id
+     * 商品列表： 1.店铺全部商品； 2.店铺推荐商品； 3.店铺新品列表； 4.店铺活动商品； 5.明星单品列表（按时间降序）； 6.最新推荐（按排序数值降序）
+     * 排序内容;  1.综合排序  2.销量排序  3.价格排序
+     * 排序方式   1.降序   2.升序
+     *
+     * @return
+     */
+    PageInfo<GoodsBaseInfoVo> searchStoreGoodsPaging(SearchStoreGoodsDto searchStoreGoodsDto);
+
+    /**
+     * 条件查询需要被关联商品信息
+     *
+     * @param associationGoodsDto
+     * @return
+     */
+    PageInfo<BaseVo> searchAssociationGoods (AssociationGoodsDto associationGoodsDto);
+
+    /**
+     * 查询已被关联的商品信息
+     * @param associationGoodsDto
+     * @return
+     */
+    PageInfo<AssociationGoodsVo> searchAssociatedGoods (AssociationGoodsDto associationGoodsDto);
+
+    /**
+     * 批量删除关联商品
+     *
+     * @param ids
+     * @return
+     */
+    void delAssociationsByIds (Long[] ids);
 }

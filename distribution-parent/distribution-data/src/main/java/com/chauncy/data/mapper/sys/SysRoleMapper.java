@@ -1,7 +1,9 @@
 package com.chauncy.data.mapper.sys;
 
 import com.chauncy.data.domain.po.sys.SysRolePo;
+import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.github.pagehelper.PageInfo;
 
 import java.util.List;
 
@@ -22,4 +24,10 @@ public interface SysRoleMapper extends IBaseMapper<SysRolePo> {
      */
     List<SysRolePo> findByDefaultRole(Boolean defaultRole);
 
+    /**
+     * 分页获取角色
+     * @param baseSearchDto
+     * @return
+     */
+    List<SysRolePo> getRoleByPage(BaseSearchDto baseSearchDto);
 }

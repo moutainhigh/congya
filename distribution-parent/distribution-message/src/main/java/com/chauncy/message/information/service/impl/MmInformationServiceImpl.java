@@ -2,27 +2,36 @@ package com.chauncy.message.information.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.chauncy.common.enums.app.sort.SortFileEnum;
+import com.chauncy.common.enums.app.sort.SortWayEnum;
 import com.chauncy.common.enums.common.VerifyStatusEnum;
+import com.chauncy.common.enums.goods.StoreGoodsListTypeEnum;
+import com.chauncy.common.enums.message.InformationTypeEnum;
+import com.chauncy.common.enums.message.KeyWordTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.domain.po.message.information.rel.MmRelInformationGoodsPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.domain.po.user.UmUserFavoritesPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.message.information.select.SearchInfoByConditionDto;
+import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.information.add.InformationDto;
-import com.chauncy.data.dto.manage.message.information.select.InformationSearchDto;
+import com.chauncy.data.dto.base.BaseSearchByTimeDto;
 import com.chauncy.data.mapper.message.information.MmInformationMapper;
 import com.chauncy.data.mapper.message.information.rel.MmRelInformationGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
+import com.chauncy.data.mapper.user.UmUserFavoritesMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
+import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.app.message.information.InformationBaseVo;
 import com.chauncy.data.vo.app.message.information.InformationPagingVo;
 import com.chauncy.data.vo.manage.message.information.InformationPageInfoVo;
 import com.chauncy.data.vo.manage.message.information.InformationVo;
-import com.chauncy.data.vo.supplier.InformationRelGoodsVo;
+import com.chauncy.data.vo.supplier.good.InformationRelGoodsVo;
 import com.chauncy.message.information.rel.service.IMmRelInformationGoodsService;
 import com.chauncy.message.information.service.IMmInformationService;
 import com.chauncy.data.core.AbstractService;
@@ -60,6 +69,8 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
     @Autowired
     private UmUserMapper umUserMapper;
     @Autowired
+    private UmUserFavoritesMapper umUserFavoritesMapper;
+    @Autowired
     private IMmRelInformationGoodsService mmRelInformationGoodsService;
 
     @Autowired
@@ -77,6 +88,9 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
         BeanUtils.copyProperties(informationDto, mmInformationPo);
         //获取当前用户
         SysUserPo sysUserPo = securityUtil.getCurrUser();
+        if(null == sysUserPo.getStoreId()) {
+            throw  new ServiceException(ResultCode.FAIL, "当前登录用户不是商家用户");
+        }
         mmInformationPo.setCreateBy(sysUserPo.getUsername());
         mmInformationPo.setId(null);
         //新增资讯默认为待审核状态
@@ -202,13 +216,35 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
      */
     @Override
     public InformationBaseVo findBaseById(Long id) {
+        UmUserPo umUserPo = securityUtil.getAppCurrUser();
+        Long userId = null == umUserPo ? null : umUserPo.getId();
         MmInformationPo mmInformationPo = mmInformationMapper.selectById(id);
         UpdateWrapper updateWrapper = new UpdateWrapper();
         updateWrapper.eq("id", id);
         updateWrapper.set("browsing_num", mmInformationPo.getBrowsingNum() + 1);
         this.update(updateWrapper);
         //资讯基本信息
-        return  mmInformationMapper.findBaseById(id);
+        InformationBaseVo informationBaseVo = mmInformationMapper.findBaseById(id);
+        QueryWrapper<UmUserFavoritesPo> queryWrapper = new QueryWrapper();
+        queryWrapper.lambda()
+                .eq(UmUserFavoritesPo::getType, KeyWordTypeEnum.MERCHANT.getName())
+                .eq(UmUserFavoritesPo::getUserId, userId)
+                .eq(UmUserFavoritesPo::getFavoritesId, informationBaseVo.getId());
+        if(null != umUserFavoritesMapper.selectOne(queryWrapper)) {
+            //表示用户已关注
+            informationBaseVo.setFocusStatus(true);
+        } else {
+            informationBaseVo.setFocusStatus(false);
+        }
+        //查询资讯关联的商品列表按最晚添加时间的第一个商品信息
+        BaseSearchDto baseSearchDto = new BaseSearchDto();
+        baseSearchDto.setId(mmInformationPo.getId());
+        PageInfo<GoodsBaseInfoVo> goodsBaseInfoVoPageInfo = PageHelper.startPage(1, 1)
+                .doSelectPageInfo(() -> pmGoodsMapper.searchGoodsByInfoId(baseSearchDto));
+        if(goodsBaseInfoVoPageInfo.getList().size() > 0) {
+            informationBaseVo.setGoodsBaseInfoVo(goodsBaseInfoVoPageInfo.getList().get(0));
+        }
+        return informationBaseVo;
     }
 
     /**
@@ -232,17 +268,17 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
     /**
      * 后台分页条件查询
      *
-     * @param informationSearchDto
+     * @param baseSearchByTimeDto
      * @return
      */
     @Override
-    public PageInfo<InformationPageInfoVo> searchPaging(InformationSearchDto informationSearchDto) {
+    public PageInfo<InformationPageInfoVo> searchPaging(BaseSearchByTimeDto baseSearchByTimeDto) {
 
-        Integer pageNo = informationSearchDto.getPageNo()==null ? defaultPageNo : informationSearchDto.getPageNo();
-        Integer pageSize = informationSearchDto.getPageSize()==null ? defaultPageSize : informationSearchDto.getPageSize();
+        Integer pageNo = baseSearchByTimeDto.getPageNo()==null ? defaultPageNo : baseSearchByTimeDto.getPageNo();
+        Integer pageSize = baseSearchByTimeDto.getPageSize()==null ? defaultPageSize : baseSearchByTimeDto.getPageSize();
 
         PageInfo<InformationPageInfoVo> informationPageInfoVoPageInfo = PageHelper.startPage(pageNo, pageSize)
-                .doSelectPageInfo(() -> mmInformationMapper.searchInfoPaging(informationSearchDto));
+                .doSelectPageInfo(() -> mmInformationMapper.searchInfoPaging(baseSearchByTimeDto));
         return informationPageInfoVoPageInfo;
     }
 
@@ -255,6 +291,17 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
      */
     @Override
     public PageInfo<InformationPagingVo> searchPaging(SearchInfoByConditionDto searchInfoByConditionDto) {
+
+        if(null != searchInfoByConditionDto.getInformationTypeEnum() &&
+                searchInfoByConditionDto.getInformationTypeEnum().equals(InformationTypeEnum.FOCUSLIST)) {
+            //获取当前app用户信息
+            UmUserPo umUserPo = securityUtil.getAppCurrUser();
+            if(null == umUserPo) {
+                throw new ServiceException(ResultCode.NO_LOGIN,"未登陆或登陆已超时");
+            } else {
+                searchInfoByConditionDto.setUserId(umUserPo.getId());
+            }
+        }
 
         Integer pageNo = searchInfoByConditionDto.getPageNo()==null ? defaultPageNo : searchInfoByConditionDto.getPageNo();
         Integer pageSize = searchInfoByConditionDto.getPageSize()==null ? defaultPageSize : searchInfoByConditionDto.getPageSize();
@@ -313,4 +360,20 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
         }
     }
 
+    /**
+     * 根据资讯id获取关联的商品
+     *
+     * @param baseSearchDto
+     * @return
+     */
+    @Override
+    public PageInfo<GoodsBaseInfoVo> searchGoodsById(BaseSearchDto baseSearchDto) {
+        Integer pageNo = baseSearchDto.getPageNo()==null ? defaultPageNo : baseSearchDto.getPageNo();
+        Integer pageSize = baseSearchDto.getPageSize()==null ? defaultPageSize : baseSearchDto.getPageSize();
+
+
+        PageInfo<GoodsBaseInfoVo> goodsBaseInfoVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> pmGoodsMapper.searchGoodsByInfoId(baseSearchDto));
+        return goodsBaseInfoVoPageInfo;
+    }
 }

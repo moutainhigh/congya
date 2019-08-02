@@ -2,7 +2,9 @@ package com.chauncy.data.mapper.sys;
 
 import com.chauncy.data.domain.po.sys.SysPermissionPo;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.sys.permission.GetPermissionVo;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -67,4 +69,18 @@ public interface SysPermissionMapper extends IBaseMapper<SysPermissionPo> {
      */
     List<SysPermissionPo> findByTitleLikeOrderBySortOrder(@Param("title") String title);
 
+    /**
+     * 获取菜单权限
+     *
+     * @param roleId
+     * @return
+     */
+    List<GetPermissionVo> getPermission(String roleId);
+
+    /**
+     * 获取全部权限列表
+     * @return
+     */
+    @Select("select id,title,parent_id from sys_permission")
+    List<GetPermissionVo> selectAll();
 }

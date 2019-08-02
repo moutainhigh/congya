@@ -2,14 +2,21 @@ package com.chauncy.product.service;
 
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
+import com.chauncy.data.dto.app.brand.SearchGoodsDto;
+import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.good.add.AddOrUpdateAttValueDto;
 import com.chauncy.data.dto.manage.good.add.GoodAttributeDto;
 import com.chauncy.data.dto.manage.good.select.FindAttributeInfoByConditionDto;
+import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.app.brand.BrandGoodsListVo;
+import com.chauncy.data.vo.app.brand.BrandListVo;
 import com.chauncy.data.vo.manage.product.AttributeIdNameTypeVo;
+import com.github.pagehelper.PageInfo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -111,4 +118,25 @@ public interface IPmGoodsAttributeService extends Service<PmGoodsAttributePo> {
      * @return
      */
     List<AttributeIdNameTypeVo> findAttributeIdNameTypeVos(List<Integer> types);
+
+    /**
+     * 获取品牌列表
+     * @return
+     */
+    PageInfo<BrandListVo> getBrandList (BaseSearchDto baseSearchDto);
+
+    /**
+     * 获取一级分类列表
+     * @return
+     */
+    List<BaseVo> getFirstCategory ();
+
+    /**
+     * 条件分页获取品牌下的商品
+     *
+     * @param searchGoodsDto
+     * @return
+     */
+    BrandGoodsListVo getBrandGoodsList (SearchGoodsDto searchGoodsDto);
+
 }

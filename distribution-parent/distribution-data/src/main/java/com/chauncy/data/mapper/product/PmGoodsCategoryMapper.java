@@ -3,13 +3,18 @@ package com.chauncy.data.mapper.product;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.chauncy.data.dto.app.store.FindStoreCategoryDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
+import com.chauncy.data.dto.manage.activity.SearchCategoryByActivityIdDto;
 import com.chauncy.data.dto.manage.good.select.SearchAttributeByNamePageDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.manage.activity.SearchCategoryByActivityIdVo;
 import com.chauncy.data.vo.manage.product.GoodsCategoryTreeVo;
 import com.chauncy.data.vo.manage.product.SearchAttributeVo;
 import com.chauncy.data.vo.manage.product.SearchCategoryVo;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 import java.util.Map;
@@ -95,5 +100,51 @@ public interface PmGoodsCategoryMapper extends IBaseMapper<PmGoodsCategoryPo> {
      * @return
      */
     List<String> loadParentName(@Param("id") Long id);
+
+    /**
+     * 获取店铺下商品一级分类信息
+     *
+     * @return
+     */
+    List<SearchCategoryVo> findFirstCategoryByStoreId(FindStoreCategoryDto findStoreCategoryDto);
+
+    /**
+     * 获取店铺下商品一级分类信息
+     *
+     * @return
+     */
+    List<SearchCategoryVo> findSecondCategoryByStoreId(FindStoreCategoryDto findStoreCategoryDto);
+
+    /**
+     * 获取店铺下商品一级分类信息
+     *
+     * @return
+     */
+    List<SearchCategoryVo> findThirdCategoryByStoreId(FindStoreCategoryDto findStoreCategoryDto);
+
+    /**
+     * 获取一级分类列表
+     * @return
+     */
+    @Select("select id,name\n" +
+            "from pm_goods_category\n" +
+            "where `level`=1")
+    List<BaseVo> getFirstCategory ();
+
+    /**
+     * 总条数
+     * @param searchCategoryByActivityIdDto
+     * @return
+     */
+    Integer count(@Param("p") SearchCategoryByActivityIdDto searchCategoryByActivityIdDto);
+
+    /**
+     * 根据条件查询一级到三级的所有分类
+     * @param searchCategoryByActivityIdDto
+     * @param pageSize
+     * @param offset 偏移量
+     * @return
+     */
+    List<SearchCategoryByActivityIdVo> searchCategoryByActivityId(@Param("t") SearchCategoryByActivityIdDto searchCategoryByActivityIdDto, @Param("pageSize") Integer pageSize, @Param("offset") Integer offset);
 
 }

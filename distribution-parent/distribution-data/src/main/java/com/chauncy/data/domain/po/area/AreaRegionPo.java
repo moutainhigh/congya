@@ -1,5 +1,6 @@
 package com.chauncy.data.domain.po.area;
 
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -95,7 +96,11 @@ public class AreaRegionPo implements Serializable {
     private LocalDateTime updateTime;
 
     @ApiModelProperty(value = "删除标志 默认0")
+    @TableLogic
     private Boolean delFlag;
+
+    @ApiModelProperty(value = "所属城市id")
+    private Long cityId;
 
 
 }

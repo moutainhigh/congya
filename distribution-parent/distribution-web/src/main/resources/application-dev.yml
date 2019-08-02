@@ -5,7 +5,7 @@ spring:
     druid:
       master:
         #        url: jdbc:mysql://localhost:3306/tests?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT
-        url: jdbc:mysql://47.102.104.124:3306/distribution?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=Asia/Shanghai
+        url: jdbc:mysql://47.102.104.124:3306/distribution?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&useSSL=true&useAffectedRows=true&serverTimezone=Asia/Shanghai
         username: root
         password: root
       slave:
@@ -40,6 +40,24 @@ spring:
     multipart:
       enabled: true
       max-file-size: 200MB
+  # RabbitMQ配置信息
+  rabbitmq:
+    host: 47.102.104.124
+    port: 5672
+    username: admin
+    password: admin
+    virtual-host: my_vhost
+#    connection-timeout: 10000
+    listener:
+      simple:
+        acknowledge-mode: MANUAL # 自动应答 manual手动应答
+        auto-startup: true
+        default-requeue-rejected: false # 不重回队列
+        concurrency: 5
+        max-concurrency: 20
+        prefetch: 1 # 每次只处理1个信息
+        retry:
+          enabled: true
 
 #server:
 #  max-http-header-size: 200MB
@@ -53,6 +71,7 @@ server:
     max-http-post-size: 0 # Maximum size, in bytes, of the HTTP post content.
     max-threads: 300 # Maximum number of worker threads.
     min-spare-threads: 0 # Minimum number of worker threads.
+
 
 # 忽略鉴权url
 ignored:
@@ -73,7 +92,10 @@ ignored:
     - /users/findByUserUame
     - /pm-goods-attribute-po/findByType/**
     - /v2/api-docs
-    - /api/app/user/**
+    - /app/user/data/register
+    - /app/user/data/reset
+    - /app/user/data/binding
+    - /generator/create
 
 # 配置文件加密key
 jasypt:
@@ -110,9 +132,14 @@ distribution:
     accessKey: wkxcEQGakg0zhC4wxV_3dOxw42X2gQvkFuRq-lJr
     secretKey: 1Zbi1Tak2fHhJuwQqyLJfAiZHYI1iFQptTLAVr0-
     bucket: bohui_20190614
-    domain: http://pt2wi8mc0.bkt.clouddn.com
+    domain: http://bo2h.com
     # 存储区域 -1自动判断 0华东 1华北 2华南 3北美 4东南亚
     zone: -1
+  # 极光推送配置
+  jpush:
+    APPKEY: 43fce926da40c017ab4b4818
+    MASTERSECRET: 328f5af7bc97bb017c715c77
+
   # mob api配置 mob官网注册申请即可
   mob:
     appKey: appKey

@@ -1,5 +1,6 @@
 package com.chauncy.web.api.manage.store;
 
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.add.StoreAccountInfoDto;
 import com.chauncy.data.dto.manage.store.add.StoreBaseInfoDto;
@@ -107,5 +108,18 @@ public class SmStoreApi extends BaseApi {
         return setJsonViewData(relStoreInfoVoPageInfo);
     }
 
+
+    /**
+     * 店铺解除绑定
+     * @return
+     */
+    @ApiOperation(value = "店铺解除绑定", notes = "店铺解除绑定")
+    @GetMapping("/storeUnbound/{id}")
+    public JsonViewData storeUnbound(@ApiParam(required = true, value = "关联id")
+                                         @PathVariable Long id) {
+
+        smStoreService.storeUnbound(id);
+        return new JsonViewData(ResultCode.SUCCESS, "解除绑定成功");
+    }
 
 }

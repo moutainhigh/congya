@@ -40,6 +40,7 @@
         <result column="content" property="content"/>
         <result column="is_excel" property="isExcel"/>
         <result column="sales_volume" property="salesVolume"/>
+        <result column="collection_num" property="collectionNum"/>
     </resultMap>
 
     <update id="updateStock">
@@ -48,24 +49,25 @@
 
     <select id="findGoodsValue" resultType="com.chauncy.data.bo.supplier.good.GoodsValueBo">
         select b.id,b.value as name,b.is_custom
-        from pm_goods_rel_attribute_value_good a ,pm_goods_attribute_value b, pm_goods_attribute c
+        from pm_goods_rel_attribute_value_sku a ,pm_goods_attribute_value b, pm_goods_attribute c,pm_goods_sku d
         <where>
             a.goods_attribute_value_id = b.id and b.product_attribute_id = c.id and a.del_flag = 0
+            and d.id = a.goods_sku_id
             <if test="attributeId !=null">
                 and c.id = #{attributeId}
             </if>
             <if test="goodsId !=null">
-                and a.goods_id=#{goodsId}
+                and d.goods_id=#{goodsId}
             </if>
         </where>
-
+        GROUP BY b.id
     </select>
 
     <select id="searchGoodsInfo" resultType="com.chauncy.data.vo.supplier.PmGoodsVo">
-        SELECT a.id,a.icon,a.NAME as good_name,a.sort,a.stock,a.sales_volume,a.star_status,a.publish_status,a.verify_status,
+        SELECT a.store_id,f.name as storeName,a.id,a.icon,a.NAME as good_name,a.sort,a.sales_volume,a.star_status,a.publish_status,a.verify_status,
         Min(b.supplier_price) AS supplier_price, Min(b.sell_price) AS sell_price,d.name as brandName
         from pm_goods a
-        LEFT JOIN pm_goods_sku b on a.id = b.goods_id and a.del_flag = 0
+        LEFT JOIN pm_goods_sku b on a.id = b.goods_id and b.del_flag = 0
         LEFT JOIN pm_goods_rel_attribute_good c on c.del_flag = 0 and c.goods_good_id = a.id
         inner JOIN pm_goods_attribute d on c.goods_attribute_id = d.id and d.type=8
         inner join pm_goods_category e on e.id = a.goods_category_id
@@ -89,20 +91,188 @@
          <if test="storeName!=null and storeName!=''">
             and f.name like concat('%', #{storeName}, '%')
          </if>
+            <if test="storeId!=null">
+                and f.id =#{storeId}
+            </if>
+            <if test="lowestSellPrice!=null">
+                and b.sell_price &gt;=#{lowestSellPrice}
+            </if>
+            <if test="highestSellPrice!=null">
+                and b.sell_price &lt;=#{highestSellPrice}
+            </if>
+            <if test="lowestSupplierPrice!=null">
+                and b.supplier_price &gt;=#{lowestSupplierPrice}
+            </if>
+            <if test="highestSupplierPrice!=null">
+                and b.supplier_price &lt;=#{highestSupplierPrice}
+            </if>
         </where>
-        GROUP BY a.id,d.id order by a.sort;
+        GROUP BY a.id,d.id order by a.create_time
     </select>
 
 
-    <select id="searchRelGoodsByInfoId" resultType="com.chauncy.data.vo.supplier.InformationRelGoodsVo">
+    <select id="searchRelGoodsByInfoId" resultType="com.chauncy.data.vo.supplier.good.InformationRelGoodsVo">
     SELECT mrig.id, pg.`name`, pg.goods_category_id, Min(pgs.sell_price) AS sell_price,pg.goods_type
-    FROM mm_rel_information_goods mrig
+    FROM mm_information_rel_goods mrig
          LEFT JOIN pm_goods pg on (pg.id = mrig.goods_id and pg.del_flag = 0)
          LEFT JOIN pm_goods_sku pgs on (pg.id = pgs.goods_id and pgs.del_flag = 0)
     <where>
          mrig.information_id = #{id}
     </where>
     GROUP BY pg.id
+    </select>
+
+    <select id="selectDistributionGoods" resultType="com.chauncy.data.bo.base.BaseBo">
+        select pg.id, pg.`name`
+        from pm_goods_virtual_stock pgvs left join pm_goods pg on pg.id = pgvs.goods_id
+        where pgvs.store_id = #{storeId} and pgvs.del_flag = 0 and pg.del_flag = 0
+        <if test="null != id">
+            AND NOT EXISTS
+            (
+            SELECT id
+            FROM  pm_goods_rel_stock_template pgrst
+            WHERE pgrst.`goods_id` = pg.`id`
+            AND pgrst.`del_flag` = 0
+            AND pgrst.stock_template_id = #{id}
+            )
+        </if>
+        order by pgvs.create_time desc
+    </select>
+
+    <select id="selectOwnGoods" resultType="com.chauncy.data.bo.base.BaseBo">
+        select pg.id, pg.`name`
+        from pm_goods pg
+        where pg.store_id = #{storeId}  and pg.del_flag = 0
+        <if test="null != id">
+            AND NOT EXISTS
+            (
+                SELECT id
+                FROM  pm_goods_rel_stock_template pgrst
+                WHERE pgrst.`goods_id` = pg.`id`
+                AND pgrst.`del_flag` = 0
+                AND pgrst.stock_template_id = #{id}
+            )
+        </if>
+        order by pg.create_time desc
+    </select>
+
+    <select id="searchGoodsInfoByTemplateId" resultType="com.chauncy.data.vo.supplier.good.stock.StockTemplateGoodsInfoVo">
+        SELECT pgrst.id as relId , pg.id as goodsId,pg.icon,pg.NAME as good_name,pg.sort,pg.sales_volume,pg.star_status,
+        Min(pgs.supplier_price) AS supplier_price, Min(pgs.sell_price) AS sell_price,pga.`name` as brandName
+        from pm_goods_rel_stock_template pgrst
+        left join pm_goods pg on pg.id = pgrst.goods_id and pg.del_flag = 0
+        LEFT JOIN pm_goods_sku pgs on pg.id = pgs.goods_id
+        LEFT JOIN pm_goods_rel_attribute_good pgrag on pgrag.del_flag = 0 and pgrag.goods_good_id = pg.id
+        inner JOIN pm_goods_attribute pga on pgrag.goods_attribute_id = pga.id and pga.type=8
+        inner join pm_goods_category pgc on pgc.id = pg.goods_category_id
+        left join sm_store ss on ss.id = pg.store_id and ss.del_flag = 0
+        <where>
+            pgrst.stock_template_id = #{id}
+        </where>
+        group by pgrst.id,pga.id
+    </select>
+
+    <select id="searchInfoBasePaging" resultType="com.chauncy.data.vo.app.goods.GoodsBaseInfoVo">
+        SELECT
+                pg.store_id,
+                pg.id AS goodsId,
+                pg.`name` AS goodsName,
+                MIN(pgs.sell_price) AS sellPrice,
+                MIN(pgs.line_price) AS linePrice,
+                SUM(pgs.`sales_volume`) AS salesVolume,
+                pg.icon
+        FROM pm_goods pg
+        LEFT JOIN pm_goods_sku pgs ON pgs.goods_id = pg.id
+        <if test="goodsCategoryId != null">
+            LEFT JOIN pm_goods_category pgc3 ON pgc3.id = pg.goods_category_id
+	        LEFT JOIN pm_goods_category pgc2 ON pgc2.id = pgc3.parent_id AND pgc3.del_flag = 0
+	        LEFT JOIN pm_goods_category pgc1 ON pgc1.id = pgc2.parent_id AND pgc2.del_flag = 0
+        </if>
+	    <where>
+            pg.store_id = #{storeId}
+            AND pg.verify_status = 3
+            AND pg.del_flag = 0
+            AND pgs.del_flag = 0
+            <if test="goodsCategoryId != null">
+                AND pgc1.id = #{goodsCategoryId}
+                AND pgc1.del_flag = 0
+            </if>
+            <if test="storeGoodsListTypeEnum.name() == 'NEW_LIST' ">
+                AND DATEDIFF(now(), pg.update_time) > #{newGoodsDays}
+            </if>
+            <if test="storeGoodsListTypeEnum.name() == 'RECOMMEND_LIST' ">
+                AND pg.recommand_status = 1
+            </if>
+            <if test="storeGoodsListTypeEnum.name() == 'START_LIST' ">
+                AND pg.star_status = 1
+            </if>
+        </where>
+        GROUP BY pg.id
+        <if test="sortFileEnum.name() == 'COMPREHENSIVE_SORT'">
+            ORDER BY salesVolume*5 ${sortFileEnum.name()}
+        </if>
+        <if test="sortFileEnum.name() == 'SALES_SORT'">
+            ORDER BY pg.`sales_volume` ${sortFileEnum.name()}
+        </if>
+        <if test="sortFileEnum.name() == 'PRICE_SORT'">
+            ORDER BY sellPrice ${sortFileEnum.name()}
+        </if>
+        <if test="StoreGoodsListTypeEnum.name() == 'NEWEST_RECOMMEND_LIST'">
+            ORDER BY pg.sort desc
+        </if>
+        <if test="StoreGoodsListTypeEnum.name() == 'START_LIST'">
+            ORDER BY pg.update_time desc
+        </if>
+    </select>
+
+    <select id="searchGoodsByInfoId" resultType="com.chauncy.data.vo.app.goods.GoodsBaseInfoVo">
+        SELECT
+                pg.store_id,
+                pg.id AS goodsId,
+                pg.`name` AS goodsName,
+                MIN(pgs.sell_price) AS sellPrice,
+                MIN(pgs.line_price) AS linePrice,
+                SUM(pgs.`sales_volume`) AS salesVolume,
+                pg.icon
+        FROM mm_information_rel_goods mirg
+        LEFT JOIN pm_goods pg
+        ON mirg.`goods_id` = pg.`id` AND mirg.`information_id` = #{id} AND mirg.`del_flag` = 0
+        LEFT JOIN pm_goods_sku pgs
+        ON pgs.goods_id = pg.id
+        <where>
+            mi.id = #{id}
+            AND pg.verify_status = 3
+            AND pg.del_flag = 0
+            AND pgs.del_flag = 0
+        </where>
+        GROUP BY pg.id
+        ORDER BY pg.update_time DESC
+    </select>
+
+    <select id="searchExcelGoods" resultType="com.chauncy.data.vo.supplier.good.ExcelGoodVo">
+        select id,name,create_time import_time
+        from pm_goods where is_excel=true
+        and del_flag=0
+        <if test="id!=null and id!=0">
+            and id=#{id}
+        </if>
+        <if test="name!=null and name!=''">
+            and name like concat('%', #{name}, '%')
+        </if>
+
+    </select>
+    <select id="selectIds" resultType="com.chauncy.data.vo.BaseVo">
+        select id,name
+        from pm_goods
+        where id in
+        <foreach item="item" collection="idList" separator="," open="(" close=")" index="">  #{item}
+        </foreach>
+        <if test="id!=null">
+            and id = #{id}
+        </if>
+        <if test="name!=null and name!=''">
+            and name like concat('%', #{name}, '%')
+        </if>
     </select>
 
 

@@ -29,8 +29,8 @@ public class SearchGoodInfosDto {
     @ApiModelProperty(value = "分页大小")
     private Integer pageSize;
 
-//    @ApiModelProperty(value = "店铺id")
-//    private Long storeId;
+    @ApiModelProperty(value = "店铺id")
+    private Long storeId;
 
     @ApiModelProperty("商品名称")
     private String goodName;
@@ -56,11 +56,17 @@ public class SearchGoodInfosDto {
 //    @ApiModelProperty("审核时间")
 //    private LocalDate verifyTime;
 //
-//    @ApiModelProperty("销售价格")
-//    private BigDecimal sellPrice;
+    @ApiModelProperty("最低销售价格")
+    private BigDecimal lowestSellPrice;
+
+    @ApiModelProperty("最高销售价格")
+    private BigDecimal highestSellPrice;
 //
-//    @ApiModelProperty("供货价格")
-//    private BigDecimal supplierPrice;
+    @ApiModelProperty("最低供货价格")
+    private BigDecimal lowestSupplierPrice;
+
+    @ApiModelProperty("最高销售价格")
+    private BigDecimal highestSupplierPrice;
 //
 //    @ApiModelProperty("商品标签")
 //    private String labelName;

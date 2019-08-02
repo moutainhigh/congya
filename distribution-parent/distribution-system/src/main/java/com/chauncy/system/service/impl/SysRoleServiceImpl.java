@@ -1,9 +1,14 @@
 package com.chauncy.system.service.impl;
 
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.sys.SysRolePermissionPo;
 import com.chauncy.data.domain.po.sys.SysRolePo;
+import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.mapper.sys.SysRoleMapper;
+import com.chauncy.data.mapper.sys.SysRolePermissionMapper;
 import com.chauncy.system.service.ISysRoleService;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,8 +28,32 @@ public class SysRoleServiceImpl extends AbstractService<SysRoleMapper, SysRolePo
  @Autowired
  private SysRoleMapper mapper;
 
+ @Autowired
+ private SysRolePermissionMapper rolePermissionMapper;
+
  @Override
  public List<SysRolePo> findByDefaultRole(Boolean defaultRole) {
   return mapper.findByDefaultRole(defaultRole);
  }
+
+    /**
+     * 分页获取角色
+     *
+     * @param baseSearchDto
+     * @return
+     */
+    @Override
+    public PageInfo<SysRolePo> getRoleByPage(BaseSearchDto baseSearchDto) {
+        Integer pageNo = baseSearchDto.getPageNo() == null ? defaultPageNo : baseSearchDto.getPageNo();
+        Integer pageSize = baseSearchDto.getPageSize() == null ? defaultPageSize : baseSearchDto.getPageSize();
+
+        PageInfo<SysRolePo> sysRolePoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> mapper.getRoleByPage(baseSearchDto));
+
+        sysRolePoPageInfo.getList().forEach(a->{
+            List<SysRolePermissionPo> permissions = rolePermissionMapper.findByRoleId(a.getId());
+            a.setPermissions(permissions);
+        });
+        return sysRolePoPageInfo;
+    }
 }

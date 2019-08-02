@@ -21,7 +21,7 @@
 
 
     <insert id="insertByBatch">
-        insert into sm_rel_store_attribute (store_id, attribute_id, create_by)
+        insert into sm_store_rel_attribute (store_id, attribute_id, create_by)
         values
         <foreach collection="ids" item="item" index="index" separator=",">
             (#{storeId ,jdbcType=BIGINT}, #{item,jdbcType=BIGINT},#{userName,jdbcType=VARCHAR})

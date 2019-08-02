@@ -40,6 +40,7 @@ public class AppProvider implements AuthenticationProvider {
 
         switch (details.getLoginType()) {
             case MANAGE:
+            case SUPPLIER:
                 String userName = authentication.getName();// 这个获取表单输入中返回的用户名;
                 String password = (String) authentication.getCredentials();// 这个是表单中输入的密码；
                 // 这里构建来判断用户是否存在和密码是否正确
@@ -49,6 +50,9 @@ public class AppProvider implements AuthenticationProvider {
                 }
                 if (!bCryptPasswordEncoder.matches(password, userInfo.getPassword())) {
                     throw new BadCredentialsException("密码不正确");
+                }
+                if (userInfo.getStatus()==-1){
+                    throw new LockedException("账户被禁用，请联系管理员");
                 }
                 Collection<? extends GrantedAuthority> authorities = userInfo.getAuthorities();
                 // 构建返回的用户登录成功的token

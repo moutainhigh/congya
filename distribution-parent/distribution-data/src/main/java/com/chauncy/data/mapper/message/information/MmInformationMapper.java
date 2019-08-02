@@ -2,7 +2,7 @@ package com.chauncy.data.mapper.message.information;
 
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.dto.app.message.information.select.SearchInfoByConditionDto;
-import com.chauncy.data.dto.manage.message.information.select.InformationSearchDto;
+import com.chauncy.data.dto.base.BaseSearchByTimeDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.app.message.information.InformationBaseVo;
 import com.chauncy.data.vo.app.message.information.InformationPagingVo;
@@ -38,10 +38,10 @@ public interface MmInformationMapper extends IBaseMapper<MmInformationPo> {
 
     /**
      * 后台分页条件查询
-     * @param informationSearchDto
+     * @param baseSearchByTimeDto
      * @return
      */
-    List<InformationPageInfoVo> searchInfoPaging(InformationSearchDto informationSearchDto);
+    List<InformationPageInfoVo> searchInfoPaging(BaseSearchByTimeDto baseSearchByTimeDto);
 
     /**
      * app分页条件查询

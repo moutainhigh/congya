@@ -71,4 +71,26 @@
         </where>
     </select>
 
+    <select id="searchUsersByCondition"
+            resultType="com.chauncy.data.vo.sys.permission.SearchUsersByConditionVo">
+        select a.id,avatar,mobile,nick_name,password,sex,status,type,username,a.create_time,c.name
+        from sys_user a,sys_role_user b,sys_role c
+        where a.id = b.user_id and c.id = b.role_id
+            <if test="mobile != null and mobile != ''">
+                and a.mobile = #{mobile}
+            </if>
+            <if test="status != null">
+                and a.status = #{status}
+            </if>
+            <if test="type != null">
+                and a.type = #{type}
+            </if>
+            <if test="username != null and username != ''">
+                and a.username = #{username}
+            </if>
+            <if test="roleName != null and roleName != ''">
+                and c.name = #{roleName}
+            </if>
+    </select>
+
 </mapper>

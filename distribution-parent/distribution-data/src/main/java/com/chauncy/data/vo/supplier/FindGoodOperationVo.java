@@ -24,6 +24,9 @@ public class FindGoodOperationVo {
     @NotNull(message = "商品ID不能为空")
     private Long goodsId;
 
+    @ApiModelProperty(value = "商品类型")
+    private String goodsType;
+
     @ApiModelProperty(value = "活动成本比例")
     @NotNull(message = "活动成本比例不能为空")
     private BigDecimal activityCostRate;
@@ -47,8 +50,8 @@ public class FindGoodOperationVo {
     @ApiModelProperty(value = "限定会员等级列表集合")
     private List<MemberLevelInfos> memberLevelInfos;
 
-    @ApiModelProperty(value = "最低会员等级ID")
-    private Long lowestLevelId;
+    /*@ApiModelProperty(value = "最低会员等级ID")
+    private Long lowestLevelId;*/
 
     @ApiModelProperty(value = "商品排序数字")
     @NotNull(message = "商品排序数字不能为空")
@@ -57,8 +60,8 @@ public class FindGoodOperationVo {
     @ApiModelProperty(value="税率选择，即税率类型1--平台税率 2--自定义税率,只有在商品类型goodsType为保税仓或海外直邮才显示")
     private Integer taxRateType;
 
-    @ApiModelProperty(value="自定义税率，只有在税率选择，即税率类型 2--自定义税率且商品类型goodsType为保税仓或海外直邮才显示")
-    private BigDecimal customTaxRate;
+    @ApiModelProperty(value="税率,商品类型goodsType为保税仓或海外直邮才显示")
+    private BigDecimal taxRate;
 
     @ApiModelProperty(value = "是否包邮 默认为0不包邮")
     @NotNull(message = "是否包邮不能为空")

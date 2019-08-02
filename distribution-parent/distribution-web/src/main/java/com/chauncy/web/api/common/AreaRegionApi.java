@@ -2,6 +2,7 @@ package com.chauncy.web.api.common;
 
 import com.chauncy.data.areaService.IAreaRegionService;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.area.AreaCityVo;
 import com.chauncy.data.vo.area.AreaVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -40,6 +41,18 @@ public class AreaRegionApi {
     public JsonViewData<List<AreaVo>> searchList(){
 
         return new JsonViewData(service.searchList());
+    }
+
+    /**
+     * 获取省市
+     *
+     * @return
+     */
+    @GetMapping("/search")
+    @ApiOperation("获取省市地址")
+    public JsonViewData<List<AreaCityVo>> search(){
+
+        return new JsonViewData(service.search());
     }
 
     /**

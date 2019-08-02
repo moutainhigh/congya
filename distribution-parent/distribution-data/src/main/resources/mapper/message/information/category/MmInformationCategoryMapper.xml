@@ -39,7 +39,7 @@
 
 
     <select id="selectAll" resultType="com.chauncy.data.vo.manage.message.information.category.InformationCategoryVo">
-        select id,name
+        select id, `name`, icon
         from mm_information_category
         where del_flag = 0
         order by sort desc

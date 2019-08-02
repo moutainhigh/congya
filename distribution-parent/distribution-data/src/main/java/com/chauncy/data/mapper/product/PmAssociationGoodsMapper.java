@@ -1,7 +1,11 @@
 package com.chauncy.data.mapper.product;
 
 import com.chauncy.data.domain.po.product.PmAssociationGoodsPo;
+import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.supplier.good.AssociationGoodsVo;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +17,6 @@ import com.chauncy.data.mapper.IBaseMapper;
  */
 public interface PmAssociationGoodsMapper extends IBaseMapper<PmAssociationGoodsPo> {
 
+
+    List<AssociationGoodsVo> searchAssociatedGoods (AssociationGoodsDto associationGoodsDto);
 }
