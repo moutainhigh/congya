@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chauncy.data.mapper.pay.PayUserRelationMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.pay.PayUserRelationPo">
+        <id column="id" property="id" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="del_flag" property="delFlag" />
+        <result column="pay_id" property="payId" />
+        <result column="last_two_user_id" property="lastTwoUserId" />
+        <result column="last_one_user_id" property="lastOneUserId" />
+        <result column="next_user_id" property="nextUserId" />
+        <result column="first_user_id" property="firstUserId" />
+        <result column="second_user_id" property="secondUserId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, create_by, create_time, update_by, update_time, del_flag, pay_id, last_two_user_id, last_one_user_id, next_user_id, first_user_id, second_user_id
+    </sql>
+
+</mapper>

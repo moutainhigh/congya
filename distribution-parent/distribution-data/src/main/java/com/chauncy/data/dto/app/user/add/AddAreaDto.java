@@ -7,6 +7,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * @Author cheng
  * @create 2019-06-30 14:58
@@ -19,7 +21,7 @@ import lombok.experimental.Accessors;
 public class AddAreaDto {
 
     @ApiModelProperty(value = "收货地址Id")
-    @NeedExistConstraint(tableName ="um_area_shipping",groups = IUpdateGroup.class)
+    @NeedExistConstraint(tableName ="um_area_shipping",groups = IUpdateGroup.class,message = "收货地址【id】不存在！")
     private Long id;
 
     @ApiModelProperty(value = "收货人")
@@ -29,6 +31,8 @@ public class AddAreaDto {
     private String mobile;
 
     @ApiModelProperty(value = "地区ID")
+    @NotNull(message = "地区id【areaId】不能为空！")
+    @NeedExistConstraint(tableName = "area_region",message = "地区id【areaId】不存在！")
     private Long areaId;
 
     @ApiModelProperty(value = "详细地址")

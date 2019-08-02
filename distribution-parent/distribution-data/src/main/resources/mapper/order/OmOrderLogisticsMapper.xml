@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chauncy.data.mapper.order.OmOrderLogisticsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.order.OmOrderLogisticsPo">
+        <id column="id" property="id" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="logistics_no" property="logisticsNo" />
+        <result column="logi_code" property="logiCode" />
+        <result column="logi_name" property="logiName" />
+        <result column="status" property="status" />
+        <result column="data" property="data" />
+        <result column="is_check" property="isCheck" />
+        <result column="order_id" property="orderId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, create_by, create_time, logistics_no, logi_code, logi_name, status, data, is_check, order_id
+    </sql>
+
+</mapper>

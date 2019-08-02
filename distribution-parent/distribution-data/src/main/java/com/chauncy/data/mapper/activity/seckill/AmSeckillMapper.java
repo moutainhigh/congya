@@ -24,4 +24,12 @@ public interface AmSeckillMapper extends IBaseMapper<AmSeckillPo> {
      * @return
      */
     List<SearchActivityListVo> searchSeckillList(SearchActivityListDto searchActivityListDto);
+
+    /**
+     * 查询秒杀详情
+     *
+     * @param id
+     * @return
+     */
+    SearchActivityListVo findSeckillById(Long id);
 }

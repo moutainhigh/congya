@@ -83,5 +83,12 @@
         </if>
 
     </select>
+    <select id="findIntegralById" resultType="com.chauncy.data.vo.manage.activity.SearchActivityListVo">
+        select id, create_by, create_time, update_by, update_time, del_flag, name, sort, picture, member_level_id, discount_price_ratio, registration_start_time, registration_end_time, activity_start_time, activity_end_time, activity_description, enable, group_id,
+        ( CASE WHEN ( now( ) &lt; registration_start_time ) THEN '待开始' WHEN ( now( ) &gt; registration_end_time ) THEN '已结束' ELSE '报名中' END ) AS registration_status,
+        ( CASE WHEN ( now( ) &lt; activity_start_time ) THEN '待开始' WHEN ( now( ) &gt; activity_end_time ) THEN '已结束' ELSE '活动中' END ) AS activity_status
+        from am_integrals
+        where id = #{id}
+    </select>
 
 </mapper>

@@ -40,8 +40,8 @@
             <result column="cCreateTime" property="createTime"/>
         </collection>
     </resultMap>
-    <select id="searchPaging" resultMap="commentBaseResult">
-        select mic.id, mic.user_id, mic.parent_user_id, mic.create_time, mic.enabled, IFNULL(uu.name,su.username) as userName,
+    <list id="searchPaging" resultMap="commentBaseResult">
+        list mic.id, mic.user_id, mic.parent_user_id, mic.create_time, mic.enabled, IFNULL(uu.name,su.username) as userName,
         IFNULL(uu.name,su.avatar) as avatar, IFNULL(puu.name,psu.username) as parentUserName
         from mm_information_comment mic
         left join um_user uu on mic.user_id = uu.id
@@ -53,7 +53,7 @@
                 and  mic.info_id = #{id}
         </where>
         order by mic.create_time asc
-    </select>-->
+    </list>-->
 
     <select id="searchInfoViceComment" resultType="com.chauncy.data.vo.manage.message.information.comment.InformationViceCommentVo">
         select mic.id, mic.user_id, mic.parent_user_id, mic.create_time, mic.enabled, mic.content, IFNULL(uu.name,su.username) as userName,

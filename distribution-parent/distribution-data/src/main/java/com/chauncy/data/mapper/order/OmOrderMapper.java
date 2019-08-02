@@ -1,7 +1,20 @@
 package com.chauncy.data.mapper.order;
 
 import com.chauncy.data.domain.po.order.OmOrderPo;
+import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
+import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
+import com.chauncy.data.dto.supplier.order.SmSendOrderDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.manage.order.list.GoodsTempVo;
+import com.chauncy.data.vo.manage.order.list.OrderDetailVo;
+import com.chauncy.data.vo.manage.order.list.SearchOrderVo;
+import com.chauncy.data.vo.supplier.order.SmOrderDetailVo;
+import com.chauncy.data.vo.supplier.order.SmSearchOrderVo;
+import com.chauncy.data.vo.supplier.order.SmSendGoodsTempVo;
+import com.chauncy.data.vo.supplier.order.SmSendOrderVo;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,13 +26,55 @@ import com.chauncy.data.mapper.IBaseMapper;
  */
 public interface OmOrderMapper extends IBaseMapper<OmOrderPo> {
 
-   /* SELECT o.id,s.id,s.`name`,u.`name`,u.phone,o.total_number,o.sum_money,a.ship_name,a.detailed_address,a.mobile,o.activity_type,o.`status`,o.create_time
-    from om_order o,sm_store s,um_user u,um_area_shipping a
-    where o.store_id=s.id and o.um_user_id=u.id and o.area_shipping_id=a.id
-    and o.del_flag=0 and s.del_flag=0 and u.del_flag=0 and a.del_flag=0
-    and o.id='' and u.id='' and u.phone LIKE '%%' AND o.activity_type=''
-    AND s.id='' and s.name LIKE '%%' AND o.create_time>=   and o.create_time<=
-    AND o.`status`=''  AND o.sum_money>=   AND o.sum_money<=*/
+    /**
+     * 总后台订单列表
+     * @param searchOrderDto
+     * @return
+     */
+    List<SearchOrderVo> search(SearchOrderDto searchOrderDto);
+
+    /**
+     * 商家端订单列表
+     * @param smSearchOrderDto
+     * @return
+     */
+    List<SmSearchOrderVo> searchSmOrder(SmSearchOrderDto smSearchOrderDto);
+
+    /**
+     * 查询平台订单详情
+     * @param id
+     * @return
+     */
+    OrderDetailVo loadById(@Param("id") Long id);
+
+    /**
+     * 查询商家订单详情
+     * @param id
+     * @return
+     */
+    SmOrderDetailVo loadSmById(@Param("id") Long id);
+
+
+    /**
+     * 商家端查询订单商品快照
+     * @param orderId
+     * @return
+     */
+    List<GoodsTempVo> searchGoodsTempVos(Long orderId);
+
+    /**
+     * 商家端查询发货订单列表
+     * @param smSendOrderDto
+     * @return
+     */
+    List<SmSendOrderVo> searchSendOrderVos(SmSendOrderDto smSendOrderDto);
+
+    /**
+     * 商家端查询发货商品详情
+     * @param orderId
+     * @return
+     */
+    List<SmSendGoodsTempVo> searchSendGoodsTemp(Long orderId);
 
 
 

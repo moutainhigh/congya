@@ -39,9 +39,9 @@
         </where>
     </select>
 
-    <!--<select id="selectJobAll" resultMap="QuartzJobLogResult">
+    <!--<list id="selectJobAll" resultMap="QuartzJobLogResult">
         <include refid="selectJobTaskLogVo"/>
-    </select>-->
+    </list>-->
 
     <select id="selectJobLogById" parameterType="Long" resultMap="QuartzJobLogResult">
         <include refid="selectJobTaskLogVo"/>

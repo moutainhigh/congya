@@ -2,7 +2,6 @@ package com.chauncy.order.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.constant.RabbitConstants;
-import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
@@ -11,11 +10,13 @@ import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.common.util.SnowFlakeUtil;
 import com.chauncy.data.bo.app.car.MoneyShipBo;
 import com.chauncy.data.bo.base.BaseBo;
+import com.chauncy.data.bo.manage.pay.PayUserMessage;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.order.OmShoppingCartPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
+import com.chauncy.data.domain.po.pay.PayUserRelationPo;
 import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
 import com.chauncy.data.domain.po.product.PmGoodsRelAttributeValueSkuPo;
@@ -33,11 +34,13 @@ import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
 import com.chauncy.data.mapper.area.AreaRegionMapper;
 import com.chauncy.data.mapper.order.OmShoppingCartMapper;
 import com.chauncy.data.mapper.pay.IPayOrderMapper;
+import com.chauncy.data.mapper.pay.PayUserRelationMapper;
 import com.chauncy.data.mapper.product.*;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.mapper.user.UmAreaShippingMapper;
+import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.temp.order.service.IOmGoodsTempService;
 import com.chauncy.data.vo.app.car.*;
 import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
@@ -125,7 +128,13 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     private IOmOrderService omOrderService;
 
     @Autowired
-    private  RabbitTemplate rabbitTemplate;
+    private RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private UmUserMapper userMapper;
+
+    @Autowired
+    private PayUserRelationMapper payUserRelationMapper;
 
 
     //需要进行实行认证且计算税率的商品类型
@@ -636,22 +645,24 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         //实际付款、总优惠
         BeanUtils.copyProperties(submitOrderDto, savePayOrderPo);
         //如果不使用葱鸭钱包
-        if (!submitOrderDto.getIsUseWallet()){
+        if (!submitOrderDto.getIsUseWallet()) {
             submitOrderDto.setTotalRedEnvelopsMoney(BigDecimal.ZERO);
             submitOrderDto.setTotalShopTicketMoney(BigDecimal.ZERO);
             submitOrderDto.setTotalDiscount(BigDecimal.ZERO);
             submitOrderDto.setTotalRealPayMoney(BigDecimalUtil.safeAdd(submitOrderDto.getTotalMoney()
-            ,submitOrderDto.getTotalShipMoney(),submitOrderDto.getTotalTaxMoney()
+                    , submitOrderDto.getTotalShipMoney(), submitOrderDto.getTotalTaxMoney()
             ));
 
         }
         UmAreaShippingPo umAreaShippingPo = umAreaShippingMapper.selectById(submitOrderDto.getUmAreaShipId());
         savePayOrderPo.setShipName(umAreaShippingPo.getShipName()).setPhone(umAreaShippingPo.getMobile())
                 .setShipAddress(umAreaShippingPo.getDetailedAddress()).setTotalRedEnvelops(totalRedEnvelops)
-        .setTotalShopTicket(totalShopTicket).setUmUserId(currentUser.getId());
+                .setTotalShopTicket(totalShopTicket).setUmUserId(currentUser.getId()).setAreaName(umAreaShippingPo.getAreaName());
         //生成支付单
         payOrderMapper.insert(savePayOrderPo);
 
+        //用户所属店铺id
+        Long userStoreId = userMapper.getUserStoreId(currentUser.getId());
 
 
         //循环遍历 生成订单
@@ -667,17 +678,21 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 BeanUtils.copyProperties(y, saveOrder);
                 saveOrder.setUmUserId(currentUser.getId()).setAreaShippingId(submitOrderDto.getUmAreaShipId())
                         .setStoreId(storeId).setPayOrderId(savePayOrderPo.getId()).setCreateBy(currentUser.getPhone())
-                .setId(SnowFlakeUtil.getFlowIdInstance().nextId());
+                        .setId(SnowFlakeUtil.getFlowIdInstance().nextId());
                 //设置一些优惠信息
-                setDiscountMessage(saveOrder,savePayOrderPo);
+                setDiscountMessage(saveOrder, savePayOrderPo);
+                //设置用户所属店铺
+                saveOrder.setUserStoreId(userStoreId);
                 saveOrders.add(saveOrder);
 
                 //生成商品快照
                 y.getShopTicketSoWithCarGoodVos().forEach(g -> {
+                    PmGoodsSkuPo skuPo = skuMapper.selectById(g.getId());
                     com.chauncy.data.domain.po.order.OmGoodsTempPo saveGoodsTemp = new com.chauncy.data.domain.po.order.OmGoodsTempPo();
-                    BeanUtils.copyProperties(g,saveGoodsTemp);
+                    BeanUtils.copyProperties(g, saveGoodsTemp);
                     saveGoodsTemp.setCreateBy(currentUser.getPhone()).setOrderId(saveOrder.getId()).setSkuId(g.getId());
-                    saveGoodsTemp.setId(null);
+                    saveGoodsTemp.setId(null).setSupplierPrice(skuPo.getSupplierPrice()).setProfitRate(skuPo.getProfitRate())
+                            .setGoodsId(skuPo.getGoodsId()).setArticleNumber(skuPo.getArticleNumber());
                     saveGoodsTemps.add(saveGoodsTemp);
 
                 });
@@ -685,76 +700,146 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         });
 
         //保存订单
-       omOrderService.saveBatch(saveOrders);
-       //保存商品快照
-       goodsTempService.saveBatch(saveGoodsTemps);
-       //减去库存
-       skuMapper.updateStock(shopTicketSoWithCarGoodVoList);
-       //减去购物券和红包
-       mapper.updateDiscount(totalRedEnvelops,
-               totalShopTicket
-       ,currentUser.getId()
-       );
+        omOrderService.saveBatch(saveOrders);
+        //保存商品快照
+        goodsTempService.saveBatch(saveGoodsTemps);
+        //减去库存
+        skuMapper.updateStock(shopTicketSoWithCarGoodVoList);
+        //减去购物券和红包
+        mapper.updateDiscount(totalRedEnvelops,
+                totalShopTicket
+                , currentUser.getId()
+        );
+        //保存返佣用户信息
+        PayUserRelationPo savePayUser = getPayUserMessage(currentUser.getId());
+        savePayUser.setCreateBy(currentUser.getPhone()).setPayId(savePayOrderPo.getId());
+        payUserRelationMapper.insert(savePayUser);
+
         // 添加延时队列
         this.rabbitTemplate.convertAndSend(RabbitConstants.REGISTER_DELAY_EXCHANGE, RabbitConstants.DELAY_ROUTING_KEY, savePayOrderPo.getId(), message -> {
             // TODO 如果配置了 params.put("x-message-ttl", 5 * 1000); 那么这一句也可以省略,具体根据业务需要是声明 Queue 的时候就指定好延迟时间还是在发送自己控制时间
-            message.getMessageProperties().setExpiration(30*60* 1000 + "");
+            message.getMessageProperties().setExpiration(30 * 60 * 1000 + "");
             return message;
         });
-        LoggerUtil.info("【发送时间】:"+LocalDateTime.now());
+        LoggerUtil.info("【发送时间】:" + LocalDateTime.now());
+    }
+
+    /**
+     * 获取需要返佣的用户信息
+     *
+     * @param userId
+     * @return
+     */
+    public PayUserRelationPo getPayUserMessage(Long userId) {
+        PayUserRelationPo savePayUser = new PayUserRelationPo();
+        List<PayUserMessage> payUserMessages = userMapper.getPayUserMessage(userId);
+        int size = payUserMessages.size();
+        //如果长度为1，就是表示没有子级和父级
+        if (size == 1) {
+            return null;
+        }
+        //如果查出的第一行不是该用户信息，就表示存在子用户
+        if (!payUserMessages.get(0).getUserId().equals(userId)) {
+            savePayUser.setNextUserId(payUserMessages.get(0).getUserId());
+        }
+        else {
+            //如果不存在子用户，在集合第一位插入空的实体，保证无论有没有子级从第三个开始才是父级
+            payUserMessages.add(0, new PayUserMessage());
+        }
+        //如果长度小于3，则表示不存在子级和父级，就没有返佣返积分的流程
+        if (size == 3) {
+            savePayUser.setLastOneUserId(payUserMessages.get(2).getUserId());
+            savePayUser.setFirstUserId(payUserMessages.get(2).getUserId());
+        }
+        //如果存在两个以上的父级
+        if (size>3) {
+            savePayUser.setLastOneUserId(payUserMessages.get(2).getUserId());
+            savePayUser.setLastTwoUserId(payUserMessages.get(3).getUserId());
+
+            //找出最高等级的会员且最接近的用户
+            PayUserMessage firstLevel= (PayUserMessage) payUserMessages.get(2).clone();
+            //从第三个开始是父级，假设第3个为最大所以从第四个开始遍历
+            for (int i=3;i<payUserMessages.size();i++){
+                if (payUserMessages.get(i).getLevel()>firstLevel.getLevel()){
+                    firstLevel= (PayUserMessage) payUserMessages.get(i).clone();
+                }
+            }
+
+            //找出第二高等级且最接近的用户
+            PayUserMessage secondLevel= new PayUserMessage();
+            secondLevel.setLevel(0);
+            //从第三个开始是父级
+            for (int i=2;i<payUserMessages.size();i++){
+                //第二等级的
+                if (payUserMessages.get(i).getLevel()>secondLevel.getLevel()&&payUserMessages.get(i).getLevel()<firstLevel.getLevel()){
+                    secondLevel= (PayUserMessage) payUserMessages.get(i).clone();
+                }
+            }
+
+            savePayUser.setFirstUserId(firstLevel.getUserId());
+            if (!secondLevel.getLevel().equals(0)){
+                savePayUser.setSecondUserId(secondLevel.getUserId());
+            }
+
+
+        }
+        return savePayUser;
+
     }
 
     /**
      * 保存订单一些优惠信息
+     *
      * @param saveOrder
      * @param payOrderPo
      */
-    private void setDiscountMessage(OmOrderPo saveOrder,PayOrderPo payOrderPo){
+    private void setDiscountMessage(OmOrderPo saveOrder, PayOrderPo payOrderPo) {
         /**
          * 订单金额
          */
-        BigDecimal orderMoney=BigDecimalUtil.safeAdd(saveOrder.getTotalMoney(),saveOrder.getShipMoney(),saveOrder.getTaxMoney());
+        BigDecimal orderMoney = BigDecimalUtil.safeAdd(saveOrder.getTotalMoney(), saveOrder.getShipMoney(), saveOrder.getTaxMoney());
         //总支付单
-        BigDecimal payMoney=BigDecimalUtil.safeAdd(payOrderPo.getTotalMoney(), payOrderPo.getTotalShipMoney(),payOrderPo.getTotalTaxMoney());
+        BigDecimal payMoney = BigDecimalUtil.safeAdd(payOrderPo.getTotalMoney(), payOrderPo.getTotalShipMoney(), payOrderPo.getTotalTaxMoney());
         //订单占总金额的比例
-        BigDecimal ration=BigDecimalUtil.safeDivide(orderMoney,payMoney);
-        saveOrder.setRedEnvelops(BigDecimalUtil.safeMultiply(ration,payOrderPo.getTotalRedEnvelops()));
-        saveOrder.setRedEnvelopsMoney(BigDecimalUtil.safeMultiply(ration,payOrderPo.getTotalRedEnvelopsMoney()));
-        saveOrder.setShopTicket(BigDecimalUtil.safeMultiply(ration,payOrderPo.getTotalShopTicket()));
-        saveOrder.setShopTicketMoney(BigDecimalUtil.safeMultiply(ration,payOrderPo.getTotalShopTicketMoney()));
+        BigDecimal ration = BigDecimalUtil.safeDivide(orderMoney, payMoney);
+        saveOrder.setRedEnvelops(BigDecimalUtil.safeMultiply(ration, payOrderPo.getTotalRedEnvelops()));
+        saveOrder.setRedEnvelopsMoney(BigDecimalUtil.safeMultiply(ration, payOrderPo.getTotalRedEnvelopsMoney()));
+        saveOrder.setShopTicket(BigDecimalUtil.safeMultiply(ration, payOrderPo.getTotalShopTicket()));
+        saveOrder.setShopTicketMoney(BigDecimalUtil.safeMultiply(ration, payOrderPo.getTotalShopTicketMoney()));
     }
 
     /**
      * 检查下单的sku的库存是否足够
+     *
      * @param submitOrderDto
      */
-    private List<ShopTicketSoWithCarGoodVo> checkStock(SubmitOrderDto submitOrderDto){
-        List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVoList=Lists.newArrayList();
-        submitOrderDto.getStoreOrderVos().forEach(x->{
-            x.getGoodsTypeOrderVos().forEach(y->{
+    private List<ShopTicketSoWithCarGoodVo> checkStock(SubmitOrderDto submitOrderDto) {
+        List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVoList = Lists.newArrayList();
+        submitOrderDto.getStoreOrderVos().forEach(x -> {
+            x.getGoodsTypeOrderVos().forEach(y -> {
                 shopTicketSoWithCarGoodVoList.addAll(y.getShopTicketSoWithCarGoodVos());
             });
         });
         //查出sku实体
         List<PmGoodsSkuPo> pmGoodsSkuPos = skuMapper.selectBatchIds(shopTicketSoWithCarGoodVoList.stream()
-        .map(ShopTicketSoWithCarGoodVo::getId).collect(Collectors.toList()));
-        if (shopTicketSoWithCarGoodVoList.size()!=pmGoodsSkuPos.size()){
-            throw new ServiceException(ResultCode.FAIL,"操作失败！某些商品已被下架！");
+                .map(ShopTicketSoWithCarGoodVo::getId).collect(Collectors.toList()));
+        if (shopTicketSoWithCarGoodVoList.size() != pmGoodsSkuPos.size()) {
+            throw new ServiceException(ResultCode.FAIL, "操作失败！某些商品已被下架！");
         }
         //库存不足的skuid和数量
-        List<OutOfStockVo> outOfStockVos=Lists.newArrayList();
-        shopTicketSoWithCarGoodVoList.forEach(x->{
-          PmGoodsSkuPo pmGoodsSkuPo = pmGoodsSkuPos.stream().filter(y -> y.getId().equals(x.getId())).findFirst().orElse(null);
-          //如果库存不足
-          if (x.getNumber()>pmGoodsSkuPo.getStock()){
-              OutOfStockVo outOfStockVo = new OutOfStockVo();
-              outOfStockVo.setSkuId(x.getId());
-              outOfStockVo.setStock(pmGoodsSkuPo.getStock());
-              outOfStockVos.add(outOfStockVo);
-          }
+        List<OutOfStockVo> outOfStockVos = Lists.newArrayList();
+        shopTicketSoWithCarGoodVoList.forEach(x -> {
+            PmGoodsSkuPo pmGoodsSkuPo = pmGoodsSkuPos.stream().filter(y -> y.getId().equals(x.getId())).findFirst().orElse(null);
+            //如果库存不足
+            if (x.getNumber() > pmGoodsSkuPo.getStock()) {
+                OutOfStockVo outOfStockVo = new OutOfStockVo();
+                outOfStockVo.setSkuId(x.getId());
+                outOfStockVo.setStock(pmGoodsSkuPo.getStock());
+                outOfStockVos.add(outOfStockVo);
+            }
         });
-        if (!ListUtil.isListNullAndEmpty(outOfStockVos)){
-            throw new ServiceException(ResultCode.NSUFFICIENT_INVENTORY,"某些商品库存不足",outOfStockVos);
+        if (!ListUtil.isListNullAndEmpty(outOfStockVos)) {
+            throw new ServiceException(ResultCode.NSUFFICIENT_INVENTORY, "某些商品库存不足", outOfStockVos);
         }
         return shopTicketSoWithCarGoodVoList;
     }

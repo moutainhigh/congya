@@ -52,8 +52,8 @@ public class PayOrderPo implements Serializable {
 
     private String userIp;
 
-    @ApiModelProperty(value = "支付金额，精确到分")
-    private Integer payAmount;
+    @ApiModelProperty(value = "支付金额")
+    private BigDecimal payAmount;
 
     @ApiModelProperty(value = "支付时间")
     private LocalDateTime payTime;
@@ -148,7 +148,16 @@ public class PayOrderPo implements Serializable {
     @ApiModelProperty(value = "红包抵扣了多少钱")
     private BigDecimal totalRedEnvelopsMoney;
 
+    @ApiModelProperty(value = "支付用户")
     private Long umUserId;
+
+    @ApiModelProperty(value = "收货地区")
+    private String areaName;
+
+    @ApiModelProperty(value = "是否有效订单 1-有效 0-无效")
+    private Boolean enabled;
+
+
 
 
 }
