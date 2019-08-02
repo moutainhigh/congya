@@ -96,6 +96,10 @@ public class memberApi extends BaseApi {
     @PostMapping("/delete/{id}")
     @ApiOperation("删除会员等级")
     public JsonViewData search( @PathVariable Long id){
+        PmMemberLevelPo memberLevelPo = memberLevelService.getById(id);
+        if (memberLevelPo.getLevel()==1){
+            return setJsonViewData(ResultCode.FAIL,"一级等级为默认等级，不能删除！");
+        }
         boolean b = memberLevelService.removeById(id);
         return b?setJsonViewData(ResultCode.SUCCESS):setJsonViewData(ResultCode.FAIL);
     }

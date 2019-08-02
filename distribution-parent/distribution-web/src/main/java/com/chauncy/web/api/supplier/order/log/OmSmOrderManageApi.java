@@ -8,6 +8,7 @@ import com.chauncy.data.dto.supplier.order.SmSendOrderDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.order.list.OrderDetailVo;
 import com.chauncy.data.vo.manage.order.list.SearchOrderVo;
+import com.chauncy.data.vo.supplier.order.SmOrderLogisticsVo;
 import com.chauncy.data.vo.supplier.order.SmSearchOrderVo;
 import com.chauncy.data.vo.supplier.order.SmSendOrderVo;
 import com.chauncy.order.service.IOmOrderService;
@@ -66,6 +67,16 @@ public class OmSmOrderManageApi extends BaseApi {
         PageInfo<SmSendOrderVo> search = orderService.searchSmSendOrderList(smSendOrderDto);
         return setJsonViewData(search);
     }
+
+    @ApiOperation(value = "商家查询发货订单物流信息")
+    @PostMapping("/logistics/{id}")
+    public JsonViewData<SmOrderLogisticsVo> searchLogistics(@PathVariable Long id) {
+        return setJsonViewData(orderService.getLogisticsById(id));
+    }
+
+
+
+
 
 
 

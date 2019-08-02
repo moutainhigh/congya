@@ -5,11 +5,12 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
+ * 商家端查询订单物流
  * @Author zhangrt
  * @Date 2019/8/1 23:47
  **/
 @Data
-public class OrderLogisticsVo {
+public class SmOrderLogisticsVo {
 
     @ApiModelProperty("订单类型")
     private String goodsType;
@@ -31,6 +32,15 @@ public class OrderLogisticsVo {
 
     @ApiModelProperty(value = "详细地址")
     private String detailedAddress;
+
+    @ApiModelProperty(value = "物流公司名称")
+    private String logiName;
+
+    @ApiModelProperty(value = "运单号 ")
+    private String logisticsNo;
+
+    @ApiModelProperty(value = "物流信息")
+    private String data;
 
 
 }

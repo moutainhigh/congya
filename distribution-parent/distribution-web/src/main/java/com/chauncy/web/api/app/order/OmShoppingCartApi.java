@@ -44,8 +44,8 @@ public class OmShoppingCartApi extends BaseApi {
      */
     @GetMapping("/selectSpecifiedGoods/{goodsId}")
     @ApiOperation("查看具体商品详情")
-    public JsonViewData<SpecifiedGoodsVo> selectSpecifiedGoods(@ApiParam(required = true,name="goodsId",value="商品ID")
-                                             @PathVariable Long goodsId){
+    public JsonViewData<SpecifiedGoodsVo> selectSpecifiedGoods(@ApiParam(required = true, name = "goodsId", value = "商品ID")
+                                                               @PathVariable Long goodsId) {
         return new JsonViewData<SpecifiedGoodsVo>(service.selectSpecifiedGoods(goodsId));
     }
 
@@ -57,8 +57,8 @@ public class OmShoppingCartApi extends BaseApi {
      */
     @PostMapping("/add")
     @ApiOperation("添加商品到购物车")
-    public JsonViewData addToCart(@RequestBody @ApiParam(required = true,name = "addCartDto",value = "添加购物车")
-                                @Validated AddCartDto addCartDto){
+    public JsonViewData addToCart(@RequestBody @ApiParam(required = true, name = "addCartDto", value = "添加购物车")
+                                  @Validated AddCartDto addCartDto) {
         service.addToCart(addCartDto);
         return new JsonViewData(ResultCode.SUCCESS);
     }
@@ -70,8 +70,8 @@ public class OmShoppingCartApi extends BaseApi {
      */
     @ApiOperation("查看购物车")
     @PostMapping("/search")
-    public JsonViewData<PageInfo<CartVo>> searchCart(@RequestBody @ApiParam(required = true,name = "searchCartVo",value="查看购物车")
-                                                     @Validated SearchCartDto searchCartDto){
+    public JsonViewData<PageInfo<CartVo>> searchCart(@RequestBody @ApiParam(required = true, name = "searchCartVo", value = "查看购物车")
+                                                     @Validated SearchCartDto searchCartDto) {
 
         return new JsonViewData(service.SearchCart(searchCartDto));
     }
@@ -83,7 +83,7 @@ public class OmShoppingCartApi extends BaseApi {
      */
     @GetMapping("/delCart/{ids}")
     @ApiOperation("批量删除购物车")
-    public JsonViewData delCart(@PathVariable Long[] ids){
+    public JsonViewData delCart(@PathVariable Long[] ids) {
         service.delCart(ids);
         return new JsonViewData(ResultCode.SUCCESS);
     }
@@ -96,24 +96,24 @@ public class OmShoppingCartApi extends BaseApi {
      */
     @PostMapping("/updateCart")
     @ApiOperation("修改购物车商品")
-    public JsonViewData updateCart(@RequestBody @ApiParam(required = true,name="updateCart",value = "编辑购物车信息")
-                                   @Validated AddCartDto updateCartDto){
+    public JsonViewData updateCart(@RequestBody @ApiParam(required = true, name = "updateCart", value = "编辑购物车信息")
+                                   @Validated AddCartDto updateCartDto) {
         service.updateCart(updateCartDto);
         return new JsonViewData(ResultCode.SUCCESS);
     }
 
     @PostMapping("/settle")
     @ApiOperation("购物车结算")
-    public JsonViewData<TotalCarVo> updateCart(@RequestBody @Validated SettleDto settleDto){
+    public JsonViewData<TotalCarVo> updateCart(@RequestBody @Validated SettleDto settleDto) {
         TotalCarVo totalCarVo = service.searchByIds(settleDto, getAppCurrUser());
         return new JsonViewData(totalCarVo);
     }
 
     @PostMapping("/submitOrder")
     @ApiOperation("购物车提交订单")
-    public JsonViewData submitOrder(@RequestBody @Validated SubmitOrderDto submitOrderDto){
-    service.submitOrder(submitOrderDto,getAppCurrUser());
-    return new JsonViewData(ResultCode.SUCCESS);
+    public JsonViewData submitOrder(@RequestBody @Validated SubmitOrderDto submitOrderDto) {
+        service.submitOrder(submitOrderDto, getAppCurrUser());
+        return new JsonViewData(ResultCode.SUCCESS);
 
     }
 }
