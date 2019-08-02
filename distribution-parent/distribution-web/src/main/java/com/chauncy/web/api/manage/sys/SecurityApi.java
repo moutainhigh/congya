@@ -43,6 +43,8 @@ public class SecurityApi {
     @ApiOperation(value = "没有登录")
     public Result<Object> needLogin(){
 
+        log.error("您还未登录");
+
         return new ResultUtil<Object>().setErrorMsg(401, "您还未登录");
     }
 

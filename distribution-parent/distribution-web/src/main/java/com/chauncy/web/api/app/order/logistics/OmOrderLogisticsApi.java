@@ -2,6 +2,7 @@ package com.chauncy.web.api.app.order.logistics;
 
 
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.bo.app.logistics.LastResultBo;
 import com.chauncy.data.bo.app.logistics.TaskResponseBo;
 import com.chauncy.data.dto.app.order.logistics.TaskRequestDto;
 import com.chauncy.data.vo.JsonViewData;
@@ -89,4 +90,6 @@ public class OmOrderLogisticsApi extends BaseApi {
 
         return setJsonViewData(service.getLogistics(orderId));
     }
+
+//    public JsonViewData<LastResultBo>
 }

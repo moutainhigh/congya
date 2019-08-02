@@ -29,6 +29,7 @@ public class MyExceptionHandler {
     @ExceptionHandler(Exception.class)
     public JsonViewData handleServiceException(Exception e){
         LoggerUtil.error(e);
+        LoggerUtil.error(e.getLocalizedMessage());
         if(e instanceof ServiceException){
             ServiceException serviceException = (ServiceException) e;
             return new JsonViewData(serviceException.getResultCode(),serviceException.getLocalizedMessage(),serviceException.getData());
