@@ -9,6 +9,8 @@ import java.util.List;
  * @create 2019-08-01 21:04
  *
  * 快递100订阅推送数据
+ *
+ * 用来接收回调的数据
  */
 @Data
 public class DestResultBo {
