@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
  *
  * 平台运费模版管理
  */
-@Api(tags = "运费模版管理")
+@Api(tags = "商家端_运费模版管理")
 @RestController
 @RequestMapping("/manage/ship")
 @Slf4j
@@ -70,10 +70,10 @@ public class ShipTemplateApi {
      * @param templateIds
      * @return
      */
-    @GetMapping("/delTemplateByIds")
+    @GetMapping("/delTemplateByIds/{templateIds}")
     @ApiOperation("批量删除运费模版")
     public JsonViewData delTemplateByIds(@ApiParam(required = true,name = "运费模版ID集合",value = "templateIds")
-                                       @PathVariable Long[] templateIds){
+                                         @PathVariable Long[] templateIds){
 
         service.delTemplateByIds(templateIds);
         return new JsonViewData(ResultCode.SUCCESS,"操作成功");
@@ -88,7 +88,7 @@ public class ShipTemplateApi {
     @PostMapping("/searchTemplateByConditions")
     @ApiOperation("条件查询运费信息")
     public JsonViewData<PageInfo<PlatTemplateVo>> SearchPlatTempByConditions(@RequestBody @Validated @ApiParam(required = true,name = "添加运费模版",
-            value = "addAmountTemplateDto") SearchPlatTempDto searchPlatTempDto){
+            value = "searchPlatTempDto") SearchPlatTempDto searchPlatTempDto){
 
         return new JsonViewData(service.searchPlatTempByConditions(searchPlatTempDto));
     }

@@ -67,7 +67,7 @@ public class SysPermissionServiceImpl extends AbstractService<SysPermissionMappe
         List<String> trueId = permissionVoList.stream().map(a->a.getId()).collect(Collectors.toList());
         List<GetPermissionVo> sysPermissionPos = mapper.selectAll();
         sysPermissionPos.stream().filter(b->trueId.contains(b.getId())).forEach(c->{
-            c.setIsInclude(true);
+            c.setChecked(true);
         });
         List<GetPermissionVo> getPermissionVos = Lists.newArrayList();
         try {

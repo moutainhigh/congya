@@ -68,6 +68,9 @@ public class OmOrderPo implements Serializable {
     @ApiModelProperty(value = "店铺ID")
     private Long storeId;
 
+    @ApiModelProperty(value = "用户所属店铺id")
+    private Long userStoreId;
+
     @ApiModelProperty(value = "订单状态:0-待付款 1-待发货 2-待收货 3-待评价 4-已完成 5-待使用 6-已使用 7-已取消")
     private OrderStatusEnum status;
 
@@ -111,8 +114,6 @@ public class OmOrderPo implements Serializable {
     @ApiModelProperty(value = "优惠券id")
     private Long couponId;
 
-    @ApiModelProperty(value = "订单总金额")
-    private BigDecimal sumMoney;
 
     @ApiModelProperty(value = "使用红包")
     private BigDecimal redEnvelops;
@@ -125,5 +126,7 @@ public class OmOrderPo implements Serializable {
 
     @ApiModelProperty(value = "购物券抵扣金额")
     private BigDecimal redEnvelopsMoney;
+
+
 
 }

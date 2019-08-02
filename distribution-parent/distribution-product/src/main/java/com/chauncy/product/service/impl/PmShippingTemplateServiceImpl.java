@@ -1,11 +1,14 @@
 package com.chauncy.product.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.common.VerifyStatusEnum;
 import com.chauncy.common.enums.goods.GoodsShipTemplateEnum;
 import com.chauncy.common.enums.ship.ShipCalculateWayEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.product.PmGoodsPo;
 import com.chauncy.data.domain.po.product.PmMoneyShippingPo;
 import com.chauncy.data.domain.po.product.PmNumberShippingPo;
 import com.chauncy.data.domain.po.product.PmShippingTemplatePo;
@@ -14,9 +17,12 @@ import com.chauncy.data.dto.manage.ship.delete.DelListDto;
 import com.chauncy.data.dto.manage.ship.select.SearchPlatTempDto;
 import com.chauncy.data.dto.manage.ship.update.EnableTemplateDto;
 import com.chauncy.data.dto.manage.ship.update.VerifyTemplateDto;
+import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.product.PmMoneyShippingMapper;
 import com.chauncy.data.mapper.product.PmNumberShippingMapper;
 import com.chauncy.data.mapper.product.PmShippingTemplateMapper;
+import com.chauncy.data.vo.manage.ship.AmountVo;
+import com.chauncy.data.vo.manage.ship.NumberVo;
 import com.chauncy.data.vo.manage.ship.PlatTemplateVo;
 import com.chauncy.product.service.IPmMoneyShippingService;
 import com.chauncy.product.service.IPmNumberShippingService;
@@ -63,6 +69,9 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
 
     @Autowired
     private IPmShippingTemplateService shippingTemplateService;
+
+    @Autowired
+    private PmGoodsMapper goodsMapper;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -312,6 +321,11 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
     public void delTemplateByIds(Long[] templateIds) {
         //先删除关联的运费列表
         Arrays.asList(templateIds).forEach(a->{
+            //判断该模版是否已被应用
+            List<PmGoodsPo> goodsPos = goodsMapper.selectList(new QueryWrapper<PmGoodsPo>().eq("shipping_template_id",a));
+            if (!ListUtil.isListNullAndEmpty(goodsPos)){
+                throw new ServiceException(ResultCode.FAIL,String.format("该模版:[%s]已被商品引用,不能删除!",shippingTemplateMapper.selectById(a).getName()));
+            }
             if (shippingTemplateMapper.selectById(a)==null){
                 throw new ServiceException(ResultCode.FAIL,"操作失败,"+a+"不存在");
             }
@@ -347,6 +361,20 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
         PageInfo<PlatTemplateVo> platTemplateVos = new PageInfo<>();
         platTemplateVos = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
                 .doSelectPageInfo(() -> shippingTemplateMapper.searchPlatTempByConditions(searchPlatTempDto));
+        platTemplateVos.getList().forEach(a->{
+            ShipCalculateWayEnum shipCalculateWayEnum = ShipCalculateWayEnum.getWayById(a.getCalculateWay());
+            switch (shipCalculateWayEnum) {
+                case AMOUNT:
+                    List<AmountVo> amountVos = shippingTemplateMapper.getAmountCalculateList(a.getTemplateId());
+                    a.setAmountCalculateList(amountVos);
+                    break;
+                case NUMBER:
+                    List<NumberVo> numberVos = shippingTemplateMapper.getNumberCalculateList(a.getTemplateId());
+                    a.setNumberCalculateList(numberVos);
+                    break;
+            }
+
+        });
 
         return platTemplateVos;
     }
@@ -398,6 +426,7 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
                     PmShippingTemplatePo shippingTemplatePo = new PmShippingTemplatePo();
                     shippingTemplatePo.setId(a);
                     shippingTemplatePo.setVerifyStatus(verifyTemplateDto.getVerifyStatus());
+                    shippingTemplatePo.setContent(verifyTemplateDto.getContent());
                     shippingTemplatePos.add(shippingTemplatePo);
                 });
                 shippingTemplateService.updateBatchById(shippingTemplatePos);

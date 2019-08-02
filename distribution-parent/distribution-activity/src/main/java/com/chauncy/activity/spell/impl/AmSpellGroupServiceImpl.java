@@ -102,7 +102,7 @@ public class AmSpellGroupServiceImpl extends AbstractService<AmSpellGroupMapper,
                     AmActivityRelActivityCategoryPo relActivityCategoryPo = new AmActivityRelActivityCategoryPo();
                     relActivityCategoryPo.setCategoryId(a);
                     relActivityCategoryPo.setCreateBy(userPo.getUsername());
-                    relActivityCategoryPo.setActivityType(ActivityTypeEnum.SPRLL_GROUP.getId());
+                    relActivityCategoryPo.setActivityType(ActivityTypeEnum.SPELL_GROUP.getId());
                     relActivityCategoryPo.setActivityId(spellGroupPo.getId());
                     relActivityCategoryMapper.insert(relActivityCategoryPo);
                 });

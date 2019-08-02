@@ -35,16 +35,28 @@ public class SearchPlatTempDto {
     private String name;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @ApiModelProperty(value = "创建时间")
+    @ApiModelProperty(value = "创建开始时间")
     private LocalDate createTime;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @ApiModelProperty(value = "提交时间")
+    @ApiModelProperty(value = "提交开始时间")
     private LocalDate submitTime;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @ApiModelProperty(value = "审核时间")
+    @ApiModelProperty(value = "创建结束时间")
+    private LocalDate createEndTime;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @ApiModelProperty(value = "提交结束时间")
+    private LocalDate submitEndTime;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @ApiModelProperty(value = "审核开始时间")
     private LocalDate verifyTime;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @ApiModelProperty(value = "审核结束时间")
+    private LocalDate verifyEndTime;
 
     @ApiModelProperty(value = "创建者")
     private String createBy;

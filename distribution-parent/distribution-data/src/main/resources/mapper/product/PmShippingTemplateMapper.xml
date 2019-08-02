@@ -30,8 +30,8 @@
     </resultMap>
 
     <resultMap id="ShipResult" type="com.chauncy.data.vo.manage.ship.PlatTemplateVo">
-        <id column="templateId" property="templateId" />
-        <result column="templateName" property="templateName" />
+        <id column="template_id" property="templateId" />
+        <result column="template_name" property="templateName" />
         <result column="product_address_id" property="productAddressId" />
         <result column="dispatch" property="dispatch" />
         <result column="calculate_way" property="calculateWay" />
@@ -40,8 +40,8 @@
         <result column="default_freight" property="defaultFreight" />
         <result column="default_full_money" property="defaultFullMoney" />
         <result column="default_post_money" property="defaultPostMoney" />
-        <result column="storeId" property="storeId" />
-        <result column="storeName" property="storeName" />
+        <result column="store_id" property="storeId" />
+        <result column="store_name" property="storeName" />
         <result column="submit_time" property="submitTime" />
         <result column="verify_time" property="verifyTime" />
         <result column="verify_status" property="verifyStatus" />
@@ -49,58 +49,76 @@
         <!-- collection定义关联集合类型的属性封装规则
         offType:指定集合中的元素类型
         -->
-        <collection property="amountCalculateList" ofType="com.chauncy.data.vo.manage.ship.AmountVo">
-            <result column="destination_id" property="destinationId" />
-            <result column="destination_basis_freight" property="destinationBasisFreight" />
-            <result column="destination_full_money" property="destinationFullMoney" />
-            <result column="destination_post_money" property="destinationPostMoney" />
-            <result column="destinationName" property="destinationName" />
-            <result column="amountId" property="amountId" />
+        <collection property="amountCalculateList" column="template_id" select="com.chauncy.data.mapper.product.PmShippingTemplateMapper.getAmountCalculateList">
+        </collection>
+        <collection property="numberCalculateList" column="template_id" select="com.chauncy.data.mapper.product.PmShippingTemplateMapper.getNumberCalculateList">
         </collection>
 
-        <collection property="numberCalculateList" ofType="com.chauncy.data.vo.manage.ship.NumberVo">
-            <result column="destinationIdd" property="destinationIdd" />
-            <result column="destination_max_number" property="destinationMaxNumber" />
-            <result column="destination_max_number_money" property="destinationMaxNumberMoney" />
-            <result column="destination_addtional_number" property="destinationAddtionalNumber" />
-            <result column="destination_addtional_freight" property="destinationAddtionalFreight" />
-            <result column="destinationNamee" property="destinationNamee" />
-            <result column="numberId" property="numberId" />
-        </collection>
-    </resultMap>
 
-    <!--<resultMap id="Amount" type="com.chauncy.data.vo.manage.ship.PlatTemplateVo" extends="ShipResult">
+    <!--<collection property="amountCalculateList" ofType="com.chauncy.data.vo.manage.ship.AmountVo">
+        <result column="destination_id" property="destinationId" />
+        <result column="destination_basis_freight" property="destinationBasisFreight" />
+        <result column="destination_full_money" property="destinationFullMoney" />
+        <result column="destination_post_money" property="destinationPostMoney" />
+        <result column="destinationName" property="destinationName" />
+        <result column="amountId" property="amountId" />
+    </collection>
 
-        <collection property="amountCalculateList" ofType="com.chauncy.data.vo.manage.ship.AmountVo">
-            <result column="destination_id" property="destinationId" />
-            <result column="destination_basis_freight" property="destinationBasisFreight" />
-            <result column="destination_full_money" property="destinationFullMoney" />
-            <result column="destination_post_money" property="destinationPostMoney" />
-            <result column="destinationName" property="destinationName" />
-            <result column="amountId" property="amountId" />
-        </collection>
-    </resultMap>
+    <collection property="numberCalculateList" ofType="com.chauncy.data.vo.manage.ship.NumberVo">
+        <result column="destinationIdd" property="destinationIdd" />
+        <result column="destination_max_number" property="destinationMaxNumber" />
+        <result column="destination_max_number_money" property="destinationMaxNumberMoney" />
+        <result column="destination_addtional_number" property="destinationAddtionalNumber" />
+        <result column="destination_addtional_freight" property="destinationAddtionalFreight" />
+        <result column="destinationNamee" property="destinationNamee" />
+        <result column="numberId" property="numberId" />
+    </collection>-->
+</resultMap>
 
-    <resultMap id="Number" type="com.chauncy.data.vo.manage.ship.PlatTemplateVo" extends="ShipResult">
+    <!--<select id="getAmountCalculateList" resultType="com.chauncy.data.vo.manage.ship.AmountVo">
+        SELECT a.id as amount_id,destination_id,merger_name as destination_name,destination_basis_freight,destination_full_money,destination_post_money
+        FROM pm_money_shipping a,area_region b
+        WHERE shipping_id = #{template_id} and a.destination_id = b.id
+    </select>
 
-        <collection property="numberCalculateList" ofType="com.chauncy.data.vo.manage.ship.NumberVo">
-            <result column="destination_id" property="destinationId" />
-            <result column="destination_max_number" property="destinationMaxNumber" />
-            <result column="destination_max_number_money" property="destinationMaxNumberMoney" />
-            <result column="destination_addtional_number" property="destinationAddtionalNumber" />
-            <result column="destination_addtional_freight" property="destinationAddtionalFreight" />
-            <result column="destinationName" property="destinationName" />
-            <result column="numberId" property="numberId" />
-        </collection>
-    </resultMap>-->
+    <select id="getNumberCalculateList" resultType="com.chauncy.data.vo.manage.ship.NumberVo">
+        SELECT a.id as number_id,destination_id as destination_idd,merger_name as destination_namee,destination_max_number,destination_max_number_money,destination_addtional_number,destination_addtional_freight
+        FROM pm_number_shipping a,area_region b
+        WHERE shipping_id = #{template_id} and a.destination_id = b.id
+    </select>-->
 
-    <select id="searchPlatTempByConditions" resultMap="ShipResult">
-        select a.id as templateId,a.name as templateName,a.product_address_id,c1.merger_name as dispatch,a.calculate_way,
-            a.create_by,a.create_time,a.default_freight,a.default_full_money,a.default_post_money,
-            b.id as amountId,b.destination_id,d.destination_id as destinationIdd,b.destination_basis_freight,b.destination_full_money,b.destination_post_money,
-            c.merger_name as destinationName,c2.merger_name as destinationNamee,
-            d.destination_addtional_freight,d.destination_addtional_number,d.destination_max_number,d.destination_max_number_money,d.id as numberId,
-            e.id as storeId,e.name as storeName,a.submit_time,a.verify_time,a.verify_status,a.auditor
+<!--<resultMap id="Amount" type="com.chauncy.data.vo.manage.ship.PlatTemplateVo" extends="ShipResult">
+
+    <collection property="amountCalculateList" ofType="com.chauncy.data.vo.manage.ship.AmountVo">
+        <result column="destination_id" property="destinationId" />
+        <result column="destination_basis_freight" property="destinationBasisFreight" />
+        <result column="destination_full_money" property="destinationFullMoney" />
+        <result column="destination_post_money" property="destinationPostMoney" />
+        <result column="destinationName" property="destinationName" />
+        <result column="amountId" property="amountId" />
+    </collection>
+</resultMap>
+
+<resultMap id="Number" type="com.chauncy.data.vo.manage.ship.PlatTemplateVo" extends="ShipResult">
+
+    <collection property="numberCalculateList" ofType="com.chauncy.data.vo.manage.ship.NumberVo">
+        <result column="destination_id" property="destinationId" />
+        <result column="destination_max_number" property="destinationMaxNumber" />
+        <result column="destination_max_number_money" property="destinationMaxNumberMoney" />
+        <result column="destination_addtional_number" property="destinationAddtionalNumber" />
+        <result column="destination_addtional_freight" property="destinationAddtionalFreight" />
+        <result column="destinationName" property="destinationName" />
+        <result column="numberId" property="numberId" />
+    </collection>
+</resultMap>-->
+
+    <!--<select id="searchPlatTempByConditions" resultMap="ShipResult">
+        select a.id as template_id,a.name as template_name,a.product_address_id,c1.merger_name as dispatch,a.calculate_way,
+        a.create_by,a.create_time,a.default_freight,a.default_full_money,a.default_post_money,a.default_max_number,a.default_max_number_money,a.default_addtional_number,a.default_addtional_freight,
+        b.id as amount_id,b.destination_id,d.destination_id as destination_idd,b.destination_basis_freight,b.destination_full_money,b.destination_post_money,
+        c.merger_name as destination_name,c2.merger_name as destination_namee,
+        d.destination_addtional_freight,d.destination_addtional_number,d.destination_max_number,d.destination_max_number_money,d.id as number_id,
+        e.id as store_id,e.name as store_name,a.submit_time,a.verify_time,a.verify_status,a.auditor
         from pm_shipping_template a
         left join pm_money_shipping b on a.id=b.shipping_id
         left join pm_number_shipping d on a.id = d.shipping_id
@@ -136,12 +154,69 @@
                 and e.name like concat('%', #{storeName}, '%')
             </if>
         </where>
-    </select>
+    </select>-->
     <select id="findByType" resultType="com.chauncy.data.vo.BaseVo">
 
         select id,name
         from pm_shipping_template
         where type = #{type}
+    </select>
+    <select id="searchPlatTempByConditions" resultType="com.chauncy.data.vo.manage.ship.PlatTemplateVo">
+
+        select a.id as template_id,a.name as template_name,a.product_address_id,c1.merger_name as dispatch,a.calculate_way,
+        a.create_by,a.create_time,a.default_freight,a.default_full_money,a.default_post_money,a.default_max_number,a.default_max_number_money,a.default_addtional_number,a.default_addtional_freight,
+        e.id as store_id,e.name as store_name,a.submit_time,a.verify_time,a.verify_status,a.auditor
+        from pm_shipping_template a
+        left join area_region c1 on c1.id = a.product_address_id
+        left join sm_store e on (e.id = a.store_id and e.del_flag=0)
+        <where>
+            a.del_flag=0
+            <if test="type !=null">
+                and a.type=#{type}
+            </if>
+            <if test="name !=null and name!=''">
+                and a.name like concat('%', #{name}, '%')
+            </if>
+            <if test="createTime !=null">
+                and DATE_FORMAT(a.create_time,'%Y-%m-%d') &gt;= #{createTime}
+            </if>
+            <if test="createEndTime !=null">
+                and DATE_FORMAT(a.create_time,'%Y-%m-%d') &lt;= #{createEndTime}
+            </if>
+            <if test="submitTime !=null">
+                and DATE_FORMAT(a.submit_time,'%Y-%m-%d') &gt;= #{submitTime}
+            </if>
+            <if test="submitEndTime !=null">
+                and DATE_FORMAT(a.submit_time,'%Y-%m-%d') &lt;= #{submitEndTime}
+            </if>
+            <if test="verifyTime !=null">
+                and DATE_FORMAT(a.verify_time,'%Y-%m-%d') &gt;= #{verifyTime}
+            </if>
+            <if test="verifyEndTime !=null">
+                and DATE_FORMAT(a.verify_time,'%Y-%m-%d') &lt;= #{verifyEndTime}
+            </if>
+            <if test="verifyStatus !=null">
+                and a.verify_status=#{verifyStatus}
+            </if>
+            <if test="storeId !=null">
+                and a.store_id=#{storeId}
+            </if>
+            <if test="storeName !=null and storeName!=''">
+                and e.name like concat('%', #{storeName}, '%')
+            </if>
+        </where>
+
+    </select>
+    <select id="getAmountCalculateList" resultType="com.chauncy.data.vo.manage.ship.AmountVo">
+        SELECT a.id as amount_id,destination_id,merger_name as destination_name,destination_basis_freight,destination_full_money,destination_post_money
+        FROM pm_money_shipping a,area_region b
+        WHERE shipping_id = #{template_id} and a.destination_id = b.id
+    </select>
+
+    <select id="getNumberCalculateList" resultType="com.chauncy.data.vo.manage.ship.NumberVo">
+        SELECT a.id as number_id,destination_id as destination_idd,merger_name as destination_namee,destination_max_number,destination_max_number_money,destination_addtional_number,destination_addtional_freight
+        FROM pm_number_shipping a,area_region b
+        WHERE shipping_id = #{template_id} and a.destination_id = b.id
     </select>
 
 </mapper>

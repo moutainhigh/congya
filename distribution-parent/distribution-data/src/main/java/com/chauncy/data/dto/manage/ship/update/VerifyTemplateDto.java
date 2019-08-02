@@ -26,4 +26,7 @@ public class VerifyTemplateDto {
     @ApiModelProperty("检验状态 1-未审核 2-审核通过 3-驳回 4-不通过/驳回")
     @EnumConstraint(target = VerifyStatusEnum.class)
     private Integer verifyStatus;
+
+    @ApiModelProperty("不通过/反馈原因")
+    private String content;
 }

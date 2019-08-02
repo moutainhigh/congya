@@ -41,6 +41,7 @@ public enum ValidCodeEnum implements BaseEnum {
      */
     private String redisKey;
 
+
     ValidCodeEnum(Integer id, String templateCode,String redisKey) {
         this.id=id;
         this.templateCode=templateCode;
@@ -56,6 +57,10 @@ public enum ValidCodeEnum implements BaseEnum {
         return null;
     }
 
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 
     @Override
     public boolean isExist(Object field) {

@@ -19,7 +19,7 @@ import java.util.List;
 public class TotalCarVo {
 
 
-    @ApiModelProperty(value = "总订单可抵扣金额")
+    @ApiModelProperty(value = "使用葱鸭钱包可抵扣金额")
     private BigDecimal totalDeductionMoney;
 
     @ApiModelProperty(value = "总订单商品总额")

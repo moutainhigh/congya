@@ -16,6 +16,9 @@ import java.time.LocalDateTime;
 @Data
 @Accessors(chain = true)
 public class SearchUserIdCardDto {
+    @ApiModelProperty("用户id")
+    private String userId;
+
     @ApiModelProperty("手机号码")
     private String phone;
 

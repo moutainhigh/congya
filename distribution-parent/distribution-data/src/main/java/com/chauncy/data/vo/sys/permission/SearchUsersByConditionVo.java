@@ -1,10 +1,12 @@
 package com.chauncy.data.vo.sys.permission;
 
 import com.chauncy.data.vo.BaseVo;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,6 +31,9 @@ public class SearchUsersByConditionVo {
     @ApiModelProperty(value = "手机")
     private String mobile;
 
+    @ApiModelProperty(value = "邮箱")
+    private String email;
+
     @ApiModelProperty(value = "昵称")
     private String nickName;
 
@@ -48,6 +53,8 @@ public class SearchUsersByConditionVo {
     private String username;
 
     @ApiModelProperty(value = "创建时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
 
     @ApiModelProperty(value = "关联的角色")

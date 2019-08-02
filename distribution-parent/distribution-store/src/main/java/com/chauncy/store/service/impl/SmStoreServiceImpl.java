@@ -376,7 +376,7 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         /*String attributeIds = storeBaseInfoVo.getAttributeIds();
         QueryWrapper<PmGoodsAttributePo> queryWrapper = new QueryWrapper<>();
         queryWrapper.in("id",attributeIds);
-        queryWrapper.select("name");
+        queryWrapper.list("name");
         List<String> pmGoodsAttributeList = (List<String>)(List)pmGoodsAttributeMapper.selectObjs(queryWrapper);
         storeBaseInfoVo.setAttributeName(pmGoodsAttributeList);*/
         return storeBaseInfoVo;

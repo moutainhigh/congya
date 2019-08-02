@@ -76,5 +76,17 @@ public class OmGoodsTempPo implements Serializable {
     @ApiModelProperty(value = "skuId")
     private Long skuId;
 
+    @ApiModelProperty(value = "商品id")
+    private Long goodsId;
+
+    @ApiModelProperty(value = "供货价")
+    private BigDecimal supplierPrice;
+
+    @ApiModelProperty(value = "商品货号")
+    private String articleNumber;
+
+    @ApiModelProperty(value = "商品利润比例")
+    private BigDecimal profitRate;
+
 
 }

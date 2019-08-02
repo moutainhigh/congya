@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chauncy.data.mapper.store.cooperation.CooperationInvitationMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.store.cooperation.CooperationInvitationPo">
+        <id column="id" property="id" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="del_flag" property="delFlag" />
+        <result column="user_id" property="userId" />
+        <result column="applicant" property="applicant" />
+        <result column="applicant_phone" property="applicantPhone" />
+        <result column="note" property="note" />
+        <result column="picture" property="picture" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, create_by, create_time, del_flag, user_id, applicant, applicant_phone, note, picture
+    </sql>
+    <select id="searchOperation" resultType="com.chauncy.data.vo.manage.cooperation.SearchCooperationVo">
+        select a.id as user_id,a.true_name as user_name,a.phone	as user_phone,b.applicant,b.applicant_phone,b.create_time,b.note,b.picture
+        from um_user a, cooperation_invitation b
+        where a.del_flag =0 and a.id = b.user_id and b.del_flag = 0
+        <if test="userName !=null and userName != ''">
+            and a.true_name like concat('%', #{userName} ,'%')
+        </if>
+        <if test="userPhone != null and userPhone != ''">
+            and a.phone like concat('%', #{userPhone} ,'%')
+        </if>
+        <if test="applicant != null and applicant != ''">
+            and b.applicant like concat('%', #{applicant} ,'%')
+        </if>
+        <if test="applicantPhone != null and applicantPhone != ''">
+            and b.applicant_phone like concat('%', #{applicantPhone} ,'%')
+        </if>
+        <if test="startTime != null">
+            and DATE_FORMAT(b.create_time,'%Y-%m-%d') &gt;= #{startTime}
+        </if>
+        <if test="endTime != null">
+            and DATE_FORMAT(b.create_time,'%Y-%m-%d') &lt;= #{endTime}
+        </if>
+    </select>
+
+</mapper>

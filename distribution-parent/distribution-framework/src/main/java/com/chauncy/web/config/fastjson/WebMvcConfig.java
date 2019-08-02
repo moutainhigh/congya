@@ -84,7 +84,7 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
     @Bean
     public Docket productApi() {
      /*   return new Docket(DocumentationType.SWAGGER_2)
-                .select()
+                .list()
                 .apis(RequestHandlerSelectors.basePackage("com.xxx.controller"))
                 .paths(PathSelectors.any())
                 .build()

@@ -70,7 +70,7 @@ public class SearchActivityListVo {
     @JSONField(ordinal =7 )
     private LocalDateTime activityEndTime;
 
-    @ApiModelProperty(value = "活动说明")
+    @ApiModelProperty(value = "活动说明(商家端查看)")
     @JSONField(ordinal =14 )
     private String activityDescription;
 
@@ -97,4 +97,24 @@ public class SearchActivityListVo {
     @ApiModelProperty("参团人数")
     @JSONField(ordinal =17 )
     private Integer groupNum;
+
+    @ApiModelProperty(value = "活动简介(用户端查看)")
+    @JSONField(ordinal = 18)
+    private String activityIntroduction;
+
+    @ApiModelProperty(value = "活动标题")
+    @JSONField(ordinal = 19)
+    private String activityTitle;
+
+    @ApiModelProperty(value = "活动副标题")
+    @JSONField(ordinal = 20)
+    private String activitySubtitle;
+
+    @ApiModelProperty(value = "满减活动满金额条件")
+    @JSONField(ordinal = 21)
+    private String reductionFullMoney;
+
+    @ApiModelProperty(value = "满减活动减金额")
+    @JSONField(ordinal = 22)
+    private String reductionPostMoney;
 }

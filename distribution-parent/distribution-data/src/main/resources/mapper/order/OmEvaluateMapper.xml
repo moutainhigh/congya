@@ -27,7 +27,7 @@
     </sql>
 
     <select id="getGoodsEvaluate" resultType="com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo">
-        <!--select a.photo as icon,a.name as nick_name,b.content,b.picture,b.id,ROUND((b.attitude_start_level+b.description_start_level+b.ship_start_level)/3) as startLevel
+        <!--list a.photo as icon,a.name as nick_name,b.content,b.picture,b.id,ROUND((b.attitude_start_level+b.description_start_level+b.ship_start_level)/3) as startLevel
         from um_user a,om_evaluate b,om_order c
         <where>
             isNull(b.parent_id) and b.order_id = c.id and c.um_user_id=a.id
