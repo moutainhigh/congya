@@ -136,7 +136,7 @@
         <dependency>
             <groupId>com.github.wxpay</groupId>
             <artifactId>wxpay-sdk</artifactId>
-            <version>0.0.3</version>
+            <version>3.0.9</version>
         </dependency>
 
         <!--极光推送  start-->
