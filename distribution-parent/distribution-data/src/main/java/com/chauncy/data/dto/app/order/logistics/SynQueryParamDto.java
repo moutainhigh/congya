@@ -9,6 +9,7 @@ import javax.validation.constraints.NotBlank;
 /**
  * @Author cheng
  * @create 2019-08-02 17:27
+ * 实时查询物流需要的参数
  */
 @Data
 public class SynQueryParamDto {
