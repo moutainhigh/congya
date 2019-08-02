@@ -40,6 +40,9 @@ public class LogisticsContantsConfig {
     //实时查询请求地址
     private String synqueryUrl;
 
+    //智能判断请求地址
+    private String autoUrl;
+
 
 
 //    @Bean

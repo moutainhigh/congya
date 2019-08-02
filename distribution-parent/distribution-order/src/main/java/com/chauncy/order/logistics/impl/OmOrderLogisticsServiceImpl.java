@@ -9,6 +9,7 @@ import com.chauncy.common.enums.order.LogisticsStatusEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.JSONUtils;
+import com.chauncy.common.util.ListUtil;
 import com.chauncy.common.util.MD5Utils;
 import com.chauncy.data.bo.app.logistics.*;
 import com.chauncy.data.core.AbstractService;
@@ -26,12 +27,14 @@ import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.mapper.user.UmAreaShippingMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.app.order.logistics.FindLogicDetailVo;
+import com.chauncy.data.vo.app.order.logistics.LogisticsCodeNumVo;
 import com.chauncy.data.vo.app.order.logistics.NoticeResponseVo;
 import com.chauncy.data.vo.app.order.logistics.SynQueryLogisticsVo;
 import com.chauncy.order.logistics.IOmOrderLogisticsService;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONObject;
+import org.assertj.core.util.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -268,7 +271,7 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
 //        JSONObject jsonObject = JSONObject.fromObject(param);
 
         //fastjson序列化空属性
-        String jsonObject = JSON.toJSONString(param, SerializerFeature.WriteMapNullValue,SerializerFeature.WriteNullStringAsEmpty);
+        String jsonObject = JSON.toJSONString(param, SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullStringAsEmpty);
         System.out.println(jsonObject);
 
         String sign = MD5Utils.encode(jsonObject + logisticsProperties.getKey() + logisticsProperties.getCustomer());
@@ -278,22 +281,89 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
         Map<String, String> params = Maps.newHashMap();
         params.put("customer", logisticsProperties.getCustomer());
         params.put("sign", sign);
-        params.put("param", JSON.toJSONString(param, SerializerFeature.WriteMapNullValue,SerializerFeature.WriteNullStringAsEmpty));
+        params.put("param", JSON.toJSONString(param, SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullStringAsEmpty));
 
 
         System.out.println(params);
 
         String result = this.postSynQuery(params);
 
-        SynQueryLogisticsVo synQueryLogisticsVo = JSONUtils.toBean(result,SynQueryLogisticsVo.class);
+        SynQueryLogisticsVo synQueryLogisticsVo = JSONUtils.toBean(result, SynQueryLogisticsVo.class);
         synQueryLogisticsVo.setData(JSONUtils.toJSONArray(synQueryLogisticsVo.getData()));
 
         return synQueryLogisticsVo;
     }
 
     /**
-     * 实时查询快递单号
+     * 根据客户提交的快递单号，判断该单号可能所属的快递公司编码
      *
+     * @param num
+     * @return
+     */
+    @Override
+    public LogisticsCodeNumVo autoFind(String num) {
+
+        String key = logisticsProperties.getKey();
+        StringBuffer response = new StringBuffer("");
+
+        List<AutoFindLogsticsBo> autoFindLogsticsBos = Lists.newArrayList();
+        List<AutoFindLogsticsBo> autoFindLogsticsBos2 = Lists.newArrayList();
+        LogisticsCodeNumVo logisticsCodeNumVo = new LogisticsCodeNumVo();
+
+        BufferedReader reader = null;
+        try {
+            StringBuffer con = new StringBuffer(logisticsProperties.getAutoUrl());
+
+            URL url = new URL((con.append("?num=").append(num).append("&key=").append(key)).toString());
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setConnectTimeout(3000);
+            conn.setReadTimeout(3000);
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("accept", "*/*");
+            conn.setRequestProperty("connection", "Keep-Alive");
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            conn.setDoOutput(true);
+
+            reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+
+            autoFindLogsticsBos = JSONUtils.toList(response.toString(),AutoFindLogsticsBo.class);
+
+//            autoFindLogsticsBos2 = JSONUtils.toJSONArray(response.toString());
+
+            System.out.println(autoFindLogsticsBos.get(0).getComCode());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ServiceException(ResultCode.FAIL, "实时查询物流连接异常,请稍会再试！");
+        } finally {
+            try {
+                if (null != reader) {
+                    reader.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (!ListUtil.isListNullAndEmpty(autoFindLogsticsBos)){
+            AutoFindLogsticsBo autoFindLogsticsBo = autoFindLogsticsBos.get(0);
+            //公司编码
+            logisticsCodeNumVo.setValue(autoFindLogsticsBo.getComCode());
+            String logicName = logisticsMapper.selectOne(new QueryWrapper<AreaShopLogisticsPo>().eq("logi_code",autoFindLogsticsBo.getComCode())).getLogiName();
+            //公司名称
+            logisticsCodeNumVo.setLabel(logicName.concat("(由快递100猜测,本结果仅供参考)"));
+        }
+
+        return logisticsCodeNumVo;
+    }
+
+    /**
+     * 实时查询快递单号
      */
     public String postSynQuery(Map<String, String> params) {
 
@@ -333,7 +403,7 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new ServiceException(ResultCode.FAIL,"实时查询物流连接异常,请稍会再试！");
+            throw new ServiceException(ResultCode.FAIL, "实时查询物流连接异常,请稍会再试！");
         } finally {
             try {
                 if (null != reader) {
@@ -343,7 +413,7 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
                 e.printStackTrace();
             }
         }
-        Map<String,Object> map = JSONUtils.toHashMap(response.toString());
+        Map<String, Object> map = JSONUtils.toHashMap(response.toString());
         if (map.get("result") != null) {
             TaskResponseBo taskResponseBo = JSONUtils.toBean(response.toString(), TaskResponseBo.class);
             if (!taskResponseBo.getResult()) {

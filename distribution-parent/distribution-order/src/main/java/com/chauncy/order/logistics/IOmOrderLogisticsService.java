@@ -8,6 +8,7 @@ import com.chauncy.data.dto.app.order.logistics.SynQueryLogisticsDto;
 import com.chauncy.data.dto.app.order.logistics.TaskRequestDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.order.logistics.FindLogicDetailVo;
+import com.chauncy.data.vo.app.order.logistics.LogisticsCodeNumVo;
 import com.chauncy.data.vo.app.order.logistics.NoticeResponseVo;
 import com.chauncy.data.vo.app.order.logistics.SynQueryLogisticsVo;
 
@@ -56,4 +57,12 @@ public interface IOmOrderLogisticsService extends Service<OmOrderLogisticsPo> {
      * @return
      */
     SynQueryLogisticsVo synQueryLogistics(SynQueryLogisticsDto synQueryLogisticsDto);
+
+    /**
+     * 根据客户提交的快递单号，判断该单号可能所属的快递公司编码
+     *
+     * @param num
+     * @return
+     */
+    LogisticsCodeNumVo autoFind(String num);
 }

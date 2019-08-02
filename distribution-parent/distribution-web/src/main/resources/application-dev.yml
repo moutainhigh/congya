@@ -108,6 +108,7 @@ logistics:
   interCom: 0 #开启国际版 0-关闭 1-开启
   subscribeUrl: http://poll.kuaidi100.com/poll #实时订阅查询请求地址
   synqueryUrl: http://poll.kuaidi100.com/poll/query.do #实时查询请求地址
+  autoUrl: http://www.kuaidi100.com/autonumber/auto #快递100智能判断接口请求地址 参数为运单号 num 和 key
 
 # 配置文件加密key
 jasypt:
