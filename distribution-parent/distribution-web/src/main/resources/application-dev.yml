@@ -96,11 +96,12 @@ ignored:
     - /app/user/data/reset
     - /app/user/data/binding
     - /generator/create
+    - /app/order/logistics/callback/**
 
 # 配置快递100
 logistics:
   key: JAQwnglU8950
-  callbackUrl: http://47.102.104.124:80/distribution/app/order/logistics/callback
+  callbackUrl: http://47.102.104.124/distribution/app/order/logistics/callback
 
 # 配置文件加密key
 jasypt:
