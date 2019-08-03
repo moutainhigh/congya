@@ -112,8 +112,8 @@ public class OmShoppingCartApi extends BaseApi {
     @PostMapping("/submitOrder")
     @ApiOperation("购物车提交订单")
     public JsonViewData submitOrder(@RequestBody @Validated SubmitOrderDto submitOrderDto) {
-        service.submitOrder(submitOrderDto, getAppCurrUser());
-        return new JsonViewData(ResultCode.SUCCESS);
+
+        return setJsonViewData(service.submitOrder(submitOrderDto, getAppCurrUser()));
 
     }
 }

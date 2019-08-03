@@ -55,7 +55,7 @@ public class UmUserLabelApi extends BaseApi {
 
     @PostMapping("/search")
     @ApiOperation(value = "查询用户标签列表")
-    public JsonViewData search(@Validated @RequestBody BaseSearchDto baseSearchDto) {
+    public JsonViewData<PageInfo<UmUserLabelPo>> search(@Validated @RequestBody BaseSearchDto baseSearchDto) {
         Integer pageNo = baseSearchDto.getPageNo() == null ? defaultPageNo : baseSearchDto.getPageNo();
         Integer pageSize = baseSearchDto.getPageSize() == null ? defaultPageSize : baseSearchDto.getPageSize();
         QueryWrapper<UmUserLabelPo> queryWrapper = new QueryWrapper<>();
