@@ -20,7 +20,7 @@ public class SearchUserListDto {
     private Long id;
 
     @ApiModelProperty("会员等级名称搜索")
-    private Long levelName;
+    private String levelName;
 
     @ApiModelProperty("名称")
     private String trueName;

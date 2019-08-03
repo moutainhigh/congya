@@ -624,7 +624,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void submitOrder(SubmitOrderDto submitOrderDto, UmUserPo currentUser) {
+    public Long submitOrder(SubmitOrderDto submitOrderDto, UmUserPo currentUser) {
         //检查库存,并把所有商品抽出来
         List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVoList = checkStock(submitOrderDto);
         //获取系统基本参数
@@ -722,6 +722,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             return message;
         });
         LoggerUtil.info("【发送时间】:" + LocalDateTime.now());
+
+        return savePayOrderPo.getId();
     }
 
     /**
