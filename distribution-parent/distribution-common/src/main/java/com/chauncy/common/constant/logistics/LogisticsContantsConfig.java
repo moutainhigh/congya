@@ -45,11 +45,12 @@ public class LogisticsContantsConfig {
 
 
 
-//    @Bean
-//    public void instanceLogistics(){
-//
-//        LogisticsContants.setLogisticsKey(key);
-//
-//        System.out.println(key);
-//    }
+    @Bean
+    public int instanceLogistics(){
+
+        LogisticsContants.setLogisticsKey(key);
+
+        System.out.println(key);
+        return 0;
+    }
 }
