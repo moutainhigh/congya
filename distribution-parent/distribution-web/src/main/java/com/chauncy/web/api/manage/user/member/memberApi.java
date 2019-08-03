@@ -52,7 +52,7 @@ public class memberApi extends BaseApi {
 
     @PostMapping("/update")
     @ApiOperation("修改会员等级")
-    public JsonViewData update(@Validated(IUpdateGroup.class) @RequestBody AddMemberLevelDto memberLevelDto){
+    public JsonViewData<PmMemberLevelPo> update(@Validated(IUpdateGroup.class) @RequestBody AddMemberLevelDto memberLevelDto){
 
        PmMemberLevelPo queryMemberLevel=memberLevelService.getById(memberLevelDto.getId());
        PmMemberLevelPo condition=new PmMemberLevelPo();
