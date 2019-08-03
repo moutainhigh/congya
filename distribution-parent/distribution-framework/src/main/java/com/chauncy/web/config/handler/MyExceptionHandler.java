@@ -14,6 +14,7 @@ import javax.validation.ValidationException;
 
 /**
  * 统一异常拦截处理
+ *
  * @Author zhangrt
  * @Date 2019-05-22 14:08
  **/
@@ -22,24 +23,27 @@ public class MyExceptionHandler {
 
     /**
      * 处理所有自定义异常
+     *
      * @param e
      * @return
      */
     @ResponseBody
     @ExceptionHandler(Exception.class)
-    public JsonViewData handleServiceException(Exception e){
+    public JsonViewData handleServiceException(Exception e) {
         LoggerUtil.error(e);
         LoggerUtil.error(e.getLocalizedMessage());
-        if(e instanceof ServiceException){
+        if (e instanceof ServiceException) {
             ServiceException serviceException = (ServiceException) e;
-            return new JsonViewData(serviceException.getResultCode(),serviceException.getLocalizedMessage(),serviceException.getData());
-        }else if (e instanceof MethodArgumentNotValidException){
+            return new JsonViewData(serviceException.getResultCode(), serviceException.getLocalizedMessage(), serviceException.getData());
+        } else if (e instanceof MethodArgumentNotValidException) {
             FieldError fieldError = ((MethodArgumentNotValidException) e).getBindingResult().getFieldError();
-            Object errorMessage= fieldError.getDefaultMessage();
-            String field=fieldError.getField();
-            Object value=fieldError.getRejectedValue();
-            return new JsonViewData(ResultCode.PARAM_ERROR,String.format("【%s】为【%s】:%s",field,value,errorMessage));
-            }
-        return new JsonViewData(ResultCode.SYSTEM_ERROR,e.getMessage());
+            Object errorMessage = fieldError.getDefaultMessage();
+            String field = fieldError.getField();
+            Object value = fieldError.getRejectedValue();
+            return new JsonViewData(ResultCode.PARAM_ERROR, String.format("【%s】为【%s】:%s", field, value, errorMessage));
+        } else {
+            return new JsonViewData(ResultCode.SYSTEM_ERROR, e.toString());
+        }
+
     }
 }

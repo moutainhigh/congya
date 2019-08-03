@@ -1,5 +1,6 @@
 package com.chauncy.web.api.manage.ship;
 
+import com.chauncy.common.constant.logistics.LogisticsContants;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.manage.ship.add.AddShipTemplateDto;
 import com.chauncy.data.dto.manage.ship.delete.DelListDto;
@@ -8,6 +9,7 @@ import com.chauncy.data.dto.manage.ship.update.EnableTemplateDto;
 import com.chauncy.data.dto.manage.ship.update.VerifyTemplateDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.ship.PlatTemplateVo;
+import com.chauncy.message.easemob.comm.OrgInfo;
 import com.chauncy.product.service.IPmShippingTemplateService;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -56,9 +58,8 @@ public class ShipTemplateApi {
      */
     @PostMapping("/delListByIds")
     @ApiOperation("批量删除指定地区运费计算列表")
-    public JsonViewData delByIds(@ApiParam(required = true,name = "指定地区计算运费ID集合",value = "amountIds")
-
-                                         DelListDto delListDto){
+    public JsonViewData delByIds(@RequestBody @ApiParam(required = true,name = "指定地区计算运费ID集合",value = "amountIds")
+                                 @Validated DelListDto delListDto){
 
         service.delByIds(delListDto);
         return new JsonViewData(ResultCode.SUCCESS,"操作成功");
@@ -89,6 +90,7 @@ public class ShipTemplateApi {
     @ApiOperation("条件查询运费信息")
     public JsonViewData<PageInfo<PlatTemplateVo>> SearchPlatTempByConditions(@RequestBody @Validated @ApiParam(required = true,name = "添加运费模版",
             value = "searchPlatTempDto") SearchPlatTempDto searchPlatTempDto){
+log.error(LogisticsContants.logisticsKey);
 
         return new JsonViewData(service.searchPlatTempByConditions(searchPlatTempDto));
     }
