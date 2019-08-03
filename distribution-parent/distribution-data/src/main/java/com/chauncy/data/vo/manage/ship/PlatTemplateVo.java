@@ -89,6 +89,6 @@ public class PlatTemplateVo {
     @ApiModelProperty("审核者")
     private String auditor;
 
-
-
+    @ApiModelProperty("反馈原因")
+    private String content;
 }

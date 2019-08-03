@@ -165,7 +165,7 @@
 
         select a.id as template_id,a.name as template_name,a.product_address_id,c1.merger_name as dispatch,a.calculate_way,
         a.create_by,a.create_time,a.default_freight,a.default_full_money,a.default_post_money,a.default_max_number,a.default_max_number_money,a.default_addtional_number,a.default_addtional_freight,
-        e.id as store_id,e.name as store_name,a.submit_time,a.verify_time,a.verify_status,a.auditor
+        e.id as store_id,e.name as store_name,a.submit_time,a.verify_time,a.verify_status,a.auditor,a.content
         from pm_shipping_template a
         left join area_region c1 on c1.id = a.product_address_id
         left join sm_store e on (e.id = a.store_id and e.del_flag=0)
