@@ -93,6 +93,9 @@ public class MmInformationSensitiveServiceImpl extends AbstractService<MmInforma
     public InformationSensitiveVo findById(Long id) {
         InformationSensitiveVo informationSensitiveVo = new InformationSensitiveVo();
         MmInformationSensitivePo informationSensitivePo = mmInformationSensitiveMapper.selectById(id);
+        if(null == informationSensitivePo) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "记录不存在");
+        }
         BeanUtils.copyProperties(informationSensitivePo , informationSensitiveVo);
         return informationSensitiveVo;
     }

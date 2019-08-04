@@ -102,6 +102,9 @@ public class MmInformationLabelServiceImpl extends AbstractService<MmInformation
     public InformationLabelVo findById(Long id) {
         InformationLabelVo informationLabelVo = new InformationLabelVo();
         MmInformationLabelPo mmInformationLabelPo = mmInformationLabelMapper.selectById(id);
+        if(null == mmInformationLabelPo) {
+            throw  new ServiceException(ResultCode.NO_EXISTS, "记录不存在");
+        }
         BeanUtils.copyProperties(mmInformationLabelPo, informationLabelVo);
         return informationLabelVo;
     }
