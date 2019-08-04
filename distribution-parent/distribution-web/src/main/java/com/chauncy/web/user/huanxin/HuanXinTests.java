@@ -19,7 +19,7 @@ public class HuanXinTests {
     public static void main(String[] args){
         //添加IM人员
         RegUserBo regUserBo = new RegUserBo();
-        regUserBo.setUsername("chuancy3");
+        regUserBo.setUsername("chuancy4");
         regUserBo.setPassword("123456");
         reg(regUserBo);
     }

@@ -90,7 +90,6 @@ public class ShipTemplateApi {
     @ApiOperation("条件查询运费信息")
     public JsonViewData<PageInfo<PlatTemplateVo>> SearchPlatTempByConditions(@RequestBody @Validated @ApiParam(required = true,name = "添加运费模版",
             value = "searchPlatTempDto") SearchPlatTempDto searchPlatTempDto){
-log.error(LogisticsContants.logisticsKey);
 
         return new JsonViewData(service.searchPlatTempByConditions(searchPlatTempDto));
     }
