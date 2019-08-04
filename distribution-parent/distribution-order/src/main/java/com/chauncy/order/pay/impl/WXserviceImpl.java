@@ -47,7 +47,7 @@ public class WXserviceImpl implements WXservice {
     private IOmOrderService omOrderService;
 
     /**
-     * 调用官方SDK 获取前端调起支付接口的参数
+     * 调用官方SDK统一下单 获取前端调起支付接口的参数
      * @return
      * @throws Exception
      */
@@ -277,12 +277,8 @@ public class WXserviceImpl implements WXservice {
             String resultCode = response.get("result_code");
             if ("SUCCESS".equals(resultCode)) {
                 //resultCode 为SUCCESS，才会返回prepay_id和trade_type
-                returnMap.put("prepayid", response.get("prepay_id"));
                 //调起支付参数重新签名  不要使用请求预支付订单时返回的签名
-                returnMap.put("sign", md5Util.getSign(returnMap));
-                //更新支付订单
-                payOrderPo.setPrePayId(response.get("prepay_id"));
-                payOrderMapper.updateById(payOrderPo);
+
                 return returnMap;
             } else {
                 //调用微信统一下单接口返回失败
