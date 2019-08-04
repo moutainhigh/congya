@@ -1,8 +1,14 @@
 package com.chauncy.web.controller.pay;
 
-import com.chauncy.common.util.wechat.WxMD5Util;
-import com.chauncy.test.service.impl.WXserviceImpl;
+import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.order.pay.impl.WXserviceImpl;
+import com.chauncy.security.util.IpInfoUtil;
+import com.chauncy.security.util.SecurityUtil;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +21,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -33,48 +38,45 @@ public class WXController {
     @Autowired
     private WXserviceImpl wxPayService;
 
+    @Autowired
+    private IpInfoUtil ipInfoUtil;
+
+    @Autowired
+    private SecurityUtil securityUtil;
+
     /**
      * 统一下单
      * 官方文档:https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=9_1
-     * @param user_id
-     * @param total_fee
      * @return
      * @throws Exception
      */
-    @PostMapping("/appPay")
-    public Map<String, String> wxPay(@RequestParam(value = "userId") String user_id,
-                                     @RequestParam(value = "totalFee") String total_fee
-    ) throws Exception {
+    @PostMapping("/wxPay/{payOrderId}")
+    @ApiOperation("统一下单")
+    public JsonViewData wxPay(HttpServletRequest request, @PathVariable(value = "payOrderId") Long payOrderId) {
 
-        String attach = "{\"user_id\":\"" + user_id + "\"}";
-        //请求预支付订单
-        Map<String, String> result = wxPayService.dounifiedOrder(attach, total_fee);
-        Map<String, String> map = new HashMap<>();
+        //获取当前店铺用户
+        UmUserPo umUserPo = securityUtil.getAppCurrUser();
+        if(null == umUserPo) {
+            throw  new ServiceException(ResultCode.NO_LOGIN, "未登陆或登陆已超时");
+        }
+        try {
+            //请求预支付订单
+            Map<String, String> returnMap = wxPayService.doUnifiedOrder(ipInfoUtil.getIpAddr(request), payOrderId);
+            return new JsonViewData(ResultCode.SUCCESS, "操作成功", returnMap);
+        } catch (ServiceException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ServiceException(ResultCode.SYSTEM_ERROR, "系统错误");
+        }
 
-        WxMD5Util md5Util = new WxMD5Util();
-        //返回APP端的数据
-        //参加调起支付的签名字段有且只能是6个，分别为appid、partnerid、prepayid、package、noncestr和timestamp，而且都必须是小写
-        //参加调起支付的签名字段有且只能是6个，分别为appid、partnerid、prepayid、package、noncestr和timestamp，而且都必须是小写
-        //参加调起支付的签名字段有且只能是6个，分别为appid、partnerid、prepayid、package、noncestr和timestamp，而且都必须是小写
-        map.put("appid", result.get("appid"));
-        map.put("partnerid", result.get("mch_id"));
-        map.put("prepayid", result.get("prepay_id"));
-        map.put("package", "Sign=WXPay");
-        map.put("noncestr", result.get("nonce_str"));
-        map.put("timestamp", String.valueOf(System.currentTimeMillis() / 1000));//单位为秒
-//      这里不要使用请求预支付订单时返回的签名
-//      这里不要使用请求预支付订单时返回的签名
-//      这里不要使用请求预支付订单时返回的签名
-        map.put("sign", md5Util.getSign(map));
-        map.put("extdata", attach);
-        return map;
     }
 
     /**
      *   支付异步结果通知，我们在请求预支付订单时传入的地址
      *   官方文档 ：https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=9_7&index=3
      */
-    @RequestMapping(value = "/notify.json", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/wxPay/notify", method = {RequestMethod.GET, RequestMethod.POST}, produces={"application/xml;"})
     public String wxPayNotify(HttpServletRequest request, HttpServletResponse response) {
         String resXml = "";
         try {

@@ -29,7 +29,7 @@ public class SearchPlatformLogDto implements Serializable {
     private Long payOrderId;
 
     @ApiModelProperty(value = "交易流水（微信支付宝交易号）")
-    private Long payId;
+    private String payOrderNo;
 
     @ApiModelProperty(value = "下单用户id")
     private Long umUserId;

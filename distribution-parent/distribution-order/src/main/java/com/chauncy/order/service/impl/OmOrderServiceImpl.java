@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.common.enums.app.order.PayOrderStatusEnum;
+import com.chauncy.common.enums.log.PaymentWayEnum;
 import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
@@ -26,6 +27,7 @@ import com.chauncy.data.vo.supplier.order.SmSearchOrderVo;
 import com.chauncy.data.vo.supplier.order.SmSendGoodsTempVo;
 import com.chauncy.data.vo.supplier.order.SmSendOrderVo;
 import com.chauncy.order.service.IOmOrderService;
+import com.chauncy.order.service.IPayOrderService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
@@ -34,8 +36,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -63,6 +67,9 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
     @Autowired
     private OmShoppingCartMapper shoppingCartMapper;
+
+    @Autowired
+    private IPayOrderService payOrderService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -140,6 +147,33 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         shoppingCartMapper.updateDiscount(BigDecimalUtil.safeMultiply(-1,orderPo.getRedEnvelops()),
                 BigDecimalUtil.safeMultiply(-1,orderPo.getShopTicket()),orderPo.getUmUserId() );
         return true;
+    }
+
+    /**
+     * 微信支付成功通知
+     * @param payOrderPo  支付订单
+     * @param notifyMap  微信回调参数
+     * @throws Exception
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void wxPayNotify(PayOrderPo payOrderPo, Map<String, String> notifyMap) throws Exception {
+        UpdateWrapper<PayOrderPo> payOrderPoUpdateWrapper = new UpdateWrapper<>();
+        payOrderPoUpdateWrapper.lambda().eq(PayOrderPo::getId, payOrderPo.getId());
+        //状态设置为已支付
+        payOrderPoUpdateWrapper.lambda().set(PayOrderPo::getStatus, PayOrderStatusEnum.ALREADY_PAY.getId());
+        //支付类型 微信
+        payOrderPoUpdateWrapper.lambda().set(PayOrderPo::getPayTypeCode, PaymentWayEnum.WECHAT.getName());
+        //微信支付单号
+        payOrderPoUpdateWrapper.lambda().set(PayOrderPo::getPayOrderNo, notifyMap.get("transaction_id"));
+        //支付金额
+        BigDecimal payAmount = BigDecimalUtil.safeDivide(new BigDecimal(notifyMap.get("cash_fee")), new BigDecimal(100));
+        payOrderPoUpdateWrapper.lambda().set(PayOrderPo::getPayAmount, payAmount);
+        payOrderPoUpdateWrapper.lambda().set(PayOrderPo::getPayTime, notifyMap.get("time_end"));
+        payOrderService.update(payOrderPoUpdateWrapper);
+        UpdateWrapper<OmOrderPo> omOrderPoUpdateWrapper = new UpdateWrapper<>();
+        omOrderPoUpdateWrapper.lambda().eq(OmOrderPo::getPayOrderId, payOrderPo.getId());
+        omOrderPoUpdateWrapper.lambda().set(OmOrderPo::getPayOrderId, payOrderPo.getId());
     }
 
     @Override

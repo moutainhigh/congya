@@ -33,7 +33,7 @@
 
     <select id="searchPlatformLogPaging" resultType="com.chauncy.data.vo.manage.order.log.SearchPlatformLogVo">
         select oal.pay_order_id,
-                po.pay_id,
+                po.pay_order_no,
                 oal.create_by as phone,
                 oal.log_type,
                 oal.log_matter,
@@ -53,7 +53,7 @@
                 and oal.pay_order_id = #{payOrderId}
             </if>
             <if test="payId != null">
-                and po.pay_id = #{payId}
+                and po.pay_order_no = #{payOrderNo}
             </if>
             <if test="umUserId != null">
                 and po.um_user_id = #{umUserId}
