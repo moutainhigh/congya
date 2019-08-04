@@ -158,6 +158,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void wxPayNotify(PayOrderPo payOrderPo, Map<String, String> notifyMap) throws Exception {
+        //更新PayOrderPo
         UpdateWrapper<PayOrderPo> payOrderPoUpdateWrapper = new UpdateWrapper<>();
         payOrderPoUpdateWrapper.lambda().eq(PayOrderPo::getId, payOrderPo.getId());
         //状态设置为已支付
@@ -171,9 +172,14 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         payOrderPoUpdateWrapper.lambda().set(PayOrderPo::getPayAmount, payAmount);
         payOrderPoUpdateWrapper.lambda().set(PayOrderPo::getPayTime, notifyMap.get("time_end"));
         payOrderService.update(payOrderPoUpdateWrapper);
+        //更新OmOrderPo
         UpdateWrapper<OmOrderPo> omOrderPoUpdateWrapper = new UpdateWrapper<>();
         omOrderPoUpdateWrapper.lambda().eq(OmOrderPo::getPayOrderId, payOrderPo.getId());
         omOrderPoUpdateWrapper.lambda().set(OmOrderPo::getPayOrderId, payOrderPo.getId());
+        //设置待发货状态
+        omOrderPoUpdateWrapper.lambda().set(OmOrderPo::getStatus, OrderStatusEnum.NEED_SEND_GOODS);
+        omOrderPoUpdateWrapper.lambda().set(OmOrderPo::getPayTime, notifyMap.get("time_end"));
+        this.update(omOrderPoUpdateWrapper);
     }
 
     @Override
