@@ -93,6 +93,13 @@ public interface IOmOrderService extends Service<OmOrderPo> {
      */
     PageInfo<AppSearchOrderVo> searchAppOrder(Long userId, SearchMyOrderDto searchMyOrderDto  );
 
+    /**
+     * 返回支付单id
+     * @param orderId
+     * @return
+     */
+    Long payOrder(Long orderId);
+
 
 
 

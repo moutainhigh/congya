@@ -3,6 +3,28 @@
 <mapper namespace="com.chauncy.data.mapper.user.UmUserMapper">
 
     <!-- 通用查询映射结果 -->
+    <update id="updateUmUser">
+        update um_user set
+
+        <if test="t.memberLevelId!=0">
+            member_level_id=#{t.memberLevelId},
+        </if>
+        <if test="t.parentId!=0">
+            parent_id=#{t.parentId},
+        </if>
+        store_id=#{t.storeId},
+        commission_status=#{t.commissionStatus},
+        current_red_envelops=current_red_envelops+#{t.currentRedEnvelops},
+        current_integral=current_integral+#{t.currentIntegral},
+        current_shop_ticket=current_shop_ticket+#{t.currentShopTicket},
+        total_red_envelops=total_red_envelops+#{t.currentRedEnvelops},
+        total_integral=total_integral+#{t.currentIntegral},
+        total_shop_ticket=total_shop_ticket+#{t.currentShopTicket},
+        update_by=#{currentUserName}
+        where id=#{t.id}
+    </update>
+
+    <!-- 通用查询结果列 -->
     <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.user.UmUserPo">
         <id column="id" property="id"/>
         <result column="create_by" property="createBy"/>
@@ -35,29 +57,12 @@
         <result column="password" property="password"/>
     </resultMap>
 
-    <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, create_by, create_time, update_by, update_time, del_flag, name, sex, invite_code, parent_id, store_id, commission_status, enabled, login_times, recent_login_time, current_experience, current_red_envelops, current_integral, current_shop_ticket, total_consume_money, invite_people_num, total_red_envelops, total_integral, total_shop_ticket, total_order, member_level_id, phone, id_card, password
     </sql>
 
     <update id="updateLogin">
              update um_user   set login_times=login_times+1,recent_login_time=now() where phone=#{phone}
-    </update>
-
-    <update id="updateUmUser">
-        update um_user set
-        member_level_id=#{t.memberLevelId},
-        parent_id=#{t.parentId},
-        store_id=#{t.storeId},
-        commission_status=#{t.commissionStatus},
-        current_red_envelops=current_red_envelops+#{t.currentRedEnvelops},
-        current_integral=current_integral+#{t.currentIntegral},
-        current_shop_ticket=current_shop_ticket+#{t.currentShopTicket},
-        total_red_envelops=total_red_envelops+#{t.currentRedEnvelops},
-        total_integral=total_integral+#{t.currentIntegral},
-        total_shop_ticket=total_shop_ticket+#{t.currentShopTicket},
-        update_by=#{currentUserName}
-        where id=#{t.id}
     </update>
     <select id="loadSearchUserList" resultType="com.chauncy.data.vo.manage.user.list.UmUserListVo">
         SELECT

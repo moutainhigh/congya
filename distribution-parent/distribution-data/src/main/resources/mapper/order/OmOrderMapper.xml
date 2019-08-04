@@ -156,5 +156,10 @@
             </if>
             and o.del_flag=0 and s.del_flag=0
     </select>
+    <select id="getPayOrderByOrderId" resultType="com.chauncy.data.domain.po.pay.PayOrderPo">
+            select p.*
+            from om_order o,pay_order p
+            where o.id=#{orderId} and p.id=o.pay_order_id
+    </select>
 
 </mapper>
