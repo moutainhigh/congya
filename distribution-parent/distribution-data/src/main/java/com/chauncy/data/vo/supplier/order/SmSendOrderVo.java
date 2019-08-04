@@ -1,6 +1,5 @@
 package com.chauncy.data.vo.supplier.order;
 
-import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

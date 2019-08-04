@@ -81,7 +81,10 @@ public interface IOmShoppingCartService extends Service<OmShoppingCartPo> {
      * 提交订单
      * @param submitOrderDto
      */
-    void submitOrder(SubmitOrderDto submitOrderDto, UmUserPo currentUser);
+    Long submitOrder(SubmitOrderDto submitOrderDto, UmUserPo currentUser);
+
+
+
 
 
 

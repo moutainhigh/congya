@@ -25,7 +25,7 @@ public interface PmMemberLevelMapper extends IBaseMapper<PmMemberLevelPo> {
      *
      */
     @Select("SELECT * FROM `pm_member_level`\n" +
-            "WHERE  level=(list MAX(level) from pm_member_level where del_flag=0)\n")
+            "WHERE  level=(select MAX(level) from pm_member_level where del_flag=0)\n")
     PmMemberLevelPo loadMaxLevel();
 
     /**
