@@ -28,6 +28,7 @@ import com.chauncy.order.service.IOmOrderService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -197,5 +198,22 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             x.setSmSendGoodsTempVos(smSendGoodsTempVos);
         });
         return appSearchOrderVoPageInfo;
+    }
+
+    @Override
+    public Long payOrder(Long orderId) {
+        //找出原先的支付单
+        PayOrderPo queryPayOrder = mapper.getPayOrderByOrderId(orderId);
+        //把原先的支付单禁用掉
+        if (queryPayOrder.getEnabled()){
+           queryPayOrder.setEnabled(false);
+           payOrderMapper.updateById(queryPayOrder);
+        }
+        //生成新的支付单
+        PayOrderPo savePayOrderPo=new PayOrderPo();
+        BeanUtils.copyProperties(queryPayOrder,savePayOrderPo);
+
+        OmOrderPo queryOrder = mapper.selectById(orderId);
+        return null;
     }
 }

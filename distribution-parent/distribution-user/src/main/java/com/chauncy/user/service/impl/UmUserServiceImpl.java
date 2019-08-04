@@ -204,20 +204,22 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     public boolean updateUmUser(UpdateUserDto updateUserDto,String currentUserName) {
         //修改主表字段
         mapper.updateUmUser(updateUserDto,currentUserName);
-        //修改用户与标签关联表
-        List<Long> labelIds = updateUserDto.getLabelIds();
-        //先删掉关联数据
-        QueryWrapper queryWrapper=new QueryWrapper();
-        queryWrapper.eq("user_id",updateUserDto.getId());
-        relUserLabelMapper.delete(queryWrapper);
-        //插入关联数据
-        if (!ListUtil.isListNullAndEmpty(labelIds)){
-            labelIds.forEach(x->{
-                UmRelUserLabelPo umRelUserLabelPo = new UmRelUserLabelPo();
-                umRelUserLabelPo.setCreateBy(currentUserName).setUserId(updateUserDto.getId())
-                        .setUserLabelId(x);
-                relUserLabelMapper.insert(umRelUserLabelPo);
-            });
+        if (!ListUtil.isListNullAndEmpty(updateUserDto.getLabelIds())){
+            //修改用户与标签关联表
+            List<Long> labelIds = updateUserDto.getLabelIds();
+            //先删掉关联数据
+            QueryWrapper queryWrapper=new QueryWrapper();
+            queryWrapper.eq("user_id",updateUserDto.getId());
+            relUserLabelMapper.delete(queryWrapper);
+            //插入关联数据
+            if (!ListUtil.isListNullAndEmpty(labelIds)){
+                labelIds.forEach(x->{
+                    UmRelUserLabelPo umRelUserLabelPo = new UmRelUserLabelPo();
+                    umRelUserLabelPo.setCreateBy(currentUserName).setUserId(updateUserDto.getId())
+                            .setUserLabelId(x);
+                    relUserLabelMapper.insert(umRelUserLabelPo);
+                });
+            }
         }
         return true;
     }

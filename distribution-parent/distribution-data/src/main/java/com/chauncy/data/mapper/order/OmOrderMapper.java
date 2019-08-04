@@ -2,6 +2,7 @@ package com.chauncy.data.mapper.order;
 
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.data.domain.po.order.OmOrderPo;
+import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSendOrderDto;
@@ -91,6 +92,12 @@ public interface OmOrderMapper extends IBaseMapper<OmOrderPo> {
     List<AppSearchOrderVo> searchAppOrder(@Param("userId") Long userId,@Param("orderStatusEnum") OrderStatusEnum orderStatusEnum);
 
 
+    /**
+     * 根据订单id获取支付单id
+     * @param orderId
+     * @return
+     */
+    PayOrderPo getPayOrderByOrderId(@Param("orderId") Long orderId);
 
 
 
