@@ -32,7 +32,7 @@ public class SearchActivityListVo {
 
     @ApiModelProperty(value = "排序数字")
     @JSONField(ordinal =2 )
-    private Integer sort;
+    private BigDecimal sort;
 
     @ApiModelProperty(value = "活动图片")
     @JSONField(ordinal =3 )

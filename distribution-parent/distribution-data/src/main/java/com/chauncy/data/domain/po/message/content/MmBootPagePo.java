@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.io.Serializable;
 
@@ -13,6 +14,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * <p>
@@ -57,7 +60,8 @@ public class MmBootPagePo implements Serializable {
     @TableLogic
     private Boolean delFlag;
 
-
-
+    @ApiModelProperty(value = "排序数字")
+    @NotNull(message = "排序数字不能为空")
+    private BigDecimal sort;
 
 }

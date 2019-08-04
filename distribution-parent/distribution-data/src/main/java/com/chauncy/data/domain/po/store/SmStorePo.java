@@ -66,7 +66,7 @@ public class SmStorePo implements Serializable {
     private Long parentId;
 
     @ApiModelProperty(value = "排序数值")
-    private Integer sort;
+    private BigDecimal sort;
 
     @ApiModelProperty(value = "主理人姓名")
     private String ownerName;

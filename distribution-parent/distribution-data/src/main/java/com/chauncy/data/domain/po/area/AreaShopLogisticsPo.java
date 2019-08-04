@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -39,7 +40,7 @@ public class AreaShopLogisticsPo implements Serializable {
     private String logiCode;
 
     @ApiModelProperty(value = "排序 越小越靠前")
-    private Integer sort;
+    private BigDecimal sort;
 
 
 }
