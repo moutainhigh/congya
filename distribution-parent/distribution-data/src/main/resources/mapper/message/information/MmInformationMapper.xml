@@ -64,7 +64,7 @@
                 and mi.id = #{id}
             </if>
             <if test="name != null and name !=''">
-                and mi.name like concat('%', #{name}, '%')
+                and mi.title like concat('%', #{name}, '%')
             </if>
             <if test="startTime != null">
                 and date(mi.create_time) <![CDATA[>= ]]>  #{startTime}
