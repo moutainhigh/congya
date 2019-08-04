@@ -14,6 +14,7 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -54,7 +55,7 @@ public class InformationDto  implements Serializable {
 
     @ApiModelProperty(value = "排序数字")
     @NotNull(message = "排序数字不能为空")
-    private Integer sort;
+    private BigDecimal sort;
 
     @ApiModelProperty(value = "封面图片")
     @NotBlank(message = "封面图片不能为空")

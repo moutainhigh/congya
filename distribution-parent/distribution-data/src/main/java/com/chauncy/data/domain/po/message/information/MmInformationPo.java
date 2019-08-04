@@ -2,6 +2,7 @@ package com.chauncy.data.domain.po.message.information;
 
 import com.baomidou.mybatisplus.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.io.Serializable;
 
@@ -63,7 +64,7 @@ public class MmInformationPo implements Serializable {
     private Long goodsId;
 
     @ApiModelProperty(value = "排序数字")
-    private Integer sort;
+    private BigDecimal sort;
 
     @ApiModelProperty(value = "封面图片")
     private String coverImage;

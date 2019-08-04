@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -36,5 +37,8 @@ public class BootPageVo {
 
     @ApiModelProperty(value = "修改时间")
     private LocalDateTime updateTime;
+
+    @ApiModelProperty("排序数字")
+    private BigDecimal sort;
 
 }

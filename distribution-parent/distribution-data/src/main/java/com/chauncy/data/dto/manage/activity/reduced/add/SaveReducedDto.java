@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class SaveReducedDto {
     @ApiModelProperty(value = "排序数字")
     @NotNull(message = "排序数字不能为空")
     @JSONField(ordinal = 2)
-    private Integer sort;
+    private BigDecimal sort;
 
     @ApiModelProperty(value = "活动图片")
     @NotNull(message = "活动图片不能为空")
