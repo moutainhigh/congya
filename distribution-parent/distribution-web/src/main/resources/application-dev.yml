@@ -153,6 +153,15 @@ distribution:
     APPKEY: 43fce926da40c017ab4b4818
     MASTERSECRET: 328f5af7bc97bb017c715c77
 
+  # 环信配置
+  easemob:
+    APP_KEY: 1129190803157243#congya
+    ORG_NAME: 1129190803157243
+    APP_NAME: congya
+    CLIENT_ID: YXA6KeDnQTWvQgG0k5TPtn3V6w
+    CLIENT_SECRET: YXA6Dqm1Jd8k9-WEUrIChQf0z2k14OM
+    GRANT_TYPE: client_credentials
+
   # mob api配置 mob官网注册申请即可
   mob:
     appKey: appKey

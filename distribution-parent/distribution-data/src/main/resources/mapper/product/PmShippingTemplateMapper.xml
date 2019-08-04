@@ -165,7 +165,7 @@
 
         select a.id as template_id,a.name as template_name,a.product_address_id,c1.merger_name as dispatch,a.calculate_way,
         a.create_by,a.create_time,a.default_freight,a.default_full_money,a.default_post_money,a.default_max_number,a.default_max_number_money,a.default_addtional_number,a.default_addtional_freight,
-        e.id as store_id,e.name as store_name,a.submit_time,a.verify_time,a.verify_status,a.auditor
+        e.id as store_id,e.name as store_name,a.submit_time,a.verify_time,a.verify_status,a.auditor,a.content
         from pm_shipping_template a
         left join area_region c1 on c1.id = a.product_address_id
         left join sm_store e on (e.id = a.store_id and e.del_flag=0)
@@ -210,13 +210,13 @@
     <select id="getAmountCalculateList" resultType="com.chauncy.data.vo.manage.ship.AmountVo">
         SELECT a.id as amount_id,destination_id,merger_name as destination_name,destination_basis_freight,destination_full_money,destination_post_money
         FROM pm_money_shipping a,area_region b
-        WHERE shipping_id = #{template_id} and a.destination_id = b.id
+        WHERE shipping_id = #{template_id} and a.destination_id = b.id and a.del_flag = 0
     </select>
 
     <select id="getNumberCalculateList" resultType="com.chauncy.data.vo.manage.ship.NumberVo">
         SELECT a.id as number_id,destination_id as destination_idd,merger_name as destination_namee,destination_max_number,destination_max_number_money,destination_addtional_number,destination_addtional_freight
         FROM pm_number_shipping a,area_region b
-        WHERE shipping_id = #{template_id} and a.destination_id = b.id
+        WHERE shipping_id = #{template_id} and a.destination_id = b.id and a.del_flag = 0
     </select>
 
 </mapper>

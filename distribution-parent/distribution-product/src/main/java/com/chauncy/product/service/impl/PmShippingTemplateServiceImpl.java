@@ -95,13 +95,13 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
         //先保存按金额计算模版
         PmShippingTemplatePo shippingTemplatePo = new PmShippingTemplatePo();
         BeanUtils.copyProperties(addShipTemplateDto, shippingTemplatePo);
-        if (isPlat) {
-            shippingTemplatePo.setType(GoodsShipTemplateEnum.PLATFORM_SHIP.getId());
-            shippingTemplatePo.setEnable(true);
-        } else {
-            shippingTemplatePo.setType(GoodsShipTemplateEnum.MERCHANT_SHIP.getId());
-            shippingTemplatePo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
-        }
+//        if (isPlat) {
+//            shippingTemplatePo.setType(GoodsShipTemplateEnum.PLATFORM_SHIP.getId());
+//            shippingTemplatePo.setEnable(true);
+//        } else {
+//            shippingTemplatePo.setType(GoodsShipTemplateEnum.MERCHANT_SHIP.getId());
+//            shippingTemplatePo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
+//        }
 
         Map<String, Object> map = new HashMap<>();
         map.put("name", shippingTemplatePo.getName());
@@ -112,8 +112,12 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
         if (addShipTemplateDto.getId() == 0) {
             if (isPlat) {
                 shippingTemplatePo.setVerifyStatus(VerifyStatusEnum.CHECKED.getId());
+                shippingTemplatePo.setType(GoodsShipTemplateEnum.PLATFORM_SHIP.getId());
+                shippingTemplatePo.setEnable(true);
             } else {
                 shippingTemplatePo.setStoreId(securityUtil.getCurrUser().getStoreId());
+                shippingTemplatePo.setType(GoodsShipTemplateEnum.MERCHANT_SHIP.getId());
+                shippingTemplatePo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
             }
             //去重
             if (names.contains(shippingTemplatePo.getName())) {
@@ -163,9 +167,9 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
         }
         //TODO 进行修改操作
         else {
-            if (!isPlat && (addShipTemplateDto.getVerifyStatus()==VerifyStatusEnum.WAIT_CONFIRM.getId() ||
-                    addShipTemplateDto.getVerifyStatus()==VerifyStatusEnum.CHECKED.getId() )){
-                throw new ServiceException(ResultCode.FAIL,"待审核或者审核通过状态不允许修改");
+            if (!isPlat && (addShipTemplateDto.getVerifyStatus() == VerifyStatusEnum.WAIT_CONFIRM.getId() ||
+                    addShipTemplateDto.getVerifyStatus() == VerifyStatusEnum.CHECKED.getId())) {
+                throw new ServiceException(ResultCode.FAIL, "待审核或者审核通过状态不允许修改");
             }
             /**先处理模版,判断名称不能重复、不能修改计算方式**/
             PmShippingTemplatePo shippingTemplate = shippingTemplateMapper.selectById(addShipTemplateDto.getId());
@@ -289,21 +293,19 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
      * @return
      */
     @Override
-    public void delByIds( DelListDto delListDto) {
+    public void delByIds(DelListDto delListDto) {
 
-        if (delListDto.getCalculateType()==ShipCalculateWayEnum.AMOUNT.getId()){
-            Arrays.asList(delListDto.getIds()).forEach(a->{
-                if (moneyShippingMapper.selectById(a)==null){
-                    throw new ServiceException(ResultCode.FAIL,"操作失败,"+a+"不存在");
+        if (delListDto.getCalculateType() == ShipCalculateWayEnum.AMOUNT.getId()) {
+            Arrays.asList(delListDto.getIds()).forEach(a -> {
+                if (moneyShippingMapper.selectById(a) == null) {
+                    throw new ServiceException(ResultCode.FAIL, "操作失败," + a + "不存在");
                 }
             });
             moneyShippingMapper.deleteBatchIds(Arrays.asList(delListDto.getIds()));
-        }
-
-        else if (delListDto.getCalculateType()==ShipCalculateWayEnum.NUMBER.getId()) {
-            Arrays.asList(delListDto.getIds()).forEach(a->{
-                if (numberShippingMapper.selectById(a)==null){
-                    throw new ServiceException(ResultCode.FAIL,"操作失败,"+a+"不存在");
+        } else if (delListDto.getCalculateType() == ShipCalculateWayEnum.NUMBER.getId()) {
+            Arrays.asList(delListDto.getIds()).forEach(a -> {
+                if (numberShippingMapper.selectById(a) == null) {
+                    throw new ServiceException(ResultCode.FAIL, "操作失败," + a + "不存在");
                 }
             });
             numberShippingMapper.deleteBatchIds(Arrays.asList(delListDto.getIds()));
@@ -320,30 +322,29 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
     @Override
     public void delTemplateByIds(Long[] templateIds) {
         //先删除关联的运费列表
-        Arrays.asList(templateIds).forEach(a->{
+        Arrays.asList(templateIds).forEach(a -> {
             //判断该模版是否已被应用
-            List<PmGoodsPo> goodsPos = goodsMapper.selectList(new QueryWrapper<PmGoodsPo>().eq("shipping_template_id",a));
-            if (!ListUtil.isListNullAndEmpty(goodsPos)){
-                throw new ServiceException(ResultCode.FAIL,String.format("该模版:[%s]已被商品引用,不能删除!",shippingTemplateMapper.selectById(a).getName()));
+            List<PmGoodsPo> goodsPos = goodsMapper.selectList(new QueryWrapper<PmGoodsPo>().eq("shipping_template_id", a));
+            if (!ListUtil.isListNullAndEmpty(goodsPos)) {
+                throw new ServiceException(ResultCode.FAIL, String.format("该模版:[%s]已被商品引用,不能删除!", shippingTemplateMapper.selectById(a).getName()));
             }
-            if (shippingTemplateMapper.selectById(a)==null){
-                throw new ServiceException(ResultCode.FAIL,"操作失败,"+a+"不存在");
+            if (shippingTemplateMapper.selectById(a) == null) {
+                throw new ServiceException(ResultCode.FAIL, "操作失败," + a + "不存在");
             }
             Map<String, Object> map = new HashMap<>();
             map.put("shipping_id", a);
-            if (shippingTemplateMapper.selectById(a).getCalculateWay()==ShipCalculateWayEnum.NUMBER.getId()) {
-                List<Long> ids = numberShippingMapper.selectByMap(map).stream().map(b->b.getId()).collect(Collectors.toList());
-                if (ids !=null && ids.size()!=0){
+            if (shippingTemplateMapper.selectById(a).getCalculateWay() == ShipCalculateWayEnum.NUMBER.getId()) {
+                List<Long> ids = numberShippingMapper.selectByMap(map).stream().map(b -> b.getId()).collect(Collectors.toList());
+                if (ids != null && ids.size() != 0) {
                     numberShippingMapper.deleteBatchIds(ids);
                 }
-            }
-            else if (shippingTemplateMapper.selectById(a).getCalculateWay()==ShipCalculateWayEnum.AMOUNT.getId()) {
-                List<Long> ids =moneyShippingMapper.selectByMap(map).stream().map(b->b.getId()).collect(Collectors.toList());
-                if (ids !=null && ids.size()!=0){
+            } else if (shippingTemplateMapper.selectById(a).getCalculateWay() == ShipCalculateWayEnum.AMOUNT.getId()) {
+                List<Long> ids = moneyShippingMapper.selectByMap(map).stream().map(b -> b.getId()).collect(Collectors.toList());
+                if (ids != null && ids.size() != 0) {
                     moneyShippingMapper.deleteBatchIds(ids);
                 }
             }
-            });
+        });
         shippingTemplateMapper.deleteBatchIds(Arrays.asList(templateIds));
     }
 
@@ -361,7 +362,7 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
         PageInfo<PlatTemplateVo> platTemplateVos = new PageInfo<>();
         platTemplateVos = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
                 .doSelectPageInfo(() -> shippingTemplateMapper.searchPlatTempByConditions(searchPlatTempDto));
-        platTemplateVos.getList().forEach(a->{
+        platTemplateVos.getList().forEach(a -> {
             ShipCalculateWayEnum shipCalculateWayEnum = ShipCalculateWayEnum.getWayById(a.getCalculateWay());
             switch (shipCalculateWayEnum) {
                 case AMOUNT:
@@ -392,7 +393,7 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
             List<PmShippingTemplatePo> shippingTemplatePos = Lists.newArrayList();
             Arrays.asList(verifyTemplateDto.getIds()).forEach(a -> {
                 if (shippingTemplateMapper.selectById(a).getVerifyStatus() != VerifyStatusEnum.UNCHECKED.getId()) {
-                    throw new ServiceException(ResultCode.FAIL, "操作失败，模版状态不是未审核状态",a);
+                    throw new ServiceException(ResultCode.FAIL, "操作失败，模版状态不是未审核状态", a);
                 }
                 PmShippingTemplatePo shippingTemplatePo = new PmShippingTemplatePo();
                 shippingTemplatePo.setId(a);
@@ -407,7 +408,7 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
             List<PmShippingTemplatePo> shippingTemplatePos = Lists.newArrayList();
             Arrays.asList(verifyTemplateDto.getIds()).forEach(a -> {
                 if (shippingTemplateMapper.selectById(a).getVerifyStatus() != VerifyStatusEnum.WAIT_CONFIRM.getId()) {
-                    throw new ServiceException(ResultCode.FAIL, "操作失败，模版状态不是待审核状态",a);
+                    throw new ServiceException(ResultCode.FAIL, "操作失败，模版状态不是待审核状态", a);
                 }
                 PmShippingTemplatePo shippingTemplatePo = new PmShippingTemplatePo();
                 shippingTemplatePo.setId(a);
@@ -416,21 +417,21 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
             });
             shippingTemplateService.updateBatchById(shippingTemplatePos);
         }
-         //处理审核不通过
-         else if (verifyTemplateDto.getVerifyStatus() == VerifyStatusEnum.NOT_APPROVED.getId()) {
-                List<PmShippingTemplatePo> shippingTemplatePos = Lists.newArrayList();
-                Arrays.asList(verifyTemplateDto.getIds()).forEach(a -> {
-                    if (shippingTemplateMapper.selectById(a).getVerifyStatus() != VerifyStatusEnum.WAIT_CONFIRM.getId()) {
-                        throw new ServiceException(ResultCode.FAIL, "审核失败，模版状态不是待审核状态",a);
-                    }
-                    PmShippingTemplatePo shippingTemplatePo = new PmShippingTemplatePo();
-                    shippingTemplatePo.setId(a);
-                    shippingTemplatePo.setVerifyStatus(verifyTemplateDto.getVerifyStatus());
-                    shippingTemplatePo.setContent(verifyTemplateDto.getContent());
-                    shippingTemplatePos.add(shippingTemplatePo);
-                });
-                shippingTemplateService.updateBatchById(shippingTemplatePos);
-            }
+        //处理审核不通过
+        else if (verifyTemplateDto.getVerifyStatus() == VerifyStatusEnum.NOT_APPROVED.getId()) {
+            List<PmShippingTemplatePo> shippingTemplatePos = Lists.newArrayList();
+            Arrays.asList(verifyTemplateDto.getIds()).forEach(a -> {
+                if (shippingTemplateMapper.selectById(a).getVerifyStatus() != VerifyStatusEnum.WAIT_CONFIRM.getId()) {
+                    throw new ServiceException(ResultCode.FAIL, "审核失败，模版状态不是待审核状态", a);
+                }
+                PmShippingTemplatePo shippingTemplatePo = new PmShippingTemplatePo();
+                shippingTemplatePo.setId(a);
+                shippingTemplatePo.setVerifyStatus(verifyTemplateDto.getVerifyStatus());
+                shippingTemplatePo.setContent(verifyTemplateDto.getContent());
+                shippingTemplatePos.add(shippingTemplatePo);
+            });
+            shippingTemplateService.updateBatchById(shippingTemplatePos);
+        }
     }
 
     /**
@@ -443,10 +444,10 @@ public class PmShippingTemplateServiceImpl extends AbstractService<PmShippingTem
     public void enableTemplate(EnableTemplateDto enableTemplateDto) {
 
         List<PmShippingTemplatePo> shippingTemplatePos = Lists.newArrayList();
-        Arrays.asList(enableTemplateDto.getIds()).forEach(a->{
+        Arrays.asList(enableTemplateDto.getIds()).forEach(a -> {
             //模版状态在审核通过状态下才能进行启用或禁用
-            if (shippingTemplateMapper.selectById(a).getVerifyStatus()!=VerifyStatusEnum.CHECKED.getId()){
-                throw new ServiceException(ResultCode.FAIL,"操作失败,含有非审核通过的模版,请重新选择");
+            if (shippingTemplateMapper.selectById(a).getVerifyStatus() != VerifyStatusEnum.CHECKED.getId()) {
+                throw new ServiceException(ResultCode.FAIL, "操作失败,含有非审核通过的模版,请重新选择");
             }
             PmShippingTemplatePo shippingTemplatePo = new PmShippingTemplatePo();
             shippingTemplatePo.setEnable(enableTemplateDto.getEnable());
