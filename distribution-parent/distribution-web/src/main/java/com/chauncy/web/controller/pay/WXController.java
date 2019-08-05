@@ -73,7 +73,7 @@ public class WXController {
     }
 
     /**
-     *   支付异步结果通知，我们在请求预支付订单时传入的地址
+     *   支付异步结果通知，请求预支付订单时传入的地址
      *   官方文档 ：https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=9_7&index=3
      */
     @RequestMapping(value = "/wxPay/notify", method = {RequestMethod.GET, RequestMethod.POST}, produces={"application/xml;"})

@@ -193,6 +193,7 @@ public class WXserviceImpl implements WXservice {
                         if(payOrderPo.getStatus().equals(PayOrderStatusEnum.NEED_PAY.getId())) {
                             //回调支付金额
                             Integer cashFee = Integer.parseInt(notifyMap.get("cash_fee"));
+
                             //支付订单计算应支付总金额
                             Integer totalMoney = BigDecimalUtil.safeMultiply(payOrderPo.getTotalRealPayMoney(), new BigDecimal(100)).intValue();
                             if(cashFee.equals(totalMoney)) {
@@ -232,15 +233,12 @@ public class WXserviceImpl implements WXservice {
 
 
     /**
-     * 微信支付查询订单
-     * @return
-     * @throws Exception
+     *   微信查询订单接口  订单未操作的做业务更新
+     *   官方文档 ：https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=9_2&index=4
      */
-
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Map<String, String> orderQuery(Long payOrderId) throws Exception {
-
+    public void orderQuery(Long payOrderId) throws Exception {
         PayOrderPo payOrderPo = payOrderMapper.selectById(payOrderId);
         if(null == payOrderPo) {
             throw new ServiceException(ResultCode.NO_EXISTS, "订单记录不存在");
@@ -269,7 +267,7 @@ public class WXserviceImpl implements WXservice {
         String sign = md5Util.getSign(data);
         data.put("sign", sign);
 
-        //使用微信统一下单API请求预付订单
+        //使用微信查询订单API请求预付订单
         Map<String, String> response = wxpay.orderQuery(data);
         //获取返回码
         String returnCode = response.get("return_code");
@@ -277,25 +275,26 @@ public class WXserviceImpl implements WXservice {
             String resultCode = response.get("result_code");
             if ("SUCCESS".equals(resultCode)) {
                 //resultCode 为SUCCESS，才会返回prepay_id和trade_type
-                //调起支付参数重新签名  不要使用请求预支付订单时返回的签名
-
-                return returnMap;
+                if("SUCCESS".equals(response.get("trade_state")) && payOrderPo.getStatus().equals(PayOrderStatusEnum.NEED_PAY.getId())) {
+                    //回调支付金额
+                    Integer cashFee = Integer.parseInt(response.get("cash_fee"));
+                    //支付订单计算应支付总金额
+                    Integer totalMoney = BigDecimalUtil.safeMultiply(payOrderPo.getTotalRealPayMoney(), new BigDecimal(100)).intValue();
+                    if(cashFee.equals(totalMoney)) {
+                        //业务数据持久化
+                        omOrderService.wxPayNotify(payOrderPo, response);
+                    } else {
+                        logger.info("微信查询订单成功，订单号:{}，但是金额不对应，回调支付金额{}，支付订单计算应支付总金额", payOrderPo, cashFee, totalMoney);
+                    }
+                }
             } else {
                 //调用微信统一下单接口返回失败
                 String errCodeDes = response.get("err_code_des");
-                //更新支付订单
-                payOrderPo.setErrorCode(response.get("err_code"));
-                payOrderPo.setErrorMsg(errCodeDes);
-                payOrderMapper.updateById(payOrderPo);
                 throw new ServiceException(ResultCode.FAIL, errCodeDes);
             }
         } else {
-            //调用微信统一下单接口返回失败
+            //调用微信查询订单接口返回失败
             String returnMsg = response.get("return_msg");
-            //更新支付订单
-            payOrderPo.setErrorCode(response.get("return_code"));
-            payOrderPo.setErrorMsg(returnMsg);
-            payOrderMapper.updateById(payOrderPo);
             throw new ServiceException(ResultCode.FAIL, returnMsg);
         }
 

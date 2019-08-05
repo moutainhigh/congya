@@ -19,4 +19,9 @@ public interface WXservice {
      * @return
      */
     String payBack(String notifyData) throws Exception;
+    /**
+     *   微信查询订单接口  订单未操作的做业务更新
+     *   官方文档 ：https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=9_2&index=4
+     */
+    void orderQuery(Long payOrderId) throws Exception;
 }
