@@ -102,7 +102,7 @@ public class ShopTicketSoWithCarGoodVo {
 
 
 
-    /**
+   /**
      * 根据公式算出返回预计购物券
      * 没有活动和优惠券  付现价=销售价
      * @return
@@ -129,7 +129,6 @@ public class ShopTicketSoWithCarGoodVo {
         return BigDecimalUtil.safeMultiply(a,b);
 
     }
-
     /**
      * 将百分比转换成小数
      * @param bigDecimal

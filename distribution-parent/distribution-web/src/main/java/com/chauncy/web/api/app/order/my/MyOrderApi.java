@@ -49,5 +49,13 @@ public class MyOrderApi extends BaseApi {
         return setJsonViewData(service.searchAppOrder(currentUser.getId(),searchMyOrderDto));
     }
 
+    @PostMapping("/pay/{orderId}")
+    @ApiOperation("马上支付")
+    public JsonViewData list(@PathVariable Long orderId) {
+        return setJsonViewData(service.payOrder(orderId));
+    }
+
+
+
 
 }

@@ -77,7 +77,7 @@ public class OmOrderPo implements Serializable {
     @ApiModelProperty(value = "活动类型0-无 1-秒杀 2-拼团 3-积分 4-满减")
     private Integer activityType;
 
-    @ApiModelProperty(value = "商品金额")
+    @ApiModelProperty(value = "订单总金额，包括运费、税费、商品")
     private BigDecimal totalMoney;
 
     @ApiModelProperty(value = "商品数量")
@@ -98,8 +98,6 @@ public class OmOrderPo implements Serializable {
     @ApiModelProperty(value = "备注")
     private String remark;
 
-    @ApiModelProperty(value = "单个订单预计奖励购物券")
-    private BigDecimal rewardShopTicket;
 
     @ApiModelProperty(value = "运费")
     private BigDecimal shipMoney;
@@ -114,6 +112,9 @@ public class OmOrderPo implements Serializable {
     @ApiModelProperty(value = "优惠券id")
     private Long couponId;
 
+    @ApiModelProperty(value = "店铺收入配置比例")
+    private BigDecimal incomeRate;
+
 
     @ApiModelProperty(value = "使用红包")
     private BigDecimal redEnvelops;
@@ -126,6 +127,9 @@ public class OmOrderPo implements Serializable {
 
     @ApiModelProperty(value = "购物券抵扣金额")
     private BigDecimal redEnvelopsMoney;
+
+    @ApiModelProperty(value = "应付金额")
+    private BigDecimal realMoney;
 
 
 

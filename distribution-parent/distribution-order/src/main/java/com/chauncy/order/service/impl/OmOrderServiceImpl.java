@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -120,6 +121,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         payOrderMapper.updateById(updatePayOrder);
         //订单改状态
         orderPo.setStatus(OrderStatusEnum.ALREADY_CANCEL);
+        orderPo.setRealMoney(null);
         this.updateById(orderPo);
 
         //查找skuid和数量
@@ -201,6 +203,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Long payOrder(Long orderId) {
         //找出原先的支付单
         PayOrderPo queryPayOrder = mapper.getPayOrderByOrderId(orderId);
@@ -214,6 +217,14 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         BeanUtils.copyProperties(queryPayOrder,savePayOrderPo);
 
         OmOrderPo queryOrder = mapper.selectById(orderId);
-        return null;
+
+        //新的支付单生成新的金额 没有活动，优惠金额为0
+        savePayOrderPo.setTotalRealPayMoney(queryOrder.getRealMoney()).setTotalDiscount(BigDecimal.ZERO)
+        .setTotalShipMoney(queryOrder.getShipMoney()).setTotalTaxMoney(queryOrder.getTaxMoney()).setTotalRedEnvelops(queryOrder.getRedEnvelops())
+        .setTotalShopTicket(queryOrder.getShopTicket()).setTotalMoney(queryOrder.getTotalMoney()).setTotalNumber(queryOrder.getTotalNumber())
+        .setTotalShopTicketMoney(queryOrder.getShopTicketMoney()).setTotalRedEnvelopsMoney(queryOrder.getRedEnvelopsMoney());
+
+        payOrderMapper.insert(savePayOrderPo);
+        return savePayOrderPo.getId();
     }
 }

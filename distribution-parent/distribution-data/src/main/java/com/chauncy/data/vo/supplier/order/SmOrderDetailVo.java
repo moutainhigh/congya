@@ -59,7 +59,7 @@ public class SmOrderDetailVo {
     private String payTypeCode;
 
     @ApiModelProperty("订单金额")
-    private BigDecimal sumMoney;
+    private BigDecimal totalMoney;
 
     @ApiModelProperty("预计奖励购物券")
     private BigDecimal rewardShopTicket;

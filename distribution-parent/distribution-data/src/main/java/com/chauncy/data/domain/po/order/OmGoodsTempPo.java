@@ -88,5 +88,14 @@ public class OmGoodsTempPo implements Serializable {
     @ApiModelProperty(value = "商品利润比例")
     private BigDecimal profitRate;
 
+    @ApiModelProperty(value = "预计奖励购物券")
+    private BigDecimal rewardShopTicket;
+
+    @ApiModelProperty(value = "预计奖励经验值")
+    private BigDecimal rewardExperience;
+
+    @ApiModelProperty(value = "预计奖励积分")
+    private BigDecimal rewardIntegrate;
+
 
 }
