@@ -1,21 +1,26 @@
 package com.chauncy.order.service;
 
+import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.dto.app.order.my.SearchMyOrderDto;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSendOrderDto;
+import com.chauncy.data.vo.app.order.my.AppSearchOrderVo;
 import com.chauncy.data.vo.manage.order.list.OrderDetailVo;
 import com.chauncy.data.vo.manage.order.list.SearchOrderVo;
 import com.chauncy.data.vo.supplier.order.SmOrderDetailVo;
+import com.chauncy.data.vo.supplier.order.SmOrderLogisticsVo;
 import com.chauncy.data.vo.supplier.order.SmSearchOrderVo;
 import com.chauncy.data.vo.supplier.order.SmSendOrderVo;
 import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Map;
+import java.util.List;
 
 /**
  * <p>
@@ -81,6 +86,29 @@ public interface IOmOrderService extends Service<OmOrderPo> {
      * @return
      */
     SmOrderDetailVo getSmDetailById(@Param("id") Long id);
+
+    /**
+     * 商家获取订单物流信息
+     * @param id
+     * @return
+     */
+    SmOrderLogisticsVo getLogisticsById( Long id);
+
+
+    /**
+     * 查询我的订单列表
+     * @param userId
+     * @param searchMyOrderDto
+     * @return
+     */
+    PageInfo<AppSearchOrderVo> searchAppOrder(Long userId, SearchMyOrderDto searchMyOrderDto  );
+
+    /**
+     * 返回支付单id
+     * @param orderId
+     * @return
+     */
+    Long payOrder(Long orderId);
 
 
 

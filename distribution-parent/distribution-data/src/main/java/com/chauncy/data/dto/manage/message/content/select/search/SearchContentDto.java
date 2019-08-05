@@ -22,8 +22,11 @@ public class SearchContentDto {
     @ApiModelProperty("名称或者关键字")
     private String name;
 
-    @ApiModelProperty("更新时间")
+    @ApiModelProperty("更新时间开始时间")
     private LocalDate updateTime;
+
+    @ApiModelProperty("更新时间结束时间")
+    private LocalDate updateEndTime;
 
     @Min(1)
     @ApiModelProperty(value = "页码")

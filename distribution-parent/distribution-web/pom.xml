@@ -24,6 +24,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
+            <version>2.1.4.RELEASE</version>
             <optional>true</optional> <!-- 表示依赖不会传递 -->
             <scope>true</scope>
         </dependency>
@@ -38,7 +39,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <fork>true</fork> <!-- 如果没有该配置，devtools不会生效 -->
-                    <!--<jvmArguments>-Xmx1024m</jvmArguments>-->
+                    <addResources>true</addResources>
                 </configuration>
                 <executions>
                     <execution>
@@ -47,6 +48,7 @@
                         </goals>
                     </execution>
                 </executions>
+
             </plugin>
             <!--希望在保持项目源代码不变的前提下,希望能够针对不同的运行环境获得相应的运行包.(比如war包)-->
             <plugin>

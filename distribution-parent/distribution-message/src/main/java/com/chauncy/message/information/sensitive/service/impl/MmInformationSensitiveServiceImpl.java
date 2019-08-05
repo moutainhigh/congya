@@ -93,6 +93,9 @@ public class MmInformationSensitiveServiceImpl extends AbstractService<MmInforma
     public InformationSensitiveVo findById(Long id) {
         InformationSensitiveVo informationSensitiveVo = new InformationSensitiveVo();
         MmInformationSensitivePo informationSensitivePo = mmInformationSensitiveMapper.selectById(id);
+        if(null == informationSensitivePo) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "记录不存在");
+        }
         BeanUtils.copyProperties(informationSensitivePo , informationSensitiveVo);
         return informationSensitiveVo;
     }
@@ -109,7 +112,8 @@ public class MmInformationSensitiveServiceImpl extends AbstractService<MmInforma
         Integer pageNo = baseSearchDto.getPageNo()==null ? defaultPageNo : baseSearchDto.getPageNo();
         Integer pageSize = baseSearchDto.getPageSize()==null ? defaultPageSize : baseSearchDto.getPageSize();
 
-        PageInfo<InformationSensitiveVo> informationSensitiveVoPageInfo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
+
+        PageInfo<InformationSensitiveVo> informationSensitiveVoPageInfo = PageHelper.startPage(pageNo, pageSize, " create_time desc")
                 .doSelectPageInfo(() -> mmInformationSensitiveMapper.searchPaging(baseSearchDto));
         return informationSensitiveVoPageInfo;
     }

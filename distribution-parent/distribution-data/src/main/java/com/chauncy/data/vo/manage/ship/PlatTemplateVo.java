@@ -89,6 +89,9 @@ public class PlatTemplateVo {
     @ApiModelProperty("审核者")
     private String auditor;
 
+    @ApiModelProperty("反馈原因")
+    private String content;
 
-
+    @ApiModelProperty("是否启用 1--启用 0--禁用")
+    private Boolean enable;
 }

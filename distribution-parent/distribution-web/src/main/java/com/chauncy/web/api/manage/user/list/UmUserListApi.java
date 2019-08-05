@@ -6,6 +6,8 @@ import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
 import com.chauncy.data.dto.manage.user.update.UpdateUserDto;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.manage.user.detail.UmUserDetailVo;
+import com.chauncy.data.vo.manage.user.detail.UmUserRelVo;
 import com.chauncy.data.vo.manage.user.list.UmUserListVo;
 import com.chauncy.user.service.IUmUserService;
 import com.chauncy.web.base.BaseApi;
@@ -18,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * <p>
@@ -57,7 +60,7 @@ public class UmUserListApi extends BaseApi {
     @PostMapping("/view/{id}")
     @ApiOperation(value = "查询用户信息详情")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData view(@PathVariable Long id) {
+    public JsonViewData<UmUserDetailVo> view(@PathVariable Long id) {
 
         /*service.editEnabledBatch(baseUpdateStatusDto);
         return new JsonViewData(ResultCode.SUCCESS, "修改用户状态成功");*/
@@ -75,7 +78,7 @@ public class UmUserListApi extends BaseApi {
     @PostMapping("/getRelUser/{id}")
     @ApiOperation(value = "查询关联用户")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData getRelUser(@PathVariable Long id) {
+    public JsonViewData<List<UmUserRelVo>> getRelUser(@PathVariable Long id) {
 
         return setJsonViewData(service.getRelUsers(id));
     }

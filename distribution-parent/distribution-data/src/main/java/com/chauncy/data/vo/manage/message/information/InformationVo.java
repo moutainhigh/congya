@@ -10,6 +10,7 @@ import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -55,7 +56,7 @@ public class InformationVo implements Serializable {
     private List<InformationRelGoodsVo> goodsList;
 
     @ApiModelProperty(value = "排序数字")
-    private Integer sort;
+    private BigDecimal sort;
 
     @ApiModelProperty(value = "封面图片")
     private String coverImage;

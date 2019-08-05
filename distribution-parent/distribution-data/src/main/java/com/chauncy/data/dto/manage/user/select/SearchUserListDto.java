@@ -19,8 +19,8 @@ public class SearchUserListDto {
     @ApiModelProperty("用户ID")
     private Long id;
 
-    @ApiModelProperty("会员等级id")
-    private Long levelId;
+    @ApiModelProperty("会员等级名称搜索")
+    private String levelName;
 
     @ApiModelProperty("名称")
     private String trueName;

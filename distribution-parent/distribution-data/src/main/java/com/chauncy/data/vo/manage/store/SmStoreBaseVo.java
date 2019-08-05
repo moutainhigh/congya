@@ -66,7 +66,7 @@ public class SmStoreBaseVo implements Serializable {
     private String ownerMobile;
 
     @ApiModelProperty(value = "排序数值")
-    private Integer sort;
+    private BigDecimal sort;
 
     @ApiModelProperty(value = "是否启用 1-是 0-否 默认为1")
     private Boolean enabled;

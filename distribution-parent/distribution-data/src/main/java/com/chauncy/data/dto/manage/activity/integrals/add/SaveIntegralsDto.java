@@ -33,7 +33,7 @@ public class SaveIntegralsDto {
 
     @ApiModelProperty(value = "排序数字")
     @NotNull(message = "排序数字不能为空")
-    private Integer sort;
+    private BigDecimal sort;
 
     @ApiModelProperty(value = "活动图片")
     @NotNull(message = "活动图片不能为空")

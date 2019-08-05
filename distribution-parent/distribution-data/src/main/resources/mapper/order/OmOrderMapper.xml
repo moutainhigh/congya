@@ -138,5 +138,28 @@
             from om_goods_temp
             where order_id=#{orderId}
     </select>
+    <select id="loadLogisticsById" resultType="com.chauncy.data.vo.supplier.order.SmOrderLogisticsVo">
+            select o.goods_type,o.id orderId,o.`status`,p.ship_name,p.phone mobile,p.area_name,p.ship_address detailedAddress,
+            l.logi_name,l.logistics_no,l.data
+            FROM om_order o,pay_order p,om_order_logistics l
+            where o.pay_order_id=p.id and o.id=l.order_id
+            and o.del_flag=0
+            and o.id=#{id}
+    </select>
+    <select id="searchAppOrder" resultType="com.chauncy.data.vo.app.order.my.AppSearchOrderVo">
+            select o.goods_type,o.id orderId,o.`status`,o.real_money,o.total_number,o.store_id,
+                    s.name storeName
+            FROM om_order o,sm_store s
+            where o.store_id=s.id and o.um_user_id=#{userId}
+            <if test="orderStatusEnum!=null">
+                and o.status=#{orderStatusEnum}
+            </if>
+            and o.del_flag=0 and s.del_flag=0
+    </select>
+    <select id="getPayOrderByOrderId" resultType="com.chauncy.data.domain.po.pay.PayOrderPo">
+            select p.*
+            from om_order o,pay_order p
+            where o.id=#{orderId} and p.id=o.pay_order_id
+    </select>
 
 </mapper>

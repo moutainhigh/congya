@@ -58,7 +58,7 @@ public class AmReducedPo implements Serializable {
     private String name;
 
     @ApiModelProperty(value = "排序数字")
-    private Integer sort;
+    private BigDecimal sort;
 
     @ApiModelProperty(value = "活动图片")
     private String picture;

@@ -22,11 +22,35 @@ public class LogisticsContantsConfig {
     //回调url
     private String callbackUrl;
 
-//    @Bean
-//    public void instanceLogistics(){
-//
-//        LogisticsContants.setLogisticsKey(key);
-//
-//        System.out.println(key);
-//    }
+    //贵司的查询公司编号
+    private String customer;
+
+    //行政区域解析 0-关闭 1-开启
+    private int resultv2;
+
+    //单号智能识别 0-关闭 1-开启
+    private int autoCom;
+
+    //开启国际版 0-关闭 1-开启
+    private int interCom;
+
+    //实时订阅查询请求地址
+    private String subscribeUrl;
+
+    //实时查询请求地址
+    private String synqueryUrl;
+
+    //智能判断请求地址
+    private String autoUrl;
+
+
+
+    @Bean
+    public int instanceLogistics(){
+
+        LogisticsContants.setLogisticsKey(key);
+
+        System.out.println(key);
+        return 0;
+    }
 }

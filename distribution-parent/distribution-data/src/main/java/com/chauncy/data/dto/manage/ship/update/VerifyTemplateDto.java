@@ -23,7 +23,7 @@ public class VerifyTemplateDto {
     @NeedExistConstraint(tableName = "pm_shipping_template")
     private Long[] ids;
 
-    @ApiModelProperty("检验状态 1-未审核 2-审核通过 3-驳回 4-不通过/驳回")
+    @ApiModelProperty("检验状态 1-待提交 2-待审核 3-审核通过 4-不通过/驳回")
     @EnumConstraint(target = VerifyStatusEnum.class)
     private Integer verifyStatus;
 

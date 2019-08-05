@@ -10,6 +10,7 @@ import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.dto.app.order.my.SearchMyOrderDto;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSendOrderDto;
@@ -20,17 +21,16 @@ import com.chauncy.data.mapper.order.OmShoppingCartMapper;
 import com.chauncy.data.mapper.pay.IPayOrderMapper;
 import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
 import com.chauncy.data.vo.app.car.ShopTicketSoWithCarGoodVo;
+import com.chauncy.data.vo.app.order.my.AppSearchOrderVo;
 import com.chauncy.data.vo.manage.order.list.OrderDetailVo;
 import com.chauncy.data.vo.manage.order.list.SearchOrderVo;
-import com.chauncy.data.vo.supplier.order.SmOrderDetailVo;
-import com.chauncy.data.vo.supplier.order.SmSearchOrderVo;
-import com.chauncy.data.vo.supplier.order.SmSendGoodsTempVo;
-import com.chauncy.data.vo.supplier.order.SmSendOrderVo;
+import com.chauncy.data.vo.supplier.order.*;
 import com.chauncy.order.service.IOmOrderService;
 import com.chauncy.order.service.IPayOrderService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -222,5 +222,38 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         smOrderDetailVo.setGoodsTempVos(mapper.searchGoodsTempVos(id));
 
         return smOrderDetailVo;
+    }
+
+    @Override
+    public SmOrderLogisticsVo getLogisticsById(Long id) {
+        return mapper.loadLogisticsById(id);
+    }
+
+    @Override
+    public PageInfo<AppSearchOrderVo> searchAppOrder(Long userId, SearchMyOrderDto searchMyOrderDto) {
+        PageInfo<AppSearchOrderVo> appSearchOrderVoPageInfo = PageHelper.startPage(searchMyOrderDto.getPageNo(), searchMyOrderDto.getPageSize())
+                .doSelectPageInfo(() -> mapper.searchAppOrder(userId,searchMyOrderDto.getStatus()));
+        appSearchOrderVoPageInfo.getList().forEach(x->{
+            List<SmSendGoodsTempVo> smSendGoodsTempVos = mapper.searchSendGoodsTemp(x.getOrderId());
+            x.setSmSendGoodsTempVos(smSendGoodsTempVos);
+        });
+        return appSearchOrderVoPageInfo;
+    }
+
+    @Override
+    public Long payOrder(Long orderId) {
+        //找出原先的支付单
+        PayOrderPo queryPayOrder = mapper.getPayOrderByOrderId(orderId);
+        //把原先的支付单禁用掉
+        if (queryPayOrder.getEnabled()){
+           queryPayOrder.setEnabled(false);
+           payOrderMapper.updateById(queryPayOrder);
+        }
+        //生成新的支付单
+        PayOrderPo savePayOrderPo=new PayOrderPo();
+        BeanUtils.copyProperties(queryPayOrder,savePayOrderPo);
+
+        OmOrderPo queryOrder = mapper.selectById(orderId);
+        return null;
     }
 }

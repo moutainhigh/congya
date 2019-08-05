@@ -1,5 +1,6 @@
 package com.chauncy.data.bo.app.logistics;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.List;
@@ -14,30 +15,39 @@ import java.util.List;
 public class LastResultBo {
 
     //快递单号
+    @ApiModelProperty("快递单号")
     private String nu;
 
     //监控状态相关消息，如:3天查询无记录，60天无变化
+    @ApiModelProperty("监控状态相关消息")
     private String message;
 
     //
+    @ApiModelProperty(value = "",hidden = true)
     private String comcontact;
 
     //是否签收标记
+    @ApiModelProperty("是否签收标记 0-否 1-是")
     private String ischeck;
 
     //快递公司编码
+    @ApiModelProperty("快递公司编码")
     private String com;
 
     //快递单明细状态标记，暂未实现，请忽略
+    @ApiModelProperty("快递单明细状态标记")
     private String condition;
 
     //通讯状态
+    @ApiModelProperty("通讯状态")
     private String status;
 
     //快递单当前状态，包括0在途，1揽收，2疑难，3签收，4退签，5派件，6退回等7个状态
+    @ApiModelProperty("快递单当前状态，包括0在途，1揽收，2疑难，3签收，4退签，5派件，6退回等7个状态")
     private String state;
 
     //数组，包含多个对象
+    @ApiModelProperty("物流节点信息")
     private List<LogisticsDataBo> data;
 
 

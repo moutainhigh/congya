@@ -1,12 +1,14 @@
 package com.chauncy.data.dto.app.order.logistics;
 
 import com.chauncy.common.constant.logistics.LogisticsContantsConfig;
+import com.chauncy.data.bo.app.logistics.LogisticsRequestParametersBo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.Resource;
+import javax.validation.constraints.NotBlank;
 import java.util.HashMap;
 
 /**
@@ -60,9 +62,11 @@ import java.util.HashMap;
 public class TaskRequestDto {
 
     @ApiModelProperty("快递公司编码")
+    @NotBlank(message = "快递公司编码不能为空！！")
     private String company;
 
     @ApiModelProperty("快递单号")
+    @NotBlank(message = "快递单号不能为空！")
     private String number;
 
     @ApiModelProperty("订单编号")
@@ -77,6 +81,10 @@ public class TaskRequestDto {
     @ApiModelProperty(value = "企业授权key",hidden = true)
     private String key;
 
-    @ApiModelProperty(value = "parameters",hidden = true)
-    private HashMap<String, String> parameters = new HashMap<String, String>();
+    @ApiModelProperty(value = "parameters")
+    private LogisticsRequestParametersBo parameters;
+
+//    @ApiModelProperty(value = "parameter",hidden = true)
+//    private HashMap<String, String> parameters = new HashMap<String, String>();
+
 }
