@@ -1,8 +1,10 @@
 package com.chauncy.data.dto.manage.order.log.select;
 
-import com.chauncy.common.enums.log.AccountLogMatterEnum;
+import com.chauncy.common.enums.log.PlatformLogMatterEnum;
 import com.chauncy.data.valid.annotation.EnumConstraint;
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -36,8 +38,8 @@ public class SearchPlatformLogDto implements Serializable {
     private String logType;
 
     @ApiModelProperty(value = "流水事由")
-    @EnumConstraint(target = AccountLogMatterEnum.class)
-    private String logMatter;
+    @EnumConstraint(target = PlatformLogMatterEnum.class)
+    private Integer logMatter;
 
     @ApiModelProperty(value = "下单用户手机号码")
     private String phone;

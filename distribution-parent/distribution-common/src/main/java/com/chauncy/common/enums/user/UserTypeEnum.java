@@ -1,44 +1,46 @@
-package com.chauncy.common.enums.order;
+package com.chauncy.common.enums.user;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.chauncy.common.enums.BaseEnum;
 
 import java.util.Objects;
 
 /**
  * @author yeJH
- * @since 2019/7/22 23:39
+ * @since 2019/7/26 11:19
  */
-public enum BillTypeEnum implements BaseEnum {
+public enum UserTypeEnum implements BaseEnum {
+
 
     /**
-     * 账单类型
-     * 1-货款账单  用户在店铺下单 商品所属店铺生成跟供货价关联的货款账单
-     * 2-利润账单  用户在店铺下单 用户所在店铺生成跟销售价关联的利润账单
+     * 用户类型
+     * 1.APP用户
+     * 2.平台
+     * 3.商家
      */
-    PAYMENT_BILL(1, "货款账单"),
-    PROFIT_BILL(2, "利润账单"),
+    APP_USER (1, "APP用户"),
+    PLATFORM(2, "平台"),
+    STORE(3, "商家"),
     ;
 
+
+    @EnumValue
     private Integer id;
     private String name;
-    BillTypeEnum(Integer id, String name){
+    UserTypeEnum(Integer id, String name){
         this.id = id;
         this.name = name;
     }
 
     @Override
     public String toString(){
-        return this.getName();
+        return this.name() + ":"  + this.name;
     }
 
-    public static String value(String name){
-        return name;
-    }
-
-    //通过Id获取结果
-    public static BillTypeEnum getById(Integer id) {
-        for (BillTypeEnum type : BillTypeEnum.values()) {
-            if (type.getId() == id)
+    //通过名称来获取结果
+    public static UserTypeEnum getById(Integer id) {
+        for (UserTypeEnum type : UserTypeEnum.values()) {
+            if (type.getId().equals(id))
                 return type;
         }
         return null;
@@ -47,7 +49,6 @@ public enum BillTypeEnum implements BaseEnum {
     public Integer getId() {
         return id;
     }
-
 
     public void setId(Integer id) {
         this.id = id;
@@ -66,6 +67,5 @@ public enum BillTypeEnum implements BaseEnum {
 
         return Objects.nonNull(getById(Integer.parseInt(field.toString())));
     }
-
 
 }

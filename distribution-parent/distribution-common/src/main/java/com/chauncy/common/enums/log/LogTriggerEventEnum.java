@@ -1,4 +1,4 @@
-package com.chauncy.common.enums.order;
+package com.chauncy.common.enums.log;
 
 import com.chauncy.common.enums.BaseEnum;
 
@@ -6,22 +6,25 @@ import java.util.Objects;
 
 /**
  * @author yeJH
- * @since 2019/7/22 23:39
+ * @since 2019/7/25 17:42
  */
-public enum BillTypeEnum implements BaseEnum {
+public enum  LogTriggerEventEnum  implements BaseEnum {
 
     /**
-     * 账单类型
-     * 1-货款账单  用户在店铺下单 商品所属店铺生成跟供货价关联的货款账单
-     * 2-利润账单  用户在店铺下单 用户所在店铺生成跟销售价关联的利润账单
+     * 流水触发的事件
+     * 1.店铺利润、货款账单提现
+     * 2.APP用户提现红包
+     * 3.订单下单
      */
-    PAYMENT_BILL(1, "货款账单"),
-    PROFIT_BILL(2, "利润账单"),
+    STORE_WITHDRAWAL(1, "店铺利润、货款账单提现"),
+    APP_WITHDRAWAL(2, "APP用户提现红包"),
+    APP_ORDER(3, "订单下单"),
     ;
+
 
     private Integer id;
     private String name;
-    BillTypeEnum(Integer id, String name){
+    LogTriggerEventEnum(Integer id, String name){
         this.id = id;
         this.name = name;
     }
@@ -31,14 +34,10 @@ public enum BillTypeEnum implements BaseEnum {
         return this.getName();
     }
 
-    public static String value(String name){
-        return name;
-    }
-
-    //通过Id获取结果
-    public static BillTypeEnum getById(Integer id) {
-        for (BillTypeEnum type : BillTypeEnum.values()) {
-            if (type.getId() == id)
+    //通过名称来获取结果
+    public static LogTriggerEventEnum getById(Integer id) {
+        for (LogTriggerEventEnum type : LogTriggerEventEnum.values()) {
+            if (type.getId().equals(id))
                 return type;
         }
         return null;
@@ -47,7 +46,6 @@ public enum BillTypeEnum implements BaseEnum {
     public Integer getId() {
         return id;
     }
-
 
     public void setId(Integer id) {
         this.id = id;
