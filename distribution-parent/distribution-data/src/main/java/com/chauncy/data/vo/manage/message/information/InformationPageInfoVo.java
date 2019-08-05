@@ -9,6 +9,7 @@ import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -41,7 +42,7 @@ public class InformationPageInfoVo implements Serializable {
     private Boolean enabled;
 
     @ApiModelProperty(value = "排序数字")
-    private Integer sort;
+    private BigDecimal sort;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")

@@ -29,7 +29,10 @@
                 and name like concat('%', #{name}, '%')
             </if>
             <if test="updateTime!=null">
-                and DATE_FORMAT(update_time,'%Y-%m-%d')=#{updateTime}
+                and DATE_FORMAT(update_time,'%Y-%m-%d') &gt;= #{updateTime}
+            </if>
+            <if test="updateEndTime!=null">
+                and DATE_FORMAT(update_time,'%Y-%m-%d') &lt;= #{updateEndTime}
             </if>
         </where>
         order by update_time

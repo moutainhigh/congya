@@ -1,5 +1,6 @@
 package com.chauncy.user.service;
 
+import com.chauncy.common.enums.log.AccountTypeEnum;
 import com.chauncy.common.enums.user.ValidCodeEnum;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.core.Service;
@@ -16,6 +17,7 @@ import com.chauncy.data.vo.manage.user.list.UmUserListVo;
 import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -63,6 +65,13 @@ public interface IUmUserService extends Service<UmUserPo> {
      * @return
      */
     boolean updateLogin(String phone);
+
+    /**
+     * 获取用户的账户余额
+     * @param accountType
+     * @return
+     */
+    BigDecimal getAccount(AccountTypeEnum accountType, UmUserPo umUserPo);
 
     /**
      * 查找导入商品列表

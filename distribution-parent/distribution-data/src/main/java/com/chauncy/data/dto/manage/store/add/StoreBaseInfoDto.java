@@ -13,6 +13,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -68,7 +69,7 @@ public class StoreBaseInfoDto implements Serializable {
 
     @ApiModelProperty(value = "排序数值")
     @Min(value = 0, message = "排序数字必须大于0")
-    private Integer sort;
+    private BigDecimal sort;
 
 
     @ApiModelProperty(value = "主理人姓名")

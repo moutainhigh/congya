@@ -30,7 +30,7 @@ import javax.validation.Valid;
 @RequestMapping("/supplier/finance")
 @Api(tags = "商家_财务管理接口")
 @Slf4j
-public class OsFinanceApi extends BaseApi {
+public class OsFinanceLogApi extends BaseApi {
 
     @Autowired
     private IOmOrderBillService omOrderBillService;

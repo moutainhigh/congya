@@ -4,11 +4,13 @@ import com.chauncy.common.enums.message.InformationTypeEnum;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.valid.annotation.EnumConstraint;
 import com.chauncy.data.valid.annotation.NeedExistConstraint;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -26,6 +28,10 @@ public class SearchInfoByConditionDto implements Serializable {
     @NeedExistConstraint(tableName = "sm_store")
     private Long storeId;
 
+    @JsonIgnore
+    @ApiModelProperty(value = "店铺id")
+    private Long userId;
+
     @ApiModelProperty(value = "资讯标签id")
     @NeedExistConstraint(tableName = "mm_information_label")
     private Long infoLabelId;
@@ -35,11 +41,9 @@ public class SearchInfoByConditionDto implements Serializable {
     private Long infoCategoryId;
 
     @ApiModelProperty(value = "资讯类型：  关注->FOCUSLIST  热榜->HOTLIST")
-    @EnumConstraint(target = InformationTypeEnum.class)
     private InformationTypeEnum informationTypeEnum;
 
     @ApiModelProperty(value = "模糊搜索关键字")
-    @EnumConstraint(target = InformationTypeEnum.class)
     private String keyword;
 
     @Min(1)

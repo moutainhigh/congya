@@ -91,7 +91,7 @@ public class MmInformationCategoryServiceImpl extends AbstractService<MmInformat
     }
 
     /**
-     * 根据ID查找店铺分类
+     * 根据ID查找资讯分类
      *
      * @param id
      * @return
@@ -100,8 +100,12 @@ public class MmInformationCategoryServiceImpl extends AbstractService<MmInformat
     public InformationCategoryVo findById(Long id) {
         InformationCategoryVo informationCategoryVo = new InformationCategoryVo();
         MmInformationCategoryPo informationCategoryPo = mmInformationCategoryMapper.selectById(id);
-        BeanUtils.copyProperties(informationCategoryPo , informationCategoryVo);
-        return informationCategoryVo;
+        if(null == informationCategoryPo) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "记录不存在");
+        } else {
+            BeanUtils.copyProperties(informationCategoryPo, informationCategoryVo);
+            return informationCategoryVo;
+        }
     }
 
 

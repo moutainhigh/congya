@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chauncy.data.mapper.order.log.OmAccountLogMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.order.log.OmAccountLogPo">
+        <id column="id" property="id" />
+        <result column="parent_id" property="parentId" />
+        <result column="balance" property="balance" />
+        <result column="last_balance" property="lastBalance" />
+        <result column="user_id" property="userId" />
+        <result column="account_type" property="accountType" />
+        <result column="amount" property="amount" />
+        <result column="om_rel_id" property="omRelId" />
+        <result column="log_type" property="logType" />
+        <result column="user_type" property="userType" />
+        <result column="payment_way" property="paymentWay" />
+        <result column="arrival_way" property="arrivalWay" />
+        <result column="log_matter" property="logMatter" />
+        <result column="pay_order_id" property="payOrderId" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="event_time" property="eventTime" />
+        <result column="del_flag" property="delFlag" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, parent_id, balance, last_balance, user_id, account_type, amount, om_order_id, log_type, user_type, payment_way, arrival_way, log_matter, pay_order_id, create_by, create_time, update_by, event_time, del_flag
+    </sql>
+
+
+    <select id="searchPlatformLogPaging" resultType="com.chauncy.data.vo.manage.order.log.SearchPlatformLogVo">
+        select oal.pay_order_id,
+                po.pay_id,
+                oal.create_by as phone,
+                oal.log_type,
+                oal.log_matter,
+				po.total_real_pay_money,
+				oal.payment_way,
+				oal.arrival_way,
+				oal.create_time
+        from om_account_log oal
+        left join pay_order po
+        on oal.pay_order_id = po.id
+        <if test="phone != null and phone != ''">
+            left join um_user uu
+            on uu.id = po.um_user_id
+        </if>
+        <where>
+            <if test="payOrderId != null">
+                and oal.pay_order_id = #{payOrderId}
+            </if>
+            <if test="payId != null">
+                and po.pay_id = #{payId}
+            </if>
+            <if test="umUserId != null">
+                and po.um_user_id = #{umUserId}
+            </if>
+            <if test="logType != null and logType != ''">
+                and oal.log_type = #{logType}
+            </if>
+            <if test="logMatter != null">
+                and oal.log_matter = #{logMatter}
+            </if>
+            <if test="phone != null and phone != ''">
+                and uu.phone = #{phone}
+            </if>
+            <if test="startTime != null">
+                and date(oal.create_time) <![CDATA[>= ]]>  #{startTime}
+            </if>
+            <if test="endTime != null">
+                and date(oal.create_time) <![CDATA[<= ]]> #{endTime}
+            </if>
+        </where>
+        order by oal.create_time
+    </select>
+    <select id="searchUserLogPaging" resultType="com.chauncy.data.vo.manage.order.log.UserLogDetailVo">
+        SELECT oal.id as logId,
+            oal.`log_type`,
+            oal.`amount`,
+            oal.`log_matter`,
+            oal.`event_time`,
+            oal.`payment_way`,
+            oal.`arrival_way`
+        FROM om_account_log oal
+
+        WHERE oal.user_id = #{userId}
+        AND account_type = #{accountTypeEnum.id}
+        ORDER BY oal.`event_time`
+    </select>
+    <select id="searchUserWithdrawalPaging" resultType="com.chauncy.data.vo.manage.order.log.SearchUserWithdrawalVo">
+        SELECT ouw.id,
+                ouw.`um_user_id`,
+                uu.`name`,
+                uu.`phone`,
+                ouw.`withdrawal_way`,
+                ouw.`withdrawal_amount`,
+                ouw.`actual_amount`,
+                ouw.`alipay`,
+                ouw.`wechat`,
+                ouw.`real_name`,
+                ouw.`withdrawal_status`,
+                ouw.`create_time`
+        FROM om_user_withdrawal ouw
+        LEFT JOIN um_user uu
+        ON ouw.`um_user_id` = uu.`id`
+        <where>
+            <if test="userId != null">
+                and ouw.um_user_id = #{userId}
+            </if>
+            <if test="withdrawalStatus != null">
+                and ouw.withdrawal_status = #{withdrawalStatus}
+            </if>
+            <if test="name != null and name != ''">
+                and uu.name like concat('%',#{name},'%')
+            </if>
+            <if test="phone != null and phone != ''">
+                and uu.phone like concat('%',#{phone},'%')
+            </if>
+            <if test="startTime != null">
+                and date(ouw.create_time) <![CDATA[>= ]]>  #{startTime}
+            </if>
+            <if test="endTime != null">
+                and date(ouw.create_time) <![CDATA[<= ]]> #{endTime}
+            </if>
+        </where>
+        order by ouw.create_time
+    </select>
+
+</mapper>

@@ -35,7 +35,7 @@ public enum BillStatusEnum implements BaseEnum {
 
     @Override
     public String toString(){
-        return this.id + "_" + this.name;
+        return this.getName();
     }
 
     public static String value(String name){
