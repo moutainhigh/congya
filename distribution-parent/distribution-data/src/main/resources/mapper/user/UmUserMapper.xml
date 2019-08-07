@@ -14,12 +14,12 @@
         </if>
         store_id=#{t.storeId},
         commission_status=#{t.commissionStatus},
-        current_red_envelops=current_red_envelops+#{t.currentRedEnvelops},
-        current_integral=current_integral+#{t.currentIntegral},
-        current_shop_ticket=current_shop_ticket+#{t.currentShopTicket},
-        total_red_envelops=total_red_envelops+#{t.currentRedEnvelops},
-        total_integral=total_integral+#{t.currentIntegral},
-        total_shop_ticket=total_shop_ticket+#{t.currentShopTicket},
+        current_red_envelops=#{t.currentRedEnvelops},
+        current_integral=#{t.currentIntegral},
+        current_shop_ticket=#{t.currentShopTicket},
+        total_red_envelops=#{t.totalAddRedEnvelops},
+        total_integral=#{t.totalAddIntegral},
+        total_shop_ticket=#{t.totalAddShopTicket},
         update_by=#{currentUserName}
         where id=#{t.id}
     </update>

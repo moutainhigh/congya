@@ -29,16 +29,16 @@ public class GoodsTypeOrderVo {
     @ApiModelProperty("订单备注")
     private String remark;
 
-    @ApiModelProperty(value = "单个订单运费")
+    @ApiModelProperty(value = "该订单运费")
     private BigDecimal shipMoney;
 
-    @ApiModelProperty(value = "单个订单税费")
+    @ApiModelProperty(value = "该订单税费")
     private BigDecimal taxMoney;
 
-    @ApiModelProperty(value = "单个订单商品金额")
+    @ApiModelProperty(value = "该订单金额，包括商品金额，运费，税费")
     private BigDecimal totalMoney;
 
-    @ApiModelProperty(value = "单个订单商品数量")
+    @ApiModelProperty(value = "该订单商品数量")
     private Integer totalNumber;
 
   /*  @ApiModelProperty(value = "单个订单使用购物券")
@@ -62,8 +62,8 @@ public class GoodsTypeOrderVo {
     @ApiModelProperty(value = "单个订单可抵扣金额")
     private BigDecimal deductionMoney;*/
 
-    @ApiModelProperty(value = "单个订单预计奖励购物券")
-    private BigDecimal rewardShopTicket;
+   /* @ApiModelProperty(value = "单个订单预计奖励购物券")
+    private BigDecimal rewardShopTicket;*/
 
   /*  //计算出应付金额=商品总额+运费+税费-总优惠
     public BigDecimal calculationRealPayMoney(){

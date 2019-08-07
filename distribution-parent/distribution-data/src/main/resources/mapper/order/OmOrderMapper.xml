@@ -5,7 +5,7 @@
 
     <select id="search" resultType="com.chauncy.data.vo.manage.order.list.SearchOrderVo">
         SELECT
-        o.id orderId,s.id storeId,s.`name` storeName,u.`name`,u.phone,o.total_number,o.sum_money,o.sum_money
+        o.id orderId,s.id storeId,s.`name` storeName,u.`name`,u.phone,o.total_number,o.total_money,o.total_money
         needPayMoney,o.real_money,o.goods_type,p.ship_name,concat(p.area_name,p.ship_address)
         detailed_address,p.phone mobile,o.activity_type,o.`status`,o.create_time
         from om_order o,sm_store s,um_user u,pay_order p
@@ -36,10 +36,10 @@
             and o.`status`=#{orderStatus}
         </if>
         <if test="minMoney!=null">
-            and o.`sum_money` &gt;=#{minMoney}
+            and o.`total_money` &gt;=#{minMoney}
         </if>
         <if test="maxMoney!=null">
-            and o.`sum_money` &lt;=#{maxMoney}
+            and o.`total_money` &lt;=#{maxMoney}
         </if>
         <if test="activityTypeEnum!=null">
             and activity_type=#{activityTypeEnum}
@@ -48,7 +48,7 @@
 
     </select>
     <select id="loadById" resultType="com.chauncy.data.vo.manage.order.list.OrderDetailVo">
-            select o.id orderId,p.area_name,o.goods_type,o.`status`,o.ship_money,o.sum_money,o.sum_money needPayMoney,
+            select o.id orderId,p.area_name,o.goods_type,o.`status`,o.ship_money,o.total_money,o.total_money needPayMoney,
             o.real_money,o.create_time,o.pay_time,o.send_time,o.receive_time,p.pay_order_no,p.pay_type_code
             ,o.real_money payAmount,s.id storeId,s.name storeName,o.um_user_id,u.phone,p.ship_address detailedAddress,
             p.phone mobile,u.name name,p.ship_name
@@ -63,7 +63,7 @@
     </select>
     <select id="searchSmOrder" resultType="com.chauncy.data.vo.supplier.order.SmSearchOrderVo">
         SELECT
-        o.id orderId,o.goods_type,o.`status`,o.total_number,o.sum_money,p.ship_name,concat(p.area_name,p.ship_address)
+        o.id orderId,o.goods_type,o.`status`,o.total_number,o.total_money,p.ship_name,concat(p.area_name,p.ship_address)
         detailed_address,p.phone,o.create_time
         from om_order o,pay_order p,um_user u
         where o.store_id=#{storeId} and o.pay_order_id=p.id and u.id=o.um_user_id
@@ -95,7 +95,7 @@
     </select>
     <select id="loadSmById" resultType="com.chauncy.data.vo.supplier.order.SmOrderDetailVo">
             select o.goods_type,o.id orderId,o.`status`,o.um_user_id,u.name name,o.create_time,o.pay_time,o.send_time,o.receive_time,
-            p.pay_order_no,p.pay_type_code,o.sum_money,o.reward_shop_ticket,o.red_envelops_money,o.shop_ticket_money,
+            p.pay_order_no,p.pay_type_code,o.total_money,o.reward_shop_ticket,o.red_envelops_money,o.shop_ticket_money,
             o.ship_money,o.tax_money,o.real_money,p.ship_name,p.phone mobile,p.area_name,p.ship_address detailedAddress
 
             FROM om_order o,pay_order p,um_user u

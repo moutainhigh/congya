@@ -36,10 +36,13 @@ public class SubmitOrderDto {
     @ApiModelProperty(value = "红包抵扣了多少钱")
     private BigDecimal totalRedEnvelopsMoney;
 
+    @ApiModelProperty(value = "积分抵扣了多少钱")
+    private BigDecimal totalIntegralMoney;
+
    /* @ApiModelProperty(value = "可抵扣金额")
     private BigDecimal deductionMoney;*/
 
-    @ApiModelProperty(value = "商品总额")
+    @ApiModelProperty(value = "同一支付单所有订单总额，包括商品、税费、运费")
     private BigDecimal totalMoney;
 
     /*@ApiModelProperty(value = "预计奖励购物券")
@@ -59,8 +62,6 @@ public class SubmitOrderDto {
     @ApiModelProperty(value = "总数量")
     private int totalNumber;
 
-    @ApiModelProperty(value = "合计优惠")
-    private BigDecimal totalDiscount;
 
     @ApiModelProperty(value = "应付总额")
     private BigDecimal totalRealPayMoney;

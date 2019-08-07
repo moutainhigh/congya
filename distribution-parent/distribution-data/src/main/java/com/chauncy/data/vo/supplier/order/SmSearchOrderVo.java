@@ -33,7 +33,7 @@ public class SmSearchOrderVo {
     private Integer totalNumber;
 
     @ApiModelProperty("订单金额")
-    private BigDecimal sumMoney;
+    private BigDecimal totalMoney;
 
     @ApiModelProperty("收货人姓名")
     private String shipName;

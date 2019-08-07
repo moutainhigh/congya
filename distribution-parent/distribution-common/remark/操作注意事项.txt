@@ -1,3 +1,70 @@
 1、经验值检验跳级时才更改用户对应的会员等级。
 2、数据库会员等级给个默认值，id为1
 3、左连接时注意逻辑删除字段为空时的处理
+
+
+{"storeOrderVos": [
+      {
+        "goodsTypeOrderVos": [
+          {
+            "goodsType": "普通商品",
+            "remark": "",
+            "rewardShopTicket": 0.16,
+            "shipMoney": 10,
+            "shopTicketSoWithCarGoodVos": [
+              {
+                "icon": "http://bo2h.com/20190716/png/ce9db6c75cec44b9871d9bb5ae02b2bb.png",
+                "id": 1150975696819175426,
+                "name": "毛呢",
+                "number": 2,
+                "sellPrice": 11,
+                "standardStr": "黑色,35码"
+              }
+            ],
+            "taxMoney": 0,
+            "totalMoney": 22,
+            "totalNumber": 2
+          }
+        ],
+        "storeId": "1143082696606093314",
+        "storeName": "章锐涛的店铺"
+      },
+      {
+        "goodsTypeOrderVos": [
+          {
+            "goodsType": "普通商品",
+            "remark": "",
+            "rewardShopTicket": 0.03,
+            "shipMoney": 10,
+            "shopTicketSoWithCarGoodVos": [
+              {
+                "icon": "http://bo2h.com/20190718/png/13b119511cb142379dce8976f4c35df8.png",
+                "id": 1150976496857497601,
+                "name": "人字拖",
+                "number": 3,
+                "sellPrice": 11,
+                "standardStr": "蓝色,35码"
+              }
+            ],
+            "taxMoney": 0,
+            "totalMoney": 33,
+            "totalNumber": 3
+          }
+        ],
+        "storeId": "1143079427712364546",
+        "storeName": "叶俊浩的店铺"
+      }
+    ],
+    "totalDeductionMoney": 50,
+    "totalDiscount": 50,
+    "totalMoney": 55,
+    "totalNumber": 5,
+    "totalRealPayMoney": 25,
+    "totalRedEnvelopsMoney": 40,
+    "totalRewardShopTicket": 0.19,
+    "totalShipMoney": 20,
+    "totalShopTicketMoney": 10,
+    "totalTaxMoney": 0,
+    "isUseWallet":1,
+"umAreaShipId":"1145245245375197186"
+}

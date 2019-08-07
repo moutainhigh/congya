@@ -33,7 +33,7 @@ public class OrderDetailVo {
     private BigDecimal shipMoney;
 
     @ApiModelProperty("订单金额")
-    private BigDecimal sumMoney;
+    private BigDecimal totalMoney;
 
     @ApiModelProperty("优惠金额")
     // TODO: 2019/7/25 没有活动优惠金额都是0
