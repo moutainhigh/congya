@@ -23,8 +23,10 @@ import com.chauncy.data.dto.manage.order.bill.select.SearchBillDto;
 import com.chauncy.data.dto.manage.order.bill.update.BillBatchAuditDto;
 import com.chauncy.data.dto.manage.order.bill.update.BillCashOutDto;
 import com.chauncy.data.dto.manage.order.bill.update.BillDeductionDto;
+import com.chauncy.data.dto.supplier.order.CreateStoreBillDto;
 import com.chauncy.data.mapper.order.OmGoodsTempMapper;
 import com.chauncy.data.mapper.order.OmOrderMapper;
+import com.chauncy.data.mapper.order.bill.OmBillRelGoodsTempMapper;
 import com.chauncy.data.mapper.order.bill.OmOrderBillMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.store.rel.SmStoreBankCardMapper;
@@ -47,10 +49,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * <p>
@@ -74,6 +73,9 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
     private OmGoodsTempMapper omGoodsTempMapper;
 
     @Autowired
+    private OmBillRelGoodsTempMapper omBillRelGoodsTempMapper;
+
+    @Autowired
     private SmStoreBankCardMapper smStoreBankCardMapper;
 
     @Autowired
@@ -94,6 +96,7 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public PageInfo<BillBaseInfoVo> searchBillPaging(SearchBillDto searchBillDto) {
         //获取当前店铺用户
         Long storeId = securityUtil.getCurrUser().getStoreId();
@@ -116,6 +119,7 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BillDetailVo findBillDetail(Long id) {
         //账单结算进度为四个进度
         int billSettlementStep = 4;
@@ -171,6 +175,7 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void billCashOut(BillCashOutDto billCashOutDto) {
         OmOrderBillPo omOrderBillPo = omOrderBillMapper.selectById(billCashOutDto.getBillId());
         /*if(null == omOrderBillPo) {
@@ -209,6 +214,7 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void batchAudit(BillBatchAuditDto billBatchAuditDto) {
         List<Long> idList = Arrays.asList(billBatchAuditDto.getIds());
         idList.forEach(id -> {
@@ -247,6 +253,7 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void billDeduction(BillDeductionDto billDeductionDto) {
         OmOrderBillPo omOrderBillPo = omOrderBillMapper.selectById(billDeductionDto.getBillId());
         if(billDeductionDto.getDeductedAmount().compareTo(omOrderBillPo.getTotalAmount()) > -1) {
@@ -266,6 +273,7 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void billSettlementSuccess(Long id) {
 
         //获取当前店铺用户
@@ -293,11 +301,13 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
     }
 
     /**
-     * 创建货款账单
+     * 批量创建货款、利润账单
+     * @param billType  账单类型  1 货款账单  2 利润账单
      * @return
      */
-    //@Override
-    public void createBillList() {
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void batchCreateStoreBill(Integer billType) {
         //获取当前时间的上一周的最后一天  直接用周数-1 每年的第一周会有问题
         /*LocalDate localDate = LocalDate.now();
         Date date = DateFormatUtil.getLastDayOfWeek(localDate.getYear(),
@@ -308,23 +318,35 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
         LocalDate lastWeek = localDate.plusDays(-7L);
         //上一周时间所在周的结束日期
         Date date = DateFormatUtil.getLastDayOfWeek(DateFormatUtil.localDateToDate(lastWeek));
-        LocalDate lastDate = DateFormatUtil.datetoLocalDate(date);
+        LocalDate endDate = DateFormatUtil.datetoLocalDate(date);
         //获取需要创建账单的店铺的数量
-        int storeSum = omOrderBillMapper.getStoreSumNeedCreateBill(lastDate);
+        int storeSum = omOrderBillMapper.getStoreSumNeedCreateBill(endDate);
         //一次性只处理1000条数据
         for(int pageNo = 1; pageNo <= storeSum / 1000; pageNo++) {
             PageHelper.startPage(pageNo, 1000);
-            List<Long> storeIdList = omOrderBillMapper.getStoreNeedCreateBill(lastDate);
-            storeIdList.forEach(storeId -> {
-                //cerateStoreBill(lastDate, storeId);
-            });
+            List<Long> storeIdList = omOrderBillMapper.getStoreNeedCreateBill(endDate);
+            storeIdList.forEach(storeId -> createStoreBill(endDate, storeId, billType));
         }
-        //查询需要创建货款账单的店铺
+    }
 
-
-        //按周数
-        DateFormatUtil.getWeekOfYear(LocalDate.now());
-
+    /**
+     * 根据时间创建货款/利润账单
+     * @param createStoreBillDto
+     * endDate   需要创建账单的那一周   任何一天都可以
+     * billType  账单类型  1 货款账单  2 利润账单
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void createStoreBillByDate(CreateStoreBillDto createStoreBillDto) {
+        //获取当前店铺用户
+        SysUserPo sysUserPo = securityUtil.getCurrUser();
+        if(null == sysUserPo.getStoreId()) {
+            throw  new ServiceException(ResultCode.FAIL, "当前登录用户不是商家用户");
+        }
+        //时间所在周的结束日期
+        Date date = DateFormatUtil.getLastDayOfWeek(DateFormatUtil.localDateToDate(createStoreBillDto.getEndDate()));
+        createStoreBillDto.setEndDate(DateFormatUtil.datetoLocalDate(date));
+        createStoreBill(createStoreBillDto.getEndDate(), sysUserPo.getStoreId(), createStoreBillDto.getBillType());
     }
 
     /**
@@ -332,7 +354,7 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
      * @param endDate
      * @param storeId
      */
-    private void cerateStoreBill(LocalDate endDate, Long storeId, Integer billType) {
+    private void createStoreBill(LocalDate endDate, Long storeId, Integer billType) {
         SmStorePo smStorePo = smStoreMapper.selectById(storeId);
         if(null == smStorePo) {
             return;
@@ -354,10 +376,10 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
         omOrderBillPo.setCreateBy(String.valueOf(storeId));
         omOrderBillMapper.insert(omOrderBillPo);
         //查询时间段内订单
-        List<Object> orderIdList = getBillOrderList(startDate, endDate, storeId, billType);
-        for(Object orderId : orderIdList) {
+        List<Map<String, Object>> orderIdList = getBillOrderList(startDate, endDate, storeId, billType);
+        for(Map<String, Object> orderMap : orderIdList) {
             QueryWrapper<OmGoodsTempPo> goodsTempQueryWrapper = new QueryWrapper();
-            goodsTempQueryWrapper.lambda().eq(OmGoodsTempPo::getOrderId, orderId);
+            goodsTempQueryWrapper.lambda().eq(OmGoodsTempPo::getOrderId, orderMap.get("id"));
             List<OmGoodsTempPo> omGoodsTempPoList = omGoodsTempMapper.selectList(goodsTempQueryWrapper);
             for(OmGoodsTempPo omGoodsTempPo : omGoodsTempPoList) {
                 OmBillRelGoodsTempPo omBillRelGoodsTempPo = new OmBillRelGoodsTempPo();
@@ -370,17 +392,21 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
                     totalAmount = BigDecimalUtil.safeAdd(totalAmount, amount);
                 } else if (BillTypeEnum.PROFIT_BILL.getId().equals(billType)) {
                     //货款账单 商品利润比例 * 商品售价 * 店铺利润配置比例
-                    BigDecimal amount = BigDecimalUtil.safeMultiply(
-                            BigDecimalUtil.safeMultiply(omGoodsTempPo.getProfitRate(),omGoodsTempPo.getSellPrice()),
-                            new BigDecimal(0));
+                    BigDecimal profitRate = BigDecimalUtil.safeDivide(omGoodsTempPo.getProfitRate(),new BigDecimal(100));
+                    BigDecimal incomeRate = BigDecimalUtil.safeDivide(new BigDecimal(orderMap.get("incomeRate").toString()), new BigDecimal(100));
+                    BigDecimal amount = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeMultiply(profitRate,omGoodsTempPo.getSellPrice()), incomeRate);
                     omBillRelGoodsTempPo.setTotalAmount(amount);
                     totalAmount = BigDecimalUtil.safeAdd(totalAmount, amount);
                 }
                 omBillRelGoodsTempPo.setCreateBy(String.valueOf(storeId));
+                omBillRelGoodsTempMapper.insert(omBillRelGoodsTempPo);
             }
         }
-        //List<OmOrderPo> omOrderPoList =
+        //更新总利润/总货款
+        omOrderBillPo.setTotalAmount(totalAmount);
+        omOrderBillMapper.updateById(omOrderBillPo);
 
+        //店铺团队合作：如果是利润账单，店铺绑定的上级店铺也能看到
     }
 
     /**
@@ -390,7 +416,7 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
      * @param billType
      * @return
      */
-    private List<Object> getBillOrderList(LocalDate startDate, LocalDate endDate, Long storeId, Integer billType) {
+    private List<Map<String, Object>> getBillOrderList(LocalDate startDate, LocalDate endDate, Long storeId, Integer billType) {
         QueryWrapper<OmOrderPo> queryWrapper = new QueryWrapper<>();
         if(BillTypeEnum.PAYMENT_BILL.getId().equals(billType)) {
             //货款账单
@@ -403,7 +429,8 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
         queryWrapper.lambda()
                 .ge(OmOrderPo::getCreateTime, startDate)
                 .le(OmOrderPo::getCreateTime, endDate)
-                .select(OmOrderPo::getId);
-        return omOrderService.listObjs(queryWrapper);
+                .select(OmOrderPo::getId)
+                .select(OmOrderPo::getIncomeRate);
+        return omOrderService.listMaps(queryWrapper);
     }
 }

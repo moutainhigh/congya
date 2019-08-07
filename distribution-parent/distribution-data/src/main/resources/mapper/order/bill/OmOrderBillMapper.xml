@@ -156,7 +156,7 @@
         FROM sm_store ss
         WHERE
             NOT EXISTS (
-	            SELECT TIMESTAMPDIFF(WEEK,temp.`bill_date`,#{lastDate}) MOD ss.`payment_bill_settlement_cycle` = 0
+	            SELECT TIMESTAMPDIFF(WEEK,temp.`bill_date`,#{endDate}) MOD ss.`payment_bill_settlement_cycle` = 0
 	            FROM (
 	                SELECT oob.`bill_date`
 	                FROM om_order_bill oob
@@ -171,7 +171,7 @@
         FROM sm_store ss
         WHERE
             NOT EXISTS (
-	            SELECT TIMESTAMPDIFF(WEEK,temp.`bill_date`,#{lastDate}) MOD ss.`payment_bill_settlement_cycle` = 0
+	            SELECT TIMESTAMPDIFF(WEEK,temp.`bill_date`,#{endDate}) MOD ss.`payment_bill_settlement_cycle` = 0
 	            FROM (
 	                SELECT oob.`bill_date`
 	                FROM om_order_bill oob

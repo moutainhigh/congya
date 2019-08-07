@@ -8,6 +8,7 @@ import com.chauncy.data.dto.manage.order.bill.update.BillCashOutDto;
 import com.chauncy.data.dto.manage.order.bill.update.BillDeductionDto;
 import com.chauncy.data.dto.manage.store.add.SaveStoreBankCardDto;
 import com.chauncy.data.dto.supplier.good.select.SearchStoreGoodsStockDto;
+import com.chauncy.data.dto.supplier.order.CreateStoreBillDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.order.bill.BillBaseInfoVo;
 import com.chauncy.data.vo.manage.order.bill.BillDetailVo;
@@ -119,7 +120,7 @@ public class OmOrderBillApi  extends BaseApi {
      * @return
      */
     @ApiOperation(value = "标记已处理", notes = "平台标记状态为处理中的店铺账单为已处理")
-    @GetMapping("/bill/billSettlementSuccess")
+    @GetMapping("/bill/billSettlementSuccess/{id}")
     @ApiImplicitParam(name = "id", value = "账单id", required = true, dataType = "Long", paramType = "path")
     public JsonViewData billSettlementSuccess(@PathVariable(value = "id")Long id) {
 
@@ -135,10 +136,25 @@ public class OmOrderBillApi  extends BaseApi {
      */
     @ApiOperation(value = "库存管理_分页条件查询直属商家分配的库存信息", notes = "根据库存名称，分配时间，直属商家，库存数量查询")
     @PostMapping("/platformSearchPagingStock")
-    public JsonViewData<PageInfo<StoreGoodsStockVo>> platformSearchPagingStock(@RequestBody SearchStoreGoodsStockDto searchStoreGoodsStockDto) {
+    public JsonViewData<PageInfo<StoreGoodsStockVo>> platformSearchPagingStock(@Valid @RequestBody  @ApiParam(required = true, name = "searchStoreGoodsStockDto", value = "查询条件")
+                                                                                   SearchStoreGoodsStockDto searchStoreGoodsStockDto) {
 
         PageInfo<StoreGoodsStockVo> storeGoodsStockVoPageInfo = pmStoreGoodsStockService.platformSearchPagingStock(searchStoreGoodsStockDto);
         return new JsonViewData(ResultCode.SUCCESS, "查询成功", storeGoodsStockVoPageInfo);
+    }
+
+
+    /**
+     * 根据时间创建货款/利润账单
+     */
+    @ApiOperation(value = "根据时间创建货款/利润账单",
+            notes = "endDate   需要创建账单的那一周   任何一天都可以    \nbillType  账单类型  1 货款账单  2 利润账单")
+    @PostMapping("/createStoreBillByDate")
+    public JsonViewData createStoreBillByDate(@Valid @RequestBody  @ApiParam(required = true, name = "createStoreBillDto", value = "查询条件")
+                                                   CreateStoreBillDto createStoreBillDto) {
+
+        omOrderBillService.createStoreBillByDate(createStoreBillDto);
+        return new JsonViewData(ResultCode.SUCCESS, "查询成功");
     }
 
 
