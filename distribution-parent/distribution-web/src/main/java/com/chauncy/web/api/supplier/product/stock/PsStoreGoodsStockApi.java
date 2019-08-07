@@ -44,7 +44,7 @@ public class PsStoreGoodsStockApi extends BaseApi {
      * @param storeGoodsStockBaseDto
      * @return
      */
-    @PostMapping("/save")
+    @PostMapping("/branch/save")
     @ApiOperation(value = "保存分店库存信息")
     @Transactional(rollbackFor = Exception.class)
     public JsonViewData save(@Valid @RequestBody @ApiParam(required = true, name = "storeGoodsStockBaseDto", value = "分店库存信息")
@@ -60,7 +60,7 @@ public class PsStoreGoodsStockApi extends BaseApi {
      * @param storeName
      * @return
      */
-    @GetMapping("/searchBranchByName")
+    @GetMapping("/branch/searchBranchByName")
     @ApiOperation(value = "获取当前店铺的下级店铺(分店)（模糊搜索）")
     @Transactional(rollbackFor = Exception.class)
     public JsonViewData searchBranchByName(@Valid @ApiParam("店铺名称") @RequestParam(required = false, name = "storeName", value = "")
@@ -78,7 +78,7 @@ public class PsStoreGoodsStockApi extends BaseApi {
      * @param
      * @return
      */
-    @GetMapping("/findGoodsByType")
+    @GetMapping("/branch/findGoodsByType")
     @ApiOperation(value = "查询当前店铺的库存模板信息 ")
     public JsonViewData<BaseBo> selectStockTemplate(){
 
@@ -92,7 +92,7 @@ public class PsStoreGoodsStockApi extends BaseApi {
      * @param templateId
      */
     @ApiOperation(value = "根据商品库存模板Id获取商品规格信息", notes = "根据商品库存模板Id获取商品规格信息")
-    @GetMapping("/searchSkuInfoByTemplateId/{templateId}")
+    @GetMapping("/branch/searchSkuInfoByTemplateId/{templateId}")
     public JsonViewData<StockTemplateSkuInfoVo> searchGoodsInfoByTemplateId(@ApiParam(required = true, name = "templateId", value = "templateId")
                                         @PathVariable Long templateId) {
 
@@ -108,13 +108,13 @@ public class PsStoreGoodsStockApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "根据ID查找店铺分配给分店的库存信息", notes = "根据库存ID查找")
-    @GetMapping("/findBranchStockById/{id}")
-    public JsonViewData findBranchStockById(@ApiParam(required = true, value = "id")
+    @GetMapping("/branch/findBranchStockById/{id}")
+    public JsonViewData<StoreGoodsStockVo> findBranchStockById(@ApiParam(required = true, value = "id")
                                  @PathVariable Long id) {
 
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
-                pmStoreGoodsStockService.findBranchStockById(id));
+                pmStoreGoodsStockService.findStockById(id));
 
     }
 
@@ -126,7 +126,7 @@ public class PsStoreGoodsStockApi extends BaseApi {
      */
     @ApiOperation(value = "库存管理_根据ID查找直属商家分配给店铺的库存信息", notes = "根据库存ID查找")
     @GetMapping("/findStockById/{id}")
-    public JsonViewData findStockById(@ApiParam(required = true, value = "id")
+    public JsonViewData<StoreGoodsStockVo> findStockById(@ApiParam(required = true, value = "id")
                                  @PathVariable Long id) {
 
 
@@ -142,7 +142,7 @@ public class PsStoreGoodsStockApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "根据relId删除库存关联 退回库存", notes = "根据relId删除")
-    @GetMapping("/delRelById/{id}")
+    @GetMapping("/branch/delRelById/{id}")
     public JsonViewData delRelById(@ApiParam(required = true, value = "id")
                                  @PathVariable Long id) {
 
@@ -156,7 +156,7 @@ public class PsStoreGoodsStockApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "分页条件查询分配给分店的库存信息", notes = "根据库存名称，创建时间，状态，分配商家，库存数量查询")
-    @PostMapping("/searchPagingBranchStock")
+    @PostMapping("/branch/searchPagingBranchStock")
     public JsonViewData<PageInfo<StoreGoodsStockVo>> searchPagingBranchStock(@RequestBody SearchStoreGoodsStockDto searchStoreGoodsStockDto) {
 
         PageInfo<StoreGoodsStockVo> storeGoodsStockVoPageInfo = pmStoreGoodsStockService.searchPagingBranchStock(searchStoreGoodsStockDto);
@@ -181,7 +181,7 @@ public class PsStoreGoodsStockApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "店铺库存禁用启用", notes = "店铺库存禁用启用 ")
-    @PostMapping("/editStoreStockStatus")
+    @PostMapping("/branch/editStoreStockStatus")
     public JsonViewData editStoreStockStatus(@Valid @RequestBody  @ApiParam(required = true, name = "baseUpdateStatusDto", value = "id、修改的状态值")
                                                          BaseUpdateStatusDto baseUpdateStatusDto) {
 
@@ -194,7 +194,7 @@ public class PsStoreGoodsStockApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "店铺库存删除", notes = "店铺库存删除，相应的库存增减 ")
-    @GetMapping("/delById/{id}")
+    @GetMapping("/branch/delById/{id}")
     public JsonViewData delById(@ApiParam(required = true, value = "店铺库存id")
                                      @PathVariable Long id) {
 

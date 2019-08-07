@@ -7,6 +7,7 @@ import com.chauncy.data.vo.manage.order.bill.BillBaseInfoVo;
 import com.chauncy.data.vo.manage.order.bill.BillDetailVo;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -35,4 +36,18 @@ public interface OmOrderBillMapper extends IBaseMapper<OmOrderBillPo> {
      * @return
      */
     BillDetailVo findBillDetail(@Param("id") Long id);
+
+    /**
+     * 获取需要创建账单的店铺的数量
+     * @param lastDate  需要创建账单的
+     * @return
+     */
+    int getStoreSumNeedCreateBill(LocalDate lastDate);
+
+    /**
+     *
+     * @param lastDate
+     * @return
+     */
+    List<Long> getStoreNeedCreateBill(LocalDate lastDate);
 }

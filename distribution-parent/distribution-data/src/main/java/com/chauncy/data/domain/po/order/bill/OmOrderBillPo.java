@@ -40,7 +40,7 @@ public class OmOrderBillPo implements Serializable {
     private Long id;
 
     @ApiModelProperty(value = "年")
-    private String year;
+    private Integer year;
 
     @ApiModelProperty(value = "期数")
     private String monthDay;

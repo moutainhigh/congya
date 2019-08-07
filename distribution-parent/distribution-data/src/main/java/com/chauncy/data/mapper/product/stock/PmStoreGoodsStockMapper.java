@@ -22,10 +22,9 @@ public interface PmStoreGoodsStockMapper extends IBaseMapper<PmStoreGoodsStockPo
     /**
      * 根据库存ID查找店铺库存信息
      * @param id
-     * @param isBranch 是否分店的库存信息  true 分店库存信息   false  上级店铺库存信息
      * @return
      */
-    StoreGoodsStockVo findById(@Param("id") Long id, @Param("isBranch") Boolean isBranch);
+    StoreGoodsStockVo findStockById(@Param("id") Long id);
 
     /**
      * 根据库存ID查找店铺库存信息
@@ -49,4 +48,12 @@ public interface PmStoreGoodsStockMapper extends IBaseMapper<PmStoreGoodsStockPo
      * @return
      */
     List<StoreGoodsStockVo> searchPagingStock(SearchStoreGoodsStockDto searchStoreGoodsStockDto);
+
+    /**
+     * 总后台查询库存分配列表
+     * 根据库存名称，创建时间，直属商家，库存数量等查询
+     * @param searchStoreGoodsStockDto
+     * @return
+     */
+    List<StoreGoodsStockVo> platformSearchPagingStock(SearchStoreGoodsStockDto searchStoreGoodsStockDto);
 }

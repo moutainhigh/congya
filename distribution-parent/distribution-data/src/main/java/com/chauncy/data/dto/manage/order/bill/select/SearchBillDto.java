@@ -29,7 +29,7 @@ public class SearchBillDto  implements Serializable {
     private Integer billType;
 
     @ApiModelProperty(value = "年")
-    private String year;
+    private Integer year;
 
     @ApiModelProperty(value = "期数")
     private String monthDay;

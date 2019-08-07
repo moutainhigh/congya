@@ -192,7 +192,7 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
      * @param id 库存id
      * @return
      */
-    @Override
+    /*@Override
     public StoreGoodsStockVo findBranchStockById(Long id) {
         PmStoreGoodsStockPo pmStoreGoodsStockPo = pmStoreGoodsStockMapper.selectById(id);
         if(null == pmStoreGoodsStockPo) {
@@ -209,7 +209,7 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
         storeGoodsStockVo.setStockTemplateSkuInfoVoList(stockTemplateSkuInfoVoList);
 
         return storeGoodsStockVo;
-    }
+    }*/
 
 
     /**
@@ -227,7 +227,7 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
 
         //店铺库存基本信息
         StoreGoodsStockVo storeGoodsStockVo = new StoreGoodsStockVo();
-        storeGoodsStockVo = pmStoreGoodsStockMapper.findById(id, false);
+        storeGoodsStockVo = pmStoreGoodsStockMapper.findStockById(id);
 
         //店铺库存对应的分配库存详情
         List<StockTemplateSkuInfoVo> stockTemplateSkuInfoVoList = new ArrayList<>();
@@ -317,6 +317,24 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
 
         PageInfo<StoreGoodsStockVo> informationLabelVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> pmStoreGoodsStockMapper.searchPagingStock(searchStoreGoodsStockDto));
+        return informationLabelVoPageInfo;
+    }
+
+
+    /**
+     * 总后台查询库存分配列表
+     * 根据库存名称，创建时间，直属商家，库存数量等查询
+     * @param searchStoreGoodsStockDto
+     * @return
+     */
+    @Override
+    public PageInfo<StoreGoodsStockVo> platformSearchPagingStock(SearchStoreGoodsStockDto searchStoreGoodsStockDto) {
+
+        Integer pageNo = searchStoreGoodsStockDto.getPageNo()==null ? defaultPageNo : searchStoreGoodsStockDto.getPageNo();
+        Integer pageSize = searchStoreGoodsStockDto.getPageSize()==null ? defaultPageSize : searchStoreGoodsStockDto.getPageSize();
+
+        PageInfo<StoreGoodsStockVo> informationLabelVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> pmStoreGoodsStockMapper.platformSearchPagingStock(searchStoreGoodsStockDto));
         return informationLabelVoPageInfo;
     }
 

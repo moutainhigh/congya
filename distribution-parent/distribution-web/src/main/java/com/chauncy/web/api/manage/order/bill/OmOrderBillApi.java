@@ -7,11 +7,14 @@ import com.chauncy.data.dto.manage.order.bill.update.BillBatchAuditDto;
 import com.chauncy.data.dto.manage.order.bill.update.BillCashOutDto;
 import com.chauncy.data.dto.manage.order.bill.update.BillDeductionDto;
 import com.chauncy.data.dto.manage.store.add.SaveStoreBankCardDto;
+import com.chauncy.data.dto.supplier.good.select.SearchStoreGoodsStockDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.order.bill.BillBaseInfoVo;
 import com.chauncy.data.vo.manage.order.bill.BillDetailVo;
 import com.chauncy.data.vo.manage.store.rel.StoreBankCardVo;
+import com.chauncy.data.vo.supplier.good.stock.StoreGoodsStockVo;
 import com.chauncy.order.bill.service.IOmOrderBillService;
+import com.chauncy.product.stock.IPmStoreGoodsStockService;
 import com.chauncy.store.rel.service.ISmStoreBankCardService;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
@@ -35,13 +38,16 @@ import javax.validation.Valid;
  * @since 2019-07-22
  */
 @RestController
-@RequestMapping("/manage/store/bill")
+@RequestMapping("/manage/store")
 @Api(tags = "平台_账单管理接口")
 @Slf4j
 public class OmOrderBillApi  extends BaseApi {
 
     @Autowired
     private IOmOrderBillService omOrderBillService;
+
+    @Autowired
+    private IPmStoreGoodsStockService pmStoreGoodsStockService ;
 
     /**
      * 查询账单列表
@@ -52,7 +58,7 @@ public class OmOrderBillApi  extends BaseApi {
             notes = "根据年，期数，提现状态，时间，审核状态，金额范围等条件查询   \n" +
                     "账单状态   \nbillStatus  1.待提现 2.待审核  3.处理中 4.结算完成  5.审核失败   \n" +
                     "平台   \nbillStatus为2.待审核    操作：审核、扣款   \nbillStatus为3.处理中  操作：标记已处理  \n")
-    @PostMapping("/searchBillPaging")
+    @PostMapping("/bill/searchBillPaging")
     public JsonViewData<PageInfo<BillBaseInfoVo>> searchBillPaging(@Valid @RequestBody @ApiParam(required = true, name = "searchBillDto", value = "查询条件")
                                                                                SearchBillDto searchBillDto) {
 
@@ -67,7 +73,7 @@ public class OmOrderBillApi  extends BaseApi {
      */
     @ApiOperation(value = "查询账单详情", notes = "根据账单id查询账单详情")
     @ApiImplicitParam(name = "id", value = "账单id", required = true, dataType = "Long", paramType = "path")
-    @GetMapping("/findBillDetail/{id}")
+    @GetMapping("/bill/findBillDetail/{id}")
     public JsonViewData<BillDetailVo> findBillDetail(@PathVariable(value = "id")Long id) {
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
@@ -81,7 +87,7 @@ public class OmOrderBillApi  extends BaseApi {
      * @param billBatchAuditDto
      * @return
      */
-    @PostMapping("/batchAudit")
+    @PostMapping("/bill/batchAudit")
     @ApiOperation(value = "批量审核")
     @Transactional(rollbackFor = Exception.class)
     public JsonViewData batchAudit(@Valid @RequestBody  @ApiParam(required = true, name = "billBatchAuditDto", value = "id、修改的状态值")
@@ -97,7 +103,7 @@ public class OmOrderBillApi  extends BaseApi {
      * @param billDeductionDto
      * @return
      */
-    @PostMapping("/billDeduction")
+    @PostMapping("/bill/billDeduction")
     @ApiOperation(value = "平台账单扣款", notes = "平台账单审核之前可进行扣款操作")
     @Transactional(rollbackFor = Exception.class)
     public JsonViewData billDeduction(@Valid @RequestBody  @ApiParam(required = true, name = "billDeductionDto", value = "扣除金额信息")
@@ -113,7 +119,7 @@ public class OmOrderBillApi  extends BaseApi {
      * @return
      */
     @ApiOperation(value = "标记已处理", notes = "平台标记状态为处理中的店铺账单为已处理")
-    @GetMapping("/billSettlementSuccess")
+    @GetMapping("/bill/billSettlementSuccess")
     @ApiImplicitParam(name = "id", value = "账单id", required = true, dataType = "Long", paramType = "path")
     public JsonViewData billSettlementSuccess(@PathVariable(value = "id")Long id) {
 
@@ -121,6 +127,19 @@ public class OmOrderBillApi  extends BaseApi {
         return new JsonViewData(ResultCode.SUCCESS, "操作成功");
     }
 
+    /**
+     * 总后台查询库存分配列表
+     * 根据库存名称，创建时间，直属商家，库存数量等查询
+     * @param searchStoreGoodsStockDto
+     * @return
+     */
+    @ApiOperation(value = "库存管理_分页条件查询直属商家分配的库存信息", notes = "根据库存名称，分配时间，直属商家，库存数量查询")
+    @PostMapping("/platformSearchPagingStock")
+    public JsonViewData<PageInfo<StoreGoodsStockVo>> platformSearchPagingStock(@RequestBody SearchStoreGoodsStockDto searchStoreGoodsStockDto) {
+
+        PageInfo<StoreGoodsStockVo> storeGoodsStockVoPageInfo = pmStoreGoodsStockService.platformSearchPagingStock(searchStoreGoodsStockDto);
+        return new JsonViewData(ResultCode.SUCCESS, "查询成功", storeGoodsStockVoPageInfo);
+    }
 
 
 }
