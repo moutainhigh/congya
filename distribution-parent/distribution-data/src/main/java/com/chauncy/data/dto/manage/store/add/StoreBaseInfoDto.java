@@ -53,7 +53,8 @@ public class StoreBaseInfoDto implements Serializable {
 
     @ApiModelProperty(value = "店铺标签id(sm_store_label主键)")
     @NeedExistConstraint(tableName = "sm_store_label")
-    private Long storeLabelId;
+    @NotEmpty
+    private Long[] storeLabelIds;
 
     @ApiModelProperty(value = "店铺分类id（sm_store_category主键）")
     @NeedExistConstraint(tableName = "sm_store_category")
