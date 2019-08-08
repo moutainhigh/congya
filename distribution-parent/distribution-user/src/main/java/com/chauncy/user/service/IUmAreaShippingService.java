@@ -48,4 +48,12 @@ public interface IUmAreaShippingService extends Service<UmAreaShippingPo> {
      * @return
      */
     List<ShipAreaVo> findShipArea(Long userId);
+
+    /**
+     * 查找用户默认收货地址
+     *
+     * @param userId
+     * @return
+     */
+    ShipAreaVo findDefaultShipArea(Long userId);
 }

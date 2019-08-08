@@ -95,6 +95,9 @@ public class OmOrderPo implements Serializable {
     @ApiModelProperty(value = "收货时间")
     private LocalDateTime receiveTime;
 
+    @ApiModelProperty("售后截止时间")
+    private LocalDateTime afterSaleDeadline;
+
     @ApiModelProperty(value = "备注")
     private String remark;
 
@@ -130,6 +133,9 @@ public class OmOrderPo implements Serializable {
 
     @ApiModelProperty(value = "应付金额")
     private BigDecimal realMoney;
+
+    @ApiModelProperty(value = "实名认证id")
+    private Long realUserId;
 
 
 

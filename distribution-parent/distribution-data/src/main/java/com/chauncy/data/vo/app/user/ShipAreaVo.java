@@ -27,7 +27,7 @@ public class ShipAreaVo {
     private Long areaId;
 
     @ApiModelProperty(value = "省市区聚合")
-    private String mergerName;
+    private String areaName;
 
     @ApiModelProperty(value = "详细地址")
     private String detailedAddress;

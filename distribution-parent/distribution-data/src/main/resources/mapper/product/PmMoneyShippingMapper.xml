@@ -19,7 +19,7 @@
         <result column="update_time" property="updateTime" />
         <result column="del_flag" property="delFlag" />
     </resultMap>
-    <select id="loadBySkuId" resultType="com.chauncy.data.bo.app.car.MoneyShipBo">
+    <select id="loadByTemplateId" resultType="com.chauncy.data.bo.app.car.MoneyShipBo">
         select t.id,m.destination_id,m.destination_basis_freight,destination_full_money,
         default_full_money,default_post_money,default_freight,destination_post_money
         from pm_shipping_template t,pm_money_shipping m

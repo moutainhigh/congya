@@ -22,7 +22,7 @@ public interface PmMoneyShippingMapper extends IBaseMapper<PmMoneyShippingPo> {
      * @param id
      * @return
      */
-    List<MoneyShipBo> loadBySkuId(@Param("id") Long id);
+    List<MoneyShipBo> loadByTemplateId(@Param("id") Long id);
 
 
 

@@ -2,23 +2,30 @@ package com.chauncy.web.api.app.order;
 
 
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.domain.po.order.OmRealUserPo;
 import com.chauncy.data.dto.app.car.SettleDto;
 import com.chauncy.data.dto.app.car.SubmitOrderDto;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
+import com.chauncy.data.dto.app.user.add.AddIdCardDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.car.TotalCarVo;
 import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
 import com.chauncy.data.vo.app.order.cart.CartVo;
+import com.chauncy.order.service.IOmRealUserService;
 import com.chauncy.order.service.IOmShoppingCartService;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 /**
  * <p>
@@ -35,6 +42,9 @@ public class OmShoppingCartApi extends BaseApi {
 
     @Autowired
     private IOmShoppingCartService service;
+
+    @Autowired
+    private IOmRealUserService realUserService;
 
     /**
      * 查看商品详情
@@ -114,6 +124,20 @@ public class OmShoppingCartApi extends BaseApi {
     public JsonViewData submitOrder(@RequestBody @Validated SubmitOrderDto submitOrderDto) {
 
         return setJsonViewData(service.submitOrder(submitOrderDto, getAppCurrUser()));
+
+    }
+
+    @PostMapping("/certification")
+    @ApiOperation("实名认证")
+    public JsonViewData certification(@RequestBody @Validated AddIdCardDto addIdCardDto) {
+
+        OmRealUserPo saveRealUserPo=new OmRealUserPo();
+        BeanUtils.copyProperties(addIdCardDto,saveRealUserPo);
+        saveRealUserPo.setCreateBy(getAppCurrUser().getPhone());
+        realUserService.save(saveRealUserPo);
+        Map<String,Long> map= Maps.newHashMap();
+        map.put("realUserId",saveRealUserPo.getId());
+        return setJsonViewData(map);
 
     }
 }

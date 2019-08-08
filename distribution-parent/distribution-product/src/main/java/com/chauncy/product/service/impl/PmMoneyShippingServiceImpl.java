@@ -5,7 +5,6 @@ import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.PmMoneyShippingPo;
 import com.chauncy.data.mapper.product.PmMoneyShippingMapper;
 import com.chauncy.product.service.IPmMoneyShippingService;
-import lombok.experimental.Accessors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +28,6 @@ public class PmMoneyShippingServiceImpl extends AbstractService<PmMoneyShippingM
 
     @Override
     public List<MoneyShipBo> getBySkuId(Long id) {
-        return moneyShippingMapper.loadBySkuId(id);
+        return moneyShippingMapper.loadByTemplateId(id);
     }
 }

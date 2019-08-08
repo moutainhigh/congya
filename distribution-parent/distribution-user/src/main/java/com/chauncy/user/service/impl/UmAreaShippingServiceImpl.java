@@ -1,5 +1,6 @@
 package com.chauncy.user.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.data.domain.po.area.AreaRegionPo;
 import com.chauncy.data.domain.po.user.UmAreaShippingPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
@@ -14,6 +15,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.management.Query;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,10 +96,21 @@ public class UmAreaShippingServiceImpl extends AbstractService<UmAreaShippingMap
         areaShippingPos.stream().forEach(x -> {
             ShipAreaVo shipAreaVo = new ShipAreaVo();
             BeanUtils.copyProperties(x, shipAreaVo);
-            shipAreaVo.setMergerName(areaRegionMapper.selectById(x.getAreaId()).getMergerName());
+            //shipAreaVo.setMergerName(areaRegionMapper.selectById(x.getAreaId()).getMergerName());
             shipAreaVos.add(shipAreaVo);
         });
         return shipAreaVos;
+    }
+
+    @Override
+    public ShipAreaVo findDefaultShipArea(Long userId) {
+        QueryWrapper queryWrapper=new QueryWrapper();
+        queryWrapper.eq("um_user_id", userId);
+        queryWrapper.eq("is_default", true);
+        UmAreaShippingPo areaShippingPo = mapper.selectOne(queryWrapper);
+        ShipAreaVo shipAreaVo = new ShipAreaVo();
+        BeanUtils.copyProperties(areaShippingPo, shipAreaVo);
+        return shipAreaVo;
     }
 
     private UmAreaShippingPo updateDefault(AddAreaDto updateAreaDto) {
