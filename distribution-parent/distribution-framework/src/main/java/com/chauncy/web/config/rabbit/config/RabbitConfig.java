@@ -102,4 +102,10 @@ public class RabbitConfig {
         // TODO 如果要让延迟队列之间有关联,这里的 routingKey 和 绑定的交换机很关键
         return BindingBuilder.bind(submitOrderQueue()).to(submitOrderTopicExchange()).with(RabbitConstants.ROUTING_KEY);
     }
+
+    @Bean
+    public Queue helloQueue() {
+        return new Queue("chauncy_test");
+    }
+
 }
