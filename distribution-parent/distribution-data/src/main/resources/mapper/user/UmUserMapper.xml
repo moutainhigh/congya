@@ -5,7 +5,6 @@
     <!-- 通用查询映射结果 -->
     <update id="updateUmUser">
         update um_user set
-
         <if test="t.memberLevelId!=0">
             member_level_id=#{t.memberLevelId},
         </if>

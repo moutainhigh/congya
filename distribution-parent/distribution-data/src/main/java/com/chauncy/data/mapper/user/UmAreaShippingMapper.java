@@ -13,4 +13,6 @@ import com.chauncy.data.mapper.IBaseMapper;
  */
 public interface UmAreaShippingMapper extends IBaseMapper<UmAreaShippingPo> {
 
+    Long getCityId(Long areaShipId);
+
 }

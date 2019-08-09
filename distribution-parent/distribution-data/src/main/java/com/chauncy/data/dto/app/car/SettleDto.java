@@ -22,8 +22,8 @@ import java.util.List;
 @AllArgsConstructor
 public class SettleDto {
 
-    @ApiModelProperty(value = "收货地区id，第一次请求时为空，采用默认地址，之后修改收货地址触发")
-    private Long areaId;
+    @ApiModelProperty(value = "收货地址id，第一次请求时为空，采用默认地址，之后修改收货地址触发")
+    private Long areaShipId;
 
     @ApiModelProperty(value = "结算详情")
     private List<SettleAccountsDto> settleAccountsDtos;

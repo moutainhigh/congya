@@ -134,9 +134,9 @@ public class RedisProperties {
         //连接池
         JedisConnectionFactory.setPoolConfig(jedisPoolConfig);
         //IP地址
-        JedisConnectionFactory.setHostName("47.102.104.124");
+        JedisConnectionFactory.setHostName(host);
         //端口号
-        JedisConnectionFactory.setPort(6379);
+        JedisConnectionFactory.setPort(port);
         //如果Redis设置有密码
         JedisConnectionFactory.setPassword(password);
         //客户端超时时间单位是毫秒

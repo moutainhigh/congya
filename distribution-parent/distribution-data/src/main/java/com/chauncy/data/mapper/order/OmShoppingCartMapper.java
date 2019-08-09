@@ -37,6 +37,13 @@ public interface OmShoppingCartMapper extends IBaseMapper<OmShoppingCartPo> {
     List<ShopTicketSoWithCarGoodVo> searchByIds(@Param("ids") List<Long> ids);
 
     /**
+     * 查出需要算出预返购物券的相关属性
+     * @param id
+     * @return
+     */
+    ShopTicketSoWithCarGoodVo getTempById(Long id);
+
+    /**
      * 减去红包和购物券
      * @param
      * @return

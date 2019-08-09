@@ -28,8 +28,5 @@ public class SettleAccountsDto {
     @Min(1)
     private int number;
 
-    @ApiModelProperty(value = "预计奖励购物券")
-    private BigDecimal rewardShopTicket;
-
 
 }

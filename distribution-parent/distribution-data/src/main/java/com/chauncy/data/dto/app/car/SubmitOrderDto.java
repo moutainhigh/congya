@@ -65,4 +65,7 @@ public class SubmitOrderDto {
 
     @ApiModelProperty(value = "应付总额")
     private BigDecimal totalRealPayMoney;
+
+    @ApiModelProperty(value = "用户实名认证id,若无须实名认证，该字段为空")
+    private Long realUserId;
 }

@@ -18,17 +18,6 @@ import java.util.List;
 @Accessors(chain = true)
 public class TotalCarVo {
 
-    @ApiModelProperty(value = "收货人")
-    private String shipName;
-
-    @ApiModelProperty(value = "收货地址")
-    private String shipAddress;
-
-    @ApiModelProperty(value = "收货人手机")
-    private String phone;
-
-    @ApiModelProperty(value = "收货地区id")
-    private Long areaId;
 
     @ApiModelProperty(value = "使用葱鸭钱包可抵扣金额")
     private BigDecimal totalDeductionMoney;
@@ -73,6 +62,9 @@ public class TotalCarVo {
     @ApiModelProperty("根据店铺与商品类型拆单列表")
     private List<StoreOrderVo> storeOrderVos;
 
+    @ApiModelProperty(value = "是否需要实名认证")
+    private Boolean needCertification=false;
+
 
 
   /*  @ApiModelProperty(value = "总订单合计优惠")
@@ -82,8 +74,7 @@ public class TotalCarVo {
 
       //计算出应付金额=商品总额+运费+税费-购物券和红包抵扣的金额
     public BigDecimal calculationRealPayMoney(){
-        BigDecimal a = BigDecimalUtil.safeAdd(totalMoney, totalShipMoney, totalTaxMoney);
-        return BigDecimalUtil.safeSubtract(a,totalDeductionMoney);
+        return BigDecimalUtil.safeSubtract(totalMoney,totalDeductionMoney);
     }
 
 

@@ -126,15 +126,20 @@ public class UmUserDataApi extends BaseApi {
     /**
      * 查找用户收货地址
      *
-     * @param userId
      * @return
      */
-    @GetMapping("/findShipArea/{userId}")
+    @GetMapping("/findMyShipArea")
     @ApiOperation("查找用户收货地址")
-    public JsonViewData<List<ShipAreaVo>> findShipArea(@ApiParam(required = true,name = "userId",value = "用户ID")
-                                                       @PathVariable Long userId){
-
+    public JsonViewData<List<ShipAreaVo>> findShipArea(){
+        Long userId=getAppCurrUser().getId();
         return new JsonViewData(shipService.findShipArea(userId));
+    }
+
+    @GetMapping("/findDefaultShipArea")
+    @ApiOperation("查找用户默认收货地址")
+    public JsonViewData<List<ShipAreaVo>> findDefaultShipArea(){
+        Long userId=getAppCurrUser().getId();
+        return new JsonViewData(shipService.findDefaultShipArea(userId));
     }
 
     /**
