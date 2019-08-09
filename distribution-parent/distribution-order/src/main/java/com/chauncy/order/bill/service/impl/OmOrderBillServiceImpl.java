@@ -407,6 +407,9 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
         omOrderBillMapper.updateById(omOrderBillPo);
 
         //店铺团队合作：如果是利润账单，店铺绑定的上级店铺也能看到
+        if (BillTypeEnum.PROFIT_BILL.getId().equals(billType)) {
+
+        }
     }
 
     /**

@@ -336,5 +336,15 @@
         on ssl.id = ssrl.store_label_id
         where ss.id = #{storeId}
     </select>
+    <select id="findOperationalById" resultType="com.chauncy.data.vo.manage.store.StoreOperationalInfoVo">
+        SELECT ss.id,
+            ss.enabled,
+            ss.store_member_num,
+            ss.goods_num,
+            ss.store_turnover,
+            ss.order_num
+        FROM sm_store ss
+        WHERE ss.id = #{id}
+    </select>
 
 </mapper>

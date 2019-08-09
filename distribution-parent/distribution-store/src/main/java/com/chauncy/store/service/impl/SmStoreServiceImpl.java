@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.constant.SecurityConstant;
 import com.chauncy.common.enums.goods.GoodsCategoryLevelEnum;
+import com.chauncy.common.enums.store.StoreRelationEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.enums.system.SysRoleTypeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
@@ -284,8 +285,7 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
             smStoreRelStorePo.setStoreId(storeId);
             smStoreRelStorePo.setParentId(storeRelStoreDto.getParentId());
             smStoreRelStorePo.setType(storeRelStoreDto.getType());
-            QueryWrapper<SmStoreRelStorePo> relQueryWrapper = new QueryWrapper<>(smStoreRelStorePo);
-            Integer count = smStoreRelStoreMapper.selectCount(relQueryWrapper);
+            Integer count = smStoreRelStoreMapper.selectStoreRelCount(storeRelStoreDto);
             if(count > 0) {
                 //关系已存在
             } else {
@@ -436,7 +436,7 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
      * @return
      */
     @Override
-    public StoreAccountInfoVo findAccountById(@Param("id") Long id) {
+    public StoreAccountInfoVo findAccountById(Long id) {
 
         return smStoreMapper.findAccountById(id);
     }
@@ -448,7 +448,7 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
      * @return
      */
     @Override
-    public StoreOperationalInfoVo findOperationalById(@Param("id") Long id) {
+    public StoreOperationalInfoVo findOperationalById(Long id) {
         return smStoreMapper.findOperationalById(id);
     }
 
