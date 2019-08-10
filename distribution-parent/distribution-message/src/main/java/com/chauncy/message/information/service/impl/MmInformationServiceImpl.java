@@ -274,6 +274,12 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
     @Override
     public PageInfo<InformationPageInfoVo> searchPaging(BaseSearchByTimeDto baseSearchByTimeDto) {
 
+        SysUserPo sysUserPo = securityUtil.getCurrUser();
+        if(null != sysUserPo.getStoreId()) {
+            //店铺用户
+            baseSearchByTimeDto.setStoreId(sysUserPo.getStoreId());
+        }
+
         Integer pageNo = baseSearchByTimeDto.getPageNo()==null ? defaultPageNo : baseSearchByTimeDto.getPageNo();
         Integer pageSize = baseSearchByTimeDto.getPageSize()==null ? defaultPageSize : baseSearchByTimeDto.getPageSize();
 

@@ -48,4 +48,20 @@ public class InformationPageInfoVo implements Serializable {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "更新时间")
     private LocalDateTime updateTime;
+
+    @ApiModelProperty(value = "浏览量")
+    private Integer browsingNum;
+
+    @ApiModelProperty(value = "转发量")
+    private Integer forwardNum;
+
+    @ApiModelProperty(value = "评论量")
+    private Integer commentNum;
+
+    @ApiModelProperty(value = "点赞量")
+    private Integer likedNum;
+
+    @ApiModelProperty(value = "收藏量")
+    private Integer collectionNum;
+
 }
