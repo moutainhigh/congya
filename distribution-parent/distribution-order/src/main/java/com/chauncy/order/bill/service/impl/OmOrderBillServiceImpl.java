@@ -7,7 +7,6 @@ import com.chauncy.common.enums.order.BillSettlementEnum;
 import com.chauncy.common.enums.order.BillStatusEnum;
 import com.chauncy.common.enums.order.BillTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
-import com.chauncy.common.enums.user.UserTypeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.common.util.DateFormatUtil;
@@ -20,12 +19,11 @@ import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.store.rel.SmStoreBankCardPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.manage.order.bill.select.SearchBillDto;
-import com.chauncy.data.dto.manage.order.bill.update.BillBatchAuditDto;
+import com.chauncy.data.dto.manage.order.bill.update.BatchAuditDto;
 import com.chauncy.data.dto.manage.order.bill.update.BillCashOutDto;
 import com.chauncy.data.dto.manage.order.bill.update.BillDeductionDto;
 import com.chauncy.data.dto.supplier.order.CreateStoreBillDto;
 import com.chauncy.data.mapper.order.OmGoodsTempMapper;
-import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.mapper.order.bill.OmBillRelGoodsTempMapper;
 import com.chauncy.data.mapper.order.bill.OmOrderBillMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
@@ -45,8 +43,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -210,13 +206,13 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
     /**
      * 平台批量审核账单
      *
-     * @param billBatchAuditDto
+     * @param batchAuditDto
      * @return
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void batchAudit(BillBatchAuditDto billBatchAuditDto) {
-        List<Long> idList = Arrays.asList(billBatchAuditDto.getIds());
+    public void batchAudit(BatchAuditDto batchAuditDto) {
+        List<Long> idList = Arrays.asList(batchAuditDto.getIds());
         idList.forEach(id -> {
             OmOrderBillPo omOrderBillPo = omOrderBillMapper.selectById(id);
             if(null == omOrderBillPo) {
@@ -225,7 +221,7 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
                 throw new ServiceException(ResultCode.NO_EXISTS, "id为" + id + "账单不是待审核状态");
             }
         });
-        if(billBatchAuditDto.getEnabled()) {
+        if(batchAuditDto.getEnabled()) {
             //审核通过状态改为处理中
             UpdateWrapper updateWrapper = new UpdateWrapper();
             updateWrapper.in("id", idList);
@@ -241,7 +237,7 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
             //结算时间
             updateWrapper.set("settlement_time", LocalDateTime.now());
             //驳回原因
-            updateWrapper.set("reject_reason", billBatchAuditDto.getRejectReason());
+            updateWrapper.set("reject_reason", batchAuditDto.getRejectReason());
             this.update(updateWrapper);
         }
     }

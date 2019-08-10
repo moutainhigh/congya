@@ -7,6 +7,7 @@ import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.information.add.InformationDto;
 import com.chauncy.data.dto.base.BaseSearchByTimeDto;
+import com.chauncy.data.dto.manage.order.bill.update.BatchAuditDto;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.app.message.information.InformationBaseVo;
 import com.chauncy.data.vo.app.message.information.InformationPagingVo;
@@ -83,9 +84,9 @@ public interface IMmInformationService extends Service<MmInformationPo> {
     void likeInfo(Long infoId, Long userId);
     /**
      * 审核资讯
-     * @param baseUpdateStatusDto
+     * @param batchAuditDto
      */
-    void verifyInfo(BaseUpdateStatusDto baseUpdateStatusDto);
+    void verifyInfo(BatchAuditDto batchAuditDto);
 
     /**
      * 根据资讯id获取关联的商品

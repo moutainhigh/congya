@@ -20,6 +20,7 @@ import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.information.add.InformationDto;
 import com.chauncy.data.dto.base.BaseSearchByTimeDto;
+import com.chauncy.data.dto.manage.order.bill.update.BatchAuditDto;
 import com.chauncy.data.mapper.message.information.MmInformationMapper;
 import com.chauncy.data.mapper.message.information.rel.MmRelInformationGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
@@ -38,6 +39,7 @@ import com.chauncy.data.core.AbstractService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -345,11 +347,11 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
     /**
      * 审核资讯
      *
-     * @param baseUpdateStatusDto
+     * @param batchAuditDto
      */
     @Override
-    public void verifyInfo(BaseUpdateStatusDto baseUpdateStatusDto) {
-        MmInformationPo mmInformationPo = mmInformationMapper.selectById(baseUpdateStatusDto.getId()[0]);
+    public void verifyInfo(BatchAuditDto batchAuditDto) {
+        MmInformationPo mmInformationPo = mmInformationMapper.selectById(batchAuditDto.getIds()[0]);
         if(null == mmInformationPo) {
             throw new ServiceException(ResultCode.NO_EXISTS,"资讯不存在");
         } else {
@@ -358,9 +360,12 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
             } else {
                 UpdateWrapper updateWrapper = new UpdateWrapper();
                 updateWrapper.eq("id", mmInformationPo.getId());
-                updateWrapper.set("verify_status", baseUpdateStatusDto.getEnabled());
+                updateWrapper.set("verify_status", batchAuditDto.getEnabled());
                 updateWrapper.set("verify_time", LocalDateTime.now());
                 updateWrapper.set("verify_by", securityUtil.getCurrUser().getUsername());
+                if(Strings.isNotBlank(batchAuditDto.getRejectReason())) {
+                    updateWrapper.set("reject_reason", batchAuditDto.getRejectReason());
+                }
                 this.update(updateWrapper);
             }
         }

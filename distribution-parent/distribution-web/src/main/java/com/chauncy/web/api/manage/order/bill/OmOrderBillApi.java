@@ -3,20 +3,16 @@ package com.chauncy.web.api.manage.order.bill;
 
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.manage.order.bill.select.SearchBillDto;
-import com.chauncy.data.dto.manage.order.bill.update.BillBatchAuditDto;
-import com.chauncy.data.dto.manage.order.bill.update.BillCashOutDto;
+import com.chauncy.data.dto.manage.order.bill.update.BatchAuditDto;
 import com.chauncy.data.dto.manage.order.bill.update.BillDeductionDto;
-import com.chauncy.data.dto.manage.store.add.SaveStoreBankCardDto;
 import com.chauncy.data.dto.supplier.good.select.SearchStoreGoodsStockDto;
 import com.chauncy.data.dto.supplier.order.CreateStoreBillDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.order.bill.BillBaseInfoVo;
 import com.chauncy.data.vo.manage.order.bill.BillDetailVo;
-import com.chauncy.data.vo.manage.store.rel.StoreBankCardVo;
 import com.chauncy.data.vo.supplier.good.stock.StoreGoodsStockVo;
 import com.chauncy.order.bill.service.IOmOrderBillService;
 import com.chauncy.product.stock.IPmStoreGoodsStockService;
-import com.chauncy.store.rel.service.ISmStoreBankCardService;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiImplicitParam;
@@ -85,16 +81,16 @@ public class OmOrderBillApi  extends BaseApi {
 
     /**
      * 平台批量审核账单
-     * @param billBatchAuditDto
+     * @param batchAuditDto
      * @return
      */
     @PostMapping("/bill/batchAudit")
     @ApiOperation(value = "批量审核")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData batchAudit(@Valid @RequestBody  @ApiParam(required = true, name = "billBatchAuditDto", value = "id、修改的状态值")
-                                           BillBatchAuditDto billBatchAuditDto) {
+    public JsonViewData batchAudit(@Valid @RequestBody  @ApiParam(required = true, name = "batchAuditDto", value = "id、修改的状态值")
+                                           BatchAuditDto batchAuditDto) {
 
-        omOrderBillService.batchAudit(billBatchAuditDto);
+        omOrderBillService.batchAudit(batchAuditDto);
         return new JsonViewData(ResultCode.SUCCESS, "操作完成");
     }
 
