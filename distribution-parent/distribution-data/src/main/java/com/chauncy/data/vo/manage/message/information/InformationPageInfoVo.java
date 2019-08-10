@@ -35,7 +35,7 @@ public class InformationPageInfoVo implements Serializable {
     @ApiModelProperty(value = "资讯分类名称")
     private String infoCategoryName;
 
-    @ApiModelProperty(value = "审核状态 1-未审核 2-待审核 3-审核通过 4-不通过/驳回")
+    @ApiModelProperty(value = "审核状态 2-待审核 3-审核通过 4-不通过/驳回")
     private Integer verifyStatus;
 
     @ApiModelProperty(value = "使用状态 1-启用 0-禁用 为null表示“-”")

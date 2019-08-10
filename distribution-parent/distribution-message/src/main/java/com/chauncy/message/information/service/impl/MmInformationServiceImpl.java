@@ -360,7 +360,7 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
             } else {
                 UpdateWrapper updateWrapper = new UpdateWrapper();
                 updateWrapper.eq("id", mmInformationPo.getId());
-                updateWrapper.set("verify_status", batchAuditDto.getEnabled());
+                updateWrapper.set("verify_status", batchAuditDto.getEnabled() ? VerifyStatusEnum.CHECKED.getId() : VerifyStatusEnum.NOT_APPROVED.getId());
                 updateWrapper.set("verify_time", LocalDateTime.now());
                 updateWrapper.set("verify_by", securityUtil.getCurrUser().getUsername());
                 if(Strings.isNotBlank(batchAuditDto.getRejectReason())) {

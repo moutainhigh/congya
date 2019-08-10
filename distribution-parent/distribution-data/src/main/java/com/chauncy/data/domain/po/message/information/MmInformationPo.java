@@ -72,7 +72,7 @@ public class MmInformationPo implements Serializable {
     @ApiModelProperty(value = "资讯正文带格式文本")
     private String detailHtml;
 
-    @ApiModelProperty(value = " 1-未审核 2-待审核 3-审核通过 4-不通过/驳回")
+    @ApiModelProperty(value = " 2-待审核 3-审核通过 4-不通过/驳回")
     private Integer verifyStatus;
 
     @ApiModelProperty(value = "浏览量")
