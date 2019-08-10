@@ -18,6 +18,7 @@ import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.supplier.*;
 import com.chauncy.data.vo.supplier.good.AssociationGoodsVo;
 import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
+import com.chauncy.data.vo.supplier.good.RecommendGoodsVo;
 import com.chauncy.data.vo.supplier.good.stock.GoodsStockTemplateVo;
 import com.github.pagehelper.PageInfo;
 
@@ -103,6 +104,13 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @return
      */
     void addOrUpdateSkuAttribute(AddOrUpdateSkuAttributeDto addOrUpdateSkuAttributeDto);
+
+    /**
+     * 获取店铺推荐商品
+     * @param searchRecommendGoodsDto
+     * @return
+     */
+    PageInfo<RecommendGoodsVo> storeRecommendGoods(SearchRecommendGoodsDto searchRecommendGoodsDto);
 
     /**
      * 根据商品ID获取商品属性sku 信息、

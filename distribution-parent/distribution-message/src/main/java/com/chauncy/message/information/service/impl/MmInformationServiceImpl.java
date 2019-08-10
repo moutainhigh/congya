@@ -248,7 +248,7 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
     }
 
     /**
-     * 根据关联ID删除资讯跟店铺的绑定关系
+     * 根据关联ID删除资讯跟商品的绑定关系
      *
      * @param id 资讯商品关联id
      * @return

@@ -64,6 +64,9 @@ public class InformationVo implements Serializable {
     @ApiModelProperty(value = "资讯正文")
     private String detailHtml;
 
+    @ApiModelProperty(value = "资讯正文纯文本")
+    private String  pureText ;
+
     @ApiModelProperty(value = " 1-未审核 2-待审核 3-审核通过 4-不通过/驳回")
     private Integer verifyStatus;
 

@@ -11,6 +11,7 @@ import com.chauncy.common.util.JSONUtils;
 import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.domain.po.product.*;
 import com.chauncy.data.domain.po.sys.BasicSettingPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
@@ -25,6 +26,7 @@ import com.chauncy.data.dto.supplier.good.select.*;
 import com.chauncy.data.dto.supplier.good.update.*;
 import com.chauncy.data.dto.supplier.store.update.SelectStockTemplateGoodsDto;
 import com.chauncy.data.mapper.area.AreaRegionMapper;
+import com.chauncy.data.mapper.message.information.MmInformationMapper;
 import com.chauncy.data.mapper.product.*;
 import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockMapper;
 import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockTemplateMapper;
@@ -36,6 +38,7 @@ import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.supplier.*;
 import com.chauncy.data.vo.supplier.good.AssociationGoodsVo;
 import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
+import com.chauncy.data.vo.supplier.good.RecommendGoodsVo;
 import com.chauncy.product.service.IPmAssociationGoodsService;
 import com.chauncy.data.vo.supplier.good.stock.GoodsStockTemplateVo;
 import com.chauncy.data.vo.supplier.good.stock.StockTemplateGoodsInfoVo;
@@ -99,6 +102,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
     @Autowired
     private PmGoodsRelAttributeValueGoodMapper goodsRelAttributeValueGoodMapper;
+
+    @Autowired
+    private MmInformationMapper mmInformationMapper;
 
     /*@Autowired
     private PmGoodsRelGoodsMemberLevelMapper goodsRelGoodsMemberLevelMapper;*/
@@ -821,6 +827,35 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 //            addSkus(addOrUpdateSkuAttributeDto, /*stock,*/ user);
         }
 
+    }
+
+    /**
+     * 获取店铺推荐商品
+     * @param searchRecommendGoodsDto
+     * @return
+     */
+    @Override
+    public PageInfo<RecommendGoodsVo> storeRecommendGoods(SearchRecommendGoodsDto searchRecommendGoodsDto) {
+
+        if(null != searchRecommendGoodsDto.getInformationId()) {
+            MmInformationPo mmInformationPo = mmInformationMapper.selectById(searchRecommendGoodsDto.getInformationId());
+            searchRecommendGoodsDto.setStoreId(mmInformationPo.getStoreId());
+        } else {
+            //保存资讯时还没有资讯id
+            Long storeId = securityUtil.getCurrUser().getStoreId();
+            if(null == storeId) {
+                //当前登录用户跟操作不匹配
+                throw  new ServiceException(ResultCode.FAIL, "当前登录用户跟操作不匹配");
+            }
+            searchRecommendGoodsDto.setStoreId(storeId);
+        }
+
+        Integer pageNo = searchRecommendGoodsDto.getPageNo() == null ? defaultPageNo : searchRecommendGoodsDto.getPageNo();
+        Integer pageSize = searchRecommendGoodsDto.getPageSize() == null ? defaultPageSize : searchRecommendGoodsDto.getPageSize();
+        PageInfo<RecommendGoodsVo> recommendGoodsVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> mapper.storeRecommendGoods(searchRecommendGoodsDto));
+
+        return recommendGoodsVoPageInfo;
     }
 
     /**
