@@ -364,7 +364,7 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
                 updateWrapper.set("verify_time", LocalDateTime.now());
                 updateWrapper.set("verify_by", securityUtil.getCurrUser().getUsername());
                 if(Strings.isNotBlank(batchAuditDto.getRejectReason())) {
-                    updateWrapper.set("reject_reason", batchAuditDto.getRejectReason());
+                    updateWrapper.set("remark", batchAuditDto.getRejectReason());
                 }
                 this.update(updateWrapper);
             }
