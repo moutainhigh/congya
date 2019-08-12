@@ -1,7 +1,11 @@
 package com.chauncy.data.mapper.order.report;
 
 import com.chauncy.data.domain.po.order.report.OmOrderReportPo;
+import com.chauncy.data.dto.manage.order.report.select.SearchReportDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.manage.order.report.ReportBaseInfoVo;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +17,9 @@ import com.chauncy.data.mapper.IBaseMapper;
  */
 public interface OmOrderReportMapper extends IBaseMapper<OmOrderReportPo> {
 
+    /**
+     * 查询商品销售报表
+     * @param searchReportDto
+     */
+    List<ReportBaseInfoVo> searchReportPaging(SearchReportDto searchReportDto);
 }

@@ -54,8 +54,8 @@
             <if test="stockName !=null and stockName !=''">
                 and psgs.`name` like concat('%', #{stockName}, '%')
             </if>
-            <if test="storeName != null and storeName !=''">
-                and ss.`name` like concat('%', #{storeName}, '%')
+            <if test="branchName != null and branchName !=''">
+                and ss.`name` like concat('%', #{branchName}, '%')
             </if>
             <if test="startTime != null">
                 and date(psgs.create_time) <![CDATA[>= ]]>  #{startTime}

@@ -5,13 +5,16 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.manage.order.bill.select.SearchBillDto;
 import com.chauncy.data.dto.manage.order.bill.update.BatchAuditDto;
 import com.chauncy.data.dto.manage.order.bill.update.BillDeductionDto;
+import com.chauncy.data.dto.manage.order.report.select.SearchReportDto;
 import com.chauncy.data.dto.supplier.good.select.SearchStoreGoodsStockDto;
 import com.chauncy.data.dto.supplier.order.CreateStoreBillDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.order.bill.BillBaseInfoVo;
 import com.chauncy.data.vo.manage.order.bill.BillDetailVo;
+import com.chauncy.data.vo.manage.order.report.ReportBaseInfoVo;
 import com.chauncy.data.vo.supplier.good.stock.StoreGoodsStockVo;
 import com.chauncy.order.bill.service.IOmOrderBillService;
+import com.chauncy.order.report.service.IOmOrderReportService;
 import com.chauncy.product.stock.IPmStoreGoodsStockService;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
@@ -35,7 +38,7 @@ import javax.validation.Valid;
  * @since 2019-07-22
  */
 @RestController
-@RequestMapping("/manage/store")
+@RequestMapping("/manage")
 @Api(tags = "平台_账单管理接口")
 @Slf4j
 public class OmOrderBillApi  extends BaseApi {
@@ -44,7 +47,10 @@ public class OmOrderBillApi  extends BaseApi {
     private IOmOrderBillService omOrderBillService;
 
     @Autowired
-    private IPmStoreGoodsStockService pmStoreGoodsStockService ;
+    private IOmOrderReportService omOrderReportService;
+
+    @Autowired
+    private IPmStoreGoodsStockService pmStoreGoodsStockService;
 
     /**
      * 查询账单列表
@@ -131,26 +137,76 @@ public class OmOrderBillApi  extends BaseApi {
      * @return
      */
     @ApiOperation(value = "库存管理_分页条件查询直属商家分配的库存信息", notes = "根据库存名称，分配时间，直属商家，库存数量查询")
-    @PostMapping("/platformSearchPagingStock")
+    @PostMapping("/stock/platformSearchPagingStock")
     public JsonViewData<PageInfo<StoreGoodsStockVo>> platformSearchPagingStock(@Valid @RequestBody  @ApiParam(required = true, name = "searchStoreGoodsStockDto", value = "查询条件")
                                                                                    SearchStoreGoodsStockDto searchStoreGoodsStockDto) {
 
         PageInfo<StoreGoodsStockVo> storeGoodsStockVoPageInfo = pmStoreGoodsStockService.platformSearchPagingStock(searchStoreGoodsStockDto);
-        return new JsonViewData(ResultCode.SUCCESS, "查询成功", storeGoodsStockVoPageInfo);
+        return new JsonViewData(ResultCode.SUCCESS, "查询成功",
+                storeGoodsStockVoPageInfo);
     }
 
+    /**
+     * 根据ID查找店铺分配给分店的库存信息
+     *
+     * @param id
+     * @return
+     */
+    @ApiOperation(value = "根据ID查找店铺分配给分店的库存信息", notes = "根据库存ID查找")
+    @GetMapping("/stock/findStockById/{id}")
+    public JsonViewData<StoreGoodsStockVo> findBranchStockById(@ApiParam(required = true, value = "id")
+                                                               @PathVariable Long id) {
+
+
+        return new JsonViewData(ResultCode.SUCCESS, "查找成功",
+                pmStoreGoodsStockService.findStockById(id));
+
+    }
 
     /**
      * 根据时间创建货款/利润账单
      */
     @ApiOperation(value = "根据时间创建货款/利润账单",
             notes = "endDate   需要创建账单的那一周   任何一天都可以    \nbillType  账单类型  1 货款账单  2 利润账单")
-    @PostMapping("/createStoreBillByDate")
+    @PostMapping("/bill/createStoreBillByDate")
     public JsonViewData createStoreBillByDate(@Valid @RequestBody  @ApiParam(required = true, name = "createStoreBillDto", value = "查询条件")
                                                    CreateStoreBillDto createStoreBillDto) {
 
         omOrderBillService.createStoreBillByDate(createStoreBillDto);
         return new JsonViewData(ResultCode.SUCCESS, "查询成功");
+    }
+
+    /**
+     * 查询商品销售报表
+     * @param searchReportDto
+     * @return
+     */
+    @ApiOperation(value = "查询商品销售报表",
+            notes = "根据账单号，生成时间，直属商家，分配商家等条件查找")
+    @PostMapping("/report/searchReportPaging")
+    public JsonViewData<PageInfo<ReportBaseInfoVo>> searchReportPaging(@Valid @RequestBody @ApiParam(required = true, name = "searchReportDto", value = "查询条件")
+                                                                             SearchReportDto searchReportDto) {
+
+        PageInfo<ReportBaseInfoVo> reportBaseInfoVoPageInfo = omOrderReportService.searchReportPaging(searchReportDto);
+        return setJsonViewData(reportBaseInfoVoPageInfo);
+    }
+
+
+    /**
+     * 根据ID查找商品销售报表信息
+     *
+     * @param id
+     * @return
+     */
+    @ApiOperation(value = "根据ID查找商品销售报表信息", notes = "根据报表ID查找")
+    @GetMapping("/report/findReportById/{id}")
+    public JsonViewData<ReportBaseInfoVo> findReportById(@ApiParam(required = true, value = "id")
+                                                               @PathVariable Long id) {
+
+
+        return new JsonViewData(ResultCode.SUCCESS, "查找成功",
+                omOrderReportService.findReportById(id));
+
     }
 
 

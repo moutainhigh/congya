@@ -23,7 +23,7 @@ import com.chauncy.web.base.BaseApi;
 public class OmOrderReportApi extends BaseApi {
 
     @Autowired
-    private IOmOrderReportService service;
+    private IOmOrderReportService omOrderReportService;
 
 
 }
