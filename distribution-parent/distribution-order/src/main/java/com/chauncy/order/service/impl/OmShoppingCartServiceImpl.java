@@ -138,7 +138,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
 
     //需要进行实行认证且计算税率的商品类型
-    private final List<String> needRealGoodsType = Lists.newArrayList("BONDED", "OVERSEA");
+    private final List<String> needRealGoodsType = Lists.newArrayList("保税仓", "海外直邮");
 
     /**
      * 添加商品到购物车
@@ -267,7 +267,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
         TotalCarVo totalCarVo = new TotalCarVo();
 
-        //判断商品是否保税仓或者海外直邮，是则需要进行实名认证，且计算税率
+        //判断商品是否保税仓或者海外直邮，是则需要进行实名认证
         List<ShopTicketSoWithCarGoodVo> needRealSkuList = shopTicketSoWithCarGoodVos.stream().filter(x -> needRealGoodsType.contains(x.getGoodsType())).collect(Collectors.toList());
         if (!ListUtil.isListNullAndEmpty(needRealSkuList)) {
             totalCarVo.setNeedCertification(true);
@@ -682,6 +682,13 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     public Long submitOrder(SubmitOrderDto submitOrderDto, UmUserPo currentUser) {
         //检查库存,设置一些需要计算购物券的值，并把所有商品抽出来
         List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVoList = checkStock(submitOrderDto);
+        //判断商品是否保税仓或者海外直邮，是则需要进行实名认证
+        List<ShopTicketSoWithCarGoodVo> needRealSkuList = shopTicketSoWithCarGoodVoList.stream().filter(x -> needRealGoodsType.contains(x.getGoodsType())).collect(Collectors.toList());
+        if (!ListUtil.isListNullAndEmpty(needRealSkuList)) {
+            if (submitOrderDto.getRealUserId()==null){
+                throw new ServiceException(ResultCode.PARAM_ERROR,"请先进行实名认证！");
+            }
+        }
         //获取系统基本参数
         BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
         //设置会员等级比例和购物券比例
@@ -861,13 +868,10 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     secondLevel= (PayUserMessage) payUserMessages.get(i).clone();
                 }
             }
-
             savePayUser.setFirstUserId(firstLevel.getUserId());
             if (!secondLevel.getLevel().equals(0)){
                 savePayUser.setSecondUserId(secondLevel.getUserId());
             }
-
-
         }
         return savePayUser;
 

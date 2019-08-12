@@ -14,6 +14,7 @@ import com.chauncy.data.vo.manage.order.list.SearchOrderVo;
 import com.chauncy.data.vo.supplier.order.*;
 import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -98,6 +99,13 @@ public interface OmOrderMapper extends IBaseMapper<OmOrderPo> {
      * @return
      */
     PayOrderPo getPayOrderByOrderId(@Param("orderId") Long orderId);
+
+    /**
+     * 根据订单id获取预计奖励购物券
+     * @param orderId
+     * @return
+     */
+    BigDecimal getRewardShopTicketByOrderId(Long orderId);
 
 
 

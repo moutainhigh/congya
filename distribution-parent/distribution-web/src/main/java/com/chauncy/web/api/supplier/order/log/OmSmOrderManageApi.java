@@ -1,6 +1,7 @@
 package com.chauncy.web.api.supplier.order.log;
 
 
+import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.app.order.logistics.TaskRequestDto;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
@@ -12,6 +13,7 @@ import com.chauncy.data.vo.supplier.order.SmOrderLogisticsVo;
 import com.chauncy.data.vo.supplier.order.SmSearchOrderVo;
 import com.chauncy.data.vo.supplier.order.SmSendOrderVo;
 import com.chauncy.order.service.IOmOrderService;
+import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -33,15 +35,21 @@ import org.springframework.web.bind.annotation.*;
 @Api(tags = "商家端_普通类型订单管理")
 public class OmSmOrderManageApi extends BaseApi {
 
+
+
     @Autowired
     private IOmOrderService orderService;
+
+    @Autowired
+    private SecurityUtil securityUtil;
+
 
 
     @ApiOperation(value = "商家查询订单列表")
     @PostMapping("/list")
     public JsonViewData<PageInfo<SmSearchOrderVo>> search(@RequestBody SmSearchOrderDto smSearchOrderDto) {
 
-        smSearchOrderDto.setStoreId(getAppCurrUser().getStoreId());
+        smSearchOrderDto.setStoreId(securityUtil.getCurrUser().getStoreId());
         PageInfo<SmSearchOrderVo> search = orderService.searchSmOrderList(smSearchOrderDto);
         return setJsonViewData(search);
     }
@@ -63,7 +71,7 @@ public class OmSmOrderManageApi extends BaseApi {
     @ApiOperation(value = "商家查询发货订单列表")
     @PostMapping("/send/list")
     public JsonViewData<PageInfo<SmSendOrderVo>> search(@Validated @RequestBody SmSendOrderDto smSendOrderDto) {
-        smSendOrderDto.setStoreId(getAppCurrUser().getStoreId());
+        smSendOrderDto.setStoreId(securityUtil.getCurrUser().getStoreId());
         PageInfo<SmSendOrderVo> search = orderService.searchSmSendOrderList(smSendOrderDto);
         return setJsonViewData(search);
     }
@@ -73,11 +81,4 @@ public class OmSmOrderManageApi extends BaseApi {
     public JsonViewData<SmOrderLogisticsVo> searchLogistics(@PathVariable Long id) {
         return setJsonViewData(orderService.getLogisticsById(id));
     }
-
-
-
-
-
-
-
 }

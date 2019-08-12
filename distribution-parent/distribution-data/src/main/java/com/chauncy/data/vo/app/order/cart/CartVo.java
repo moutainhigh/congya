@@ -12,7 +12,7 @@ import java.util.List;
  *
  * 购物车显示
  */
-@ApiModel("产看购物车返回的信息")
+@ApiModel("查看购物车返回的信息")
 @Data
 public class CartVo {
 

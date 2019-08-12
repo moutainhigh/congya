@@ -183,6 +183,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         Integer pageSize = searchUserListDto.getPageSize() == null ? defaultPageSize : searchUserListDto.getPageSize();
         PageInfo<UmUserListVo> umUserListVoPageInfo =PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> mapper.loadSearchUserList(searchUserListDto));
+
         //通过条件构造器限制只需要查出name
         UmUserPo condition=new UmUserPo();
         //设置关联用户的名称,不要连表(数据库查出的是id，现在将id转为name)
