@@ -3,9 +3,10 @@ package com.chauncy.order.bill.service;
 import com.chauncy.data.domain.po.order.bill.OmOrderBillPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.manage.order.bill.select.SearchBillDto;
-import com.chauncy.data.dto.manage.order.bill.update.BillBatchAuditDto;
+import com.chauncy.data.dto.manage.order.bill.update.BatchAuditDto;
 import com.chauncy.data.dto.manage.order.bill.update.BillCashOutDto;
 import com.chauncy.data.dto.manage.order.bill.update.BillDeductionDto;
+import com.chauncy.data.dto.supplier.order.CreateStoreBillDto;
 import com.chauncy.data.vo.manage.order.bill.BillBaseInfoVo;
 import com.chauncy.data.vo.manage.order.bill.BillDetailVo;
 import com.github.pagehelper.PageInfo;
@@ -43,10 +44,10 @@ public interface IOmOrderBillService extends Service<OmOrderBillPo> {
 
     /**
      * 平台批量审核账单
-     * @param billBatchAuditDto
+     * @param batchAuditDto
      * @return
      */
-    void batchAudit(BillBatchAuditDto billBatchAuditDto);
+    void batchAudit(BatchAuditDto batchAuditDto);
 
     /**
      * 平台账单扣款
@@ -60,4 +61,16 @@ public interface IOmOrderBillService extends Service<OmOrderBillPo> {
      * @return
      */
     void billSettlementSuccess(Long id);
+
+    /**
+     * 批量创建货款、利润账单
+     * @return
+     */
+    void batchCreateStoreBill(Integer billType);
+
+    /**
+     * 根据时间创建货款、利润账单
+     * @return
+     */
+    void createStoreBillByDate( CreateStoreBillDto createStoreBillDto);
 }

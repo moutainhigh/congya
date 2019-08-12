@@ -9,6 +9,7 @@ import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
 import com.chauncy.data.dto.supplier.activity.select.SearchAssociatedGoodsDto;
 import com.chauncy.data.dto.supplier.good.select.SearchExcelDto;
 import com.chauncy.data.dto.supplier.good.select.SearchGoodInfosDto;
+import com.chauncy.data.dto.supplier.good.select.SearchRecommendGoodsDto;
 import com.chauncy.data.dto.supplier.store.update.SelectStockTemplateGoodsDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
@@ -17,6 +18,7 @@ import com.chauncy.data.vo.supplier.activity.SearchAssociatedGoodsVo;
 import com.chauncy.data.vo.supplier.good.InformationRelGoodsVo;
 import com.chauncy.data.vo.supplier.PmGoodsVo;
 import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
+import com.chauncy.data.vo.supplier.good.RecommendGoodsVo;
 import com.chauncy.data.vo.supplier.good.stock.StockTemplateGoodsInfoVo;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -48,6 +50,12 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
      * @return
      */
     List<PmGoodsVo> searchGoodsInfo(SearchGoodInfosDto searchGoodInfosDto);
+
+    /**
+     * 获取店铺推荐商品
+     * @param searchRecommendGoodsDto
+     */
+    List<RecommendGoodsVo> storeRecommendGoods(SearchRecommendGoodsDto searchRecommendGoodsDto);
 
     /**
      *

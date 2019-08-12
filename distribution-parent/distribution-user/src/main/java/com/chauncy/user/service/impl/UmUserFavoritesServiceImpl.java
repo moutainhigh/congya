@@ -221,7 +221,7 @@ public class UmUserFavoritesServiceImpl extends AbstractService<UmUserFavoritesM
                         throw new ServiceException (ResultCode.FAIL,"不存在该资讯");
                     }else{
                         MmInformationPo informationPo = informationMapper.selectById (favoritesId);
-                        informationPo.setCollectionNum (informationPo.getCommentNum ()-1);
+                        informationPo.setCollectionNum (informationPo.getCollectionNum ()-1);
                         informationMapper.updateById(informationPo);
                     }
                     break;

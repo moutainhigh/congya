@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chauncy.data.mapper.order.report.OmOrderReportMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.order.report.OmOrderReportPo">
+        <id column="id" property="id" />
+        <result column="year" property="year" />
+        <result column="month_day" property="monthDay" />
+        <result column="total_amount" property="totalAmount" />
+        <result column="total_num" property="totalNum" />
+        <result column="store_id" property="storeId" />
+        <result column="branch_id" property="branchId" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="withdrawal_time" property="withdrawalTime" />
+        <result column="processing_time" property="processingTime" />
+        <result column="settlement_time" property="settlementTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="del_flag" property="delFlag" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, year, month_day, total_amount, total_num, store_id, branch_id, create_by, create_time, withdrawal_time, processing_time, settlement_time, update_by, update_time, del_flag
+    </sql>
+
+</mapper>

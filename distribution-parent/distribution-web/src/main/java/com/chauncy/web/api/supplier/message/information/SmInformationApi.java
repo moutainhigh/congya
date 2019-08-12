@@ -4,11 +4,14 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.information.add.InformationDto;
 import com.chauncy.data.dto.base.BaseSearchByTimeDto;
+import com.chauncy.data.dto.supplier.good.select.SearchRecommendGoodsDto;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.message.information.InformationPageInfoVo;
 import com.chauncy.data.vo.manage.message.information.InformationVo;
+import com.chauncy.data.vo.supplier.good.RecommendGoodsVo;
 import com.chauncy.message.information.service.IMmInformationService;
+import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -34,7 +37,10 @@ public class SmInformationApi extends BaseApi {
 
     @Autowired
     private IMmInformationService mmInformationService;
-    
+
+    @Autowired
+    private IPmGoodsService pmGoodsService;
+
     /**
      * 保存资讯信息
      * @param informationDto
@@ -67,6 +73,22 @@ public class SmInformationApi extends BaseApi {
 
 
     /**
+     * 获取店铺推荐商品
+     * @param searchRecommendGoodsDto
+     * @return
+     */
+    @PostMapping("/storeRecommendGoods")
+    @ApiOperation(value = "获取店铺推荐商品")
+    @Transactional(rollbackFor = Exception.class)
+    public JsonViewData<RecommendGoodsVo> storeRecommendGoods(@Validated @RequestBody @ApiParam(required = true, name = "searchRecommendGoodsDto", value = "查找条件")
+                                     SearchRecommendGoodsDto searchRecommendGoodsDto) {
+
+        return new JsonViewData(ResultCode.SUCCESS, "查找成功",
+                pmGoodsService.storeRecommendGoods(searchRecommendGoodsDto));
+    }
+
+
+    /**
      * 根据ID查找资讯
      *
      * @param id
@@ -89,7 +111,7 @@ public class SmInformationApi extends BaseApi {
      * @param id
      * @return
      */
-    @ApiOperation(value = "删除绑定关系", notes = "根据关联ID删除资讯跟店铺的绑定关系")
+    @ApiOperation(value = "删除绑定关系", notes = "根据关联ID删除资讯跟商品的绑定关系")
     @GetMapping("/delRelById/{id}")
     public JsonViewData delRelById(@ApiParam(required = true, value = "id")
                                                 @PathVariable Long id) {

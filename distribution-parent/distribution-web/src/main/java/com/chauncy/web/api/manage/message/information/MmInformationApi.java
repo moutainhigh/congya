@@ -2,6 +2,7 @@ package com.chauncy.web.api.manage.message.information;
 
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.manage.order.bill.update.BatchAuditDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.message.information.service.IMmInformationService;
 import com.chauncy.web.base.BaseApi;
@@ -34,14 +35,14 @@ public class MmInformationApi extends BaseApi {
     /**
      * 审核资讯
      *
-     * @param baseUpdateStatusDto
+     * @param batchAuditDto
      */
     @PostMapping("/verifyInfo")
     @ApiOperation(value = "审核资讯")
-    public JsonViewData verifyInfo(@Valid @RequestBody @ApiParam(required = true, name = "baseUpdateStatusDto", value = "id、修改的状态值")
-                                                BaseUpdateStatusDto baseUpdateStatusDto) {
+    public JsonViewData verifyInfo(@Valid @RequestBody @ApiParam(required = true, name = "batchAuditDto", value = "id、修改的状态值")
+                                           BatchAuditDto batchAuditDto) {
 
-        mmInformationService.verifyInfo(baseUpdateStatusDto);
+        mmInformationService.verifyInfo(batchAuditDto);
         return new JsonViewData(ResultCode.SUCCESS, "修改状态成功");
     }
 

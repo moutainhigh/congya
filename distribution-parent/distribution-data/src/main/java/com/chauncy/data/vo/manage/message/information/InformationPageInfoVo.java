@@ -35,7 +35,7 @@ public class InformationPageInfoVo implements Serializable {
     @ApiModelProperty(value = "资讯分类名称")
     private String infoCategoryName;
 
-    @ApiModelProperty(value = "审核状态 1-未审核 2-待审核 3-审核通过 4-不通过/驳回")
+    @ApiModelProperty(value = "审核状态 2-待审核 3-审核通过 4-不通过/驳回")
     private Integer verifyStatus;
 
     @ApiModelProperty(value = "使用状态 1-启用 0-禁用 为null表示“-”")
@@ -48,4 +48,20 @@ public class InformationPageInfoVo implements Serializable {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "更新时间")
     private LocalDateTime updateTime;
+
+    @ApiModelProperty(value = "浏览量")
+    private Integer browsingNum;
+
+    @ApiModelProperty(value = "转发量")
+    private Integer forwardNum;
+
+    @ApiModelProperty(value = "评论量")
+    private Integer commentNum;
+
+    @ApiModelProperty(value = "点赞量")
+    private Integer likedNum;
+
+    @ApiModelProperty(value = "收藏量")
+    private Integer collectionNum;
+
 }

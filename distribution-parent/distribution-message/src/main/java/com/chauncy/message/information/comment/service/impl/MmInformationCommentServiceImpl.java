@@ -130,7 +130,7 @@ public class MmInformationCommentServiceImpl extends AbstractService<MmInformati
         MmInformationPo mmInformationPo = mmInformationMapper.selectById(addInformationCommentDto.getInfoId());
         UpdateWrapper updateWrapper = new UpdateWrapper();
         updateWrapper.eq("id", mmInformationPo.getId());
-        updateWrapper.set("liked_num", mmInformationPo.getLikedNum() + 1);
+        updateWrapper.set("comment_num", mmInformationPo.getLikedNum() + 1);
         this.update(updateWrapper);
     }
 }
