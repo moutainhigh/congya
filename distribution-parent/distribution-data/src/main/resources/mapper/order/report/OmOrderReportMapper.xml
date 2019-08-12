@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chauncy.data.mapper.order.report.OmOrderReportMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.order.report.OmOrderReportPo">
+        <id column="id" property="id" />
+        <result column="year" property="year" />
+        <result column="month_day" property="monthDay" />
+        <result column="total_amount" property="totalAmount" />
+        <result column="total_num" property="totalNum" />
+        <result column="store_id" property="storeId" />
+        <result column="branch_id" property="branchId" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="withdrawal_time" property="withdrawalTime" />
+        <result column="processing_time" property="processingTime" />
+        <result column="settlement_time" property="settlementTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="del_flag" property="delFlag" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, year, month_day, total_amount, total_num, store_id, branch_id, create_by, create_time, withdrawal_time, processing_time, settlement_time, update_by, update_time, del_flag
+    </sql>
+    <select id="searchReportPaging" resultType="com.chauncy.data.vo.manage.order.report.ReportBaseInfoVo">
+         SELECT oor.id,
+            total_amount,
+            total_num,
+            create_time,
+            store.`name` AS storeName,
+            branch.`name` AS branchName
+         FROM om_order_report oor
+         LEFT JOIN sm_store store
+         ON store.`id` = oor.`store_id`
+         LEFT JOIN sm_store branch
+         ON branch.`id` = oor.`branch_id`
+        <where>
+            <if test="reportType !=null and stockName == 'STORE_REPORT'">
+                and oor.`branch_id` = #{storeId}
+            </if>
+            <if test="reportType !=null and stockName == 'BRANCH_REPORT'">
+                and oor.`store_id` = #{storeId}
+            </if>
+            <if test="id !=null">
+                and oor.`id` = #{id}
+            </if>
+            <if test="storeName != null and storeName != ''">
+                and store.`name` like concat('%', #{storeName}, '%')
+            </if>
+            <if test="branchName != null and branchName != ''">
+                and branch.`name` like concat('%', #{branchName}, '%')
+            </if>
+            <if test="startTime != null">
+                and date(oor.create_time) <![CDATA[>= ]]>  #{startTime}
+            </if>
+            <if test="endTime != null">
+                and date(oor.create_time) <![CDATA[<= ]]> #{endTime}
+            </if>
+        </where>
+        ORDER BY oor.create_time DESC
+    </select>
+    <select id="findReportById" resultType="com.chauncy.data.vo.manage.order.report.ReportRelGoodsTempVo">
+         SELECT ogt.`order_id`,
+            ogt.`goods_id`,
+            ogt.`name`,
+            ogt.`standard_str`,
+            ogt.`article_number`,
+            ogt.`number` AS goodsNumber,
+            orrgt.`distribute_price`,
+            orrgt.`total_amount`
+         FROM om_report_rel_goods_temp orrgt
+         LEFT JOIN om_goods_temp ogt
+         ON ogt.`id` = orrgt.`goods_temp_id` and orrgt.`report_id` = #{id}
+         ORDER BY orrgt.`create_time` DESC
+    </select>
+
+</mapper>

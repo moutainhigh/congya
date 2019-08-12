@@ -114,7 +114,7 @@ public class UmUserDataApi extends BaseApi {
                                 @PathVariable AccountTypeEnum accountType){
 
 
-        //获取当前店铺用户
+        //获取当前用户
         UmUserPo umUserPo = securityUtil.getAppCurrUser();
         if(null == umUserPo) {
             return new JsonViewData(ResultCode.NO_LOGIN, "未登陆或登陆已超时");

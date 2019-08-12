@@ -7,7 +7,7 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.bo.order.log.AddAccountLogBo;
 import com.chauncy.data.domain.po.order.OmUserWithdrawalPo;
-import com.chauncy.data.dto.manage.order.bill.update.BillBatchAuditDto;
+import com.chauncy.data.dto.manage.order.bill.update.BatchAuditDto;
 import com.chauncy.data.mapper.order.OmUserWithdrawalMapper;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.order.log.service.IOmAccountLogService;
@@ -47,12 +47,12 @@ public class OmUserWithdrawalServiceImpl extends AbstractService<OmUserWithdrawa
     /**
      * 平台批量审核用户提现
      *
-     * @param billBatchAuditDto
+     * @param batchAuditDto
      * @return
      */
     @Override
-    public void batchAudit(BillBatchAuditDto billBatchAuditDto) {
-        List<Long> idList = Arrays.asList(billBatchAuditDto.getIds());
+    public void batchAudit(BatchAuditDto batchAuditDto) {
+        List<Long> idList = Arrays.asList(batchAuditDto.getIds());
         idList.forEach(id -> {
             OmUserWithdrawalPo omUserWithdrawalPo = omUserWithdrawalMapper.selectById(id);
             if(null == omUserWithdrawalPo) {
@@ -61,7 +61,7 @@ public class OmUserWithdrawalServiceImpl extends AbstractService<OmUserWithdrawa
                 throw new ServiceException(ResultCode.NO_EXISTS, "id为" + id + "账单不是待审核状态");
             }
         });
-        if(billBatchAuditDto.getEnabled()) {
+        if(batchAuditDto.getEnabled()) {
             //审核通过状态改为处理中
             UpdateWrapper updateWrapper = new UpdateWrapper();
             updateWrapper.in("id", idList);
@@ -77,7 +77,7 @@ public class OmUserWithdrawalServiceImpl extends AbstractService<OmUserWithdrawa
             //结算时间
             updateWrapper.set("settlement_time", LocalDateTime.now());
             //驳回原因
-            updateWrapper.set("reject_reason", billBatchAuditDto.getRejectReason());
+            updateWrapper.set("reject_reason", batchAuditDto.getRejectReason());
             this.update(updateWrapper);
         }
     }

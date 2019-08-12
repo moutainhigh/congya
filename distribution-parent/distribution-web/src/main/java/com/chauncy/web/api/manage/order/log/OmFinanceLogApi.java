@@ -2,7 +2,7 @@ package com.chauncy.web.api.manage.order.log;
 
 
 import com.chauncy.common.enums.system.ResultCode;
-import com.chauncy.data.dto.manage.order.bill.update.BillBatchAuditDto;
+import com.chauncy.data.dto.manage.order.bill.update.BatchAuditDto;
 import com.chauncy.data.dto.manage.order.log.select.SearchPlatformLogDto;
 import com.chauncy.data.dto.manage.order.log.select.SearchUserWithdrawalDto;
 import com.chauncy.order.log.service.IOmUserWithdrawalService;
@@ -77,16 +77,16 @@ public class OmFinanceLogApi extends BaseApi {
 
     /**
      * 平台批量审核用户提现
-     * @param billBatchAuditDto
+     * @param batchAuditDto
      * @return
      */
     @PostMapping("/batchAudit")
     @ApiOperation(value = "平台审核用户提现")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData batchAudit(@Valid @RequestBody  @ApiParam(required = true, name = "billBatchAuditDto", value = "id、修改的状态值")
-                                           BillBatchAuditDto billBatchAuditDto) {
+    public JsonViewData batchAudit(@Valid @RequestBody  @ApiParam(required = true, name = "batchAuditDto", value = "id、修改的状态值")
+                                           BatchAuditDto batchAuditDto) {
 
-        omUserWithdrawalService.batchAudit(billBatchAuditDto);
+        omUserWithdrawalService.batchAudit(batchAuditDto);
         return new JsonViewData(ResultCode.SUCCESS, "操作完成");
     }
 

@@ -9,7 +9,6 @@
         <result column="store_describe" property="storeDescribe" />
         <result column="user_name" property="userName" />
         <result column="show_status" property="showStatus" />
-        <result column="store_label_id" property="storeLabelId" />
         <result column="store_category_id" property="storeCategoryId" />
         <result column="type" property="type" />
         <result column="parent_id" property="parentId" />
@@ -58,11 +57,10 @@
 
     <sql id="selectSmStoreBaseInfo">
          ss.id, ss.`name`, ss.`type`, (case when ss.`type`=1 then '推广店铺' when ss.`type`=2 then '商品店铺' end) as typeName,
-          ss.store_describe, ss.user_name, ss.show_status, ss.store_label_id, ss.store_category_id, ss.parent_id, ss.sort, ss.owner_name,
+          ss.store_describe, ss.user_name, ss.show_status, ss.store_category_id, ss.parent_id, ss.sort, ss.owner_name,
           ss.owner_mobile, ss.logo_image, ss.store_image, ss.background_image, ss.total_score, ss.baby_describe_score,
           ss.service_attitude_score, ss.logistics_service_score,
-          (select ssc.`name` from sm_store_category ssc where ssc.id = ss.store_category_id) as store_category_name,
-          (select sslabel.`name` from sm_store_label sslabel where sslabel.id = ss.store_label_id) as store_label_name
+          (select ssc.`name` from sm_store_category ssc where ssc.id = ss.store_category_id) as store_category_name
 
     </sql>
 
@@ -117,8 +115,6 @@
         <result column="store_describe" property="storeDescribe"/>
         <result column="user_name" property="userName"/>
         <result column="show_status" property="showStatus"/>
-        <result column="store_label_id" property="storeLabelId"/>
-        <result column="store_label_name" property="storeLabelName"/>
         <result column="store_category_id" property="storeCategoryId"/>
         <result column="store_category_name" property="storeCategoryName"/>
         <result column="parent_id" property="parentId"/>
@@ -139,15 +135,33 @@
             <id column="attributeId" property="id"/>
             <result column="attributeName" property="name"/>
         </collection>
+        <collection property="smStoreLabelVoList" ofType="com.chauncy.data.vo.manage.product.PmGoodsBrandVo">
+            <result column="storeLabelId" property="id"/>
+            <result column="storeLabelName" property="name"/>
+        </collection>
         <collection property="smRelStoreVoList" column="id"
                     select="com.chauncy.data.mapper.store.SmStoreMapper.findBindingStore">
         </collection>
     </resultMap>
     <select id="findBaseById" resultMap="storeBaseResult">
-        select <include refid="selectSmStoreBaseInfo"/>,pga.id as attributeId, pga.name as attributeName
-        from sm_store ss left join sm_store_rel_attribute srsa on (ss.id = srsa.store_id and srsa.del_flag = 0)
-        left join pm_goods_attribute pga on (srsa.attribute_id = pga.id and pga.type = 8 and pga.del_flag = 0)
+        select <include refid="selectSmStoreBaseInfo"/>,
+            pga.id as attributeId,
+            pga.name as attributeName,
+            ssl.id as storeLabelId,
+            ssl.name as storeLabelName
+        from sm_store ss
+        left join sm_store_rel_attribute srsa
+        on ss.id = srsa.store_id
+        left join pm_goods_attribute pga
+        on srsa.attribute_id = pga.id
+        left join sm_store_rel_label ssrl
+        on ssrl.store_id = ss.id
+        left join sm_store_label ssl
+        on ssl.id = ssrl.store_label_id
         <where>
+            srsa.del_flag = 0
+            and pga.type = 8
+            and pga.del_flag = 0
             <if test="id !=null and id !=''">
                 and ss.id = #{id}
             </if>
@@ -188,6 +202,13 @@
         from pm_goods pg, pm_goods_rel_attribute_good pgrag,pm_goods_attribute pga
         where pg.id = pgrag.goods_good_id and pga.id = pgrag.goods_attribute_id
         and pga.`type` = 8 and pg.store_id = #{id} and pg.del_flag = pgrag.del_flag = pga.del_flag = 0
+    </select>
+
+    <select id="selectLabelIdsById" resultType="Long">
+        SELECT ssrl.id
+        FROM sm_store ss, sm_store_rel_label ssrl
+        WHERE ss.id = ssrl.store_id
+        AND pg.store_id = #{id} and ssrl.del_flag = 0
     </select>
 
     <select id="searchRelStoreInfo" resultType="com.chauncy.data.vo.manage.store.RelStoreInfoVo">
@@ -267,7 +288,32 @@
         from sm_store ss
         where ss.id = #{storeId}
     </select>
-    <select id="findDetailById" resultType="com.chauncy.data.vo.app.store.StoreDetailVo">
+
+
+    <resultMap id="storeDetailResult" type="com.chauncy.data.vo.app.store.StoreDetailVo">
+        <id column="storeId" property="storeId"/>
+        <result column="storeName" property="storeName"/>
+        <result column="logo_image" property="logoImage"/>
+        <result column="collection_num" property="collectionNum"/>
+        <result column="total_score" property="totalScore"/>
+        <result column="store_describe" property="storeDescribe"/>
+        <result column="baby_describe_score" property="babyDescribeScore"/>
+        <result column="service_attitude_score" property="serviceAttitudeScore"/>
+        <result column="logistics_service_score" property="logisticsServiceScore"/>
+        <result column="owner_name" property="ownerName"/>
+        <result column="owner_name" property="ownerName"/>
+        <result column="company_addr" property="companyAddr"/>
+        <result column="createDate" property="createDate"/>
+        <result column="business_license" property="businessLicense"/>
+        <!-- collection定义关联集合类型的属性封装规则
+        offType:指定集合中的元素类型
+        -->
+        <collection property="smStoreLabelVoList" ofType="com.chauncy.data.vo.manage.store.label.SmStoreRelLabelVo">
+            <result column="storeLabelId" property="id"/>
+            <result column="storeLabelName" property="name"/>
+        </collection>
+    </resultMap>
+    <select id="findDetailById" resultMap="storeDetailResult">
         select ss.id as storeId,
                 ss.name as storeName,
                 ss.logo_image,
@@ -280,9 +326,25 @@
                 ss.owner_name,
                 ss.company_addr,
                 DATE(ss.create_time) as createDate,
-                ss.business_license
+                ss.business_license,
+                ssl.id as storeLabelId,
+                ssl.name as storeLabelName
         from sm_store ss
+        left join sm_store_rel_label ssrl
+        on ssrl.store_id = ss.id
+        left join sm_store_label ssl
+        on ssl.id = ssrl.store_label_id
         where ss.id = #{storeId}
+    </select>
+    <select id="findOperationalById" resultType="com.chauncy.data.vo.manage.store.StoreOperationalInfoVo">
+        SELECT ss.id,
+            ss.enabled,
+            ss.store_member_num,
+            ss.goods_num,
+            ss.store_turnover,
+            ss.order_num
+        FROM sm_store ss
+        WHERE ss.id = #{id}
     </select>
 
 </mapper>

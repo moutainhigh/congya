@@ -70,7 +70,7 @@ public class OmGoodsTempPo implements Serializable {
     @ApiModelProperty(value = "商品销售价")
     private BigDecimal sellPrice;
 
-    @ApiModelProperty(value = "支付单id")
+    @ApiModelProperty(value = "订单id")
     private Long orderId;
 
     @ApiModelProperty(value = "skuId")

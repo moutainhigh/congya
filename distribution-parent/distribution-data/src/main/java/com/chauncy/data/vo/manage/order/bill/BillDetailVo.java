@@ -29,7 +29,7 @@ public class BillDetailVo  implements Serializable {
     private RelStoreInfoVo relStoreInfoVo;
 
     @ApiModelProperty(value = "年")
-    private String year;
+    private Integer year;
 
     @ApiModelProperty(value = "期数")
     private String monthDay;

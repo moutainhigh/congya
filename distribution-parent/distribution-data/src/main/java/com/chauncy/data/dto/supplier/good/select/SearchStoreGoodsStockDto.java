@@ -27,8 +27,11 @@ public class SearchStoreGoodsStockDto  implements Serializable {
     @ApiModelProperty(value = "库存名称")
     private String stockName;
 
-    @ApiModelProperty(value = "分配店铺名称/直属店铺名称")
+    @ApiModelProperty(value = "直属店铺名称")
     private String storeName;
+
+    @ApiModelProperty(value = "分配店铺名称")
+    private String branchName;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")

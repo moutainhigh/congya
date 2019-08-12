@@ -1,9 +1,12 @@
 package com.chauncy.common.util;
 
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.*;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * @Author: HUANGWANCHENG
@@ -151,6 +154,152 @@ public class DateFormatUtil {
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         return cal.getTime();
+    }
+
+    /**
+     * LocalDate 转 Date
+     * @param localDate
+     * @return
+     */
+    public static Date localDateToDate(LocalDate localDate){
+        ZoneId zoneId = ZoneId.systemDefault();
+        ZonedDateTime zdt = localDate.atStartOfDay(zoneId);
+        return Date.from(zdt.toInstant());
+    }
+
+    /**
+     * Date 转 LocalDate
+     * @param date
+     * @return
+     */
+    public static LocalDate datetoLocalDate(Date date){
+        Instant instant = date.toInstant();
+        ZoneId zone = ZoneId.systemDefault();
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, zone);
+        return localDateTime.toLocalDate();
+    }
+
+    /**
+     * 根据时间获取时间对应为第几周
+     * @param localDate
+     * @return
+     */
+    public static int getWeekOfYear(LocalDate localDate){
+        Calendar cal = Calendar.getInstance();
+        ZoneId zoneId = ZoneId.systemDefault();
+        ZonedDateTime zdt = localDate.atStartOfDay(zoneId);
+        cal.setTime(Date.from(zdt.toInstant()));
+        return cal.get(Calendar.WEEK_OF_YEAR);
+    }
+
+    /**
+     * 获取当前时间所在年的周数
+     * @param date
+     * @return
+     */
+    public static int getWeekOfYear(Date date) {
+        Calendar c = new GregorianCalendar();
+        c.setFirstDayOfWeek(Calendar.MONDAY);
+        c.setMinimalDaysInFirstWeek(7);
+        c.setTime(date);
+
+        return c.get(Calendar.WEEK_OF_YEAR);
+    }
+
+    /**
+     * 获取当前时间所在年的最大周数
+      * @param year
+     * @return
+     */
+    public static int getMaxWeekNumOfYear(int year) {
+        Calendar c = new GregorianCalendar();
+        c.set(year, Calendar.DECEMBER, 31, 23, 59, 59);
+
+        return getWeekOfYear(c.getTime());
+    }
+
+    /**
+     * 获取某年的第几周的开始日期
+      * @param year
+     * @param week
+     * @return
+     */
+    public static Date getFirstDayOfWeek(int year, int week) {
+        Calendar c = new GregorianCalendar();
+        c.set(Calendar.YEAR, year);
+        c.set(Calendar.MONTH, Calendar.JANUARY);
+        c.set(Calendar.DATE, 1);
+
+        Calendar cal = (GregorianCalendar) c.clone();
+        cal.add(Calendar.DATE, week * 7);
+
+        return getFirstDayOfWeek(cal.getTime());
+    }
+
+    /**
+     * 获取某年的第几周的结束日期
+     * @param year
+     * @param week
+     * @return
+     */
+    public static Date getLastDayOfWeek(int year, int week) {
+        Calendar c = new GregorianCalendar();
+        c.set(Calendar.YEAR, year);
+        c.set(Calendar.MONTH, Calendar.JANUARY);
+        c.set(Calendar.DATE, 1);
+
+        Calendar cal = (GregorianCalendar) c.clone();
+        cal.add(Calendar.DATE, week * 7);
+
+        return getLastDayOfWeek(cal.getTime());
+    }
+
+    /**
+     * 获取当前时间所在周的开始日期
+     * @param date
+     * @return
+     */
+    public static Date getFirstDayOfWeek(Date date) {
+        Calendar c = new GregorianCalendar();
+        c.setFirstDayOfWeek(Calendar.MONDAY);
+        c.setTime(date);
+        c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek());
+        return c.getTime();
+    }
+
+    /**
+     * 获取当前时间所在周的结束日期
+      * @param date
+     * @return
+     */
+    public static Date getLastDayOfWeek(Date date) {
+        Calendar c = new GregorianCalendar();
+        c.setFirstDayOfWeek(Calendar.MONDAY);
+        c.setTime(date);
+        c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek() + 6);
+        return c.getTime();
+    }
+
+    /**
+     * 获取当前时间的年份
+      * @param date
+     * @return
+     */
+    public static int getYear(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return cal.get(Calendar.YEAR);
+    }
+
+    /**
+     * 获取当前时间的月份
+      * @param date
+     * @return
+     */
+    public static int getMonth (Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return cal.get(Calendar.MONTH) + 1;
     }
 }
 
