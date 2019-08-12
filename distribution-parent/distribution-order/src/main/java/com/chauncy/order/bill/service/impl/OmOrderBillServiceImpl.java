@@ -18,6 +18,7 @@ import com.chauncy.data.domain.po.order.bill.OmOrderBillPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.store.rel.SmStoreBankCardPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.manage.order.bill.select.SearchBillDto;
 import com.chauncy.data.dto.manage.order.bill.update.BatchAuditDto;
 import com.chauncy.data.dto.manage.order.bill.update.BillCashOutDto;
@@ -116,13 +117,20 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public BillDetailVo findBillDetail(Long id) {
-        //账单结算进度为四个进度
-        int billSettlementStep = 4;
-        BillDetailVo billDetailVo = omOrderBillMapper.findBillDetail(id);
-        if(null == billDetailVo) {
+    public PageInfo<BillDetailVo> findBillDetail(BaseSearchPagingDto baseSearchPagingDto, Long id) {
+        OmOrderBillPo omOrderBillPo = omOrderBillMapper.selectById(id);
+        if(null == omOrderBillPo) {
             throw new ServiceException(ResultCode.NO_EXISTS, "记录不存在");
         }
+        Integer pageNo = baseSearchPagingDto.getPageNo() == null ? defaultPageNo : baseSearchPagingDto.getPageNo();
+        Integer pageSize  = baseSearchPagingDto.getPageSize() == null ? defaultPageSize : baseSearchPagingDto.getPageSize();
+
+        PageInfo<BillDetailVo> billDetailVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> omOrderBillMapper.findBillDetail(id));
+
+        BillDetailVo billDetailVo = billDetailVoPageInfo.getList().get(0);
+        //账单结算进度为四个进度
+        int billSettlementStep = 4;
         //账单状态
         String billStatusName = BillStatusEnum.getById(billDetailVo.getBillStatus()).getName();
         billDetailVo.setBillStatusName(billStatusName);
@@ -161,7 +169,7 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
             }
         }
         billDetailVo.setBillSettlementVoList(billSettlementVoList);
-        return billDetailVo;
+        return billDetailVoPageInfo;
     }
 
 

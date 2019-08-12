@@ -62,5 +62,19 @@
         </where>
         ORDER BY oor.create_time DESC
     </select>
+    <select id="findReportById" resultType="com.chauncy.data.vo.manage.order.report.ReportRelGoodsTempVo">
+         SELECT ogt.`order_id`,
+            ogt.`goods_id`,
+            ogt.`name`,
+            ogt.`standard_str`,
+            ogt.`article_number`,
+            ogt.`number` AS goodsNumber,
+            orrgt.`distribute_price`,
+            orrgt.`total_amount`
+         FROM om_report_rel_goods_temp orrgt
+         LEFT JOIN om_goods_temp ogt
+         ON ogt.`id` = orrgt.`goods_temp_id` and orrgt.`report_id` = #{id}
+         ORDER BY orrgt.`create_time` DESC
+    </select>
 
 </mapper>

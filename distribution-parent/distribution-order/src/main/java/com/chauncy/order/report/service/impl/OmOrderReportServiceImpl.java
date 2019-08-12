@@ -4,10 +4,12 @@ import com.chauncy.common.enums.order.ReportTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.domain.po.order.report.OmOrderReportPo;
+import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.manage.order.report.select.SearchReportDto;
 import com.chauncy.data.mapper.order.report.OmOrderReportMapper;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.vo.manage.order.report.ReportBaseInfoVo;
+import com.chauncy.data.vo.manage.order.report.ReportRelGoodsTempVo;
 import com.chauncy.order.report.service.IOmOrderReportService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
@@ -15,6 +17,8 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * <p>
@@ -64,7 +68,6 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
 
     }
 
-
     /**
      * 根据ID查找商品销售报表信息
      *
@@ -72,7 +75,26 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
      * @return
      */
     @Override
-    public ReportBaseInfoVo findReportById(Long id) {
-        return null;
+    public ReportBaseInfoVo findReportById(BaseSearchPagingDto baseSearchPagingDto, Long id) {
+
+        OmOrderReportPo omOrderReportPo = omOrderReportMapper.selectById(id);
+        if(null == omOrderReportPo) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "记录不存在");
+        }
+
+        SearchReportDto searchReportDto = new SearchReportDto();
+        searchReportDto.setId(id);
+        List<ReportBaseInfoVo> reportBaseInfoVoList = omOrderReportMapper.searchReportPaging(searchReportDto);
+        ReportBaseInfoVo reportBaseInfoVo = reportBaseInfoVoList.get(0);
+
+        //查找关联信息
+        Integer pageNo = baseSearchPagingDto.getPageNo() == null ? defaultPageNo : baseSearchPagingDto.getPageNo();
+        Integer pageSize  = baseSearchPagingDto.getPageSize() == null ? defaultPageSize : baseSearchPagingDto.getPageSize();
+
+        PageInfo<ReportRelGoodsTempVo> reportRelGoodsTempVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> omOrderReportMapper.findReportById(id));
+
+        reportBaseInfoVo.setReportRelGoodsTempVoPageInfo(reportRelGoodsTempVoPageInfo);
+        return reportBaseInfoVo;
     }
 }

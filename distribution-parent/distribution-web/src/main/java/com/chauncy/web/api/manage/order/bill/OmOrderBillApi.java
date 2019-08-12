@@ -2,6 +2,7 @@ package com.chauncy.web.api.manage.order.bill;
 
 
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.manage.order.bill.select.SearchBillDto;
 import com.chauncy.data.dto.manage.order.bill.update.BatchAuditDto;
 import com.chauncy.data.dto.manage.order.bill.update.BillDeductionDto;
@@ -75,12 +76,13 @@ public class OmOrderBillApi  extends BaseApi {
      * @return
      */
     @ApiOperation(value = "查询账单详情", notes = "根据账单id查询账单详情")
-    @ApiImplicitParam(name = "id", value = "账单id", required = true, dataType = "Long", paramType = "path")
     @GetMapping("/bill/findBillDetail/{id}")
-    public JsonViewData<BillDetailVo> findBillDetail(@PathVariable(value = "id")Long id) {
+    public JsonViewData<BillDetailVo> findBillDetail(@Valid @RequestBody @ApiParam(required = true, name = "baseSearchPagingDto", value = "查询条件")
+                                                                 BaseSearchPagingDto baseSearchPagingDto,
+                                                     @ApiParam(required = true, value = "id")@PathVariable Long id) {
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
-                omOrderBillService.findBillDetail(id));
+                omOrderBillService.findBillDetail(baseSearchPagingDto, id));
 
     }
 
@@ -195,17 +197,18 @@ public class OmOrderBillApi  extends BaseApi {
     /**
      * 根据ID查找商品销售报表信息
      *
-     * @param id
+     * @param baseSearchPagingDto
      * @return
      */
     @ApiOperation(value = "根据ID查找商品销售报表信息", notes = "根据报表ID查找")
-    @GetMapping("/report/findReportById/{id}")
-    public JsonViewData<ReportBaseInfoVo> findReportById(@ApiParam(required = true, value = "id")
-                                                               @PathVariable Long id) {
+    @PostMapping("/report/findReportById/{id}")
+    public JsonViewData<ReportBaseInfoVo> findReportById(@Valid @RequestBody @ApiParam(required = true, name = "baseSearchPagingDto", value = "查询条件")
+                                                                 BaseSearchPagingDto baseSearchPagingDto,
+                                                         @ApiParam(required = true, value = "id")@PathVariable Long id) {
 
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
-                omOrderReportService.findReportById(id));
+                omOrderReportService.findReportById(baseSearchPagingDto, id));
 
     }
 

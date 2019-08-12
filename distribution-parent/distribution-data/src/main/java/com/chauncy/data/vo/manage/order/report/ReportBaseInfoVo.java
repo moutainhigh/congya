@@ -1,5 +1,6 @@
 package com.chauncy.data.vo.manage.order.report;
 
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -38,6 +39,6 @@ public class ReportBaseInfoVo implements Serializable {
     private LocalDateTime createTime;
 
     @ApiModelProperty(value = "商品信息")
-    private List<ReportRelGoodsTempVo> reportRelGoodsTempVoList;
+    private PageInfo<ReportRelGoodsTempVo> reportRelGoodsTempVoPageInfo;
 
 }
