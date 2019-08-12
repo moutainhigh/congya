@@ -27,7 +27,7 @@ public interface PmStoreGoodsStockMapper extends IBaseMapper<PmStoreGoodsStockPo
     StoreGoodsStockVo findStockById(@Param("id") Long id);
 
     /**
-     * 根据库存ID查找店铺库存信息
+     * 根据库存ID查找店铺分配库存详情
      * @param id
      * @return
      */

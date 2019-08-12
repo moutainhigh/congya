@@ -1,36 +1,41 @@
-package com.chauncy.data.dto.supplier.good.select;
+package com.chauncy.data.dto.manage.order.report.select;
 
+import com.chauncy.common.enums.order.ReportTypeEnum;
+import com.chauncy.data.valid.annotation.EnumConstraint;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
 
 /**
  * @author yeJH
- * @since 2019/7/13 13:04
+ * @since 2019/8/11 18:04
  */
 @Data
-@ApiModel(value = "SearchStoreGoodsStockDto对象", description = "查找店铺库存的条件")
-public class SearchStoreGoodsStockDto  implements Serializable {
+@ApiModel(value = "SearchReportDto", description = "查询商品报表参数")
+public class SearchReportDto  implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @ApiModelProperty(value = "商品销售报表类型")
+    @EnumConstraint(target = ReportTypeEnum.class)
+    @NotNull(message = "reportType参数不能为空")
+    private String reportType;
 
-    @ApiModelProperty(value = "店铺id")
-    private Long storeId;
+    @ApiModelProperty(value = "id")
+    private Long id;
 
-    @ApiModelProperty(value = "库存名称")
-    private String stockName;
-
-    @ApiModelProperty(value = "直属店铺名称")
+    @ApiModelProperty(value = "直属商家名称")
     private String storeName;
 
-    @ApiModelProperty(value = "分配店铺名称")
+    @ApiModelProperty(value = "分配商家名称")
     private String branchName;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -43,14 +48,9 @@ public class SearchStoreGoodsStockDto  implements Serializable {
     @ApiModelProperty(value = "创建时间")
     private LocalDate endTime;
 
-    @ApiModelProperty(value = "库存最小数量")
-    private Integer minStockNum;
-
-    @ApiModelProperty(value = "库存最大数量")
-    private Integer maxStockNum;
-
-    @ApiModelProperty(value = "是否启用 1-是 0-否 ")
-    private Boolean enabled;
+    @JsonIgnore
+    @ApiModelProperty(value = "筛选店铺报表")
+    private Long storeId;
 
     @Min(1)
     @ApiModelProperty(value = "页码")
@@ -59,5 +59,4 @@ public class SearchStoreGoodsStockDto  implements Serializable {
     @Min(1)
     @ApiModelProperty(value = "分页大小")
     private Integer pageSize;
-
 }

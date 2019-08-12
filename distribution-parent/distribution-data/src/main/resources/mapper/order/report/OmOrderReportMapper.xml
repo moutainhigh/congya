@@ -25,5 +25,56 @@
     <sql id="Base_Column_List">
         id, year, month_day, total_amount, total_num, store_id, branch_id, create_by, create_time, withdrawal_time, processing_time, settlement_time, update_by, update_time, del_flag
     </sql>
+    <select id="searchReportPaging" resultType="com.chauncy.data.vo.manage.order.report.ReportBaseInfoVo">
+         SELECT oor.id,
+            total_amount,
+            total_num,
+            create_time,
+            store.`name` AS storeName,
+            branch.`name` AS branchName
+         FROM om_order_report oor
+         LEFT JOIN sm_store store
+         ON store.`id` = oor.`store_id`
+         LEFT JOIN sm_store branch
+         ON branch.`id` = oor.`branch_id`
+        <where>
+            <if test="reportType !=null and stockName == 'STORE_REPORT'">
+                and oor.`branch_id` = #{storeId}
+            </if>
+            <if test="reportType !=null and stockName == 'BRANCH_REPORT'">
+                and oor.`store_id` = #{storeId}
+            </if>
+            <if test="id !=null">
+                and oor.`id` = #{id}
+            </if>
+            <if test="storeName != null and storeName != ''">
+                and store.`name` like concat('%', #{storeName}, '%')
+            </if>
+            <if test="branchName != null and branchName != ''">
+                and branch.`name` like concat('%', #{branchName}, '%')
+            </if>
+            <if test="startTime != null">
+                and date(oor.create_time) <![CDATA[>= ]]>  #{startTime}
+            </if>
+            <if test="endTime != null">
+                and date(oor.create_time) <![CDATA[<= ]]> #{endTime}
+            </if>
+        </where>
+        ORDER BY oor.create_time DESC
+    </select>
+    <select id="findReportById" resultType="com.chauncy.data.vo.manage.order.report.ReportRelGoodsTempVo">
+         SELECT ogt.`order_id`,
+            ogt.`goods_id`,
+            ogt.`name`,
+            ogt.`standard_str`,
+            ogt.`article_number`,
+            ogt.`number` AS goodsNumber,
+            orrgt.`distribute_price`,
+            orrgt.`total_amount`
+         FROM om_report_rel_goods_temp orrgt
+         LEFT JOIN om_goods_temp ogt
+         ON ogt.`id` = orrgt.`goods_temp_id` and orrgt.`report_id` = #{id}
+         ORDER BY orrgt.`create_time` DESC
+    </select>
 
 </mapper>

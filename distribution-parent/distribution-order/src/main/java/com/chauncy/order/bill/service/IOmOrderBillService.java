@@ -2,6 +2,7 @@ package com.chauncy.order.bill.service;
 
 import com.chauncy.data.domain.po.order.bill.OmOrderBillPo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.manage.order.bill.select.SearchBillDto;
 import com.chauncy.data.dto.manage.order.bill.update.BatchAuditDto;
 import com.chauncy.data.dto.manage.order.bill.update.BillCashOutDto;
@@ -34,7 +35,7 @@ public interface IOmOrderBillService extends Service<OmOrderBillPo> {
      * @param id
      * @return
      */
-    BillDetailVo findBillDetail(Long id);
+    PageInfo<BillDetailVo> findBillDetail(BaseSearchPagingDto baseSearchPagingDto, Long id);
 
     /**
      * 商家店铺确定提现
