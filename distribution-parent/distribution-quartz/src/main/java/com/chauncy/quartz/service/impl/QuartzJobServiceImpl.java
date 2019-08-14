@@ -36,7 +36,7 @@ public class QuartzJobServiceImpl implements QuartzJobService {
     /**
      * 项目启动时初始化定时器
      */
-//    @PostConstruct
+    @PostConstruct
     public void init() {
         log.info("初始化Begin ： QuartzInit");
         //查询所有的任务job
