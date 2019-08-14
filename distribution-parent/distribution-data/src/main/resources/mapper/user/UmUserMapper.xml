@@ -270,9 +270,7 @@
         SELECT store_id FROM childrenIds where store_id is not null limit 1
     </select>
     <select id="getPayUserMessage" resultType="com.chauncy.data.bo.manage.pay.PayUserMessage">
-
-
-					WITH RECURSIVE temp (id,level,parent_id) AS
+				WITH RECURSIVE temp (id,level,parent_id) AS
                 (
                 SELECT u.id,m.level,u.parent_id
                 FROM um_user u,pm_member_level m

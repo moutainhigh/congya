@@ -113,7 +113,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
     @Override
     public boolean closeOrderByOrderId(Long orderId) {
-        //把支付单删掉,以后该支付单下的其他订单都单独生成支付单
+        //把支付单禁用,以后该支付单下的其他订单都单独生成支付单
         OmOrderPo orderPo = mapper.selectById(orderId);
         //支付单失效
         PayOrderPo updatePayOrder=new PayOrderPo();
@@ -139,6 +139,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         });
         goodsSkuMapper.updateStock(shopTicketSoWithCarGoodVoList);
 
+        //购物券和红包加回去
         shoppingCartMapper.updateDiscount(BigDecimalUtil.safeMultiply(-1,orderPo.getRedEnvelops()),
                 BigDecimalUtil.safeMultiply(-1,orderPo.getShopTicket()),orderPo.getUmUserId() );
         return true;
@@ -182,6 +183,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     public SmOrderDetailVo getSmDetailById(Long id) {
         SmOrderDetailVo smOrderDetailVo = mapper.loadSmById(id);
         smOrderDetailVo.setGoodsTempVos(mapper.searchGoodsTempVos(id));
+        smOrderDetailVo.setRewardShopTicket(mapper.getRewardShopTicketByOrderId(id));
 
         return smOrderDetailVo;
     }
@@ -214,7 +216,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         }
         //生成新的支付单
         PayOrderPo savePayOrderPo=new PayOrderPo();
-        BeanUtils.copyProperties(queryPayOrder,savePayOrderPo);
+        BeanUtils.copyProperties(queryPayOrder,savePayOrderPo,"id");
 
         OmOrderPo queryOrder = mapper.selectById(orderId);
 
@@ -222,9 +224,18 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         savePayOrderPo.setTotalRealPayMoney(queryOrder.getRealMoney()).setTotalDiscount(BigDecimal.ZERO)
         .setTotalShipMoney(queryOrder.getShipMoney()).setTotalTaxMoney(queryOrder.getTaxMoney()).setTotalRedEnvelops(queryOrder.getRedEnvelops())
         .setTotalShopTicket(queryOrder.getShopTicket()).setTotalMoney(queryOrder.getTotalMoney()).setTotalNumber(queryOrder.getTotalNumber())
-        .setTotalShopTicketMoney(queryOrder.getShopTicketMoney()).setTotalRedEnvelopsMoney(queryOrder.getRedEnvelopsMoney());
+        .setTotalShopTicketMoney(queryOrder.getShopTicketMoney()).setTotalRedEnvelopsMoney(queryOrder.getRedEnvelopsMoney())
+        .setEnabled(true);
 
         payOrderMapper.insert(savePayOrderPo);
+
+        //订单外键改为新的支付单
+        OmOrderPo updateOrder=new OmOrderPo();
+        updateOrder.setPayOrderId(savePayOrderPo.getId());
+        updateOrder.setId(queryOrder.getId());
+        mapper.updateById(updateOrder);
+
         return savePayOrderPo.getId();
     }
+
 }

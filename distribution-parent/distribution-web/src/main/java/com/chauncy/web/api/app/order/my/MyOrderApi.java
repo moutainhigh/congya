@@ -50,9 +50,15 @@ public class MyOrderApi extends BaseApi {
     }
 
     @PostMapping("/pay/{orderId}")
-    @ApiOperation("马上支付")
-    public JsonViewData list(@PathVariable Long orderId) {
+    @ApiOperation("马上支付,生成新的支付单，返回支付单id")
+    public JsonViewData pay(@PathVariable Long orderId) {
         return setJsonViewData(service.payOrder(orderId));
+    }
+
+    @PostMapping("/close/{orderId}")
+    @ApiOperation("取消订单")
+    public JsonViewData close(@PathVariable Long orderId) {
+        return setJsonViewData(service.closeOrderByOrderId(orderId));
     }
 
 

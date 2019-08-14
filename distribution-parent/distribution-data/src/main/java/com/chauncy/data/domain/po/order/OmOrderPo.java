@@ -137,6 +137,9 @@ public class OmOrderPo implements Serializable {
     @ApiModelProperty(value = "实名认证id")
     private Long realUserId;
 
+    @ApiModelProperty(value = "二维码")
+    private String qRCode;
+
 
 
 }

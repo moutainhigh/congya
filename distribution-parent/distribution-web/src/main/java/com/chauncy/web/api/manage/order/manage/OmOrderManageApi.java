@@ -34,8 +34,6 @@ public class OmOrderManageApi extends BaseApi {
     @ApiOperation(value = "查询订单列表")
     @PostMapping("/list")
     public JsonViewData<PageInfo<SearchOrderVo>> search(@RequestBody SearchOrderDto searchOrderDto) {
-        UmUserPo currentUser=getAppCurrUser();
-        searchOrderDto.setStoreId(currentUser.getStoreId());
         PageInfo<SearchOrderVo> search = orderService.search(searchOrderDto);
         return setJsonViewData(search);
     }
