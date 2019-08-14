@@ -34,7 +34,6 @@ public class SearchRecommendGoodsDto  implements Serializable {
 
     @ApiModelProperty(value = "资讯id，编辑资讯时查找店铺推荐商品必传")
     @NeedExistConstraint(tableName = "mm_information")
-    @Min(value = 1, message = "资讯id参数错误")
     private Long informationId;
 
     @JsonIgnore

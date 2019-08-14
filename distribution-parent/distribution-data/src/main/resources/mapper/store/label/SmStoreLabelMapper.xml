@@ -27,14 +27,14 @@
             <if test="id !=null and id !=''">
                 and id = #{id}
             </if>
-            <if test="name != null and name !=''">
-                and name like concat('%', #{name}, '%')
-            </if>
             <if test="startTime != null">
                 and date(create_time) <![CDATA[>= ]]>  #{startTime}
             </if>
             <if test="endTime != null">
                 and date(create_time) <![CDATA[<= ]]> #{endTime}
+            </if>
+            <if test="name != null and name !=''">
+                and name like concat('%', #{name}, '%')
             </if>
         </where>
     </select>
