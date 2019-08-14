@@ -49,6 +49,9 @@ public class PmStoreRelGoodsStockPo implements Serializable {
     @ApiModelProperty(value = "库存所属店铺id")
     private Long storeId;
 
+    @ApiModelProperty(value = "直属店铺id")
+    private Long parentStoreId;
+
     @ApiModelProperty(value = "商品id")
     private Long goodsId;
 

@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -44,6 +45,9 @@ public class OmOrderBillPo implements Serializable {
 
     @ApiModelProperty(value = "期数")
     private String monthDay;
+
+    @ApiModelProperty(value = "账单日期")
+    private LocalDate billDate;
 
     @ApiModelProperty(value = "总货款/总利润")
     private BigDecimal totalAmount;
