@@ -1,5 +1,6 @@
 package com.chauncy.common.enums.app.advice;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.chauncy.common.enums.BaseEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -14,65 +15,61 @@ import java.util.Objects;
  *  广告位置枚举类
  */
 @Getter
-@ApiModel(description = "广告位置枚举类")
 public enum AdviceLocationEnum implements BaseEnum {
 
-    @ApiModelProperty("优惠券顶部")
-    COUPONS_TOP(1,"优惠券顶部"),
+    //有选项卡的广告位置
+    SHOUYE_YOUPIN(1,"首页有品"),
 
-    @ApiModelProperty("推荐分类")
-    RECOMMENDED_CATEGORY(2,"推荐分类"),
+    store_detail(2,"首页有店+店铺分类详情"),
 
-    @ApiModelProperty("满减专区")
-    FULL_REDUCTION_ZONE(3,"满减专区"),
+    SHOUYE_ZHUTI(3,"首页主题"),
 
-    @ApiModelProperty("满减专区-顶部")
-    FULL_REDUCTION_ZONE_TOP(4,"满减专区-顶部"),
+    SALE(4,"首页特卖"),
 
-    @ApiModelProperty("满减专区-中部")
-    FULL_REDUCTION_ZONE_MID(5,"满减专区-中部"),
+    YOUXUAN(5,"葱鸭优选"),
 
-    @ApiModelProperty("积分专区-顶部")
-    INTEGRAL_ZONE_TOP(6,"积分专区-顶部"),
+    //无关联轮播图位置
 
-    @ApiModelProperty("积分专区-中部")
-    INTEGRAL_ZONE_MID(7,"积分专区-中部"),
+    BOTTOM_SHUFFLING(6,"首页底部轮播图"),
 
-    @ApiModelProperty("积分专区-中部-内部")
-    INTEGRAL_ZONE_MID_INNER(8,"积分专区-中部-内部"),
+    LEFT_UP_CORNER_SHUFFLING(7,"首页左上角轮播图"),
 
-    @ApiModelProperty("秒杀")
-    SECKILL(9,"秒杀"),
+    MIDDLE_ONE_SHUFFLING(8,"首页中部1轮播图"),
 
-    @ApiModelProperty("秒杀-拼手速")
-    SECKILL_HAND_SPEED(10,"秒杀-拼手速"),
+    MIDDLE_TWO_SHUFFLING(9,"首页中部2轮播图"),
 
-    @ApiModelProperty("拼团-顶部")
-    SPELL_GROUP_HEADER(11,"拼团-顶部"),
+    MIDDLE_THREE_SHUFFLING(10,"首页中部3轮播图"),
 
-    @ApiModelProperty("拼团-中部")
-    SPELL_GROUP_MID(12,"拼团-中部"),
+    YOUPIN_INSIDE_SHUFFLING(11,"首页有品内部轮播图"),
 
-    @ApiModelProperty("拼团专区-中部-内部")
-    SPELL_GROUP_MID_INNER(13,"拼团专区-中部-内部"),
+    YOUDIAN_INSIDE_SHUFFLING(12,"首页有店内部轮播图"),
 
-    @ApiModelProperty("分类")
-    CATEGORY(14,"分类"),
+    SALE_INSIDE_SHUFFLING(13,"特卖内部轮播图"),
 
-    @ApiModelProperty("店铺专区")
-    STORE_ZONE(15,"店铺专区"),
+    YOUXUAN_INSIDE_SHUFFLING(14,"优选内部轮播图"),
 
-    @ApiModelProperty("品牌专区")
-    BRAND_ZONE(16,"品牌专区"),
+    BAIHUO_INSIDE_SHUFFLING(15,"葱鸭百货内部轮播图"),
 
-    @ApiModelProperty("品牌专区")
-    RECOMMENDED_BRAND_ZONE(17,"品牌专区"),
+    PERSONAL_CENTER(16,"个人中心"),
 
-    @ApiModelProperty("充值入口")
-    TOP_UP_ENTRY(18,"充值入口");
+    //有关联轮播图位置
+    YOUPIN_DETAIL(17, "品牌详情轮播图"),
+
+    FIRST_CATEGORY_DETAIL(18,"一级分类详情轮播图"),
+
+    //利用广告形式设置推荐
+    BAIHUO(19,"葱鸭百货"),
+
+    information_recommended(20,"资讯分类推荐"),
+
+    //其它
+    TOP_UP_ENTRY(21,"充值入口"),
+
+    SPELL_GROUP(22,"拼团");
 
     private Integer id;
 
+    @EnumValue
     private String name;
 
     AdviceLocationEnum(Integer id, String name) {
@@ -80,10 +77,15 @@ public enum AdviceLocationEnum implements BaseEnum {
         this.name = name;
     }
 
+    @Override
+    public String toString() {
+        return this.getName();
+    }
+
     //通过Id获取结果
     public static AdviceLocationEnum getAdviceLocationEnum(Integer id) {
         for (AdviceLocationEnum type : AdviceLocationEnum.values()) {
-            if (type.getId() == id)
+            if (type.getId().equals(id))
                 return type;
         }
         return null;
