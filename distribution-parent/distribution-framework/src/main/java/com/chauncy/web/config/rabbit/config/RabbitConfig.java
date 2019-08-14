@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
@@ -38,6 +40,13 @@ public class RabbitConfig {
     }
 
     @Bean
+    public RabbitAdmin rabbitAdmin(ConnectionFactory connectionFactory){
+        RabbitAdmin rabbitAdmin = new RabbitAdmin(connectionFactory);
+        rabbitAdmin.setAutoStartup(true);
+        return  rabbitAdmin;
+    }
+
+    @Bean
     public MessageConverter jsonMessageConverter(ObjectMapper objectMapper) {
         return new Jackson2JsonMessageConverter(objectMapper);
     }
@@ -59,10 +68,10 @@ public class RabbitConfig {
     public Queue delayOrderQueue() {
         Map<String, Object> params = new HashMap<>();
         // x-dead-letter-exchange 声明了队列里的死信转发到的DLX名称，
-        params.put("x-dead-letter-exchange", RabbitConstants.SUBMIT_ORDER_EXCHANGE);
+        params.put("x-dead-letter-exchange", RabbitConstants.CLOSE_ORDER_EXCHANGE);
         // x-dead-letter-routing-key 声明了这些死信在转发时携带的 routing-key 名称。
         params.put("x-dead-letter-routing-key", RabbitConstants.ROUTING_KEY);
-        return new Queue(RabbitConstants.ORDER_DELAY_QUEUE, true, false, false, params);
+        return new Queue(RabbitConstants.ORDER_UNPAID_DELAY_QUEUE, true, false, false, params);
     }
 
     /**
@@ -74,7 +83,7 @@ public class RabbitConfig {
      */
     @Bean
     public DirectExchange delayOrderExchange() {
-        return new DirectExchange(RabbitConstants.REGISTER_DELAY_EXCHANGE);
+        return new DirectExchange(RabbitConstants.ORDER_UNPAID_DELAY_EXCHANGE);
     }
 
     @Bean
@@ -85,7 +94,7 @@ public class RabbitConfig {
 
     @Bean
     public Queue submitOrderQueue() {
-        return new Queue(RabbitConstants.SUBMIT_ORDER_QUEUE, true);
+        return new Queue(RabbitConstants.CLOSE_ORDER_QUEUE, true);
     }
 
     /**
@@ -94,7 +103,7 @@ public class RabbitConfig {
      **/
     @Bean
     public TopicExchange submitOrderTopicExchange() {
-        return new TopicExchange(RabbitConstants.SUBMIT_ORDER_EXCHANGE);
+        return new TopicExchange(RabbitConstants.CLOSE_ORDER_EXCHANGE);
     }
 
     @Bean

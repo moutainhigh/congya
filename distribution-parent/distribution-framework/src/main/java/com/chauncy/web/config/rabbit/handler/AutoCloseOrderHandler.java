@@ -29,7 +29,7 @@ public class AutoCloseOrderHandler {
     @Autowired
     private IOmOrderService orderService;
 
-    @RabbitListener(queues = {RabbitConstants.SUBMIT_ORDER_QUEUE})
+    @RabbitListener(queues = {RabbitConstants.CLOSE_ORDER_QUEUE})
     public void listenerDelayQueue(Long payOrderId, Message message, Channel channel) {
         LoggerUtil.info(String.format("[closeOrderByPayId 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), payOrderId));
         PayOrderPo queryPayOrder = payOrderService.getById(payOrderId);

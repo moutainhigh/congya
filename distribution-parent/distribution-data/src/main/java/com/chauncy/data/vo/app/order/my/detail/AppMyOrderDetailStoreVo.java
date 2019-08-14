@@ -4,6 +4,7 @@ import com.chauncy.data.vo.app.order.cart.StoreGoodsVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ import java.util.List;
  */
 @ApiModel("订单的店铺商品信息")
 @Data
+@Accessors(chain = true)
 public class AppMyOrderDetailStoreVo {
 
     @ApiModelProperty("店铺ID")
