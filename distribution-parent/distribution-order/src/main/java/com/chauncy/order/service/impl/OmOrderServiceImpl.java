@@ -329,23 +329,32 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         //计算截止时间
         LocalDateTime afterSaleDeadline=LocalDateTime.now().plusDays(refundDay);
         OmOrderPo updateOrder = new OmOrderPo();
-        updateOrder.setId(orderId).setReceiveTime(LocalDateTime.now()).setAfterSaleDeadline(afterSaleDeadline);
+        updateOrder.setId(orderId).setReceiveTime(LocalDateTime.now()).setAfterSaleDeadline(afterSaleDeadline)
+        .setStatus(OrderStatusEnum.NEED_EVALUATE);
         mapper.updateById(updateOrder);
 
         //消息队列，到期进行默认评价
-        //消息先进入的待评价交换机，配置死信交换机和路由键
+        //消息先进入的待评价队列，配置死信交换机和路由键
         Map<String, Object> params = new HashMap<>();
         params.put("x-dead-letter-exchange", RabbitConstants.AUTO_COMMENT_EXCHANGE);
         params.put("x-dead-letter-routing-key", RabbitConstants.AUTO_COMMENT_ROUTING_KEY);
-
-         /*rabbitAdmin.declareQueue(new Queue(RabbitConstants.ORDER_UNCOMMENT_DELAY_QUEUE, true, false, false, params));
+         rabbitAdmin.declareQueue(new Queue(RabbitConstants.ORDER_UNCOMMENT_DELAY_QUEUE, true, false, false, params));
 
         //消息一开始进入的待评价交换机
-        rabbitAdmin.declareExchange(new DirectExchange(RabbitConstants.ORDER_UNCOMMENT_DELAY_EXCHANGE));*/
+        rabbitAdmin.declareExchange(new DirectExchange(RabbitConstants.ORDER_UNCOMMENT_DELAY_EXCHANGE));
 
         //队列与交换机绑定
-        rabbitAdmin.declareBinding(BindingBuilder.bind(new Queue(RabbitConstants.ORDER_UNCOMMENT_DELAY_QUEUE, true, false, false, params)).
+        rabbitAdmin.declareBinding(BindingBuilder.bind(new Queue(RabbitConstants.ORDER_UNCOMMENT_DELAY_QUEUE)).
                 to(new DirectExchange(RabbitConstants.ORDER_UNCOMMENT_DELAY_EXCHANGE)).with(RabbitConstants.ORDER_UNCOMMENT_DELAY_ROUTING_KEY));
+
+        //死信队列
+        rabbitAdmin.declareQueue(new Queue(RabbitConstants.AUTO_COMMENT_QUEUE, true));
+
+        //死信交换机
+        rabbitAdmin.declareExchange(new TopicExchange(RabbitConstants.AUTO_COMMENT_EXCHANGE));
+
+
+
         //死信队列与交换机绑定
         rabbitAdmin.declareBinding(BindingBuilder.bind(new Queue(RabbitConstants.AUTO_COMMENT_QUEUE, true)).
                 to(new TopicExchange(RabbitConstants.AUTO_COMMENT_EXCHANGE)).with(RabbitConstants.AUTO_COMMENT_ROUTING_KEY));
@@ -354,7 +363,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         rabbitTemplate.convertAndSend(RabbitConstants.ORDER_UNCOMMENT_DELAY_EXCHANGE, RabbitConstants.ORDER_UNCOMMENT_DELAY_ROUTING_KEY, orderId, message -> {
             // TODO 如果配置了 params.put("x-message-ttl", 5 * 1000); 那么这一句也可以省略,具体根据业务需要是声明 Queue 的时候就指定好延迟时间还是在发送自己控制时间
 
-            message.getMessageProperties().setExpiration(basicSettingPo.getAutoCommentDay()*24*60*60*1000 + "");
+            message.getMessageProperties().setExpiration(5*60*1000 + "");
             return message;
         });
         LoggerUtil.info("【确认收货等待自动评价发送时间】:" + LocalDateTime.now());
