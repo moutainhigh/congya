@@ -326,6 +326,7 @@
                     AND pg.name like concat('%', #{goodsName} ,'%')
                 </if>
             </where>
+            GROUP BY pg.id
     </select>
 
 
