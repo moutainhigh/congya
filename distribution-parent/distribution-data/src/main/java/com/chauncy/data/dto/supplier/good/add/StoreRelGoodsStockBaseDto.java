@@ -21,7 +21,7 @@ public class StoreRelGoodsStockBaseDto implements Serializable {
 
 
     @ApiModelProperty("可判断来自哪一批次的库存")
-    @NotNull(message="parent参数不能为空")
+    //@NotNull(message="parent参数不能为空")
     private Long parentId;
 
     @ApiModelProperty(value = "商品id")

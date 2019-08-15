@@ -61,11 +61,11 @@
         select pgrst.stock_template_id, pg.id as goodsId, pgs.id as goodsSkuId, pg.`name` as goodName, pg.goods_type, pgs.sell_price,
                 t.remaining_stock_num, t.distribute_price as originalPrice, t.id as parentId, GROUP_CONCAT(CONCAT(pgav.`value`)) as skuName
         from pm_goods_virtual_stock_template pgvst
-        left join pm_goods_rel_stock_template pgrst on pgvst.id = pgrst.stock_template_id and pgrst.del_flag = 0
-        left join pm_goods pg on pgrst.goods_id = pg.id
-        left join pm_goods_sku pgs on pgs.goods_id = pg.id and pgs.del_flag = 0
-		left join pm_goods_rel_attribute_value_sku pgrav on pgs.id = pgrav.goods_sku_id and pgrav.del_flag = 0
-		left join pm_goods_attribute_value pgav on pgav.id = pgrav.goods_attribute_value_id and pgrav.del_flag = 0,
+        left join pm_goods_rel_stock_template pgrst on pgvst.id = pgrst.stock_template_id
+        left join pm_goods pg on pgrst.goods_id = pg.id and pgrst.del_flag = 0
+        left join pm_goods_sku pgs on pgs.goods_id = pg.id
+		left join pm_goods_rel_attribute_value_sku pgrav on pgs.id = pgrav.goods_sku_id and pgs.del_flag = 0
+		left join pm_goods_attribute_value pgav on pgav.id = pgrav.goods_attribute_value_id  and pgrav.del_flag = 0,
         (
             select psrgs.id, psrgs.goods_sku_id,psrgs.remaining_stock_num, psrgs.distribute_price from pm_store_rel_goods_stock psrgs
             where psrgs.store_id = #{storeId} and psrgs.remaining_stock_num > 0 and psrgs.create_time = (
@@ -74,7 +74,7 @@
                 group by temp.store_id,temp.goods_sku_id
             )
         ) as t
-        where pgvst.id = #{templateId} and pgvst.del_flag = 0 and pg.del_flag = 0 and t.goods_sku_id = pgs.id
+        where pgvst.id = #{templateId}  and pgav.del_flag = 0 and pgvst.del_flag = 0 and pg.del_flag = 0 and t.goods_sku_id = pgs.id
         group by pg.id, pgs.id, t.id
     </select>
     <!--

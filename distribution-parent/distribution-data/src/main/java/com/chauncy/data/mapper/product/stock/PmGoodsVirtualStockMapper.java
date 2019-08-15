@@ -23,4 +23,14 @@ public interface PmGoodsVirtualStockMapper extends IBaseMapper<PmGoodsVirtualSto
      */
     int updateGoodsVirtualStock(@Param("fromStoreId") Long fromStoreId, @Param("toStoreId") Long toStoreId,
                                  @Param("goodSkuId") Long goodSkuId, @Param("distributeStockNum") Integer distributeStockNum);
+
+    /**
+     * 扣减库存
+     * @param storeId
+     * @param goodsSkuId
+     * @param num
+     */
+    void deductionVirtualStock(@Param("storeId") Long storeId,  @Param("goodsSkuId") Long goodsSkuId, @Param("num") Integer num);
+
+
 }

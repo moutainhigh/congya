@@ -31,11 +31,11 @@
             <if test="id !=null and id !=''">
                 and id = #{id}
             </if>
-            <if test="name != null and name !=''">
-                and name like concat('%', #{name}, '%')
-            </if>
             <if test="enabled != null">
                 and enabled =  #{enabled}
+            </if>
+            <if test="name != null and name !=''">
+                and name like concat('%', #{name}, '%')
             </if>
         </where>
     </select>

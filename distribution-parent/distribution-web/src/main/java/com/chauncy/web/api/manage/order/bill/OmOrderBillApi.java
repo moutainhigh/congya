@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import io.swagger.annotations.Api;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
 
 /**
  * <p>
@@ -175,7 +176,7 @@ public class OmOrderBillApi  extends BaseApi {
                                                    CreateStoreBillDto createStoreBillDto) {
 
         omOrderBillService.createStoreBillByDate(createStoreBillDto);
-        return new JsonViewData(ResultCode.SUCCESS, "查询成功");
+        return new JsonViewData(ResultCode.SUCCESS, "操作成功");
     }
 
     /**
@@ -210,6 +211,18 @@ public class OmOrderBillApi  extends BaseApi {
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
                 omOrderReportService.findReportById(baseSearchPagingDto, id));
 
+    }
+
+    /**
+     * 根据时间创建商品销售报表
+     */
+    @ApiOperation(value = "根据时间创建商品销售报表",
+            notes = "endDate   需要创建账单的那一周   任何一天都可以")
+    @PostMapping("/report/createSaleReportByDate")
+    public JsonViewData createSaleReportByDate(@ApiParam(required = true, value = "id")@PathVariable LocalDate endDate) {
+
+        omOrderReportService.createSaleReportByDate(endDate);
+        return new JsonViewData(ResultCode.SUCCESS, "操作成功");
     }
 
 

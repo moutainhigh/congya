@@ -112,16 +112,16 @@
 
 
     <select id="searchRelGoodsByInfoId" resultType="com.chauncy.data.vo.supplier.good.InformationRelGoodsVo">
-    SELECT mrig.id, pg.`name`, pg.goods_category_id, Min(pgs.sell_price) AS sell_price,pg.goods_type
-    FROM mm_information_rel_goods mrig
-         LEFT JOIN pm_goods pg on (pg.id = mrig.goods_id )
-         LEFT JOIN pm_goods_sku pgs on (pg.id = pgs.goods_id)
-    <where>
-            mrig.information_id = #{id}
-            and pg.del_flag = 0
-            and pgs.del_flag = 0
-    </where>
-    GROUP BY mrig.id,pg.id
+        SELECT mrig.id, pg.id as goodsId, pg.`name`, pg.goods_category_id, Min(pgs.sell_price) AS sell_price,pg.goods_type
+        FROM mm_information_rel_goods mrig
+             LEFT JOIN pm_goods pg on (pg.id = mrig.goods_id )
+             LEFT JOIN pm_goods_sku pgs on (pg.id = pgs.goods_id)
+        <where>
+                mrig.information_id = #{id}
+                and pg.del_flag = 0
+                and pgs.del_flag = 0
+        </where>
+        GROUP BY mrig.id,pg.id
     </select>
 
     <select id="selectDistributionGoods" resultType="com.chauncy.data.bo.base.BaseBo">
@@ -296,10 +296,18 @@
         </if>
     </select>
     <select id="storeRecommendGoods" resultType="com.chauncy.data.vo.supplier.good.RecommendGoodsVo">
-            SELECT pg.`id`, pg.`name`, CONCAT(pgc1.`name`,'',pgc2.`name`,'',pgc3.`name`) AS categoryName, '满减' AS activityType
-            FROM pm_goods pg, pm_goods_category pgc3, pm_goods_category pgc2, pm_goods_category pgc1
+            SELECT pg.`id`,
+                pg.`name`,
+                CONCAT(pgc1.`name`,'/',pgc2.`name`,'/',pgc3.`name`) AS categoryName,
+                '满减' AS goodsType,
+                MIN(pgs.sell_price) AS sell_price
+            FROM pm_goods pg LEFT JOIN pm_goods_sku pgs ON pg.id = pgs.goods_id,
+                pm_goods_category pgc3,
+                pm_goods_category pgc2,
+                pm_goods_category pgc1
             <where>
                 pg.`store_id` = #{storeId}
+                AND pg.verify_status = 3
                 AND pg.`recommand_status` = 1
                 <if test="goodsCategoryId != null">
                     AND pg.goods_category_id = #{goodsCategoryId}
@@ -307,6 +315,13 @@
                 AND pg.`goods_category_id` = pgc3.id
                 AND pgc3.`parent_id` = pgc2.`id`
                 AND pgc2.`parent_id` = pgc1.`id`
+                <if test="informationId != null and informationId != 0">
+                    AND pg.id NOT IN (
+                        SELECT mirg.goods_id
+                        FROM mm_information_rel_goods mirg
+                        WHERE mirg.information_id = #{informationId}
+                        AND mirg.del_flag = 0)
+                </if>
                 <if test="goodsName != null and goodsName != ''">
                     AND pg.name like concat('%', #{goodsName} ,'%')
                 </if>

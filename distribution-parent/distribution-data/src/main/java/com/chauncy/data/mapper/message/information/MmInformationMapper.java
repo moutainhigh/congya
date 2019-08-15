@@ -50,4 +50,10 @@ public interface MmInformationMapper extends IBaseMapper<MmInformationPo> {
      */
     List<InformationPagingVo> searchInfoBasePaging(SearchInfoByConditionDto searchInfoByConditionDto);
 
+    /**
+     * 查询资讯关联商品id
+     * @param id
+     * @return
+     */
+    List<Long> selectRelGoodsIdsById(Long id);
 }
