@@ -12,6 +12,8 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.domain.po.message.information.rel.MmRelInformationGoodsPo;
+import com.chauncy.data.domain.po.product.PmShippingTemplatePo;
+import com.chauncy.data.domain.po.store.rel.SmRelStoreAttributePo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserFavoritesPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
@@ -39,6 +41,7 @@ import com.chauncy.data.core.AbstractService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -47,6 +50,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * <p>
@@ -158,13 +163,25 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
             }
         }
 
-        //将资讯与商品关联表的记录删除
-        Map<String, Object> map = new HashMap<>();
-        map.put("information_id", informationDto.getId());
-        mmRelInformationGoodsMapper.deleteByMap(map);
-
-        //批量插入商品资讯关联记录
-        saveBatchRelInformationGoods(informationDto, sysUserPo.getUsername());
+        //查询新更改的品牌中缺少的已有品牌是否有关联的商品  如果有则编辑失败
+        List<Long> oldRelGoodsIds = mmInformationMapper.selectRelGoodsIdsById(informationDto.getId());
+        List<Long> newRelGoodsIds = informationDto.getGoodsIds();
+        //oldRelGoodsIds跟newRelGoodsIds的差集  需要删除的关联
+        List<Long> reduceList = oldRelGoodsIds.stream().filter(item -> !newRelGoodsIds.contains(item)).collect(toList());
+        //删除关联
+        if(null != reduceList && reduceList.size() > 0) {
+            QueryWrapper<MmRelInformationGoodsPo> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda()
+                    .eq(MmRelInformationGoodsPo::getInformationId, informationDto.getId())
+                    .in(MmRelInformationGoodsPo::getGoodsId, reduceList);
+            mmRelInformationGoodsMapper.delete(queryWrapper);
+        }
+        //批量插入商品资讯关联记录  此时需要插入的关联应该为 newRelGoodsIds  与 oldRelGoodsIds 的差集
+        List<Long> needInsertList = newRelGoodsIds.stream().filter(item -> !oldRelGoodsIds.contains(item)).collect(toList());
+        if(null != needInsertList && needInsertList.size() > 0) {
+            informationDto.setGoodsIds(needInsertList);
+            saveBatchRelInformationGoods(informationDto, sysUserPo.getUsername());
+        }
     }
 
     /**
@@ -197,9 +214,9 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
         List<InformationRelGoodsVo> goodsList = pmGoodsMapper.searchRelGoodsByInfoId(id);
 
         for(InformationRelGoodsVo informationRelGoodsVo : goodsList) {
-            List<String> categorys = pmGoodsCategoryMapper.loadParentName(informationRelGoodsVo.getGoodsCategoryId());
+            List<String> categoryList = pmGoodsCategoryMapper.loadParentName(informationRelGoodsVo.getGoodsCategoryId());
             StringBuilder stringBuilder = new StringBuilder();
-            for(String category : categorys) {
+            for(String category : categoryList) {
                 stringBuilder.append(category).append("/");
             }
             stringBuilder.deleteCharAt(stringBuilder.length() - 1);
@@ -386,5 +403,26 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
         PageInfo<GoodsBaseInfoVo> goodsBaseInfoVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> pmGoodsMapper.searchGoodsByInfoId(baseSearchDto));
         return goodsBaseInfoVoPageInfo;
+    }
+
+    /**
+     * 批量修改资讯状态
+     *
+     * @param baseUpdateStatusDto
+     */
+    @Override
+    public void editInformationStatus(BaseUpdateStatusDto baseUpdateStatusDto) {
+        Arrays.asList(baseUpdateStatusDto.getId()).forEach(informationId -> {
+            //审核通过的资讯才能启用禁用
+            MmInformationPo mmInformationPo = mmInformationMapper.selectById(informationId);
+            if (!VerifyStatusEnum.CHECKED.getId().equals(mmInformationPo.getVerifyStatus())) {
+                throw new ServiceException(ResultCode.FAIL, "操作失败,审核通过的资讯才能启用禁用");
+            }
+        });
+        UpdateWrapper<MmInformationPo> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.lambda()
+                .in(MmInformationPo::getId, baseUpdateStatusDto.getId())
+                .set(MmInformationPo::getEnabled, baseUpdateStatusDto.getEnabled());
+        this.update(updateWrapper);
     }
 }

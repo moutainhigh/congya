@@ -42,11 +42,20 @@ public class OmReportRelGoodsTempPo implements Serializable {
     @ApiModelProperty(value = "报表id")
     private Long reportId;
 
+    @ApiModelProperty(value = "直属店铺id")
+    private Long storeId;
+
+    @ApiModelProperty(value = "分配店铺id")
+    private Long branchId;
+
     @ApiModelProperty(value = "商品快照id")
     private Long goodsTempId;
 
     @ApiModelProperty(value = "分配价格")
     private BigDecimal distributePrice;
+
+    @ApiModelProperty(value = "商品数量")
+    private Integer goodsNum;
 
     @ApiModelProperty(value = "小计")
     private BigDecimal totalAmount;

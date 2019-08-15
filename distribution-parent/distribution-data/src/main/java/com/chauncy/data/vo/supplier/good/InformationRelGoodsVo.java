@@ -21,6 +21,9 @@ public class InformationRelGoodsVo implements Serializable {
     @ApiModelProperty("关联ID")
     private Long id;
 
+    @ApiModelProperty("商品ID")
+    private Long goodsId;
+
     @ApiModelProperty("商品名称")
     private String name;
 

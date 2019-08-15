@@ -324,11 +324,11 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
         Date date = DateFormatUtil.getLastDayOfWeek(DateFormatUtil.localDateToDate(lastWeek));
         LocalDate endDate = DateFormatUtil.datetoLocalDate(date);
         //获取需要创建账单的店铺的数量
-        int storeSum = omOrderBillMapper.getStoreSumNeedCreateBill(endDate);
+        int storeSum = omOrderBillMapper.getStoreSumNeedCreateBill(billType, endDate, null);
         //一次性只处理1000条数据
         for(int pageNo = 1; pageNo <= storeSum / 1000; pageNo++) {
             PageHelper.startPage(pageNo, 1000);
-            List<Long> storeIdList = omOrderBillMapper.getStoreNeedCreateBill(endDate);
+            List<Long> storeIdList = omOrderBillMapper.getStoreNeedCreateBill(billType, endDate, null);
             storeIdList.forEach(storeId -> createStoreBill(endDate, storeId, billType));
         }
     }
@@ -350,7 +350,15 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
         //时间所在周的结束日期
         Date date = DateFormatUtil.getLastDayOfWeek(DateFormatUtil.localDateToDate(createStoreBillDto.getEndDate()));
         createStoreBillDto.setEndDate(DateFormatUtil.datetoLocalDate(date));
-        createStoreBill(createStoreBillDto.getEndDate(), sysUserPo.getStoreId(), createStoreBillDto.getBillType());
+        //判断这一周需不需要生成账单
+        int storeSum = omOrderBillMapper.getStoreSumNeedCreateBill(createStoreBillDto.getBillType(),
+                createStoreBillDto.getEndDate(), sysUserPo.getStoreId());
+        if(storeSum > 0) {
+            createStoreBill(createStoreBillDto.getEndDate(), sysUserPo.getStoreId(), createStoreBillDto.getBillType());
+        } else {
+            throw new ServiceException(ResultCode.FAIL, "选择的时间不需要生成账单");
+        }
+
     }
 
     /**
@@ -364,18 +372,20 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
             return;
         }
         //结算周期
-        Integer paymentBillSettlementCycle = smStorePo.getPaymentBillSettlementCycle();
+        Integer settlementCycle = BillTypeEnum.PAYMENT_BILL.getId().equals(billType) ?
+                smStorePo.getPaymentBillSettlementCycle() : smStorePo.getIncomeBillSettlementCycle();
         //按结算周期往前推几周
-        LocalDate startDate = endDate.plusDays(-7L * paymentBillSettlementCycle.longValue());
+        LocalDate startDate = endDate.plusDays(-7L * settlementCycle.longValue() - 1);
         //创建账单
         OmOrderBillPo omOrderBillPo = new OmOrderBillPo();
         omOrderBillPo.setYear(endDate.getYear());
         omOrderBillPo.setMonthDay(endDate.getMonthValue() + String.valueOf(endDate.getDayOfMonth()));
         //总货款/总利润
-        BigDecimal totalAmount = BigDecimal.valueOf(0);
+        BigDecimal totalAmount = BigDecimal.ZERO;
         omOrderBillPo.setTotalAmount(totalAmount);
         omOrderBillPo.setBillStatus(BillStatusEnum.TO_BE_WITHDRAWN.getId());
         omOrderBillPo.setStoreId(storeId);
+        omOrderBillPo.setBillDate(endDate);
         omOrderBillPo.setBillType(billType);
         omOrderBillPo.setCreateBy(String.valueOf(storeId));
         omOrderBillMapper.insert(omOrderBillPo);
@@ -397,8 +407,12 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
                 } else if (BillTypeEnum.PROFIT_BILL.getId().equals(billType)) {
                     //货款账单 商品利润比例 * 商品售价 * 店铺利润配置比例
                     BigDecimal profitRate = BigDecimalUtil.safeDivide(omGoodsTempPo.getProfitRate(),new BigDecimal(100));
-                    BigDecimal incomeRate = BigDecimalUtil.safeDivide(new BigDecimal(orderMap.get("incomeRate").toString()), new BigDecimal(100));
-                    BigDecimal amount = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeMultiply(profitRate,omGoodsTempPo.getSellPrice()), incomeRate);
+                    BigDecimal incomeRate = BigDecimalUtil.safeDivide(
+                            new BigDecimal(orderMap.get("incomeRate").toString()),
+                            new BigDecimal(100));
+                    BigDecimal amount = BigDecimalUtil.safeMultiply(
+                            BigDecimalUtil.safeMultiply(profitRate,omGoodsTempPo.getSellPrice()),
+                            incomeRate);
                     omBillRelGoodsTempPo.setTotalAmount(amount);
                     totalAmount = BigDecimalUtil.safeAdd(totalAmount, amount);
                 }
