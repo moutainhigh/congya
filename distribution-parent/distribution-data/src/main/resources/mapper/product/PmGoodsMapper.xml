@@ -296,7 +296,7 @@
         </if>
     </select>
     <select id="storeRecommendGoods" resultType="com.chauncy.data.vo.supplier.good.RecommendGoodsVo">
-            SELECT pg.`id`,
+            SELECT pg.`id` as goodsId,
                 pg.`name`,
                 CONCAT(pgc1.`name`,'/',pgc2.`name`,'/',pgc3.`name`) AS categoryName,
                 '满减' AS goodsType,
