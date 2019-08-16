@@ -6,6 +6,7 @@ import com.chauncy.data.domain.po.order.OmEvaluatePo;
 import com.chauncy.data.dto.app.order.evaluate.add.AddValuateDto;
 import com.chauncy.data.dto.app.order.evaluate.add.SearchEvaluateDto;
 import com.chauncy.data.dto.app.order.evaluate.select.GetPersonalEvaluateDto;
+import com.chauncy.data.dto.supplier.evaluate.SaveStoreReplyDto;
 import com.chauncy.data.dto.supplier.good.select.SearchEvaluatesDto;
 import com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo;
 import com.chauncy.data.vo.supplier.evaluate.EvaluateVo;
@@ -51,4 +52,10 @@ public interface IOmEvaluateService extends Service<OmEvaluatePo> {
      * @return
      */
     PageInfo<SearchEvaluateVo> searchEvaluate(SearchEvaluatesDto searchEvaluateDto);
+
+    /**
+     * 商家端回复评论
+     * @param saveStoreReplyDto
+     */
+    void reply(SaveStoreReplyDto saveStoreReplyDto);
 }

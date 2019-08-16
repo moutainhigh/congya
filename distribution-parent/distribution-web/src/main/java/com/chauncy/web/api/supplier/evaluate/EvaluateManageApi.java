@@ -1,5 +1,7 @@
 package com.chauncy.web.api.supplier.evaluate;
 
+import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.dto.supplier.evaluate.SaveStoreReplyDto;
 import com.chauncy.data.dto.supplier.good.select.SearchEvaluatesDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.supplier.evaluate.SearchEvaluateVo;
@@ -43,5 +45,14 @@ public class EvaluateManageApi {
 
         return new JsonViewData(service.searchEvaluate(searchEvaluateDto));
     }
+
+    @ApiOperation("商家端回复评论")
+    @PostMapping("/reply")
+    public JsonViewData reply(@RequestBody @Validated SaveStoreReplyDto saveStoreReplyDto){
+
+        service.reply(saveStoreReplyDto);
+        return new JsonViewData(ResultCode.SUCCESS);
+    }
+
 
 }

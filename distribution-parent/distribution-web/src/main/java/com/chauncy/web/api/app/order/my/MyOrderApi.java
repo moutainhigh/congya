@@ -67,6 +67,13 @@ public class MyOrderApi extends BaseApi {
         return setJsonViewData(service.getAppMyOrderDetailVoByOrderId(orderId));
     }
 
+    @PostMapping("/receive/{orderId}")
+    @ApiOperation("确认收货")
+    public JsonViewData receive(@PathVariable Long orderId) {
+        service.receiveOrder(orderId);
+        return setJsonViewData(ResultCode.SUCCESS);
+    }
+
 
 
 
