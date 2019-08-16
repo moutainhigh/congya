@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.app.advice.AssociationTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
-import com.chauncy.common.util.JSONUtils;
 import com.chauncy.common.util.ListUtil;
+import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.advice.*;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.store.category.SmStoreCategoryPo;
@@ -14,23 +14,22 @@ import com.chauncy.data.dto.manage.message.advice.tab.association.add.SaveStoreC
 import com.chauncy.data.dto.manage.message.advice.tab.association.add.StoreTabsDto;
 import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchClassificationStoreDto;
 import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchStoreClassificationDto;
+import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchStoresDto;
 import com.chauncy.data.mapper.message.advice.*;
-import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.store.category.SmStoreCategoryMapper;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.manage.message.advice.tab.association.StoreVo;
 import com.chauncy.message.advice.IMmAdviceRelTabAssociationService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
@@ -153,6 +152,23 @@ public class MmAdviceRelTabAssociationServiceImpl extends AbstractService<MmAdvi
         List<Long> finalAssociatedIds1 = associatedIds;
         PageInfo<BaseVo> storesVo = PageHelper.startPage(PageNo, pageSize)
                 .doSelectPageInfo(() -> storeMapper.searchStores(searchClassificationStoreDto.getStoreClassificationId(), searchClassificationStoreDto.getName(), finalAssociatedIds1));
+
+        return storesVo;
+    }
+
+    /**
+     * 条件分页查询已经关联的店铺
+     *
+     * @param searchStoresDto
+     * @return
+     */
+    @Override
+    public PageInfo<StoreVo> searchStores(SearchStoresDto searchStoresDto) {
+
+        Integer PageNo = searchStoresDto.getPageNo() == null ? defaultPageNo : searchStoresDto.getPageNo();
+        Integer pageSize = searchStoresDto.getPageSize() == null ? defaultPageSize : searchStoresDto.getPageSize();
+        PageInfo<StoreVo> storesVo = PageHelper.startPage(PageNo, pageSize)
+                .doSelectPageInfo(() -> relTabThingsMapper.searchStores(searchStoresDto));
 
         return storesVo;
     }
@@ -308,31 +324,31 @@ public class MmAdviceRelTabAssociationServiceImpl extends AbstractService<MmAdvi
             //操作五:
             //识别哪个与该广告关联的店铺分类被删除了，先获取该广告下所有绑定的店铺分类
             List<Long> allAssociationIds = relAssociaitonMapper.selectList(new QueryWrapper<MmAdviceRelAssociaitonPo>().lambda().
-                    eq(MmAdviceRelAssociaitonPo::getAdviceId,saveStoreClassificationDto.getAdviceId())).stream().map(e->e.getId()).collect(Collectors.toList());
+                    eq(MmAdviceRelAssociaitonPo::getAdviceId, saveStoreClassificationDto.getAdviceId())).stream().map(e -> e.getId()).collect(Collectors.toList());
             //获取前端传过来的除了storeClassificationId=0的数据
             List<Long> remainAssociationIds = saveStoreClassificationDto.getStoreTabsDtoList().stream().
-                    filter(y->y.getAdviceAssociationId()!=0).map(associationId->associationId.getAdviceAssociationId()).collect(Collectors.toList());
+                    filter(y -> y.getAdviceAssociationId() != 0).map(associationId -> associationId.getAdviceAssociationId()).collect(Collectors.toList());
             List<Long> delIds = Lists.newArrayList(allAssociationIds);
             //获取需要被删除的数据
             delIds.removeAll(remainAssociationIds);
-            if (!ListUtil.isListNullAndEmpty(delIds)){
-                delIds.forEach(ac->{
-                    if (relAssociaitonMapper.selectById(ac) == null){
-                        throw new ServiceException(ResultCode.NO_EXISTS,String.format("不存在该广告【%s】关联的店铺分类【%s】",
-                                saveStoreClassificationDto.getName(),ac));
+            if (!ListUtil.isListNullAndEmpty(delIds)) {
+                delIds.forEach(ac -> {
+                    if (relAssociaitonMapper.selectById(ac) == null) {
+                        throw new ServiceException(ResultCode.NO_EXISTS, String.format("不存在该广告【%s】关联的店铺分类【%s】",
+                                saveStoreClassificationDto.getName(), ac));
                     }
                     //删除该广告关联店铺记录对应的所有选项卡关联的店铺
                     List<Long> tabIdList = relTabAssociationMapper.selectList(new QueryWrapper<MmAdviceRelTabAssociationPo>().lambda().
-                            eq(MmAdviceRelTabAssociationPo::getRelId,ac)).stream().map(d->d.getTabId()).collect(Collectors.toList());
-                    tabIdList.forEach(e->{
+                            eq(MmAdviceRelTabAssociationPo::getRelId, ac)).stream().map(d -> d.getTabId()).collect(Collectors.toList());
+                    tabIdList.forEach(e -> {
                         relTabThingsMapper.delete(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
-                                .eq(MmAdviceRelTabThingsPo::getTabId,e));
+                                .eq(MmAdviceRelTabThingsPo::getTabId, e));
                         //删除该店铺分类下的所有选项卡
                         adviceTabMapper.deleteById(e);
                     });
                     //删除该广告关联店铺记录对应的与选项卡关联的记录
                     relTabAssociationMapper.delete(new QueryWrapper<MmAdviceRelTabAssociationPo>().lambda().
-                            eq(MmAdviceRelTabAssociationPo::getRelId,ac));
+                            eq(MmAdviceRelTabAssociationPo::getRelId, ac));
                 });
                 //删除广告关联店铺记录
                 relAssociaitonMapper.deleteBatchIds(delIds);
@@ -465,11 +481,11 @@ public class MmAdviceRelTabAssociationServiceImpl extends AbstractService<MmAdvi
                         //5、保存每个选项卡关联的店铺ID
                         MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
                         b.getStoreIds().stream().forEach(c -> {
-                            if (storeMapper.selectOne(new QueryWrapper<SmStorePo>().lambda().and(ob->ob.
-                                    eq(SmStorePo::getStoreCategoryId,a.getStoreClassificationId()).
-                                    eq(SmStorePo::getId,c))) == null){
-                                throw new ServiceException(ResultCode.NO_EXISTS,String.format("该店铺【%s】不属于该店铺分类【%s】,请检查",
-                                        storeMapper.selectById(c).getName(),storeCategoryMapper.selectById(a.getStoreClassificationId()).getName()));
+                            if (storeMapper.selectOne(new QueryWrapper<SmStorePo>().lambda().and(ob -> ob.
+                                    eq(SmStorePo::getStoreCategoryId, a.getStoreClassificationId()).
+                                    eq(SmStorePo::getId, c))) == null) {
+                                throw new ServiceException(ResultCode.NO_EXISTS, String.format("该店铺【%s】不属于该店铺分类【%s】,请检查",
+                                        storeMapper.selectById(c).getName(), storeCategoryMapper.selectById(a.getStoreClassificationId()).getName()));
                             }
                             relTabThingsPo.setCreateBy(sysUser.getUsername())
                                     .setId(null)
@@ -538,19 +554,19 @@ public class MmAdviceRelTabAssociationServiceImpl extends AbstractService<MmAdvi
                     //操作五：
                     //识别哪个选项卡被删除了，先获取该广告对应的所有选项卡ID
                     List<Long> tabIds = relTabAssociationMapper.selectList(new QueryWrapper<MmAdviceRelTabAssociationPo>().lambda().
-                            eq(MmAdviceRelTabAssociationPo::getRelId,a.getAdviceAssociationId())).stream().map(ass->ass.getTabId()).collect(Collectors.toList());
+                            eq(MmAdviceRelTabAssociationPo::getRelId, a.getAdviceAssociationId())).stream().map(ass -> ass.getTabId()).collect(Collectors.toList());
                     //获取前端传过来的除了tabId=0的数据
-                    List<Long> ramainTabIds = a.getTabInfos().stream().filter(z->z.getTabId() !=0).map(tabId -> tabId.getTabId()).collect(Collectors.toList());
+                    List<Long> ramainTabIds = a.getTabInfos().stream().filter(z -> z.getTabId() != 0).map(tabId -> tabId.getTabId()).collect(Collectors.toList());
                     List<Long> delTabIds = Lists.newArrayList(tabIds);
                     delTabIds.removeAll(ramainTabIds);
-                    if (!ListUtil.isListNullAndEmpty(delTabIds)){
-                        delTabIds.forEach(del->{
+                    if (!ListUtil.isListNullAndEmpty(delTabIds)) {
+                        delTabIds.forEach(del -> {
                             //删除该广告下的店铺分类下的选项卡
                             relTabAssociationMapper.delete(new QueryWrapper<MmAdviceRelTabAssociationPo>().lambda().
-                                    eq(MmAdviceRelTabAssociationPo::getTabId,del));
+                                    eq(MmAdviceRelTabAssociationPo::getTabId, del));
                             //删除该选项卡关联的店铺
                             relTabThingsMapper.delete(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda().
-                                    eq(MmAdviceRelTabThingsPo::getTabId,del));
+                                    eq(MmAdviceRelTabThingsPo::getTabId, del));
                             //删除该选项卡
                             adviceTabMapper.deleteById(del);
                         });
@@ -576,11 +592,11 @@ public class MmAdviceRelTabAssociationServiceImpl extends AbstractService<MmAdvi
                             //5、保存每个选项卡关联的店铺ID
                             MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
                             b.getStoreIds().stream().forEach(c -> {
-                                if (storeMapper.selectOne(new QueryWrapper<SmStorePo>().lambda().and(ob->ob.
-                                        eq(SmStorePo::getStoreCategoryId,a.getStoreClassificationId()).
-                                        eq(SmStorePo::getId,c))) == null){
-                                    throw new ServiceException(ResultCode.NO_EXISTS,String.format("该店铺【%s】不属于该店铺分类【%s】,请检查",
-                                            storeMapper.selectById(c).getName(),storeCategoryMapper.selectById(a.getStoreClassificationId()).getName()));
+                                if (storeMapper.selectOne(new QueryWrapper<SmStorePo>().lambda().and(ob -> ob.
+                                        eq(SmStorePo::getStoreCategoryId, a.getStoreClassificationId()).
+                                        eq(SmStorePo::getId, c))) == null) {
+                                    throw new ServiceException(ResultCode.NO_EXISTS, String.format("该店铺【%s】不属于该店铺分类【%s】,请检查",
+                                            storeMapper.selectById(c).getName(), storeCategoryMapper.selectById(a.getStoreClassificationId()).getName()));
                                 }
                                 relTabThingsPo.setCreateBy(sysUser.getUsername())
                                         .setId(null)
@@ -594,19 +610,19 @@ public class MmAdviceRelTabAssociationServiceImpl extends AbstractService<MmAdvi
                         else {
                             //3、编辑并保存选项卡信息
                             MmAdviceTabPo adviceTabPo = adviceTabMapper.selectById(b.getTabId());
-                            if (relTabAssociationMapper.selectOne(new QueryWrapper<MmAdviceRelTabAssociationPo>().lambda().and(obje->
-                                    obje.eq(MmAdviceRelTabAssociationPo::getTabId,b.getTabId())
-                                    .eq(MmAdviceRelTabAssociationPo::getRelId,a.getAdviceAssociationId()))) == null){
-                                throw new ServiceException(ResultCode.NO_EXISTS,String.format("该广告位【%s】下的店铺分类【%s】不存在该选项卡【%s】",
-                                        saveStoreClassificationDto.getName(),storeCategoryMapper.selectById(a.getStoreClassificationId()).getName(),b.getTabName()));
+                            if (relTabAssociationMapper.selectOne(new QueryWrapper<MmAdviceRelTabAssociationPo>().lambda().and(obje ->
+                                    obje.eq(MmAdviceRelTabAssociationPo::getTabId, b.getTabId())
+                                            .eq(MmAdviceRelTabAssociationPo::getRelId, a.getAdviceAssociationId()))) == null) {
+                                throw new ServiceException(ResultCode.NO_EXISTS, String.format("该广告位【%s】下的店铺分类【%s】不存在该选项卡【%s】",
+                                        saveStoreClassificationDto.getName(), storeCategoryMapper.selectById(a.getStoreClassificationId()).getName(), b.getTabName()));
                             }
                             adviceTabPo.setName(b.getTabName());
                             adviceTabPo.setId(b.getTabId());
                             adviceTabPo.setUpdateBy(sysUser.getUsername());
                             adviceTabMapper.updateById(adviceTabPo);
                             //5、更新选项卡与店铺关联表
-                            Map<String,Object> map = Maps.newHashMap();
-                            map.put("tab_id",b.getTabId());
+                            Map<String, Object> map = Maps.newHashMap();
+                            map.put("tab_id", b.getTabId());
                             relTabThingsMapper.deleteByMap(map);
                             //保存每个选项卡关联的店铺ID
                             MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();

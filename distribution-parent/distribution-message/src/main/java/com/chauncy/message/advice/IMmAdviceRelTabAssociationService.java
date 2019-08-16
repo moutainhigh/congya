@@ -1,12 +1,13 @@
 package com.chauncy.message.advice;
 
-import com.chauncy.common.enums.system.ResultCode;
-import com.chauncy.data.domain.po.message.advice.MmAdviceRelTabAssociationPo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.domain.po.message.advice.MmAdviceRelTabAssociationPo;
 import com.chauncy.data.dto.manage.message.advice.tab.association.add.SaveStoreClassificationDto;
 import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchClassificationStoreDto;
 import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchStoreClassificationDto;
+import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchStoresDto;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.manage.message.advice.tab.association.StoreVo;
 import com.github.pagehelper.PageInfo;
 
 /**
@@ -44,4 +45,12 @@ public interface IMmAdviceRelTabAssociationService extends Service<MmAdviceRelTa
      * @return
      */
     PageInfo<BaseVo> searchClassificationStore(SearchClassificationStoreDto searchClassificationStoreDto);
+
+    /**
+     * 条件分页查询已经关联的店铺
+     *
+     * @param searchStoresDto
+     * @return
+     */
+    PageInfo<StoreVo> searchStores(SearchStoresDto searchStoresDto);
 }

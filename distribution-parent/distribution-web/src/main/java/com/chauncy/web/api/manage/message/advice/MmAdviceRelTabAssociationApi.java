@@ -2,24 +2,25 @@ package com.chauncy.web.api.manage.message.advice;
 
 
 import com.chauncy.common.enums.system.ResultCode;
-import com.chauncy.data.dto.app.store.SearchStoreDto;
 import com.chauncy.data.dto.manage.message.advice.tab.association.add.SaveStoreClassificationDto;
 import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchClassificationStoreDto;
 import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchStoreClassificationDto;
+import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchStoresDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
-import com.chauncy.store.category.service.ISmStoreCategoryService;
-import com.chauncy.store.service.ISmStoreService;
+import com.chauncy.data.vo.manage.message.advice.tab.association.StoreVo;
+import com.chauncy.message.advice.IMmAdviceRelTabAssociationService;
+import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import io.swagger.annotations.Api;
-import com.chauncy.message.advice.IMmAdviceRelTabAssociationService;
-
-import com.chauncy.web.base.BaseApi;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
@@ -81,6 +82,20 @@ public class MmAdviceRelTabAssociationApi extends BaseApi {
         return setJsonViewData(ResultCode.SUCCESS,"保存成功");
     }
 
-//    public JsonViewData<>
+    /**
+     * 条件查询关联的店铺
+     *
+     * 选项卡关联的店铺的分页
+     *
+     * @param searchStoresDto
+     * @return
+     */
+    @PostMapping("/searchStores")
+    @ApiOperation("条件分页查询已经关联的店铺")
+    public JsonViewData<PageInfo<StoreVo>> searchStores(@RequestBody @ApiParam(required = true,name = "searchStoresDto",value = "条件分页查询已经关联的店铺")
+                                                        @Validated SearchStoresDto searchStoresDto){
+
+        return setJsonViewData(service.searchStores(searchStoresDto));
+    }
 
 }
