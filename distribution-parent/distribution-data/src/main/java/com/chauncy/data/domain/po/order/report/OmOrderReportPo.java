@@ -35,12 +35,12 @@ public class OmOrderReportPo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "账单id")
+    @ApiModelProperty(value = "报表id")
     @TableId(value = "id", type = IdType.ID_WORKER)
     private Long id;
 
     @ApiModelProperty(value = "年")
-    private String year;
+    private Integer year;
 
     @ApiModelProperty(value = "期数")
     private String monthDay;
@@ -62,15 +62,6 @@ public class OmOrderReportPo implements Serializable {
 
     @ApiModelProperty(value = "创建时间")
     private LocalDateTime createTime;
-
-    @ApiModelProperty(value = "提现时间")
-    private LocalDateTime withdrawalTime;
-
-    @ApiModelProperty(value = "处理中时间")
-    private LocalDateTime processingTime;
-
-    @ApiModelProperty(value = "结算时间")
-    private LocalDateTime settlementTime;
 
     @ApiModelProperty(value = "修改者")
     private String updateBy;

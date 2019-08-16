@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * @author yeJH
@@ -20,12 +21,15 @@ public class RecommendGoodsVo  implements Serializable {
     private Long goodsId;
 
     @ApiModelProperty("商品名称")
-    private String goodsName;
-
-    @ApiModelProperty("活动类型")
-    private String activityType;
+    private String name;
 
     @ApiModelProperty("商品分类")
     private String categoryName;
+
+    @ApiModelProperty("销售价")
+    private BigDecimal sellPrice;
+
+    @ApiModelProperty("活动类型")
+    private String goodsType;
 
 }

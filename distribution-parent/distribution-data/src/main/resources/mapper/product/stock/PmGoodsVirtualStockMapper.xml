@@ -21,9 +21,6 @@
         id, store_id, goods_id, goods_sku_id, stock_num, create_by, create_time, update_by, update_time, del_flag
     </sql>
 
-
-
-
     <!-- 分配库存 修改库存信息 -->
     <update id="updateGoodsVirtualStock">
         update pm_goods_virtual_stock
@@ -32,6 +29,12 @@
         update pm_goods_virtual_stock
         set stock_num = stock_num - #{distributeStockNum}
         where goods_sku_id = #{goodSkuId} and store_id = #{fromStoreId} and stock_num >=  #{distributeStockNum};
+    </update>
+
+    <update id="deductionVirtualStock">
+        update pm_goods_virtual_stock
+        set stock_num = stock_num - #{num}
+        where goods_sku_id = #{goodSkuId} and store_id = #{storeId} and stock_num >=  #{num};
     </update>
 
 </mapper>

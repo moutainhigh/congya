@@ -76,5 +76,18 @@
          ON ogt.`id` = orrgt.`goods_temp_id` and orrgt.`report_id` = #{id}
          ORDER BY orrgt.`create_time` DESC
     </select>
+    <select id="searchOrderReport" resultType="com.chauncy.data.domain.po.order.report.OmOrderReportPo">
+        SELECT orrgt.store_id,
+            orrgt.branch_id,
+            SUM(orrgt.distribute_price) AS total_amount,
+            SUM(orrgt.goods_num) AS total_num,
+            ss.name AS create_by
+        FROM om_report_rel_goods_temp orrgt, sm_store ss
+        WHERE ss.id = orrgt.store_id AND orrgt.branch_id = #{branchId}
+        AND orrgt.report_id is null
+        AND DATE(orrgt.create_time) <![CDATA[>= ]]> #{startDate}
+        AND DATE(orrgt.create_time) <![CDATA[<= ]]> #{endDate}
+        GROUP BY store_id, branch_id, create_by;
+    </select>
 
 </mapper>

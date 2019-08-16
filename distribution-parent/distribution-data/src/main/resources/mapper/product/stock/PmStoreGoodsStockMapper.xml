@@ -51,12 +51,6 @@
         left join pm_store_rel_goods_stock psrgs on psrgs.store_stock_id = psgs.id
         <where>
             psgs.store_id = #{storeId} and psgs.del_flag = 0  and psrgs.del_flag = 0
-            <if test="stockName !=null and stockName !=''">
-                and psgs.`name` like concat('%', #{stockName}, '%')
-            </if>
-            <if test="branchName != null and branchName !=''">
-                and ss.`name` like concat('%', #{branchName}, '%')
-            </if>
             <if test="startTime != null">
                 and date(psgs.create_time) <![CDATA[>= ]]>  #{startTime}
             </if>
@@ -65,6 +59,12 @@
             </if>
             <if test="enabled != null ">
                 and psgs.enabled = #{enabled}
+            </if>
+            <if test="stockName !=null and stockName !=''">
+                and psgs.`name` like concat('%', #{stockName}, '%')
+            </if>
+            <if test="branchName != null and branchName !=''">
+                and ss.`name` like concat('%', #{branchName}, '%')
             </if>
         </where>
         GROUP BY psgs.id
@@ -93,17 +93,17 @@
         on psrgs.store_stock_id = psgs.id
         <where>
             psgs.distribute_store_id = #{storeId} and psgs.del_flag = 0 and psrgs.del_flag = 0
-            <if test="stockName !=null and stockName !=''">
-                and psgs.`name` like concat('%', #{stockName}, '%')
-            </if>
-            <if test="storeName != null and storeName !=''">
-                and ss.`name` like concat('%', #{storeName}, '%')
-            </if>
             <if test="startTime != null">
                 and date(psgs.create_time) <![CDATA[>= ]]>  #{startTime}
             </if>
             <if test="endTime != null">
                 and date(psgs.create_time) <![CDATA[<= ]]> #{endTime}
+            </if>
+            <if test="stockName !=null and stockName !=''">
+                and psgs.`name` like concat('%', #{stockName}, '%')
+            </if>
+            <if test="storeName != null and storeName !=''">
+                and ss.`name` like concat('%', #{storeName}, '%')
             </if>
         </where>
         group by psgs.id

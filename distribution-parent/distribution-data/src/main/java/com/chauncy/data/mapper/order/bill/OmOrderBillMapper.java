@@ -42,12 +42,12 @@ public interface OmOrderBillMapper extends IBaseMapper<OmOrderBillPo> {
      * @param endDate   需要创建账单的那一周   任何一天都可以
      * @return
      */
-    int getStoreSumNeedCreateBill(LocalDate endDate);
+    int getStoreSumNeedCreateBill(@Param("billType") Integer billType, @Param("endDate") LocalDate endDate, @Param("storeId") Long storeId);
 
     /**
-     *
+     * 获取需要创建账单的店铺的id
      * @param endDate
      * @return
      */
-    List<Long> getStoreNeedCreateBill(LocalDate endDate);
+    List<Long> getStoreNeedCreateBill(@Param("billType") Integer billType, @Param("endDate") LocalDate endDate, @Param("storeId") Long storeId);
 }

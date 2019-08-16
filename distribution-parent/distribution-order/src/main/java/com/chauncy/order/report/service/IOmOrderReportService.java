@@ -7,6 +7,8 @@ import com.chauncy.data.dto.manage.order.report.select.SearchReportDto;
 import com.chauncy.data.vo.manage.order.report.ReportBaseInfoVo;
 import com.github.pagehelper.PageInfo;
 
+import java.time.LocalDate;
+
 /**
  * <p>
  * 商品销售报表 服务类
@@ -30,4 +32,16 @@ public interface IOmOrderReportService extends Service<OmOrderReportPo> {
      * @return
      */
     ReportBaseInfoVo findReportById(BaseSearchPagingDto baseSearchPagingDto, Long id);
+
+    /**
+     * 根据时间创建商品销售报表
+     * endDate   需要创建账单的那一周   任何一天都可以
+     */
+    void createSaleReportByDate(LocalDate endDate);
+
+    /**
+     * 订单确认不能售后业务处理 扣减商品虚拟库存，插入报表订单关联
+     * @param orderId  订单id
+     */
+    void orderClosure(Long orderId);
 }

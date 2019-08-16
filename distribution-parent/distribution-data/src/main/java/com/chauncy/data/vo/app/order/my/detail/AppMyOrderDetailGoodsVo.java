@@ -19,7 +19,6 @@ public class AppMyOrderDetailGoodsVo {
     @ApiModelProperty("商品名称")
     private String goodsName;
 
-
     @ApiModelProperty("skuId")
     private Long skuId;
 

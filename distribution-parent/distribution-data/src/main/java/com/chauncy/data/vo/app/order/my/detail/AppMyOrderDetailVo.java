@@ -118,4 +118,10 @@ public class AppMyOrderDetailVo {
     @ApiModelProperty(value = "商家手机号码")
     private String ownerMobile;
 
+    @ApiModelProperty(value = "商家名称")
+    private String storeName;
+
+    @ApiModelProperty(value = "商家id")
+    private Long storeId;
+
 }

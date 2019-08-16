@@ -9,6 +9,7 @@ import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSendOrderDto;
 import com.chauncy.data.vo.app.order.my.AppSearchOrderVo;
+import com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailVo;
 import com.chauncy.data.vo.manage.order.list.OrderDetailVo;
 import com.chauncy.data.vo.manage.order.list.SearchOrderVo;
 import com.chauncy.data.vo.supplier.order.SmOrderDetailVo;
@@ -99,6 +100,23 @@ public interface IOmOrderService extends Service<OmOrderPo> {
      * @return
      */
     Long payOrder(Long orderId);
+
+    /**
+     * 获取app我的订单详情
+     * @param orderId
+     * @return
+     */
+    AppMyOrderDetailVo getAppMyOrderDetailVoByOrderId(Long orderId);
+
+
+    /**
+     * 确认收货
+     * @param orderId
+     */
+    void receiveOrder(Long orderId);
+
+
+
 
 
 

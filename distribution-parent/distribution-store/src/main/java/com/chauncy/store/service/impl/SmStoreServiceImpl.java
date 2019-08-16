@@ -181,6 +181,10 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         oldSmStore.setCreateBy(userName);
         //店铺信息修改
         smStoreMapper.updateById(oldSmStore);
+
+        //绑定店铺关系
+        bindingStore(oldSmStore.getId(), storeBaseInfoDto.getStoreRelStoreDtoList());
+
         //查询新更改的品牌中缺少的已有品牌是否有关联的商品  如果有则编辑失败
         List<Long> oldAttributeIds = smStoreMapper.selectAttributeIdsById(storeBaseInfoDto.getId());
         List<Long> newAttributeIds = Arrays.asList(storeBaseInfoDto.getAttributeIds());
@@ -190,29 +194,28 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
             throw  new ServiceException(ResultCode.PARAM_ERROR, "修改失败，包含正被使用的关联的品牌");
         }
 
-
-        //绑定店铺关系
-        bindingStore(oldSmStore.getId(), storeBaseInfoDto.getStoreRelStoreDtoList());
-
-        //将店铺与品牌关联表的记录删除  关联不能全部删除重新创建  因为可能已经存在关联删除差集 reduceList
+        //将店铺与品牌关联表的记录删除  关联不能全部删除重新创建  因为可能已经有已存在关联，删除差集 needDelList
         /*Map<String, Object> map = new HashMap<>();
         map.put("store_id", storeBaseInfoDto.getId());
         smRelStoreAttributeMapper.deleteByMap(map);*/
+        // 获取店铺关联的品牌id
+        List<Long> relAttributeIds = smStoreMapper.selectRelAttributeIds(storeBaseInfoDto.getId());
+        List<Long> needDelList = relAttributeIds.stream().filter(item -> !newAttributeIds.contains(item)).collect(toList());
         QueryWrapper<SmRelStoreAttributePo> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda()
                 .eq(SmRelStoreAttributePo::getStoreId, storeBaseInfoDto.getId())
-                .in(SmRelStoreAttributePo::getAttributeId, reduceList);
+                .in(SmRelStoreAttributePo::getAttributeId, needDelList);
         smRelStoreAttributeMapper.delete(queryWrapper);
 
 
-        //批量插入店铺品牌关联记录  此时需要插入的关联应该为 newAttributeIds  与 oldAttributeIds 的差集
-        List<Long> needInsertList = newAttributeIds.stream().filter(item -> !oldAttributeIds.contains(item)).collect(toList());
+        //批量插入店铺品牌关联记录  此时需要插入的关联应该为 newAttributeIds  与 relAttributeIds 的差集
+        List<Long> needInsertList = newAttributeIds.stream().filter(item -> !relAttributeIds.contains(item)).collect(toList());
         if(null != needInsertList && needInsertList.size() > 0) {
             storeBaseInfoDto.setAttributeIds(needInsertList.toArray(new Long[needInsertList.size()]));
             saveBatchRelStoreAttribute(storeBaseInfoDto, userName);
         }
 
-        //将店铺与品牌关联表的记录删除
+        //将店铺与标签关联表的记录删除
         List<Long> oldLabelIds = smStoreMapper.selectLabelIdsById(storeBaseInfoDto.getId());
         QueryWrapper<SmStoreRelLabelPo> relLabelPoQueryWrapper = new QueryWrapper<>();
         relLabelPoQueryWrapper.lambda()

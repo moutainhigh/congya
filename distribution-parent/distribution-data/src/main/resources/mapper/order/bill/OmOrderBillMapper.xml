@@ -7,6 +7,8 @@
         <id column="id" property="id" />
         <result column="year" property="year" />
         <result column="month_day" property="monthDay" />
+        <result column="start_date" property="startDate" />
+        <result column="end_date" property="endDate" />
         <result column="total_amount" property="totalAmount" />
         <result column="actual_amount" property="actualAmount" />
         <result column="deducted_amount" property="deductedAmount" />
@@ -155,32 +157,56 @@
     <select id="getStoreSumNeedCreateBill" resultType="java.lang.Integer">
         SELECT COUNT(*)
         FROM sm_store ss
-        WHERE
-            NOT EXISTS (
-	            SELECT TIMESTAMPDIFF(WEEK,temp.`bill_date`,#{endDate}) MOD ss.`payment_bill_settlement_cycle` = 0
-	            FROM (
-	                SELECT oob.`bill_date`
+        <where>
+            DATE(ss.`create_time`)  <![CDATA[<= ]]> #{endDate}
+            <if test="null != storeId">
+                AND ss.`id` = #{storeId}
+            </if>
+            AND  (
+                <if test="1 == billType">
+                    SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`payment_bill_settlement_cycle` = 0
+                </if>
+                <if test="2 == billType">
+                    SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`income_bill_Settlement_cycle` = 0
+                </if>
+                FROM (
+	                SELECT oob.`end_date`
 	                FROM om_order_bill oob
-	                WHERE oob.`store_id` = ss.`id` AND oob.`bill_type` = 1
-	                ORDER BY bill_date DESC
+	                WHERE oob.`store_id` = ss.`id`
+	                AND oob.`bill_type` = #{billType}
+	                AND oob.`end_date` <![CDATA[<= ]]> #{endDate}
+	                ORDER BY end_date DESC
 	                LIMIT 1
 	            ) AS temp
 	        )
+        </where>
     </select>
     <select id="getStoreNeedCreateBill" resultType="java.lang.Long">
         SELECT ss.id
         FROM sm_store ss
-        WHERE
-            NOT EXISTS (
-	            SELECT TIMESTAMPDIFF(WEEK,temp.`bill_date`,#{endDate}) MOD ss.`payment_bill_settlement_cycle` = 0
+        <where>
+            DATE(ss.`create_time`)  <![CDATA[<= ]]> #{endDate}
+            <if test="null != storeId">
+                AND ss.`id` = #{storeId}
+            </if>
+            AND  (
+                <if test="1 == billType">
+                    SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`payment_bill_settlement_cycle` = 0
+                </if>
+                <if test="2 == billType">
+                    SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`income_bill_Settlement_cycle` = 0
+                </if>
 	            FROM (
-	                SELECT oob.`bill_date`
+	                SELECT oob.`end_date`
 	                FROM om_order_bill oob
-	                WHERE oob.`store_id` = ss.`id` AND oob.`bill_type` = 1
-	                ORDER BY bill_date DESC
+                    WHERE oob.`store_id` = ss.`id`
+                    AND oob.`bill_type` = #{billType}
+                    AND oob.`end_date` <![CDATA[<= ]]> #{endDate}
+            	    ORDER BY end_date DESC
 	                LIMIT 1
 	            ) AS temp
 	        )
+        </where>
     </select>
 
 </mapper>

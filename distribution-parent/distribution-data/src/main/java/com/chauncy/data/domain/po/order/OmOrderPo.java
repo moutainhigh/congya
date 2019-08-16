@@ -95,6 +95,9 @@ public class OmOrderPo implements Serializable {
     @ApiModelProperty(value = "收货时间")
     private LocalDateTime receiveTime;
 
+    @ApiModelProperty(value = "取消时间")
+    private LocalDateTime closeTime;
+
     @ApiModelProperty("售后截止时间")
     private LocalDateTime afterSaleDeadline;
 
@@ -139,7 +142,6 @@ public class OmOrderPo implements Serializable {
 
     @ApiModelProperty(value = "二维码")
     private String qRCode;
-
 
 
 }

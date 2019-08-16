@@ -80,7 +80,8 @@ public class SmInformationApi extends BaseApi {
     @PostMapping("/storeRecommendGoods")
     @ApiOperation(value = "获取店铺推荐商品")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData<RecommendGoodsVo> storeRecommendGoods(@Validated @RequestBody @ApiParam(required = true, name = "searchRecommendGoodsDto", value = "查找条件")
+    public JsonViewData<RecommendGoodsVo> storeRecommendGoods(@Validated @RequestBody
+                                     @ApiParam(required = true, name = "searchRecommendGoodsDto", value = "查找条件")
                                      SearchRecommendGoodsDto searchRecommendGoodsDto) {
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
@@ -133,7 +134,7 @@ public class SmInformationApi extends BaseApi {
     public JsonViewData editInformationStatus(@Valid @RequestBody  @ApiParam(required = true, name = "baseUpdateStatusDto", value = "资讯id、修改的状态值")
                                                 BaseUpdateStatusDto baseUpdateStatusDto) {
 
-        mmInformationService.editEnabledBatch(baseUpdateStatusDto);
+        mmInformationService.editInformationStatus(baseUpdateStatusDto);
         return new JsonViewData(ResultCode.SUCCESS, "修改资讯状态成功");
     }
 

@@ -80,14 +80,14 @@
             <if test="id != null">
                 and mi.id = #{id}
             </if>
-            <if test="name != null and name !=''">
-                and mi.title like concat('%', #{name}, '%')
-            </if>
             <if test="startTime != null">
                 and date(mi.create_time) <![CDATA[>= ]]>  #{startTime}
             </if>
             <if test="endTime != null">
                 and date(mi.create_time) <![CDATA[<= ]]> #{endTime}
+            </if>
+            <if test="name != null and name !=''">
+                and mi.title like concat('%', #{name}, '%')
             </if>
         </where>
         order by mi.sort desc
@@ -100,7 +100,7 @@
             left join um_user_favorites uuf on mi.store_id = uuf.favorites_id
         </if>
         <where>
-            mi.del_flag = 0
+            mi.del_flag = 0 and mi.verify_status = 3
             <if test="storeId !=null and storeId !=0 ">
                 and mi.storeId = #{storeId}
             </if>
@@ -125,6 +125,12 @@
                 order by mi.browsing_num desc
             </otherwise>
         </choose>
+    </select>
+    <select id="selectRelGoodsIdsById" resultType="java.lang.Long">
+        select mirg.goods_id
+        from mm_information_rel_goods mirg
+        where mirg.information_id = #{id}
+        and mirg.del_flag = 0
     </select>
 
 </mapper>

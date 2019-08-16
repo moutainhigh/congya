@@ -90,9 +90,6 @@
             <if test="id !=null and id !=''">
                 and id = #{id}
             </if>
-            <if test="name != null and name !=''">
-                and name like concat('%', #{name}, '%')
-            </if>
             <if test="mobile != null and mobile !=''">
                 and owner_mobile = #{mobile}
             </if>
@@ -101,6 +98,9 @@
             </if>
             <if test="type != null and type != ''">
                 and type = #{type}
+            </if>
+            <if test="name != null and name !=''">
+                and name like concat('%', #{name}, '%')
             </if>
         </where>
     </select>
@@ -198,10 +198,16 @@
 
 
     <select id="selectAttributeIdsById" resultType="Long">
-        select pga.id
+        select DISTINCT pga.id
         from pm_goods pg, pm_goods_rel_attribute_good pgrag,pm_goods_attribute pga
         where pg.id = pgrag.goods_good_id and pga.id = pgrag.goods_attribute_id
         and pga.`type` = 8 and pg.store_id = #{id} and pg.del_flag = pgrag.del_flag = pga.del_flag = 0
+    </select>
+
+    <select id="selectRelAttributeIds" resultType="Long">
+        select DISTINCT ssra.id
+        from sm_store_rel_attribute ssra, pm_goods_attribute pga
+        where ssra.store_id = #{id} and ssra.attribute_id = pga.id and ssra.del_flag = pga.del_flag = 0
     </select>
 
     <select id="selectLabelIdsById" resultType="Long">
