@@ -13,12 +13,24 @@
         <result column="location" property="location" />
         <result column="name" property="name" />
         <result column="picture" property="picture" />
-        <result column="enbaled" property="enbaled" />
+        <result column="enabled" property="enabled" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, create_by, create_time, update_by, update_time, del_flag, location, name, picture, enbaled
+        id, create_by, create_time, update_by, update_time, del_flag, location, name, picture, enabled
     </sql>
+
+    <select id="searchAdvices" resultType="com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo">
+        select id as advice_id,name,location,enabled,picture
+        from mm_advice
+        where del_flag = 0
+        <if test="enabled != null">
+            and enabled = #{enabled}
+        </if>
+        <if test="name != null">
+            and name like concat ('%',#{name},'%')
+        </if>
+    </select>
 
 </mapper>

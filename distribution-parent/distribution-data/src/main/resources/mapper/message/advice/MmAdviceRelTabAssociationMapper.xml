@@ -18,5 +18,11 @@
     <sql id="Base_Column_List">
         id, create_by, create_time, update_by, update_time, del_flag, rel_id, tab_id
     </sql>
+    <select id="findTabInfos"
+            resultType="com.chauncy.data.vo.manage.message.advice.tab.association.TabInfosVo">
+        select tab_id,b.name as tab_name
+        from mm_advice_rel_tab_association a,mm_advice_tab b
+        where a.del_flag = 0 and b.del_flag = 0 and a.tab_id = b.id and a.rel_id = #{adviceAssociationId}
+    </select>
 
 </mapper>

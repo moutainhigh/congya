@@ -1,7 +1,13 @@
 package com.chauncy.message.advice;
 
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.message.advice.MmAdviceRelTabAssociationPo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.dto.manage.message.advice.tab.association.add.SaveStoreClassificationDto;
+import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchClassificationStoreDto;
+import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchStoreClassificationDto;
+import com.chauncy.data.vo.BaseVo;
+import com.github.pagehelper.PageInfo;
 
 /**
  * <p>
@@ -13,4 +19,29 @@ import com.chauncy.data.core.Service;
  */
 public interface IMmAdviceRelTabAssociationService extends Service<MmAdviceRelTabAssociationPo> {
 
+    /**
+     * 首页有店+店铺分类详情
+     *
+     * 保存广告位置为首页有店+店铺分类详情的信息
+     *
+     * @param saveStoreClassificationDto
+     * @return
+     */
+    void saveStoreClassification(SaveStoreClassificationDto saveStoreClassificationDto);
+
+    /**
+     * 分页查询店铺分类
+     *
+     * @param searchStoreClassificationDto
+     * @return
+     */
+    PageInfo<BaseVo> searchStoreClassification(SearchStoreClassificationDto searchStoreClassificationDto);
+
+    /**
+     * 分页查询店铺分类下店铺信息
+     *
+     * @param searchClassificationStoreDto
+     * @return
+     */
+    PageInfo<BaseVo> searchClassificationStore(SearchClassificationStoreDto searchClassificationStoreDto);
 }

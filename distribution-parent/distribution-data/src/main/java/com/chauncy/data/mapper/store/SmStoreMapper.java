@@ -7,6 +7,7 @@ import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchByConditionDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.app.store.StoreDetailVo;
 import com.chauncy.data.vo.app.store.StorePagingVo;
@@ -139,4 +140,13 @@ public interface SmStoreMapper extends IBaseMapper<SmStorePo> {
      * @return
      */
     StoreDetailVo findDetailById(Long storeId);
+
+    /**
+     * 分页查询广告为首页有店+店铺分类详情：除选项卡关联的店铺外的店铺
+     *
+     * @param name
+     * @param associatedIds
+     * @return
+     */
+    List<BaseVo> searchStores(@Param("classificationId") Long classificationId , @Param("name") String name, @Param("associatedIds") List<Long> associatedIds);
 }

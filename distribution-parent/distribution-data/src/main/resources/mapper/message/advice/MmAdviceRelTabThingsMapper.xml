@@ -20,4 +20,11 @@
         id, create_by, create_time, update_by, update_time, del_flag, tab_id, association_id, type
     </sql>
 
+    <select id="findStoreList" resultType="com.chauncy.data.vo.manage.message.advice.tab.association.StoreVo">
+        select association_id as store_id,b.name as store_name
+        from mm_advice_rel_tab_things a,sm_store b
+        where a.del_flag = 0 and b.del_flag = 0 and a.association_id = b.id and a.tab_id = #{tabId}
+    </select>
+
+
 </mapper>

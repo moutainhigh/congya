@@ -4,7 +4,9 @@ import com.chauncy.data.domain.po.store.category.SmStoreCategoryPo;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.select.StoreCategorySearchDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.manage.store.category.SmStoreCategoryVo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -42,4 +44,13 @@ public interface SmStoreCategoryMapper extends IBaseMapper<SmStoreCategoryPo> {
      * @return
      */
     List<SmStoreCategoryVo> selectAll();
+
+    /**
+     * 获取除已被广告关联的店铺分类ID和name
+     *
+     * @param name
+     * @param associatedIds
+     * @return
+     */
+    List<BaseVo> selectIds(@Param("name") String name, @Param("associatedIds") List<Long> associatedIds);
 }

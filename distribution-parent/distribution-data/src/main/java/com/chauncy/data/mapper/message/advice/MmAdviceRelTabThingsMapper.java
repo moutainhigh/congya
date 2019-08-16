@@ -2,6 +2,9 @@ package com.chauncy.data.mapper.message.advice;
 
 import com.chauncy.data.domain.po.message.advice.MmAdviceRelTabThingsPo;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.manage.message.advice.tab.association.StoreVo;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +16,6 @@ import com.chauncy.data.mapper.IBaseMapper;
  */
 public interface MmAdviceRelTabThingsMapper extends IBaseMapper<MmAdviceRelTabThingsPo> {
 
+    //获取该广告的该店铺下的选项卡下的关联店铺
+    List<StoreVo> findStoreList(Long tabId);
 }

@@ -2,6 +2,11 @@ package com.chauncy.message.advice;
 
 import com.chauncy.data.domain.po.message.advice.MmAdvicePo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.dto.manage.message.advice.select.SearchAdvicesDto;
+import com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo;
+import com.github.pagehelper.PageInfo;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +18,24 @@ import com.chauncy.data.core.Service;
  */
 public interface IMmAdviceService extends Service<MmAdvicePo> {
 
+    /**
+     * 获取广告位置
+     * @return
+     */
+    Object findAdviceLocation();
+
+    /**
+     * 条件分页获取广告信息及其对应的详情
+     *
+     * @param searchAdvicesDto
+     * @return
+     */
+    PageInfo<SearchAdvicesVo> searchAdvices(SearchAdvicesDto searchAdvicesDto);
+
+    /**
+     * 批量删除广告
+     *
+     * @param idList
+     */
+    void deleteAdvices(List<Long> idList);
 }

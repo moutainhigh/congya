@@ -22,4 +22,11 @@
         id, create_by, create_time, update_by, update_time, del_flag, advice_id, association_id, type, first_category_id, second_category_id
     </sql>
 
+    <select id="findStoreClassificationList"
+            resultType="com.chauncy.data.vo.manage.message.advice.tab.association.StoreTabsVo">
+        select a.id as advice_association_id,association_id as store_classification_id,b.name as store_classification_name
+        from mm_advice_rel_associaiton a,sm_store_category b
+        where a.del_flag = 0 and b.del_flag = 0 and a.association_id = b.id and a.advice_id = #{adviceId}
+    </select>
+
 </mapper>
