@@ -18,9 +18,5 @@
     <sql id="Base_Column_List">
         id, bill_id, store_id, create_by, create_time, update_by, update_time, del_flag
     </sql>
-    <select id="getTeamWorkParentStoreId" resultType="java.lang.Long">
-
-
-    </select>
 
 </mapper>

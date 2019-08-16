@@ -16,6 +16,7 @@ import com.chauncy.data.bo.order.log.AddAccountLogBo;
 import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.order.bill.OmBillRelGoodsTempPo;
+import com.chauncy.data.domain.po.order.bill.OmBillRelStorePo;
 import com.chauncy.data.domain.po.order.bill.OmOrderBillPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.store.rel.SmStoreBankCardPo;
@@ -32,6 +33,7 @@ import com.chauncy.data.mapper.order.bill.OmBillRelStoreMapper;
 import com.chauncy.data.mapper.order.bill.OmOrderBillMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.store.rel.SmStoreBankCardMapper;
+import com.chauncy.data.mapper.store.rel.SmStoreRelStoreMapper;
 import com.chauncy.data.vo.manage.order.bill.BillBaseInfoVo;
 import com.chauncy.data.vo.manage.order.bill.BillDetailVo;
 import com.chauncy.data.vo.manage.order.bill.BillSettlementVo;
@@ -77,6 +79,9 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
 
     @Autowired
     private SmStoreBankCardMapper smStoreBankCardMapper;
+
+    @Autowired
+    private SmStoreRelStoreMapper smStoreRelStoreMapper;
 
     @Autowired
     private OmBillRelStoreMapper omBillRelStoreMapper;
@@ -433,7 +438,7 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
 
         //团队合作的店铺  该店铺的利润账单作为上级绑定的店铺的交易报表
         if (BillTypeEnum.PROFIT_BILL.getId().equals(billType)) {
-            createBillRelStore(omOrderBillPo, storeId);
+            createBillRelStore(omOrderBillPo, storeId, ServiceConstant.TEAM_WORK_LEVEL);
         }
     }
 
@@ -442,12 +447,22 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
      * @param omOrderBillPo   账单
      * @param storeId  账单所属店铺
      */
-    private void createBillRelStore(OmOrderBillPo omOrderBillPo, Long storeId) {
-        //todo
-        //团队合作的层级最多为5层
-        //查找店铺storeId在账单周期内绑定的关系为团队合作的上级店铺
-        Long parentStoreId = omBillRelStoreMapper.getTeamWorkParentStoreId(
-                storeId, omOrderBillPo.getStartDate(), omOrderBillPo.getEndDate());
+    private void createBillRelStore(OmOrderBillPo omOrderBillPo, Long storeId, Integer teamWorkLevel) {
+        if(teamWorkLevel > 0) {
+            //查找店铺storeId在账单周期内绑定的关系为团队合作的上级店铺
+            Long parentStoreId = smStoreRelStoreMapper.getTeamWorkParentStoreId(
+                    storeId, omOrderBillPo.getStartDate(), omOrderBillPo.getEndDate().plusDays(1));
+            if (null != parentStoreId) {
+                OmBillRelStorePo omBillRelStorePo = new OmBillRelStorePo();
+                omBillRelStorePo.setBillId(omOrderBillPo.getId());
+                omBillRelStorePo.setStoreId(parentStoreId);
+                omBillRelStorePo.setCreateBy(omOrderBillPo.getCreateBy());
+                omBillRelStoreMapper.insert(omBillRelStorePo);
+                //递归调用 团队合作的店铺层级最多为5层
+                teamWorkLevel--;
+                createBillRelStore(omOrderBillPo, parentStoreId, teamWorkLevel);
+            }
+        }
     }
 
     /**
