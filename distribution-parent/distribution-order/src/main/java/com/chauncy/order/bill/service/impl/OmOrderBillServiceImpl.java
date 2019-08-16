@@ -2,6 +2,8 @@ package com.chauncy.order.bill.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.chauncy.common.constant.ServiceConstant;
+import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.common.enums.log.LogTriggerEventEnum;
 import com.chauncy.common.enums.order.BillSettlementEnum;
 import com.chauncy.common.enums.order.BillStatusEnum;
@@ -26,6 +28,7 @@ import com.chauncy.data.dto.manage.order.bill.update.BillDeductionDto;
 import com.chauncy.data.dto.supplier.order.CreateStoreBillDto;
 import com.chauncy.data.mapper.order.OmGoodsTempMapper;
 import com.chauncy.data.mapper.order.bill.OmBillRelGoodsTempMapper;
+import com.chauncy.data.mapper.order.bill.OmBillRelStoreMapper;
 import com.chauncy.data.mapper.order.bill.OmOrderBillMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.store.rel.SmStoreBankCardMapper;
@@ -74,6 +77,9 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
 
     @Autowired
     private SmStoreBankCardMapper smStoreBankCardMapper;
+
+    @Autowired
+    private OmBillRelStoreMapper omBillRelStoreMapper;
 
     @Autowired
     private IOmAccountLogService omAccountLogService;
@@ -363,8 +369,8 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
 
     /**
      * 根据店铺id，账单日期创建账单
-     * @param endDate
-     * @param storeId
+     * @param endDate   账单最后一天
+     * @param storeId   账单所属店铺
      */
     private void createStoreBill(LocalDate endDate, Long storeId, Integer billType) {
         SmStorePo smStorePo = smStoreMapper.selectById(storeId);
@@ -385,7 +391,8 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
         omOrderBillPo.setTotalAmount(totalAmount);
         omOrderBillPo.setBillStatus(BillStatusEnum.TO_BE_WITHDRAWN.getId());
         omOrderBillPo.setStoreId(storeId);
-        omOrderBillPo.setBillDate(endDate);
+        omOrderBillPo.setStartDate(startDate);
+        omOrderBillPo.setEndDate(endDate);
         omOrderBillPo.setBillType(billType);
         omOrderBillPo.setCreateBy(String.valueOf(storeId));
         omOrderBillMapper.insert(omOrderBillPo);
@@ -424,10 +431,23 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
         omOrderBillPo.setTotalAmount(totalAmount);
         omOrderBillMapper.updateById(omOrderBillPo);
 
-        //店铺团队合作：如果是利润账单，店铺绑定的上级店铺也能看到
+        //团队合作的店铺  该店铺的利润账单作为上级绑定的店铺的交易报表
         if (BillTypeEnum.PROFIT_BILL.getId().equals(billType)) {
-            //todo
+            createBillRelStore(omOrderBillPo, storeId);
         }
+    }
+
+    /**
+     * 团队合作的店铺  该店铺的利润账单作为上级绑定的店铺的交易报表
+     * @param omOrderBillPo   账单
+     * @param storeId  账单所属店铺
+     */
+    private void createBillRelStore(OmOrderBillPo omOrderBillPo, Long storeId) {
+        //todo
+        //团队合作的层级最多为5层
+        //查找店铺storeId在账单周期内绑定的关系为团队合作的上级店铺
+        Long parentStoreId = omBillRelStoreMapper.getTeamWorkParentStoreId(
+                storeId, omOrderBillPo.getStartDate(), omOrderBillPo.getEndDate());
     }
 
     /**
@@ -448,8 +468,9 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
         }
         //todo  售后时间
         queryWrapper.lambda()
-                .ge(OmOrderPo::getCreateTime, startDate)
-                .le(OmOrderPo::getCreateTime, endDate)
+                .eq(OmOrderPo::getStatus, OrderStatusEnum.ALREADY_FINISH)
+                .ge(OmOrderPo::getAfterSaleDeadline, startDate)
+                .le(OmOrderPo::getAfterSaleDeadline, endDate.plusDays(1))
                 .select(OmOrderPo::getId)
                 .select(OmOrderPo::getIncomeRate);
         return omOrderService.listMaps(queryWrapper);

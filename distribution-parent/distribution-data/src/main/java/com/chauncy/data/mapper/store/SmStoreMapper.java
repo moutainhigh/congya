@@ -89,6 +89,13 @@ public interface SmStoreMapper extends IBaseMapper<SmStorePo> {
     List<Long> selectAttributeIdsById(@Param("id") Long id);
 
     /**
+     * 获取店铺关联的品牌id
+     * @param id
+     * @return
+     */
+    List<Long> selectRelAttributeIds(@Param("id") Long id);
+
+    /**
      * 根据店铺id获取店铺跟哪些标签关联
      * @param id
      * @return

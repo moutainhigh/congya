@@ -189,25 +189,27 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         List<Long> oldAttributeIds = smStoreMapper.selectAttributeIdsById(storeBaseInfoDto.getId());
         List<Long> newAttributeIds = Arrays.asList(storeBaseInfoDto.getAttributeIds());
         //oldAttributeIds 与 newAttributeIds的差集
-        //todo  逻辑有问题？？？？？？？？
         List<Long> reduceList = oldAttributeIds.stream().filter(item -> !newAttributeIds.contains(item)).collect(toList());
         if(null != reduceList && reduceList.size() > 0 ) {
             throw  new ServiceException(ResultCode.PARAM_ERROR, "修改失败，包含正被使用的关联的品牌");
         }
 
-        //将店铺与品牌关联表的记录删除  关联不能全部删除重新创建  因为可能已经存在关联删除差集 reduceList
+        //将店铺与品牌关联表的记录删除  关联不能全部删除重新创建  因为可能已经有已存在关联，删除差集 needDelList
         /*Map<String, Object> map = new HashMap<>();
         map.put("store_id", storeBaseInfoDto.getId());
         smRelStoreAttributeMapper.deleteByMap(map);*/
+        // 获取店铺关联的品牌id
+        List<Long> relAttributeIds = smStoreMapper.selectRelAttributeIds(storeBaseInfoDto.getId());
+        List<Long> needDelList = relAttributeIds.stream().filter(item -> !newAttributeIds.contains(item)).collect(toList());
         QueryWrapper<SmRelStoreAttributePo> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda()
                 .eq(SmRelStoreAttributePo::getStoreId, storeBaseInfoDto.getId())
-                .in(SmRelStoreAttributePo::getAttributeId, reduceList);
+                .in(SmRelStoreAttributePo::getAttributeId, needDelList);
         smRelStoreAttributeMapper.delete(queryWrapper);
 
 
-        //批量插入店铺品牌关联记录  此时需要插入的关联应该为 newAttributeIds  与 oldAttributeIds 的差集
-        List<Long> needInsertList = newAttributeIds.stream().filter(item -> !oldAttributeIds.contains(item)).collect(toList());
+        //批量插入店铺品牌关联记录  此时需要插入的关联应该为 newAttributeIds  与 relAttributeIds 的差集
+        List<Long> needInsertList = newAttributeIds.stream().filter(item -> !relAttributeIds.contains(item)).collect(toList());
         if(null != needInsertList && needInsertList.size() > 0) {
             storeBaseInfoDto.setAttributeIds(needInsertList.toArray(new Long[needInsertList.size()]));
             saveBatchRelStoreAttribute(storeBaseInfoDto, userName);
