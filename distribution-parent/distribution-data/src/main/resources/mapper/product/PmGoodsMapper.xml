@@ -118,6 +118,7 @@
              LEFT JOIN pm_goods_sku pgs on (pg.id = pgs.goods_id)
         <where>
                 mrig.information_id = #{id}
+                AND mrig.del_flag = 0
                 and pg.del_flag = 0
                 and pgs.del_flag = 0
         </where>
