@@ -481,9 +481,8 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
             //利润账单
             queryWrapper.lambda().eq(OmOrderPo::getUserStoreId, storeId);
         }
-        //todo  售后时间
         queryWrapper.lambda()
-                .eq(OmOrderPo::getStatus, OrderStatusEnum.ALREADY_FINISH)
+                //.eq(OmOrderPo::getStatus, OrderStatusEnum.ALREADY_FINISH)
                 .ge(OmOrderPo::getAfterSaleDeadline, startDate)
                 .le(OmOrderPo::getAfterSaleDeadline, endDate.plusDays(1))
                 .select(OmOrderPo::getId)
