@@ -624,9 +624,9 @@ public class MmAdviceRelTabAssociationServiceImpl extends AbstractService<MmAdvi
                             Map<String, Object> map = Maps.newHashMap();
                             map.put("tab_id", b.getTabId());
                             relTabThingsMapper.deleteByMap(map);
-                            //保存每个选项卡关联的店铺ID
-                            MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
                             b.getStoreIds().stream().forEach(c -> {
+                                //保存每个选项卡关联的店铺ID
+                                MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
                                 relTabThingsPo.setCreateBy(sysUser.getUsername())
                                         .setId(null)
                                         .setTabId(b.getTabId())

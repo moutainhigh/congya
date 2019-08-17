@@ -5,16 +5,17 @@ import com.chauncy.common.enums.app.advice.AdviceLocationEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.core.AbstractService;
-import com.chauncy.data.domain.po.message.advice.MmAdvicePo;
-import com.chauncy.data.domain.po.message.advice.MmAdviceRelAssociaitonPo;
-import com.chauncy.data.domain.po.message.advice.MmAdviceRelTabAssociationPo;
-import com.chauncy.data.domain.po.message.advice.MmAdviceRelTabThingsPo;
+import com.chauncy.data.domain.po.message.advice.*;
 import com.chauncy.data.dto.manage.message.advice.select.SearchAdvicesDto;
 import com.chauncy.data.mapper.message.advice.*;
 import com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.StoreTabsVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.StoreVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.TabInfosVo;
+import com.chauncy.data.vo.manage.message.advice.tab.tab.BrandTabInfosVo;
+import com.chauncy.data.vo.manage.message.advice.tab.tab.BrandVo;
+import com.chauncy.data.vo.manage.message.advice.tab.tab.GoodsTabInfosVo;
+import com.chauncy.data.vo.manage.message.advice.tab.tab.GoodsVo;
 import com.chauncy.message.advice.IMmAdviceService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -55,6 +56,9 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
     @Autowired
     private MmAdviceTabMapper tabMapper;
 
+    @Autowired
+    private MmAdviceRelTabMapper relTabMapper;
+
     /**
      * 获取广告位置
      *
@@ -88,8 +92,9 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
         advicesVoPageInfo.getList().forEach(a->{
             AdviceLocationEnum adviceLocationEnum = AdviceLocationEnum.fromEnumName(a.getLocation());
             switch (adviceLocationEnum) {
-                case SHOUYE_YOUPIN:
-                    break;
+
+                /******************* Tab start ****************/
+                //首页有店+店铺分类详情
                 case STORE_DETAIL:
                     //获取该广告分类下的店铺分类信息以及该广告与店铺分类关联的ID
                     List<StoreTabsVo> storeClassificationList = relAssociaitonMapper.findStoreClassificationList(a.getAdviceId());
@@ -98,7 +103,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                         List<TabInfosVo> tabInfosVoList = relTabAssociationMapper.findTabInfos(b.getAdviceAssociationId());
                         tabInfosVoList.forEach(c->{
                             //获取该广告的该店铺下的选项卡下的关联店铺
-                            PageInfo<StoreVo> storeList = PageHelper.startPage(defaultPageNo,2).
+                            PageInfo<StoreVo> storeList = PageHelper.startPage(defaultPageNo,defaultPageSize).
                                     doSelectPageInfo(()->relTabThingsMapper.findStoreList(c.getTabId()));
 
                             c.setStoreList(storeList);
@@ -107,12 +112,36 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                     });
                     a.setDetail(storeClassificationList);
                     break;
+
+                //首页有品------》》》品牌
+                case SHOUYE_YOUPIN:
+                    //获取该广告下的所有选项卡信息
+                    List<BrandTabInfosVo> brandTabInfosVos = relTabMapper.findBrandTabInfosVos(a.getAdviceId());
+                    brandTabInfosVos.forEach(b->{
+                        //分页获取品牌选项卡关联的品牌
+                        PageInfo<BrandVo> brandList = PageHelper.startPage(defaultPageNo,defaultPageSize)
+                                .doSelectPageInfo(()->relTabThingsMapper.findBrandList(b.getTabId()));
+                        b.setBrandList(brandList);
+                    });
+                    a.setDetail(brandTabInfosVos);
+                    break;
+
+                //特卖、主题、优选-----》》》商品
                 case SHOUYE_ZHUTI:
-                    break;
                 case SALE:
-                    break;
                 case YOUXUAN:
+                    //获取该选项卡信息
+                    List<GoodsTabInfosVo> goodsTabInfosVos = relTabMapper.findGoodsTabInfosVos(a.getAdviceId());
+                    goodsTabInfosVos.forEach(b->{
+                        //分页获取品牌选项卡关联的商品
+                        PageInfo<GoodsVo> goodsList = PageHelper.startPage(defaultPageNo,defaultPageSize)
+                                .doSelectPageInfo(()->relTabThingsMapper.findGoodsList(b.getTabId()));
+                        b.setGoodsList(goodsList);
+                    });
+                    a.setDetail(goodsTabInfosVos);
                     break;
+                /******************* Tab end ****************/
+
                 case BOTTOM_SHUFFLING:
                     break;
                 case LEFT_UP_CORNER_SHUFFLING:
@@ -168,8 +197,8 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
             }
             AdviceLocationEnum adviceLocationEnum = AdviceLocationEnum.fromEnumName(advicePo.getLocation());
             switch (adviceLocationEnum) {
-                case SHOUYE_YOUPIN:
-                    break;
+                /******************* Tab start ****************/
+
                     //有店+店铺分类详情
                 case STORE_DETAIL:
                     List<Long> relId = relAssociaitonMapper.selectList(new QueryWrapper<MmAdviceRelAssociaitonPo>().lambda()
@@ -187,14 +216,31 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                     });
                     relAssociaitonMapper.delete(new QueryWrapper<MmAdviceRelAssociaitonPo>().lambda().and(obj->obj
                             .eq(MmAdviceRelAssociaitonPo::getAdviceId,a)));
-                    mapper.deleteById(a);
+//                    mapper.deleteById(a);
                     break;
+                //首页有品------》》》品牌
+                //特卖、主题、优选-----》》》商品
+                case SHOUYE_YOUPIN:
                 case SHOUYE_ZHUTI:
-                    break;
                 case SALE:
-                    break;
                 case YOUXUAN:
+                    //获取该广告下的所有选项卡
+                    List<Long> tabIds = relTabMapper.selectList(new QueryWrapper<MmAdviceRelTabPo>().lambda()
+                            .eq(MmAdviceRelTabPo::getAdviceId,a)).stream().map(b->b.getTabId()).collect(Collectors.toList());
+                    //删除选项卡关联的商品/品牌
+                    tabIds.forEach(b->{
+                        relTabThingsMapper.delete(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                .eq(MmAdviceRelTabThingsPo::getTabId,b));
+                    });
+                    //删除广告与选项卡关联的记录
+                    relTabMapper.delete(new QueryWrapper<MmAdviceRelTabPo>().lambda()
+                            .eq(MmAdviceRelTabPo::getAdviceId,a));
+                    //删除对应的选项卡
+                    tabMapper.deleteBatchIds(tabIds);
+                    //删除对应的广告
+//                    mapper.deleteById(a);
                     break;
+                /******************* Tab end ****************/
                 case BOTTOM_SHUFFLING:
                     break;
                 case LEFT_UP_CORNER_SHUFFLING:
@@ -232,7 +278,9 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
             }
 
         });
-
+        //最后一步，删除对应的广告
+        mapper.deleteBatchIds(idList);
 
     }
+
 }

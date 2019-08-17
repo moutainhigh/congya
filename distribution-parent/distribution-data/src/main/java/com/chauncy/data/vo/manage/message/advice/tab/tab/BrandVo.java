@@ -1,0 +1,27 @@
+package com.chauncy.data.vo.manage.message.advice.tab.tab;
+
+import com.alibaba.fastjson.annotation.JSONField;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.experimental.Accessors;
+
+/**
+ * @Author cheng
+ * @create 2019-06-17 15:27
+ *
+ * 品牌基本信息Vo,只包含ID和name
+ */
+@Data
+@Accessors(chain = true)
+@ApiModel(description = "品牌基本信息Vo,只包含ID和name")
+public class BrandVo {
+
+    @ApiModelProperty("品牌ID")
+    @JSONField(ordinal = 7)
+    private Long brandId;
+
+    @ApiModelProperty("店品牌名称")
+    @JSONField(ordinal = 8)
+    private String brandName;
+}

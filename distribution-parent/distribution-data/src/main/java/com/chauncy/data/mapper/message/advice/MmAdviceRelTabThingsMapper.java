@@ -4,6 +4,8 @@ import com.chauncy.data.domain.po.message.advice.MmAdviceRelTabThingsPo;
 import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchStoresDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.manage.message.advice.tab.association.StoreVo;
+import com.chauncy.data.vo.manage.message.advice.tab.tab.BrandVo;
+import com.chauncy.data.vo.manage.message.advice.tab.tab.GoodsVo;
 
 import java.util.List;
 
@@ -27,4 +29,18 @@ public interface MmAdviceRelTabThingsMapper extends IBaseMapper<MmAdviceRelTabTh
      * @return
      */
     List<StoreVo> searchStores(SearchStoresDto searchStoresDto);
+
+    /**
+     * 获取品牌选项卡关联的品牌
+     *
+     * @param tabId
+     */
+    List<BrandVo> findBrandList(Long tabId);
+
+    /**
+     * 获取品牌选项卡关联的品牌
+     *
+     * @param tabId
+     */
+    List<GoodsVo> findGoodsList(Long tabId);
 }
