@@ -30,7 +30,10 @@
                 and title like concat('%', #{title}, '%')
             </if>
             <if test="pushTime!=null">
-                and DATE_FORMAT(create_time,'%Y-%m-%d')=#{pushTime}
+                and DATE_FORMAT(create_time,'%Y-%m-%d') &gt;= #{pushTime}
+            </if>
+            <if test="endTime!=null">
+                and DATE_FORMAT(create_time,'%Y-%m-%d') &lt;= #{endTime}
             </if>
             <if test="pushType!=null and pushType!=''">
                 and push_type = #{pushType}

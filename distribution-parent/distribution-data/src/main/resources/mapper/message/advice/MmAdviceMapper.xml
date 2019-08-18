@@ -28,8 +28,8 @@
         <if test="enabled != null">
             and enabled = #{enabled}
         </if>
-        <if test="name != null">
-            and name like concat ('%',#{name},'%')
+        <if test="name !=null and name!=''">
+            and a.name like concat('%', #{name}, '%')
         </if>
     </select>
 

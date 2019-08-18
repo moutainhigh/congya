@@ -19,4 +19,38 @@
         id, create_by, create_time, update_by, update_time, del_flag, advice_id, tab_id
     </sql>
 
+    <select id="findBrandTabInfosVos"
+            resultType="com.chauncy.data.vo.manage.message.advice.tab.tab.BrandTabInfosVo">
+        select tab_id,b.name as tab_name
+        from mm_advice_rel_tab a,mm_advice_tab b
+        where a.del_flag = 0 and b.del_flag = 0 and a.tab_id = b.id and a.advice_id = #{adviceId}
+    </select>
+
+    <select id="findGoodsTabInfosVos"
+            resultType="com.chauncy.data.vo.manage.message.advice.tab.tab.GoodsTabInfosVo">
+        select tab_id,b.name as tab_name
+        from mm_advice_rel_tab a,mm_advice_tab b
+        where a.del_flag = 0 and b.del_flag = 0 and a.tab_id = b.id and a.advice_id = #{adviceId}
+    </select>
+
+    <select id="searchTabAssociatedBrands"
+            resultType="com.chauncy.data.vo.manage.message.advice.tab.tab.BrandVo">
+        select a.id as brand_id,a.name as brand_name
+        from pm_goods_attribute a,mm_advice_rel_tab_things b
+        where a.del_flag = 0 and b.del_flag = 0 and b.association_id = a.id and b.tab_id = #{tabId}
+        <if test="name !=null and name!=''">
+            and a.name like concat('%', #{name}, '%')
+        </if>
+    </select>
+
+    <select id="searchTabAssociatedGoods"
+            resultType="com.chauncy.data.vo.manage.message.advice.tab.tab.GoodsVo">
+        select a.id as goods_id,a.name as goods_name
+        from pm_goods a,mm_advice_rel_tab_things b
+        where a.del_flag = 0 and b.del_flag = 0 and b.association_id = a.id and b.tab_id = #{tabId}
+        <if test="name !=null and name!=''">
+            and a.name like concat('%', #{name}, '%')
+        </if>
+    </select>
+
 </mapper>

@@ -30,6 +30,22 @@
         select a.id as store_id,a.name as store_name
         from sm_store a,mm_advice_rel_tab_things b
         where a.del_flag = 0 and b.del_flag = 0 and b.association_id = a.id and b.tab_id = #{tabId}
+        <if test="name !=null and name!=''">
+            and a.name like concat('%', #{name}, '%')
+        </if>
+    </select>
+
+    <select id="findBrandList" resultType="com.chauncy.data.vo.manage.message.advice.tab.tab.BrandVo">
+        select association_id as brand_id,b.name as brand_name
+        from pm_goods_attribute b,mm_advice_rel_tab_things a
+        where a.del_flag = 0 and b.del_flag = 0 and a.association_id = b.id and a.tab_id = #{tabId}
+
+    </select>
+
+    <select id="findGoodsList" resultType="com.chauncy.data.vo.manage.message.advice.tab.tab.GoodsVo">
+        select association_id as goods_id,b.name as goods_name
+        from pm_goods b,mm_advice_rel_tab_things a
+        where a.del_flag = 0 and b.del_flag = 0 and a.association_id = b.id and a.tab_id = #{tabId}
     </select>
 
 

@@ -35,6 +35,9 @@ public class SearchPushDto {
     @ApiModelProperty(value = "推送方式")
     private String pushType;
 
-    @ApiModelProperty(value = "推送时间")
+    @ApiModelProperty(value = "推送最早时间")
     private LocalDate pushTime;
+
+    @ApiModelProperty(value = "推送最晚时间")
+    private LocalDate endTime;
 }

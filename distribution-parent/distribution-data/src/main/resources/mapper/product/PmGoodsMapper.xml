@@ -329,6 +329,14 @@
             </where>
             GROUP BY pg.id
     </select>
+    <select id="searchTabNeedGoods" resultType="com.chauncy.data.vo.BaseVo">
+        select id,name
+        from pm_goods
+        where del_flag = 0
+        <if test="name!=null and name!=''">
+            and name like concat('%', #{name}, '%')
+        </if>
+    </select>
 
 
 </mapper>
