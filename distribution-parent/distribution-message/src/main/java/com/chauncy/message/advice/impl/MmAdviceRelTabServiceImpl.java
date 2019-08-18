@@ -8,10 +8,7 @@ import com.chauncy.common.enums.goods.GoodsAttributeTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.ListUtil;
-import com.chauncy.data.domain.po.message.advice.MmAdvicePo;
-import com.chauncy.data.domain.po.message.advice.MmAdviceRelTabPo;
-import com.chauncy.data.domain.po.message.advice.MmAdviceRelTabThingsPo;
-import com.chauncy.data.domain.po.message.advice.MmAdviceTabPo;
+import com.chauncy.data.domain.po.message.advice.*;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.manage.message.advice.tab.tab.add.SaveRelTabDto;
@@ -19,11 +16,8 @@ import com.chauncy.data.dto.manage.message.advice.tab.tab.search.SearchAdviceGoo
 import com.chauncy.data.dto.manage.message.advice.tab.tab.search.SearchBrandsDto;
 import com.chauncy.data.dto.manage.message.advice.tab.tab.search.SearchTabAssociatedBrandsDto;
 import com.chauncy.data.dto.manage.message.advice.tab.tab.search.SearchTabAssociatedGoodsDto;
-import com.chauncy.data.mapper.message.advice.MmAdviceMapper;
-import com.chauncy.data.mapper.message.advice.MmAdviceRelTabMapper;
+import com.chauncy.data.mapper.message.advice.*;
 import com.chauncy.data.core.AbstractService;
-import com.chauncy.data.mapper.message.advice.MmAdviceRelTabThingsMapper;
-import com.chauncy.data.mapper.message.advice.MmAdviceTabMapper;
 import com.chauncy.data.mapper.product.PmGoodsAttributeMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.vo.BaseVo;
@@ -41,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +73,9 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
 
     @Autowired
     private MmAdviceTabMapper adviceTabMapper;
+
+    @Autowired
+    private MmAdviceRelShufflingMapper relShufflingMapper;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -251,8 +249,8 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
                                 .setCreateBy(sysUser.getUsername());
                         relTabMapper.insert(adviceRelTabPo);
                         a.getAssociatedIds().forEach(b -> {
-                            if (brandMapper.selectById(b) == null){
-                                throw new ServiceException(ResultCode.NO_EXISTS,String.format("数据库不存在id为[%s]的品牌,请检查",b));
+                            if (brandMapper.selectById(b) == null) {
+                                throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在id为[%s]的品牌,请检查", b));
                             }
                             //4、保存该选项卡下的品牌到mm_advice_rel_tab_things
                             MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
@@ -312,8 +310,8 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
                                 .setCreateBy(sysUser.getUsername());
                         relTabMapper.insert(adviceRelTabPo);
                         a.getAssociatedIds().forEach(b -> {
-                            if (goodsMapper.selectById(b) == null){
-                                throw new ServiceException(ResultCode.NO_EXISTS,String.format("数据库不存在id为[%s]的商品,请检查",b));
+                            if (goodsMapper.selectById(b) == null) {
+                                throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在id为[%s]的商品,请检查", b));
                             }
                             //4、保存该选项卡下的商品到mm_advice_rel_tab_things
                             MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
@@ -333,7 +331,7 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
 
         //编辑操作(包括修改和删除)
         else {
-            /*****************删除 start***************/
+            /*****************删除选项卡 start***************/
             //查找已经删除了的tab以及执行删除操作，首先获取该广告下全部的选项卡Tabs
             List<Long> allTabIds = relTabMapper.selectList(new QueryWrapper<MmAdviceRelTabPo>().lambda()
                     .eq(MmAdviceRelTabPo::getAdviceId, saveRelTabDto.getAdviceId())).stream()
@@ -346,7 +344,24 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
             delIds.removeAll(remainTabIds);
             if (!ListUtil.isListNullAndEmpty(delIds)) {
                 delIds.forEach(a -> {
-                    //删除该选项卡关联的商品
+                    if (saveRelTabDto.getLocation().equals(AdviceLocationEnum.SHOUYE_YOUPIN.getName())) {
+                        //获取该选项卡下绑定的品牌
+                        List<Long> tabBrandIdList = relTabThingsMapper.selectList(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                .eq(MmAdviceRelTabThingsPo::getTabId, a)).stream().map(b -> b.getAssociationId()).collect(Collectors.toList());
+
+                        //获取该选项卡下的品牌下的关联id
+                        tabBrandIdList.forEach(b->{
+                            Long brandRelId = relTabThingsMapper.selectOne(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                    .eq(MmAdviceRelTabThingsPo::getAssociationId, b)
+                                    .eq(MmAdviceRelTabThingsPo::getTabId, a)).getId();
+                            //删除该选项卡下的品牌下的轮播图广告
+                            relShufflingMapper.delete(new QueryWrapper<MmAdviceRelShufflingPo>().lambda().and(obj -> obj
+                                    .eq(MmAdviceRelShufflingPo::getBrandRelId, brandRelId)));
+                        });
+
+                    }
+
+                    //删除该选项卡关联的商品/品牌
                     relTabThingsMapper.delete(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
                             .eq(MmAdviceRelTabThingsPo::getTabId, a));
                     //删除广告与选项卡关联记录
@@ -447,8 +462,8 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
                                     .setCreateBy(sysUser.getUsername());
                             relTabMapper.insert(adviceRelTabPo);
                             a.getAssociatedIds().forEach(b -> {
-                                if (brandMapper.selectById(b) == null){
-                                    throw new ServiceException(ResultCode.NO_EXISTS,String.format("数据库不存在id为[%s]的品牌,请检查",b));
+                                if (brandMapper.selectById(b) == null) {
+                                    throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在id为[%s]的品牌,请检查", b));
                                 }
                                 //4、保存该选项卡下的品牌到mm_advice_rel_tab_things
                                 MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
@@ -473,24 +488,68 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
                             adviceTabPo.setUpdateBy(sysUser.getUsername())
                                     .setName(a.getTabName());
                             adviceTabMapper.updateById(adviceTabPo);
-                            //4、更新选项卡与品牌/商品关联表
-                            Map<String, Object> map = Maps.newHashMap();
-                            map.put("tab_id", a.getTabId());
-                            relTabThingsMapper.deleteByMap(map);
-                            //遍历该选项卡下的品牌
-                            a.getAssociatedIds().forEach(c -> {
-                                if (brandMapper.selectById(c) == null){
-                                    throw new ServiceException(ResultCode.NO_EXISTS,String.format("数据库不存在id为[%s]的品牌,请检查",c));
+
+                            //4、获取该选项卡下绑定的品牌
+                            List<Long> tabBrandIdList = relTabThingsMapper.selectList(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                    .eq(MmAdviceRelTabThingsPo::getTabId, a.getTabId())).stream().map(b -> b.getAssociationId()).collect(Collectors.toList());
+                            if (!ListUtil.isListNullAndEmpty(tabBrandIdList)) {
+                                List<Long> delBrandIds = new ArrayList<>(tabBrandIdList);
+                                //前端传的值
+                                List<Long> newBrandIds = new ArrayList<>(a.getAssociatedIds());
+                                //获取需要删除的品牌并删除
+                                delBrandIds.removeAll(a.getAssociatedIds());
+                                //获取新增的品牌并保存到数据库中
+                                newBrandIds.removeAll(tabBrandIdList);
+                                if (!ListUtil.isListNullAndEmpty(delBrandIds)) {
+                                    delBrandIds.forEach(c -> {
+                                        //获取该选项卡下的品牌下的关联id
+                                        Long brandRelId = relTabThingsMapper.selectOne(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                                .eq(MmAdviceRelTabThingsPo::getAssociationId, c)
+                                                .eq(MmAdviceRelTabThingsPo::getTabId, a.getTabId())).getId();
+
+                                        //删除该选项卡下的品牌下的轮播图广告
+                                        relShufflingMapper.delete(new QueryWrapper<MmAdviceRelShufflingPo>().lambda().and(obj->obj
+                                                .eq(MmAdviceRelShufflingPo::getBrandRelId,brandRelId)));
+
+                                        //删除该选项卡下的品牌
+                                        relTabThingsMapper.delete(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                                .eq(MmAdviceRelTabThingsPo::getAssociationId, c)
+                                                .eq(MmAdviceRelTabThingsPo::getTabId, a.getTabId()));
+                                    });
                                 }
-                                //保存该选项卡下的品牌到mm_advice_rel_tab_things
-                                MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
-                                relTabThingsPo.setId(null)
-                                        .setType(AssociationTypeEnum.BRAND.getId())
-                                        .setCreateBy(sysUser.getUsername())
-                                        .setTabId(a.getTabId())
-                                        .setAssociationId(c);
-                                relTabThingsMapper.insert(relTabThingsPo);
-                            });
+
+                                if (!ListUtil.isListNullAndEmpty(newBrandIds)) {
+                                    //保存该选项卡下的品牌到mm_advice_rel_tab_things
+                                    newBrandIds.forEach(c -> {
+                                        MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
+                                        relTabThingsPo.setId(null)
+                                                .setType(AssociationTypeEnum.BRAND.getId())
+                                                .setCreateBy(sysUser.getUsername())
+                                                .setTabId(a.getTabId())
+                                                .setAssociationId(c);
+                                        relTabThingsMapper.insert(relTabThingsPo);
+                                    });
+                                }
+                            }
+
+                            //4、删除选项卡与品牌关联表
+//                            Map<String, Object> map = Maps.newHashMap();
+//                            map.put("tab_id", a.getTabId());
+//                            relTabThingsMapper.deleteByMap(map);
+                            //遍历该选项卡下的品牌
+//                            a.getAssociatedIds().forEach(c -> {
+//                                if (brandMapper.selectById(c) == null){
+//                                    throw new ServiceException(ResultCode.NO_EXISTS,String.format("数据库不存在id为[%s]的品牌,请检查",c));
+//                                }
+//                                //保存该选项卡下的品牌到mm_advice_rel_tab_things
+//                                MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
+//                                relTabThingsPo.setId(null)
+//                                        .setType(AssociationTypeEnum.BRAND.getId())
+//                                        .setCreateBy(sysUser.getUsername())
+//                                        .setTabId(a.getTabId())
+//                                        .setAssociationId(c);
+//                                relTabThingsMapper.insert(relTabThingsPo);
+//                            });
                         }
 
                     });
@@ -544,8 +603,8 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
                                     .setCreateBy(sysUser.getUsername());
                             relTabMapper.insert(adviceRelTabPo);
                             a.getAssociatedIds().forEach(b -> {
-                                if (goodsMapper.selectById(b) == null){
-                                    throw new ServiceException(ResultCode.NO_EXISTS,String.format("数据库不存在id为[%s]的商品,请检查",b));
+                                if (goodsMapper.selectById(b) == null) {
+                                    throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在id为[%s]的商品,请检查", b));
                                 }
                                 //4、保存该选项卡下的商品到mm_advice_rel_tab_things
                                 MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
@@ -570,24 +629,58 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
                             adviceTabPo.setUpdateBy(sysUser.getUsername())
                                     .setName(a.getTabName());
                             adviceTabMapper.updateById(adviceTabPo);
-                            //4、更新选项卡与商品关联表
-                            Map<String, Object> map = Maps.newHashMap();
-                            map.put("tab_id", a.getTabId());
-                            relTabThingsMapper.deleteByMap(map);
-                            //遍历该选项卡下的商品
-                            a.getAssociatedIds().forEach(c -> {
-                                if (goodsMapper.selectById(c) == null){
-                                    throw new ServiceException(ResultCode.NO_EXISTS,String.format("数据库不存在id为[%s]的商品,请检查",c));
+
+                            //4、更新选项卡与商品关联表，获取该选项卡下绑定的商品
+                            List<Long> tabGoodsIdList = relTabThingsMapper.selectList(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                    .eq(MmAdviceRelTabThingsPo::getTabId, a.getTabId())).stream().map(b -> b.getAssociationId()).collect(Collectors.toList());
+                            if (!ListUtil.isListNullAndEmpty(tabGoodsIdList)) {
+                                List<Long> delGoodsIds = new ArrayList<>(tabGoodsIdList);
+                                //前端传的值
+                                List<Long> newGoodsIds = new ArrayList<>(a.getAssociatedIds());
+                                //获取需要删除的商品并删除
+                                delGoodsIds.removeAll(a.getAssociatedIds());
+                                //获取新增的商品并保存到数据库中
+                                newGoodsIds.removeAll(tabGoodsIdList);
+                                if (!ListUtil.isListNullAndEmpty(delGoodsIds)) {
+                                    delGoodsIds.forEach(c -> {
+                                        relTabThingsMapper.delete(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                                .eq(MmAdviceRelTabThingsPo::getAssociationId, c)
+                                                .eq(MmAdviceRelTabThingsPo::getTabId, a.getTabId()));
+                                    });
                                 }
-                                //保存该选项卡下的品牌到mm_advice_rel_tab_things
-                                MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
-                                relTabThingsPo.setId(null)
-                                        .setType(AssociationTypeEnum.BRAND.getId())
-                                        .setCreateBy(sysUser.getUsername())
-                                        .setTabId(a.getTabId())
-                                        .setAssociationId(c);
-                                relTabThingsMapper.insert(relTabThingsPo);
-                            });
+
+                                if (!ListUtil.isListNullAndEmpty(newGoodsIds)) {
+                                    //保存该选项卡下的商品到mm_advice_rel_tab_things
+                                    newGoodsIds.forEach(c -> {
+                                        MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
+                                        relTabThingsPo.setId(null)
+                                                .setType(AssociationTypeEnum.BRAND.getId())
+                                                .setCreateBy(sysUser.getUsername())
+                                                .setTabId(a.getTabId())
+                                                .setAssociationId(c);
+                                        relTabThingsMapper.insert(relTabThingsPo);
+                                    });
+                                }
+                            }
+
+//                            //4、更新选项卡与商品关联表
+//                            Map<String, Object> map = Maps.newHashMap();
+//                            map.put("tab_id", a.getTabId());
+//                            relTabThingsMapper.deleteByMap(map);
+//                            //遍历该选项卡下的商品
+//                            a.getAssociatedIds().forEach(c -> {
+//                                if (goodsMapper.selectById(c) == null) {
+//                                    throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在id为[%s]的商品,请检查", c));
+//                                }
+//                                //保存该选项卡下的品牌到mm_advice_rel_tab_things
+//                                MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
+//                                relTabThingsPo.setId(null)
+//                                        .setType(AssociationTypeEnum.BRAND.getId())
+//                                        .setCreateBy(sysUser.getUsername())
+//                                        .setTabId(a.getTabId())
+//                                        .setAssociationId(c);
+//                                relTabThingsMapper.insert(relTabThingsPo);
+//                            });
                         }
 
                     });
