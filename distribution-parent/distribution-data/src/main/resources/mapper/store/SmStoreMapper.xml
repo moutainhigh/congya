@@ -156,15 +156,15 @@
         on srsa.attribute_id = pga.id
         left join sm_store_rel_label ssrl
         on ssrl.store_id = ss.id
-        left join sm_store_label ssl
+        left join sm_store_label `ssl`
         on ssl.id = ssrl.store_label_id
         <where>
-            srsa.del_flag = 0
-            and pga.type = 8
-            and pga.del_flag = 0
             <if test="id !=null and id !=''">
                 and ss.id = #{id}
             </if>
+            and srsa.del_flag = 0
+            and pga.type = 8
+            and pga.del_flag = 0
         </where>
     </select>
 
@@ -338,7 +338,7 @@
         from sm_store ss
         left join sm_store_rel_label ssrl
         on ssrl.store_id = ss.id
-        left join sm_store_label ssl
+        left join sm_store_label `ssl`
         on ssl.id = ssrl.store_label_id
         where ss.id = #{storeId}
     </select>
