@@ -27,6 +27,9 @@ public class SearchFeedBackDto {
     @ApiModelProperty(value = "分页大小")
     private Integer pageSize;
 
-    @ApiModelProperty(value = "反馈时间")
+    @ApiModelProperty(value = "反馈最早时间")
     private LocalDate feedTime;
+
+    @ApiModelProperty(value = "反馈最晚时间")
+    private LocalDate endTime;
 }
