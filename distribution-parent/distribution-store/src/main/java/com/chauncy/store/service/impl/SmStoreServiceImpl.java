@@ -201,12 +201,13 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         // 获取店铺关联的品牌id
         List<Long> relAttributeIds = smStoreMapper.selectRelAttributeIds(storeBaseInfoDto.getId());
         List<Long> needDelList = relAttributeIds.stream().filter(item -> !newAttributeIds.contains(item)).collect(toList());
-        QueryWrapper<SmRelStoreAttributePo> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda()
-                .eq(SmRelStoreAttributePo::getStoreId, storeBaseInfoDto.getId())
-                .in(SmRelStoreAttributePo::getAttributeId, needDelList);
-        smRelStoreAttributeMapper.delete(queryWrapper);
-
+        if(null != needDelList && needDelList.size() > 0) {
+            QueryWrapper<SmRelStoreAttributePo> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda()
+                    .eq(SmRelStoreAttributePo::getStoreId, storeBaseInfoDto.getId())
+                    .in(SmRelStoreAttributePo::getAttributeId, needDelList);
+            smRelStoreAttributeMapper.delete(queryWrapper);
+        }
 
         //批量插入店铺品牌关联记录  此时需要插入的关联应该为 newAttributeIds  与 relAttributeIds 的差集
         List<Long> needInsertList = newAttributeIds.stream().filter(item -> !relAttributeIds.contains(item)).collect(toList());
@@ -422,6 +423,13 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
      */
     @Override
     public StoreBaseInfoVo findBaseById(Long id) {
+        if(null == id) {
+            SysUserPo sysUserPo = securityUtil.getCurrUser();
+            if(null == sysUserPo.getStoreId()) {
+                throw  new ServiceException(ResultCode.FAIL, "当前登录用户不是商家用户");
+            }
+            id = sysUserPo.getStoreId();
+        }
         StoreBaseInfoVo storeBaseInfoVo = smStoreMapper.findBaseById(id);
         /*String attributeIds = storeBaseInfoVo.getAttributeIds();
         QueryWrapper<PmGoodsAttributePo> queryWrapper = new QueryWrapper<>();
@@ -440,7 +448,13 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
      */
     @Override
     public StoreAccountInfoVo findAccountById(Long id) {
-
+        if(null == id) {
+            SysUserPo sysUserPo = securityUtil.getCurrUser();
+            if(null == sysUserPo.getStoreId()) {
+                throw  new ServiceException(ResultCode.FAIL, "当前登录用户不是商家用户");
+            }
+            id = sysUserPo.getStoreId();
+        }
         return smStoreMapper.findAccountById(id);
     }
 
@@ -452,6 +466,13 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
      */
     @Override
     public StoreOperationalInfoVo findOperationalById(Long id) {
+        if(null == id) {
+            SysUserPo sysUserPo = securityUtil.getCurrUser();
+            if(null == sysUserPo.getStoreId()) {
+                throw  new ServiceException(ResultCode.FAIL, "当前登录用户不是商家用户");
+            }
+            id = sysUserPo.getStoreId();
+        }
         return smStoreMapper.findOperationalById(id);
     }
 

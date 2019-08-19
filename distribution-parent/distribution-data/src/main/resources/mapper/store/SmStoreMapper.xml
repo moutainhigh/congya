@@ -211,7 +211,7 @@
         SELECT ssrl.id
         FROM sm_store ss, sm_store_rel_label ssrl
         WHERE ss.id = ssrl.store_id
-        AND pg.store_id = #{id} and ssrl.del_flag = 0
+        AND ssrl.store_id = #{id} and ssrl.del_flag = 0
     </select>
 
     <select id="searchRelStoreInfo" resultType="com.chauncy.data.vo.manage.store.RelStoreInfoVo">
