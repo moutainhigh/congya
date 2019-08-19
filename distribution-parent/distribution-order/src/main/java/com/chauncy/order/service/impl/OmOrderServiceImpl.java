@@ -18,11 +18,10 @@ import com.chauncy.data.domain.po.order.OmOrderLogisticsPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.domain.po.sys.BasicSettingPo;
-import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.my.SearchMyOrderDto;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
-import com.chauncy.data.dto.supplier.order.SmSendOrderDto;
+import com.chauncy.data.dto.supplier.order.SmSearchSendOrderDto;
 import com.chauncy.data.mapper.order.OmGoodsTempMapper;
 import com.chauncy.data.mapper.order.OmOrderLogisticsMapper;
 import com.chauncy.data.mapper.order.OmOrderMapper;
@@ -43,16 +42,13 @@ import com.chauncy.order.service.IOmOrderService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
-import lombok.experimental.Accessors;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
-import org.springframework.amqp.rabbit.connection.RabbitUtils;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -203,7 +199,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     }
 
     @Override
-    public PageInfo<SmSendOrderVo> searchSmSendOrderList(SmSendOrderDto smSendOrderDto) {
+    public PageInfo<SmSendOrderVo> searchSmSendOrderList(SmSearchSendOrderDto smSendOrderDto) {
         PageInfo<SmSendOrderVo> smSendOrderVoPageInfo = PageHelper.startPage(smSendOrderDto.getPageNo(), smSendOrderDto.getPageSize())
                 .doSelectPageInfo(() -> mapper.searchSendOrderVos(smSendOrderDto));
         smSendOrderVoPageInfo.getList().forEach(x->{

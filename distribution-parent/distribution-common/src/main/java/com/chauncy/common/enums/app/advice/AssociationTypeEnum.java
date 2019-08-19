@@ -11,7 +11,7 @@ import java.util.Objects;
  * @create 2019-07-17 22:45
  *
  *  广告关联类型枚举类
- * 1->店铺分类,2->品牌,3->商品,4->商品三级分类,5->店铺
+ * 1->店铺分类,2->品牌,3->商品,4->商品三级分类,5->店铺,6->商品一级分类
  */
 @Getter
 public enum AssociationTypeEnum implements BaseEnum {
@@ -24,7 +24,9 @@ public enum AssociationTypeEnum implements BaseEnum {
 
     SECOND_CLASSIFICATION(4,"商品三级分类"),
 
-    STORE(5,"店铺");
+    STORE(5,"店铺"),
+
+    FIRST_CLASSIFICATION(4,"商品三级分类"),;
 
     @EnumValue
     private Integer id;

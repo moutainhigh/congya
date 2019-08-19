@@ -59,6 +59,9 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
     @Autowired
     private MmAdviceRelTabMapper relTabMapper;
 
+    @Autowired
+    private MmAdviceRelShufflingMapper relShufflingMapper;
+
     /**
      * 获取广告位置
      *
@@ -229,9 +232,25 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                             .eq(MmAdviceRelTabPo::getAdviceId,a)).stream().map(b->b.getTabId()).collect(Collectors.toList());
                     //删除选项卡关联的商品/品牌
                     tabIds.forEach(b->{
+                        if (adviceLocationEnum.equals(AdviceLocationEnum.SHOUYE_YOUPIN)) {
+                            //获取该选项卡下绑定的品牌
+                            List<Long> tabBrandIdList = relTabThingsMapper.selectList(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                    .eq(MmAdviceRelTabThingsPo::getTabId, b)).stream().map(c -> c.getAssociationId()).collect(Collectors.toList());
+
+                            //获取该选项卡下的品牌下的关联id
+                            tabBrandIdList.forEach(c->{
+                                Long brandRelId = relTabThingsMapper.selectOne(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                        .eq(MmAdviceRelTabThingsPo::getAssociationId, c)
+                                        .eq(MmAdviceRelTabThingsPo::getTabId, b)).getId();
+                                //删除该选项卡下的品牌下的轮播图广告
+                                relShufflingMapper.delete(new QueryWrapper<MmAdviceRelShufflingPo>().lambda().and(obj -> obj
+                                        .eq(MmAdviceRelShufflingPo::getBrandRelId, brandRelId)));
+                            });
                         relTabThingsMapper.delete(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
                                 .eq(MmAdviceRelTabThingsPo::getTabId,b));
+                        }
                     });
+
                     //删除广告与选项卡关联的记录
                     relTabMapper.delete(new QueryWrapper<MmAdviceRelTabPo>().lambda()
                             .eq(MmAdviceRelTabPo::getAdviceId,a));

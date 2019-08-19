@@ -3,6 +3,7 @@ package com.chauncy.order.logistics.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.chauncy.common.constant.RabbitConstants;
 import com.chauncy.common.constant.logistics.LogisticsContantsConfig;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.common.enums.order.LogisticsStatusEnum;
@@ -10,6 +11,7 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.JSONUtils;
 import com.chauncy.common.util.ListUtil;
+import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.common.util.MD5Utils;
 import com.chauncy.data.bo.app.logistics.*;
 import com.chauncy.data.core.AbstractService;
@@ -35,6 +37,12 @@ import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONObject;
 import org.assertj.core.util.Lists;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +54,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -79,6 +89,12 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
 
     @Autowired
     private UmUserMapper userMapper;
+
+    @Autowired
+    private RabbitAdmin rabbitAdmin;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
 //    /**
 //     * 实时订阅查询请求地址
@@ -331,7 +347,7 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
                 response.append(line);
             }
 
-            autoFindLogsticsBos = JSONUtils.toList(response.toString(),AutoFindLogsticsBo.class);
+            autoFindLogsticsBos = JSONUtils.toList(response.toString(), AutoFindLogsticsBo.class);
 
 //            autoFindLogsticsBos2 = JSONUtils.toJSONArray(response.toString());
 
@@ -350,11 +366,11 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
             }
         }
 
-        if (!ListUtil.isListNullAndEmpty(autoFindLogsticsBos)){
+        if (!ListUtil.isListNullAndEmpty(autoFindLogsticsBos)) {
             AutoFindLogsticsBo autoFindLogsticsBo = autoFindLogsticsBos.get(0);
             //公司编码
             logisticsCodeNumVo.setValue(autoFindLogsticsBo.getComCode());
-            String logicName = logisticsMapper.selectOne(new QueryWrapper<AreaShopLogisticsPo>().eq("logi_code",autoFindLogsticsBo.getComCode())).getLogiName();
+            String logicName = logisticsMapper.selectOne(new QueryWrapper<AreaShopLogisticsPo>().eq("logi_code", autoFindLogsticsBo.getComCode())).getLogiName();
             //公司名称
             logisticsCodeNumVo.setLabel(logicName.concat("(由快递100猜测,本结果仅供参考)"));
         }
@@ -503,14 +519,60 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
             //同步快递单号，修改订单状态为已发货
             OmOrderPo order = orderMapper.selectById(orderId);
             if (order != null) {
-                order.setStatus(OrderStatusEnum.NEED_RECEIVE_GOODS);
-                orderMapper.updateById(order);
+                OmOrderPo saveOrder = new OmOrderPo();
+                saveOrder.setId(order.getId()).setStatus(OrderStatusEnum.NEED_RECEIVE_GOODS)
+                        .setSendTime(LocalDateTime.now());
+                orderMapper.updateById(saveOrder);
             }
+
+            //添加已发货rabbitmq死信队列、交换机，业务队列、交换机
+            addRabbitMq(orderId);
+
             log.info("订阅物流信息成功，订单号为:【{}】,物流单号为:【{}】", orderId, taskRequestDto.getNumber());
             return resp;
         }
         System.out.println(response.toString());
         return resp;
+    }
+
+    /**
+     * 添加已发货rabbitmq死信队列、交换机，业务队列、交换机
+     */
+    private void addRabbitMq(Long orderId) {
+        //消息队列，到期进行默认评价
+        //消息先进入的待评价队列，配置死信交换机和路由键
+        Map<String, Object> params = new HashMap<>();
+        params.put("x-dead-letter-exchange", RabbitConstants.AUTO_RECEIVE_EXCHANGE);
+        params.put("x-dead-letter-routing-key", RabbitConstants.AUTO_RECEIVE_ROUTING_KEY);
+        rabbitAdmin.declareQueue(new Queue(RabbitConstants.ORDER_UNRECEIVE_DELAY_QUEUE, true, false, false, params));
+
+        //消息一开始进入的待评价交换机
+        rabbitAdmin.declareExchange(new DirectExchange(RabbitConstants.ORDER_UNRECEIVE_DELAY_EXCHANGE));
+
+        //队列与交换机绑定
+        rabbitAdmin.declareBinding(BindingBuilder.bind(new Queue(RabbitConstants.ORDER_UNRECEIVE_DELAY_QUEUE)).
+                to(new DirectExchange(RabbitConstants.ORDER_UNRECEIVE_DELAY_EXCHANGE)).with(RabbitConstants.ORDER_UNRECEIVE_DELAY_ROUTING_KEY));
+
+        //死信队列
+        rabbitAdmin.declareQueue(new Queue(RabbitConstants.AUTO_RECEIVE_QUEUE, true));
+
+        //死信交换机
+        rabbitAdmin.declareExchange(new TopicExchange(RabbitConstants.AUTO_RECEIVE_EXCHANGE));
+
+
+        //死信队列与交换机绑定
+        rabbitAdmin.declareBinding(BindingBuilder.bind(new Queue(RabbitConstants.AUTO_RECEIVE_QUEUE, true)).
+                to(new TopicExchange(RabbitConstants.AUTO_RECEIVE_EXCHANGE)).with(RabbitConstants.AUTO_RECEIVE_ROUTING_KEY));
+
+        // 添加延时队列
+        rabbitTemplate.convertAndSend(RabbitConstants.ORDER_UNRECEIVE_DELAY_EXCHANGE, RabbitConstants.ORDER_UNRECEIVE_DELAY_ROUTING_KEY, orderId, message -> {
+            // TODO 如果配置了 params.put("x-message-ttl", 5 * 1000); 那么这一句也可以省略,具体根据业务需要是声明 Queue 的时候就指定好延迟时间还是在发送自己控制时间
+
+            message.getMessageProperties().setExpiration(5*60*1000 + "");
+            return message;
+        });
+        LoggerUtil.info("【未收货等待自动收货消息发送时间】:" + LocalDateTime.now());
+
     }
 
 }

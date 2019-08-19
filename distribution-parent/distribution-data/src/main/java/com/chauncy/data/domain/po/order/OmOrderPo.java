@@ -62,8 +62,6 @@ public class OmOrderPo implements Serializable {
     @ApiModelProperty(value = "收货地址ID")
     private Long areaShippingId;
 
-    @ApiModelProperty(value = "评价状态: 1--待评价 2--已评价 3--还不能评价")
-    private Integer evaluateStatus;
 
     @ApiModelProperty(value = "店铺ID")
     private Long storeId;
