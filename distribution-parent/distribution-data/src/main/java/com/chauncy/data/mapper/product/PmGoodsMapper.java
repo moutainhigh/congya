@@ -130,4 +130,12 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
      * @return
      */
     List<SearchAssociatedGoodsVo> searchAssociatedGoods(@Param("t") SearchAssociatedGoodsDto searchAssociatedGoodsDto, @Param("activityId") Long activityId, @Param("storeId")Long storeId,@Param("categoryIds")List<Long> categoryIds);
+
+    /**
+     * 条件分页查询需要被关联的商品(考虑数据量大，就不排除已经关联的了，直接查找全部的商品)
+     *
+     * @param name
+     * @return
+     */
+    List<BaseVo> searchTabNeedGoods(String name);
 }

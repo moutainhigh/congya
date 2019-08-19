@@ -63,7 +63,7 @@ public class MmAdvicePo implements Serializable {
     private String picture;
 
     @ApiModelProperty(value = "1启用/0禁用，默认为0")
-    private Boolean enbaled;
+    private Boolean enabled;
 
 
 }

@@ -22,11 +22,11 @@
         </dependency>
 
         <!--定时任务模块-->
-        <dependency>
+        <!--<dependency>
             <groupId>com.chauncy</groupId>
             <artifactId>distribution-quartz</artifactId>
             <version>1.0-SNAPSHOT</version>
-        </dependency>
+        </dependency>-->
 
         <!--系统权限管理模块-->
         <!--<dependency>

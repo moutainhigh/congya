@@ -156,15 +156,15 @@
         on srsa.attribute_id = pga.id
         left join sm_store_rel_label ssrl
         on ssrl.store_id = ss.id
-        left join sm_store_label ssl
+        left join sm_store_label `ssl`
         on ssl.id = ssrl.store_label_id
         <where>
-            srsa.del_flag = 0
-            and pga.type = 8
-            and pga.del_flag = 0
             <if test="id !=null and id !=''">
                 and ss.id = #{id}
             </if>
+            and srsa.del_flag = 0
+            and pga.type = 8
+            and pga.del_flag = 0
         </where>
     </select>
 
@@ -198,10 +198,16 @@
 
 
     <select id="selectAttributeIdsById" resultType="Long">
-        select pga.id
+        select DISTINCT pga.id
         from pm_goods pg, pm_goods_rel_attribute_good pgrag,pm_goods_attribute pga
         where pg.id = pgrag.goods_good_id and pga.id = pgrag.goods_attribute_id
         and pga.`type` = 8 and pg.store_id = #{id} and pg.del_flag = pgrag.del_flag = pga.del_flag = 0
+    </select>
+
+    <select id="selectRelAttributeIds" resultType="Long">
+        select DISTINCT ssra.id
+        from sm_store_rel_attribute ssra, pm_goods_attribute pga
+        where ssra.store_id = #{id} and ssra.attribute_id = pga.id and ssra.del_flag = pga.del_flag = 0
     </select>
 
     <select id="selectLabelIdsById" resultType="Long">
@@ -332,7 +338,7 @@
         from sm_store ss
         left join sm_store_rel_label ssrl
         on ssrl.store_id = ss.id
-        left join sm_store_label ssl
+        left join sm_store_label `ssl`
         on ssl.id = ssrl.store_label_id
         where ss.id = #{storeId}
     </select>
@@ -345,6 +351,20 @@
             ss.order_num
         FROM sm_store ss
         WHERE ss.id = #{id}
+    </select>
+
+    <select id="searchStores" resultType="com.chauncy.data.vo.BaseVo">
+        select id,name
+        from sm_store
+        where del_flag = 0 and enabled =1 and store_category_id = #{classificationId}
+        <if test="associatedIds != null">
+            and id not in
+            <foreach item="item" collection="associatedIds" separator="," open="(" close=")" index="">  #{item}
+            </foreach>
+        </if>
+        <if test="name!=null and name!=''">
+            and name like concat('%', #{name}, '%')
+        </if>
     </select>
 
 </mapper>

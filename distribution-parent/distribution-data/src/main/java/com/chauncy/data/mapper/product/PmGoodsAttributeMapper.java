@@ -133,4 +133,12 @@ public interface PmGoodsAttributeMapper extends IBaseMapper<PmGoodsAttributePo> 
      * @param searchGoodsDto
      */
     List<GoodsVo> getBrandGoodsList (SearchGoodsDto searchGoodsDto);
+
+    /**
+     * 条件分页查询广告选项卡需要被关联的品牌
+     *
+     * @param finalAssociatedBrandIdList1
+     * @return
+     */
+    List<BaseVo> searchBrands(@Param("name") String name, @Param("idList") List<Long> finalAssociatedBrandIdList1);
 }

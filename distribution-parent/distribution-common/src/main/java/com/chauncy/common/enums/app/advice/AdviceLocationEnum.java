@@ -13,6 +13,29 @@ import java.util.Objects;
  * @create 2019-07-17 22:45
  *
  *  广告位置枚举类
+ *
+ *  "SALE": "首页特卖",
+ *     "TOP_UP_ENTRY": "充值入口",
+ *     "SPELL_GROUP": "拼团",
+ *     "MIDDLE_TWO_SHUFFLING": "首页中部2轮播图",
+ *     "LEFT_UP_CORNER_SHUFFLING": "首页左上角轮播图",
+ *     "YOUXUAN_INSIDE_SHUFFLING": "优选内部轮播图",
+ *     "MIDDLE_ONE_SHUFFLING": "首页中部1轮播图",
+ *     "BAIHUO": "葱鸭百货",
+ *     "BAIHUO_INSIDE_SHUFFLING": "葱鸭百货内部轮播图",
+ *     "FIRST_CATEGORY_DETAIL": "一级分类详情轮播图",
+ *     "SHOUYE_ZHUTI": "首页主题",
+ *     "YOUPIN_DETAIL": "品牌详情轮播图",
+ *     "SALE_INSIDE_SHUFFLING": "特卖内部轮播图",
+ *     "PERSONAL_CENTER": "个人中心",
+ *     "STORE_DETAIL": "首页有店+店铺分类详情",
+ *     "YOUXUAN": "葱鸭优选",
+ *     "YOUPIN_INSIDE_SHUFFLING": "首页有品内部轮播图",
+ *     "BOTTOM_SHUFFLING": "首页底部轮播图",
+ *     "YOUDIAN_INSIDE_SHUFFLING": "首页有店内部轮播图",
+ *     "SHOUYE_YOUPIN": "首页有品",
+ *     "information_recommended": "资讯分类推荐",
+ *     "MIDDLE_THREE_SHUFFLING": "首页中部3轮播图"
  */
 @Getter
 public enum AdviceLocationEnum implements BaseEnum {
@@ -20,7 +43,7 @@ public enum AdviceLocationEnum implements BaseEnum {
     //有选项卡的广告位置
     SHOUYE_YOUPIN(1,"首页有品"),
 
-    store_detail(2,"首页有店+店铺分类详情"),
+    STORE_DETAIL(2,"首页有店+店铺分类详情"),
 
     SHOUYE_ZHUTI(3,"首页主题"),
 
@@ -111,6 +134,6 @@ public enum AdviceLocationEnum implements BaseEnum {
 
     @Override
     public boolean isExist(Object field) {
-        return Objects.nonNull(fromName(field.toString()));
+        return Objects.nonNull(fromEnumName(field.toString()));
     }
 }

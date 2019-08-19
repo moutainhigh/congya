@@ -1779,15 +1779,15 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             return new PageInfo<> ();
         }
         associationGoodsVoPageInfo.getList ().forEach (a->{
-            PmGoodsCategoryPo goodsCategoryPo3 = goodsCategoryMapper.selectById(mapper.selectById (associationGoodsDto.getGoodsId ()).getGoodsCategoryId ());
+            PmGoodsCategoryPo goodsCategoryPo3 = goodsCategoryMapper.selectById(mapper.selectById (a.getGoodsId ()).getGoodsCategoryId ());
             String level3 = goodsCategoryPo3.getName();
             PmGoodsCategoryPo goodsCategoryPo2 = goodsCategoryMapper.selectById(goodsCategoryPo3.getParentId());
             String level2 = goodsCategoryPo2.getName();
             String level1 = goodsCategoryMapper.selectById(goodsCategoryPo2.getParentId()).getName();
             String categoryName = level1 + "/" + level2 + "/" + level3;
             a.setCategory (categoryName);
-            BigDecimal lowestSellPrice = goodsSkuMapper.getLowestPrice (associationGoodsDto.getGoodsId ());
-            BigDecimal highestSellPrice = goodsSkuMapper.getHighestPrice (associationGoodsDto.getGoodsId ());
+            BigDecimal lowestSellPrice = goodsSkuMapper.getLowestPrice (a.getGoodsId ());
+            BigDecimal highestSellPrice = goodsSkuMapper.getHighestPrice (a.getGoodsId ());
             String sellPrice ="";
             if (lowestSellPrice.equals (highestSellPrice)){
                 sellPrice=lowestSellPrice.toString ();

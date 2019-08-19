@@ -2,6 +2,9 @@ package com.chauncy.data.mapper.message.advice;
 
 import com.chauncy.data.domain.po.message.advice.MmAdviceRelAssociaitonPo;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.manage.message.advice.tab.association.StoreTabsVo;
+
+import java.util.List;
 
 /**
  * <p>
@@ -12,5 +15,8 @@ import com.chauncy.data.mapper.IBaseMapper;
  * @since 2019-08-14
  */
 public interface MmAdviceRelAssociaitonMapper extends IBaseMapper<MmAdviceRelAssociaitonPo> {
+
+    //获取该广告分类下的店铺分类信息以及该广告与店铺分类关联的ID
+    List<StoreTabsVo> findStoreClassificationList(Long adviceId);
 
 }
