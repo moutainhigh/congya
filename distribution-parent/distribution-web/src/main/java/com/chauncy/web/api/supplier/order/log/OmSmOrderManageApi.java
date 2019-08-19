@@ -1,14 +1,10 @@
 package com.chauncy.web.api.supplier.order.log;
 
 
-import com.chauncy.data.domain.po.sys.SysUserPo;
-import com.chauncy.data.dto.app.order.logistics.TaskRequestDto;
-import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
-import com.chauncy.data.dto.supplier.order.SmSendOrderDto;
+import com.chauncy.data.dto.supplier.order.SmSearchSendOrderDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.order.list.OrderDetailVo;
-import com.chauncy.data.vo.manage.order.list.SearchOrderVo;
 import com.chauncy.data.vo.supplier.order.SmOrderLogisticsVo;
 import com.chauncy.data.vo.supplier.order.SmSearchOrderVo;
 import com.chauncy.data.vo.supplier.order.SmSendOrderVo;
@@ -70,9 +66,9 @@ public class OmSmOrderManageApi extends BaseApi {
 
     @ApiOperation(value = "商家查询发货订单列表")
     @PostMapping("/send/list")
-    public JsonViewData<PageInfo<SmSendOrderVo>> search(@Validated @RequestBody SmSendOrderDto smSendOrderDto) {
-        smSendOrderDto.setStoreId(securityUtil.getCurrUser().getStoreId());
-        PageInfo<SmSendOrderVo> search = orderService.searchSmSendOrderList(smSendOrderDto);
+    public JsonViewData<PageInfo<SmSendOrderVo>> search(@Validated @RequestBody SmSearchSendOrderDto smSearchSendOrderDto) {
+        smSearchSendOrderDto.setStoreId(securityUtil.getCurrUser().getStoreId());
+        PageInfo<SmSendOrderVo> search = orderService.searchSmSendOrderList(smSearchSendOrderDto);
         return setJsonViewData(search);
     }
 
@@ -81,4 +77,10 @@ public class OmSmOrderManageApi extends BaseApi {
     public JsonViewData<SmOrderLogisticsVo> searchLogistics(@PathVariable Long id) {
         return setJsonViewData(orderService.getLogisticsById(id));
     }
+
+  /*  @ApiOperation(value = "商家发货")
+    @PostMapping("/send")
+    public JsonViewData<SmOrderLogisticsVo> send(@PathVariable Long id) {
+        return setJsonViewData(orderService.getLogisticsById(id));
+    }*/
 }
