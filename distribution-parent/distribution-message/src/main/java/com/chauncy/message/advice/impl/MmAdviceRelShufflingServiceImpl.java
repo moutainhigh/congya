@@ -233,7 +233,8 @@ public class MmAdviceRelShufflingServiceImpl extends AbstractService<MmAdviceRel
             saveShufflingDto.getShufflingDtos().forEach(a->{
                 //新增轮播图
                 if (a.getShufflingId() == 0){
-                    /******************************************* 新增轮播图 start *******************************************/
+
+
                     //开始时间和结束时间处理
                     if (a.getEndTime().isBefore(a.getStartTime()) || a.getEndTime().equals(a.getStartTime())) {
                         throw new ServiceException(ResultCode.FAIL, String.format("开始时间不能大于等于结束时间"));

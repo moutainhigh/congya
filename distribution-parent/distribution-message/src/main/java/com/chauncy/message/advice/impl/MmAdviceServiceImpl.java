@@ -3,19 +3,28 @@ package com.chauncy.message.advice.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.app.advice.AdviceLocationEnum;
 import com.chauncy.common.enums.app.advice.AdviceTypeEnum;
+import com.chauncy.common.enums.app.advice.AssociationTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.advice.*;
+import com.chauncy.data.domain.po.message.information.category.MmInformationCategoryPo;
+import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.dto.manage.message.advice.add.SaveClassificationAdviceDto;
 import com.chauncy.data.dto.manage.message.advice.add.SaveOtherAdviceDto;
 import com.chauncy.data.dto.manage.message.advice.select.SearchAdvicesDto;
+import com.chauncy.data.dto.manage.message.advice.select.SearchAssociatedClassificationDto;
+import com.chauncy.data.dto.manage.message.advice.select.SearchInformationCategoryDto;
 import com.chauncy.data.mapper.message.advice.*;
 import com.chauncy.data.mapper.message.information.MmInformationMapper;
+import com.chauncy.data.mapper.message.information.category.MmInformationCategoryMapper;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
+import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.manage.message.advice.ClassificationVo;
 import com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo;
 import com.chauncy.data.vo.manage.message.advice.shuffling.FindShufflingVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.StoreTabsVo;
@@ -26,13 +35,16 @@ import com.chauncy.message.advice.IMmAdviceService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -47,6 +59,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
+@Slf4j
 public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvicePo> implements IMmAdviceService {
 
     @Autowired
@@ -72,6 +85,9 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 
     @Autowired
     private MmInformationMapper informationMapper;
+
+    @Autowired
+    private MmInformationCategoryMapper informationCategoryMapper;
 
     @Autowired
     private PmGoodsMapper goodsMapper;
@@ -228,10 +244,36 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 //                    break;
                 case FIRST_CATEGORY_DETAIL:
                     break;
+                /*******************推荐分类 葱鸭百货分类推荐/资讯分类推荐*********************/
                 case BAIHUO:
-                    break;
                 case information_recommended:
+                    //分页获取关联的分类
+                    PageInfo<ClassificationVo> classificationVoPageInfo = PageHelper.startPage(defaultPageNo, defaultPageSize)
+                            .doSelectPageInfo(() -> relAssociaitonMapper.findClassification(a.getAdviceId()));
+                    classificationVoPageInfo.getList().forEach(b -> {
+                        AdviceLocationEnum associationTypeEnum = AdviceLocationEnum.fromEnumName(a.getLocation());
+                        switch (associationTypeEnum) {
+                            case BAIHUO:
+                                String categoryName = goodsCategoryMapper.selectById(b.getClassificationId()).getName();
+                                //分类1/分类2/分类3
+                                PmGoodsCategoryPo goodsCategoryPo = goodsCategoryMapper.selectById(b.getClassificationId());
+                                String level3 = goodsCategoryPo.getName();
+                                PmGoodsCategoryPo goodsCategoryPo2 = goodsCategoryMapper.selectById(goodsCategoryPo.getParentId());
+                                String level2 = goodsCategoryPo2.getName();
+                                String level1 = goodsCategoryMapper.selectById(goodsCategoryPo2.getParentId()).getName();
+                                String name = level1 + "/" + level2 + "/" + level3;
+
+                                b.setClassificationName(categoryName);
+                                break;
+                            case information_recommended:
+                                String classificationName = informationCategoryMapper.selectById(b.getClassificationId()).getName();
+                                b.setClassificationName(classificationName);
+                                break;
+                        }
+                        a.setDetail(classificationVoPageInfo);
+                    });
                     break;
+                /*******************推荐分类 葱鸭百货分类推荐/资讯分类推荐*********************/
 
                 /*******************充值入口+拼团鸭*********************/
                 case TOP_UP_ENTRY:
@@ -334,7 +376,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 case PERSONAL_CENTER:
                     //删除该广告对应的轮播图
                     relShufflingMapper.delete(new QueryWrapper<MmAdviceRelShufflingPo>().lambda()
-                            .eq(MmAdviceRelShufflingPo::getAdviceId,a));
+                            .eq(MmAdviceRelShufflingPo::getAdviceId, a));
                     break;
                 /*******************首页左上角/首页底部/首页中部1/首页中部2/首页中部3/首页跳转内容-有品/首页跳转内容-有店/特卖内部/优选内部/个人中心展示样式*********************/
 
@@ -342,10 +384,15 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 //                    break;
                 case FIRST_CATEGORY_DETAIL:
                     break;
+                /*******************推荐分类 葱鸭百货分类推荐/资讯分类推荐*********************/
                 case BAIHUO:
-                    break;
                 case information_recommended:
+
+                    relAssociaitonMapper.delete(new QueryWrapper<MmAdviceRelAssociaitonPo>().lambda()
+                            .eq(MmAdviceRelAssociaitonPo::getAdviceId, a));
                     break;
+                /*******************推荐分类 葱鸭百货分类推荐/资讯分类推荐*********************/
+
                 /*******************充值入口+拼团鸭*********************/
                 case TOP_UP_ENTRY:
                 case SPELL_GROUP:
@@ -397,6 +444,255 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
             advicePo.setUpdateBy(user.getUsername());
             mapper.updateById(advicePo);
         }
+    }
+
+    /**
+     * 添加推荐的分类:葱鸭百货分类推荐/资讯分类推荐
+     *
+     * @param saveClassificationAdviceDto
+     * @return
+     */
+    @Override
+    public void saveGoodsCategoryAdvice(SaveClassificationAdviceDto saveClassificationAdviceDto) {
+
+        SysUserPo user = securityUtil.getCurrUser();
+
+        //新增
+        if (saveClassificationAdviceDto.getAdviceId() == 0) {
+
+            //判断一: 广告名称不能相同
+            List<String> nameList = mapper.selectList(null).stream().map(a -> a.getName()).collect(Collectors.toList());
+            if (nameList.contains(saveClassificationAdviceDto.getName())) {
+                throw new ServiceException(ResultCode.FAIL, String.format("广告名称【%s】已经存在,请检查！", saveClassificationAdviceDto.getName()));
+            }
+            MmAdvicePo advicePo = new MmAdvicePo();
+            BeanUtils.copyProperties(saveClassificationAdviceDto, advicePo);
+            advicePo.setId(null).setCreateBy(user.getUsername());
+            mapper.insert(advicePo);
+            //判断二：同一个广告的分类不能重复
+            //获取全部的分类ID
+            List<Long> IdList = saveClassificationAdviceDto.getClassificationsDtoList().stream().map(a -> a.getClassificationId()).collect(Collectors.toList());
+            //关联的分类不能重复
+            Boolean classIsRepeat = IdList.size() != new HashSet<Long>(IdList).size();
+            if (classIsRepeat) {
+                List<String> names = Lists.newArrayList();
+                Map<Long, Integer> repeatMap = Maps.newHashMap();
+                IdList.forEach(a -> {
+                    Integer i = 1;
+                    if (repeatMap.get(a) != null) {
+                        i = repeatMap.get(a) + 1;
+                    }
+                    repeatMap.put(a, i);
+                });
+                AdviceLocationEnum associationTypeEnum = AdviceLocationEnum.fromEnumName(saveClassificationAdviceDto.getLocation());
+                switch (associationTypeEnum) {
+                    case BAIHUO:
+                        for (Long l : repeatMap.keySet()) {
+                            if (repeatMap.get(l) > 1) {
+                                names.add(goodsCategoryMapper.selectById(l).getName());
+                            }
+                        }
+                        log.info("重复数据为：" + names.toString());
+                        throw new ServiceException(ResultCode.DUPLICATION, String.format("存在重复的商品分类：%s,请检查!", names.toString()));
+                    case information_recommended:
+                        for (Long l : repeatMap.keySet()) {
+                            if (repeatMap.get(l) > 1) {
+                                names.add(informationCategoryMapper.selectById(l).getName());
+                            }
+                        }
+                        log.info("重复数据为：" + names.toString());
+                        throw new ServiceException(ResultCode.DUPLICATION, String.format("存在重复的资讯分类：%s,请检查!", names.toString()));
+
+                }
+            }
+
+            saveClassificationAdviceDto.getClassificationsDtoList().forEach(a -> {
+
+                MmAdviceRelAssociaitonPo relAssociaitonPo = new MmAdviceRelAssociaitonPo();
+                relAssociaitonPo.setCreateBy(user.getUsername()).setId(null).setAdviceId(advicePo.getId())
+                        .setAssociationId(a.getClassificationId());
+                AdviceLocationEnum associationTypeEnum = AdviceLocationEnum.fromEnumName(saveClassificationAdviceDto.getLocation());
+                switch (associationTypeEnum) {
+                    case BAIHUO:
+                        PmGoodsCategoryPo goodsCategoryPo = goodsCategoryMapper.selectById(a.getClassificationId());
+                        if (goodsCategoryPo == null) {
+                            throw new ServiceException(ResultCode.NO_EXISTS, String.format("不存在id为[%s]的商品分类，请检查", a.getClassificationId()));
+                        } else if (goodsCategoryPo.getLevel() != 3) {
+                            throw new ServiceException(ResultCode.FAIL, String.format("商品分类[%s]不是三级分类，请重新选择", goodsCategoryPo.getName()));
+                        }
+                        relAssociaitonPo.setType(AssociationTypeEnum.THIRD_CLASSIFICATION.getId());
+                        break;
+                    case information_recommended:
+                        MmInformationCategoryPo informationCategoryPo = informationCategoryMapper.selectById(a.getClassificationId());
+                        if (informationCategoryPo == null) {
+                            throw new ServiceException(ResultCode.NO_EXISTS, String.format("不存在id为[%s]的资讯分类，请检查", a.getClassificationId()));
+                        }
+                        relAssociaitonPo.setType(AssociationTypeEnum.INFORMATION_CLASSIFICATION.getId());
+                        break;
+                }
+                relAssociaitonMapper.insert(relAssociaitonPo);
+            });
+        }
+        //编辑
+        else {
+            //判断一: 广告名称不能相同
+            //获取该广告名称
+            String adviceName = mapper.selectById(saveClassificationAdviceDto.getAdviceId()).getName();
+            //获取除该广告名称之外的所有广告名称
+            List<String> nameList = mapper.selectList(null).stream().filter(name -> !name.getName().equals(adviceName)).map(a -> a.getName()).collect(Collectors.toList());
+            if (!ListUtil.isListNullAndEmpty(nameList) && nameList.contains(saveClassificationAdviceDto.getName())) {
+                throw new ServiceException(ResultCode.FAIL, String.format("广告名称【%s】已经存在,请检查！", saveClassificationAdviceDto.getName()));
+            }
+
+            //1、更改广告信息到广告表——mm_advice
+            MmAdvicePo mmAdvicePo = mapper.selectById(saveClassificationAdviceDto.getAdviceId());
+            BeanUtils.copyProperties(saveClassificationAdviceDto, mmAdvicePo);
+            mmAdvicePo.setUpdateBy(user.getUsername());
+            mapper.updateById(mmAdvicePo);
+
+            /******************************************* 删除分类信息 start *******************************************/
+            //获取该广告原有的所有分类列表信息
+            List<Long> allRelAssociatedIds = relAssociaitonMapper.selectList(new QueryWrapper<MmAdviceRelAssociaitonPo>()
+                    .lambda().eq(MmAdviceRelAssociaitonPo::getAdviceId, saveClassificationAdviceDto.getAdviceId())).stream()
+                    .map(a -> a.getId()).collect(Collectors.toList());
+            //获取前端除新增(relAssocitedId为0)的数据
+            List<Long> remainIds = saveClassificationAdviceDto.getClassificationsDtoList().stream().filter(a -> a.getRelAssociatedId() != 0)
+                    .map(b -> b.getRelAssociatedId()).collect(Collectors.toList());
+            //获取需要删除的数据
+            List<Long> delIds = Lists.newArrayList(allRelAssociatedIds);
+            if (!ListUtil.isListNullAndEmpty(allRelAssociatedIds)) {
+                delIds.removeAll(remainIds);
+                if (!ListUtil.isListNullAndEmpty(delIds)) {
+                    relAssociaitonMapper.deleteBatchIds(delIds);
+                }
+            }
+            /******************************************* 删除分类信息 end *******************************************/
+
+            //判断二：同一个广告的分类不能重复
+            //获取全部的分类ID
+            List<Long> IdList = saveClassificationAdviceDto.getClassificationsDtoList().stream().map(a -> a.getClassificationId()).collect(Collectors.toList());
+            //关联的分类不能重复
+            Boolean classIsRepeat = IdList.size() != new HashSet<Long>(IdList).size();
+            if (classIsRepeat) {
+                List<String> names = Lists.newArrayList();
+                Map<Long, Integer> repeatMap = Maps.newHashMap();
+                IdList.forEach(a -> {
+                    Integer i = 1;
+                    if (repeatMap.get(a) != null) {
+                        i = repeatMap.get(a) + 1;
+                    }
+                    repeatMap.put(a, i);
+                });
+                AdviceLocationEnum associationTypeEnum = AdviceLocationEnum.fromEnumName(saveClassificationAdviceDto.getLocation());
+                switch (associationTypeEnum) {
+                    case BAIHUO:
+                        for (Long l : repeatMap.keySet()) {
+                            if (repeatMap.get(l) > 1) {
+                                names.add(goodsCategoryMapper.selectById(l).getName());
+                            }
+                        }
+                        log.info("重复数据为：" + names.toString());
+                        throw new ServiceException(ResultCode.DUPLICATION, String.format("存在重复的商品分类：%s,请检查!", names.toString()));
+                    case information_recommended:
+                        for (Long l : repeatMap.keySet()) {
+                            if (repeatMap.get(l) > 1) {
+                                names.add(informationCategoryMapper.selectById(l).getName());
+                            }
+                        }
+                        log.info("重复数据为：" + names.toString());
+                        throw new ServiceException(ResultCode.DUPLICATION, String.format("存在重复的资讯分类：%s,请检查!", names.toString()));
+
+                }
+            }
+
+
+            saveClassificationAdviceDto.getClassificationsDtoList().forEach(a -> {
+                //新增分类记录
+                if (a.getRelAssociatedId() == 0) {
+                    /******************************************* 新增分类信息 start *******************************************/
+                    MmAdviceRelAssociaitonPo relAssociaitonPo = new MmAdviceRelAssociaitonPo();
+                    relAssociaitonPo.setCreateBy(user.getUsername()).setId(null).setAdviceId(saveClassificationAdviceDto.getAdviceId())
+                            .setAssociationId(a.getClassificationId());
+                    AdviceLocationEnum associationTypeEnum = AdviceLocationEnum.fromEnumName(saveClassificationAdviceDto.getLocation());
+                    switch (associationTypeEnum) {
+                        case BAIHUO:
+                            PmGoodsCategoryPo goodsCategoryPo = goodsCategoryMapper.selectById(a.getClassificationId());
+                            if (goodsCategoryPo == null) {
+                                throw new ServiceException(ResultCode.NO_EXISTS, String.format("不存在id为[%s]的商品分类，请检查", a.getClassificationId()));
+                            } else if (goodsCategoryPo.getLevel() != 3) {
+                                throw new ServiceException(ResultCode.FAIL, String.format("商品分类[%s]不是三级分类，请重新选择", a.getClassificationId()));
+                            }
+                            relAssociaitonPo.setType(AssociationTypeEnum.THIRD_CLASSIFICATION.getId());
+                            break;
+                        case information_recommended:
+                            MmInformationCategoryPo informationCategoryPo = informationCategoryMapper.selectById(a.getClassificationId());
+                            if (informationCategoryPo == null) {
+                                throw new ServiceException(ResultCode.NO_EXISTS, String.format("不存在id为[%s]的资讯分类，请检查", a.getClassificationId()));
+                            }
+                            relAssociaitonPo.setType(AssociationTypeEnum.INFORMATION_CLASSIFICATION.getId());
+                            break;
+                    }
+                    relAssociaitonMapper.insert(relAssociaitonPo);
+                    /******************************************* 新增分类信息 start *******************************************/
+                }
+
+            });
+
+        }
+    }
+
+    /**
+     * 条件分页查询获取广告位置为葱鸭百货分类推荐/资讯分类推荐已经关联的分类信息
+     *
+     * @param searchAssociatedClassificationDto
+     * @return
+     */
+    @Override
+    public PageInfo<ClassificationVo> searchAssociatedClassification(SearchAssociatedClassificationDto searchAssociatedClassificationDto) {
+
+        Integer PageNo = searchAssociatedClassificationDto.getPageNo() == null ? defaultPageNo : searchAssociatedClassificationDto.getPageNo();
+        Integer pageSize = searchAssociatedClassificationDto.getPageSize() == null ? defaultPageSize : searchAssociatedClassificationDto.getPageSize();
+        PageInfo<ClassificationVo> classificationVoPageInfo = PageHelper.startPage(PageNo, pageSize)
+                .doSelectPageInfo(() -> relAssociaitonMapper.searchAssociatedClassification(searchAssociatedClassificationDto));
+        String location = mapper.selectById(searchAssociatedClassificationDto.getAdviceId()).getLocation();
+        classificationVoPageInfo.getList().forEach(a -> {
+            AdviceLocationEnum associationTypeEnum = AdviceLocationEnum.fromEnumName(location);
+            switch (associationTypeEnum) {
+                case BAIHUO:
+                    String categoryName = goodsCategoryMapper.selectById(a.getClassificationId()).getName();
+                    //分类1/分类2/分类3
+                    PmGoodsCategoryPo goodsCategoryPo = goodsCategoryMapper.selectById(a.getClassificationId());
+                    String level3 = goodsCategoryPo.getName();
+                    PmGoodsCategoryPo goodsCategoryPo2 = goodsCategoryMapper.selectById(goodsCategoryPo.getParentId());
+                    String level2 = goodsCategoryPo2.getName();
+                    String level1 = goodsCategoryMapper.selectById(goodsCategoryPo2.getParentId()).getName();
+                    String name = level1 + "/" + level2 + "/" + level3;
+
+                    a.setClassificationName(categoryName);
+                    break;
+                case information_recommended:
+                    String classificationName = informationCategoryMapper.selectById(a.getClassificationId()).getName();
+                    a.setClassificationName(classificationName);
+                    break;
+            }
+        });
+
+        return classificationVoPageInfo;
+    }
+
+    /**
+     * 分页查找需要广告位置为资讯分类推荐需要关联的资讯分类
+     *
+     * @return
+     * @param searchInformationCategoryDto
+     */
+    @Override
+    public PageInfo<BaseVo> searchInformationCategory(SearchInformationCategoryDto searchInformationCategoryDto) {
+        Integer PageNo = searchInformationCategoryDto.getPageNo() == null ? defaultPageNo : searchInformationCategoryDto.getPageNo();
+        Integer pageSize = searchInformationCategoryDto.getPageSize() == null ? defaultPageSize : searchInformationCategoryDto.getPageSize();
+        PageInfo<BaseVo> informationCategoryVoPageInfo = PageHelper.startPage(PageNo, pageSize)
+                .doSelectPageInfo(()->informationCategoryMapper.searchInformationCategory(searchInformationCategoryDto.getName()));
+        return informationCategoryVoPageInfo;
     }
 
 }

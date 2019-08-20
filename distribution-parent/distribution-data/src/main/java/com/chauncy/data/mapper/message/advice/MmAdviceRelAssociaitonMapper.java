@@ -1,7 +1,10 @@
 package com.chauncy.data.mapper.message.advice;
 
 import com.chauncy.data.domain.po.message.advice.MmAdviceRelAssociaitonPo;
+import com.chauncy.data.dto.manage.message.advice.select.SearchAssociatedClassificationDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.manage.message.advice.ClassificationVo;
+import com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.StoreTabsVo;
 
 import java.util.List;
@@ -19,4 +22,19 @@ public interface MmAdviceRelAssociaitonMapper extends IBaseMapper<MmAdviceRelAss
     //获取该广告分类下的店铺分类信息以及该广告与店铺分类关联的ID
     List<StoreTabsVo> findStoreClassificationList(Long adviceId);
 
+    /**
+     * 根据广告ID分页获取广告位置为葱鸭百货分类推荐/资讯分类推荐关联的分类信息
+     *
+     * @param adviceId
+     * @return
+     */
+    List<ClassificationVo> findClassification(Long adviceId);
+
+    /**
+     * 根据广告ID条件分页获取广告位置为葱鸭百货分类推荐/资讯分类推荐关联的分类信息
+     *
+     * @param searchAssociatedClassificationDto
+     * @return
+     */
+    List<ClassificationVo> searchAssociatedClassification(SearchAssociatedClassificationDto searchAssociatedClassificationDto);
 }

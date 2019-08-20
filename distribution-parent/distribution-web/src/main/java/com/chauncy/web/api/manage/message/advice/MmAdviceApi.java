@@ -3,11 +3,19 @@ package com.chauncy.web.api.manage.message.advice;
 
 import com.chauncy.common.enums.app.advice.AdviceLocationEnum;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.domain.MyBaseTree;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.manage.message.advice.add.SaveClassificationAdviceDto;
 import com.chauncy.data.dto.manage.message.advice.add.SaveOtherAdviceDto;
 import com.chauncy.data.dto.manage.message.advice.select.SearchAdvicesDto;
+import com.chauncy.data.dto.manage.message.advice.select.SearchAssociatedClassificationDto;
+import com.chauncy.data.dto.manage.message.advice.select.SearchInformationCategoryDto;
+import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.manage.message.advice.ClassificationVo;
 import com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo;
+import com.chauncy.data.vo.manage.product.GoodsCategoryTreeVo;
+import com.chauncy.product.service.IPmGoodsCategoryService;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -36,6 +44,9 @@ public class MmAdviceApi extends BaseApi {
 
     @Autowired
     private IMmAdviceService service;
+
+    @Autowired
+    private IPmGoodsCategoryService goodsCategoryService;
 
     /**
      * 获取广告位置
@@ -102,5 +113,59 @@ public class MmAdviceApi extends BaseApi {
                                         @Validated SaveOtherAdviceDto saveOtherAdviceDto){
         service.saveOtherAdvice(saveOtherAdviceDto);
         return setJsonViewData(ResultCode.SUCCESS,"保存成功！");
+    }
+
+    /**
+     * 保存商品推荐分类用到
+     *
+     * @return
+     */
+    @PostMapping("/findAllCategory")
+    @ApiOperation(value = "联动查询所有商品分类")
+    public JsonViewData findGoodsCategoryTreeVo(){
+        List<GoodsCategoryTreeVo> goodsCategoryTreeVo = goodsCategoryService.findGoodsCategoryTreeVo();
+        return setJsonViewData(MyBaseTree.build(goodsCategoryTreeVo));
+    }
+
+    /**
+     * 分页查找需要广告位置为资讯分类推荐需要关联的资讯分类
+     *
+     * @return
+     */
+    @ApiOperation("分页查找需要广告位置为资讯分类推荐需要关联的资讯分类")
+    @PostMapping("/searchInformationCategory")
+    public JsonViewData<PageInfo<BaseVo>> searchInformationCategory(@RequestBody @ApiParam(required = true,name = "searchInformationCategoryDto",value = "分页查找需要广告位置为资讯分类推荐需要关联的资讯分类")
+                                                                        @Validated SearchInformationCategoryDto searchInformationCategoryDto){
+
+        return setJsonViewData(service.searchInformationCategory(searchInformationCategoryDto));
+    }
+
+    /**
+     * 添加推荐的分类:葱鸭百货分类推荐/资讯分类推荐
+     *
+     * @param saveClassificationAdviceDto
+     * @return
+     */
+    @ApiOperation("添加推荐的分类:葱鸭百货分类推荐/资讯分类推荐")
+    @PostMapping("/saveClassificationAdvice")
+    public JsonViewData saveClassificationAdvice(@RequestBody @ApiParam(required = true,name = "saveClassificationAdviceDto",value = "保存推荐的分类")
+                                                @Validated SaveClassificationAdviceDto saveClassificationAdviceDto){
+        service.saveGoodsCategoryAdvice(saveClassificationAdviceDto);
+        return setJsonViewData(ResultCode.SUCCESS,"保存成功");
+    }
+
+    /**
+     * 条件分页查询获取广告位置为葱鸭百货分类推荐/资讯分类推荐已经关联的分类信息
+     *
+     * @param searchAssociatedClassificationDto
+     * @return
+     */
+    @PostMapping("/searchAssociatedClassification")
+    @ApiOperation("条件分页查询获取广告位置为葱鸭百货分类推荐/资讯分类推荐已经关联的分类信息")
+    public JsonViewData<PageInfo<ClassificationVo>> searchAssociatedClassification(@RequestBody @ApiParam(required = true,name = "searchAssociatedClassificationDto"
+            ,value = "条件分页查询获取广告位置为葱鸭百货分类推荐/资讯分类推荐已经关联的分类信息")
+            @Validated SearchAssociatedClassificationDto searchAssociatedClassificationDto){
+
+        return setJsonViewData(service.searchAssociatedClassification(searchAssociatedClassificationDto));
     }
 }
