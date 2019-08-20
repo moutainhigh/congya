@@ -25,7 +25,7 @@ import java.util.List;
 @Accessors(chain = true)
 public class SaveRelTabDto {
 
-    @ApiModelProperty("广告ID")
+    @ApiModelProperty("广告ID，新增时传0")
     private Long adviceId;
 
     @ApiModelProperty("广告位置(特卖、有品、主题、优选)")

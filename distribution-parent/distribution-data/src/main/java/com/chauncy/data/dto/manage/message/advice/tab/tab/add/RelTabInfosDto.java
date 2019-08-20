@@ -1,6 +1,5 @@
 package com.chauncy.data.dto.manage.message.advice.tab.tab.add;
 
-import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -27,8 +26,10 @@ public class RelTabInfosDto {
     @NotNull(message = "选项卡名称")
     private String tabName;
 
-    @ApiModelProperty("关联的ID")
-    @NotNull(message = "关联的Id不能为空")
-    private List<Long> associatedIds;
+//    @ApiModelProperty("ID")
+//    private Long relThingsId;
+
+    @ApiModelProperty("关联的ID(如果是品牌,则还有关联的轮播图信息列表)")
+    private List<TabRelAssociatedDto> tabRelAssociatedDtos;
 
 }

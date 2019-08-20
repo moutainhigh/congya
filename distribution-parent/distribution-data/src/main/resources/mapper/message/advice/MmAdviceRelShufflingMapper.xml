@@ -19,9 +19,9 @@
         <result column="store_id" property="storeId" />
         <result column="goods_id" property="goodsId" />
         <result column="cover_photo" property="coverPhoto" />
-        <result column="category_rel_id" property="categoryRelId" />
+        <result column="rel_category_id" property="relCategoryId" />
         <result column="first_category_id" property="firstCategoryId" />
-        <result column="brand_rel_id" property="brandRelId" />
+        <result column="rel_tab_brand_id" property="relTabBrandId" />
         <result column="brand_id" property="brandId" />
         <result column="advice_id" property="adviceId" />
     </resultMap>
@@ -29,7 +29,13 @@
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, create_by, create_time, update_by, update_time, del_flag, start_time, end_time, advice_type, html_detail, detail_id, information_id, store_id, goods_id, cover_photo, advice_id,
-        category_rel_id,first_category_id,brand_id,brand_rel_id
+        rel_category_id,first_category_id,brand_id,rel_tab_brand_id
     </sql>
+    <select id="findShufflingList"
+            resultType="com.chauncy.data.vo.manage.message.advice.tab.tab.BrandShufflingVo">
+        select id as shuffling_id,start_time, advice_type, end_time,html_detail, detail_id, cover_photo, advice_id,rel_category_id,first_category_id,brand_id,rel_tab_brand_id
+        from mm_advice_rel_shuffling
+        where del_flag =0 and rel_tab_brand_id = #{relTabBrandId}
+    </select>
 
 </mapper>

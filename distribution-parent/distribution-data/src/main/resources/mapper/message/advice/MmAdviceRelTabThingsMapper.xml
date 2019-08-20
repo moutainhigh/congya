@@ -36,7 +36,7 @@
     </select>
 
     <select id="findBrandList" resultType="com.chauncy.data.vo.manage.message.advice.tab.tab.BrandVo">
-        select association_id as brand_id,b.name as brand_name
+        select a.id as rel_tab_brand_id,association_id as brand_id,b.name as brand_name
         from pm_goods_attribute b,mm_advice_rel_tab_things a
         where a.del_flag = 0 and b.del_flag = 0 and a.association_id = b.id and a.tab_id = #{tabId}
 
