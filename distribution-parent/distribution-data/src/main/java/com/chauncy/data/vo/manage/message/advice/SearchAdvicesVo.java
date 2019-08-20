@@ -29,6 +29,10 @@ public class SearchAdvicesVo {
     @JSONField(ordinal = 2)
     private String name;
 
+    @ApiModelProperty("图片")
+    @JSONField(ordinal = 3)
+    private String picture;
+
     @ApiModelProperty("发广告对应的详情")
     @JSONField(ordinal = 3)
     private Object detail;

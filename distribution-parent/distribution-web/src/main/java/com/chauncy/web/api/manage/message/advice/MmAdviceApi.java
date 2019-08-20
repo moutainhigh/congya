@@ -4,6 +4,7 @@ package com.chauncy.web.api.manage.message.advice;
 import com.chauncy.common.enums.app.advice.AdviceLocationEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.manage.message.advice.add.SaveOtherAdviceDto;
 import com.chauncy.data.dto.manage.message.advice.select.SearchAdvicesDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo;
@@ -87,5 +88,19 @@ public class MmAdviceApi extends BaseApi {
                                            BaseUpdateStatusDto baseUpdateStatusDto){
         service.editEnabledBatch(baseUpdateStatusDto);
         return new JsonViewData(ResultCode.SUCCESS,"操作成功");
+    }
+
+    /**
+     * 保存充值入口/拼团鸭广告
+     *
+     * @param saveOtherAdviceDto
+     * @return
+     */
+    @PostMapping("/saveOtherAdvice")
+    @ApiOperation("保存充值入口/拼团鸭广告")
+    public JsonViewData saveOtherAdvice(@RequestBody @ApiParam(required = true,name = "saveOtherAdviceDto",value = "保存充值入口/拼团鸭广告")
+                                        @Validated SaveOtherAdviceDto saveOtherAdviceDto){
+        service.saveOtherAdvice(saveOtherAdviceDto);
+        return setJsonViewData(ResultCode.SUCCESS,"保存成功！");
     }
 }
