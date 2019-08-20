@@ -2,13 +2,19 @@ package com.chauncy.message.advice.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.app.advice.AdviceLocationEnum;
+import com.chauncy.common.enums.app.advice.AdviceTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.advice.*;
 import com.chauncy.data.dto.manage.message.advice.select.SearchAdvicesDto;
 import com.chauncy.data.mapper.message.advice.*;
+import com.chauncy.data.mapper.message.information.MmInformationMapper;
+import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
+import com.chauncy.data.mapper.product.PmGoodsMapper;
+import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo;
+import com.chauncy.data.vo.manage.message.advice.shuffling.FindShufflingVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.StoreTabsVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.StoreVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.TabInfosVo;
@@ -58,6 +64,18 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 
     @Autowired
     private MmAdviceRelShufflingMapper relShufflingMapper;
+
+    @Autowired
+    private MmInformationMapper informationMapper;
+
+    @Autowired
+    private PmGoodsMapper goodsMapper;
+
+    @Autowired
+    private PmGoodsCategoryMapper goodsCategoryMapper;
+
+    @Autowired
+    private SmStoreMapper storeMapper;
 
     /**
      * 获取广告位置
@@ -126,6 +144,22 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                                     .eq(MmAdviceRelTabThingsPo::getTabId,b.getTabId())
                                     .eq(MmAdviceRelTabThingsPo::getAssociationId,c.getBrandId())).getId();
                             List<BrandShufflingVo> brandShufflingVos = relShufflingMapper.findShufflingList(relTabBrandId);
+                            brandShufflingVos.forEach(d->{
+                                AdviceTypeEnum adviceTypeEnum = d.getAdviceType();
+                                switch (adviceTypeEnum) {
+                                    case HTML_DETAIL:
+                                        break;
+                                    case INFORMATION:
+                                        d.setDetailName(informationMapper.selectById(d.getDetailId()).getTitle());
+                                        break;
+                                    case STROE:
+                                        d.setDetailName(storeMapper.selectById(d.getDetailId()).getName());
+                                        break;
+                                    case GOODS:
+                                        d.setDetailName(goodsMapper.selectById(d.getDetailId()).getName());
+                                        break;
+                                }
+                            });
                             c.setBrandShufflingVos(brandShufflingVos);
                         });
                         b.setBrandList(brandList);
@@ -149,29 +183,38 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                     a.setDetail(goodsTabInfosVos);
                     break;
                 /******************* Tab end ****************/
-
+                /******************* 无关联广告轮播图 start **********/
                 case BOTTOM_SHUFFLING:
-                    break;
                 case LEFT_UP_CORNER_SHUFFLING:
-                    break;
                 case MIDDLE_ONE_SHUFFLING:
-                    break;
                 case MIDDLE_TWO_SHUFFLING:
-                    break;
                 case MIDDLE_THREE_SHUFFLING:
-                    break;
                 case YOUPIN_INSIDE_SHUFFLING:
-                    break;
                 case YOUDIAN_INSIDE_SHUFFLING:
-                    break;
                 case SALE_INSIDE_SHUFFLING:
-                    break;
                 case YOUXUAN_INSIDE_SHUFFLING:
-                    break;
                 case BAIHUO_INSIDE_SHUFFLING:
-                    break;
                 case PERSONAL_CENTER:
+                    List<FindShufflingVo> shufflingVoList = relShufflingMapper.findShuffling(a.getAdviceId());
+                    shufflingVoList.forEach(b->{
+                        AdviceTypeEnum adviceTypeEnum = b.getAdviceType();
+                        switch (adviceTypeEnum) {
+                            case HTML_DETAIL:
+                                break;
+                            case INFORMATION:
+                                b.setDetailName(informationMapper.selectById(b.getDetailId()).getTitle());
+                                break;
+                            case STROE:
+                                b.setDetailName(storeMapper.selectById(b.getDetailId()).getName());
+                                break;
+                            case GOODS:
+                                b.setDetailName(goodsMapper.selectById(b.getDetailId()).getName());
+                                break;
+                        }
+                    });
+                    a.setDetail(shufflingVoList);
                     break;
+                /******************* 无关联广告轮播图 end **********/
 //                case YOUPIN_DETAIL:
 //                    break;
                 case FIRST_CATEGORY_DETAIL:
@@ -226,7 +269,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                             .eq(MmAdviceRelAssociaitonPo::getAdviceId,a)));
 //                    mapper.deleteById(a);
                     break;
-                //首页有品------》》》品牌
+                //首页有品+品牌详情------》》》品牌
                 //特卖、主题、优选-----》》》商品
                 case SHOUYE_YOUPIN:
                 case SHOUYE_ZHUTI:

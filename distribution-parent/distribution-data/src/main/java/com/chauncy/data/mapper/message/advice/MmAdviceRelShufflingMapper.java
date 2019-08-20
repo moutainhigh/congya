@@ -1,7 +1,10 @@
 package com.chauncy.data.mapper.message.advice;
 
 import com.chauncy.data.domain.po.message.advice.MmAdviceRelShufflingPo;
+import com.chauncy.data.dto.manage.message.advice.shuffling.select.SearchShufflingAssociatedDetailDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.manage.message.advice.shuffling.FindShufflingVo;
+import com.chauncy.data.vo.manage.message.advice.shuffling.SearchShufflingAssociatedDetailVo;
 import com.chauncy.data.vo.manage.message.advice.tab.tab.BrandShufflingVo;
 
 import java.util.List;
@@ -23,4 +26,36 @@ public interface MmAdviceRelShufflingMapper extends IBaseMapper<MmAdviceRelShuff
      * @return
      */
     List<BrandShufflingVo> findShufflingList(Long relTabBrandId);
+
+    /**
+     * 条件分页查询轮播图广告需要绑定的资讯
+     *
+     * @param searchShufflingAssociatedDetailDto
+     * @return
+     */
+    List<SearchShufflingAssociatedDetailVo> searchInformationDetail(SearchShufflingAssociatedDetailDto searchShufflingAssociatedDetailDto);
+
+    /**
+     * 条件分页查询轮播图广告需要绑定的店铺
+     *
+     * @param searchShufflingAssociatedDetailDto
+     * @return
+     */
+    List<SearchShufflingAssociatedDetailVo> searchStoreDetail(SearchShufflingAssociatedDetailDto searchShufflingAssociatedDetailDto);
+
+    /**
+     * 条件分页查询轮播图广告需要绑定的商品
+     *
+     * @param searchShufflingAssociatedDetailDto
+     * @return
+     */
+    List<SearchShufflingAssociatedDetailVo> searchGoodsDetail(SearchShufflingAssociatedDetailDto searchShufflingAssociatedDetailDto);
+
+    /**
+     * 根据广告ID获取无关联广告轮播图信息
+     *
+     * @param adviceId
+     * @return
+     */
+    List<FindShufflingVo> findShuffling(Long adviceId);
 }
