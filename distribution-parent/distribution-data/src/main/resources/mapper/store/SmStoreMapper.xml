@@ -153,18 +153,15 @@
         left join sm_store_rel_attribute srsa
         on ss.id = srsa.store_id
         left join pm_goods_attribute pga
-        on srsa.attribute_id = pga.id
+        on srsa.attribute_id = pga.id   AND srsa.del_flag = 0
         left join sm_store_rel_label ssrl
-        on ssrl.store_id = ss.id
+        on ssrl.store_id = ss.id  AND  pga.type = 8
         left join sm_store_label `ssl`
-        on ssl.id = ssrl.store_label_id
+        on ssl.id = ssrl.store_label_id AND ssrl.del_flag = 0
         <where>
             <if test="id !=null and id !=''">
                 and ss.id = #{id}
             </if>
-            and srsa.del_flag = 0
-            and pga.type = 8
-            and pga.del_flag = 0
         </where>
     </select>
 
@@ -214,7 +211,7 @@
         SELECT ssrl.id
         FROM sm_store ss, sm_store_rel_label ssrl
         WHERE ss.id = ssrl.store_id
-        AND pg.store_id = #{id} and ssrl.del_flag = 0
+        AND ssrl.store_id = #{id} and ssrl.del_flag = 0
     </select>
 
     <select id="searchRelStoreInfo" resultType="com.chauncy.data.vo.manage.store.RelStoreInfoVo">

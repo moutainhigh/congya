@@ -11,6 +11,7 @@ import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.order.report.OmOrderReportPo;
 import com.chauncy.data.domain.po.order.report.OmReportRelGoodsTempPo;
+import com.chauncy.data.domain.po.order.report.OmReportRelStorePo;
 import com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockPo;
 import com.chauncy.data.domain.po.product.stock.PmStoreRelGoodsStockPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
@@ -22,6 +23,7 @@ import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.mapper.order.report.OmOrderReportMapper;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.mapper.order.report.OmReportRelGoodsTempMapper;
+import com.chauncy.data.mapper.order.report.OmReportRelStoreMapper;
 import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockMapper;
 import com.chauncy.data.mapper.product.stock.PmStoreRelGoodsStockMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
@@ -63,6 +65,9 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
 
     @Autowired
     private SmStoreMapper smStoreMapper;
+
+    @Autowired
+    private OmReportRelStoreMapper omReportRelStoreMapper;
 
     @Autowired
     private PmGoodsVirtualStockMapper pmGoodsVirtualStockMapper;
@@ -156,7 +161,7 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
     }
 
     /**
-     * 根据店铺id，日期创建报表  周期同货款账单
+     * 根据店铺id，日期创建商品销售报表  周期同货款账单
      * @param endDate
      * @param storeId
      */
@@ -177,6 +182,24 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
             //报表关联订单
             omReportRelGoodsTempMapper.updateRelReport(
                     startDate, endDate, omOrderReportPo.getStoreId(), omOrderReportPo.getBranchId(), omOrderReportPo.getId());
+            //分配虚拟库存的关系链也要能查看对应的商品销售报表
+            createReportRelStore(omOrderReportPo, omOrderReportPo.getStoreId());
+        }
+    }
+
+    /**
+     * 分配虚拟库存的关系链也要能查看对应的商品销售报表
+     * @param omOrderReportPo 商品销售报表
+     */
+    private void createReportRelStore(OmOrderReportPo omOrderReportPo, Long storeId) {
+        if(null != storeId) {
+            OmReportRelStorePo omReportRelStorePo = new OmReportRelStorePo();
+            omReportRelStorePo.setReportId(omOrderReportPo.getId());
+            omReportRelStorePo.setStoreId(storeId);
+            omReportRelStorePo.setCreateBy(omOrderReportPo.getCreateBy());
+            omReportRelStoreMapper.insert(omReportRelStorePo);
+            //获取直属商家的库存的来源店铺
+            //Long parentStoreId =
         }
     }
 
@@ -221,6 +244,8 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
                 OmReportRelGoodsTempPo omReportRelGoodsTempPo = new OmReportRelGoodsTempPo();
                 omReportRelGoodsTempPo.setGoodsTempId(omGoodsTempPo.getId());
                 omReportRelGoodsTempPo.setCreateBy(omOrderPo.getCreateBy());
+                omReportRelGoodsTempPo.setStoreId(pmStoreRelGoodsStockPo.getParentStoreId());
+                omReportRelGoodsTempPo.setBranchId(pmStoreRelGoodsStockPo.getStoreId());
                 if(pmStoreRelGoodsStockPo.getRemainingStockNum() >= needDeductionSum) {
                     //该批次的虚拟库存足够扣减剩余的商品数量 只扣除剩余商品数量
                     omReportRelGoodsTempPo.setDistributePrice(pmStoreRelGoodsStockPo.getDistributePrice());

@@ -1,7 +1,9 @@
 package com.chauncy.order.evaluate.service.impl;
 
+import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.order.OmEvaluatePo;
+import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.evaluate.add.AddValuateDto;
@@ -10,6 +12,7 @@ import com.chauncy.data.dto.app.order.evaluate.select.GetPersonalEvaluateDto;
 import com.chauncy.data.dto.supplier.evaluate.SaveStoreReplyDto;
 import com.chauncy.data.dto.supplier.good.select.SearchEvaluatesDto;
 import com.chauncy.data.mapper.order.OmEvaluateMapper;
+import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo;
 import com.chauncy.data.vo.supplier.evaluate.EvaluateVo;
@@ -48,6 +51,9 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
     @Autowired
     private SmStoreMapper storeMapper;
 
+    @Autowired
+    private OmOrderMapper orderMapper;
+
     /**
      * 用户进行商品评价
      *
@@ -68,6 +74,11 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
             saveOmEvaluatePos.add(omEvaluatePo);
         });
         this.saveBatch(saveOmEvaluatePos);
+
+        OmOrderPo updateOrder=new OmOrderPo();
+        updateOrder.setId(addValuateDto.getOrderId()).setStatus(OrderStatusEnum.ALREADY_EVALUATE);
+        orderMapper.updateById(updateOrder);
+
 
         /*//判断是否是第一次评论
         if (addValuateDto.getId() == 0) {

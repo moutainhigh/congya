@@ -6,7 +6,7 @@ import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
-import com.chauncy.data.dto.supplier.order.SmSendOrderDto;
+import com.chauncy.data.dto.supplier.order.SmSearchSendOrderDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.app.order.my.AppSearchOrderVo;
 import com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailGoodsVo;
@@ -68,10 +68,10 @@ public interface OmOrderMapper extends IBaseMapper<OmOrderPo> {
 
     /**
      * 商家端查询发货订单列表
-     * @param smSendOrderDto
+     * @param smSearchSendOrderDto
      * @return
      */
-    List<SmSendOrderVo> searchSendOrderVos(SmSendOrderDto smSendOrderDto);
+    List<SmSendOrderVo> searchSendOrderVos(SmSearchSendOrderDto smSearchSendOrderDto);
 
     /**
      * 商家端查询发货商品详情

@@ -62,4 +62,33 @@ public interface RabbitConstants {
      * 自动评价routingkey
      */
     static final String AUTO_COMMENT_ROUTING_KEY = "all";
+
+
+    /**
+     * 待收货队列名称
+     */
+    static final String ORDER_UNRECEIVE_DELAY_QUEUE = "order.unreceive.delay.queue";
+    /**
+     * DLX，dead letter发送到的 exchange
+     * TODO 此处的 exchange 很重要,具体消息就是发送到该交换机的
+     */
+    static final String ORDER_UNRECEIVE_DELAY_EXCHANGE = "order.unreceive.delay.exchange";
+    /**
+     * routing key 名称
+     * TODO 此处的 routingKey 很重要要,具体消息发送在该 routingKey 的
+     */
+    static final String ORDER_UNRECEIVE_DELAY_ROUTING_KEY = "order.unreceive.delay.key";
+
+    /**
+     * 自动收货队列
+     */
+    static final String AUTO_RECEIVE_QUEUE = "auto.receive.queue";
+    /**
+     * 自动收货交换机
+     */
+    static final String AUTO_RECEIVE_EXCHANGE = "auto.receive.exchange";
+    /**
+     * 自动收货routingkey
+     */
+    static final String AUTO_RECEIVE_ROUTING_KEY = "all";
 }

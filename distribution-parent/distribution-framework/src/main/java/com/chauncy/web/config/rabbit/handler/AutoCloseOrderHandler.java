@@ -82,7 +82,8 @@ public class AutoCloseOrderHandler {
 
             //更改订单状态
             OmOrderPo updateOrder = new OmOrderPo();
-            updateOrder.setId(orderId).setStatus(OrderStatusEnum.ALREADY_FINISH);
+            updateOrder.setId(orderId).setStatus(OrderStatusEnum.ALREADY_EVALUATE);
+            orderService.updateById(updateOrder);
         }
         try {
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
