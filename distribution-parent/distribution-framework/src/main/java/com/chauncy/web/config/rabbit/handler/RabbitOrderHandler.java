@@ -62,7 +62,7 @@ public class RabbitOrderHandler {
         }
     }
 
-    @RabbitListener(queues = {RabbitConstants.ORDER_REDIRECT_QUEUE})
+    @RabbitListener(queues = {RabbitConstants.CLOSE_ORDER_QUEUE})
     public void autoCommentQueue(RabbitOrderBo rabbitOrderBo, Message message, Channel channel) {
         LoggerUtil.info(String.format("[订单队列 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), rabbitOrderBo.toString()));
         //如果订单状态为未支评价,就去自动评价
