@@ -172,8 +172,8 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                     break;
                 case PERSONAL_CENTER:
                     break;
-                case YOUPIN_DETAIL:
-                    break;
+//                case YOUPIN_DETAIL:
+//                    break;
                 case FIRST_CATEGORY_DETAIL:
                     break;
                 case BAIHUO:
@@ -287,8 +287,8 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                     break;
                 case PERSONAL_CENTER:
                     break;
-                case YOUPIN_DETAIL:
-                    break;
+//                case YOUPIN_DETAIL:
+//                    break;
                 case FIRST_CATEGORY_DETAIL:
                     break;
                 case BAIHUO:
