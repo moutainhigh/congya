@@ -13,11 +13,14 @@ import com.chauncy.common.util.JSONUtils;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.common.util.MD5Utils;
+import com.chauncy.common.util.rabbit.RabbitUtil;
 import com.chauncy.data.bo.app.logistics.*;
+import com.chauncy.data.bo.app.order.rabbit.RabbitOrderBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.area.AreaShopLogisticsPo;
 import com.chauncy.data.domain.po.order.OmOrderLogisticsPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
+import com.chauncy.data.domain.po.sys.BasicSettingPo;
 import com.chauncy.data.domain.po.user.UmAreaShippingPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.logistics.SynQueryLogisticsDto;
@@ -26,6 +29,7 @@ import com.chauncy.data.dto.app.order.logistics.TaskRequestDto;
 import com.chauncy.data.mapper.area.AreaShopLogisticsMapper;
 import com.chauncy.data.mapper.order.OmOrderLogisticsMapper;
 import com.chauncy.data.mapper.order.OmOrderMapper;
+import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.mapper.user.UmAreaShippingMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.app.order.logistics.FindLogicDetailVo;
@@ -91,10 +95,11 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
     private UmUserMapper userMapper;
 
     @Autowired
-    private RabbitAdmin rabbitAdmin;
+    private RabbitUtil rabbitUtil;
 
     @Autowired
-    private RabbitTemplate rabbitTemplate;
+    private BasicSettingMapper basicSettingMapper;
+
 
 //    /**
 //     * 实时订阅查询请求地址
@@ -525,8 +530,16 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
                 orderMapper.updateById(saveOrder);
             }
 
-            //添加已发货rabbitmq死信队列、交换机，业务队列、交换机
-            addRabbitMq(orderId);
+            //获取系统基本设置
+            BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
+            //多久自动收货(毫秒)
+            String expiration=basicSettingPo.getAutoReceiveDay()*24*60*60*1000+"";
+
+            RabbitOrderBo rabbitOrderBo=new RabbitOrderBo();
+            rabbitOrderBo.setOrderId(orderId).setOrderStatusEnum(OrderStatusEnum.NEED_RECEIVE_GOODS);
+            //添加自动收货的消息队列
+            rabbitUtil.sendDelayMessage(5*60*1000+"",rabbitOrderBo);
+            LoggerUtil.info("【已发货等待自动收货消息发送时间】:" + LocalDateTime.now());
 
             log.info("订阅物流信息成功，订单号为:【{}】,物流单号为:【{}】", orderId, taskRequestDto.getNumber());
             return resp;
@@ -535,44 +548,6 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
         return resp;
     }
 
-    /**
-     * 添加已发货rabbitmq死信队列、交换机，业务队列、交换机
-     */
-    private void addRabbitMq(Long orderId) {
-        //消息队列，到期进行默认评价
-        //消息先进入的待评价队列，配置死信交换机和路由键
-        Map<String, Object> params = new HashMap<>();
-        params.put("x-dead-letter-exchange", RabbitConstants.AUTO_RECEIVE_EXCHANGE);
-        params.put("x-dead-letter-routing-key", RabbitConstants.AUTO_RECEIVE_ROUTING_KEY);
-        rabbitAdmin.declareQueue(new Queue(RabbitConstants.ORDER_UNRECEIVE_DELAY_QUEUE, true, false, false, params));
 
-        //消息一开始进入的待评价交换机
-        rabbitAdmin.declareExchange(new DirectExchange(RabbitConstants.ORDER_UNRECEIVE_DELAY_EXCHANGE));
-
-        //队列与交换机绑定
-        rabbitAdmin.declareBinding(BindingBuilder.bind(new Queue(RabbitConstants.ORDER_UNRECEIVE_DELAY_QUEUE)).
-                to(new DirectExchange(RabbitConstants.ORDER_UNRECEIVE_DELAY_EXCHANGE)).with(RabbitConstants.ORDER_UNRECEIVE_DELAY_ROUTING_KEY));
-
-        //死信队列
-        rabbitAdmin.declareQueue(new Queue(RabbitConstants.AUTO_RECEIVE_QUEUE, true));
-
-        //死信交换机
-        rabbitAdmin.declareExchange(new TopicExchange(RabbitConstants.AUTO_RECEIVE_EXCHANGE));
-
-
-        //死信队列与交换机绑定
-        rabbitAdmin.declareBinding(BindingBuilder.bind(new Queue(RabbitConstants.AUTO_RECEIVE_QUEUE, true)).
-                to(new TopicExchange(RabbitConstants.AUTO_RECEIVE_EXCHANGE)).with(RabbitConstants.AUTO_RECEIVE_ROUTING_KEY));
-
-        // 添加延时队列
-        rabbitTemplate.convertAndSend(RabbitConstants.ORDER_UNRECEIVE_DELAY_EXCHANGE, RabbitConstants.ORDER_UNRECEIVE_DELAY_ROUTING_KEY, orderId, message -> {
-            // TODO 如果配置了 params.put("x-message-ttl", 5 * 1000); 那么这一句也可以省略,具体根据业务需要是声明 Queue 的时候就指定好延迟时间还是在发送自己控制时间
-
-            message.getMessageProperties().setExpiration(5*60*1000 + "");
-            return message;
-        });
-        LoggerUtil.info("【未收货等待自动收货消息发送时间】:" + LocalDateTime.now());
-
-    }
 
 }

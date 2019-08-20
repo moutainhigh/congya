@@ -91,4 +91,32 @@ public interface RabbitConstants {
      * 自动收货routingkey
      */
     static final String AUTO_RECEIVE_ROUTING_KEY = "all";
+
+
+
+    /**
+     * 死信队列名称
+     */
+    static final String ORDER_DEAD_QUEUE = "order.dead.queue";
+    /**
+     * DLX，死信交换机
+     */
+    static final String ORDER_DEAD_EXCHANGE = "order.dead.exchange";
+    /**
+     * 死信交换机与队列的routing key 名称
+     */
+    static final String ORDER_DEAD_ROUTING_KEY = "order.dead.key";
+
+    /**
+     * 订单转发队列
+     */
+    static final String ORDER_REDIRECT_QUEUE = "order.redirect.queue";
+    /**
+     * 订单转发交换机
+     */
+    static final String ORDER_REDIRECT_EXCHANGE = "order.redirect.exchange";
+    /**
+     * 订单转发死信的路由键
+     */
+    static final String ORDER_REDIRECT_KEY = "all";
 }
