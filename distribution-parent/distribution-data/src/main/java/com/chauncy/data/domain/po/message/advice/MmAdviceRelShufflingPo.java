@@ -1,20 +1,21 @@
 package com.chauncy.data.domain.po.message.advice;
 
-        import com.baomidou.mybatisplus.annotation.TableName;
-        import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
 
-        import java.time.LocalDateTime;
+import java.time.LocalDateTime;
 
-        import com.baomidou.mybatisplus.annotation.TableId;
-        import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 
-        import java.io.Serializable;
+import java.io.Serializable;
 
-        import io.swagger.annotations.ApiModel;
-        import io.swagger.annotations.ApiModelProperty;
-        import lombok.Data;
-        import lombok.EqualsAndHashCode;
-        import lombok.experimental.Accessors;
+import com.chauncy.common.enums.app.advice.AdviceTypeEnum;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
  * <p>
@@ -59,8 +60,8 @@ public class MmAdviceRelShufflingPo implements Serializable {
     @ApiModelProperty(value = "结束时间")
     private LocalDateTime endTime;
 
-    @ApiModelProperty(value = "广告类型：HTML_DETAIL-'图文详情',INFORMATION-'资讯',STROE-'店铺',GOODS-'商品'")
-    private String adviceType;
+    @ApiModelProperty(value = "广告类型：1-'图文详情',2-'资讯',3-'店铺',4-'商品'")
+    private AdviceTypeEnum adviceType;
 
     @ApiModelProperty(value = "广告类型为图文详情时的信息")
     private String htmlDetail;
@@ -84,13 +85,13 @@ public class MmAdviceRelShufflingPo implements Serializable {
     private Long adviceId;
 
     @ApiModelProperty(value = "广告和一级类目关联的id")
-    private Long categoryRelId;
+    private Long relCategoryId;
 
     @ApiModelProperty(value = "商品一级类目ID")
     private Long firstCategoryId;
 
     @ApiModelProperty(value = "广告选项卡关联的品牌的记录的ID")
-    private Long brandRelId;
+    private Long relTabBrandId;
 
     @ApiModelProperty(value = "品牌ID")
     private Long brandId;

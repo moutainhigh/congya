@@ -14,7 +14,7 @@ import java.util.Objects;
  *
  *  广告类型枚举类
  *
- * HTML_DETAIL-"图文详情",INFORMATION-"资讯",STROE-"店铺",GOODS-"商品"
+ * 1-"图文详情",2-"资讯",3-"店铺",4-"商品"
  */
 @Getter
 public enum AdviceTypeEnum implements BaseEnum {
@@ -27,9 +27,9 @@ public enum AdviceTypeEnum implements BaseEnum {
 
     GOODS(4,"商品");
 
+    @EnumValue
     private Integer id;
 
-    @EnumValue
     private String name;
 
     AdviceTypeEnum(Integer id, String name) {

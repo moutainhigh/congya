@@ -45,7 +45,7 @@
         group by psrgs.id, pgvs.id
     </select>
     <select id="searchPagingBranchStock" resultType="com.chauncy.data.vo.supplier.good.stock.StoreGoodsStockVo">
-        select psgs.id, psgs.`name`, ss.`name` as branchName, psgs.enabled, psgs.create_time,
+        select psgs.id, psgs.`name`, ss.`name` as branchName, psgs.enabled, psgs.create_time, psgs.remark,
                     sum(psrgs.distribute_stock_num) as distributeStockSum
         from pm_store_goods_stock psgs left join sm_store ss on ss.id = psgs.distribute_store_id
         left join pm_store_rel_goods_stock psrgs on psrgs.store_stock_id = psgs.id
@@ -85,6 +85,7 @@
             psgs.`name`,
             ss.`name` as storeName,
             psgs.create_time,
+            psgs.remark,
             sum(psrgs.distribute_stock_num) as distributestocksum
         from pm_store_goods_stock psgs
         left join sm_store ss

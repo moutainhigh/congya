@@ -41,7 +41,7 @@ import java.util.Objects;
 public enum AdviceLocationEnum implements BaseEnum {
 
     //有选项卡的广告位置
-    SHOUYE_YOUPIN(1,"首页有品"),
+    SHOUYE_YOUPIN(1,"首页有品+品牌轮播图广告"),
 
     STORE_DETAIL(2,"首页有店+店铺分类详情"),
 
@@ -76,7 +76,7 @@ public enum AdviceLocationEnum implements BaseEnum {
     PERSONAL_CENTER(16,"个人中心"),
 
     //有关联轮播图位置
-    YOUPIN_DETAIL(17, "品牌详情轮播图"),
+//    YOUPIN_DETAIL(17, "品牌详情轮播图"),
 
     FIRST_CATEGORY_DETAIL(18,"一级分类详情轮播图"),
 

@@ -12,10 +12,7 @@ import com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.StoreTabsVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.StoreVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.TabInfosVo;
-import com.chauncy.data.vo.manage.message.advice.tab.tab.BrandTabInfosVo;
-import com.chauncy.data.vo.manage.message.advice.tab.tab.BrandVo;
-import com.chauncy.data.vo.manage.message.advice.tab.tab.GoodsTabInfosVo;
-import com.chauncy.data.vo.manage.message.advice.tab.tab.GoodsVo;
+import com.chauncy.data.vo.manage.message.advice.tab.tab.*;
 import com.chauncy.message.advice.IMmAdviceService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -124,7 +121,15 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                         //分页获取品牌选项卡关联的品牌
                         PageInfo<BrandVo> brandList = PageHelper.startPage(defaultPageNo,defaultPageSize)
                                 .doSelectPageInfo(()->relTabThingsMapper.findBrandList(b.getTabId()));
+                        brandList.getList().forEach(c->{
+                            Long relTabBrandId = relTabThingsMapper.selectOne(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                    .eq(MmAdviceRelTabThingsPo::getTabId,b.getTabId())
+                                    .eq(MmAdviceRelTabThingsPo::getAssociationId,c.getBrandId())).getId();
+                            List<BrandShufflingVo> brandShufflingVos = relShufflingMapper.findShufflingList(relTabBrandId);
+                            c.setBrandShufflingVos(brandShufflingVos);
+                        });
                         b.setBrandList(brandList);
+
                     });
                     a.setDetail(brandTabInfosVos);
                     break;
@@ -244,7 +249,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                                         .eq(MmAdviceRelTabThingsPo::getTabId, b)).getId();
                                 //删除该选项卡下的品牌下的轮播图广告
                                 relShufflingMapper.delete(new QueryWrapper<MmAdviceRelShufflingPo>().lambda().and(obj -> obj
-                                        .eq(MmAdviceRelShufflingPo::getBrandRelId, brandRelId)));
+                                        .eq(MmAdviceRelShufflingPo::getRelTabBrandId, brandRelId)));
                             });
                         relTabThingsMapper.delete(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
                                 .eq(MmAdviceRelTabThingsPo::getTabId,b));
