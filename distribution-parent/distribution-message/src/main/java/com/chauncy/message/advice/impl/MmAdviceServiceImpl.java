@@ -26,6 +26,7 @@ import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.manage.message.advice.ClassificationVo;
+import com.chauncy.data.vo.manage.message.advice.FindBaiHuoAdviceVo;
 import com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo;
 import com.chauncy.data.vo.manage.message.advice.shuffling.FindShufflingVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.StoreTabsVo;
@@ -724,5 +725,17 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
             mapper.updateById(advicePo);
         }
     }
+
+    /**
+     * 查找广告位为葱鸭百货的所有广告
+     *
+     * @return
+     */
+//    @Override
+//    public List<FindBaiHuoAdviceVo> findAdvice() {
+//        List<FindBaiHuoAdviceVo> advices = mapper.findAdvice(AdviceLocationEnum.BAIHUO.name());
+//
+//        return advices;
+//    }
 
 }

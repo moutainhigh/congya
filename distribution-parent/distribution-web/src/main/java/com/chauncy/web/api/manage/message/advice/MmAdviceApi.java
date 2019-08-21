@@ -13,6 +13,7 @@ import com.chauncy.data.dto.manage.message.advice.select.SearchInformationCatego
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.message.advice.ClassificationVo;
+import com.chauncy.data.vo.manage.message.advice.FindBaiHuoAdviceVo;
 import com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo;
 import com.chauncy.data.vo.manage.product.GoodsCategoryTreeVo;
 import com.chauncy.product.service.IPmGoodsCategoryService;
@@ -169,4 +170,16 @@ public class MmAdviceApi extends BaseApi {
 
         return setJsonViewData(service.searchAssociatedClassification(searchAssociatedClassificationDto));
     }
+
+    /**
+     * 查找广告位为葱鸭百货的所有广告
+     *
+     * @return
+     */
+//    @PostMapping("/findAdvice")
+//    @ApiOperation("查找广告位为葱鸭百货的所有广告")
+//    public JsonViewData<List<FindBaiHuoAdviceVo>> findAdvice(){
+//
+//        return setJsonViewData(service.findAdvice());
+//    }
 }

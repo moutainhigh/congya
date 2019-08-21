@@ -1,5 +1,6 @@
 package com.chauncy.message.advice;
 
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.message.advice.MmAdvicePo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
@@ -10,6 +11,7 @@ import com.chauncy.data.dto.manage.message.advice.select.SearchAssociatedClassif
 import com.chauncy.data.dto.manage.message.advice.select.SearchInformationCategoryDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.manage.message.advice.ClassificationVo;
+import com.chauncy.data.vo.manage.message.advice.FindBaiHuoAdviceVo;
 import com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo;
 import com.github.pagehelper.PageInfo;
 
@@ -85,4 +87,11 @@ public interface IMmAdviceService extends Service<MmAdvicePo> {
      * @return
      */
     void editEnabled(BaseUpdateStatusDto baseUpdateStatusDto);
+
+    /**
+     * 查找广告位为葱鸭百货的所有广告
+     *
+     * @return
+     */
+//    List<FindBaiHuoAdviceVo> findAdvice();
 }
