@@ -19,6 +19,7 @@ import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.log.SearchUserLogDto;
 import com.chauncy.data.dto.app.order.log.UserWithdrawalDto;
 import com.chauncy.data.dto.manage.order.log.select.SearchPlatformLogDto;
+import com.chauncy.data.dto.manage.order.log.select.SearchStoreLogDto;
 import com.chauncy.data.dto.manage.order.log.select.SearchUserWithdrawalDto;
 import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.mapper.order.OmUserWithdrawalMapper;
@@ -29,21 +30,21 @@ import com.chauncy.data.mapper.pay.IPayOrderMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
+import com.chauncy.data.vo.manage.order.log.*;
 import com.chauncy.order.log.service.IOmUserWithdrawalService;
-import com.chauncy.data.vo.manage.order.log.SearchPlatformLogVo;
-import com.chauncy.data.vo.manage.order.log.SearchUserLogVo;
-import com.chauncy.data.vo.manage.order.log.SearchUserWithdrawalVo;
-import com.chauncy.data.vo.manage.order.log.UserLogDetailVo;
 import com.chauncy.order.log.service.IOmAccountLogService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -97,6 +98,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
     @Override
     public PageInfo<SearchPlatformLogVo> searchPlatformLogPaging(SearchPlatformLogDto searchPlatformLogDto) {
 
+        searchPlatformLogDto.setUserType(UserTypeEnum.PLATFORM.getId());
         Integer pageNo = searchPlatformLogDto.getPageNo()==null ? defaultPageNo : searchPlatformLogDto.getPageNo();
         Integer pageSize = searchPlatformLogDto.getPageSize()==null ? defaultPageSize : searchPlatformLogDto.getPageSize();
 
@@ -206,6 +208,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
             } else if(omOrderBillPo.getBillType().equals(BillTypeEnum.PROFIT_BILL)) {
                 fromOmAccountLogPo.setLogMatter(PlatformLogMatterEnum.PROFIT_WITHDRAWAL.getId());
             }
+            fromOmAccountLogPo.setOmRelId(omOrderBillPo.getId());
             omAccountLogMapper.insert(fromOmAccountLogPo);
             //店铺 线上资金 收入流水
             OmAccountLogPo toOmAccountLogPo = getToOmAccountLogPo(fromOmAccountLogPo, UserTypeEnum.STORE,
@@ -220,6 +223,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
             } else if(omOrderBillPo.getBillType().equals(BillTypeEnum.PROFIT_BILL)) {
                 toOmAccountLogPo.setLogMatter(StoreLogMatterEnum.PROFIT_INCOME.getId());
             }
+            toOmAccountLogPo.setOmRelId(omOrderBillPo.getId());
             omAccountLogMapper.insert(toOmAccountLogPo);
         }
     }
@@ -354,7 +358,16 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
             searchUserLogVo.setAmount(umUserPo.getCurrentShopTicket());
         }
 
-
+        if(Strings.isNotBlank(searchUserLogDto.getYear()) && Strings.isNotBlank(searchUserLogDto.getMonth())) {
+            searchUserLogVo.setYear(searchUserLogDto.getYear());
+            searchUserLogVo.setMonth(searchUserLogDto.getMonth());
+        } else {
+            //默认当前时间的年月
+            searchUserLogVo.setYear(String.valueOf(LocalDate.now().getYear()));
+            int month = LocalDate.now().getMonthValue();
+            searchUserLogVo.setMonth(month < 10 ? "0" + month : String.valueOf(month));
+        }
+        searchUserLogDto.setLogDate(searchUserLogVo.getYear() + "-" + searchUserLogVo.getMonth());
         Integer pageNo = searchUserLogDto.getPageNo()==null ? defaultPageNo : searchUserLogDto.getPageNo();
         Integer pageSize = searchUserLogDto.getPageSize()==null ? defaultPageSize : searchUserLogDto.getPageSize();
 
@@ -362,6 +375,14 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
                 .doSelectPageInfo(() -> omAccountLogMapper.searchUserLogPaging(searchUserLogDto));
         searchUserLogVo.setUserLogDetailVoPageInfo(userLogDetailVoPageInfo);
 
+        Map<String, BigDecimal> map = omAccountLogMapper.getIncomeAndConsume(searchUserLogDto);
+        if(null == map) {
+            searchUserLogVo.setConsume(BigDecimal.ZERO);
+            searchUserLogVo.setIncome(BigDecimal.ZERO);
+        } else {
+            searchUserLogVo.setConsume(null == map.get("consume") ? BigDecimal.ZERO : map.get("consume"));
+            searchUserLogVo.setIncome(null == map.get("income") ? BigDecimal.ZERO : map.get("income"));
+        }
         return searchUserLogVo;
 
 
@@ -435,5 +456,30 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
 
     }
 
+    /**
+     * 查询店铺交易流水
+     *
+     * @param searchStoreLogDto
+     * @return
+     */
+    @Override
+    public PageInfo<SearchStoreLogVo> searchStoreLogPaging(SearchStoreLogDto searchStoreLogDto) {
+
+        //获取当前店铺用户
+        Long storeId = securityUtil.getCurrUser().getStoreId();
+        if(null == storeId) {
+            //当前登录用户跟操作不匹配
+            throw  new ServiceException(ResultCode.FAIL, "当前登录用户跟操作不匹配");
+        }
+        searchStoreLogDto.setStoreId(storeId);
+        searchStoreLogDto.setUserType(UserTypeEnum.STORE.getId());
+        Integer pageNo = searchStoreLogDto.getPageNo()==null ? defaultPageNo : searchStoreLogDto.getPageNo();
+        Integer pageSize = searchStoreLogDto.getPageSize()==null ? defaultPageSize : searchStoreLogDto.getPageSize();
+
+        PageInfo<SearchStoreLogVo> searchStoreLogVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> omAccountLogMapper.searchStoreLogPaging(searchStoreLogDto));
+
+        return searchStoreLogVoPageInfo;
+    }
 
 }
