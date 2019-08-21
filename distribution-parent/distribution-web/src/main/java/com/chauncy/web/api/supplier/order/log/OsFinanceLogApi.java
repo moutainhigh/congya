@@ -5,6 +5,7 @@ import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.manage.order.bill.select.SearchBillDto;
 import com.chauncy.data.dto.manage.order.bill.update.BillCashOutDto;
 import com.chauncy.data.dto.manage.store.add.SaveStoreBankCardDto;
+import com.chauncy.data.dto.supplier.order.CreateStoreBillDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.order.bill.BillBaseInfoVo;
 import com.chauncy.data.vo.manage.order.bill.BillDetailVo;
@@ -111,6 +112,19 @@ public class OsFinanceLogApi extends BaseApi {
 
         return new JsonViewData(ResultCode.SUCCESS, "查询成功",
                 smStoreBankCardService.selectBankCard());
+    }
+
+    /**
+     * 根据时间创建货款/利润账单
+     */
+    @ApiOperation(value = "根据时间创建货款/利润账单",
+            notes = "endDate   需要创建账单的那一周   任何一天都可以    \nbillType  账单类型  1 货款账单  2 利润账单")
+    @PostMapping("/bill/createStoreBillByDate")
+    public JsonViewData createStoreBillByDate(@Valid @RequestBody  @ApiParam(required = true, name = "createStoreBillDto", value = "查询条件")
+                                                      CreateStoreBillDto createStoreBillDto) {
+
+        omOrderBillService.createStoreBillByDate(createStoreBillDto);
+        return new JsonViewData(ResultCode.SUCCESS, "操作成功");
     }
 
 }

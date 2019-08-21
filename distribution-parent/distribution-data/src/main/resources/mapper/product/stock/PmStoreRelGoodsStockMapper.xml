@@ -24,5 +24,21 @@
     <sql id="Base_Column_List">
         id, parent_id, store_stock_id, goods_id, goods_sku_id, distribute_price, distribute_stock_num, create_by, create_time, update_by, update_time, del_flag
     </sql>
+    <select id="getParentStoreIds" resultType="java.lang.Long">
+         WITH RECURSIVE parentIds (id,parent_id, parent_store_id) AS
+        (
+        SELECT id,parent_id, parent_store_id
+        FROM  pm_store_rel_goods_stock
+        WHERE
+            del_flag=0 AND
+                id= #{id}
+        UNION ALL
+        SELECT c.id,c.parent_id, c.parent_store_id
+        FROM parentIds AS p LEFT JOIN  pm_store_rel_goods_stock  AS c
+        ON p.parent_id = c.id
+        WHERE c.del_flag=0
+        )
+        SELECT parent_store_id AS parentStoreId  FROM parentIds
+    </select>
 
 </mapper>

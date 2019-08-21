@@ -60,6 +60,10 @@ public class OmReportRelGoodsTempPo implements Serializable {
     @ApiModelProperty(value = "小计")
     private BigDecimal totalAmount;
 
+    @ApiModelProperty(value = "是否上级店铺的报表关联，扣除虚拟库存的店铺有报表，库存关联的上级店铺也有对应的报表，" +
+            "false:branchId（分配店铺）的报表关联，true:上级店铺的报表关联")
+    private Boolean isParentStore;
+
     @ApiModelProperty(value = "创建者")
     private String createBy;
 

@@ -33,11 +33,14 @@ public class BillRelGoodsTempVo implements Serializable {
     @ApiModelProperty(value = "货号")
     private String articleNumber;
 
+    @ApiModelProperty(value = "商品数量")
+    private Integer goodsNumber;
+
     @ApiModelProperty(value = "供货价/利润金额")
     private BigDecimal supplierPrice;
 
-    @ApiModelProperty(value = "小计")
-    private BigDecimal totalAmount;
+    @ApiModelProperty(value = "售价")
+    private BigDecimal sellPrice;
 
     @ApiModelProperty(value = "订单创建时间")
     private LocalDateTime createTime;

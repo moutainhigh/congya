@@ -118,17 +118,12 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
      * @return
      */
     @Override
-    public ReportBaseInfoVo findReportById(BaseSearchPagingDto baseSearchPagingDto, Long id) {
+    public PageInfo<ReportRelGoodsTempVo> findReportById(BaseSearchPagingDto baseSearchPagingDto, Long id) {
 
         OmOrderReportPo omOrderReportPo = omOrderReportMapper.selectById(id);
         if(null == omOrderReportPo) {
             throw new ServiceException(ResultCode.NO_EXISTS, "记录不存在");
         }
-
-        SearchReportDto searchReportDto = new SearchReportDto();
-        searchReportDto.setId(id);
-        List<ReportBaseInfoVo> reportBaseInfoVoList = omOrderReportMapper.searchReportPaging(searchReportDto);
-        ReportBaseInfoVo reportBaseInfoVo = reportBaseInfoVoList.get(0);
 
         //查找关联信息
         Integer pageNo = baseSearchPagingDto.getPageNo() == null ? defaultPageNo : baseSearchPagingDto.getPageNo();
@@ -137,8 +132,7 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
         PageInfo<ReportRelGoodsTempVo> reportRelGoodsTempVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> omOrderReportMapper.findReportById(id));
 
-        reportBaseInfoVo.setReportRelGoodsTempVoPageInfo(reportRelGoodsTempVoPageInfo);
-        return reportBaseInfoVo;
+        return reportRelGoodsTempVoPageInfo;
     }
 
 
@@ -180,33 +174,15 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
             //新增报表记录
             omOrderReportMapper.insert(omOrderReportPo);
             //报表关联订单
-            omReportRelGoodsTempMapper.updateRelReport(
-                    startDate, endDate, omOrderReportPo.getStoreId(), omOrderReportPo.getBranchId(), omOrderReportPo.getId());
-            //分配虚拟库存的关系链也要能查看对应的商品销售报表
-            createReportRelStore(omOrderReportPo, omOrderReportPo.getStoreId());
+            omReportRelGoodsTempMapper.updateRelReport(startDate, endDate, omOrderReportPo.getStoreId(),
+                    omOrderReportPo.getBranchId(), omOrderReportPo.getIsParentStore(), omOrderReportPo.getId());
         }
     }
-
-    /**
-     * 分配虚拟库存的关系链也要能查看对应的商品销售报表
-     * @param omOrderReportPo 商品销售报表
-     */
-    private void createReportRelStore(OmOrderReportPo omOrderReportPo, Long storeId) {
-        if(null != storeId) {
-            OmReportRelStorePo omReportRelStorePo = new OmReportRelStorePo();
-            omReportRelStorePo.setReportId(omOrderReportPo.getId());
-            omReportRelStorePo.setStoreId(storeId);
-            omReportRelStorePo.setCreateBy(omOrderReportPo.getCreateBy());
-            omReportRelStoreMapper.insert(omReportRelStorePo);
-            //获取直属商家的库存的来源店铺
-            //Long parentStoreId =
-        }
-    }
-
 
     /**
      * 订单确认不能售后业务处理 扣减商品虚拟库存，插入报表订单关联
      * 1.插入关联 omReportRelGoodsTempPo 一个OmGoodsTempPo可能对应多个PmStoreRelGoodsStockPo
+     *   下单的商品不同数量可能来自不同的批次
      * 2.店铺虚拟库存对应批次的商品规格剩余数量扣减
      * 3.店铺商品规格库存对应的库存减少
      * PS:不一定有足够的虚拟库存扣减
@@ -219,12 +195,10 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
         if(null == omOrderPo) {
             throw new ServiceException(ResultCode.NO_EXISTS, "订单不存在");
         }
-
         QueryWrapper<OmGoodsTempPo> omGoodsTempPoWrapper = new QueryWrapper<>();
         omGoodsTempPoWrapper.lambda().eq(OmGoodsTempPo::getOrderId, orderId);
         List<OmGoodsTempPo> omGoodsTempPoList = omGoodsTempMapper.selectList(omGoodsTempPoWrapper);
         for(OmGoodsTempPo omGoodsTempPo : omGoodsTempPoList) {
-
             //根据订单商品数量  判断店铺虚拟库存批次
             //获取商品所属店铺的商品规格虚拟库存 可能有多个批次，先创建的先扣减
             QueryWrapper<PmStoreRelGoodsStockPo> pmStoreRelGoodsStockPoWrapper = new QueryWrapper<>();
@@ -265,14 +239,27 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
                             new BigDecimal(pmStoreRelGoodsStockPo.getRemainingStockNum().toString()));
                     omReportRelGoodsTempPo.setTotalAmount(totalAmount);
                 }
+                omReportRelGoodsTempPo.setIsParentStore(false);
                 //插入关联
                 omReportRelGoodsTempMapper.insert(omReportRelGoodsTempPo);
+
+                //获取分配虚拟库存的关系链 上级店铺
+                List<Long> parentStoreIds = pmStoreRelGoodsStockMapper.getParentStoreIds(pmStoreRelGoodsStockPo.getId());
+                parentStoreIds.forEach(parentStoreId ->{
+                    omReportRelGoodsTempPo.setId(null);
+                    omReportRelGoodsTempPo.setIsParentStore(true);
+                    omReportRelGoodsTempPo.setStoreId(parentStoreId);
+                    omReportRelGoodsTempMapper.insert(omReportRelGoodsTempPo);
+                });
+
                 //店铺关联商品虚拟库存对应批次的剩余库存扣减
                 pmStoreRelGoodsStockPo.setRemainingStockNum(pmStoreRelGoodsStockPo.getRemainingStockNum() - currentDeductionNum);
                 pmStoreRelGoodsStockMapper.updateById(pmStoreRelGoodsStockPo);
+
                 //商品虚拟库存扣减
                 pmGoodsVirtualStockMapper.deductionVirtualStock(
                         omOrderPo.getUserStoreId(), omGoodsTempPo.getSkuId(), currentDeductionNum);
+
                 //剩余需要扣减的数量
                 needDeductionSum = needDeductionSum - currentDeductionNum;
                 if(needDeductionSum <= 0) {

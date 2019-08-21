@@ -5,6 +5,7 @@ import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.manage.order.report.select.SearchReportDto;
 import com.chauncy.data.vo.manage.order.report.ReportBaseInfoVo;
+import com.chauncy.data.vo.manage.order.report.ReportRelGoodsTempVo;
 import com.github.pagehelper.PageInfo;
 
 import java.time.LocalDate;
@@ -31,7 +32,7 @@ public interface IOmOrderReportService extends Service<OmOrderReportPo> {
      * @param id
      * @return
      */
-    ReportBaseInfoVo findReportById(BaseSearchPagingDto baseSearchPagingDto, Long id);
+    PageInfo<ReportRelGoodsTempVo> findReportById(BaseSearchPagingDto baseSearchPagingDto, Long id);
 
     /**
      * 根据时间创建商品销售报表
