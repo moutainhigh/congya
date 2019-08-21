@@ -51,28 +51,28 @@ public class OmAccountLogPo implements Serializable {
     @ApiModelProperty(value = "用户id")
     private Long userId;
 
-    @ApiModelProperty(value = "账目类型  1.红包 2.购物券 3.积分 4.金额")
+    @ApiModelProperty(value = "账目类型  AccountTypeEnum")
     private Integer accountType;
 
     @ApiModelProperty(value = "发生额")
     private BigDecimal amount;
 
-    @ApiModelProperty(value = "关联订单id")
+    @ApiModelProperty(value = "关联订单/账单等id")
     private Long omRelId;
 
     @ApiModelProperty(value = "流水类型  1.支出 2.收入")
     private String logType;
 
-    @ApiModelProperty(value = "用户类型  1.APP用户 2.平台 3.商家")
+    @ApiModelProperty(value = "用户类型 UserTypeEnum 1.APP用户 2.平台 3.商家")
     private Integer userType;
 
-    @ApiModelProperty(value = "支付方式 1-微信  2-支付宝  3-银行卡  4-余额")
+    @ApiModelProperty(value = "支付方式 PaymentWayEnum ")
     private Integer paymentWay;
 
-    @ApiModelProperty(value = "到账方式 1-微信  2-支付宝  3-银行卡  4-余额")
+    @ApiModelProperty(value = "到账方式 PaymentWayEnum ")
     private Integer arrivalWay;
 
-    @ApiModelProperty(value = "流水事由  1-订单支付 2-提现 3-审核不通过返款 4-充值 5-平台赠送 6-返利 7-订单收入 8-售后退款 9-商品售出 10-订单取消 11-用户提现")
+    @ApiModelProperty(value = "流水事由 5种 LogMatterEnum")
     private Integer logMatter;
 
     @ApiModelProperty(value = "总支付单id")

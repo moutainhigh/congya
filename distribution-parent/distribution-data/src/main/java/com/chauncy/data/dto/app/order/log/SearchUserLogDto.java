@@ -9,6 +9,7 @@ import lombok.Data;
 
 import javax.validation.constraints.Min;
 import java.io.Serializable;
+import java.time.LocalDate;
 
 /**
  * @author yeJH
@@ -20,13 +21,24 @@ public class SearchUserLogDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "账目类型")
+    @ApiModelProperty(value = "账目类型 accountTypeEnum   \nRED_ENVELOPS(红包)   \n" +
+            "SHOP_TICKET(购物券)   \nINTEGRATE(积分)   \n")
     @EnumConstraint(target = AccountTypeEnum.class)
     private AccountTypeEnum accountTypeEnum;
 
     @JsonIgnore
     @ApiModelProperty(value = "用户id")
     private Long userId;
+
+    @JsonIgnore
+    @ApiModelProperty(value = "查询时间")
+    private String logDate;
+
+    @ApiModelProperty(value = "查询年")
+    private String year;
+
+    @ApiModelProperty(value = "查询月")
+    private String month;
 
     @Min(1)
     @ApiModelProperty(value = "页码")

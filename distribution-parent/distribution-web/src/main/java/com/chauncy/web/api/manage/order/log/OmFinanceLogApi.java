@@ -49,10 +49,10 @@ public class OmFinanceLogApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "查询平台流水", notes = "条件查询平台流水   \nlogMatter   \n1.订单收入   \n2.售后退款   \n" +
-            "4.用户提现   \n5.商家货款提现   \n6.商家利润提现   \nlogType    \n收入  支出")
+            "3.订单取消    \n4.用户提现   \n5.商家货款提现   \n6.商家利润提现   \nlogType    \n收入  支出")
     @PostMapping("/searchPlatformLogPaging")
-    public JsonViewData<PageInfo<SearchPlatformLogVo>> searchPlatformLogPaging(@RequestBody @ApiParam(required = true, name = "searchPlatformLogDto", value = "查询平台流水") @Validated
-                                                                                           SearchPlatformLogDto searchPlatformLogDto) {
+    public JsonViewData<PageInfo<SearchPlatformLogVo>> searchPlatformLogPaging(@RequestBody @ApiParam(required = true,
+            name = "searchPlatformLogDto", value = "查询平台流水") @Validated SearchPlatformLogDto searchPlatformLogDto) {
 
         PageInfo<SearchPlatformLogVo> searchPlatformLogVoPageInfo = omAccountLogService.searchPlatformLogPaging(searchPlatformLogDto);
         return setJsonViewData(searchPlatformLogVoPageInfo);
