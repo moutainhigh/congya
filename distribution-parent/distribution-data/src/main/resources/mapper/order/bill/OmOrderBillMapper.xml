@@ -9,6 +9,7 @@
         <result column="month_day" property="monthDay" />
         <result column="start_date" property="startDate" />
         <result column="end_date" property="endDate" />
+        <result column="total_num" property="totalNum" />
         <result column="total_amount" property="totalAmount" />
         <result column="actual_amount" property="actualAmount" />
         <result column="deducted_amount" property="deductedAmount" />
@@ -103,7 +104,7 @@
             <result column="owner_name" property="ownerName"/>
             <result column="owner_mobile" property="ownerMobile"/>
         </collection>
-        <collection property="billRelGoodsTempVoList" ofType="com.chauncy.data.vo.manage.order.bill.BillRelGoodsTempVo">
+        <!--<collection property="billRelGoodsTempVoList" ofType="com.chauncy.data.vo.manage.order.bill.BillRelGoodsTempVo">
             <id column="order_id" property="orderId"/>
             <result column="goods_id" property="goodsId"/>
             <result column="goodsName" property="goodsName"/>
@@ -112,10 +113,11 @@
             <result column="supplier_price" property="supplierPrice"/>
             <result column="total_amount" property="totalAmount"/>
             <result column="createTime" property="createTime"/>
-        </collection>
+        </collection>-->
     </resultMap>
     <select id="findBillDetail" resultMap="billDetailResult">
-        SELECT ss.`id` as storeId,
+        SELECT
+                ss.`id` as storeId,
                 ss.`name`,
                 ss.`owner_name`,
                 ss.`owner_mobile`,
@@ -135,20 +137,8 @@
                 oob.`reject_reason`,
                 oob.`opening_bank`,
                 oob.`account`,
-                oob.`cardholder`,
-                ogt.order_id,
-                ogt.goods_id,
-                pg.`name` as goodsName,
-                ogt.`standard_str`,
-                ogt.`article_number`,
-                ogt.`supplie_price`,
-                obrgt.`total_amount`,
-                oo.create_time as createTime
+                oob.`cardholder`
         FROM om_order_bill oob LEFT JOIN sm_store ss ON ss.id = oob.store_id
-        LEFT JOIN om_bill_rel_goods_temp obrgt ON oob.id = obrgt.`bill_id`
-        LEFT JOIN om_goods_temp ogt ON ogt.id = obrgt.`goods_temp_id`
-        LEFT JOIN pm_goods pg ON pg.id = ogt.`goods_id`
-        LEFT JOIN om_order oo ON oo.id = obrgt.`order_id`
         <where>
             oob.id = #{id}
         </where>
@@ -207,6 +197,55 @@
 	            ) AS temp
 	        )
         </where>
+    </select>
+    <select id="searchBillReportPaging" resultType="com.chauncy.data.vo.manage.order.bill.BillReportVo">
+        SELECT oob.id,
+            ss.`name`,
+            oob.`total_amount`,
+            oob.`total_num`,
+            oob.`create_time`,
+        FROM om_bill_rel_store obrs
+        LEFT JOIN om_order_bill oob
+        ON obrs.bill_id = oob.id
+        LEFT JOIN sm_store ss
+        ON ss.id = oob.store_id
+        <where>
+            obrs.store_id = #{storeId}
+            <if test="billId != null">
+                AND obrs.`bill_id` = #{billId}
+            </if>
+            <if test="minTotalAmount != null">
+                AND oob.`total_amount` <![CDATA[>= ]]>  #{minAmount}
+            </if>
+            <if test="maxTotalAmount != null">
+                AND oob.`total_amount` <![CDATA[<= ]]> #{maxAmount}
+            </if>
+        </where>
+        ORDER BY obrs.create_time DESC
+    </select>
+    <select id="findRelBillDetail" resultType="com.chauncy.data.vo.manage.order.bill.BillRelGoodsTempVo">
+        SELECT
+            ogt.order_id,
+            ogt.goods_id,
+            pg.`name` as goodsName,
+            ogt.`standard_str`,
+            ogt.`article_number`,
+            ogt.`number` as goodsNumber
+            ogt.`supplie_price`,
+            ogt.`sell_price`,
+            obrgt.`total_amount`,
+            oo.create_time as createTime
+        FROM om_goods_temp ogt
+        LEFT JOIN om_bill_rel_goods_temp obrgt
+        ON ogt.id = obrgt.`goods_temp_id`
+        LEFT JOIN pm_goods pg
+        ON pg.id = ogt.`goods_id`
+        LEFT JOIN om_order oo
+        ON oo.id = obrgt.`order_id`
+        <where>
+            oob.id = #{id}
+        </where>
+        ORDER BY ogt.create_time DESC
     </select>
 
 </mapper>

@@ -27,7 +27,7 @@ import com.chauncy.web.base.BaseApi;
 @RestController
 @RequestMapping("/app/user/log")
 @Api(tags = "APP_我的红包/购物券")
-public class OmUserLogApi extends BaseApi {
+public class AmUserLogApi extends BaseApi {
 
     @Autowired
     private IOmUserWithdrawalService omUserWithdrawalService;

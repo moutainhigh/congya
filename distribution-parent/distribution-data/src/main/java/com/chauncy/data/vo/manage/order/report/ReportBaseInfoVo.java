@@ -38,7 +38,7 @@ public class ReportBaseInfoVo implements Serializable {
     @ApiModelProperty(value = "生成时间")
     private LocalDateTime createTime;
 
-    @ApiModelProperty(value = "商品信息")
-    private PageInfo<ReportRelGoodsTempVo> reportRelGoodsTempVoPageInfo;
+    /*@ApiModelProperty(value = "商品信息")
+    private PageInfo<ReportRelGoodsTempVo> reportRelGoodsTempVoPageInfo;*/
 
 }

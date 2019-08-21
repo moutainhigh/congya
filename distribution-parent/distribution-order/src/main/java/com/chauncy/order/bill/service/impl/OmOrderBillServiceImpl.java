@@ -23,6 +23,7 @@ import com.chauncy.data.domain.po.store.rel.SmStoreBankCardPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.manage.order.bill.select.SearchBillDto;
+import com.chauncy.data.dto.manage.order.bill.select.SearchOrderReportDto;
 import com.chauncy.data.dto.manage.order.bill.update.BatchAuditDto;
 import com.chauncy.data.dto.manage.order.bill.update.BillCashOutDto;
 import com.chauncy.data.dto.manage.order.bill.update.BillDeductionDto;
@@ -34,9 +35,7 @@ import com.chauncy.data.mapper.order.bill.OmOrderBillMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.store.rel.SmStoreBankCardMapper;
 import com.chauncy.data.mapper.store.rel.SmStoreRelStoreMapper;
-import com.chauncy.data.vo.manage.order.bill.BillBaseInfoVo;
-import com.chauncy.data.vo.manage.order.bill.BillDetailVo;
-import com.chauncy.data.vo.manage.order.bill.BillSettlementVo;
+import com.chauncy.data.vo.manage.order.bill.*;
 import com.chauncy.order.bill.service.IOmOrderBillService;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.order.log.service.IOmAccountLogService;
@@ -394,6 +393,9 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
         //总货款/总利润
         BigDecimal totalAmount = BigDecimal.ZERO;
         omOrderBillPo.setTotalAmount(totalAmount);
+        //商品总数量
+        Integer totalNum = 0;
+        omOrderBillPo.setTotalNum(totalNum);
         omOrderBillPo.setBillStatus(BillStatusEnum.TO_BE_WITHDRAWN.getId());
         omOrderBillPo.setStoreId(storeId);
         omOrderBillPo.setStartDate(startDate);
@@ -411,20 +413,21 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
                 OmBillRelGoodsTempPo omBillRelGoodsTempPo = new OmBillRelGoodsTempPo();
                 omBillRelGoodsTempPo.setBillId(omOrderBillPo.getId());
                 omBillRelGoodsTempPo.setGoodsTempId(omGoodsTempPo.getId());
+                totalNum +=  omGoodsTempPo.getNumber();
                 if (BillTypeEnum.PAYMENT_BILL.getId().equals(billType)) {
                     //货款账单 供应价 * 数量
                     BigDecimal amount = BigDecimalUtil.safeMultiply(omGoodsTempPo.getSupplierPrice(), omGoodsTempPo.getNumber());
                     omBillRelGoodsTempPo.setTotalAmount(amount);
                     totalAmount = BigDecimalUtil.safeAdd(totalAmount, amount);
                 } else if (BillTypeEnum.PROFIT_BILL.getId().equals(billType)) {
-                    //货款账单 商品利润比例 * 商品售价 * 店铺利润配置比例
+                    //利润账单 商品数量 * 商品利润比例 * 商品售价 * 店铺利润配置比例
                     BigDecimal profitRate = BigDecimalUtil.safeDivide(omGoodsTempPo.getProfitRate(),new BigDecimal(100));
                     BigDecimal incomeRate = BigDecimalUtil.safeDivide(
                             new BigDecimal(orderMap.get("incomeRate").toString()),
                             new BigDecimal(100));
                     BigDecimal amount = BigDecimalUtil.safeMultiply(
                             BigDecimalUtil.safeMultiply(profitRate,omGoodsTempPo.getSellPrice()),
-                            incomeRate);
+                            BigDecimalUtil.safeMultiply(incomeRate, new BigDecimal(omGoodsTempPo.getNumber())));
                     omBillRelGoodsTempPo.setTotalAmount(amount);
                     totalAmount = BigDecimalUtil.safeAdd(totalAmount, amount);
                 }
@@ -432,6 +435,8 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
                 omBillRelGoodsTempMapper.insert(omBillRelGoodsTempPo);
             }
         }
+        //更新商品总数
+        omOrderBillPo.setTotalNum(totalNum);
         //更新总利润/总货款
         omOrderBillPo.setTotalAmount(totalAmount);
         omOrderBillMapper.updateById(omOrderBillPo);
@@ -488,5 +493,50 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
                 .select(OmOrderPo::getId)
                 .select(OmOrderPo::getIncomeRate);
         return omOrderService.listMaps(queryWrapper);
+    }
+
+    /**
+     * 查询订单交易报表  团队合作利润账单
+     *
+     * @param searchOrderReportDto
+     * @return
+     */
+    @Override
+    public PageInfo<BillReportVo> searchBillReportPaging(SearchOrderReportDto searchOrderReportDto) {
+        //获取当前店铺用户
+        Long storeId = securityUtil.getCurrUser().getStoreId();
+        if(null != storeId) {
+            searchOrderReportDto.setStoreId(storeId);
+        } else {
+            throw  new ServiceException(ResultCode.FAIL, "当前登录用户不是商家用户");
+        }
+
+        Integer pageNo = searchOrderReportDto.getPageNo() == null ? defaultPageNo : searchOrderReportDto.getPageNo();
+        Integer pageSize  = searchOrderReportDto.getPageSize() == null ? defaultPageSize : searchOrderReportDto.getPageSize();
+
+        PageInfo<BillReportVo> billReportVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> omOrderBillMapper.searchBillReportPaging(searchOrderReportDto));
+
+        return billReportVoPageInfo;
+    }
+
+
+    /**
+     * 查询账单关联订单商品详情
+     *
+     * @param baseSearchPagingDto
+     * @param id
+     * @return
+     */
+    @Override
+    public PageInfo<BillRelGoodsTempVo> findRelBillDetail(BaseSearchPagingDto baseSearchPagingDto, Long id) {
+
+        Integer pageNo = baseSearchPagingDto.getPageNo() == null ? defaultPageNo : baseSearchPagingDto.getPageNo();
+        Integer pageSize  = baseSearchPagingDto.getPageSize() == null ? defaultPageSize : baseSearchPagingDto.getPageSize();
+
+        PageInfo<BillRelGoodsTempVo> billRelGoodsTempVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> omOrderBillMapper.findRelBillDetail(id));
+
+        return billRelGoodsTempVoPageInfo;
     }
 }

@@ -13,9 +13,6 @@
         <result column="branch_id" property="branchId" />
         <result column="create_by" property="createBy" />
         <result column="create_time" property="createTime" />
-        <result column="withdrawal_time" property="withdrawalTime" />
-        <result column="processing_time" property="processingTime" />
-        <result column="settlement_time" property="settlementTime" />
         <result column="update_by" property="updateBy" />
         <result column="update_time" property="updateTime" />
         <result column="del_flag" property="delFlag" />
@@ -38,11 +35,14 @@
          LEFT JOIN sm_store branch
          ON branch.`id` = oor.`branch_id`
         <where>
-            <if test="reportType !=null and stockName == 'STORE_REPORT'">
+            <if test="reportType !=null and reportType == 'STORE_REPORT'">
                 and oor.`branch_id` = #{storeId}
             </if>
-            <if test="reportType !=null and stockName == 'BRANCH_REPORT'">
+            <if test="reportType !=null and reportType == 'BRANCH_REPORT'">
                 and oor.`store_id` = #{storeId}
+            </if>
+            <if test="reportType !=null and reportType == 'PLATFORM_REPORT'">
+                and oor.is_parent_store = 0
             </if>
             <if test="id !=null">
                 and oor.`id` = #{id}
@@ -81,13 +81,15 @@
             orrgt.branch_id,
             SUM(orrgt.distribute_price) AS total_amount,
             SUM(orrgt.goods_num) AS total_num,
-            ss.name AS create_by
+            ss.name AS create_by,
+            orrgt.is_parent_store
         FROM om_report_rel_goods_temp orrgt, sm_store ss
-        WHERE ss.id = orrgt.store_id AND orrgt.branch_id = #{branchId}
+        WHERE ss.id = orrgt.store_id
+        AND orrgt.branch_id = #{branchId}
         AND orrgt.report_id is null
         AND DATE(orrgt.create_time) <![CDATA[>= ]]> #{startDate}
         AND DATE(orrgt.create_time) <![CDATA[<= ]]> #{endDate}
-        GROUP BY store_id, branch_id, create_by;
+        GROUP BY orrgt.store_id, orrgt.branch_id, ss.name, orrgt.is_parent_store
     </select>
 
 </mapper>
