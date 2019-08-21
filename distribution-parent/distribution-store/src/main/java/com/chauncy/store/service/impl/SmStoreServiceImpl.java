@@ -221,8 +221,8 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         QueryWrapper<SmStoreRelLabelPo> relLabelPoQueryWrapper = new QueryWrapper<>();
         relLabelPoQueryWrapper.lambda()
                 .eq(SmStoreRelLabelPo::getStoreId, storeBaseInfoDto.getId())
-                .notIn(SmStoreRelLabelPo::getStoreLabelId, storeBaseInfoDto.getStoreLabelIds())
-                .in(SmStoreRelLabelPo::getStoreLabelId, oldLabelIds);
+                .notIn(SmStoreRelLabelPo::getStoreLabelId, storeBaseInfoDto.getStoreLabelIds());
+                //.in(SmStoreRelLabelPo::getStoreLabelId, oldLabelIds)
         smStoreRelLabelMapper.delete(relLabelPoQueryWrapper);
         //批量插入店铺标签关联记录
         saveBatchRelStoreLabel(storeBaseInfoDto, userName);
