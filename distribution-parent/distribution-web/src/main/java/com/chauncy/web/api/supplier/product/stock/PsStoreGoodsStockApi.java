@@ -2,12 +2,21 @@ package com.chauncy.web.api.supplier.product.stock;
 
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.bo.base.BaseBo;
+import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.manage.order.bill.select.SearchBillDto;
+import com.chauncy.data.dto.manage.order.bill.select.SearchOrderReportDto;
 import com.chauncy.data.dto.supplier.good.add.StoreGoodsStockBaseDto;
 import com.chauncy.data.dto.supplier.good.select.SearchStoreGoodsStockDto;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.manage.order.bill.BillBaseInfoVo;
+import com.chauncy.data.vo.manage.order.bill.BillDetailVo;
+import com.chauncy.data.vo.manage.order.bill.BillRelGoodsTempVo;
+import com.chauncy.data.vo.manage.order.bill.BillReportVo;
 import com.chauncy.data.vo.supplier.good.stock.StockTemplateSkuInfoVo;
 import com.chauncy.data.vo.supplier.good.stock.StoreGoodsStockVo;
+import com.chauncy.order.bill.service.IOmOrderBillService;
+import com.chauncy.order.report.service.IOmOrderReportService;
 import com.chauncy.product.stock.IPmGoodsVirtualStockTemplateService;
 import com.chauncy.product.stock.IPmStoreGoodsStockService;
 import com.chauncy.store.service.ISmStoreService;
@@ -21,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
 
 /**
  * @author yeJH
@@ -28,7 +38,7 @@ import javax.validation.Valid;
  */
 @RestController
 @RequestMapping("/supplier/store/stock")
-@Api(tags = "商家_商品_库存管理接口")
+@Api(tags = "商家_库存管理_库存管理接口")
 public class PsStoreGoodsStockApi extends BaseApi {
 
     @Autowired
@@ -37,6 +47,10 @@ public class PsStoreGoodsStockApi extends BaseApi {
     private ISmStoreService smStoreService;
     @Autowired
     private IPmGoodsVirtualStockTemplateService pmGoodsVirtualStockTemplateService;
+    @Autowired
+    private IOmOrderBillService omOrderBillService;
+    @Autowired
+    private IOmOrderReportService omOrderReportService;
 
 
     /**
@@ -201,6 +215,50 @@ public class PsStoreGoodsStockApi extends BaseApi {
         pmStoreGoodsStockService.delById(id);
         return new JsonViewData(ResultCode.SUCCESS, "删除成功");
     }
+
+    /**
+     * 查询订单交易报表  团队合作利润账单
+     * @param searchOrderReportDto
+     * @return
+     */
+    @ApiOperation(value = "查询订单交易报表", notes = "商家后台查询订单交易报表")
+    @PostMapping("/bill/searchBillReportPaging")
+    public JsonViewData<PageInfo<BillReportVo>> searchBillReportPaging(@Valid @RequestBody @ApiParam(required = true,
+            name = "searchOrderReportDto", value = "查询条件") SearchOrderReportDto searchOrderReportDto) {
+
+        PageInfo<BillReportVo> billReportVoPageInfo = omOrderBillService.searchBillReportPaging(searchOrderReportDto);
+        return setJsonViewData(billReportVoPageInfo);
+    }
+
+    /**
+     * 查询交易订单报表详情
+     * @param id
+     * @return
+     */
+    @ApiOperation(value = "查询交易订单报表详情", notes = "根据账单id查询交易订单报表详情")
+    @GetMapping("/bill/findRelBillDetail/{id}")
+    public JsonViewData<PageInfo<BillRelGoodsTempVo>> findRelBillDetail(@Valid @RequestBody @ApiParam(required = true,
+            name = "baseSearchPagingDto", value = "查询条件") BaseSearchPagingDto baseSearchPagingDto,
+                                                                           @ApiParam(required = true, value = "id")
+                                                                           @PathVariable Long id) {
+
+        return new JsonViewData(ResultCode.SUCCESS, "查找成功",
+                omOrderBillService.findRelBillDetail(baseSearchPagingDto, id));
+
+    }
+
+    /**
+     * 根据时间创建商品销售报表
+     */
+    @ApiOperation(value = "根据时间创建商品销售报表",
+            notes = "endDate   需要创建账单的那一周   任何一天都可以")
+    @PostMapping("/report/createSaleReportByDate")
+    public JsonViewData createSaleReportByDate(@ApiParam(required = true, value = "id")@PathVariable LocalDate endDate) {
+
+        omOrderReportService.createSaleReportByDate(endDate);
+        return new JsonViewData(ResultCode.SUCCESS, "操作成功");
+    }
+
 
 
 }

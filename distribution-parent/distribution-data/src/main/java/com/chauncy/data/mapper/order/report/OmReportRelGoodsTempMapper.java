@@ -28,5 +28,6 @@ public interface OmReportRelGoodsTempMapper extends IBaseMapper<OmReportRelGoods
                          @Param("endDate")LocalDate endDate,
                          @Param("storeId")Long storeId,
                          @Param("branchId")Long branchId,
+                         @Param("isParentStore")Boolean isParentStore,
                          @Param("reportId")Long reportId);
 }

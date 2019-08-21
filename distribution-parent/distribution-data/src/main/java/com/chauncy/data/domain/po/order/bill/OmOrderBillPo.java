@@ -52,6 +52,9 @@ public class OmOrderBillPo implements Serializable {
     @ApiModelProperty(value = "账单结束日期")
     private LocalDate endDate;
 
+    @ApiModelProperty(value = "总商品数量")
+    private Integer totalNum;
+
     @ApiModelProperty(value = "总货款/总利润")
     private BigDecimal totalAmount;
 
