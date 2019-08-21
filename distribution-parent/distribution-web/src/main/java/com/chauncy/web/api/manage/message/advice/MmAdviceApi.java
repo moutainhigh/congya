@@ -89,15 +89,16 @@ public class MmAdviceApi extends BaseApi {
     }
 
     /**
-     * 批量启用或禁用
+     * 批量启用或禁用,同一个广告位只能有一个是启用状态
+     *
      * @param baseUpdateStatusDto
      * @return
      */
     @PostMapping("/editEnable")
-    @ApiOperation("批量启用或禁用")
+    @ApiOperation("启用或禁用,没有批量启用/禁用")
     public JsonViewData editEnable(@Validated @RequestBody  @ApiParam(required = true, name = "baseUpdateStatusDto", value = "启用禁用广告")
                                            BaseUpdateStatusDto baseUpdateStatusDto){
-        service.editEnabledBatch(baseUpdateStatusDto);
+        service.editEnabled(baseUpdateStatusDto);
         return new JsonViewData(ResultCode.SUCCESS,"操作成功");
     }
 

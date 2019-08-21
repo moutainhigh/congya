@@ -2,6 +2,7 @@ package com.chauncy.message.advice;
 
 import com.chauncy.data.domain.po.message.advice.MmAdvicePo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.advice.add.SaveClassificationAdviceDto;
 import com.chauncy.data.dto.manage.message.advice.add.SaveOtherAdviceDto;
 import com.chauncy.data.dto.manage.message.advice.select.SearchAdvicesDto;
@@ -76,4 +77,12 @@ public interface IMmAdviceService extends Service<MmAdvicePo> {
      * @param searchInformationCategoryDto
      */
     PageInfo<BaseVo> searchInformationCategory(SearchInformationCategoryDto searchInformationCategoryDto);
+
+    /**
+     * 批量启用或禁用,同一个广告位只能有一个是启用状态
+     *
+     * @param baseUpdateStatusDto
+     * @return
+     */
+    void editEnabled(BaseUpdateStatusDto baseUpdateStatusDto);
 }

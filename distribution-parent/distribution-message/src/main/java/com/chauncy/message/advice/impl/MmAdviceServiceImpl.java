@@ -12,6 +12,7 @@ import com.chauncy.data.domain.po.message.advice.*;
 import com.chauncy.data.domain.po.message.information.category.MmInformationCategoryPo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.advice.add.SaveClassificationAdviceDto;
 import com.chauncy.data.dto.manage.message.advice.add.SaveOtherAdviceDto;
 import com.chauncy.data.dto.manage.message.advice.select.SearchAdvicesDto;
@@ -156,7 +157,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                     a.setDetail(storeClassificationList);
                     break;
 
-                //首页有品------》》》品牌
+                //首页有品------》》》品牌+详情
                 case SHOUYE_YOUPIN:
                     //获取该广告下的所有选项卡信息
                     List<BrandTabInfosVo> brandTabInfosVos = relTabMapper.findBrandTabInfosVos(a.getAdviceId());
@@ -164,6 +165,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                         //分页获取品牌选项卡关联的品牌
                         PageInfo<BrandVo> brandList = PageHelper.startPage(defaultPageNo, defaultPageSize)
                                 .doSelectPageInfo(() -> relTabThingsMapper.findBrandList(b.getTabId()));
+                        //品牌详情-品牌绑定的轮播图广告
                         brandList.getList().forEach(c -> {
                             Long relTabBrandId = relTabThingsMapper.selectOne(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
                                     .eq(MmAdviceRelTabThingsPo::getTabId, b.getTabId())
@@ -693,6 +695,34 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
         PageInfo<BaseVo> informationCategoryVoPageInfo = PageHelper.startPage(PageNo, pageSize)
                 .doSelectPageInfo(()->informationCategoryMapper.searchInformationCategory(searchInformationCategoryDto.getName()));
         return informationCategoryVoPageInfo;
+    }
+
+    /**
+     * 批量启用或禁用,同一个广告位只能有一个是启用状态
+     *
+     * @param baseUpdateStatusDto
+     * @return
+     */
+    @Override
+    public void editEnabled(BaseUpdateStatusDto baseUpdateStatusDto) {
+
+        SysUserPo user = securityUtil.getCurrUser();
+        Long id = Arrays.asList(baseUpdateStatusDto.getId()).get(0);
+        if (baseUpdateStatusDto.getEnabled()){
+            //判断该广告对应的广告位置是否已有启用广告，若有则置为0
+            String location = mapper.selectById(id).getLocation();
+            //获取该广告位置下所有启用的广告
+            List<MmAdvicePo> advicePos = mapper.selectList(new QueryWrapper<MmAdvicePo>().lambda()
+                    .eq(MmAdvicePo::getLocation,location)).stream().filter(a->a.getEnabled().equals(true)).collect(Collectors.toList());
+            advicePos.forEach(b->{
+                b.setEnabled(false);
+                mapper.updateById(b);
+            });
+
+            MmAdvicePo advicePo = mapper.selectById(id);
+            advicePo.setEnabled(baseUpdateStatusDto.getEnabled()).setUpdateBy(user.getUsername());
+            mapper.updateById(advicePo);
+        }
     }
 
 }
