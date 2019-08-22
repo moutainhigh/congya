@@ -14,6 +14,7 @@ import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.common.util.rabbit.RabbitUtil;
 import com.chauncy.data.bo.app.logistics.LogisticsDataBo;
 import com.chauncy.data.bo.app.order.my.OrderRewardBo;
+import com.chauncy.data.bo.app.order.rabbit.RabbitOrderBo;
 import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.domain.po.order.OmOrderLogisticsPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
@@ -331,8 +332,11 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         //多久自动评价(毫秒)
         String expiration=basicSettingPo.getAutoCommentDay()*24*60*60*1000+"";
 
+        RabbitOrderBo rabbitOrderBo=new RabbitOrderBo();
+        rabbitOrderBo.setOrderId(orderId).setOrderStatusEnum(OrderStatusEnum.NEED_EVALUATE);
+
         //添加延时队列
-        rabbitUtil.sendDelayMessage(5*60*1000+"",orderId);
+        rabbitUtil.sendDelayMessage(1*60*1000+"",rabbitOrderBo);
         LoggerUtil.info("【确认收货等待自动评价发送时间】:" + LocalDateTime.now());
 
     }

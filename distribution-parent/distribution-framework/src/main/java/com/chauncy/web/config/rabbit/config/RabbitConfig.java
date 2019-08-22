@@ -113,8 +113,54 @@ public class RabbitConfig {
     }
 
     @Bean
-    public Queue helloQueue() {
-        return new Queue("chauncy_test");
+    public Queue orderDeadQueue() {
+        //死信队列
+        Map<String, Object> params = new HashMap<>();
+        params.put("x-dead-letter-exchange", RabbitConstants.ORDER_REDIRECT_EXCHANGE);
+        params.put("x-dead-letter-routing-key", RabbitConstants.ORDER_REDIRECT_KEY);
+        return new Queue(RabbitConstants.ORDER_DEAD_QUEUE, true, false, false, params);
     }
+
+    @Bean
+    public DirectExchange orderDeadExchange() {
+        //死信交换机
+        return new DirectExchange(RabbitConstants.ORDER_DEAD_EXCHANGE);
+    }
+
+    @Bean
+    public Binding dlxOrderBinding() {
+        return BindingBuilder.bind(orderDeadQueue()).to(orderDeadExchange()).with(RabbitConstants.ORDER_DEAD_ROUTING_KEY);
+    }
+
+
+    /**
+     * 转发队列
+     * @return
+     */
+    @Bean
+    public Queue redirectOrderQueue() {
+        return new Queue(RabbitConstants.ORDER_REDIRECT_QUEUE, true);
+    }
+
+    /**
+     * 死信转发的交换机
+     * @return
+     */
+    @Bean
+    public TopicExchange orderRedirectExchange() {
+        return new TopicExchange(RabbitConstants.ORDER_REDIRECT_EXCHANGE);
+    }
+
+    /**
+     * 死信交换机与队列绑定
+     * @return
+     */
+    @Bean
+    public Binding orderRedirectBinding() {
+        // TODO 如果要让延迟队列之间有关联,这里的 routingKey 和 绑定的交换机很关键
+        return BindingBuilder.bind(redirectOrderQueue()).
+                to(orderRedirectExchange()).with(RabbitConstants.ORDER_REDIRECT_KEY);
+    }
+
 
 }

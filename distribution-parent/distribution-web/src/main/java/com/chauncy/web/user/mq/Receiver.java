@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
  * @Author cheng
  * @create 2019-08-07 20:20
  */
+/*
 @Component
 @RabbitListener(queues = "chauncy_test")
 public class Receiver {
@@ -18,3 +19,4 @@ public class Receiver {
     }
 
 }
+*/
