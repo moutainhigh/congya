@@ -110,7 +110,7 @@ public class MmAdviceApi extends BaseApi {
      * @return
      */
     @PostMapping("/saveOtherAdvice")
-    @ApiOperation("保存充值入口/拼团鸭广告")
+    @ApiOperation("查找广告位为保存充值入口、拼团鸭广告、领券、经验包、邀请有礼")
     public JsonViewData saveOtherAdvice(@RequestBody @ApiParam(required = true,name = "saveOtherAdviceDto",value = "保存充值入口/拼团鸭广告")
                                         @Validated SaveOtherAdviceDto saveOtherAdviceDto){
         service.saveOtherAdvice(saveOtherAdviceDto);
