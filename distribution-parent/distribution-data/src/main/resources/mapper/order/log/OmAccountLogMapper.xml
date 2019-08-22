@@ -32,28 +32,29 @@
 
 
     <select id="searchPlatformLogPaging" resultType="com.chauncy.data.vo.manage.order.log.SearchPlatformLogVo">
-        select oal.pay_order_id,
-                po.pay_id,
-                oal.create_by as phone,
-                oal.log_type,
-                oal.log_matter,
-				po.total_real_pay_money,
-				oal.payment_way,
-				oal.arrival_way,
-				oal.create_time
+        SELECT
+            oal.id,
+            oal.om_rel_id,
+            uu.`user_id`,
+            uu.phone,
+            oal.`log_type`,
+            oal.`log_matter`,
+            ABS(oal.amount) AS totalAmount,
+            oal.payment_way,
+            oal.arrival_way,
+            oal.`create_by`
         from om_account_log oal
         left join pay_order po
         on oal.pay_order_id = po.id
-        <if test="phone != null and phone != ''">
-            left join um_user uu
-            on uu.id = po.um_user_id
-        </if>
+        left join um_user uu
+        on uu.id = po.um_user_id
         <where>
-            <if test="payOrderId != null">
-                and oal.pay_order_id = #{payOrderId}
+            oal.user_type = #{userType}
+            <if test="omRelId != null">
+                and oal.om_rel_id = #{omRelId}
             </if>
-            <if test="payId != null">
-                and po.pay_id = #{payId}
+            <if test="logId != null">
+                and oal.id = #{logId}
             </if>
             <if test="umUserId != null">
                 and po.um_user_id = #{umUserId}
@@ -74,7 +75,7 @@
                 and date(oal.create_time) <![CDATA[<= ]]> #{endTime}
             </if>
         </where>
-        order by oal.create_time
+        order by oal.create_time desc
     </select>
     <select id="searchUserLogPaging" resultType="com.chauncy.data.vo.manage.order.log.UserLogDetailVo">
         SELECT oal.id as logId,
@@ -85,10 +86,12 @@
             oal.`payment_way`,
             oal.`arrival_way`
         FROM om_account_log oal
-
-        WHERE oal.user_id = #{userId}
-        AND account_type = #{accountTypeEnum.id}
-        ORDER BY oal.`event_time`
+        <where>
+            oal.user_id = #{userId}
+            AND account_type = #{accountTypeEnum.id}
+            AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
+        </where>
+        ORDER BY oal.`create_time`
     </select>
     <select id="searchUserWithdrawalPaging" resultType="com.chauncy.data.vo.manage.order.log.SearchUserWithdrawalVo">
         SELECT ouw.id,
@@ -127,6 +130,63 @@
             </if>
         </where>
         order by ouw.create_time
+    </select>
+    <select id="searchStoreLogPaging" resultType="com.chauncy.data.vo.manage.order.log.SearchStoreLogVo">
+        SELECT
+            oal.id,
+            oal.om_rel_id,
+            oal.`log_type`,
+            oal.`log_matter`,
+            ABS(oal.amount) AS totalAmount,
+            oal.`create_by`
+        FROM om_account_log oal
+        <where>
+            oal.user_type = #{userType}
+            and user_id = #{storeId}
+            <if test="omRelId != null">
+                and oal.om_rel_id = #{omRelId}
+            </if>
+            <if test="logId != null">
+                and oal.id = #{logId}
+            </if>
+            <if test="logMatter != null">
+                and oal.log_matter = #{logMatter}
+            </if>
+            <if test="logType != null and logType != ''">
+                and oal.log_type = #{logType}
+            </if>
+            <if test="startTime != null">
+                and date(oal.create_time) <![CDATA[>= ]]>  #{startTime}
+            </if>
+            <if test="endTime != null">
+                and date(oal.create_time) <![CDATA[<= ]]> #{endTime}
+            </if>
+            <if test="minAmount != null">
+                and ABS(oal.amount) <![CDATA[>= ]]>  #{minAmount}
+            </if>
+            <if test="maxAmount != null">
+                and ABS(oal.amount) <![CDATA[<= ]]> #{maxAmount}
+            </if>
+        </where>
+    </select>
+    <select id="getIncomeAndConsume" resultType="java.util.Map">
+        SELECT
+            (
+            SELECT sum(oal.amount)
+            FROM om_account_log oal
+            where oal.user_id = #{userId}
+            AND account_type = #{accountTypeEnum.id}
+            AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
+            AND oal.log_type = '收入'
+            ) as income,
+            (
+            SELECT ABS(sum(oal.amount))
+            FROM om_account_log oal
+            where oal.user_id = #{userId}
+            AND account_type = #{accountTypeEnum.id}
+            AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
+            AND oal.log_type = '支出'
+            ) as consume
     </select>
 
 </mapper>
