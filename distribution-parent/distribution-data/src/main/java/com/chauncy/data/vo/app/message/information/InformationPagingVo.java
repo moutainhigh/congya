@@ -19,6 +19,7 @@ public class InformationPagingVo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    
 
     @ApiModelProperty(value = "资讯id")
     private Long id;
@@ -26,20 +27,33 @@ public class InformationPagingVo implements Serializable {
     @ApiModelProperty(value = "资讯标题")
     private String title;
 
-    @ApiModelProperty(value = "作者")
+    /*@ApiModelProperty(value = "作者")
     private String author;
+
+    @ApiModelProperty(value = "浏览量")
+    private Integer browsingNum;
+    */
+
+    @ApiModelProperty(value = "资讯正文纯文本")
+    private String  pureText ;
 
     @ApiModelProperty(value = "封面图片")
     private String coverImage;
 
-    @ApiModelProperty(value = "浏览量")
-    private Integer browsingNum;
+    @ApiModelProperty(value = "转发量")
+    private Integer forwardNum;
 
-    @ApiModelProperty(value = "资讯正文纯文本")
-    private String  pureText ;
+    @ApiModelProperty(value = "评论量")
+    private Integer commentNum;
+
+    @ApiModelProperty(value = "点赞量")
+    private Integer likedNum;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "更新时间")
     private LocalDateTime updateTime;
+
+    @ApiModelProperty(value = "发布时间")
+    private String releaseTime;
 }
