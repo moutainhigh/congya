@@ -167,7 +167,7 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
         //结算周期  周期同货款账单
         Integer settlementCycle = smStorePo.getPaymentBillSettlementCycle();
         //按结算周期往前推几周
-        LocalDate startDate = endDate.plusDays(-7L * settlementCycle.longValue() - 1);
+        LocalDate startDate = endDate.plusDays(-7L * settlementCycle.longValue());
         //查询周期内下单扣减的店铺虚拟库存对应的记录
         List<OmOrderReportPo> omOrderReportPoList = omOrderReportMapper.searchOrderReport(startDate, endDate, storeId);
         for(OmOrderReportPo omOrderReportPo : omOrderReportPoList) {
