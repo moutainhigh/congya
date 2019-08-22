@@ -278,11 +278,14 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                     break;
                 /*******************推荐分类 葱鸭百货分类推荐/资讯分类推荐*********************/
 
-                /*******************充值入口+拼团鸭*********************/
+                /*******************充值入口+拼团鸭+优惠券+经验包+邀请包*********************/
                 case TOP_UP_ENTRY:
                 case SPELL_GROUP:
+                case COUPON:
+                case INVITATION:
+                case EXPERIENCE_PACKAGE:
                     break;
-                /*******************充值入口+拼团鸭*********************/
+                /*******************充值入口+拼团鸭+优惠券+经验包+邀请包*********************/
             }
         });
 
@@ -396,9 +399,12 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                     break;
                 /*******************推荐分类 葱鸭百货分类推荐/资讯分类推荐*********************/
 
-                /*******************充值入口+拼团鸭*********************/
+                /*******************充值入口+拼团鸭+优惠券+经验包+邀请包*********************/
                 case TOP_UP_ENTRY:
                 case SPELL_GROUP:
+                case COUPON:
+                case INVITATION:
+                case EXPERIENCE_PACKAGE:
                     break;
             }
 
@@ -409,7 +415,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
     }
 
     /**
-     * 保存充值入口/拼团鸭广告
+     * 保存充值入口+拼团鸭+优惠券+经验包+邀请包
      *
      * @param saveOtherAdviceDto
      * @return
