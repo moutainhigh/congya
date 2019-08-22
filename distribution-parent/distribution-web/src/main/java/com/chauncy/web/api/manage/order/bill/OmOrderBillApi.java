@@ -13,6 +13,7 @@ import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.order.bill.BillBaseInfoVo;
 import com.chauncy.data.vo.manage.order.bill.BillDetailVo;
 import com.chauncy.data.vo.manage.order.report.ReportBaseInfoVo;
+import com.chauncy.data.vo.manage.order.report.ReportRelGoodsTempVo;
 import com.chauncy.data.vo.supplier.good.stock.StoreGoodsStockVo;
 import com.chauncy.order.bill.service.IOmOrderBillService;
 import com.chauncy.order.report.service.IOmOrderReportService;
@@ -167,19 +168,6 @@ public class OmOrderBillApi  extends BaseApi {
     }
 
     /**
-     * 根据时间创建货款/利润账单
-     */
-    @ApiOperation(value = "根据时间创建货款/利润账单",
-            notes = "endDate   需要创建账单的那一周   任何一天都可以    \nbillType  账单类型  1 货款账单  2 利润账单")
-    @PostMapping("/bill/createStoreBillByDate")
-    public JsonViewData createStoreBillByDate(@Valid @RequestBody  @ApiParam(required = true, name = "createStoreBillDto", value = "查询条件")
-                                                   CreateStoreBillDto createStoreBillDto) {
-
-        omOrderBillService.createStoreBillByDate(createStoreBillDto);
-        return new JsonViewData(ResultCode.SUCCESS, "操作成功");
-    }
-
-    /**
      * 查询商品销售报表
      * @param searchReportDto
      * @return
@@ -203,27 +191,15 @@ public class OmOrderBillApi  extends BaseApi {
      */
     @ApiOperation(value = "根据ID查找商品销售报表信息", notes = "根据报表ID查找")
     @PostMapping("/report/findReportById/{id}")
-    public JsonViewData<ReportBaseInfoVo> findReportById(@Valid @RequestBody @ApiParam(required = true, name = "baseSearchPagingDto", value = "查询条件")
-                                                                 BaseSearchPagingDto baseSearchPagingDto,
-                                                         @ApiParam(required = true, value = "id")@PathVariable Long id) {
+    public JsonViewData<PageInfo<ReportRelGoodsTempVo>> findReportById(
+            @Valid @RequestBody @ApiParam(required = true, name = "baseSearchPagingDto", value = "查询条件")
+            BaseSearchPagingDto baseSearchPagingDto,
+            @ApiParam(required = true, value = "id")@PathVariable Long id) {
 
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
                 omOrderReportService.findReportById(baseSearchPagingDto, id));
 
     }
-
-    /**
-     * 根据时间创建商品销售报表
-     */
-    @ApiOperation(value = "根据时间创建商品销售报表",
-            notes = "endDate   需要创建账单的那一周   任何一天都可以")
-    @PostMapping("/report/createSaleReportByDate")
-    public JsonViewData createSaleReportByDate(@ApiParam(required = true, value = "id")@PathVariable LocalDate endDate) {
-
-        omOrderReportService.createSaleReportByDate(endDate);
-        return new JsonViewData(ResultCode.SUCCESS, "操作成功");
-    }
-
 
 }

@@ -1,5 +1,6 @@
 package com.chauncy.common.enums.log;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.chauncy.common.enums.BaseEnum;
 
 import java.util.Objects;
@@ -24,7 +25,7 @@ public enum AccountTypeEnum  implements BaseEnum {
     INTEGRATE(4, "积分"),
     ;
 
-
+    @EnumValue
     private Integer id;
     private String name;
     AccountTypeEnum(Integer id, String name){

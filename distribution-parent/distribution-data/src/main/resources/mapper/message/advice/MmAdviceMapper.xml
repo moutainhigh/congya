@@ -32,5 +32,10 @@
             and a.name like concat('%', #{name}, '%')
         </if>
     </select>
+    <select id="findAdvice" resultType="com.chauncy.data.vo.manage.message.advice.FindBaiHuoAdviceVo">
+        select id as value,name as label
+        from mm_advice
+        where del_flag = 0 and location = #{location}
+    </select>
 
 </mapper>

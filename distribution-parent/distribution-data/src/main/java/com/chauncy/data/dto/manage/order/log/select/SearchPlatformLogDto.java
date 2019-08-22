@@ -4,6 +4,7 @@ import com.chauncy.common.enums.log.PlatformLogMatterEnum;
 import com.chauncy.data.valid.annotation.EnumConstraint;
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -25,11 +26,15 @@ public class SearchPlatformLogDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
 
-    @ApiModelProperty(value = "总支付单id/关联订单号")
-    private Long payOrderId;
+    @JsonIgnore
+    @ApiModelProperty(value = "用户类型")
+    private Integer userType;
 
-    @ApiModelProperty(value = "交易流水（微信支付宝交易号）")
-    private Long payId;
+    @ApiModelProperty(value = "关联订单id")
+    private Long omRelId;
+
+    @ApiModelProperty(value = "流水id")
+    private Long logId;
 
     @ApiModelProperty(value = "下单用户id")
     private Long umUserId;

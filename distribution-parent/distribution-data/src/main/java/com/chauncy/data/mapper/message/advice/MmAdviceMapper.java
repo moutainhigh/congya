@@ -3,6 +3,7 @@ package com.chauncy.data.mapper.message.advice;
 import com.chauncy.data.domain.po.message.advice.MmAdvicePo;
 import com.chauncy.data.dto.manage.message.advice.select.SearchAdvicesDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.manage.message.advice.FindBaiHuoAdviceVo;
 import com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo;
 
 import java.util.List;
@@ -24,4 +25,11 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
      * @return
      */
     List<SearchAdvicesVo> searchAdvices(SearchAdvicesDto searchAdvicesDto);
+
+    /**
+     * 查找广告位为葱鸭百货的所有广告
+     *
+     * @return
+     */
+    List<FindBaiHuoAdviceVo> findAdvice(String location);
 }

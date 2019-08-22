@@ -55,8 +55,12 @@ public class BrandShufflingVo {
     @JSONField(ordinal = 16)
     private Long detailId;
 
-    @ApiModelProperty(value = "封面图片")
+    @ApiModelProperty(value = "商品名称/店铺名称/资讯名称")
     @JSONField(ordinal = 17)
+    private String detailName;
+
+    @ApiModelProperty(value = "封面图片")
+    @JSONField(ordinal = 18)
     private String coverPhoto;
 
     @ApiModelProperty(value = "广告ID",hidden = true)

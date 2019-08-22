@@ -71,6 +71,6 @@ public enum AdviceTypeEnum implements BaseEnum {
 
     @Override
     public boolean isExist(Object field) {
-        return Objects.nonNull(fromName(field.toString()));
+        return Objects.nonNull(getAdviceTypeEnum(Integer.parseInt(field.toString())));
     }
 }

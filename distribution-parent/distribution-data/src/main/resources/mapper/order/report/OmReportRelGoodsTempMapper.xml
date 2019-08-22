@@ -23,9 +23,10 @@
     <update id="updateRelReport">
         UPDATE om_report_rel_goods_temp
         SET report_id = #{reportId}
-        WHERE orrgt.branch_id = #{branchId}
+        WHERE orrgt.report_id IS NULL
         AND orrgt.store_id = #{storeId}
-        AND orrgt.report_id IS NULL
+        AND orrgt.branch_id = #{branchId}
+        AND orrgt.is_parent_store = #{isParentStore}
         AND DATE(orrgt.create_time) <![CDATA[>= ]]> #{startDate}
         AND DATE(orrgt.create_time) <![CDATA[<= ]]> #{endDate}
     </update>

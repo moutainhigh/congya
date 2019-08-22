@@ -82,7 +82,7 @@ public class BillDetailVo  implements Serializable {
     @JsonIgnore
     private LocalDateTime settlementTime;
 
-    @ApiModelProperty(value = "商品信息")
-    private List<BillRelGoodsTempVo> billRelGoodsTempVoList;
+    /*@ApiModelProperty(value = "商品信息")
+    private List<BillRelGoodsTempVo> billRelGoodsTempVoList;*/
 
 }

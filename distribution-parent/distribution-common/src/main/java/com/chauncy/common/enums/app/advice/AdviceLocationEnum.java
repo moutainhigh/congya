@@ -88,7 +88,13 @@ public enum AdviceLocationEnum implements BaseEnum {
     //其它
     TOP_UP_ENTRY(21,"充值入口"),
 
-    SPELL_GROUP(22,"拼团");
+    SPELL_GROUP(22,"拼团"),
+
+    COUPON(23,"领券"),
+
+    EXPERIENCE_PACKAGE(24,"经验包"),
+
+    INVITATION(25,"邀请有礼");
 
     private Integer id;
 

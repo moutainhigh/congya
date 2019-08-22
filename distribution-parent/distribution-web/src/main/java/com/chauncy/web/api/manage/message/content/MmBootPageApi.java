@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/manage/message/content")
-@Api(tags = "平台_内容管理_启动页管理")
+@Api(tags = "平台_内容管理_引导页管理")
 public class MmBootPageApi {
 
     @Autowired
@@ -39,7 +39,7 @@ public class MmBootPageApi {
      * @return
      */
     @PostMapping("/addBootPage")
-    @ApiOperation("添加启动页")
+    @ApiOperation("添加引导页")
     public JsonViewData addBootPage(@RequestBody @ApiParam(required = true,name="添加启动页Dto",value = "addBootPage")
                                     @Validated AddBootPageDto addBootPageDto){
         service.addBootPage(addBootPageDto);
@@ -53,7 +53,7 @@ public class MmBootPageApi {
      * @return
      */
     @PostMapping("/updateBootPage")
-    @ApiOperation("添加启动页")
+    @ApiOperation("添加引导页")
     public JsonViewData updateBootPage(@RequestBody @ApiParam(required = true,name="添加启动页Dto",value = "addBootPage")
                                     @Validated(IUpdateGroup.class) AddBootPageDto updateBootPage){
         service.updateBootPage(updateBootPage);
@@ -66,7 +66,7 @@ public class MmBootPageApi {
      * @return
      */
     @GetMapping("/delBootPageByIds/{ids}")
-    @ApiOperation("批量删除启动页")
+    @ApiOperation("批量删除引导页")
     public JsonViewData delBootPageByIds(@ApiParam(required = true,name = "ids",value = "启动页集合")
                                          @PathVariable Long[] ids){
         service.delBootPageByIds(ids);
@@ -80,7 +80,7 @@ public class MmBootPageApi {
      * @return
      */
     @PostMapping("/searchPages")
-    @ApiOperation("查找启动页")
+    @ApiOperation("查找引导页")
     public JsonViewData<PageInfo<BootPageVo>> searchPages(@RequestBody @Validated @ApiParam(required = true, name = "searchContentDto", value = "查找文章")
                                                                   SearchContentDto searchContentDto) {
         return new JsonViewData(service.searchPages(searchContentDto));

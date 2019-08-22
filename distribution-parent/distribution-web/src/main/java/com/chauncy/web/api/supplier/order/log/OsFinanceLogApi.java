@@ -4,12 +4,18 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.manage.order.bill.select.SearchBillDto;
 import com.chauncy.data.dto.manage.order.bill.update.BillCashOutDto;
+import com.chauncy.data.dto.manage.order.log.select.SearchPlatformLogDto;
+import com.chauncy.data.dto.manage.order.log.select.SearchStoreLogDto;
 import com.chauncy.data.dto.manage.store.add.SaveStoreBankCardDto;
+import com.chauncy.data.dto.supplier.order.CreateStoreBillDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.order.bill.BillBaseInfoVo;
 import com.chauncy.data.vo.manage.order.bill.BillDetailVo;
+import com.chauncy.data.vo.manage.order.log.SearchPlatformLogVo;
+import com.chauncy.data.vo.manage.order.log.SearchStoreLogVo;
 import com.chauncy.data.vo.manage.store.rel.StoreBankCardVo;
 import com.chauncy.order.bill.service.IOmOrderBillService;
+import com.chauncy.order.log.service.IOmAccountLogService;
 import com.chauncy.store.rel.service.ISmStoreBankCardService;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
@@ -19,6 +25,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -38,6 +45,25 @@ public class OsFinanceLogApi extends BaseApi {
 
     @Autowired
     private ISmStoreBankCardService smStoreBankCardService;
+
+    @Autowired
+    private IOmAccountLogService omAccountLogService;
+
+
+    /**
+     * 交易流水
+     * @param searchStoreLogDto
+     * @return
+     */
+    @ApiOperation(value = "查询交易流水", notes = "条件查询交易流水   \nlogMatter   \n11.货款收入   \n12.利润收入   \n")
+    @PostMapping("/searchStoreLogPaging")
+    public JsonViewData<PageInfo<SearchStoreLogVo>> searchStoreLogPaging(@RequestBody @ApiParam(required = true,
+            name = "searchStoreLogDto", value = "查询交易流水") @Validated SearchStoreLogDto searchStoreLogDto) {
+
+        PageInfo<SearchStoreLogVo> searchStoreLogVoPageInfo = omAccountLogService.searchStoreLogPaging(searchStoreLogDto);
+        return setJsonViewData(searchStoreLogVoPageInfo);
+    }
+
 
     /**
      * 查询账单列表
@@ -111,6 +137,19 @@ public class OsFinanceLogApi extends BaseApi {
 
         return new JsonViewData(ResultCode.SUCCESS, "查询成功",
                 smStoreBankCardService.selectBankCard());
+    }
+
+    /**
+     * 根据时间创建货款/利润账单
+     */
+    @ApiOperation(value = "根据时间创建货款/利润账单",
+            notes = "endDate   需要创建账单的那一周   任何一天都可以    \nbillType  账单类型  1 货款账单  2 利润账单")
+    @PostMapping("/bill/createStoreBillByDate")
+    public JsonViewData createStoreBillByDate(@Valid @RequestBody  @ApiParam(required = true, name = "createStoreBillDto", value = "查询条件")
+                                                      CreateStoreBillDto createStoreBillDto) {
+
+        omOrderBillService.createStoreBillByDate(createStoreBillDto);
+        return new JsonViewData(ResultCode.SUCCESS, "操作成功");
     }
 
 }
