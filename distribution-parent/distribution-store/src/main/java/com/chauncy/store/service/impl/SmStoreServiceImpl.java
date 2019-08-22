@@ -496,9 +496,16 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
      */
     @Override
     public void uploadBusinessLicense( StoreBusinessLicenseDto storeBusinessLicenseDto) {
+        //获取当前店铺用户
+        SysUserPo sysUserPo = securityUtil.getCurrUser();
+        if(null == sysUserPo.getStoreId()) {
+            //当前登录用户跟操作不匹配
+            throw  new ServiceException(ResultCode.FAIL, "操作失败，当前登录用户跟操作不匹配");
+        }
         SmStorePo smStorePo = new SmStorePo();
         smStorePo.setBusinessLicense(storeBusinessLicenseDto.getImgUrl());
-        smStoreMapper.update(smStorePo, new UpdateWrapper<SmStorePo>().eq("id",storeBusinessLicenseDto.getId()));
+        smStoreMapper.update(smStorePo,
+                new UpdateWrapper<SmStorePo>().lambda().eq(SmStorePo::getId,sysUserPo.getStoreId()));
     }
 
     /**
