@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  * @author yeJH
@@ -236,7 +237,7 @@ public class PsStoreGoodsStockApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "查询交易订单报表详情", notes = "根据账单id查询交易订单报表详情")
-    @GetMapping("/bill/findRelBillDetail/{id}")
+    @PostMapping("/bill/findRelBillDetail/{id}")
     public JsonViewData<PageInfo<BillRelGoodsTempVo>> findRelBillDetail(@Valid @RequestBody @ApiParam(required = true,
             name = "baseSearchPagingDto", value = "查询条件") BaseSearchPagingDto baseSearchPagingDto,
                                                                            @ApiParam(required = true, value = "id")
@@ -251,10 +252,11 @@ public class PsStoreGoodsStockApi extends BaseApi {
      * 根据时间创建商品销售报表
      */
     @ApiOperation(value = "根据时间创建商品销售报表",
-            notes = "endDate   需要创建账单的那一周   任何一天都可以")
-    @PostMapping("/report/createSaleReportByDate")
-    public JsonViewData createSaleReportByDate(@ApiParam(required = true, value = "id")@PathVariable LocalDate endDate) {
+            notes = "date   需要创建账单的那一周   任何一天都可以")
+    @PostMapping("/report/createSaleReportByDate/{date}")
+    public JsonViewData createSaleReportByDate(@ApiParam(required = true, value = "date")@PathVariable String date) {
 
+        LocalDate endDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         omOrderReportService.createSaleReportByDate(endDate);
         return new JsonViewData(ResultCode.SUCCESS, "操作成功");
     }

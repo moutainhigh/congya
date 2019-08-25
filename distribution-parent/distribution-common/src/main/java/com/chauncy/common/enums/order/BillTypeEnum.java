@@ -1,5 +1,6 @@
 package com.chauncy.common.enums.order;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.chauncy.common.enums.BaseEnum;
 
 import java.util.Objects;

@@ -70,7 +70,7 @@ public class OsFinanceLogApi extends BaseApi {
      * @param searchBillDto
      * @return
      */
-    @ApiOperation(value = "查询账单列表",
+    /*@ApiOperation(value = "查询账单列表",
             notes = "根据年，期数，提现状态，时间，审核状态，金额范围等条件查询   \n" +
                     "账单状态(billStatus)  1.待提现 2.待审核  3.处理中 4.结算完成  5.审核失败   \n" +
                     "商家   \nbillStatus为1.待提现    操作：提现   \n")
@@ -80,14 +80,14 @@ public class OsFinanceLogApi extends BaseApi {
 
         PageInfo<BillBaseInfoVo> billBaseInfoVoPageInfo = omOrderBillService.searchBillPaging(searchBillDto);
         return setJsonViewData(billBaseInfoVoPageInfo);
-    }
+    }*/
 
     /**
      * 查询账单详情
      * @param id
      * @return
      */
-    @ApiOperation(value = "查询账单详情", notes = "根据账单id查询账单详情")
+    /*@ApiOperation(value = "查询账单详情", notes = "根据账单id查询账单详情")
     @GetMapping("/findBillDetail/{id}")
     public JsonViewData<BillDetailVo> findBillDetail(@Valid @RequestBody @ApiParam(required = true, name = "baseSearchPagingDto", value = "查询条件")
                                                                  BaseSearchPagingDto baseSearchPagingDto,
@@ -96,7 +96,7 @@ public class OsFinanceLogApi extends BaseApi {
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
                 omOrderBillService.findBillDetail(baseSearchPagingDto, id));
 
-    }
+    }*/
 
 
     /**

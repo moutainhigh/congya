@@ -40,9 +40,10 @@
         SELECT oob.id,
                 oob.year,
                 oob.`month_day`,
-                ss.`name`,
+                ss.`name` as storeName,
                 oob.`total_amount`,
                 oob.`bill_status`,
+                oob.`bill_status` as billStatusName,
                 oob.`create_time`,
                 oob.`withdrawal_time`,
                 oob.`update_time`
@@ -230,8 +231,8 @@
             pg.`name` as goodsName,
             ogt.`standard_str`,
             ogt.`article_number`,
-            ogt.`number` as goodsNumber
-            ogt.`supplie_price`,
+            ogt.`number` as goodsNumber,
+            ogt.`supplier_price`,
             ogt.`sell_price`,
             obrgt.`total_amount`,
             oo.create_time as createTime
@@ -241,9 +242,9 @@
         LEFT JOIN pm_goods pg
         ON pg.id = ogt.`goods_id`
         LEFT JOIN om_order oo
-        ON oo.id = obrgt.`order_id`
+        ON oo.id = ogt.`order_id`
         <where>
-            oob.id = #{id}
+            obrgt.bill_id =  #{id}
         </where>
         ORDER BY ogt.create_time DESC
     </select>
