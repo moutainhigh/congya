@@ -260,7 +260,9 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
             Map<String,Object> query = Maps.newHashMap();
             query.put("push_id",a);
             List<Long> relIds = relMessageObjectMapper.selectByMap(query).stream().map(b->b.getId()).collect(Collectors.toList());
-            relMessageObjectMapper.deleteBatchIds(relIds);
+            if (!ListUtil.isListNullAndEmpty(relIds)) {
+                relMessageObjectMapper.deleteBatchIds(relIds);
+            }
             mapper.deleteById(a);
         });
 
