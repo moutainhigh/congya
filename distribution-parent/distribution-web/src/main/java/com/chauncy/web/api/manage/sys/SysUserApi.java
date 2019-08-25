@@ -156,7 +156,7 @@ public class SysUserApi {
   }
 
   // 若修改了手机和邮箱判断是否唯一
-  if(!old.getMobile().equals(u.getMobile())&&userService.findByMobile(u.getMobile())!=null){
+  if(!u.getMobile().equals(old.getMobile())&&userService.findByMobile(u.getMobile())!=null){
    return new JsonViewData(ResultCode.DUPLICATION,"该手机号已绑定其他账户");
   }
   /*if(!old.getEmail().equals(u.getEmail())&&userService.findByEmail(u.getEmail())!=null){

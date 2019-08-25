@@ -132,7 +132,8 @@ public class SysUserApis extends BaseApi {
     public JsonViewData<PageInfo<SysRolePo>> getRoleByPage(@RequestBody @ApiParam(required = true,name = "分页查询条件",value = "baseSearchDto")
                                                            @Validated BaseSearchDto baseSearchDto) {
 
-        return setJsonViewData(roleService.getRoleByPage(baseSearchDto));
+        SysUserPo userPo = securityUtil.getCurrUser();
+        return setJsonViewData(roleService.getRoleByPage(baseSearchDto,userPo));
     }
 
     /**
@@ -145,7 +146,8 @@ public class SysUserApis extends BaseApi {
     @ApiOperation("获取菜单权限")
     public JsonViewData<List<GetPermissionVo>> getPermission(@ApiParam(required = false,name="roleId",value = "权限ID")
                                                              @PathVariable String roleId){
-        return setJsonViewData(permissionService.getPermission(roleId));
+        SysUserPo userPo = securityUtil.getCurrUser();
+        return setJsonViewData(permissionService.getPermission(roleId,userPo));
     }
 
 }

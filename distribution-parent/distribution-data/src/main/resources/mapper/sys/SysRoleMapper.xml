@@ -33,8 +33,14 @@
         select *
         from sys_role
         where del_flag = 0
-        <if test="name !=null and name != ''">
-            and name like concat('%', #{name}, '%')
+        <if test="m.name !=null and m.name != ''">
+            and name like concat('%', #{m.name}, '%')
+        </if>
+        <if test="storeId !=null">
+            and store_id = #{storeId}
+        </if>
+        <if test="systemType !=null">
+            and system_type = #{systemType}
         </if>
     </select>
 

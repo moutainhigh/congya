@@ -2,6 +2,7 @@ package com.chauncy.system.service;
 
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.sys.SysPermissionPo;
+import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.vo.sys.permission.GetPermissionVo;
 
 import java.util.List;
@@ -59,5 +60,5 @@ public interface ISysPermissionService extends Service<SysPermissionPo> {
      * @param roleId
      * @return
      */
-    List<GetPermissionVo> getPermission(String roleId);
+    List<GetPermissionVo> getPermission(String roleId, SysUserPo userPo);
 }
