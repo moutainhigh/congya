@@ -30,7 +30,7 @@ public class InteractPushVo {
     @ApiModelProperty(value = "推送时间")
     private LocalDateTime createTime;
 
-    @ApiModelProperty(value = "推送方式 1、通知栏推送 2、app内消息中心推送")
+    @ApiModelProperty(value = "推送方式 1、通知栏推送 2、APP内消息中心推送")
     private String pushType;
 
     @ApiModelProperty(value = "消息标题")

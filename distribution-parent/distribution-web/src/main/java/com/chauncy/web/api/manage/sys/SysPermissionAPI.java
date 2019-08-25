@@ -194,7 +194,6 @@ public class SysPermissionAPI {
             permission.setSystemType(SYS_TYPE_MANAGER);
         }else {
             permission.setSystemType(SYS_TYPE_SUPPLIER);
-            permission.setStoreId(userPo.getStoreId());
         }
         permissionService.save(permission);
         //重新加载权限
