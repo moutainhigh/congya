@@ -20,6 +20,7 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -62,8 +63,9 @@ public class RabbitOrderHandler {
         }
     }
 
-    @RabbitListener(queues = {RabbitConstants.CLOSE_ORDER_QUEUE})
-    public void autoCommentQueue(RabbitOrderBo rabbitOrderBo, Message message, Channel channel) {
+    @RabbitListener(queues = {RabbitConstants.ORDER_REDIRECT_QUEUE})
+    @Transactional(rollbackFor = Exception.class)
+    public void autoDoQueue(RabbitOrderBo rabbitOrderBo, Message message, Channel channel) {
         LoggerUtil.info(String.format("[订单队列 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), rabbitOrderBo.toString()));
         //如果订单状态为未支评价,就去自动评价
         OmOrderPo queryOrder = orderService.getById(rabbitOrderBo.getOrderId());
@@ -87,7 +89,7 @@ public class RabbitOrderHandler {
                     goodsTempPos.forEach(x -> {
                         OmEvaluatePo saveEvaluate = new OmEvaluatePo();
                         saveEvaluate.setOrderId(rabbitOrderBo.getOrderId()).setAttitudeStartLevel(5).setContent("用户默认好评！")
-                                .setDescriptionStartLevel(5).setShipStartLevel(5).setSkuId(x.getSkuId());
+                                .setDescriptionStartLevel(5).setShipStartLevel(5).setSkuId(x.getSkuId()).setCreateBy("auto");
                         evaluatePos.add(saveEvaluate);
                     });
                     //添加默认评价
@@ -97,23 +99,20 @@ public class RabbitOrderHandler {
                     OmOrderPo updateOrder = new OmOrderPo();
                     updateOrder.setId(rabbitOrderBo.getOrderId()).setStatus(OrderStatusEnum.ALREADY_EVALUATE);
                     orderService.updateById(updateOrder);
-                    try {
-                        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
-                    } catch (IOException e) {
-                        LoggerUtil.error(e);
-                    }
                     break;
                 case ALREADY_EVALUATE:
                     break;
                 case NEED_USE:
                     break;
-                case ALREADY_USE:
-                    break;
                 case ALREADY_CANCEL:
                     break;
             }
         }
-
+        try {
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        } catch (IOException e) {
+            LoggerUtil.error(e);
+        }
 
     }
 
