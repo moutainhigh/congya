@@ -21,7 +21,7 @@ public class BillSettlementVo  implements Serializable {
     @ApiModelProperty(value = "进度")
     private Integer id;
 
-    @ApiModelProperty(value = "进度")
+    @ApiModelProperty(value = "状态")
     private String name;
 
     @ApiModelProperty(value = "时间")

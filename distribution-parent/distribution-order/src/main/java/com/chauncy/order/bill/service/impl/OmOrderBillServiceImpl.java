@@ -385,11 +385,12 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
         Integer settlementCycle = BillTypeEnum.PAYMENT_BILL.getId().equals(billType) ?
                 smStorePo.getPaymentBillSettlementCycle() : smStorePo.getIncomeBillSettlementCycle();
         //按结算周期往前推几周
-        LocalDate startDate = endDate.plusDays(-7L * settlementCycle.longValue() - 1);
+        LocalDate startDate = endDate.plusDays(-7L * settlementCycle.longValue());
         //创建账单
         OmOrderBillPo omOrderBillPo = new OmOrderBillPo();
         omOrderBillPo.setYear(endDate.getYear());
-        omOrderBillPo.setMonthDay(endDate.getMonthValue() + String.valueOf(endDate.getDayOfMonth()));
+        String month = endDate.getMonthValue() > 10 ? "0" + endDate.getMonthValue() : String.valueOf(endDate.getMonthValue());
+        omOrderBillPo.setMonthDay(month + String.valueOf(endDate.getDayOfMonth()));
         //总货款/总利润
         BigDecimal totalAmount = BigDecimal.ZERO;
         omOrderBillPo.setTotalAmount(totalAmount);
