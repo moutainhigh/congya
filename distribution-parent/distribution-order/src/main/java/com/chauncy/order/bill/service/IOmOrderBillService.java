@@ -38,7 +38,7 @@ public interface IOmOrderBillService extends Service<OmOrderBillPo> {
      * @param id
      * @return
      */
-    PageInfo<BillDetailVo> findBillDetail(BaseSearchPagingDto baseSearchPagingDto, Long id);
+    BillDetailVo findBillDetail(Long id);
 
     /**
      * 商家店铺确定提现

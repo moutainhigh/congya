@@ -42,8 +42,8 @@ public enum BillSettlementEnum  implements BaseEnum {
     }
 
     //通过Id获取结果
-    public static BillTypeEnum getById(Integer id) {
-        for (BillTypeEnum type : BillTypeEnum.values()) {
+    public static BillSettlementEnum getById(Integer id) {
+        for (BillSettlementEnum type : BillSettlementEnum.values()) {
             if (type.getId() == id)
                 return type;
         }

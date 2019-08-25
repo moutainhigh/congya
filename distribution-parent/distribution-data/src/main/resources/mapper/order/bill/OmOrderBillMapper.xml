@@ -143,7 +143,6 @@
         <where>
             oob.id = #{id}
         </where>
-        ORDER BY obrgt.create_time DESC
     </select>
     <select id="getStoreSumNeedCreateBill" resultType="java.lang.Integer">
         SELECT COUNT(*)
@@ -228,7 +227,7 @@
         SELECT
             ogt.order_id,
             ogt.goods_id,
-            pg.`name` as goodsName,
+            ogt.`name` as goodsName,
             ogt.`standard_str`,
             ogt.`article_number`,
             ogt.`number` as goodsNumber,
@@ -239,8 +238,6 @@
         FROM om_goods_temp ogt
         LEFT JOIN om_bill_rel_goods_temp obrgt
         ON ogt.id = obrgt.`goods_temp_id`
-        LEFT JOIN pm_goods pg
-        ON pg.id = ogt.`goods_id`
         LEFT JOIN om_order oo
         ON oo.id = ogt.`order_id`
         <where>

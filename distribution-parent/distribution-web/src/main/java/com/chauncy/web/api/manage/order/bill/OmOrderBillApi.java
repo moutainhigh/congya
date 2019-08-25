@@ -79,12 +79,11 @@ public class OmOrderBillApi  extends BaseApi {
      */
     @ApiOperation(value = "查询账单详情", notes = "根据账单id查询账单详情")
     @GetMapping("/bill/findBillDetail/{id}")
-    public JsonViewData<BillDetailVo> findBillDetail(@Valid @RequestBody @ApiParam(required = true, name = "baseSearchPagingDto", value = "查询条件")
-                                                                 BaseSearchPagingDto baseSearchPagingDto,
+    public JsonViewData<BillDetailVo> findBillDetail(
                                                      @ApiParam(required = true, value = "id")@PathVariable Long id) {
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
-                omOrderBillService.findBillDetail(baseSearchPagingDto, id));
+                omOrderBillService.findBillDetail(id));
 
     }
 
