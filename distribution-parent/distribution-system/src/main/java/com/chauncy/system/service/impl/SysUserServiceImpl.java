@@ -199,9 +199,9 @@ public class SysUserServiceImpl extends AbstractService<SysUserMapper, SysUserPo
      * @return
      */
     @Override
-    public List<SearchUsersByConditionVo> searchUsersByCondition(SearchUsersByConditionDto searchUsersByConditionDto) {
+    public List<SearchUsersByConditionVo> searchUsersByCondition(SearchUsersByConditionDto searchUsersByConditionDto,Integer systemType,Long storeId) {
 
-        return mapper.searchUsersByCondition(searchUsersByConditionDto);
+        return mapper.searchUsersByCondition(searchUsersByConditionDto,systemType,storeId);
     }
 
 }

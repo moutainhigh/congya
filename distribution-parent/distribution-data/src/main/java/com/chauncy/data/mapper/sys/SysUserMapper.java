@@ -52,5 +52,6 @@ public interface SysUserMapper extends IBaseMapper<SysUserPo> {
      * @param searchUsersByConditionDto
      * @return
      */
-    List<SearchUsersByConditionVo> searchUsersByCondition(SearchUsersByConditionDto searchUsersByConditionDto);
+    List<SearchUsersByConditionVo> searchUsersByCondition(@Param("m") SearchUsersByConditionDto searchUsersByConditionDto,
+                                                          @Param("systemType") Integer systemType, @Param("storeId") Long storeId);
 }

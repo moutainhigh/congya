@@ -3,6 +3,7 @@ package com.chauncy.web.api.manage.sys.permission;
 
 import com.chauncy.data.domain.po.sys.SysRolePermissionPo;
 import com.chauncy.data.domain.po.sys.SysRolePo;
+import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.sys.user.select.SearchUsersByConditionDto;
 import com.chauncy.data.vo.BaseVo;
@@ -27,6 +28,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static com.chauncy.common.constant.SecurityConstant.SYS_TYPE_MANAGER;
+import static com.chauncy.common.constant.SecurityConstant.SYS_TYPE_SUPPLIER;
 
 /**
  * <p>
@@ -86,12 +90,23 @@ public class SysUserApis extends BaseApi {
     public JsonViewData<PageInfo<SearchUsersByConditionVo>> searchUsersByCondition(@RequestBody @ApiParam(required = true, name = "searchUsersByConditionDto", value = "多条件分页获取用户列表")
                                                                                    @Validated SearchUsersByConditionDto searchUsersByConditionDto) {
 
+        //获取当前用户
+        SysUserPo userPo = securityUtil.getCurrUser();
+        Integer systemType;
+        Long storeId = null;
+        if (userPo.getSystemType() == SYS_TYPE_MANAGER){
+            systemType = SYS_TYPE_MANAGER;
+        }else {
+            systemType = SYS_TYPE_SUPPLIER;
+            storeId = userPo.getStoreId();
+        }
 
         Integer pageNo = searchUsersByConditionDto.getPageNo() == null ? defaultPageNo : searchUsersByConditionDto.getPageNo();
         Integer pageSize = searchUsersByConditionDto.getPageSize() == null ? defaultPageSize : searchUsersByConditionDto.getPageSize();
 
+        Long finalStoreId = storeId;
         PageInfo<SearchUsersByConditionVo> searchUsersByConditionVoPageInfo = PageHelper.startPage(pageNo, pageSize)
-                .doSelectPageInfo(() -> userService.searchUsersByCondition(searchUsersByConditionDto));
+                .doSelectPageInfo(() -> userService.searchUsersByCondition(searchUsersByConditionDto,systemType, finalStoreId));
         searchUsersByConditionVoPageInfo.getList().forEach(u -> {
             // 关联角色
             List<SysRolePo> list = userRoleCatchService.findByUserId(u.getId());

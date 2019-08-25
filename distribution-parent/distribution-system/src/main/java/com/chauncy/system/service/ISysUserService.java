@@ -5,6 +5,7 @@ import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.manage.sys.user.select.SearchUsersByConditionDto;
 import com.chauncy.data.vo.sys.SearchVo;
 import com.chauncy.data.vo.sys.permission.SearchUsersByConditionVo;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -71,5 +72,6 @@ public interface ISysUserService extends Service<SysUserPo> {
      * @param searchUsersByConditionDto
      * @return
      */
-    List<SearchUsersByConditionVo> searchUsersByCondition(SearchUsersByConditionDto searchUsersByConditionDto);
+    List<SearchUsersByConditionVo> searchUsersByCondition(SearchUsersByConditionDto searchUsersByConditionDto,
+                                                          Integer systemType, Long storeId);
 }
