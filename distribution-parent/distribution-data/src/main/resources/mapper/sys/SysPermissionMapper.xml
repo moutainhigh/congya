@@ -23,11 +23,12 @@
         <result column="button_type" property="buttonType" />
         <result column="status" property="status" />
         <result column="url" property="url" />
+        <result column="system_type" property="systemType" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        select id, create_by, create_time, del_flag, update_by, update_time, description, name, parent_id, type, sort_order, component, path, title, icon, level, button_type, status, url
+        select id, create_by, create_time, del_flag, update_by, update_time, description, name, parent_id, type, sort_order, component, path, title, icon, level, button_type, status, url,system_type
         from sys_permission
     </sql>
 

@@ -10,6 +10,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.data.annotation.Transient;
 
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -110,4 +111,9 @@ public class SysPermissionPo extends SysBaseEntity {
     @TableField(exist=false)
     @ApiModelProperty(value = "是否选中 前端所需")
     private Boolean selected = false;
+
+    @ApiModelProperty(value = "系统类型 1-平台 2-商家 3-平台和商家")
+    @JSONField(ordinal = 19)
+    @NotNull(message = "系统类型不能为空")
+    private Integer systemType;
 }

@@ -2,12 +2,10 @@ package com.chauncy.web.api.manage.sys;
 
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.chauncy.data.domain.po.sys.SysRoleDepartmentPo;
-import com.chauncy.data.domain.po.sys.SysRolePermissionPo;
-import com.chauncy.data.domain.po.sys.SysRolePo;
-import com.chauncy.data.domain.po.sys.SysRoleUserPo;
+import com.chauncy.data.domain.po.sys.*;
 import com.chauncy.data.vo.Result;
 import com.chauncy.data.util.ResultUtil;
+import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.system.service.ISysRoleDepartmentService;
 import com.chauncy.system.service.ISysRolePermissionService;
 import com.chauncy.system.service.ISysRoleService;
@@ -21,6 +19,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Set;
+
+import static com.chauncy.common.constant.SecurityConstant.SYS_TYPE_MANAGER;
+import static com.chauncy.common.constant.SecurityConstant.SYS_TYPE_SUPPLIER;
 
 /**
  * <p>
@@ -50,6 +51,9 @@ public class SysRoleAPI {
 
     @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private SecurityUtil securityUtil;
 
     @RequestMapping(value = "/getAllList", method = RequestMethod.GET)
     @ApiOperation(value = "获取全部角色")
@@ -148,6 +152,14 @@ public class SysRoleAPI {
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @ApiOperation(value = "保存数据")
     public Result<SysRolePo> save(@ModelAttribute SysRolePo role) {
+
+        SysUserPo userPo = securityUtil.getCurrUser();
+        if (userPo.getSystemType() == SYS_TYPE_MANAGER){
+            role.setSystemType(SYS_TYPE_MANAGER);
+        }else {
+            role.setSystemType(SYS_TYPE_SUPPLIER);
+            role.setStoreId(userPo.getStoreId());
+        }
 
         boolean r = roleService.save(role);
 

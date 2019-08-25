@@ -15,11 +15,13 @@
         <result column="description" property="description" />
         <result column="data_type" property="dataType" />
         <result column="level" property="level" />
+        <result column="system_type" property="systemType" />
+        <result column="store_id" property="storeId" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        select id, create_by, create_time, update_by, update_time, name, del_flag, default_role, description, data_type, level
+        select id, create_by, create_time, update_by, update_time, name, del_flag, default_role, description, data_type, level ,system_type,store_id
         from sys_role
     </sql>
 
