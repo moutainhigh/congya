@@ -70,11 +70,11 @@
             <if test="endTime != null">
                 AND date(oob.create_time) <![CDATA[<= ]]> #{endTime}
             </if>
-            <if test="null != minTotalAmount">
-                AND oob.bill_status  <![CDATA[>= ]]>  #{minTotalAmount}
+            <if test="null != minTotalAmount and minTotalAmount != 0">
+                AND oob.total_amount  <![CDATA[>= ]]>  #{minTotalAmount}
             </if>
-            <if test="null != maxTotalAmount">
-                AND oob.bill_status  <![CDATA[<= ]]> #{maxTotalAmount}
+            <if test="null != maxTotalAmount and maxTotalAmount != 0">
+                AND oob.total_amount  <![CDATA[<= ]]> #{maxTotalAmount}
             </if>
         </where>
         ORDER BY oob.create_time DESC
@@ -215,10 +215,10 @@
             <if test="billId != null">
                 AND obrs.`bill_id` = #{billId}
             </if>
-            <if test="minTotalAmount != null">
+            <if test="minTotalAmount != null and minTotalAmount != 0">
                 AND oob.`total_amount` <![CDATA[>= ]]>  #{minAmount}
             </if>
-            <if test="maxTotalAmount != null">
+            <if test="maxTotalAmount != null and maxTotalAmount != 0">
                 AND oob.`total_amount` <![CDATA[<= ]]> #{maxAmount}
             </if>
         </where>
