@@ -1,8 +1,13 @@
 package com.chauncy.web.api.manage.sys;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.chauncy.common.constant.SecurityConstant;
+import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.domain.po.sys.*;
+import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.Result;
 import com.chauncy.data.util.ResultUtil;
 import com.chauncy.security.util.SecurityUtil;
@@ -10,6 +15,7 @@ import com.chauncy.system.service.ISysRoleDepartmentService;
 import com.chauncy.system.service.ISysRolePermissionService;
 import com.chauncy.system.service.ISysRoleService;
 import com.chauncy.system.service.ISysRoleUserService;
+import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +65,14 @@ public class SysRoleAPI {
     @ApiOperation(value = "获取全部角色")
     public Result<Object> roleGetAll() {
 
-        List<SysRolePo> list = roleService.list();
+        SysUserPo user = securityUtil.getCurrUser();
+        List<SysRolePo> list = Lists.newArrayList();
+        if (user.getSystemType() == SYS_TYPE_MANAGER){
+            list = roleService.list(new QueryWrapper<SysRolePo>().lambda().eq(SysRolePo::getSystemType,SYS_TYPE_MANAGER));
+        }else {
+            list = roleService.list(new QueryWrapper<SysRolePo>().lambda().eq(SysRolePo::getStoreId,user.getStoreId()));
+        }
+//        List<SysRolePo> list =roleService.list();
         return new ResultUtil<Object>().setData(list);
     }
 
@@ -156,9 +169,19 @@ public class SysRoleAPI {
         SysUserPo userPo = securityUtil.getCurrUser();
         if (userPo.getSystemType() == SYS_TYPE_MANAGER){
             role.setSystemType(SYS_TYPE_MANAGER);
+            List<SysRolePo> roles =  roleService.list(new QueryWrapper<SysRolePo>().lambda().and(obj->obj
+                    .eq(SysRolePo::getName,role.getName()).eq(SysRolePo::getSystemType,SYS_TYPE_MANAGER)));
+            if (!ListUtil.isListNullAndEmpty(roles)){
+                return new ResultUtil<SysRolePo>().setErrorMsg(String.format("角色名[%s]已存在,请重新输入角色名",role.getName()));
+            }
         }else {
             role.setSystemType(SYS_TYPE_SUPPLIER);
             role.setStoreId(userPo.getStoreId());
+            List<SysRolePo> roles =  roleService.list(new QueryWrapper<SysRolePo>().lambda().and(obj->obj
+                    .eq(SysRolePo::getName,role.getName()).eq(SysRolePo::getStoreId,userPo.getStoreId())));
+            if (!ListUtil.isListNullAndEmpty(roles)){
+                return new ResultUtil<SysRolePo>().setErrorMsg(String.format("角色名[%s]已存在,请重新输入角色名",role.getName()));
+            }
         }
 
         boolean r = roleService.save(role);

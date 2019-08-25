@@ -33,8 +33,12 @@ public class SearchAdvicesVo {
     @JSONField(ordinal = 3)
     private String picture;
 
+    @ApiModelProperty("状态")
+    @JSONField(ordinal = 4)
+    private Boolean enabled;
+
     @ApiModelProperty("发广告对应的详情")
-    @JSONField(ordinal = 3)
+    @JSONField(ordinal = 5)
     private Object detail;
 
 }
