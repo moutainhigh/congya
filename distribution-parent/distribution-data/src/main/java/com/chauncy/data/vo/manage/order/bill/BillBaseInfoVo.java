@@ -1,5 +1,6 @@
 package com.chauncy.data.vo.manage.order.bill;
 
+import com.chauncy.common.enums.order.BillStatusEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -37,7 +38,7 @@ public class BillBaseInfoVo implements Serializable {
     private Integer billStatus;
 
     @ApiModelProperty(value = "状态 1.待提现 2.待审核 3.处理中 4.结算完成 5.结算失败")
-    private String billStatusName;
+    private BillStatusEnum billStatusName;
 
     @ApiModelProperty(value = "创建时间")
     private LocalDateTime createTime;

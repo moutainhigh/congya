@@ -1,6 +1,8 @@
 package com.chauncy.common.enums.order;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.chauncy.common.enums.BaseEnum;
+import org.hibernate.validator.constraints.EAN;
 
 import java.util.Objects;
 
@@ -25,7 +27,7 @@ public enum BillStatusEnum implements BaseEnum {
     AUDIT_FAIL(5, "审核失败"),
     ;
 
-
+    @EnumValue
     private Integer id;
     private String name;
     BillStatusEnum(Integer id, String name){
@@ -69,8 +71,11 @@ public enum BillStatusEnum implements BaseEnum {
 
     @Override
     public boolean isExist(Object field) {
-
-        return Objects.nonNull(getById(Integer.parseInt(field.toString())));
+        if(null == field) {
+            return true;
+        } else {
+            return Objects.nonNull(getById(Integer.parseInt(field.toString())));
+        }
     }
 
 

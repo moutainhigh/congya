@@ -19,7 +19,8 @@ public class InformationPagingVo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    
+    @ApiModelProperty(value = "资讯列表店铺信息")
+    private InformationStoreInfoVo informationStoreInfo;
 
     @ApiModelProperty(value = "资讯id")
     private Long id;

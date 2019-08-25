@@ -237,7 +237,7 @@ public class PsStoreGoodsStockApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "查询交易订单报表详情", notes = "根据账单id查询交易订单报表详情")
-    @GetMapping("/bill/findRelBillDetail/{id}")
+    @PostMapping("/bill/findRelBillDetail/{id}")
     public JsonViewData<PageInfo<BillRelGoodsTempVo>> findRelBillDetail(@Valid @RequestBody @ApiParam(required = true,
             name = "baseSearchPagingDto", value = "查询条件") BaseSearchPagingDto baseSearchPagingDto,
                                                                            @ApiParam(required = true, value = "id")
