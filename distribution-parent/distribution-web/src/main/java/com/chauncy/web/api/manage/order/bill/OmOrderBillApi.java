@@ -25,6 +25,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import io.swagger.annotations.Api;
@@ -112,7 +113,7 @@ public class OmOrderBillApi  extends BaseApi {
     @PostMapping("/bill/billDeduction")
     @ApiOperation(value = "平台账单扣款", notes = "平台账单审核之前可进行扣款操作")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData billDeduction(@Valid @RequestBody  @ApiParam(required = true, name = "billDeductionDto", value = "扣除金额信息")
+    public JsonViewData billDeduction(@Validated @RequestBody  @ApiParam(required = true, name = "billDeductionDto", value = "扣除金额信息")
                                               BillDeductionDto billDeductionDto) {
 
         omOrderBillService.billDeduction(billDeductionDto);

@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -21,6 +22,7 @@ public class BillDeductionDto  implements Serializable {
 
     @ApiModelProperty(value = "账单id")
     @NeedExistConstraint(tableName = "om_order_bill", concatWhereSql = " and bill_status = 2", message = "记录不存在或状态不是待审核")
+    @Min(value = 0, message = "账单id不能为0")
     private Long billId;
 
     @ApiModelProperty(value = "扣除金额")
