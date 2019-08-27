@@ -10,6 +10,7 @@ import com.chauncy.common.enums.message.InformationTypeEnum;
 import com.chauncy.common.enums.message.KeyWordTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.common.util.RelativeDateFormatUtil;
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.domain.po.message.information.rel.MmRelInformationGoodsPo;
 import com.chauncy.data.domain.po.product.PmShippingTemplatePo;
@@ -32,6 +33,7 @@ import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.app.message.information.InformationBaseVo;
 import com.chauncy.data.vo.app.message.information.InformationPagingVo;
+import com.chauncy.data.vo.app.message.information.InformationStoreInfoVo;
 import com.chauncy.data.vo.manage.message.information.InformationPageInfoVo;
 import com.chauncy.data.vo.manage.message.information.InformationVo;
 import com.chauncy.data.vo.supplier.good.InformationRelGoodsVo;
@@ -41,6 +43,7 @@ import com.chauncy.data.core.AbstractService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
@@ -333,6 +336,19 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
 
         PageInfo<InformationPagingVo> informationBaseVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> mmInformationMapper.searchInfoBasePaging(searchInfoByConditionDto));
+
+        informationBaseVoPageInfo.getList().forEach(informationPagingVo -> {
+            if (null != informationPagingVo.getCoverImage()){
+                informationPagingVo.setCoverImageList(Splitter.on(",")
+                        .omitEmptyStrings().splitToList(informationPagingVo.getCoverImage()));
+            }
+            if (null != informationPagingVo.getInformationStoreInfo().getStoreLabels()){
+                informationPagingVo.getInformationStoreInfo().setStoreLabelList(Splitter.on(",")
+                        .omitEmptyStrings().splitToList(informationPagingVo.getInformationStoreInfo().getStoreLabels()));
+            }
+            informationPagingVo.setReleaseTime(RelativeDateFormatUtil.format(informationPagingVo.getUpdateTime()));
+        });
+
         return informationBaseVoPageInfo;
     }
 
