@@ -262,6 +262,7 @@
         <if test="name!=null and name!=''">
             and name like concat('%', #{name}, '%')
         </if>
+        and store_id=#{storeId}
 
     </select>
     <select id="selectIds" resultType="com.chauncy.data.vo.BaseVo">

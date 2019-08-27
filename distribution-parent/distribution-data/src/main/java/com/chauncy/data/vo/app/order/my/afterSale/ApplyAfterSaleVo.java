@@ -10,7 +10,7 @@ import java.math.BigDecimal;
  * @Author zhangrt
  * @Date 2019/8/22 21:36
  **/
-@ApiModel(description = "点击申请售后返回的数据")
+@ApiModel(description = "售后的商品信息")
 @Data
 public class ApplyAfterSaleVo {
 
@@ -23,14 +23,17 @@ public class ApplyAfterSaleVo {
     @ApiModelProperty("sku图片")
     private String icon;
 
-    @ApiModelProperty("sku销售价格")
-    private BigDecimal sellPrice;
+    @ApiModelProperty("实付价格")
+    private BigDecimal realPayMoney;
 
     @ApiModelProperty("商品规格")
     private String standardStr;
 
     @ApiModelProperty("数量")
     private Integer number;
+
+    @ApiModelProperty(value = "订单id")
+    private Long orderId;
 
 
 }

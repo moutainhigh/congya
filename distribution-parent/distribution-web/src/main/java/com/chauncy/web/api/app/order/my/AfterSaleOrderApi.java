@@ -16,6 +16,8 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * <p>
  * 购物车列表 前端控制器
@@ -38,6 +40,14 @@ public class AfterSaleOrderApi extends BaseApi {
     public JsonViewData<ApplyAfterSaleVo> list(@RequestBody RefundDto refundDto) {
         return setJsonViewData(service.validCanAfterSaleVo(refundDto));
     }
+
+    @PostMapping("/searchGoods/{orderId}")
+    @ApiOperation("添加或编辑")
+    public JsonViewData<List<ApplyAfterSaleVo>> addGoodsTemp(@PathVariable Long orderId) {
+        return setJsonViewData(service.searchGoodTempsByOrderId(orderId));
+    }
+
+
 
 
 

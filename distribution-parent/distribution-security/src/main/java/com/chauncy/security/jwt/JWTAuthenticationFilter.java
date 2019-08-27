@@ -2,6 +2,7 @@ package com.chauncy.security.jwt;
 
 import cn.hutool.core.util.StrUtil;
 import com.chauncy.common.constant.SecurityConstant;
+import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.data.vo.sys.TokenUser;
 import com.chauncy.security.util.ResponseUtil;
 import com.chauncy.security.util.SecurityUtil;
@@ -80,7 +81,7 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
             UsernamePasswordAuthenticationToken authentication = getAuthentication(header, response);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }catch (Exception e){
-            e.toString();
+            LoggerUtil.error(e);
         }
 
         chain.doFilter(request, response);

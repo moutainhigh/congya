@@ -753,6 +753,12 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 saveOrder.setUserStoreId(userStoreId).setIncomeRate(queryStore.getIncomeRate());
                 saveOrders.add(saveOrder);
 
+                //订单商品总金额
+                BigDecimal goodsMoney=BigDecimalUtil.safeSubtract(saveOrder.getTotalMoney(),saveOrder.getTaxMoney(),
+                        saveOrder.getShipMoney());
+
+                //订单实付总金额
+                BigDecimal realPayMoney=BigDecimalUtil.safeSubtract(goodsMoney,saveOrder.getRedEnvelopsMoney(),saveOrder.getShopTicketMoney());
                 //生成商品快照
                 y.getShopTicketSoWithCarGoodVos().forEach(g -> {
                     PmGoodsSkuPo skuPo = skuMapper.selectById(g.getId());
@@ -768,6 +774,10 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                             //预计奖励积分
                     .setRewardIntegrate(BigDecimalUtil.safeMultiply(basicSettingPo.getMoneyToIntegrate(),g.getSellPrice()))
                     ;
+                    //商品价格占订单的比率
+                    BigDecimal ratio=BigDecimalUtil.safeDivide(BigDecimalUtil.safeMultiply(saveGoodsTemp.getSellPrice(),saveGoodsTemp.getNumber()),
+                            goodsMoney);
+                    saveGoodsTemp.setRealPayMoney(BigDecimalUtil.safeMultiply(ratio,realPayMoney));
                     saveGoodsTemps.add(saveGoodsTemp);
 
                 });

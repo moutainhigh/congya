@@ -97,8 +97,14 @@ public class OmGoodsTempPo implements Serializable {
     @ApiModelProperty(value = "预计奖励积分")
     private BigDecimal rewardIntegrate;
 
-    @ApiModelProperty(value = "是否能进行售后")
-    private Boolean ifAfterSale;
+    @ApiModelProperty(value = "实付金额")
+    private BigDecimal realPayMoney;
+
+    @ApiModelProperty(value = "能否进行售后")
+    private Boolean canAfterSale;
+
+    @ApiModelProperty(value = "是否售后成功")
+    private Boolean isAfterSale;
 
 
 }
