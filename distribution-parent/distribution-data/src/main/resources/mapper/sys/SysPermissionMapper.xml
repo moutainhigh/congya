@@ -38,7 +38,7 @@
       LEFT JOIN sys_role_user ur ON u.id = ur.user_id
       LEFT JOIN sys_role_permission rp ON ur.role_id = rp.role_id
       LEFT JOIN sys_permission p ON p.id = rp.permission_id
-      WHERE u.id = #{userId} AND p.status = 0
+      WHERE u.id = #{userId} AND p.status = 0 and p.del_flag = 0
       ORDER BY p.sort_order ASC
     </select>
 
@@ -72,15 +72,15 @@
     <select id="findByTypeAndStatusOrderBySortOrder"
             resultType="com.chauncy.data.domain.po.sys.SysPermissionPo">
 
-        <include refid="Base_Column_List"/>
-        <where>
+        select id, create_by, create_time, del_flag, update_by, update_time, description, name, parent_id, type, sort_order, component, path, title, icon, level, button_type, status, url,system_type
+        from sys_permission
+        where del_flag = 0
             <if test="type != null and type != ''">
                 and type = #{type}
             </if>
             <if test="status != null and status != ''">
                 AND status = #{status}
             </if>
-        </where>
         order by sort_order
     </select>
 
