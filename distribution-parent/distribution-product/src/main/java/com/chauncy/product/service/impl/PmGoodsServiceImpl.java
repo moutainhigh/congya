@@ -1110,9 +1110,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         }
         findGoodOperationVo.setGoodsId (goodsId);
         //获取当前的限制会员等级
-        if (goodsPo.getMemberLevelId ()!=null) {
+        if (goodsPo.getMemberLevelId ()!=0) {
             findGoodOperationVo.setMemberLevelId (goodsPo.getMemberLevelId ());
-            if (memberLevelMapper.selectById (goodsPo.getMemberLevelId ()).getLevel () == lowestLevel)
+            if (memberLevelMapper.selectById  (goodsPo.getMemberLevelId ()).getLevel () == lowestLevel)
             findGoodOperationVo.setMemberLevelName (memberLevelMapper.selectById (goodsPo.getMemberLevelId ()).getLevelName ()+"/全部会员");
         }
         return findGoodOperationVo;

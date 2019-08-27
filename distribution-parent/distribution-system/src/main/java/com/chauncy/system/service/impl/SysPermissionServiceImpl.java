@@ -1,8 +1,10 @@
 package com.chauncy.system.service.impl;
 
+import com.chauncy.common.constant.SecurityConstant;
 import com.chauncy.common.util.TreeUtil;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.sys.SysPermissionPo;
+import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.mapper.sys.SysPermissionMapper;
 import com.chauncy.data.vo.sys.permission.GetPermissionVo;
 import com.chauncy.system.service.ISysPermissionService;
@@ -61,11 +63,17 @@ public class SysPermissionServiceImpl extends AbstractService<SysPermissionMappe
      * @return
      */
     @Override
-    public List<GetPermissionVo> getPermission(String roleId) {
+    public List<GetPermissionVo> getPermission(String roleId, SysUserPo userPo) {
 
         List<GetPermissionVo> permissionVoList = mapper.getPermission(roleId);
         List<String> trueId = permissionVoList.stream().map(a->a.getId()).collect(Collectors.toList());
-        List<GetPermissionVo> sysPermissionPos = mapper.selectAll();
+        Integer systemType = userPo.getSystemType();
+        List<GetPermissionVo> sysPermissionPos = Lists.newArrayList();
+        if (systemType == SecurityConstant.SYS_TYPE_MANAGER){
+            sysPermissionPos = mapper.selectAll();
+        }else {
+            sysPermissionPos = mapper.selectStoreAll();
+        }
         sysPermissionPos.stream().filter(b->trueId.contains(b.getId())).forEach(c->{
             c.setChecked(true);
         });

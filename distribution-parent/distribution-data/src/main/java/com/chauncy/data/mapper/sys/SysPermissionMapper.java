@@ -83,4 +83,12 @@ public interface SysPermissionMapper extends IBaseMapper<SysPermissionPo> {
      */
     @Select("select id,title,parent_id from sys_permission where del_flag = 0")
     List<GetPermissionVo> selectAll();
+
+    /**
+     * 获取店铺的所有权限
+     *
+     * @return
+     */
+    @Select("select id,title,parent_id from sys_permission where del_flag = 0 and system_type = 3 or system_type = 2")
+    List<GetPermissionVo> selectStoreAll();
 }

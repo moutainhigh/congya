@@ -33,6 +33,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import static com.chauncy.common.constant.SecurityConstant.SYS_TYPE_MANAGER;
+import static com.chauncy.common.constant.SecurityConstant.SYS_TYPE_SUPPLIER;
+
 /**
  * <p>
  * 菜单权限表 前端控制器
@@ -185,6 +188,12 @@ public class SysPermissionAPI {
             if (list != null && list.size() > 0) {
                 return new ResultUtil<SysPermissionPo>().setErrorMsg("名称已存在");
             }
+        }
+        SysUserPo userPo = securityUtil.getCurrUser();
+        if (userPo.getSystemType() == SYS_TYPE_MANAGER){
+            permission.setSystemType(SYS_TYPE_MANAGER);
+        }else {
+            permission.setSystemType(SYS_TYPE_SUPPLIER);
         }
         permissionService.save(permission);
         //重新加载权限

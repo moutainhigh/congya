@@ -6,6 +6,7 @@ import com.chauncy.common.constant.ServiceConstant;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.common.enums.log.LogTriggerEventEnum;
 import com.chauncy.common.enums.order.BillSettlementEnum;
+import com.chauncy.common.enums.order.BillSettlementStatusEnum;
 import com.chauncy.common.enums.order.BillStatusEnum;
 import com.chauncy.common.enums.order.BillTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
@@ -127,18 +128,13 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public PageInfo<BillDetailVo> findBillDetail(BaseSearchPagingDto baseSearchPagingDto, Long id) {
+    public BillDetailVo findBillDetail(Long id) {
         OmOrderBillPo omOrderBillPo = omOrderBillMapper.selectById(id);
         if(null == omOrderBillPo) {
             throw new ServiceException(ResultCode.NO_EXISTS, "记录不存在");
         }
-        Integer pageNo = baseSearchPagingDto.getPageNo() == null ? defaultPageNo : baseSearchPagingDto.getPageNo();
-        Integer pageSize  = baseSearchPagingDto.getPageSize() == null ? defaultPageSize : baseSearchPagingDto.getPageSize();
 
-        PageInfo<BillDetailVo> billDetailVoPageInfo = PageHelper.startPage(pageNo, pageSize)
-                .doSelectPageInfo(() -> omOrderBillMapper.findBillDetail(id));
-
-        BillDetailVo billDetailVo = billDetailVoPageInfo.getList().get(0);
+        BillDetailVo billDetailVo = omOrderBillMapper.findBillDetail(id);
         //账单结算进度为四个进度
         int billSettlementStep = 4;
         //账单状态
@@ -154,32 +150,52 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
         }
         //获取结算进度
         List<BillSettlementVo> billSettlementVoList = new ArrayList<>();
-        for(int i=1; i<billSettlementStep; i++) {
+        for(int i=1; i<=billSettlementStep; i++) {
             BillSettlementVo billSettlementVo = new BillSettlementVo();
             billSettlementVo.setId(i);
             billSettlementVo.setName(BillSettlementEnum.getById(i).getName());
+            billSettlementVo.setStatus(BillSettlementStatusEnum.COMPLETED.getId());
+            billSettlementVo.setStatusName(BillSettlementStatusEnum.COMPLETED.getName());
             if (i == (BillStatusEnum.TO_BE_WITHDRAWN.getId())) {
                 //待提现状态
                 billSettlementVo.setDateTime(billDetailVo.getCreateTime());
             } else if (i == (BillStatusEnum.TO_BE_AUDITED.getId())) {
                 //待审核状态
                 billSettlementVo.setDateTime(billDetailVo.getWithdrawalTime());
-            } else if (i == (BillStatusEnum.PROCESSING.getId())) {
-                if(billDetailVo.getBillStatus().equals(BillStatusEnum.AUDIT_FAIL.getId())) {
-                    //审核失败
-                    billSettlementVo.setName(BillSettlementEnum.getById(i).getName());
-                    billSettlementVo.setDateTime(billDetailVo.getSettlementTime());
-                    break;
+                if(billDetailVo.getBillStatus().equals(BillStatusEnum.TO_BE_WITHDRAWN.getId())) {
+                    //账单待提现  未开始
+                    billSettlementVo.setStatus(BillSettlementStatusEnum.NOT_STARTED.getId());
+                    billSettlementVo.setStatusName(BillSettlementStatusEnum.NOT_STARTED.getName());
                 }
+            } else if (i == (BillStatusEnum.PROCESSING.getId())) {
                 //处理中状态
                 billSettlementVo.setDateTime(billDetailVo.getProcessingTime());
+                if(billDetailVo.getBillStatus() < i) {
+                    //账单待提现或者待审核  未开始
+                    billSettlementVo.setStatus(BillSettlementStatusEnum.NOT_STARTED.getId());
+                    billSettlementVo.setStatusName(BillSettlementStatusEnum.NOT_STARTED.getName());
+                } else if(billDetailVo.getBillStatus().equals(BillStatusEnum.AUDIT_FAIL.getId())) {
+                    //账单审核失败 未完成
+                    billSettlementVo.setStatus(BillSettlementStatusEnum.INCOMPLETE.getId());
+                    billSettlementVo.setStatusName(BillSettlementStatusEnum.INCOMPLETE.getName());
+                }
             } else {
+                if(billDetailVo.getBillStatus() < i) {
+                    //账单待提现或者待审核、处理中  未开始
+                    billSettlementVo.setStatus(BillSettlementStatusEnum.NOT_STARTED.getId());
+                    billSettlementVo.setStatusName(BillSettlementStatusEnum.NOT_STARTED.getName());
+                }
+                if(billDetailVo.getBillStatus().equals(BillStatusEnum.AUDIT_FAIL.getId())) {
+                    //审核失败
+                    billSettlementVo.setName(BillSettlementEnum.AUDIT_FAIL.getName());
+                }
                 //结算完成
                 billSettlementVo.setDateTime(billDetailVo.getSettlementTime());
             }
+            billSettlementVoList.add(billSettlementVo);
         }
         billDetailVo.setBillSettlementVoList(billSettlementVoList);
-        return billDetailVoPageInfo;
+        return billDetailVo;
     }
 
 
@@ -385,11 +401,12 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
         Integer settlementCycle = BillTypeEnum.PAYMENT_BILL.getId().equals(billType) ?
                 smStorePo.getPaymentBillSettlementCycle() : smStorePo.getIncomeBillSettlementCycle();
         //按结算周期往前推几周
-        LocalDate startDate = endDate.plusDays(-7L * settlementCycle.longValue() - 1);
+        LocalDate startDate = endDate.plusDays(-7L * settlementCycle.longValue());
         //创建账单
         OmOrderBillPo omOrderBillPo = new OmOrderBillPo();
         omOrderBillPo.setYear(endDate.getYear());
-        omOrderBillPo.setMonthDay(endDate.getMonthValue() + String.valueOf(endDate.getDayOfMonth()));
+        String month = endDate.getMonthValue() > 10 ? "0" + endDate.getMonthValue() : String.valueOf(endDate.getMonthValue());
+        omOrderBillPo.setMonthDay(month + String.valueOf(endDate.getDayOfMonth()));
         //总货款/总利润
         BigDecimal totalAmount = BigDecimal.ZERO;
         omOrderBillPo.setTotalAmount(totalAmount);

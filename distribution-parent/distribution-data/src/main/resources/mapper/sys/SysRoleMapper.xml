@@ -15,11 +15,13 @@
         <result column="description" property="description" />
         <result column="data_type" property="dataType" />
         <result column="level" property="level" />
+        <result column="system_type" property="systemType" />
+        <result column="store_id" property="storeId" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        select id, create_by, create_time, update_by, update_time, name, del_flag, default_role, description, data_type, level
+        select id, create_by, create_time, update_by, update_time, name, del_flag, default_role, description, data_type, level ,system_type,store_id
         from sys_role
     </sql>
 
@@ -31,8 +33,14 @@
         select *
         from sys_role
         where del_flag = 0
-        <if test="name !=null and name != ''">
-            and name like concat('%', #{name}, '%')
+        <if test="m.name !=null and m.name != ''">
+            and name like concat('%', #{m.name}, '%')
+        </if>
+        <if test="storeId !=null">
+            and store_id = #{storeId}
+        </if>
+        <if test="systemType !=null">
+            and system_type = #{systemType}
         </if>
     </select>
 

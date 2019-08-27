@@ -40,9 +40,10 @@
         SELECT oob.id,
                 oob.year,
                 oob.`month_day`,
-                ss.`name`,
+                ss.`name` as storeName,
                 oob.`total_amount`,
                 oob.`bill_status`,
+                oob.`bill_status` as billStatusName,
                 oob.`create_time`,
                 oob.`withdrawal_time`,
                 oob.`update_time`
@@ -69,11 +70,11 @@
             <if test="endTime != null">
                 AND date(oob.create_time) <![CDATA[<= ]]> #{endTime}
             </if>
-            <if test="null != minTotalAmount">
-                AND oob.bill_status  <![CDATA[>= ]]>  #{minTotalAmount}
+            <if test="null != minTotalAmount and minTotalAmount != 0">
+                AND oob.total_amount  <![CDATA[>= ]]>  #{minTotalAmount}
             </if>
-            <if test="null != maxTotalAmount">
-                AND oob.bill_status  <![CDATA[<= ]]> #{maxTotalAmount}
+            <if test="null != maxTotalAmount and maxTotalAmount != 0">
+                AND oob.total_amount  <![CDATA[<= ]]> #{maxTotalAmount}
             </if>
         </where>
         ORDER BY oob.create_time DESC
@@ -103,6 +104,12 @@
             <result column="name" property="name"/>
             <result column="owner_name" property="ownerName"/>
             <result column="owner_mobile" property="ownerMobile"/>
+        </collection>
+        <collection property="storeBankCardVo" ofType="com.chauncy.data.vo.manage.store.rel.StoreBankCardVo">
+            <id column="card_id" property="id"/>
+            <result column="opening_bank" property="openingBank"/>
+            <result column="account" property="account"/>
+            <result column="cardholder" property="cardholder"/>
         </collection>
         <!--<collection property="billRelGoodsTempVoList" ofType="com.chauncy.data.vo.manage.order.bill.BillRelGoodsTempVo">
             <id column="order_id" property="orderId"/>
@@ -135,6 +142,7 @@
                 oob.`settlement_time`,
                 oob.`processing_time`,
                 oob.`reject_reason`,
+                oob.`card_id`,
                 oob.`opening_bank`,
                 oob.`account`,
                 oob.`cardholder`
@@ -142,7 +150,6 @@
         <where>
             oob.id = #{id}
         </where>
-        ORDER BY obrgt.create_time DESC
     </select>
     <select id="getStoreSumNeedCreateBill" resultType="java.lang.Integer">
         SELECT COUNT(*)
@@ -214,10 +221,10 @@
             <if test="billId != null">
                 AND obrs.`bill_id` = #{billId}
             </if>
-            <if test="minTotalAmount != null">
+            <if test="minTotalAmount != null and minTotalAmount != 0">
                 AND oob.`total_amount` <![CDATA[>= ]]>  #{minAmount}
             </if>
-            <if test="maxTotalAmount != null">
+            <if test="maxTotalAmount != null and maxTotalAmount != 0">
                 AND oob.`total_amount` <![CDATA[<= ]]> #{maxAmount}
             </if>
         </where>
@@ -227,23 +234,21 @@
         SELECT
             ogt.order_id,
             ogt.goods_id,
-            pg.`name` as goodsName,
+            ogt.`name` as goodsName,
             ogt.`standard_str`,
             ogt.`article_number`,
-            ogt.`number` as goodsNumber
-            ogt.`supplie_price`,
+            ogt.`number` as goodsNumber,
+            ogt.`supplier_price`,
             ogt.`sell_price`,
             obrgt.`total_amount`,
             oo.create_time as createTime
         FROM om_goods_temp ogt
         LEFT JOIN om_bill_rel_goods_temp obrgt
         ON ogt.id = obrgt.`goods_temp_id`
-        LEFT JOIN pm_goods pg
-        ON pg.id = ogt.`goods_id`
         LEFT JOIN om_order oo
-        ON oo.id = obrgt.`order_id`
+        ON oo.id = ogt.`order_id`
         <where>
-            oob.id = #{id}
+            obrgt.bill_id =  #{id}
         </where>
         ORDER BY ogt.create_time DESC
     </select>

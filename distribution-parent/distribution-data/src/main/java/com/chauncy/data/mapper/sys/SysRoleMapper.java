@@ -4,6 +4,7 @@ import com.chauncy.data.domain.po.sys.SysRolePo;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.github.pagehelper.PageInfo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -29,5 +30,5 @@ public interface SysRoleMapper extends IBaseMapper<SysRolePo> {
      * @param baseSearchDto
      * @return
      */
-    List<SysRolePo> getRoleByPage(BaseSearchDto baseSearchDto);
+    List<SysRolePo> getRoleByPage(@Param("m") BaseSearchDto baseSearchDto, @Param("systemType") Integer systemType, @Param("storeId") Long storeId);
 }

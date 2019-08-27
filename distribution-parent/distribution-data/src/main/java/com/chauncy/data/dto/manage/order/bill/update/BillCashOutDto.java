@@ -18,7 +18,7 @@ public class BillCashOutDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "账单id")
-    @NeedExistConstraint(tableName = "om_order_bill", concatWhereSql = " and bill_status = 1", message = "记录不存在或状态不是待提现")
+    @NeedExistConstraint(tableName = "om_order_bill", concatWhereSql = " and (bill_status = 1 or bill_status = 5)", message = "记录不存在或状态不是待提现")
     private Long billId;
 
     @ApiModelProperty(value = "银行卡id")

@@ -203,9 +203,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
             BigDecimal amount = BigDecimalUtil.safeSubtract(true, omOrderBillPo.getTotalAmount(), omOrderBillPo.getDeductedAmount());
             fromOmAccountLogPo.setAmount(BigDecimalUtil.safeMultiply(amount, -1));
             //流水事由
-            if(omOrderBillPo.getBillType().equals(BillTypeEnum.PAYMENT_BILL)) {
+            if(omOrderBillPo.getBillType().equals(BillTypeEnum.PAYMENT_BILL.getId())) {
                 fromOmAccountLogPo.setLogMatter(PlatformLogMatterEnum.PAYMENT_WITHDRAWAL.getId());
-            } else if(omOrderBillPo.getBillType().equals(BillTypeEnum.PROFIT_BILL)) {
+            } else if(omOrderBillPo.getBillType().equals(BillTypeEnum.PROFIT_BILL.getId())) {
                 fromOmAccountLogPo.setLogMatter(PlatformLogMatterEnum.PROFIT_WITHDRAWAL.getId());
             }
             fromOmAccountLogPo.setOmRelId(omOrderBillPo.getId());
@@ -218,9 +218,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
             //到账方式
             toOmAccountLogPo.setArrivalWay(PaymentWayEnum.OFF_LINE.getId());
             //流水事由
-            if(omOrderBillPo.getBillType().equals(BillTypeEnum.PAYMENT_BILL)) {
+            if(omOrderBillPo.getBillType().equals(BillTypeEnum.PAYMENT_BILL.getId())) {
                 toOmAccountLogPo.setLogMatter(StoreLogMatterEnum.PAYMENT_INCOME.getId());
-            } else if(omOrderBillPo.getBillType().equals(BillTypeEnum.PROFIT_BILL)) {
+            } else if(omOrderBillPo.getBillType().equals(BillTypeEnum.PROFIT_BILL.getId())) {
                 toOmAccountLogPo.setLogMatter(StoreLogMatterEnum.PROFIT_INCOME.getId());
             }
             toOmAccountLogPo.setOmRelId(omOrderBillPo.getId());
