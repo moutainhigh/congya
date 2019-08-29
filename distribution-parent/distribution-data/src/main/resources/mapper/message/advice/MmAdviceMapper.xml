@@ -16,6 +16,21 @@
         <result column="enabled" property="enabled" />
     </resultMap>
 
+    <!-- app首页获取广告信息结果 -->
+    <resultMap id="AdviceResultMap" type="com.chauncy.data.vo.app.advice.home.GetAdviceInfoVo">
+        <id column="advice_id" property="adviceId" />
+        <result column="advice_name" property="adviceName" />
+        <result column="advice_picture" property="advicePicture" />
+        <result column="location" property="location" />
+        <collection property="shufflingVoList" ofType="com.chauncy.data.vo.app.advice.home.ShufflingVo">
+            <result column="shuffling_id" property="shufflingId" />
+            <result column="cover_photo" property="coverPhoto" />
+            <result column="advice_type" property="adviceType" />
+            <result column="detail_id" property="detailId" />
+            <result column="html_detail" property="htmlDetail" />
+        </collection>
+    </resultMap>
+
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, create_by, create_time, update_by, update_time, del_flag, location, name, picture, enabled
@@ -36,6 +51,31 @@
         select id as value,name as label
         from mm_advice
         where del_flag = 0 and location = #{location}
+    </select>
+
+    <select id="getAdviceInfo" resultMap="AdviceResultMap">
+        select a.id as advice_id,a.name as advice_name,a.picture as advice_picture,a.location,b.id as shuffling_id,b.cover_photo,
+        b.advice_type,b.detail_id,b.html_detail
+        from mm_advice a
+        left join mm_advice_rel_shuffling b on a.id = b.advice_id and b.del_flag = 0 and b.rel_tab_brand_id is null and b.rel_category_id is null
+        where a.del_flag = 0 and a.enabled = 1 and a.location not in ("YOUPIN_INSIDE_SHUFFLING","YOUDIAN_INSIDE_SHUFFLING","SALE_INSIDE_SHUFFLING",
+	"YOUXUAN_INSIDE_SHUFFLING","BAIHUO_INSIDE_SHUFFLING","information_recommended","PERSONAL_CENTER","FIRST_CATEGORY_DETAIL");
+    </select>
+
+    <select id="getShuffling" resultType="com.chauncy.data.vo.app.advice.home.ShufflingVo">
+        select b.id as shuffling_id,b.cover_photo,b.advice_type,b.detail_id,b.html_detail
+        from mm_advice a,mm_advice_rel_shuffling b
+        where a.del_flag = 0 and a.enabled = 1 and a.id = b.advice_id and a.location = #{location}
+    </select>
+
+    <select id="getTab" resultType="com.chauncy.data.vo.BaseVo">
+        select a.id,a.name
+        from mm_advice_tab a,mm_advice_rel_tab b
+        where a.del_flag = 0 and b.del_flag = 0 and a.id = b.tab_id and b.advice_id = #{adviceId}
+    </select>
+
+    <select id="searchGoodsBase" resultType="com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseVo">
+
     </select>
 
 </mapper>
