@@ -40,8 +40,8 @@ public class InformationPagingVo implements Serializable {
     @ApiModelProperty(value = "资讯正文纯文本")
     private String  pureText ;
 
-    @JsonIgnore
     @ApiModelProperty(value = "封面图片")
+    @JsonIgnore
     private String coverImage;
 
     @ApiModelProperty(value = "封面图片")
@@ -50,11 +50,20 @@ public class InformationPagingVo implements Serializable {
     @ApiModelProperty(value = "转发量")
     private Integer forwardNum;
 
+    @ApiModelProperty(value = "是否转发")
+    private Boolean isForward;
+
     @ApiModelProperty(value = "评论量")
     private Integer commentNum;
 
+    @ApiModelProperty(value = "是否评论")
+    private Boolean isComment;
+
     @ApiModelProperty(value = "点赞量")
     private Integer likedNum;
+
+    @ApiModelProperty(value = "是否点赞")
+    private Boolean isLiked;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")

@@ -100,8 +100,11 @@
         <result column="cover_image" property="coverImage" />
         <result column="pure_text" property="pureText" />
         <result column="forward_num" property="forwardNum" />
+        <result column="isForward" property="isForward" />
         <result column="comment_num" property="commentNum" />
+        <result column="isComment" property="isComment" />
         <result column="liked_num" property="likedNum" />
+        <result column="isLiked" property="isLiked" />
         <result column="update_time" property="updateTime" />
         <!-- collection定义关联集合类型的属性封装规则
         offType:指定集合中的元素类型
