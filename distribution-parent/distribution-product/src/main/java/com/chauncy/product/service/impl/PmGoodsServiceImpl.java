@@ -1629,6 +1629,8 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
     @Override
     public PageInfo<ExcelGoodVo> searchExcelGoods(SearchExcelDto searchExcelDto) {
+        SysUserPo currentUser=securityUtil.getCurrUser();
+        searchExcelDto.setStoreId(currentUser.getStoreId());
         Integer pageNo = searchExcelDto.getPageNo() == null ? defaultPageNo : searchExcelDto.getPageNo();
         Integer pageSize = searchExcelDto.getPageSize() == null ? defaultPageSize : searchExcelDto.getPageSize();
         PageInfo<ExcelGoodVo> excelGoodVoPageInfo = PageHelper.startPage(pageNo, pageSize, defaultSoft)

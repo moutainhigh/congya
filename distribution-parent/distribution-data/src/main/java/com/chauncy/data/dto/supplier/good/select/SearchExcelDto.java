@@ -17,6 +17,8 @@ public class SearchExcelDto {
     @ApiModelProperty(value = "ID")
     private Long id;
 
+    @ApiModelProperty(hidden = true)
+    private Long storeId;
 
     @ApiModelProperty(value = "模糊查询名称")
     private String name;
