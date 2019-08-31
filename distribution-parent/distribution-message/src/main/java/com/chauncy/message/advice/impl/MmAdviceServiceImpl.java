@@ -799,6 +799,15 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
         PageInfo<SearchGoodsBaseVo> goodsBaseVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> mapper.searchGoodsBase(searchGoodsBaseDto));
 
+        goodsBaseVoPageInfo.getList().forEach(a->{
+            if (a.getLinePrice() == null){
+                a.setLinePrice(a.getSellPrice());
+            }
+            //获取商品的标签
+            List<String> labelNames = mapper.getLabelNames(a.getGoodsId());
+            a.setLabelNames(labelNames);
+
+        });
         return goodsBaseVoPageInfo;
     }
 

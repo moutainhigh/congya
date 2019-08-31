@@ -2,6 +2,7 @@ package com.chauncy.data.mapper.product;
 
 import com.chauncy.data.domain.po.product.PmGoodsRelAttributeGoodPo;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.app.goods.AttributeVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -22,4 +23,20 @@ public interface PmGoodsRelAttributeGoodMapper extends IBaseMapper<PmGoodsRelAtt
      * @return
      */
     List<PmGoodsRelAttributeGoodPo> findByAttributeId(@Param("goodsAttributeId") Long goodsAttributeId);
+
+    /**
+     * 商品详情之服务列表
+     *
+     * @param goodsId
+     * @return
+     */
+    List<AttributeVo> findServices(Long goodsId);
+
+    /**
+     * 商品详情之参数列表
+     *
+     * @param goodsId
+     * @return
+     */
+    List<AttributeVo> findParam(Long goodsId);
 }

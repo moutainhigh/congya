@@ -86,7 +86,7 @@ public class AdviceInfoApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "根据选项卡分页获取特卖、主题、优选等选项卡关联的商品基本信息")
-    @GetMapping("/getGoodsBaseInfo")
+    @PostMapping("/getGoodsBaseInfo")
     public JsonViewData<PageInfo<SearchGoodsBaseVo>> searchGoodsBase(@RequestBody @ApiParam(required = true,name = "searchGoodsBaseDto",value = "分页查询商品基本信息")
                                                                          @Validated SearchGoodsBaseDto searchGoodsBaseDto){
 

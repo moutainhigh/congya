@@ -66,5 +66,13 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
      * @param searchGoodsBaseDto
      * @return
      */
-    PageInfo<SearchGoodsBaseVo> searchGoodsBase(SearchGoodsBaseDto searchGoodsBaseDto);
+    List<SearchGoodsBaseVo> searchGoodsBase(SearchGoodsBaseDto searchGoodsBaseDto);
+
+    /**
+     * 获取商品的标签
+     *
+     * @param goodsId
+     * @return
+     */
+    List<String> getLabelNames(Long goodsId);
 }

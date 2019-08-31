@@ -23,4 +23,17 @@
         where goods_attribute_id = #{goodsAttributeId} and del_flag=0
     </select>
 
+    <select id="findServices" resultType="com.chauncy.data.vo.app.goods.AttributeVo">
+        select a.id,c.name,c.content as value
+        from pm_goods a,pm_goods_rel_attribute_good b,pm_goods_attribute c
+        where a.del_flag = 0 and b.del_flag = 0 and c.del_flag = 0 and a.id = #{goodsId}
+        and a.id = b.goods_good_id and b.goods_attribute_id = c.id and c.type in (1,2)
+    </select>
+    <select id="findParam" resultType="com.chauncy.data.vo.app.goods.AttributeVo">
+        select a.id,d.name,c.value
+        from pm_goods a,pm_goods_rel_attribute_value_good b,pm_goods_attribute_value c,pm_goods_attribute d
+        where a.del_flag = 0 and b.del_flag = 0 and c.del_flag	=0 and d.del_flag = 0
+        and a.id = #{goodsId} and a.id = b.goods_id and b.goods_attribute_value_id = c.id and c.product_attribute_id = d.id;
+    </select>
+
 </mapper>

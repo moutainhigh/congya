@@ -17,10 +17,7 @@ import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.order.OmShoppingCartPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.domain.po.pay.PayUserRelationPo;
-import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
-import com.chauncy.data.domain.po.product.PmGoodsPo;
-import com.chauncy.data.domain.po.product.PmGoodsRelAttributeValueSkuPo;
-import com.chauncy.data.domain.po.product.PmGoodsSkuPo;
+import com.chauncy.data.domain.po.product.*;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.sys.BasicSettingPo;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
@@ -43,8 +40,7 @@ import com.chauncy.data.mapper.user.UmAreaShippingMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.temp.order.service.IOmGoodsTempService;
 import com.chauncy.data.vo.app.car.*;
-import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
-import com.chauncy.data.vo.app.goods.SpecifiedSkuVo;
+import com.chauncy.data.vo.app.goods.*;
 import com.chauncy.data.vo.app.order.cart.CartVo;
 import com.chauncy.data.vo.app.order.cart.StoreGoodsVo;
 import com.chauncy.data.vo.supplier.GoodsStandardVo;
@@ -116,7 +112,16 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     private AreaRegionMapper areaRegionMapper;
 
     @Autowired
+    private PmNumberShippingMapper numberShippingMapper;
+
+    @Autowired
+    private PmShippingTemplateMapper shippingTemplateMapper;
+
+    @Autowired
     private PmMoneyShippingMapper moneyShippingMapper;
+
+    @Autowired
+    private PmGoodsRelAttributeGoodMapper relAttributeGoodMapper;
 
     @Autowired
     private IPayOrderMapper payOrderMapper;
@@ -606,6 +611,49 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         if (goodsPo == null) {
             throw new ServiceException(ResultCode.NO_EXISTS, "数据库不存在该商品！");
         }
+        /**获取商品基本信息：名称、标题、轮播图、发货地等信息*/
+        specifiedGoodsVo = goodsMapper.findGoodsBase(goodsId);
+        //获取商品详情显示的价格区间
+        BigDecimal lowestSellPrice = skuMapper.getLowestPrice(goodsId);
+        BigDecimal highestSellPrice = skuMapper.getHighestPrice(goodsId);
+        String sellPrice = "";
+        if (lowestSellPrice.equals(highestSellPrice)) {
+            sellPrice = lowestSellPrice.toString();
+        } else {
+            sellPrice = lowestSellPrice.toString() + "~" + highestSellPrice;
+        }
+        specifiedGoodsVo.setDisplayPrice(sellPrice);
+        //运费详情
+        ShipFreightInfoVo shipFreightInfoVo = shippingTemplateMapper.findByGoodsId(goodsId);
+        if (shipFreightInfoVo.getCalculateWay() == 1){
+            //按金额计算的运费详情
+            List<MoneyShippingVo> moneyShippingVos = moneyShippingMapper.findByTemplateId(shipFreightInfoVo.getTemplateId());
+            shipFreightInfoVo.setMoneyShippingVos(moneyShippingVos);
+
+        }
+        else {
+            //按件数计算运费详情
+            List<NumberShippingVo> numberShippingVos = numberShippingMapper.findByTemplateId(shipFreightInfoVo.getTemplateId());
+            shipFreightInfoVo.setNumberShippingVos(numberShippingVos);
+        }
+
+        specifiedGoodsVo.setShipFreightInfoVo(shipFreightInfoVo);
+
+        //服务列表
+        List<AttributeVo> services = relAttributeGoodMapper.findServices(goodsId);
+        specifiedGoodsVo.setServiceList(services);
+
+        //参数
+        List<AttributeVo> paramList = relAttributeGoodMapper.findParam(goodsId);
+        specifiedGoodsVo.setParamList(paramList);
+
+
+
+
+
+        //店铺信息
+
+
 
         /**获取商品下的所有规格信息*/
         //获取对应的分类ID
@@ -645,6 +693,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         }
         Map<String, SpecifiedSkuVo> skuDetail = Maps.newHashMap();
         //循环获取sku信息
+        SpecifiedGoodsVo finalSpecifiedGoodsVo = specifiedGoodsVo;
         goodsSkuPos.forEach(b -> {
             SpecifiedSkuVo specifiedSkuVo = new SpecifiedSkuVo();
             specifiedSkuVo.setHoldQuantity(goodsPo.getPurchaseLimit());
@@ -672,8 +721,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 relIds.append(attributeId).append(":").append(attributeValueId).append(";");
             });
             skuDetail.put(String.valueOf(relIds), specifiedSkuVo);
-            specifiedGoodsVo.setSkuDetail(skuDetail);
+            finalSpecifiedGoodsVo.setSkuDetail(skuDetail);
         });
+
         return specifiedGoodsVo;
     }
 

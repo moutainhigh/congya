@@ -75,7 +75,17 @@
     </select>
 
     <select id="searchGoodsBase" resultType="com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseVo">
-
+        select b.id as goods_id,b.icon as picture,b.name as goods_name,b.sales_volume,max(c.line_price) as line_price,MIN(c.sell_price) as sell_price
+        from mm_advice_rel_tab_things a,pm_goods b,pm_goods_sku c
+        where a.del_flag = 0 and b.del_flag = 0 and c.del_flag = 0 and
+        a.tab_id = #{tabId} and a.association_id = b.id and b.id = c.goods_id
+        group by b.id
+    </select>
+    <select id="getLabelNames" resultType="java.lang.String">
+        select e.name as label_name
+        from pm_goods a,pm_goods_rel_attribute_good d,pm_goods_attribute e
+        where a.id = #{goodsId} and a.id = d.goods_good_id and d.goods_attribute_id = e.id and
+        e.type = 5 and a.del_flag = 0 and d.del_flag = 0 and  e.del_flag = 0
     </select>
 
 </mapper>
