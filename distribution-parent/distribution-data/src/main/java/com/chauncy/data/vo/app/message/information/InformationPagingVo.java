@@ -1,6 +1,7 @@
 package com.chauncy.data.vo.app.message.information;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -8,6 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @author yeJH
@@ -39,16 +41,29 @@ public class InformationPagingVo implements Serializable {
     private String  pureText ;
 
     @ApiModelProperty(value = "封面图片")
+    @JsonIgnore
     private String coverImage;
+
+    @ApiModelProperty(value = "封面图片")
+    private List<String> coverImageList;
 
     @ApiModelProperty(value = "转发量")
     private Integer forwardNum;
 
+    @ApiModelProperty(value = "是否转发")
+    private Boolean isForward;
+
     @ApiModelProperty(value = "评论量")
     private Integer commentNum;
 
+    @ApiModelProperty(value = "是否评论")
+    private Boolean isComment;
+
     @ApiModelProperty(value = "点赞量")
     private Integer likedNum;
+
+    @ApiModelProperty(value = "是否点赞")
+    private Boolean isLiked;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")

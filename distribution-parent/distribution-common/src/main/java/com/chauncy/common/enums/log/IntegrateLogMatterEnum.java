@@ -70,8 +70,11 @@ public enum IntegrateLogMatterEnum  implements BaseEnum {
 
     @Override
     public boolean isExist(Object field) {
-
-        return Objects.nonNull(getById(Integer.parseInt(field.toString())));
+        if(null == field) {
+            return true;
+        } else {
+            return Objects.nonNull(getById(Integer.parseInt(field.toString())));
+        }
     }
 
 
