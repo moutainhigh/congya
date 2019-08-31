@@ -47,7 +47,7 @@
 
 
     <select id="findBaseById" resultType="com.chauncy.data.vo.app.message.information.InformationBaseVo">
-        SELECT mi.*, ss.name AS storeName, ss.`logo_image`, ss.collection_num
+        SELECT mi.*, ss.name AS storeName, ss.`logo_image`, ss.collection_num, ss.store_describe
         FROM mm_information mi LEFT JOIN sm_store ss ON mi.`store_id` = ss.id
         WHERE mi.id = #{id} AND mi.del_flag = 0
     </select>
@@ -148,9 +148,32 @@
                 (SELECT 1
                 FROM um_user_favorites uuf
                 WHERE uuf.favorites_id = ss.id
+                AND uuf.`type` = '店铺'
                 AND uuf.user_id = #{userId}
                 AND uuf.del_flag = 0)
-            ) AS is_focus
+            ) AS is_focus,
+            (EXISTS
+                (SELECT 1
+                FROM mm_information_comment mic
+                WHERE mic.info_id = mi.id
+                AND mic.user_id = #{userId}
+                )
+            ) as isComment,
+            (EXISTS
+                (SELECT 1
+                FROM mm_information_liked mil
+                WHERE mil.info_id = mi.id
+                AND mil.user_id = #{userId}
+                AND mil.del_flag = 0
+                )
+            ) as isLiked,
+            (EXISTS
+                (SELECT 1
+                FROM mm_information_forward mif
+                WHERE mif.info_id = mi.id
+                AND mif.user_id = #{userId}
+                )
+            ) as isForward
         from mm_information mi
         LEFT JOIN sm_store ss
         ON mi.`store_id` = ss.id
