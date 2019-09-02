@@ -4,13 +4,17 @@ package com.chauncy.web.api.app.order.my;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.my.SearchMyOrderDto;
+import com.chauncy.data.dto.app.order.my.afterSale.ApplyRefundDto;
 import com.chauncy.data.dto.app.order.my.afterSale.RefundDto;
+import com.chauncy.data.dto.base.BasePageDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.order.my.AppSearchOrderVo;
 import com.chauncy.data.vo.app.order.my.afterSale.ApplyAfterSaleVo;
+import com.chauncy.data.vo.app.order.my.afterSale.MyAfterSaleOrderListVo;
 import com.chauncy.order.afterSale.IOmAfterSaleOrderService;
 import com.chauncy.order.service.IOmOrderService;
 import com.chauncy.web.base.BaseApi;
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +41,7 @@ public class AfterSaleOrderApi extends BaseApi {
 
     @PostMapping("/apply")
     @ApiOperation("用户点击申请退款")
-    public JsonViewData<ApplyAfterSaleVo> list(@RequestBody RefundDto refundDto) {
+    public JsonViewData<ApplyAfterSaleVo> apply(@RequestBody RefundDto refundDto) {
         return setJsonViewData(service.validCanAfterSaleVo(refundDto));
     }
 
@@ -45,6 +49,19 @@ public class AfterSaleOrderApi extends BaseApi {
     @ApiOperation("添加或编辑")
     public JsonViewData<List<ApplyAfterSaleVo>> addGoodsTemp(@PathVariable Long orderId) {
         return setJsonViewData(service.searchGoodTempsByOrderId(orderId));
+    }
+
+    @PostMapping("/refund")
+    @ApiOperation("提交退款申请")
+    public JsonViewData refund(@RequestBody ApplyRefundDto applyRefundDto) {
+        service.refund(applyRefundDto);
+        return setJsonViewData(ResultCode.SUCCESS);
+    }
+
+    @PostMapping("/list")
+    @ApiOperation("售后列表")
+    public JsonViewData<PageInfo<MyAfterSaleOrderListVo>> list(@RequestBody BasePageDto basePageDto) {
+        return setJsonViewData(service.searchAfterSaleOrderList(basePageDto));
     }
 
 
