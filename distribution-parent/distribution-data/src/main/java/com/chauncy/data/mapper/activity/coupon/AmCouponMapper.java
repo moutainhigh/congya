@@ -4,6 +4,7 @@ import com.chauncy.data.domain.po.activity.coupon.AmCouponPo;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchCouponListDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchDetailAssociationsDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchReceiveRecordDto;
+import com.chauncy.data.dto.manage.activity.gift.select.SearchCouponDto;
 import com.chauncy.data.dto.manage.common.FindGoodsBaseByConditionDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
@@ -87,6 +88,7 @@ public interface AmCouponMapper extends IBaseMapper<AmCouponPo> {
      *
      * @return
      */
-    @Select("select id,name from am_coupon")
+    @Select("select id,name from am_coupon where del_flag = 0")
     List<BaseVo> findAllCoupon();
+
 }
