@@ -3,6 +3,7 @@ package com.chauncy.data.vo.app.goods;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * @Author: HUANGWANCHENG
@@ -13,6 +14,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel (description = "商品属性基本内容")
+@Accessors(chain = true)
 public class AttributeVo {
 
     @ApiModelProperty ("名称")

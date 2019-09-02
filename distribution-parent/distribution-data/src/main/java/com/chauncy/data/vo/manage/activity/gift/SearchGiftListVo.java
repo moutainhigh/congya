@@ -41,15 +41,15 @@ public class SearchGiftListVo {
 
     @ApiModelProperty(value = "经验值")
     @JSONField(ordinal = 4)
-    private Integer experience;
+    private BigDecimal experience;
 
     @ApiModelProperty(value = "购物券")
     @JSONField(ordinal = 5)
-    private Integer vouchers;
+    private BigDecimal vouchers;
 
     @ApiModelProperty(value = "积分")
     @JSONField(ordinal = 6)
-    private Integer integrals;
+    private BigDecimal integrals;
 
     @ApiModelProperty(value = "购买金额")
     @JSONField(ordinal = 7)

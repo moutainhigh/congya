@@ -3,6 +3,7 @@ package com.chauncy.data.mapper.product;
 import com.chauncy.data.bo.app.car.MoneyShipBo;
 import com.chauncy.data.domain.po.product.PmMoneyShippingPo;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.app.goods.MoneyShippingVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -24,6 +25,11 @@ public interface PmMoneyShippingMapper extends IBaseMapper<PmMoneyShippingPo> {
      */
     List<MoneyShipBo> loadByTemplateId(@Param("id") Long id);
 
-
-
+    /**
+     * 按金额计算的运费详情
+     *
+     * @param templateId
+     * @return
+     */
+    List<MoneyShippingVo> findByTemplateId(Long templateId);
 }

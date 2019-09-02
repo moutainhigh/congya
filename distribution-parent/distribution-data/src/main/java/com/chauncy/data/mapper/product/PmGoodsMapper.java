@@ -14,6 +14,7 @@ import com.chauncy.data.dto.supplier.store.update.SelectStockTemplateGoodsDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
+import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
 import com.chauncy.data.vo.supplier.activity.SearchAssociatedGoodsVo;
 import com.chauncy.data.vo.supplier.good.InformationRelGoodsVo;
 import com.chauncy.data.vo.supplier.PmGoodsVo;
@@ -138,4 +139,7 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
      * @return
      */
     List<BaseVo> searchTabNeedGoods(String name);
+
+    //获取商品基本信息：名称、标题、轮播图、发货地等信息
+    SpecifiedGoodsVo findGoodsBase(Long goodsId);
 }

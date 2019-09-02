@@ -26,5 +26,10 @@
         where t.id=m.shipping_id and t.del_flag=0 and m.del_flag=0
         and t.id=#{id}
     </select>
+    <select id="findByTemplateId" resultType="com.chauncy.data.vo.app.goods.MoneyShippingVo">
+        select *
+        from pm_money_shipping a
+        where a.shipping_id = #{templateId}
+    </select>
 
 </mapper>
