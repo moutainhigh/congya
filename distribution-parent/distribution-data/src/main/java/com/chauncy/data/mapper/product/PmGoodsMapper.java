@@ -73,10 +73,10 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
 
     /**
      * 根据资讯id获取关联的商品
-     * @param baseSearchDto
+     * @param mmInformationId
      * @return
      */
-    List<GoodsBaseInfoVo> searchGoodsByInfoId(BaseSearchDto baseSearchDto);
+    List<GoodsBaseInfoVo> searchGoodsByInfoId(@Param("mmInformationId") Long mmInformationId);
 
     /**
      * 查询导入商品信息

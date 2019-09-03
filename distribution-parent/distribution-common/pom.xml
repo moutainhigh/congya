@@ -132,6 +132,13 @@
             <version>4.1.0</version>
         </dependency>
 
+        <!-- 微信支付SDK -->
+        <dependency>
+            <groupId>com.github.wxpay</groupId>
+            <artifactId>wxpay-sdk</artifactId>
+            <version>0.0.3</version>
+        </dependency>
+
         <!--极光推送  start-->
         <dependency>
             <groupId>cn.jpush.api</groupId>

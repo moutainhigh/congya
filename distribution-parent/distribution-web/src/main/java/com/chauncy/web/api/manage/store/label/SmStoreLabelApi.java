@@ -94,7 +94,7 @@ public class SmStoreLabelApi extends BaseApi {
      */
     @ApiOperation(value = "条件查询", notes = "根据标签ID、标签名称、创建时间查询")
     @PostMapping("/searchPaging")
-    public JsonViewData<PageInfo<SmStoreLabelVo>> searchPaging(@RequestBody StoreLabelSearchDto storeLabelSearchDto) {
+    public JsonViewData<PageInfo<SmStoreLabelVo>> searchPaging(@Valid @RequestBody StoreLabelSearchDto storeLabelSearchDto) {
 
         PageInfo<SmStoreLabelVo> smStoreBaseVoPageInfo = smStoreLabelService.searchPaging(storeLabelSearchDto);
         return setJsonViewData(smStoreBaseVoPageInfo);

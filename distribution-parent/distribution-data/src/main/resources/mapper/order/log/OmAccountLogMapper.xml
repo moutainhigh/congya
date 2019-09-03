@@ -53,6 +53,9 @@
             <if test="omRelId != null">
                 and oal.om_rel_id = #{omRelId}
             </if>
+            <if test="payId != null">
+                and po.pay_order_no = #{payOrderNo}
+            </if>
             <if test="logId != null">
                 and oal.id = #{logId}
             </if>

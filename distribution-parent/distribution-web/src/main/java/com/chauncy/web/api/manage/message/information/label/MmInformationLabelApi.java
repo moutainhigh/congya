@@ -90,7 +90,7 @@ public class MmInformationLabelApi extends BaseApi {
      */
     @ApiOperation(value = "条件查询", notes = "根据标签ID、标签名称查询")
     @PostMapping("/searchPaging")
-    public JsonViewData<PageInfo<InformationLabelVo>> searchPaging(@RequestBody InformationLabelSearchDto informationLabelSearchDto) {
+    public JsonViewData<PageInfo<InformationLabelVo>> searchPaging(@Valid @RequestBody InformationLabelSearchDto informationLabelSearchDto) {
 
         PageInfo<InformationLabelVo> informationLabelVoPageInfo = mmInformationLabelService.searchPaging(informationLabelSearchDto);
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",

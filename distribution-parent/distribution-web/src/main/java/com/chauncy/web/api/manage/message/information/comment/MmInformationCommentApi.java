@@ -17,6 +17,7 @@ import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -44,11 +45,11 @@ public class MmInformationCommentApi extends BaseApi {
      */
     @ApiOperation(value = "条件查询", notes = "根据ID、名称查询")
     @PostMapping("/searchPaging")
-    public JsonViewData<PageInfo<InformationViceCommentVo>> searchPaging(@RequestBody InformationCommentDto informationCommentDto) {
+    public JsonViewData<PageInfo<InformationViceCommentVo>> searchPaging( @Validated @RequestBody InformationCommentDto informationCommentDto) {
 
-        PageInfo<InformationViceCommentVo> informationCategoryVoPageInfo = mmInformationCommentService.searchPaging(informationCommentDto);
+        PageInfo<InformationViceCommentVo> informationViceCommentVoPageInfo = mmInformationCommentService.searchPaging(informationCommentDto);
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
-                informationCategoryVoPageInfo);
+                informationViceCommentVoPageInfo);
 
     }
 
@@ -89,7 +90,7 @@ public class MmInformationCommentApi extends BaseApi {
      */
     @ApiOperation(value = "保存后台用户资讯评论", notes = "保存后台用户资讯评论")
     @PostMapping("/saveInfoComment")
-    public JsonViewData saveInfoComment(@RequestBody AddInformationCommentDto addInformationCommentDto) {
+    public JsonViewData saveInfoComment(@Valid @RequestBody AddInformationCommentDto addInformationCommentDto) {
 
         mmInformationCommentService.saveInfoComment(addInformationCommentDto, Long.parseLong(securityUtil.getCurrUser().getId()));
         return new JsonViewData(ResultCode.SUCCESS, "保存成功");

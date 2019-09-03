@@ -2,20 +2,15 @@ package com.chauncy.web.api.app.message.information;
 
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.app.message.information.select.SearchInfoByConditionDto;
-import com.chauncy.data.dto.base.BaseSearchByTimeDto;
-import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.message.information.add.AddInformationCommentDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationCommentDto;
-import com.chauncy.data.dto.manage.message.information.select.InformationViceCommentDto;
 import com.chauncy.data.vo.JsonViewData;
-import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.app.message.information.InformationBaseVo;
 import com.chauncy.data.vo.app.message.information.InformationPagingVo;
 import com.chauncy.data.vo.manage.message.information.category.InformationCategoryVo;
 import com.chauncy.data.vo.manage.message.information.comment.InformationMainCommentVo;
 import com.chauncy.data.vo.manage.message.information.comment.InformationViceCommentVo;
 import com.chauncy.data.vo.manage.message.information.label.InformationLabelVo;
-import com.chauncy.data.vo.manage.store.StoreBaseInfoVo;
 import com.chauncy.message.information.category.service.IMmInformationCategoryService;
 import com.chauncy.message.information.comment.service.IMmInformationCommentService;
 import com.chauncy.message.information.label.service.IMmInformationLabelService;
@@ -30,7 +25,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -118,7 +112,7 @@ public class AmInformationApi extends BaseApi {
      * @param baseSearchDto
      * @return
      */
-    @ApiOperation(value = "查找资讯关联商品", notes = "根据资讯id获取关联的商品")
+    /*@ApiOperation(value = "查找资讯关联商品", notes = "根据资讯id获取关联的商品")
     @GetMapping("/searchGoodsById")
     public JsonViewData<PageInfo<GoodsBaseInfoVo>> searchGoodsById(@Validated @RequestBody  @ApiParam(required = true, value = "baseSearchDto")
                                                                            BaseSearchDto baseSearchDto) {
@@ -126,7 +120,7 @@ public class AmInformationApi extends BaseApi {
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
                 mmInformationService.searchGoodsById(baseSearchDto));
 
-    }
+    }*/
 
 
     /**
@@ -135,9 +129,11 @@ public class AmInformationApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "查找资讯评论", notes = "根据资讯ID查找")
-    @PostMapping("/searchInfoCommentById")
-    public JsonViewData<PageInfo<InformationMainCommentVo>> searchInfoCommentById(@RequestBody InformationCommentDto informationCommentDto) {
+    @PostMapping("/comment/searchMainCommentById")
+    public JsonViewData<PageInfo<InformationMainCommentVo>> searchInfoCommentById(@Valid @ApiParam(required = true,
+            name = "informationCommentDto", value = "查询条件")@RequestBody InformationCommentDto informationCommentDto) {
 
+        informationCommentDto.setUserId(securityUtil.getAppCurrUser().getId());
         return new JsonViewData(ResultCode.SUCCESS, "查询成功",
                 mmInformationCommentService.searchInfoCommentById(informationCommentDto));
     }
@@ -146,15 +142,16 @@ public class AmInformationApi extends BaseApi {
     /**
      * 根据主评论id查询副评论
      *
-     * @param informationViceCommentDto
+     * @param mainId
      * @return
      */
-    @ApiOperation(value = "查找资讯副评论", notes = "根据主评论ID查找副评论，默认已经查出第一页的内容，pageNo从2开始")
-    @PostMapping("/searchViceCommentByMainId")
-    public JsonViewData<PageInfo<InformationViceCommentVo>> searchViceCommentByMainId(@RequestBody InformationViceCommentDto informationViceCommentDto) {
+    @ApiOperation(value = "查找资讯副评论", notes = "根据主评论ID查找所有副评论")
+    @PostMapping("/comment/searchViceCommentByMainId/{mainId}")
+    public JsonViewData<InformationViceCommentVo> searchViceCommentByMainId(@ApiParam(required = true, value = "mainId")
+                                                                                @PathVariable Long mainId) {
 
         return new JsonViewData(ResultCode.SUCCESS, "查询成功",
-                mmInformationCommentService.searchViceCommentByMainId(informationViceCommentDto));
+                mmInformationCommentService.searchViceCommentByMainId(mainId,  securityUtil.getAppCurrUser().getId()));
     }
 
     /**
@@ -164,8 +161,9 @@ public class AmInformationApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "保存app用户资讯评论", notes = "保存app用户资讯评论")
-    @PostMapping("/save/userInfoComment")
-    public JsonViewData saveUserInfoComment(@RequestBody AddInformationCommentDto addInformationCommentDto) {
+    @PostMapping("/comment/save")
+    public JsonViewData saveUserInfoComment(@Valid @ApiParam(required = true, name = "addInformationCommentDto",
+            value = "查询条件")@RequestBody AddInformationCommentDto addInformationCommentDto) {
 
         mmInformationCommentService.saveInfoComment(addInformationCommentDto, securityUtil.getAppCurrUser().getId());
         return new JsonViewData(ResultCode.SUCCESS, "保存成功");
@@ -182,7 +180,22 @@ public class AmInformationApi extends BaseApi {
     public JsonViewData likeInfo(@PathVariable(value = "infoId")Long infoId) {
 
         mmInformationService.likeInfo(infoId, securityUtil.getAppCurrUser().getId());
-        return new JsonViewData(ResultCode.SUCCESS, "关注成功");
+        return new JsonViewData(ResultCode.SUCCESS, "操作成功");
+
+    }
+
+    /**
+     * 用户评论点赞/取消点赞
+     * @param commentId  评论id
+     * @return
+     */
+    @ApiOperation(value = "用户评论点赞/取消点赞", notes = "用户评论点赞/取消点赞")
+    @ApiImplicitParam(name = "commentId", value = "评论id", required = true, dataType = "Long", paramType = "path")
+    @GetMapping("/comment/likeComment/{commentId}")
+    public JsonViewData likeComment(@PathVariable(value = "commentId") Long commentId) {
+
+        mmInformationCommentService.likeComment(commentId, securityUtil.getAppCurrUser().getId());
+        return new JsonViewData(ResultCode.SUCCESS, "操作成功");
 
     }
 

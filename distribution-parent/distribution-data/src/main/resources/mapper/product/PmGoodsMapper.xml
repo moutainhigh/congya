@@ -235,15 +235,14 @@
                 pg.`name` AS goodsName,
                 MIN(pgs.sell_price) AS sellPrice,
                 MIN(pgs.line_price) AS linePrice,
-                SUM(pgs.`sales_volume`) AS salesVolume,
                 pg.icon
         FROM mm_information_rel_goods mirg
         LEFT JOIN pm_goods pg
-        ON mirg.`goods_id` = pg.`id` AND mirg.`information_id` = #{id} AND mirg.`del_flag` = 0
+        ON mirg.`goods_id` = pg.`id` AND mirg.`information_id` = #{mmInformationId} AND mirg.`del_flag` = 0
         LEFT JOIN pm_goods_sku pgs
         ON pgs.goods_id = pg.id
         <where>
-            mi.id = #{id}
+            mirg.`information_id` = #{mmInformationId}
             AND pg.verify_status = 3
             AND pg.del_flag = 0
             AND pgs.del_flag = 0

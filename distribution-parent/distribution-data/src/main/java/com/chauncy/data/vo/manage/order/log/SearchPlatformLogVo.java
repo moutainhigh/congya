@@ -24,6 +24,9 @@ public class SearchPlatformLogVo  implements Serializable {
     @ApiModelProperty(value = "流水号")
     private Long id;
 
+    @ApiModelProperty(value = "交易流水（微信支付宝交易号）")
+    private String payOrderNo;
+
     @ApiModelProperty(value = "关联订单号")
     private Long omRelId;
 

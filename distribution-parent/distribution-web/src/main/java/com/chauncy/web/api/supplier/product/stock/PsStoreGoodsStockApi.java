@@ -27,6 +27,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -172,7 +173,8 @@ public class PsStoreGoodsStockApi extends BaseApi {
      */
     @ApiOperation(value = "分页条件查询分配给分店的库存信息", notes = "根据库存名称，创建时间，状态，分配商家，库存数量查询")
     @PostMapping("/branch/searchPagingBranchStock")
-    public JsonViewData<PageInfo<StoreGoodsStockVo>> searchPagingBranchStock(@RequestBody SearchStoreGoodsStockDto searchStoreGoodsStockDto) {
+    public JsonViewData<PageInfo<StoreGoodsStockVo>> searchPagingBranchStock(@ApiParam(required = true,name = "searchStoreGoodsStockDto",
+            value = "查询条件") @Validated @RequestBody SearchStoreGoodsStockDto searchStoreGoodsStockDto) {
 
         PageInfo<StoreGoodsStockVo> storeGoodsStockVoPageInfo = pmStoreGoodsStockService.searchPagingBranchStock(searchStoreGoodsStockDto);
         return new JsonViewData(ResultCode.SUCCESS, "查询成功", storeGoodsStockVoPageInfo);
@@ -185,7 +187,8 @@ public class PsStoreGoodsStockApi extends BaseApi {
      */
     @ApiOperation(value = "库存管理_分页条件查询直属商家分配的库存信息", notes = "根据库存名称，分配时间，直属商家，库存数量查询")
     @PostMapping("/searchPagingStock")
-    public JsonViewData<PageInfo<StoreGoodsStockVo>> searchPagingStock(@RequestBody SearchStoreGoodsStockDto searchStoreGoodsStockDto) {
+    public JsonViewData<PageInfo<StoreGoodsStockVo>> searchPagingStock(@ApiParam(required = true,name = "searchStoreGoodsStockDto",
+            value = "查询条件") @Validated @RequestBody SearchStoreGoodsStockDto searchStoreGoodsStockDto) {
 
         PageInfo<StoreGoodsStockVo> storeGoodsStockVoPageInfo = pmStoreGoodsStockService.searchPagingStock(searchStoreGoodsStockDto);
         return new JsonViewData(ResultCode.SUCCESS, "查询成功", storeGoodsStockVoPageInfo);
