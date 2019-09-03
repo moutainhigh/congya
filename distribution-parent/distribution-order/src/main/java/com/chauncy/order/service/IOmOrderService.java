@@ -2,11 +2,8 @@ package com.chauncy.order.service;
 
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.core.Service;
-<<<<<<< HEAD
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
-=======
->>>>>>> ye_store
 import com.chauncy.data.dto.app.order.my.SearchMyOrderDto;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;

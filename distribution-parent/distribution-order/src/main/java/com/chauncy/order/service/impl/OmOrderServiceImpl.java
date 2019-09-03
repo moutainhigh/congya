@@ -2,15 +2,11 @@ package com.chauncy.order.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.chauncy.common.constant.RabbitConstants;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.common.enums.app.order.PayOrderStatusEnum;
-<<<<<<< HEAD
 import com.chauncy.common.enums.log.PaymentWayEnum;
-=======
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
->>>>>>> ye_store
 import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.common.util.JSONUtils;
 import com.chauncy.common.util.ListUtil;

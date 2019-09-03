@@ -32,17 +32,6 @@
 
 
     <select id="searchPlatformLogPaging" resultType="com.chauncy.data.vo.manage.order.log.SearchPlatformLogVo">
-<<<<<<< HEAD
-        select oal.pay_order_id,
-                po.pay_order_no,
-                oal.create_by as phone,
-                oal.log_type,
-                oal.log_matter,
-				po.total_real_pay_money,
-				oal.payment_way,
-				oal.arrival_way,
-				oal.create_time
-=======
         SELECT
             oal.id,
             oal.om_rel_id,
@@ -54,7 +43,6 @@
             oal.payment_way,
             oal.arrival_way,
             oal.`create_by`
->>>>>>> ye_store
         from om_account_log oal
         left join pay_order po
         on oal.pay_order_id = po.id
@@ -65,13 +53,11 @@
             <if test="omRelId != null">
                 and oal.om_rel_id = #{omRelId}
             </if>
-<<<<<<< HEAD
             <if test="payId != null">
                 and po.pay_order_no = #{payOrderNo}
-=======
+            </if>
             <if test="logId != null">
                 and oal.id = #{logId}
->>>>>>> ye_store
             </if>
             <if test="umUserId != null">
                 and po.um_user_id = #{umUserId}

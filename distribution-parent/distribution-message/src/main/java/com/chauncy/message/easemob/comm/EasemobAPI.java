@@ -7,4 +7,4 @@ import io.swagger.client.ApiException;
  */
 public interface EasemobAPI {
     Object invokeEasemobAPI() throws ApiException;
-}IOmOrderService
+}
