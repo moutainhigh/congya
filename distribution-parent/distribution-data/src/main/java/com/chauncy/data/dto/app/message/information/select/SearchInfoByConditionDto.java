@@ -1,5 +1,6 @@
 package com.chauncy.data.dto.app.message.information.select;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.chauncy.common.enums.message.InformationTypeEnum;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.valid.annotation.EnumConstraint;
@@ -29,6 +30,7 @@ public class SearchInfoByConditionDto implements Serializable {
     private Long storeId;
 
     @JsonIgnore
+    @JSONField(serialize=false)
     @ApiModelProperty(value = "店铺id")
     private Long userId;
 

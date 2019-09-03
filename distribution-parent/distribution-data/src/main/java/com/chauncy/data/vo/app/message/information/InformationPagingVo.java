@@ -1,5 +1,6 @@
 package com.chauncy.data.vo.app.message.information;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
@@ -42,6 +43,7 @@ public class InformationPagingVo implements Serializable {
 
     @ApiModelProperty(value = "封面图片")
     @JsonIgnore
+    @JSONField(serialize=false)
     private String coverImage;
 
     @ApiModelProperty(value = "封面图片")

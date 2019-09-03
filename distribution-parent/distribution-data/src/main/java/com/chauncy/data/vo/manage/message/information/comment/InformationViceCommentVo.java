@@ -20,8 +20,8 @@ public class InformationViceCommentVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
 
-    @ApiModelProperty(value = "评论id")
-    private Long id;
+    @ApiModelProperty(value = "副评论id")
+    private Long viceId;
 
     @ApiModelProperty(value = "评论的用户ID")
     private Long userId;
@@ -48,5 +48,14 @@ public class InformationViceCommentVo implements Serializable {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建时间")
     private LocalDateTime createTime;
+
+    @ApiModelProperty(value = "发布时间")
+    private String releaseTime;
+
+    @ApiModelProperty(value = "是否点赞")
+    private Boolean isLiked;
+
+    @ApiModelProperty(value = "点赞数")
+    private Integer likedNum;
 
 }

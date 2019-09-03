@@ -50,7 +50,6 @@ public class MmInformationLikedPo implements Serializable {
     private Long userId;
 
     @ApiModelProperty(value = "删除标志")
-    @TableLogic
     private Boolean delFlag;
 
 

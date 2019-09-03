@@ -16,5 +16,11 @@
     <sql id="Base_Column_List">
         id, create_by, update_time, info_id, user_id, del_flag
     </sql>
+    <select id="selectForUpdate"
+            resultType="com.chauncy.data.domain.po.message.information.rel.MmInformationLikedPo">
+        SELECT id,create_by,update_time,info_id,user_id,del_flag
+        FROM mm_information_liked
+        WHERE info_id = #{infoId} AND user_id = #{userId} FOR UPDATE
+    </select>
 
 </mapper>

@@ -240,15 +240,14 @@
                 pg.`name` AS goodsName,
                 MIN(pgs.sell_price) AS sellPrice,
                 MIN(pgs.line_price) AS linePrice,
-                SUM(pgs.`sales_volume`) AS salesVolume,
                 pg.icon
         FROM mm_information_rel_goods mirg
         LEFT JOIN pm_goods pg
-        ON mirg.`goods_id` = pg.`id` AND mirg.`information_id` = #{id} AND mirg.`del_flag` = 0
+        ON mirg.`goods_id` = pg.`id` AND mirg.`information_id` = #{mmInformationId} AND mirg.`del_flag` = 0
         LEFT JOIN pm_goods_sku pgs
         ON pgs.goods_id = pg.id
         <where>
-            mi.id = #{id}
+            mirg.`information_id` = #{mmInformationId}
             AND pg.verify_status = 3
             AND pg.del_flag = 0
             AND pgs.del_flag = 0
@@ -344,7 +343,7 @@
         </if>
     </select>
     <select id="findGoodsBase" resultType="com.chauncy.data.vo.app.goods.SpecifiedGoodsVo">
-        select a.id as goods_id,a.name as goods_name,a.subtitle,a.carousel_image,a.is_free_postage,a.location as origin_place,
+        select a.id as goods_id,a.name as goods_name,a.subtitle,a.carousel_image,a.is_free_postage,a.location as origin_place,a.sales_volume
         b.default_freight,b.default_full_money,b.default_post_money,b.default_max_number,b.default_max_number_money,
         b.default_addtional_freight,b.default_addtional_number
         from pm_goods a,pm_shipping_template b

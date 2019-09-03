@@ -68,37 +68,82 @@
     </select>
 
     <resultMap id="commentBaseResult" type="com.chauncy.data.vo.manage.message.information.comment.InformationMainCommentVo">
-        <id column="id" property="id"/>
+        <id column="mainId" property="mainId"/>
         <result column="userName" property="userName"/>
         <result column="avatar" property="avatar"/>
+        <result column="viceCommentCount" property="viceCommentCount"/>
         <result column="content" property="content"/>
+        <result column="isLiked" property="isLiked"/>
         <result column="create_time" property="createTime"/>
         <!--collection定义关联集合类型的属性封装规则
         延迟加载 传递两个参数
 　　　　{pMenuId=child_pid,userId=userId}
 　　　　 传递查询参数名称=字段名称-->
-        <collection property="informationViceCommentVoList" column="{id=id,type=type}"
+        <collection property="informationViceCommentVoList" column="{id=mainId, userId=userId, type=type}"
                     select="com.chauncy.data.mapper.message.information.comment.MmInformationCommentMapper.searchViceCommentByMainId">
         </collection>
     </resultMap>
     <select id="searchInfoMainComment" resultMap="commentBaseResult">
-        select count(mic1.id) > 10 as haveMoreComment, mic.id, mic.user_id, mic.parent_user_id, mic.create_time, mic.enabled,
-        IFNULL(uu.name,su.username) as userName, IFNULL(uu.name,su.avatar) as avatar , 'subStep' as type
+        select
+            count(mic1.id) AS viceCommentCount,
+            mic.id AS mainId,
+            mic.user_id,
+            #{userId} AS userId,
+            mic.parent_user_id,
+            mic.create_time,
+            mic.enabled,
+            mic.liked_num,
+            (
+                SELECT GROUP_CONCAT(`ssl`.name)
+                FROM sm_store_label `ssl` ,sm_store_rel_label ssrl
+                WHERE `ssrl`.store_label_id = `ssl`.id
+                AND `ssrl`.store_id = su.`store_id`
+                AND `ssl`.del_flag = 0
+                ) AS storeLabels,
+            (EXISTS
+                (SELECT 1
+                FROM mm_comment_liked mcl
+                WHERE mcl.comment_id = mic.id
+                AND mcl.user_id = #{userId}
+                AND mcl.del_flag = 0
+                )
+            ) as isLiked,
+            IFNULL(uu.name,su.username) as userName,
+            IFNULL(uu.name,su.avatar) as avatar ,
+            'subStep' as type
         from mm_information_comment mic
         left join um_user uu on mic.user_id = uu.id
         left join sys_user su on mic.user_id = su.id
         left join mm_information_comment mic1 on (mic1.parent_id = mic.id and mic1.enabled = 1 and mic1.del_flag = 0)
         <where>
-                and  mic.info_id = #{id}  and mic.enabled = 1 and mic.del_flag = 0 and mic.parent_id is null
+                and  mic.info_id = #{id} and mic.parent_id is null  and mic.enabled = 1 and mic.del_flag = 0
         </where>
         GROUP BY mic.id
-        order by mic.create_time asc
+        order by mic.create_time desc
     </select>
 
 
+    <!-- 副评论默认展示前两条  点击查看剩下所有副评论 -->
     <select id="searchViceCommentByMainId" resultType="com.chauncy.data.vo.manage.message.information.comment.InformationViceCommentVo">
-        select mic.id, mic.user_id, mic.parent_user_id, mic.create_time, mic.enabled, mic.content, IFNULL(uu.name,su.username) as userName,
-        IFNULL(uu.name,su.avatar) as avatar, IFNULL(puu.name,psu.username) as parentUserName
+        select
+            mic.id AS viceId,
+            mic.user_id,
+            mic.parent_user_id,
+            mic.create_time,
+            mic.enabled,
+            mic.content,
+            mic.liked_num,
+            (EXISTS
+                (SELECT 1
+                FROM mm_comment_liked mcl
+                WHERE mcl.comment_id = mic.id
+                AND mcl.user_id = #{userId}
+                AND mcl.del_flag = 0
+                )
+            ) as isLiked,
+            IFNULL(uu.name,su.username) as userName,
+            IFNULL(uu.name,su.avatar) as avatar,
+            IFNULL(puu.name,psu.username) as parentUserName
         from mm_information_comment mic
         left join um_user uu on mic.user_id = uu.id
         left join sys_user su on mic.user_id = su.id
@@ -106,9 +151,14 @@
         left join sys_user psu on mic.parent_user_id = psu.id
         where mic.parent_id = #{id} and mic.del_flag = 0
         order by mic.create_time asc
-        <if test="type != null and type =='subStep'">
-           limit 0,10
-        </if>
+        <choose>
+            <when test="type != null and type =='subStep'">
+                limit 0, 2
+            </when>
+            <otherwise>
+                limit 2, 100
+            </otherwise>
+        </choose>
     </select>
 
 

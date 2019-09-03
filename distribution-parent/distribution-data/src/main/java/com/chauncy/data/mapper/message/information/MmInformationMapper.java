@@ -31,10 +31,11 @@ public interface MmInformationMapper extends IBaseMapper<MmInformationPo> {
 
     /**
      * app查询资讯基本信息
-     * @param id
+     * @param mmInformationId
+     * @param userId
      * @return
      */
-    InformationBaseVo findBaseById(@Param("id") Long id);
+    InformationBaseVo findBaseById(@Param("mmInformationId") Long mmInformationId, @Param("userId") Long userId);
 
     /**
      * 后台分页条件查询

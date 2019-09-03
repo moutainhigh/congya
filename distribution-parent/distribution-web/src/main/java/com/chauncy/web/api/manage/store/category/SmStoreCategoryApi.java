@@ -102,7 +102,7 @@ public class SmStoreCategoryApi extends BaseApi {
      */
     @ApiOperation(value = "条件查询", notes = "根据分类ID、分类名称查询")
     @PostMapping("/searchPaging")
-    public JsonViewData<PageInfo<SmStoreCategoryVo>> searchPaging(@RequestBody StoreCategorySearchDto storeCategorySearchDto) {
+    public JsonViewData<PageInfo<SmStoreCategoryVo>> searchPaging(@Valid @RequestBody StoreCategorySearchDto storeCategorySearchDto) {
 
         PageInfo<SmStoreCategoryVo> smStoreBaseVoPageInfo = smStoreCategoryService.searchPaging(storeCategorySearchDto);
         return setJsonViewData(smStoreBaseVoPageInfo);

@@ -10,6 +10,8 @@ import com.chauncy.data.vo.manage.message.information.comment.InformationMainCom
 import com.chauncy.data.vo.manage.message.information.comment.InformationViceCommentVo;
 import com.github.pagehelper.PageInfo;
 
+import java.util.List;
+
 /**
  * <p>
  * 资讯评论信息表 服务类
@@ -29,10 +31,10 @@ public interface IMmInformationCommentService extends Service<MmInformationComme
     /**
      * 根据主评论id查询副评论
      *
-     * @param informationViceCommentDto
+     * @param mainId
      * @return
      */
-    PageInfo<InformationViceCommentVo> searchViceCommentByMainId(InformationViceCommentDto informationViceCommentDto);
+    List<InformationViceCommentVo> searchViceCommentByMainId(Long mainId, Long userId);
     /**
      * app分页查询评论
      * @param informationCommentDto
@@ -57,4 +59,11 @@ public interface IMmInformationCommentService extends Service<MmInformationComme
      * 保存评论
      */
     void saveInfoComment(AddInformationCommentDto addInformationCommentDto, Long userId);
+
+    /**
+     * 用户点赞评论
+     * @param commentId
+     * @param userId
+     */
+    void likeComment(Long commentId, Long userId);
 }

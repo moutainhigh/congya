@@ -2,6 +2,8 @@ package com.chauncy.order.service;
 
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.domain.po.pay.PayOrderPo;
+import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.my.SearchMyOrderDto;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
@@ -16,6 +18,8 @@ import com.chauncy.data.vo.supplier.order.SmSearchOrderVo;
 import com.chauncy.data.vo.supplier.order.SmSendOrderVo;
 import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.Map;
 
 /**
  * <p>
@@ -38,6 +42,14 @@ public interface IOmOrderService extends Service<OmOrderPo> {
      * @param orderId
      */
     boolean closeOrderByOrderId(Long orderId);
+
+    /**
+     * 支付成功通知
+     * @param payOrderPo  支付订单
+     * @param notifyMap  微信回调参数
+     * @throws Exception
+     */
+    void wxPayNotify(PayOrderPo payOrderPo, Map<String, String> notifyMap) throws Exception;
 
     /**
      *总后台订单列表

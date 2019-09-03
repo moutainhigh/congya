@@ -2,6 +2,7 @@ package com.chauncy.data.mapper.product;
 
 import com.chauncy.data.domain.po.product.PmGoodsSkuPo;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.app.advice.goods.BrandGoodsVo;
 import com.chauncy.data.vo.app.brand.GoodsVo;
 import com.chauncy.data.vo.app.car.ShopTicketSoWithCarGoodVo;
 import org.apache.ibatis.annotations.Param;
@@ -48,6 +49,13 @@ public interface PmGoodsSkuMapper extends IBaseMapper<PmGoodsSkuPo> {
 
     int updateStock(@Param("list") List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVos);
 
+    /**
+     * 获取具体的sku信息
+     *
+     * @param brandId
+     * @return
+     */
+    List<BrandGoodsVo> findBrandGoodsVos(Long brandId);
 
     /**
      * 增加销量

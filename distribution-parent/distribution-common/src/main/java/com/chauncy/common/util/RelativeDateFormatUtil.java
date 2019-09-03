@@ -12,10 +12,10 @@ public class RelativeDateFormatUtil {
     private static final long ONE_MINUTE = 60L;
     private static final long ONE_HOUR = 3600L;
     private static final long ONE_DAY = 86400L;
-    private static final long ONE_MONTH = 108000;
-    private static final long ONE_YEAR = 1314000L;
+    private static final long ONE_MONTH = 2592000L;
+    private static final long ONE_YEAR = 31536000L;
 
-    private static final String ONE_SECOND_AGO = "秒前";
+    private static final String ONE_SECOND_AGO = "刚刚";
     private static final String ONE_MINUTE_AGO = "分钟前";
     private static final String ONE_HOUR_AGO = "小时前";
     private static final String ONE_DAY_AGO = "天前";
@@ -26,8 +26,7 @@ public class RelativeDateFormatUtil {
         LocalDateTime now = LocalDateTime.now();
         long delta = now.toEpochSecond(ZoneOffset.of("+8")) - localDateTime.toEpochSecond(ZoneOffset.of("+8"));
         if (delta < 1L * ONE_MINUTE) {
-            long seconds = toSeconds(delta);
-            return (seconds <= 0 ? 1 : seconds) + ONE_SECOND_AGO;
+            return ONE_SECOND_AGO;
         }
         if (delta < 59L * ONE_MINUTE) {
             long minutes = toMinutes(delta);

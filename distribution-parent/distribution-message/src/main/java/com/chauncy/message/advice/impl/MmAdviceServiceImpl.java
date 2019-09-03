@@ -12,6 +12,7 @@ import com.chauncy.data.domain.po.message.advice.*;
 import com.chauncy.data.domain.po.message.information.category.MmInformationCategoryPo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.advice.add.SaveClassificationAdviceDto;
@@ -24,8 +25,11 @@ import com.chauncy.data.mapper.message.information.MmInformationMapper;
 import com.chauncy.data.mapper.message.information.category.MmInformationCategoryMapper;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
+import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.app.advice.goods.BrandGoodsVo;
+import com.chauncy.data.vo.app.advice.goods.SearchBrandAndSkuBaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseVo;
 import com.chauncy.data.vo.app.advice.home.GetAdviceInfoVo;
 import com.chauncy.data.vo.app.advice.home.ShufflingVo;
@@ -48,6 +52,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -96,6 +101,9 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 
     @Autowired
     private PmGoodsMapper goodsMapper;
+
+    @Autowired
+    private PmGoodsSkuMapper skuMapper;
 
     @Autowired
     private PmGoodsCategoryMapper goodsCategoryMapper;
@@ -809,6 +817,35 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 
         });
         return goodsBaseVoPageInfo;
+    }
+
+    /**
+     * 根据选项卡分页获取关联的品牌和商品具体的sku基本信息
+     *
+     * 这里显示的商品是具体的sku信息
+     *
+     * @param searchBrandAndSkuBaseDto
+     * @return
+     */
+    @Override
+    public PageInfo<SearchBrandAndSkuBaseVo> searchBrandAndSkuBase(SearchBrandAndSkuBaseDto searchBrandAndSkuBaseDto) {
+        Integer pageNo = searchBrandAndSkuBaseDto.getPageNo() == null ? defaultPageNo : searchBrandAndSkuBaseDto.getPageNo();
+        Integer pageSize = searchBrandAndSkuBaseDto.getPageSize() == null ? defaultPageSize : searchBrandAndSkuBaseDto.getPageSize();
+        PageInfo<SearchBrandAndSkuBaseVo> searchBrandAndSkuBaseVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> mapper.searchBrandBase(searchBrandAndSkuBaseDto));
+        //获取品牌下的销量前6的商品
+        searchBrandAndSkuBaseVoPageInfo.getList().forEach(a->{
+            //获取具体的sku信息
+            List<BrandGoodsVo> brandGoodsVos = skuMapper.findBrandGoodsVos(a.getBrandId());
+            brandGoodsVos.forEach(b->{
+                if (b.getLinePrice() == null || b.getLinePrice().compareTo(new BigDecimal(0))==0){
+                    b.setLinePrice(b.getSellPrice());
+                }
+            });
+            a.setBrandGoodsVos(brandGoodsVos);
+        });
+
+        return searchBrandAndSkuBaseVoPageInfo;
     }
 
 }

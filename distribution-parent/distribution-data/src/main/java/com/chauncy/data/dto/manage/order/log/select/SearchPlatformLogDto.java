@@ -30,6 +30,8 @@ public class SearchPlatformLogDto implements Serializable {
     @ApiModelProperty(value = "用户类型")
     private Integer userType;
 
+    @ApiModelProperty(value = "交易流水（微信支付宝交易号）")
+    private String payOrderNo;
     @ApiModelProperty(value = "关联订单id")
     private Long omRelId;
 
