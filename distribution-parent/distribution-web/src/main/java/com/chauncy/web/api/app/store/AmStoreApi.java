@@ -63,7 +63,8 @@ public class AmStoreApi  extends BaseApi {
      */
     @ApiOperation(value = "app查询店铺列表", notes = "通过店铺搜索，店铺分类查询店铺列表")
     @PostMapping("/searchPaging")
-    public JsonViewData<StorePagingVo> searchPaging(@RequestBody SearchStoreDto searchStoreDto) {
+    public JsonViewData<StorePagingVo> searchPaging(@ApiParam(required = true,name = "searchStoreDto",
+            value = "查询条件") @Validated @RequestBody SearchStoreDto searchStoreDto) {
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
                 smStoreService.searchPaging(searchStoreDto));

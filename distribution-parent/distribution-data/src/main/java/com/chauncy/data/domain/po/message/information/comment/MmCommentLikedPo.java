@@ -1,4 +1,4 @@
-package com.chauncy.data.domain.po.message.information.rel;
+package com.chauncy.data.domain.po.message.information.comment;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -18,18 +18,18 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 用户资讯点赞表
+ * 用户资讯评论点赞表
  * </p>
  *
  * @author huangwancheng
- * @since 2019-08-29
+ * @since 2019-09-03
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("mm_information_liked")
-@ApiModel(value = "MmInformationLikedPo对象", description = "用户资讯点赞表")
-public class MmInformationLikedPo implements Serializable {
+@TableName("mm_comment_liked")
+@ApiModel(value = "MmCommentLikedPo对象", description = "用户资讯评论点赞表")
+public class MmCommentLikedPo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -43,8 +43,8 @@ public class MmInformationLikedPo implements Serializable {
     @ApiModelProperty(value = "修改时间")
     private LocalDateTime updateTime;
 
-    @ApiModelProperty(value = "资讯id")
-    private Long infoId;
+    @ApiModelProperty(value = "评论id")
+    private Long commentId;
 
     @ApiModelProperty(value = "用户id")
     private Long userId;

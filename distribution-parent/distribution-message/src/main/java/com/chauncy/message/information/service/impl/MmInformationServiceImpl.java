@@ -254,27 +254,15 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
         updateWrapper.set("browsing_num", mmInformationPo.getBrowsingNum() + 1);
         this.update(updateWrapper);
         //资讯基本信息
-        InformationBaseVo informationBaseVo = mmInformationMapper.findBaseById(id);
-        //用户是否关注店铺
-        QueryWrapper<UmUserFavoritesPo> queryWrapper = new QueryWrapper();
-        queryWrapper.lambda()
-                .eq(UmUserFavoritesPo::getType, KeyWordTypeEnum.MERCHANT.getName())
-                .eq(UmUserFavoritesPo::getUserId, userId)
-                .eq(UmUserFavoritesPo::getFavoritesId, mmInformationPo.getStoreId());
-        if(null != umUserFavoritesMapper.selectOne(queryWrapper)) {
-            //表示用户已关注
-            informationBaseVo.setFocusStatus(true);
-        } else {
-            informationBaseVo.setFocusStatus(false);
+        InformationBaseVo informationBaseVo = mmInformationMapper.findBaseById(id, userId);
+        if (null != informationBaseVo.getCoverImage()){
+            informationBaseVo.setCoverImageList(Splitter.on(",")
+                    .omitEmptyStrings().splitToList(informationBaseVo.getCoverImage()));
         }
-        //查询资讯关联的商品列表按最晚添加时间的第一个商品信息
-        BaseSearchDto baseSearchDto = new BaseSearchDto();
-        baseSearchDto.setId(mmInformationPo.getId());
-        PageInfo<GoodsBaseInfoVo> goodsBaseInfoVoPageInfo = PageHelper.startPage(1, 1)
-                .doSelectPageInfo(() -> pmGoodsMapper.searchGoodsByInfoId(baseSearchDto));
-        if(goodsBaseInfoVoPageInfo.getList().size() > 0) {
-            informationBaseVo.setGoodsBaseInfoVo(goodsBaseInfoVoPageInfo.getList().get(0));
-        }
+        //查询资讯关联的商品列表
+        List<GoodsBaseInfoVo> goodsBaseInfoVoList = new ArrayList<>();
+        goodsBaseInfoVoList = pmGoodsMapper.searchGoodsByInfoId(mmInformationPo.getId());
+        informationBaseVo.setGoodsBaseInfoVoList(goodsBaseInfoVoList);
         return informationBaseVo;
     }
 
@@ -360,7 +348,7 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
 
 
     /**
-     * 用户点赞资讯
+     * 用户资讯点赞、取消点赞
      *
      * @param infoId 资讯id
      * @param userId 用户id
@@ -373,20 +361,38 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
             throw new ServiceException(ResultCode.NO_EXISTS,"用户不存在");
         }
         MmInformationPo mmInformationPo = mmInformationMapper.selectById(infoId);
-        if(null != mmInformationPo) {
-            UpdateWrapper updateWrapper = new UpdateWrapper();
-            updateWrapper.eq("id", infoId);
-            updateWrapper.set("liked_num", mmInformationPo.getLikedNum() + 1);
-            this.update(updateWrapper);
-            //新增点赞记录
-            MmInformationLikedPo mmInformationLikedPo = new MmInformationLikedPo();
-            mmInformationLikedPo.setUserId(umUserPo.getId());
-            mmInformationLikedPo.setInfoId(mmInformationPo.getId());
-            mmInformationLikedPo.setCreateBy(umUserPo.getPhone());
-            mmInformationLikedMapper.insert(mmInformationLikedPo);
-        } else {
+        if(null == mmInformationPo){
             throw new ServiceException(ResultCode.NO_EXISTS,"资讯不存在");
         }
+        //评论点赞数
+        Integer infoLikedNum = mmInformationPo.getLikedNum();
+
+        //查询是否点赞过
+        MmInformationLikedPo mmInformationLikedPo = mmInformationLikedMapper.selectForUpdate(infoId, userId);
+        if(null == mmInformationLikedPo) {
+            //未点赞过
+            mmInformationLikedPo = new MmInformationLikedPo();
+            mmInformationLikedPo.setInfoId(infoId);
+            mmInformationLikedPo.setCreateBy(userId.toString());
+            mmInformationLikedPo.setUserId(userId);
+            //新增点赞记录
+            mmInformationLikedMapper.insert(mmInformationLikedPo);
+            infoLikedNum += 1;
+        } else if(!mmInformationLikedPo.getDelFlag()) {
+            //取消点赞
+            mmInformationLikedPo.setDelFlag(true);
+            mmInformationLikedMapper.updateById(mmInformationLikedPo);
+            infoLikedNum -= 1;
+        } else {
+            //点赞
+            mmInformationLikedPo.setDelFlag(false);
+            mmInformationLikedMapper.updateById(mmInformationLikedPo);
+            infoLikedNum += 1;
+        }
+        UpdateWrapper<MmInformationPo> updateWrapper = new UpdateWrapper();
+        updateWrapper.lambda().eq(MmInformationPo::getId, infoId)
+                .set(MmInformationPo::getLikedNum, infoLikedNum);
+        this.update(updateWrapper);
     }
 
     /**
@@ -422,7 +428,7 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
      * @param baseSearchDto
      * @return
      */
-    @Override
+    /*@Override
     public PageInfo<GoodsBaseInfoVo> searchGoodsById(BaseSearchDto baseSearchDto) {
         Integer pageNo = baseSearchDto.getPageNo()==null ? defaultPageNo : baseSearchDto.getPageNo();
         Integer pageSize = baseSearchDto.getPageSize()==null ? defaultPageSize : baseSearchDto.getPageSize();
@@ -431,7 +437,7 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
         PageInfo<GoodsBaseInfoVo> goodsBaseInfoVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> pmGoodsMapper.searchGoodsByInfoId(baseSearchDto));
         return goodsBaseInfoVoPageInfo;
-    }
+    }*/
 
     /**
      * 批量修改资讯状态

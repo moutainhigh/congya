@@ -1,5 +1,6 @@
 package com.chauncy.data.vo.app.message.information;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -29,6 +30,7 @@ public class InformationStoreInfoVo  implements Serializable {
     private String storeName;
 
     @JsonIgnore
+    @JSONField(serialize=false)
     @ApiModelProperty(value = "店铺标签")
     private String storeLabels;
 
@@ -43,6 +45,9 @@ public class InformationStoreInfoVo  implements Serializable {
 
     @ApiModelProperty(value = "是否关注")
     private Boolean isFocus;
+
+    @ApiModelProperty(value = "店铺描述")
+    private String storeDescribe;
 
 
 }

@@ -1,6 +1,7 @@
 package com.chauncy.data.mapper.message.information.comment;
 
 import com.chauncy.data.domain.po.message.information.comment.MmInformationCommentPo;
+import com.chauncy.data.dto.manage.message.information.select.InformationCommentDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.manage.message.information.comment.InformationMainCommentVo;
 import com.chauncy.data.vo.manage.message.information.comment.InformationViceCommentVo;
@@ -28,19 +29,22 @@ public interface MmInformationCommentMapper extends IBaseMapper<MmInformationCom
     /**
      * app分页查询评论
      *
-     * @param id  资讯ID
+     * @param informationCommentDto  资讯ID  用户id
      * @return
      */
-    List<InformationMainCommentVo> searchInfoMainComment(@Param("id") Long id);
+    List<InformationMainCommentVo> searchInfoMainComment(InformationCommentDto informationCommentDto);
 
     /**
      * 根据主评论id查询副评论
      *
      * @param id  评论ID
+     * @param userId  用户id判断是否点赞
      * @param type  类型
      *              为subStep 表示为searchInfoMainComment方法的分步查询方法 查询第一页
      *              为空表示根据主评论id分页查询副评论
      * @return
      */
-    List<InformationViceCommentVo> searchViceCommentByMainId(@Param("id") Long id, @Param("type") String type);
+    List<InformationViceCommentVo> searchViceCommentByMainId(@Param("id") Long id,
+                                                             @Param("userId") Long userId,
+                                                             @Param("type") String type);
 }

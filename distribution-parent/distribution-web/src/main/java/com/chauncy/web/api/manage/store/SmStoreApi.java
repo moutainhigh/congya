@@ -88,7 +88,7 @@ public class SmStoreApi extends BaseApi {
      */
     @ApiOperation(value = "条件查询分页查找", notes = "根据店铺ID、手机号、店铺类型、店铺名称、店铺状态查询")
     @PostMapping("/searchBaseInfo")
-    public JsonViewData<PageInfo<SmStoreBaseVo>> searchBaseInfo(@RequestBody StoreSearchDto storeSearchDto) {
+    public JsonViewData<PageInfo<SmStoreBaseVo>> searchBaseInfo(@Valid @RequestBody StoreSearchDto storeSearchDto) {
 
         PageInfo<SmStoreBaseVo> smStoreBaseVoPageInfo = smStoreService.searchBaseInfo(storeSearchDto);
         return setJsonViewData(smStoreBaseVoPageInfo);
@@ -102,7 +102,7 @@ public class SmStoreApi extends BaseApi {
      */
     @ApiOperation(value = "条件查询可关联店铺", notes = "根据店铺ID、店铺名称查询")
     @PostMapping("/searchRelStore")
-    public JsonViewData<PageInfo<RelStoreInfoVo>> searchRelStore(@RequestBody StoreSearchByConditionDto storeSearchByConditionDto) {
+    public JsonViewData<PageInfo<RelStoreInfoVo>> searchRelStore(@Valid @RequestBody StoreSearchByConditionDto storeSearchByConditionDto) {
 
         PageInfo<RelStoreInfoVo> relStoreInfoVoPageInfo = smStoreService.searchRelStoreInfo(storeSearchByConditionDto);
         return setJsonViewData(relStoreInfoVoPageInfo);

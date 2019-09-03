@@ -46,10 +46,87 @@
 
 
 
-    <select id="findBaseById" resultType="com.chauncy.data.vo.app.message.information.InformationBaseVo">
-        SELECT mi.*, ss.name AS storeName, ss.`logo_image`, ss.collection_num, ss.store_describe
+
+    <resultMap id="informationBaseResult" type="com.chauncy.data.vo.app.message.information.InformationBaseVo">
+        <id column="id" property="id" />
+        <result column="title" property="title" />
+        <result column="detail_html" property="detailHtml" />
+        <result column="cover_image" property="coverImage" />
+        <result column="forward_num" property="forwardNum" />
+        <result column="isForward" property="isForward" />
+        <result column="comment_num" property="commentNum" />
+        <result column="isComment" property="isComment" />
+        <result column="liked_num" property="likedNum" />
+        <result column="isLiked" property="isLiked" />
+        <result column="collection_num" property="collectionNum" />
+        <result column="isCollection" property="isCollection" />
+        <result column="update_time" property="updateTime" />
+        <!-- collection定义关联集合类型的属性封装规则
+        offType:指定集合中的元素类型
+        -->
+        <collection property="informationStoreInfo" ofType="com.chauncy.data.vo.app.message.information.InformationStoreInfoVo">
+            <id column="storeId" property="storeId"/>
+            <result column="logo_image" property="logoImage"/>
+            <result column="storeName" property="storeName"/>
+            <result column="store_describe" property="storeDescribe"/>
+            <result column="is_focus" property="isFocus"/>
+        </collection>
+    </resultMap>
+    <select id="findBaseById" resultMap="informationBaseResult">
+        SELECT
+            mi.id,
+            mi.title,
+            mi.detail_html,
+            mi.`cover_image`,
+            mi.`forward_num`,
+            mi.`comment_num`,
+            mi.`liked_num`,
+            mi.`collection_num`,
+            mi.update_time,
+            ss.`id` AS storeId,
+            ss.name AS storeName,
+            ss.`logo_image`,
+            ss.store_describe,
+            (EXISTS
+                (SELECT 1
+                FROM um_user_favorites uuf
+                WHERE uuf.favorites_id = ss.id
+                AND uuf.`type` = '店铺'
+                AND uuf.user_id = #{userId}
+                AND uuf.del_flag = 0)
+            ) AS is_focus,
+            (EXISTS
+                (SELECT 1
+                FROM um_user_favorites uuf
+                WHERE uuf.favorites_id = mi.id
+                AND uuf.`type` = '资讯'
+                AND uuf.user_id = #{userId}
+                AND uuf.del_flag = 0)
+            ) AS isCollection,
+            (EXISTS
+                (SELECT 1
+                FROM mm_information_comment mic
+                WHERE mic.info_id = mi.id
+                AND mic.user_id = #{userId}
+                )
+            ) as isComment,
+            (EXISTS
+                (SELECT 1
+                FROM mm_information_liked mil
+                WHERE mil.info_id = mi.id
+                AND mil.user_id = #{userId}
+                AND mil.del_flag = 0
+                )
+            ) as isLiked,
+            (EXISTS
+                (SELECT 1
+                FROM mm_information_forward mif
+                WHERE mif.info_id = mi.id
+                AND mif.user_id = #{userId}
+                )
+            ) as isForward
         FROM mm_information mi LEFT JOIN sm_store ss ON mi.`store_id` = ss.id
-        WHERE mi.id = #{id} AND mi.del_flag = 0
+        WHERE mi.id = #{mmInformationId} AND mi.del_flag = 0
     </select>
 
 
@@ -94,7 +171,7 @@
     </select>
 
 
-    <resultMap id="informationBaseResult" type="com.chauncy.data.vo.app.message.information.InformationPagingVo">
+    <resultMap id="informationPagingResult" type="com.chauncy.data.vo.app.message.information.InformationPagingVo">
         <id column="id" property="id" />
         <result column="title" property="title" />
         <result column="cover_image" property="coverImage" />
@@ -119,7 +196,7 @@
             <result column="is_focus" property="isFocus"/>
         </collection>
     </resultMap>
-    <select id="searchInfoBasePaging" resultMap="informationBaseResult">
+    <select id="searchInfoBasePaging" resultMap="informationPagingResult">
         select mi.id,
             mi.title,
             LEFT(mi.pure_text,100) AS pureText ,

@@ -10,6 +10,11 @@ public interface ServiceConstant {
     /**
      * 店铺关系  团队合作关系层级最多为5层
      */
-    static final Integer TEAM_WORK_LEVEL = 5;
+    Integer TEAM_WORK_LEVEL = 5;
+
+    /**
+     * 评论回复默认展示前两条
+     */
+    Integer VICE_COMMENT_NUM = 2;
 
 }

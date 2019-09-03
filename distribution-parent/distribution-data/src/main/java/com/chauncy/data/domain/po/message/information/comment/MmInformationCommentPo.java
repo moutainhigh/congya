@@ -55,6 +55,9 @@ public class MmInformationCommentPo implements Serializable {
     @ApiModelProperty(value = "评论内容")
     private String content;
 
+    @ApiModelProperty(value = "点赞数目")
+    private Integer likedNum;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建时间")

@@ -94,7 +94,7 @@ public interface IMmInformationService extends Service<MmInformationPo> {
      * @param baseSearchDto
      * @return
      */
-    PageInfo<GoodsBaseInfoVo> searchGoodsById(BaseSearchDto baseSearchDto);
+    //PageInfo<GoodsBaseInfoVo> searchGoodsById(BaseSearchDto baseSearchDto);
 
     /**
      * 批量修改资讯状态
