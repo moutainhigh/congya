@@ -63,4 +63,28 @@ public interface IOmAfterSaleOrderService extends Service<OmAfterSaleOrderPo> {
      * @param afterSaleOrderId
      */
     void permitRefund(Long afterSaleOrderId);
+
+    /**
+     * 商家拒绝退款
+     * @param afterSaleOrderId
+     */
+    void refuseRefund(Long afterSaleOrderId);
+
+    /**
+     * 商家确认退货
+     * @param afterSaleOrderId
+     */
+    void permitReturnGoods(Long afterSaleOrderId);
+
+    /**
+     * 商家拒绝退货
+     * @param afterSaleOrderId
+     */
+    void refuseReturnGoods(Long afterSaleOrderId);
+
+    /**
+     * 商家确认收货
+     * @param afterSaleOrderId
+     */
+    void permitReceiveGoods(Long afterSaleOrderId);
 }

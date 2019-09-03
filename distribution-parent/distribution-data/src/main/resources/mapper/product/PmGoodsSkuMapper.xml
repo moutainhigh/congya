@@ -21,6 +21,13 @@
         <result column="update_time" property="updateTime" />
         <result column="del_flag" property="delFlag" />
     </resultMap>
+
+    <insert id="addASalesVolume">
+        update pm_goods_sku
+        set sales_volume=sales_volume+#{salesVolume}
+        where id=#{id}
+    </insert>
+
     <update id="updateStock">
         <foreach collection="list" item="item" index="index" open="" close="" separator=";">
             update pm_goods_sku

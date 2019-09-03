@@ -142,4 +142,11 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
 
     //获取商品基本信息：名称、标题、轮播图、发货地等信息
     SpecifiedGoodsVo findGoodsBase(Long goodsId);
+
+    /**
+     * 增加销量
+     * @param id
+     * @param salesVolume
+     */
+    void addASalesVolume(@Param("id") Long id,@Param("salesVolume") Integer salesVolume);
 }

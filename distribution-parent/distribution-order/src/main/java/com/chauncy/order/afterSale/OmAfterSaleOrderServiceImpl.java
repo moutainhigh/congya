@@ -227,7 +227,7 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         //仅退款只有待商家处理状态才可以进行退款
         if (queryAfterSaleOrder.getAfterSaleType()==AfterSaleTypeEnum.ONLY_REFUND){
             if (queryAfterSaleOrder.getStatus()!=AfterSaleStatusEnum.NEED_STORE_DO){
-                throw new ServiceException(ResultCode.FAIL,String.format("当前售后订单状态为【%s】,不允许退款",queryAfterSaleOrder.getStatus()));
+                throw new ServiceException(ResultCode.FAIL,String.format("当前售后订单状态为【%s】,不允许退款",queryAfterSaleOrder.getStatus().getName()));
             }
             else {
                 saveAfterSaleLog.setNode(AfterSaleLogEnum.ONLY_REFUND_STORE_AGREE);
@@ -236,10 +236,10 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         //退货退款只有待商家退款状态才可以进行退款
         if (queryAfterSaleOrder.getAfterSaleType()==AfterSaleTypeEnum.RETURN_GOODS){
             if (queryAfterSaleOrder.getStatus()!=AfterSaleStatusEnum.NEED_STORE_REFUND){
-                throw new ServiceException(ResultCode.FAIL,String.format("当前售后订单状态为【%s】,不允许退款",queryAfterSaleOrder.getStatus()));
+                throw new ServiceException(ResultCode.FAIL,String.format("当前售后订单状态为【%s】,不允许退款",queryAfterSaleOrder.getStatus().getName()));
             }
             else {
-                saveAfterSaleLog.setNode(AfterSaleLogEnum.BUYER_AGREE_REFUND);
+                saveAfterSaleLog.setNode(AfterSaleLogEnum.STORE_AGREE_REFUND);
             }
         }
         saveAfterSaleLog.setAfterSaleOrderId(afterSaleOrderId).setCreateBy(currUser.getId());
@@ -248,6 +248,136 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         //改变售后订单状态
         OmAfterSaleOrderPo updateAfterOrder=new OmAfterSaleOrderPo();
         updateAfterOrder.setId(afterSaleOrderId).setUpdateBy(currUser.getId()).setStatus(AfterSaleStatusEnum.SUCCESS);
+        mapper.updateById(updateAfterOrder);
+
+        //设置商品快照表售后成功
+        OmGoodsTempPo updateGoodsTemp=new OmGoodsTempPo();
+        updateGoodsTemp.setId(queryAfterSaleOrder.getGoodsTempId()).setIsAfterSale(true).setUpdateBy(currUser.getId());
+        goodsTempMapper.updateById(updateGoodsTemp);
+
+
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void refuseRefund(Long afterSaleOrderId) {
+        SysUserPo currUser = securityUtil.getCurrUser();
+
+        OmAfterSaleOrderPo queryAfterSaleOrder=mapper.selectById(afterSaleOrderId);
+
+        //添加售后进度
+        OmAfterSaleLogPo saveAfterSaleLog=new OmAfterSaleLogPo();
+        //仅退款只有待商家处理状态才可以进行退款
+        if (queryAfterSaleOrder.getAfterSaleType()==AfterSaleTypeEnum.ONLY_REFUND){
+            if (queryAfterSaleOrder.getStatus()!=AfterSaleStatusEnum.NEED_STORE_DO){
+                throw new ServiceException(ResultCode.FAIL,String.format("当前售后订单状态为【%s】,不允许拒绝退款",queryAfterSaleOrder.getStatus().getName()));
+            }
+            else {
+                saveAfterSaleLog.setNode(AfterSaleLogEnum.ONLY_REFUND_STORE_REFUSE);
+            }
+        }
+        //退货退款只有待商家退款状态才可以进行退款
+        if (queryAfterSaleOrder.getAfterSaleType()==AfterSaleTypeEnum.RETURN_GOODS){
+            if (queryAfterSaleOrder.getStatus()!=AfterSaleStatusEnum.NEED_STORE_REFUND){
+                throw new ServiceException(ResultCode.FAIL,String.format("当前售后订单状态为【%s】,不允许拒绝退款",queryAfterSaleOrder.getStatus().getName()));
+            }
+            else {
+                saveAfterSaleLog.setNode(AfterSaleLogEnum.STORE_REFUSE_REFUND);
+            }
+        }
+        saveAfterSaleLog.setAfterSaleOrderId(afterSaleOrderId).setCreateBy(currUser.getId());
+        afterSaleLogService.save(saveAfterSaleLog);
+        //改变售后订单状态
+        OmAfterSaleOrderPo updateAfterOrder=new OmAfterSaleOrderPo();
+        updateAfterOrder.setId(afterSaleOrderId).setUpdateBy(currUser.getId()).setStatus(AfterSaleStatusEnum.NEED_BUYER_DO);
+        mapper.updateById(updateAfterOrder);
+
+    }
+
+    @Override
+    public void permitReturnGoods(Long afterSaleOrderId) {
+
+        SysUserPo currUser = securityUtil.getCurrUser();
+
+        OmAfterSaleOrderPo queryAfterSaleOrder=mapper.selectById(afterSaleOrderId);
+
+        //添加售后进度
+        OmAfterSaleLogPo saveAfterSaleLog=new OmAfterSaleLogPo();
+        if (queryAfterSaleOrder.getAfterSaleType()==AfterSaleTypeEnum.ONLY_REFUND) {
+            throw new ServiceException(ResultCode.FAIL,"仅退款订单不允许确认退货！");
+
+        }
+        if (queryAfterSaleOrder.getAfterSaleType()==AfterSaleTypeEnum.RETURN_GOODS){
+            if (queryAfterSaleOrder.getStatus()!=AfterSaleStatusEnum.NEED_STORE_DO){
+                throw new ServiceException(ResultCode.FAIL,String.format("当前售后订单状态为【%s】,不允许确认退货",queryAfterSaleOrder.getStatus().getName()));
+            }
+            else {
+                saveAfterSaleLog.setNode(AfterSaleLogEnum.STORE_AGREE_GOODS);
+            }
+        }
+        saveAfterSaleLog.setAfterSaleOrderId(afterSaleOrderId).setCreateBy(currUser.getId());
+        afterSaleLogService.save(saveAfterSaleLog);
+        //改变售后订单状态
+        OmAfterSaleOrderPo updateAfterOrder=new OmAfterSaleOrderPo();
+        updateAfterOrder.setId(afterSaleOrderId).setUpdateBy(currUser.getId()).setStatus(AfterSaleStatusEnum.NEED_BUYER_RETURN);
+        mapper.updateById(updateAfterOrder);
+
+    }
+
+    @Override
+    public void refuseReturnGoods(Long afterSaleOrderId) {
+        SysUserPo currUser = securityUtil.getCurrUser();
+
+        OmAfterSaleOrderPo queryAfterSaleOrder=mapper.selectById(afterSaleOrderId);
+
+        //添加售后进度
+        OmAfterSaleLogPo saveAfterSaleLog=new OmAfterSaleLogPo();
+        if (queryAfterSaleOrder.getAfterSaleType()==AfterSaleTypeEnum.ONLY_REFUND) {
+            throw new ServiceException(ResultCode.FAIL,"仅退款订单不允许拒绝退货！");
+
+        }
+        if (queryAfterSaleOrder.getAfterSaleType()==AfterSaleTypeEnum.RETURN_GOODS){
+            if (queryAfterSaleOrder.getStatus()!=AfterSaleStatusEnum.NEED_STORE_DO){
+                throw new ServiceException(ResultCode.FAIL,String.format("当前售后订单状态为【%s】,不允许拒绝退货",queryAfterSaleOrder.getStatus().getName()));
+            }
+            else {
+                saveAfterSaleLog.setNode(AfterSaleLogEnum.STORE_REFUSE_GOODS);
+            }
+        }
+        saveAfterSaleLog.setAfterSaleOrderId(afterSaleOrderId).setCreateBy(currUser.getId());
+        afterSaleLogService.save(saveAfterSaleLog);
+        //改变售后订单状态
+        OmAfterSaleOrderPo updateAfterOrder=new OmAfterSaleOrderPo();
+        updateAfterOrder.setId(afterSaleOrderId).setUpdateBy(currUser.getId()).setStatus(AfterSaleStatusEnum.NEED_BUYER_DO);
+        mapper.updateById(updateAfterOrder);
+
+    }
+
+    @Override
+    public void permitReceiveGoods(Long afterSaleOrderId) {
+        SysUserPo currUser = securityUtil.getCurrUser();
+
+        OmAfterSaleOrderPo queryAfterSaleOrder=mapper.selectById(afterSaleOrderId);
+
+        //添加售后进度
+        OmAfterSaleLogPo saveAfterSaleLog=new OmAfterSaleLogPo();
+        if (queryAfterSaleOrder.getAfterSaleType()==AfterSaleTypeEnum.ONLY_REFUND) {
+            throw new ServiceException(ResultCode.FAIL,"仅退款订单不允许确认收货！");
+
+        }
+        if (queryAfterSaleOrder.getAfterSaleType()==AfterSaleTypeEnum.RETURN_GOODS){
+            if (queryAfterSaleOrder.getStatus()!=AfterSaleStatusEnum.NEED_BUYER_RETURN){
+                throw new ServiceException(ResultCode.FAIL,String.format("当前售后订单状态为【%s】,不允许确认收货",queryAfterSaleOrder.getStatus().getName()));
+            }
+            else {
+                saveAfterSaleLog.setNode(AfterSaleLogEnum.BUYER_RETURN_GOODS);
+            }
+        }
+        saveAfterSaleLog.setAfterSaleOrderId(afterSaleOrderId).setCreateBy(currUser.getId());
+        afterSaleLogService.save(saveAfterSaleLog);
+        //改变售后订单状态
+        OmAfterSaleOrderPo updateAfterOrder=new OmAfterSaleOrderPo();
+        updateAfterOrder.setId(afterSaleOrderId).setUpdateBy(currUser.getId()).setStatus(AfterSaleStatusEnum.NEED_STORE_REFUND);
         mapper.updateById(updateAfterOrder);
 
     }

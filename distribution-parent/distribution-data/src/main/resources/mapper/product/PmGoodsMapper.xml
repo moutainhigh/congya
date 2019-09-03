@@ -42,6 +42,11 @@
         <result column="sales_volume" property="salesVolume"/>
         <result column="collection_num" property="collectionNum"/>
     </resultMap>
+    <insert id="addASalesVolume">
+        update pm_goods
+        set sales_volume=sales_volume+#{salesVolume}
+        where id=#{id}
+    </insert>
 
     <update id="updateStock">
         update pm_goods set stock=stock+#{number} where id=#{goodId}

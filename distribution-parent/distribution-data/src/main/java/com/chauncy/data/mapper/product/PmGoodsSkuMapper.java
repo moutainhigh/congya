@@ -56,4 +56,12 @@ public interface PmGoodsSkuMapper extends IBaseMapper<PmGoodsSkuPo> {
      * @return
      */
     List<BrandGoodsVo> findBrandGoodsVos(Long brandId);
+
+    /**
+     * 增加销量
+     * @param id
+     * @param salesVolume
+     */
+    void addASalesVolume(@Param("id") Long id,@Param("salesVolume") Integer salesVolume);
+
 }
