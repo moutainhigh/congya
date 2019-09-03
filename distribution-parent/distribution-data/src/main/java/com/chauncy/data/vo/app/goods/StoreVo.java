@@ -3,6 +3,7 @@ package com.chauncy.data.vo.app.goods;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
  */
 @Data
 @ApiModel (description = "商品详情显示的店铺基本信息")
+@Accessors(chain = true)
 public class StoreVo {
 
     @ApiModelProperty ("店铺id")

@@ -76,9 +76,9 @@ public class SpecifiedGoodsVo {
     @JSONField(ordinal = 5)
     private String displayPrice;
 
-    @ApiModelProperty("月销量")
+    @ApiModelProperty("销量")
     @JSONField(ordinal = 6)
-    private Integer salesVolumeMonthly;
+    private Integer salesVolume;
 
     @ApiModelProperty("运费信息")
     @JSONField(ordinal = 7)

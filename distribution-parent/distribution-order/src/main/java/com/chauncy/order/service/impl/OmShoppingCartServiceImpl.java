@@ -13,11 +13,15 @@ import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.bo.manage.pay.PayUserMessage;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.order.OmEvaluateQuartzPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.order.OmShoppingCartPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.domain.po.pay.PayUserRelationPo;
-import com.chauncy.data.domain.po.product.*;
+import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
+import com.chauncy.data.domain.po.product.PmGoodsPo;
+import com.chauncy.data.domain.po.product.PmGoodsRelAttributeValueSkuPo;
+import com.chauncy.data.domain.po.product.PmGoodsSkuPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.sys.BasicSettingPo;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
@@ -29,6 +33,7 @@ import com.chauncy.data.dto.app.car.SubmitOrderDto;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
 import com.chauncy.data.mapper.area.AreaRegionMapper;
+import com.chauncy.data.mapper.order.OmEvaluateQuartzMapper;
 import com.chauncy.data.mapper.order.OmShoppingCartMapper;
 import com.chauncy.data.mapper.pay.IPayOrderMapper;
 import com.chauncy.data.mapper.pay.PayUserRelationMapper;
@@ -131,6 +136,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     @Autowired
     private IOmOrderService omOrderService;
+
+    @Autowired
+    private OmEvaluateQuartzMapper evaluateQuartzMapper;
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
@@ -613,7 +621,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         }
         /**获取商品基本信息：名称、标题、轮播图、发货地等信息*/
         specifiedGoodsVo = goodsMapper.findGoodsBase(goodsId);
-        //获取商品详情显示的价格区间
+        /**获取商品详情显示的价格区间*/
         BigDecimal lowestSellPrice = skuMapper.getLowestPrice(goodsId);
         BigDecimal highestSellPrice = skuMapper.getHighestPrice(goodsId);
         String sellPrice = "";
@@ -623,7 +631,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             sellPrice = lowestSellPrice.toString() + "~" + highestSellPrice;
         }
         specifiedGoodsVo.setDisplayPrice(sellPrice);
-        //运费详情
+        /**运费详情*/
         ShipFreightInfoVo shipFreightInfoVo = shippingTemplateMapper.findByGoodsId(goodsId);
         if (shipFreightInfoVo.getCalculateWay() == 1){
             //按金额计算的运费详情
@@ -639,19 +647,46 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
         specifiedGoodsVo.setShipFreightInfoVo(shipFreightInfoVo);
 
-        //服务列表
+        /**活动列表*/
+        //待做
+
+        /**服务列表*/
         List<AttributeVo> services = relAttributeGoodMapper.findServices(goodsId);
         specifiedGoodsVo.setServiceList(services);
 
-        //参数
+        /**参数*/
         List<AttributeVo> paramList = relAttributeGoodMapper.findParam(goodsId);
         specifiedGoodsVo.setParamList(paramList);
 
+        /**店铺信息*/
+        Long storeId = goodsMapper.selectById(goodsId).getStoreId();
 
+        //获取店铺详情
+        SmStorePo storePo = storeMapper.selectById(storeId);
 
+        StoreVo storeVo = new StoreVo();
 
+        //获取定时任务刷新的表的数据
+        OmEvaluateQuartzPo evaluateQuartzPo = evaluateQuartzMapper.selectOne(new QueryWrapper<OmEvaluateQuartzPo>()
+                .lambda().eq(OmEvaluateQuartzPo::getStoreId,storeId));
 
-        //店铺信息
+        if (evaluateQuartzPo == null){
+            storeVo.setBabyDescription(new BigDecimal(0))
+                    .setLogisticsServices(new BigDecimal(0))
+                    .setSellerService(new BigDecimal(0))
+                    .setStoreId(storeId)
+                    .setStoreIcon(storePo.getStoreImage())
+                    .setStoreName(storePo.getName());
+        }else {
+            storeVo.setBabyDescription(evaluateQuartzPo.getDescriptionStartLevel())
+                .setLogisticsServices(evaluateQuartzPo.getShipStartLevel())
+                .setSellerService(evaluateQuartzPo.getAttitudeStartLevel())
+                .setStoreId(storeId)
+                .setStoreIcon(storePo.getStoreImage())
+                .setStoreName(storePo.getName());
+        }
+        specifiedGoodsVo.setStoreVo(storeVo);
+
 
 
 
