@@ -1,5 +1,6 @@
 package com.chauncy.data.dto.manage.user.add;
 
+import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import io.swagger.annotations.ApiModel;
@@ -22,6 +23,7 @@ import java.math.BigDecimal;
 public class AddUserLabelDto {
 
     @NotNull(groups = IUpdateGroup.class,message = "id不能为空！")
+    @NeedExistConstraint(groups = IUpdateGroup.class,message = "id不存在！",tableName = "um_user_label")
     private Long id;
 
     @NotBlank(message = "标签名称不能为空")
