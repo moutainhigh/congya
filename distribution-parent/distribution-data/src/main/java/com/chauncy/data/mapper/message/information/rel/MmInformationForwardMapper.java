@@ -2,6 +2,7 @@ package com.chauncy.data.mapper.message.information.rel;
 
 import com.chauncy.data.domain.po.message.information.rel.MmInformationForwardPo;
 import com.chauncy.data.mapper.IBaseMapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * <p>
@@ -13,4 +14,11 @@ import com.chauncy.data.mapper.IBaseMapper;
  */
 public interface MmInformationForwardMapper extends IBaseMapper<MmInformationForwardPo> {
 
+    /**
+     * 用户转发资讯成功
+     * @param infoId
+     * @param userId
+     * @return
+     */
+    MmInformationForwardPo selectForUpdate(@Param("infoId") Long infoId, @Param("userId") Long userId);
 }

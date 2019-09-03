@@ -12,6 +12,7 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.RelativeDateFormatUtil;
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
+import com.chauncy.data.domain.po.message.information.rel.MmInformationForwardPo;
 import com.chauncy.data.domain.po.message.information.rel.MmInformationLikedPo;
 import com.chauncy.data.domain.po.message.information.rel.MmRelInformationGoodsPo;
 import com.chauncy.data.domain.po.product.PmShippingTemplatePo;
@@ -26,6 +27,7 @@ import com.chauncy.data.dto.manage.message.information.add.InformationDto;
 import com.chauncy.data.dto.base.BaseSearchByTimeDto;
 import com.chauncy.data.dto.manage.order.bill.update.BatchAuditDto;
 import com.chauncy.data.mapper.message.information.MmInformationMapper;
+import com.chauncy.data.mapper.message.information.rel.MmInformationForwardMapper;
 import com.chauncy.data.mapper.message.information.rel.MmInformationLikedMapper;
 import com.chauncy.data.mapper.message.information.rel.MmRelInformationGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
@@ -76,6 +78,8 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
     private MmRelInformationGoodsMapper mmRelInformationGoodsMapper;
     @Autowired
     private MmInformationLikedMapper mmInformationLikedMapper;
+    @Autowired
+    private MmInformationForwardMapper mmInformationForwardMapper;
     @Autowired
     private PmGoodsCategoryMapper pmGoodsCategoryMapper;
     @Autowired
@@ -393,6 +397,37 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
         updateWrapper.lambda().eq(MmInformationPo::getId, infoId)
                 .set(MmInformationPo::getLikedNum, infoLikedNum);
         this.update(updateWrapper);
+    }
+
+    /**
+     * 用户转发资讯成功
+     *
+     * @param infoId
+     * @param userId
+     */
+    @Override
+    public void forwardInfo(Long infoId, Long userId) {
+
+        MmInformationPo mmInformationPo = mmInformationMapper.selectById(infoId);
+        if(null == mmInformationPo){
+            throw new ServiceException(ResultCode.NO_EXISTS,"资讯不存在");
+        }
+
+        //查询是否转发过
+        MmInformationForwardPo mmInformationForwardPo = mmInformationForwardMapper.selectForUpdate(infoId, userId);
+        if(null == mmInformationForwardPo) {
+            //未转发过
+            mmInformationForwardPo = new MmInformationForwardPo();
+            mmInformationForwardPo.setInfoId(infoId);
+            mmInformationForwardPo.setCreateBy(userId.toString());
+            mmInformationForwardPo.setUserId(userId);
+            //新增转发记录
+            mmInformationForwardMapper.insert(mmInformationForwardPo);
+            UpdateWrapper<MmInformationPo> updateWrapper = new UpdateWrapper();
+            updateWrapper.lambda().eq(MmInformationPo::getId, infoId)
+                    .set(MmInformationPo::getForwardNum, mmInformationPo.getForwardNum() + 1);
+            this.update(updateWrapper);
+        }
     }
 
     /**
