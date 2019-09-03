@@ -36,8 +36,12 @@ public class SearchBrandAndSkuBaseVo {
     @JSONField(ordinal = 3)
     private String subtitle;
 
-    @ApiModelProperty("该品牌销量前6的商品基本信息")
+    @ApiModelProperty("关注量")
     @JSONField(ordinal = 4)
+    private Integer collectionNum;
+
+    @ApiModelProperty("该品牌销量前6的商品基本信息")
+    @JSONField(ordinal = 5)
     private List<BrandGoodsVo> brandGoodsVos;
 
 }
