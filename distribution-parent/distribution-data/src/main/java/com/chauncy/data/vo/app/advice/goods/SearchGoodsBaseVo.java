@@ -30,7 +30,7 @@ public class SearchGoodsBaseVo {
     private String goodsName;
 
     @ApiModelProperty("商品标签")
-    private List<String> labelName;
+    private List<String> labelNames;
 
     @ApiModelProperty("划线价")
     private BigDecimal linePrice;

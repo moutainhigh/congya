@@ -4,6 +4,7 @@ import com.chauncy.data.domain.po.product.PmShippingTemplatePo;
 import com.chauncy.data.dto.manage.ship.select.SearchPlatTempDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.app.goods.ShipFreightInfoVo;
 import com.chauncy.data.vo.manage.ship.AmountVo;
 import com.chauncy.data.vo.manage.ship.NumberVo;
 import com.chauncy.data.vo.manage.ship.PlatTemplateVo;
@@ -48,4 +49,12 @@ public interface PmShippingTemplateMapper extends IBaseMapper<PmShippingTemplate
      * @return
      */
     List<NumberVo> getNumberCalculateList(Long template_id);
+
+    /**
+     * 运费详情
+     *
+     * @param goodsId
+     * @return
+     */
+    ShipFreightInfoVo findByGoodsId(Long goodsId);
 }

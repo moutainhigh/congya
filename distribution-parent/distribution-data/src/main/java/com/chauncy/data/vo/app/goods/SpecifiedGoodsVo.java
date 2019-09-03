@@ -1,7 +1,9 @@
 package com.chauncy.data.vo.app.goods;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo;
 import com.chauncy.data.vo.supplier.GoodsStandardVo;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -50,45 +52,64 @@ import java.util.Map;
 @Accessors(chain = true)
 public class SpecifiedGoodsVo {
 
-    @ApiModelProperty("每个sku的详情")
-    private Map<String,SpecifiedSkuVo> skuDetail;
-
-    @ApiModelProperty("商品对应的所有规格信息")
-    private List<GoodsStandardVo> goodsStandardVoList;
-
-    @ApiModelProperty("商品标题")
+    @ApiModelProperty("商品名称")
+    @JSONField(ordinal = 0)
     private String goodsName;
 
     @ApiModelProperty("商品轮播图")
-    private String carousel;
+    @JSONField(ordinal = 1)
+    private String carouselImage;
 
     @ApiModelProperty("发货地")
+    @JSONField(ordinal = 2)
     private String originPlace;
 
-    @ApiModelProperty("默认运费")
-    private BigDecimal defaultFreight;
-
-    @ApiModelProperty("月销量")
-    private Integer salesVolumeMonthly;
-
-    @ApiModelProperty("显示的商品价格,只是显示作用")
-    private String displayPrice;
+    @ApiModelProperty("商品标题")
+    @JSONField(ordinal = 3)
+    private String subtitle;
 
     @ApiModelProperty("是否包邮")
-    private Boolean isPostage;
+    @JSONField(ordinal = 4)
+    private Boolean isFreePostage;
 
-    @ApiModelProperty("默认邮费")
-    private BigDecimal defaultPostage;
+    @ApiModelProperty("显示的商品价格,只是显示作用")
+    @JSONField(ordinal = 5)
+    private String displayPrice;
+
+    @ApiModelProperty("销量")
+    @JSONField(ordinal = 6)
+    private Integer salesVolume;
+
+    @ApiModelProperty("运费信息")
+    @JSONField(ordinal = 7)
+    private ShipFreightInfoVo shipFreightInfoVo;
+
+    @ApiModelProperty("店铺信息")
+    @JSONField(ordinal = 8)
+    private StoreVo storeVo;
 
     @ApiModelProperty("活动")
+    @JSONField(ordinal = 9)
     private List<AttributeVo> activityVoList;
 
     @ApiModelProperty("服务")
+    @JSONField(ordinal = 10)
     private List<AttributeVo> serviceList;
 
     @ApiModelProperty("参数")
+    @JSONField(ordinal = 11)
     private List<AttributeVo> paramList;
 
-    @ApiModelProperty("店铺信息")
-    private StoreVo storeVo;
+    @ApiModelProperty("商品对应的所有规格信息")
+    @JSONField(ordinal = 12)
+    private List<GoodsStandardVo> goodsStandardVoList;
+
+    @ApiModelProperty("每个sku的详情")
+    @JSONField(ordinal = 13)
+    private Map<String,SpecifiedSkuVo> skuDetail;
+
+    @ApiModelProperty("商品ID")
+    @JSONField(ordinal = 14)
+    private Long goodsId;
+
 }

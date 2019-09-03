@@ -219,4 +219,11 @@
         WHERE shipping_id = #{template_id} and a.destination_id = b.id and a.del_flag = 0
     </select>
 
+    <select id="findByGoodsId" resultType="com.chauncy.data.vo.app.goods.ShipFreightInfoVo">
+        select a.id as template_id,calculate_way,default_freight,default_full_money,default_post_money,default_max_number,
+        default_max_number_money,default_addtional_number,default_addtional_freight
+        from pm_shipping_template a,pm_goods b
+        where b.shipping_template_id = a.id and b.id = #{goodsId}
+    </select>
+
 </mapper>

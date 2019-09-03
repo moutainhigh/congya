@@ -65,13 +65,13 @@ public class AmGiftPo implements Serializable {
     private String name;
 
     @ApiModelProperty(value = "经验值")
-    private Integer experience;
+    private BigDecimal experience;
 
     @ApiModelProperty(value = "购物券")
-    private Integer vouchers;
+    private BigDecimal vouchers;
 
     @ApiModelProperty(value = "积分")
-    private Integer integrals;
+    private BigDecimal integrals;
 
     @ApiModelProperty(value = "购买金额")
     private BigDecimal purchasePrice;

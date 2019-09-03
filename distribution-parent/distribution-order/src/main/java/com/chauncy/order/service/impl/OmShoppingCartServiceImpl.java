@@ -13,6 +13,7 @@ import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.bo.manage.pay.PayUserMessage;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.order.OmEvaluateQuartzPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.order.OmShoppingCartPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
@@ -32,6 +33,7 @@ import com.chauncy.data.dto.app.car.SubmitOrderDto;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
 import com.chauncy.data.mapper.area.AreaRegionMapper;
+import com.chauncy.data.mapper.order.OmEvaluateQuartzMapper;
 import com.chauncy.data.mapper.order.OmShoppingCartMapper;
 import com.chauncy.data.mapper.pay.IPayOrderMapper;
 import com.chauncy.data.mapper.pay.PayUserRelationMapper;
@@ -43,8 +45,7 @@ import com.chauncy.data.mapper.user.UmAreaShippingMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.temp.order.service.IOmGoodsTempService;
 import com.chauncy.data.vo.app.car.*;
-import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
-import com.chauncy.data.vo.app.goods.SpecifiedSkuVo;
+import com.chauncy.data.vo.app.goods.*;
 import com.chauncy.data.vo.app.order.cart.CartVo;
 import com.chauncy.data.vo.app.order.cart.StoreGoodsVo;
 import com.chauncy.data.vo.supplier.GoodsStandardVo;
@@ -116,7 +117,16 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     private AreaRegionMapper areaRegionMapper;
 
     @Autowired
+    private PmNumberShippingMapper numberShippingMapper;
+
+    @Autowired
+    private PmShippingTemplateMapper shippingTemplateMapper;
+
+    @Autowired
     private PmMoneyShippingMapper moneyShippingMapper;
+
+    @Autowired
+    private PmGoodsRelAttributeGoodMapper relAttributeGoodMapper;
 
     @Autowired
     private IPayOrderMapper payOrderMapper;
@@ -126,6 +136,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     @Autowired
     private IOmOrderService omOrderService;
+
+    @Autowired
+    private OmEvaluateQuartzMapper evaluateQuartzMapper;
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
@@ -606,6 +619,76 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         if (goodsPo == null) {
             throw new ServiceException(ResultCode.NO_EXISTS, "数据库不存在该商品！");
         }
+        /**获取商品基本信息：名称、标题、轮播图、发货地等信息*/
+        specifiedGoodsVo = goodsMapper.findGoodsBase(goodsId);
+        /**获取商品详情显示的价格区间*/
+        BigDecimal lowestSellPrice = skuMapper.getLowestPrice(goodsId);
+        BigDecimal highestSellPrice = skuMapper.getHighestPrice(goodsId);
+        String sellPrice = "";
+        if (lowestSellPrice.equals(highestSellPrice)) {
+            sellPrice = lowestSellPrice.toString();
+        } else {
+            sellPrice = lowestSellPrice.toString() + "~" + highestSellPrice;
+        }
+        specifiedGoodsVo.setDisplayPrice(sellPrice);
+        /**运费详情*/
+        ShipFreightInfoVo shipFreightInfoVo = shippingTemplateMapper.findByGoodsId(goodsId);
+        if (shipFreightInfoVo.getCalculateWay() == 1){
+            //按金额计算的运费详情
+            List<MoneyShippingVo> moneyShippingVos = moneyShippingMapper.findByTemplateId(shipFreightInfoVo.getTemplateId());
+            shipFreightInfoVo.setMoneyShippingVos(moneyShippingVos);
+
+        }
+        else {
+            //按件数计算运费详情
+            List<NumberShippingVo> numberShippingVos = numberShippingMapper.findByTemplateId(shipFreightInfoVo.getTemplateId());
+            shipFreightInfoVo.setNumberShippingVos(numberShippingVos);
+        }
+
+        specifiedGoodsVo.setShipFreightInfoVo(shipFreightInfoVo);
+
+        /**活动列表*/
+        //待做
+
+        /**服务列表*/
+        List<AttributeVo> services = relAttributeGoodMapper.findServices(goodsId);
+        specifiedGoodsVo.setServiceList(services);
+
+        /**参数*/
+        List<AttributeVo> paramList = relAttributeGoodMapper.findParam(goodsId);
+        specifiedGoodsVo.setParamList(paramList);
+
+        /**店铺信息*/
+        Long storeId = goodsMapper.selectById(goodsId).getStoreId();
+
+        //获取店铺详情
+        SmStorePo storePo = storeMapper.selectById(storeId);
+
+        StoreVo storeVo = new StoreVo();
+
+        //获取定时任务刷新的表的数据
+        OmEvaluateQuartzPo evaluateQuartzPo = evaluateQuartzMapper.selectOne(new QueryWrapper<OmEvaluateQuartzPo>()
+                .lambda().eq(OmEvaluateQuartzPo::getStoreId,storeId));
+
+        if (evaluateQuartzPo == null){
+            storeVo.setBabyDescription(new BigDecimal(0))
+                    .setLogisticsServices(new BigDecimal(0))
+                    .setSellerService(new BigDecimal(0))
+                    .setStoreId(storeId)
+                    .setStoreIcon(storePo.getStoreImage())
+                    .setStoreName(storePo.getName());
+        }else {
+            storeVo.setBabyDescription(evaluateQuartzPo.getDescriptionStartLevel())
+                .setLogisticsServices(evaluateQuartzPo.getShipStartLevel())
+                .setSellerService(evaluateQuartzPo.getAttitudeStartLevel())
+                .setStoreId(storeId)
+                .setStoreIcon(storePo.getStoreImage())
+                .setStoreName(storePo.getName());
+        }
+        specifiedGoodsVo.setStoreVo(storeVo);
+
+
+
 
         /**获取商品下的所有规格信息*/
         //获取对应的分类ID
@@ -645,6 +728,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         }
         Map<String, SpecifiedSkuVo> skuDetail = Maps.newHashMap();
         //循环获取sku信息
+        SpecifiedGoodsVo finalSpecifiedGoodsVo = specifiedGoodsVo;
         goodsSkuPos.forEach(b -> {
             SpecifiedSkuVo specifiedSkuVo = new SpecifiedSkuVo();
             specifiedSkuVo.setHoldQuantity(goodsPo.getPurchaseLimit());
@@ -672,8 +756,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 relIds.append(attributeId).append(":").append(attributeValueId).append(";");
             });
             skuDetail.put(String.valueOf(relIds), specifiedSkuVo);
-            specifiedGoodsVo.setSkuDetail(skuDetail);
+            finalSpecifiedGoodsVo.setSkuDetail(skuDetail);
         });
+
         return specifiedGoodsVo;
     }
 

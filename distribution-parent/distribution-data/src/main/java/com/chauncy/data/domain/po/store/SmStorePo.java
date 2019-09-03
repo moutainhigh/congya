@@ -86,6 +86,7 @@ public class SmStorePo implements Serializable {
     @ApiModelProperty(value = "公司地址")
     private String companyAddr;
 
+
     @ApiModelProperty(value = "联系电话")
     private String companyMobile;
 

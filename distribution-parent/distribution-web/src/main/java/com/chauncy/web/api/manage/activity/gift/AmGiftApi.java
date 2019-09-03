@@ -7,8 +7,10 @@ import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.activity.EditEnableDto;
 import com.chauncy.data.dto.manage.activity.gift.add.SaveGiftDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchBuyGiftRecordDto;
+import com.chauncy.data.dto.manage.activity.gift.select.SearchCouponDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchGiftDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchReceiveGiftRecordDto;
+import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.activity.gift.FindGiftVo;
 import com.chauncy.data.vo.manage.activity.gift.SearchBuyGiftRecordVo;
@@ -164,10 +166,23 @@ public class AmGiftApi extends BaseApi {
      */
     @PostMapping("/searchBuyGiftRecord")
     @ApiOperation("多条件查询购买礼包记录")
-    public JsonViewData<PageInfo<SearchBuyGiftRecordVo>> searchBuyGiftRecord(@RequestBody @ApiParam(required = true,name = "",value = "查询购买礼包记录")
+    public JsonViewData<PageInfo<SearchBuyGiftRecordVo>> searchBuyGiftRecord(@RequestBody @ApiParam(required = true,name = "searchBuyGiftRecordDto",value = "查询购买礼包记录")
                                                         @Validated SearchBuyGiftRecordDto searchBuyGiftRecordDto){
 
         return setJsonViewData(service.searchBuyGiftRecord(searchBuyGiftRecordDto));
+    }
+
+    /**
+     * 分页查询优惠券
+     *
+     * @param searchCouponDto
+     * @return
+     */
+    @PostMapping("/searchCoupon")
+    @ApiOperation("分页查询优惠券")
+    public JsonViewData<PageInfo<BaseVo>> searchCoupon(@RequestBody @ApiParam(required = true,name = "searchCouponDto",value = "查询购买礼包记录")
+                                                       @Validated SearchCouponDto searchCouponDto){
+        return setJsonViewData(service.searchCoupon(searchCouponDto));
     }
 
 }
