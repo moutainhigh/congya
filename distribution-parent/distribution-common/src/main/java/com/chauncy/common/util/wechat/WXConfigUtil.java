@@ -1,6 +1,9 @@
 package com.chauncy.common.util.wechat;
 
 import com.github.wxpay.sdk.WXPayConfig;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -11,12 +14,22 @@ import java.io.InputStream;
  * @author yeJH
  * @since 2019/7/5 16:26
  */
+@Slf4j
+@Component
 public class WXConfigUtil implements WXPayConfig {
     private byte[] certData;
-    public static final String APP_ID = "wx42bfe19a00e22417";
-    public static final String KEY = "BoHUI2028CongYa8BoHUI2028CongYa8";
-    public static final String MCH_ID = "1498771872";
-    public static final String BODY = "葱鸭百货";
+
+    @Value("${distribution.wxpay.APP_ID}")
+    public String APP_ID;
+
+    @Value("${distribution.wxpay.KEY}")
+    public String KEY;
+
+    @Value("${distribution.wxpay.MCH_ID}")
+    public String MCH_ID;
+
+    @Value("${distribution.wxpay.BODY}")
+    public String BODY;
 
     public WXConfigUtil() throws Exception {
         //从微信商户平台下载的安全证书存放的路径
