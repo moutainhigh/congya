@@ -1,19 +1,23 @@
 package com.chauncy.data.mapper.order;
 
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
+import com.chauncy.data.bo.app.order.my.OrderRewardBo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
-import com.chauncy.data.dto.supplier.order.SmSendOrderDto;
+import com.chauncy.data.dto.supplier.order.SmSearchSendOrderDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.app.order.my.AppSearchOrderVo;
+import com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailGoodsVo;
+import com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailVo;
 import com.chauncy.data.vo.manage.order.list.GoodsTempVo;
 import com.chauncy.data.vo.manage.order.list.OrderDetailVo;
 import com.chauncy.data.vo.manage.order.list.SearchOrderVo;
 import com.chauncy.data.vo.supplier.order.*;
 import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -64,10 +68,10 @@ public interface OmOrderMapper extends IBaseMapper<OmOrderPo> {
 
     /**
      * 商家端查询发货订单列表
-     * @param smSendOrderDto
+     * @param smSearchSendOrderDto
      * @return
      */
-    List<SmSendOrderVo> searchSendOrderVos(SmSendOrderDto smSendOrderDto);
+    List<SmSendOrderVo> searchSendOrderVos(SmSearchSendOrderDto smSearchSendOrderDto);
 
     /**
      * 商家端查询发货商品详情
@@ -98,6 +102,38 @@ public interface OmOrderMapper extends IBaseMapper<OmOrderPo> {
      * @return
      */
     PayOrderPo getPayOrderByOrderId(@Param("orderId") Long orderId);
+
+    /**
+     * 根据订单id获取预计奖励购物券
+     * @param orderId
+     * @return
+     */
+    BigDecimal getRewardShopTicketByOrderId(Long orderId);
+
+
+    /**
+     *根据订单id获取app用户订单信息
+     * @param orderId
+     * @return
+     */
+    AppMyOrderDetailVo getAppMyOrderDetailVoByOrderId(Long orderId);
+
+    /**
+     * 根据订单id获取app用户订单的商品信息
+     * @param orderId
+     * @return
+     */
+    List<AppMyOrderDetailGoodsVo> getAppMyOrderDetailGoodsVoByOrderId(Long orderId);
+
+
+    /**
+     * 根据订单id获取app用户订单预计奖励购物券、积分、经验值
+     * @param orderId
+     * @return
+     */
+    OrderRewardBo getOrderRewardByOrderId(Long orderId);
+
+
 
 
 

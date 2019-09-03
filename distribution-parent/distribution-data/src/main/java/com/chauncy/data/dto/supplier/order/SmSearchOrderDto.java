@@ -48,8 +48,8 @@ public class SmSearchOrderDto {
     @ApiModelProperty("订单更新结束时间")
     private LocalDateTime endUpdateTime;
 
-    @ApiModelProperty("订单状态: NEED_PAY-未支付 NEED_SEND_GOODS-待发货 NEED_RECEIVE_GOODS-待收货 NEED_EVALUATE-待评价 ALREADY_FINISH-已完成" +
-            "NEED_USE-待使用 ALREADY_USE-已使用 ALREADY_CANCEL-已取消")
+    @ApiModelProperty("订单状态: NEED_PAY-未支付 NEED_SEND_GOODS-待发货 NEED_RECEIVE_GOODS-待收货 NEED_EVALUATE-待评价 ALREADY_EVALUATE-已完成" +
+            "NEED_USE-待使用  ALREADY_CANCEL-已取消")
     private OrderStatusEnum orderStatus;
 
     @ApiModelProperty("订单类型: NON-无活动,REDUCED-满减,INTEGRALS-积分,SECKILL-秒杀,SPRLL_GROUP-拼团")

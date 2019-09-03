@@ -10,8 +10,12 @@ import com.chauncy.common.enums.message.InformationTypeEnum;
 import com.chauncy.common.enums.message.KeyWordTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.common.util.RelativeDateFormatUtil;
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
+import com.chauncy.data.domain.po.message.information.rel.MmInformationLikedPo;
 import com.chauncy.data.domain.po.message.information.rel.MmRelInformationGoodsPo;
+import com.chauncy.data.domain.po.product.PmShippingTemplatePo;
+import com.chauncy.data.domain.po.store.rel.SmRelStoreAttributePo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserFavoritesPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
@@ -20,7 +24,9 @@ import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.information.add.InformationDto;
 import com.chauncy.data.dto.base.BaseSearchByTimeDto;
+import com.chauncy.data.dto.manage.order.bill.update.BatchAuditDto;
 import com.chauncy.data.mapper.message.information.MmInformationMapper;
+import com.chauncy.data.mapper.message.information.rel.MmInformationLikedMapper;
 import com.chauncy.data.mapper.message.information.rel.MmRelInformationGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
@@ -29,6 +35,7 @@ import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.app.message.information.InformationBaseVo;
 import com.chauncy.data.vo.app.message.information.InformationPagingVo;
+import com.chauncy.data.vo.app.message.information.InformationStoreInfoVo;
 import com.chauncy.data.vo.manage.message.information.InformationPageInfoVo;
 import com.chauncy.data.vo.manage.message.information.InformationVo;
 import com.chauncy.data.vo.supplier.good.InformationRelGoodsVo;
@@ -38,6 +45,9 @@ import com.chauncy.data.core.AbstractService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +55,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * <p>
@@ -62,6 +74,8 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
     private MmInformationMapper mmInformationMapper;
     @Autowired
     private MmRelInformationGoodsMapper mmRelInformationGoodsMapper;
+    @Autowired
+    private MmInformationLikedMapper mmInformationLikedMapper;
     @Autowired
     private PmGoodsCategoryMapper pmGoodsCategoryMapper;
     @Autowired
@@ -156,13 +170,25 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
             }
         }
 
-        //将资讯与商品关联表的记录删除
-        Map<String, Object> map = new HashMap<>();
-        map.put("information_id", informationDto.getId());
-        mmRelInformationGoodsMapper.deleteByMap(map);
-
-        //批量插入商品资讯关联记录
-        saveBatchRelInformationGoods(informationDto, sysUserPo.getUsername());
+        //查询新更改的品牌中缺少的已有品牌是否有关联的商品  如果有则编辑失败
+        List<Long> oldRelGoodsIds = mmInformationMapper.selectRelGoodsIdsById(informationDto.getId());
+        List<Long> newRelGoodsIds = informationDto.getGoodsIds();
+        //oldRelGoodsIds跟newRelGoodsIds的差集  需要删除的关联
+        List<Long> reduceList = oldRelGoodsIds.stream().filter(item -> !newRelGoodsIds.contains(item)).collect(toList());
+        //删除关联
+        if(null != reduceList && reduceList.size() > 0) {
+            QueryWrapper<MmRelInformationGoodsPo> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda()
+                    .eq(MmRelInformationGoodsPo::getInformationId, informationDto.getId())
+                    .in(MmRelInformationGoodsPo::getGoodsId, reduceList);
+            mmRelInformationGoodsMapper.delete(queryWrapper);
+        }
+        //批量插入商品资讯关联记录  此时需要插入的关联应该为 newRelGoodsIds  与 oldRelGoodsIds 的差集
+        List<Long> needInsertList = newRelGoodsIds.stream().filter(item -> !oldRelGoodsIds.contains(item)).collect(toList());
+        if(null != needInsertList && needInsertList.size() > 0) {
+            informationDto.setGoodsIds(needInsertList);
+            saveBatchRelInformationGoods(informationDto, sysUserPo.getUsername());
+        }
     }
 
     /**
@@ -195,9 +221,9 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
         List<InformationRelGoodsVo> goodsList = pmGoodsMapper.searchRelGoodsByInfoId(id);
 
         for(InformationRelGoodsVo informationRelGoodsVo : goodsList) {
-            List<String> categorys = pmGoodsCategoryMapper.loadParentName(informationRelGoodsVo.getGoodsCategoryId());
+            List<String> categoryList = pmGoodsCategoryMapper.loadParentName(informationRelGoodsVo.getGoodsCategoryId());
             StringBuilder stringBuilder = new StringBuilder();
-            for(String category : categorys) {
+            for(String category : categoryList) {
                 stringBuilder.append(category).append("/");
             }
             stringBuilder.deleteCharAt(stringBuilder.length() - 1);
@@ -219,36 +245,29 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
         UmUserPo umUserPo = securityUtil.getAppCurrUser();
         Long userId = null == umUserPo ? null : umUserPo.getId();
         MmInformationPo mmInformationPo = mmInformationMapper.selectById(id);
+        if(null == mmInformationPo) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "资讯不存在");
+        }
+        //资讯添加浏览记录
         UpdateWrapper updateWrapper = new UpdateWrapper();
         updateWrapper.eq("id", id);
         updateWrapper.set("browsing_num", mmInformationPo.getBrowsingNum() + 1);
         this.update(updateWrapper);
         //资讯基本信息
-        InformationBaseVo informationBaseVo = mmInformationMapper.findBaseById(id);
-        QueryWrapper<UmUserFavoritesPo> queryWrapper = new QueryWrapper();
-        queryWrapper.lambda()
-                .eq(UmUserFavoritesPo::getType, KeyWordTypeEnum.MERCHANT.getName())
-                .eq(UmUserFavoritesPo::getUserId, userId)
-                .eq(UmUserFavoritesPo::getFavoritesId, informationBaseVo.getId());
-        if(null != umUserFavoritesMapper.selectOne(queryWrapper)) {
-            //表示用户已关注
-            informationBaseVo.setFocusStatus(true);
-        } else {
-            informationBaseVo.setFocusStatus(false);
+        InformationBaseVo informationBaseVo = mmInformationMapper.findBaseById(id, userId);
+        if (null != informationBaseVo.getCoverImage()){
+            informationBaseVo.setCoverImageList(Splitter.on(",")
+                    .omitEmptyStrings().splitToList(informationBaseVo.getCoverImage()));
         }
-        //查询资讯关联的商品列表按最晚添加时间的第一个商品信息
-        BaseSearchDto baseSearchDto = new BaseSearchDto();
-        baseSearchDto.setId(mmInformationPo.getId());
-        PageInfo<GoodsBaseInfoVo> goodsBaseInfoVoPageInfo = PageHelper.startPage(1, 1)
-                .doSelectPageInfo(() -> pmGoodsMapper.searchGoodsByInfoId(baseSearchDto));
-        if(goodsBaseInfoVoPageInfo.getList().size() > 0) {
-            informationBaseVo.setGoodsBaseInfoVo(goodsBaseInfoVoPageInfo.getList().get(0));
-        }
+        //查询资讯关联的商品列表
+        List<GoodsBaseInfoVo> goodsBaseInfoVoList = new ArrayList<>();
+        goodsBaseInfoVoList = pmGoodsMapper.searchGoodsByInfoId(mmInformationPo.getId());
+        informationBaseVo.setGoodsBaseInfoVoList(goodsBaseInfoVoList);
         return informationBaseVo;
     }
 
     /**
-     * 根据关联ID删除资讯跟店铺的绑定关系
+     * 根据关联ID删除资讯跟商品的绑定关系
      *
      * @param id 资讯商品关联id
      * @return
@@ -274,6 +293,12 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
     @Override
     public PageInfo<InformationPageInfoVo> searchPaging(BaseSearchByTimeDto baseSearchByTimeDto) {
 
+        SysUserPo sysUserPo = securityUtil.getCurrUser();
+        if(null != sysUserPo.getStoreId()) {
+            //店铺用户
+            baseSearchByTimeDto.setStoreId(sysUserPo.getStoreId());
+        }
+
         Integer pageNo = baseSearchByTimeDto.getPageNo()==null ? defaultPageNo : baseSearchByTimeDto.getPageNo();
         Integer pageSize = baseSearchByTimeDto.getPageSize()==null ? defaultPageSize : baseSearchByTimeDto.getPageSize();
 
@@ -292,15 +317,12 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
     @Override
     public PageInfo<InformationPagingVo> searchPaging(SearchInfoByConditionDto searchInfoByConditionDto) {
 
-        if(null != searchInfoByConditionDto.getInformationTypeEnum() &&
-                searchInfoByConditionDto.getInformationTypeEnum().equals(InformationTypeEnum.FOCUSLIST)) {
-            //获取当前app用户信息
-            UmUserPo umUserPo = securityUtil.getAppCurrUser();
-            if(null == umUserPo) {
-                throw new ServiceException(ResultCode.NO_LOGIN,"未登陆或登陆已超时");
-            } else {
-                searchInfoByConditionDto.setUserId(umUserPo.getId());
-            }
+        //获取当前app用户信息
+        UmUserPo umUserPo = securityUtil.getAppCurrUser();
+        if(null == umUserPo) {
+            throw new ServiceException(ResultCode.NO_LOGIN,"未登陆或登陆已超时");
+        } else {
+            searchInfoByConditionDto.setUserId(umUserPo.getId());
         }
 
         Integer pageNo = searchInfoByConditionDto.getPageNo()==null ? defaultPageNo : searchInfoByConditionDto.getPageNo();
@@ -308,12 +330,25 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
 
         PageInfo<InformationPagingVo> informationBaseVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> mmInformationMapper.searchInfoBasePaging(searchInfoByConditionDto));
+
+        informationBaseVoPageInfo.getList().forEach(informationPagingVo -> {
+            if (null != informationPagingVo.getCoverImage()){
+                informationPagingVo.setCoverImageList(Splitter.on(",")
+                        .omitEmptyStrings().splitToList(informationPagingVo.getCoverImage()));
+            }
+            if (null != informationPagingVo.getInformationStoreInfo().getStoreLabels()){
+                informationPagingVo.getInformationStoreInfo().setStoreLabelList(Splitter.on(",")
+                        .omitEmptyStrings().splitToList(informationPagingVo.getInformationStoreInfo().getStoreLabels()));
+            }
+            informationPagingVo.setReleaseTime(RelativeDateFormatUtil.format(informationPagingVo.getUpdateTime()));
+        });
+
         return informationBaseVoPageInfo;
     }
 
 
     /**
-     * 用户点赞资讯
+     * 用户资讯点赞、取消点赞
      *
      * @param infoId 资讯id
      * @param userId 用户id
@@ -326,24 +361,48 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
             throw new ServiceException(ResultCode.NO_EXISTS,"用户不存在");
         }
         MmInformationPo mmInformationPo = mmInformationMapper.selectById(infoId);
-        if(null != mmInformationPo) {
-            UpdateWrapper updateWrapper = new UpdateWrapper();
-            updateWrapper.eq("id", infoId);
-            updateWrapper.set("liked_num", mmInformationPo.getLikedNum() + 1);
-            this.update(updateWrapper);
-        } else {
+        if(null == mmInformationPo){
             throw new ServiceException(ResultCode.NO_EXISTS,"资讯不存在");
         }
+        //评论点赞数
+        Integer infoLikedNum = mmInformationPo.getLikedNum();
+
+        //查询是否点赞过
+        MmInformationLikedPo mmInformationLikedPo = mmInformationLikedMapper.selectForUpdate(infoId, userId);
+        if(null == mmInformationLikedPo) {
+            //未点赞过
+            mmInformationLikedPo = new MmInformationLikedPo();
+            mmInformationLikedPo.setInfoId(infoId);
+            mmInformationLikedPo.setCreateBy(userId.toString());
+            mmInformationLikedPo.setUserId(userId);
+            //新增点赞记录
+            mmInformationLikedMapper.insert(mmInformationLikedPo);
+            infoLikedNum += 1;
+        } else if(!mmInformationLikedPo.getDelFlag()) {
+            //取消点赞
+            mmInformationLikedPo.setDelFlag(true);
+            mmInformationLikedMapper.updateById(mmInformationLikedPo);
+            infoLikedNum -= 1;
+        } else {
+            //点赞
+            mmInformationLikedPo.setDelFlag(false);
+            mmInformationLikedMapper.updateById(mmInformationLikedPo);
+            infoLikedNum += 1;
+        }
+        UpdateWrapper<MmInformationPo> updateWrapper = new UpdateWrapper();
+        updateWrapper.lambda().eq(MmInformationPo::getId, infoId)
+                .set(MmInformationPo::getLikedNum, infoLikedNum);
+        this.update(updateWrapper);
     }
 
     /**
      * 审核资讯
      *
-     * @param baseUpdateStatusDto
+     * @param batchAuditDto
      */
     @Override
-    public void verifyInfo(BaseUpdateStatusDto baseUpdateStatusDto) {
-        MmInformationPo mmInformationPo = mmInformationMapper.selectById(baseUpdateStatusDto.getId()[0]);
+    public void verifyInfo(BatchAuditDto batchAuditDto) {
+        MmInformationPo mmInformationPo = mmInformationMapper.selectById(batchAuditDto.getIds()[0]);
         if(null == mmInformationPo) {
             throw new ServiceException(ResultCode.NO_EXISTS,"资讯不存在");
         } else {
@@ -352,9 +411,12 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
             } else {
                 UpdateWrapper updateWrapper = new UpdateWrapper();
                 updateWrapper.eq("id", mmInformationPo.getId());
-                updateWrapper.set("verify_status", baseUpdateStatusDto.getEnabled());
+                updateWrapper.set("verify_status", batchAuditDto.getEnabled() ? VerifyStatusEnum.CHECKED.getId() : VerifyStatusEnum.NOT_APPROVED.getId());
                 updateWrapper.set("verify_time", LocalDateTime.now());
                 updateWrapper.set("verify_by", securityUtil.getCurrUser().getUsername());
+                if(Strings.isNotBlank(batchAuditDto.getRejectReason())) {
+                    updateWrapper.set("remark", batchAuditDto.getRejectReason());
+                }
                 this.update(updateWrapper);
             }
         }
@@ -366,7 +428,7 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
      * @param baseSearchDto
      * @return
      */
-    @Override
+    /*@Override
     public PageInfo<GoodsBaseInfoVo> searchGoodsById(BaseSearchDto baseSearchDto) {
         Integer pageNo = baseSearchDto.getPageNo()==null ? defaultPageNo : baseSearchDto.getPageNo();
         Integer pageSize = baseSearchDto.getPageSize()==null ? defaultPageSize : baseSearchDto.getPageSize();
@@ -375,5 +437,26 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
         PageInfo<GoodsBaseInfoVo> goodsBaseInfoVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> pmGoodsMapper.searchGoodsByInfoId(baseSearchDto));
         return goodsBaseInfoVoPageInfo;
+    }*/
+
+    /**
+     * 批量修改资讯状态
+     *
+     * @param baseUpdateStatusDto
+     */
+    @Override
+    public void editInformationStatus(BaseUpdateStatusDto baseUpdateStatusDto) {
+        Arrays.asList(baseUpdateStatusDto.getId()).forEach(informationId -> {
+            //审核通过的资讯才能启用禁用
+            MmInformationPo mmInformationPo = mmInformationMapper.selectById(informationId);
+            if (!VerifyStatusEnum.CHECKED.getId().equals(mmInformationPo.getVerifyStatus())) {
+                throw new ServiceException(ResultCode.FAIL, "操作失败,审核通过的资讯才能启用禁用");
+            }
+        });
+        UpdateWrapper<MmInformationPo> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.lambda()
+                .in(MmInformationPo::getId, baseUpdateStatusDto.getId())
+                .set(MmInformationPo::getEnabled, baseUpdateStatusDto.getEnabled());
+        this.update(updateWrapper);
     }
 }

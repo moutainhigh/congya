@@ -112,14 +112,17 @@
 
 
     <select id="searchRelGoodsByInfoId" resultType="com.chauncy.data.vo.supplier.good.InformationRelGoodsVo">
-    SELECT mrig.id, pg.`name`, pg.goods_category_id, Min(pgs.sell_price) AS sell_price,pg.goods_type
-    FROM mm_information_rel_goods mrig
-         LEFT JOIN pm_goods pg on (pg.id = mrig.goods_id and pg.del_flag = 0)
-         LEFT JOIN pm_goods_sku pgs on (pg.id = pgs.goods_id and pgs.del_flag = 0)
-    <where>
-         mrig.information_id = #{id}
-    </where>
-    GROUP BY pg.id
+        SELECT mrig.id, pg.id as goodsId, pg.`name`, pg.goods_category_id, Min(pgs.sell_price) AS sell_price,pg.goods_type
+        FROM mm_information_rel_goods mrig
+             LEFT JOIN pm_goods pg on (pg.id = mrig.goods_id )
+             LEFT JOIN pm_goods_sku pgs on (pg.id = pgs.goods_id)
+        <where>
+                mrig.information_id = #{id}
+                AND mrig.del_flag = 0
+                and pg.del_flag = 0
+                and pgs.del_flag = 0
+        </where>
+        GROUP BY mrig.id,pg.id
     </select>
 
     <select id="selectDistributionGoods" resultType="com.chauncy.data.bo.base.BaseBo">
@@ -232,15 +235,14 @@
                 pg.`name` AS goodsName,
                 MIN(pgs.sell_price) AS sellPrice,
                 MIN(pgs.line_price) AS linePrice,
-                SUM(pgs.`sales_volume`) AS salesVolume,
                 pg.icon
         FROM mm_information_rel_goods mirg
         LEFT JOIN pm_goods pg
-        ON mirg.`goods_id` = pg.`id` AND mirg.`information_id` = #{id} AND mirg.`del_flag` = 0
+        ON mirg.`goods_id` = pg.`id` AND mirg.`information_id` = #{mmInformationId} AND mirg.`del_flag` = 0
         LEFT JOIN pm_goods_sku pgs
         ON pgs.goods_id = pg.id
         <where>
-            mi.id = #{id}
+            mirg.`information_id` = #{mmInformationId}
             AND pg.verify_status = 3
             AND pg.del_flag = 0
             AND pgs.del_flag = 0
@@ -259,6 +261,7 @@
         <if test="name!=null and name!=''">
             and name like concat('%', #{name}, '%')
         </if>
+        and store_id=#{storeId}
 
     </select>
     <select id="selectIds" resultType="com.chauncy.data.vo.BaseVo">
@@ -292,6 +295,55 @@
         <if test="t.brandName != null and t.brandName != ''">
             and c.name like concat('%', #{t.brandName} ,'%')
         </if>
+    </select>
+    <select id="storeRecommendGoods" resultType="com.chauncy.data.vo.supplier.good.RecommendGoodsVo">
+            SELECT pg.`id` as goodsId,
+                pg.`name`,
+                CONCAT(pgc1.`name`,'/',pgc2.`name`,'/',pgc3.`name`) AS categoryName,
+                '满减' AS goodsType,
+                MIN(pgs.sell_price) AS sell_price
+            FROM pm_goods pg LEFT JOIN pm_goods_sku pgs ON pg.id = pgs.goods_id,
+                pm_goods_category pgc3,
+                pm_goods_category pgc2,
+                pm_goods_category pgc1
+            <where>
+                pg.`store_id` = #{storeId}
+                AND pg.verify_status = 3
+                AND pg.`recommand_status` = 1
+                <if test="goodsCategoryId != null">
+                    AND pg.goods_category_id = #{goodsCategoryId}
+                </if>
+                AND pg.`goods_category_id` = pgc3.id
+                AND pgc3.`parent_id` = pgc2.`id`
+                AND pgc2.`parent_id` = pgc1.`id`
+                <if test="informationId != null and informationId != 0">
+                    AND pg.id NOT IN (
+                        SELECT mirg.goods_id
+                        FROM mm_information_rel_goods mirg
+                        WHERE mirg.information_id = #{informationId}
+                        AND mirg.del_flag = 0)
+                </if>
+                <if test="goodsName != null and goodsName != ''">
+                    AND pg.name like concat('%', #{goodsName} ,'%')
+                </if>
+            </where>
+            GROUP BY pg.id
+    </select>
+    <select id="searchTabNeedGoods" resultType="com.chauncy.data.vo.BaseVo">
+        select id,name
+        from pm_goods
+        where del_flag = 0
+        <if test="name!=null and name!=''">
+            and name like concat('%', #{name}, '%')
+        </if>
+    </select>
+    <select id="findGoodsBase" resultType="com.chauncy.data.vo.app.goods.SpecifiedGoodsVo">
+        select a.id as goods_id,a.name as goods_name,a.subtitle,a.carousel_image,a.is_free_postage,a.location as origin_place,a.sales_volume
+        b.default_freight,b.default_full_money,b.default_post_money,b.default_max_number,b.default_max_number_money,
+        b.default_addtional_freight,b.default_addtional_number
+        from pm_goods a,pm_shipping_template b
+        where a.shipping_template_id = b.id and a.id = #{goodsId}
+
     </select>
 
 

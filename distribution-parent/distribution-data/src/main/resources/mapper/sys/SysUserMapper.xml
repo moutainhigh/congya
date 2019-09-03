@@ -77,21 +77,26 @@
         select distinct a.id,avatar,mobile,email,nick_name,password,sex,status,type,username,a.create_time
         from sys_user a,sys_role_user b,sys_role c
         where a.id = b.user_id and c.id = b.role_id
-            <if test="mobile != null and mobile != ''">
-                and a.mobile like concat('%', #{mobile} ,'%')
+            <if test="m.mobile != null and m.mobile != ''">
+                and a.mobile like concat('%', #{m.mobile} ,'%')
             </if>
-            <if test="status != null">
-                and a.status = #{status}
+            <if test="m.status != null">
+                and a.status = #{m.status}
             </if>
-            <if test="type != null">
-                and a.type = #{type}
+            <if test="m.type != null">
+                and a.type = #{m.type}
             </if>
-            <if test="username != null and username != ''">
-                and a.username like concat('%', #{username} ,'%')
-
+            <if test="m.username != null and m.username != ''">
+                and a.username like concat('%', #{m.username} ,'%')
             </if>
-            <if test="roleName != null and roleName != ''">
-                and c.name like concat('%', #{roleName} ,'%')
+            <if test="m.roleName != null and m.roleName != ''">
+                and c.name like concat('%', #{rm.oleName} ,'%')
+            </if>
+            <if test="systemType != null and systemType != ''">
+                and a.system_type = #{systemType}
+            </if>
+            <if test="storeId != null and storeId != ''">
+                and a.store_id = #{storeId}
             </if>
     </select>
 

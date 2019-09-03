@@ -127,6 +127,8 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
         List<PmStoreRelGoodsStockPo> pmStoreRelGoodsStockPoList = new ArrayList<>();
         PmGoodsVirtualStockTemplatePo pmGoodsVirtualStockTemplatePo = pmGoodsVirtualStockTemplateMapper.selectById(pmStoreGoodsStockPo.getStockTemplateId());
         for(StoreRelGoodsStockBaseDto storeRelGoodsStockBaseDto : storeRelGoodsStockBaseDtoList) {
+            //获取来源批次的库存信息  如果是自有商品则为空
+            PmStoreRelGoodsStockPo parentStockPo = pmStoreRelGoodsStockService.getById(storeRelGoodsStockBaseDto.getParentId());
             PmGoodsSkuPo pmGoodsSkuPo = pmGoodsSkuMapper.selectById(storeRelGoodsStockBaseDto.getGoodsSkuId());
             //商品销售价
             BigDecimal sellPrice = pmGoodsSkuPo.getSellPrice();
@@ -144,10 +146,9 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
                 supplierPrice = pmGoodsSkuPo.getSupplierPrice();
             } else if(pmGoodsVirtualStockTemplatePo.getType().equals(StoreGoodsTypeEnum.DISTRIBUTION_GOODS.getId())) {
                 //分配商品 查询剩余库存 从PmStoreRelGoodsStockPo查找
-                PmStoreRelGoodsStockPo pmStoreRelGoodsStockPo = pmStoreRelGoodsStockService.getById(storeRelGoodsStockBaseDto.getParentId());
-                stockNum = pmStoreRelGoodsStockPo.getRemainingStockNum();
+                stockNum = parentStockPo.getRemainingStockNum();
                 //分配商品 原始供货价为分配库存的上级店铺分配对应库存批次的分配供货价
-                supplierPrice = pmStoreRelGoodsStockPo.getDistributePrice();
+                supplierPrice = parentStockPo.getDistributePrice();
             } else {
                 throw new ServiceException(ResultCode.FAIL, "操作失败");
             }
@@ -167,6 +168,8 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
                 pmStoreRelGoodsStockPo.setParentId(storeRelGoodsStockBaseDto.getParentId());
                 //分配商家的id
                 pmStoreRelGoodsStockPo.setStoreId(pmStoreGoodsStockPo.getDistributeStoreId());
+                //直属商家的id
+                pmStoreRelGoodsStockPo.setParentStoreId(pmStoreGoodsStockPo.getStoreId());
                 //需要判断供货价是否满足条件
                 pmStoreRelGoodsStockPo.setDistributePrice(storeRelGoodsStockBaseDto.getDistributePrice());
                 pmStoreRelGoodsStockPoList.add(pmStoreRelGoodsStockPo);
@@ -177,6 +180,11 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
                 if(result < 1) {
                     //没有更新两条数据
                     throw new ServiceException(ResultCode.PARAM_ERROR, "库存不足");
+                }
+                //被分配的批次修改剩余库存
+                if(pmGoodsVirtualStockTemplatePo.getType().equals(StoreGoodsTypeEnum.DISTRIBUTION_GOODS.getId())) {
+                    parentStockPo.setRemainingStockNum(parentStockPo.getRemainingStockNum() - storeRelGoodsStockBaseDto.getDistributeStockNum());
+                    pmStoreRelGoodsStockService.updateById(parentStockPo);
                 }
             } else {
                 throw new ServiceException(ResultCode.PARAM_ERROR, "库存不足");
@@ -192,7 +200,7 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
      * @param id 库存id
      * @return
      */
-    @Override
+    /*@Override
     public StoreGoodsStockVo findBranchStockById(Long id) {
         PmStoreGoodsStockPo pmStoreGoodsStockPo = pmStoreGoodsStockMapper.selectById(id);
         if(null == pmStoreGoodsStockPo) {
@@ -209,7 +217,7 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
         storeGoodsStockVo.setStockTemplateSkuInfoVoList(stockTemplateSkuInfoVoList);
 
         return storeGoodsStockVo;
-    }
+    }*/
 
 
     /**
@@ -227,7 +235,7 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
 
         //店铺库存基本信息
         StoreGoodsStockVo storeGoodsStockVo = new StoreGoodsStockVo();
-        storeGoodsStockVo = pmStoreGoodsStockMapper.findById(id, false);
+        storeGoodsStockVo = pmStoreGoodsStockMapper.findStockById(id);
 
         //店铺库存对应的分配库存详情
         List<StockTemplateSkuInfoVo> stockTemplateSkuInfoVoList = new ArrayList<>();
@@ -268,7 +276,7 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
             UpdateWrapper<PmStoreRelGoodsStockPo> updateWrapper = new UpdateWrapper<>();
             updateWrapper.lambda().set(PmStoreRelGoodsStockPo::getRemainingStockNum,
                     parentRelpo.getRemainingStockNum() + pmStoreRelGoodsStockPo.getDistributeStockNum());
-            pmStoreRelGoodsStockService.update(updateWrapper);
+            pmStoreRelGoodsStockService.update(parentRelpo, updateWrapper);
         }
         PmStoreGoodsStockPo pmStoreGoodsStockPo = pmStoreGoodsStockMapper.selectById(pmStoreRelGoodsStockPo.getStoreStockId());
         //用户对应的商品规格库存修改
@@ -317,6 +325,24 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
 
         PageInfo<StoreGoodsStockVo> informationLabelVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> pmStoreGoodsStockMapper.searchPagingStock(searchStoreGoodsStockDto));
+        return informationLabelVoPageInfo;
+    }
+
+
+    /**
+     * 总后台查询库存分配列表
+     * 根据库存名称，创建时间，直属商家，库存数量等查询
+     * @param searchStoreGoodsStockDto
+     * @return
+     */
+    @Override
+    public PageInfo<StoreGoodsStockVo> platformSearchPagingStock(SearchStoreGoodsStockDto searchStoreGoodsStockDto) {
+
+        Integer pageNo = searchStoreGoodsStockDto.getPageNo()==null ? defaultPageNo : searchStoreGoodsStockDto.getPageNo();
+        Integer pageSize = searchStoreGoodsStockDto.getPageSize()==null ? defaultPageSize : searchStoreGoodsStockDto.getPageSize();
+
+        PageInfo<StoreGoodsStockVo> informationLabelVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> pmStoreGoodsStockMapper.platformSearchPagingStock(searchStoreGoodsStockDto));
         return informationLabelVoPageInfo;
     }
 

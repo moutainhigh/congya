@@ -16,6 +16,7 @@ import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.manage.activity.gift.add.SaveGiftDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchBuyGiftRecordDto;
+import com.chauncy.data.dto.manage.activity.gift.select.SearchCouponDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchGiftDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchReceiveGiftRecordDto;
 import com.chauncy.data.mapper.activity.coupon.AmCouponMapper;
@@ -305,5 +306,22 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
 
         });
         return searchBuyGiftRecordVoPageInfo;
+    }
+
+    /**
+     *  分页查询优惠券
+     *
+     * @param searchCouponDto
+     * @return
+     */
+    @Override
+    public PageInfo<BaseVo> searchCoupon(SearchCouponDto searchCouponDto) {
+        Integer pageNo = searchCouponDto.getPageNo()==null ? defaultPageNo : searchCouponDto.getPageNo();
+        Integer pageSize = searchCouponDto.getPageSize()==null ? defaultPageSize : searchCouponDto.getPageSize();
+
+        PageInfo<BaseVo> couponVo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() ->couponMapper.findAllCoupon());
+
+        return couponVo;
     }
 }

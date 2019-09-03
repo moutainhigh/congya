@@ -9,14 +9,17 @@ import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
 import com.chauncy.data.dto.supplier.activity.select.SearchAssociatedGoodsDto;
 import com.chauncy.data.dto.supplier.good.select.SearchExcelDto;
 import com.chauncy.data.dto.supplier.good.select.SearchGoodInfosDto;
+import com.chauncy.data.dto.supplier.good.select.SearchRecommendGoodsDto;
 import com.chauncy.data.dto.supplier.store.update.SelectStockTemplateGoodsDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
+import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
 import com.chauncy.data.vo.supplier.activity.SearchAssociatedGoodsVo;
 import com.chauncy.data.vo.supplier.good.InformationRelGoodsVo;
 import com.chauncy.data.vo.supplier.PmGoodsVo;
 import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
+import com.chauncy.data.vo.supplier.good.RecommendGoodsVo;
 import com.chauncy.data.vo.supplier.good.stock.StockTemplateGoodsInfoVo;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -50,6 +53,12 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
     List<PmGoodsVo> searchGoodsInfo(SearchGoodInfosDto searchGoodInfosDto);
 
     /**
+     * 获取店铺推荐商品
+     * @param searchRecommendGoodsDto
+     */
+    List<RecommendGoodsVo> storeRecommendGoods(SearchRecommendGoodsDto searchRecommendGoodsDto);
+
+    /**
      *
      * 获取店铺下商品列表
      * 店铺id
@@ -64,10 +73,10 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
 
     /**
      * 根据资讯id获取关联的商品
-     * @param baseSearchDto
+     * @param mmInformationId
      * @return
      */
-    List<GoodsBaseInfoVo> searchGoodsByInfoId(BaseSearchDto baseSearchDto);
+    List<GoodsBaseInfoVo> searchGoodsByInfoId(@Param("mmInformationId") Long mmInformationId);
 
     /**
      * 查询导入商品信息
@@ -122,4 +131,15 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
      * @return
      */
     List<SearchAssociatedGoodsVo> searchAssociatedGoods(@Param("t") SearchAssociatedGoodsDto searchAssociatedGoodsDto, @Param("activityId") Long activityId, @Param("storeId")Long storeId,@Param("categoryIds")List<Long> categoryIds);
+
+    /**
+     * 条件分页查询需要被关联的商品(考虑数据量大，就不排除已经关联的了，直接查找全部的商品)
+     *
+     * @param name
+     * @return
+     */
+    List<BaseVo> searchTabNeedGoods(String name);
+
+    //获取商品基本信息：名称、标题、轮播图、发货地等信息
+    SpecifiedGoodsVo findGoodsBase(Long goodsId);
 }

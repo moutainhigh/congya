@@ -3,6 +3,7 @@ package com.chauncy.order.logistics.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.chauncy.common.constant.RabbitConstants;
 import com.chauncy.common.constant.logistics.LogisticsContantsConfig;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.common.enums.order.LogisticsStatusEnum;
@@ -10,12 +11,16 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.JSONUtils;
 import com.chauncy.common.util.ListUtil;
+import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.common.util.MD5Utils;
+import com.chauncy.common.util.rabbit.RabbitUtil;
 import com.chauncy.data.bo.app.logistics.*;
+import com.chauncy.data.bo.app.order.rabbit.RabbitOrderBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.area.AreaShopLogisticsPo;
 import com.chauncy.data.domain.po.order.OmOrderLogisticsPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
+import com.chauncy.data.domain.po.sys.BasicSettingPo;
 import com.chauncy.data.domain.po.user.UmAreaShippingPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.logistics.SynQueryLogisticsDto;
@@ -24,6 +29,7 @@ import com.chauncy.data.dto.app.order.logistics.TaskRequestDto;
 import com.chauncy.data.mapper.area.AreaShopLogisticsMapper;
 import com.chauncy.data.mapper.order.OmOrderLogisticsMapper;
 import com.chauncy.data.mapper.order.OmOrderMapper;
+import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.mapper.user.UmAreaShippingMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.app.order.logistics.FindLogicDetailVo;
@@ -35,6 +41,12 @@ import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONObject;
 import org.assertj.core.util.Lists;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +58,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -79,6 +93,13 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
 
     @Autowired
     private UmUserMapper userMapper;
+
+    @Autowired
+    private RabbitUtil rabbitUtil;
+
+    @Autowired
+    private BasicSettingMapper basicSettingMapper;
+
 
 //    /**
 //     * 实时订阅查询请求地址
@@ -331,7 +352,7 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
                 response.append(line);
             }
 
-            autoFindLogsticsBos = JSONUtils.toList(response.toString(),AutoFindLogsticsBo.class);
+            autoFindLogsticsBos = JSONUtils.toList(response.toString(), AutoFindLogsticsBo.class);
 
 //            autoFindLogsticsBos2 = JSONUtils.toJSONArray(response.toString());
 
@@ -350,11 +371,11 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
             }
         }
 
-        if (!ListUtil.isListNullAndEmpty(autoFindLogsticsBos)){
+        if (!ListUtil.isListNullAndEmpty(autoFindLogsticsBos)) {
             AutoFindLogsticsBo autoFindLogsticsBo = autoFindLogsticsBos.get(0);
             //公司编码
             logisticsCodeNumVo.setValue(autoFindLogsticsBo.getComCode());
-            String logicName = logisticsMapper.selectOne(new QueryWrapper<AreaShopLogisticsPo>().eq("logi_code",autoFindLogsticsBo.getComCode())).getLogiName();
+            String logicName = logisticsMapper.selectOne(new QueryWrapper<AreaShopLogisticsPo>().eq("logi_code", autoFindLogsticsBo.getComCode())).getLogiName();
             //公司名称
             logisticsCodeNumVo.setLabel(logicName.concat("(由快递100猜测,本结果仅供参考)"));
         }
@@ -503,14 +524,30 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
             //同步快递单号，修改订单状态为已发货
             OmOrderPo order = orderMapper.selectById(orderId);
             if (order != null) {
-                order.setStatus(OrderStatusEnum.NEED_RECEIVE_GOODS);
-                orderMapper.updateById(order);
+                OmOrderPo saveOrder = new OmOrderPo();
+                saveOrder.setId(order.getId()).setStatus(OrderStatusEnum.NEED_RECEIVE_GOODS)
+                        .setSendTime(LocalDateTime.now());
+                orderMapper.updateById(saveOrder);
             }
+
+            //获取系统基本设置
+            BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
+            //多久自动收货(毫秒)
+            String expiration=basicSettingPo.getAutoReceiveDay()*24*60*60*1000+"";
+
+            RabbitOrderBo rabbitOrderBo=new RabbitOrderBo();
+            rabbitOrderBo.setOrderId(orderId).setOrderStatusEnum(OrderStatusEnum.NEED_RECEIVE_GOODS);
+            //添加自动收货的消息队列
+            rabbitUtil.sendDelayMessage(5*60*1000+"",rabbitOrderBo);
+            LoggerUtil.info("【已发货等待自动收货消息发送时间】:" + LocalDateTime.now());
+
             log.info("订阅物流信息成功，订单号为:【{}】,物流单号为:【{}】", orderId, taskRequestDto.getNumber());
             return resp;
         }
         System.out.println(response.toString());
         return resp;
     }
+
+
 
 }

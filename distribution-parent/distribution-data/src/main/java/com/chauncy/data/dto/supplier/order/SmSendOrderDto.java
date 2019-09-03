@@ -1,7 +1,5 @@
 package com.chauncy.data.dto.supplier.order;
 
-import com.alibaba.fastjson.annotation.JSONField;
-import com.chauncy.common.enums.app.activity.type.ActivityTypeEnum;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -18,7 +16,7 @@ import java.time.LocalDateTime;
  **/
 
 @Data
-@ApiModel(description = "商家端搜索订单发货列表")
+@ApiModel(description = "商家端订单发货")
 @Accessors(chain = true)
 public class SmSendOrderDto {
 

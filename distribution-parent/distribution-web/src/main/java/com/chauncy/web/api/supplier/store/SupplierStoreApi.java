@@ -41,9 +41,9 @@ public class SupplierStoreApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "查询店铺基本信息", notes = "根据店铺ID获取店铺基本信息")
-    @ApiImplicitParam(name = "id", value = "店铺id", required = true, dataType = "Long", paramType = "path")
-    @GetMapping("/findBaseById/{id}")
-    public JsonViewData<StoreBaseInfoVo> findBaseById(@PathVariable(value = "id")Long id) {
+    @ApiImplicitParam(name = "id", value = "店铺id", dataType = "Long", paramType = "path")
+    @RequestMapping(value = {"/findBaseById/{id}", "/findBaseById"}, method = {RequestMethod.GET})
+    public JsonViewData<StoreBaseInfoVo> findBaseById(@PathVariable(required = false) Long id) {
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
                 smStoreService.findBaseById(id));
@@ -56,9 +56,9 @@ public class SupplierStoreApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "查询店铺账户信息", notes = "根据店铺ID获取店铺账户信息")
-    @ApiImplicitParam(name = "id", value = "店铺id", required = true, dataType = "Long", paramType = "path")
-    @GetMapping("/findAccountById/{id}")
-    public JsonViewData<StoreAccountInfoVo> findAccountById(@PathVariable(value = "id")Long id) {
+    @ApiImplicitParam(name = "id", value = "店铺id", dataType = "Long", paramType = "path")
+    @RequestMapping(value = {"/findAccountById/{id}", "/findAccountById"}, method = {RequestMethod.GET})
+    public JsonViewData<StoreAccountInfoVo> findAccountById(@PathVariable(value = "id", required = false)Long id) {
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
                 smStoreService.findAccountById(id));
@@ -72,8 +72,8 @@ public class SupplierStoreApi extends BaseApi {
      */
     @ApiOperation(value = "查询店铺运营信息", notes = "根据店铺ID获取店铺运营信息")
     @ApiImplicitParam(name = "id", value = "店铺id", required = true, dataType = "Long", paramType = "path")
-    @GetMapping("/findOperationalById/{id}")
-    public JsonViewData<StoreOperationalInfoVo> findOperationalById(@PathVariable(value = "id")Long id) {
+    @RequestMapping(value = {"/findOperationalById/{id}", "/findOperationalById"}, method = {RequestMethod.GET})
+    public JsonViewData<StoreOperationalInfoVo> findOperationalById(@PathVariable(value = "id", required = false)Long id) {
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
                 smStoreService.findOperationalById(id));

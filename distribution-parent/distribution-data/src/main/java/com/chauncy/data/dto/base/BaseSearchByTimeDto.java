@@ -2,6 +2,7 @@ package com.chauncy.data.dto.base;
 
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -29,5 +30,9 @@ public class BaseSearchByTimeDto extends BaseSearchDto implements Serializable {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @ApiModelProperty(value = "创建时间")
     private LocalDate endTime;
+
+    @JsonIgnore
+    @ApiModelProperty(value = "筛选店铺资讯")
+    private Long storeId;
 
 }

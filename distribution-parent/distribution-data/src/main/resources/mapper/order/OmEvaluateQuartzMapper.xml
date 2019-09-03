@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chauncy.data.mapper.order.OmEvaluateQuartzMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.order.OmEvaluateQuartzPo">
+        <id column="id" property="id" />
+        <result column="del_flag" property="delFlag" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="store_id" property="storeId" />
+        <result column="description_start_level" property="descriptionStartLevel" />
+        <result column="ship_start_level" property="shipStartLevel" />
+        <result column="attitude_start_level" property="attitudeStartLevel" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, del_flag, create_time, update_time, store_id, description_start_level, ship_start_level, attitude_start_level
+    </sql>
+    <select id="calculateEvaluate" resultType="com.chauncy.data.domain.po.order.OmEvaluateQuartzPo">
+        select a.store_id,ROUND(avg(d.description_start_level),2) as description_start_level,ROUND(AVG(d.ship_start_level),2) as ship_start_level,ROUND(AVG(d.attitude_start_level),2) as attitude_start_level
+        from pm_goods a,pm_goods_sku b,sm_store c,om_evaluate d
+        where a.del_flag=0 and b.del_flag =0 and c.del_flag	=0 and d.del_flag = 0
+        and a.id = b.goods_id and a.store_id = c.id and b.id = d.sku_id
+        group by a.store_id;
+    </select>
+
+</mapper>

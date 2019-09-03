@@ -34,7 +34,7 @@ public interface IPmStoreGoodsStockService extends Service<PmStoreGoodsStockPo> 
      * @param id
      * @return
      */
-    StoreGoodsStockVo findBranchStockById(Long id);
+    //StoreGoodsStockVo findBranchStockById(Long id);
 
     /**
      * 根据ID查找直属商家分配给店铺的库存信息
@@ -64,6 +64,14 @@ public interface IPmStoreGoodsStockService extends Service<PmStoreGoodsStockPo> 
      * @return
      */
     PageInfo<StoreGoodsStockVo> searchPagingStock(SearchStoreGoodsStockDto searchStoreGoodsStockDto);
+
+    /**
+     * 总后台查询库存分配列表
+     * 根据库存名称，创建时间，直属商家，库存数量等查询
+     * @param searchStoreGoodsStockDto
+     * @return
+     */
+    PageInfo<StoreGoodsStockVo> platformSearchPagingStock(SearchStoreGoodsStockDto searchStoreGoodsStockDto);
 
     /**
      * 店铺库存禁用启用

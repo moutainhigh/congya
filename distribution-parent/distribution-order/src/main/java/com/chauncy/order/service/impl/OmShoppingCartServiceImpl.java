@@ -13,6 +13,7 @@ import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.bo.manage.pay.PayUserMessage;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.order.OmEvaluateQuartzPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.order.OmShoppingCartPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
@@ -32,6 +33,7 @@ import com.chauncy.data.dto.app.car.SubmitOrderDto;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
 import com.chauncy.data.mapper.area.AreaRegionMapper;
+import com.chauncy.data.mapper.order.OmEvaluateQuartzMapper;
 import com.chauncy.data.mapper.order.OmShoppingCartMapper;
 import com.chauncy.data.mapper.pay.IPayOrderMapper;
 import com.chauncy.data.mapper.pay.PayUserRelationMapper;
@@ -43,8 +45,7 @@ import com.chauncy.data.mapper.user.UmAreaShippingMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.temp.order.service.IOmGoodsTempService;
 import com.chauncy.data.vo.app.car.*;
-import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
-import com.chauncy.data.vo.app.goods.SpecifiedSkuVo;
+import com.chauncy.data.vo.app.goods.*;
 import com.chauncy.data.vo.app.order.cart.CartVo;
 import com.chauncy.data.vo.app.order.cart.StoreGoodsVo;
 import com.chauncy.data.vo.supplier.GoodsStandardVo;
@@ -116,7 +117,16 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     private AreaRegionMapper areaRegionMapper;
 
     @Autowired
+    private PmNumberShippingMapper numberShippingMapper;
+
+    @Autowired
+    private PmShippingTemplateMapper shippingTemplateMapper;
+
+    @Autowired
     private PmMoneyShippingMapper moneyShippingMapper;
+
+    @Autowired
+    private PmGoodsRelAttributeGoodMapper relAttributeGoodMapper;
 
     @Autowired
     private IPayOrderMapper payOrderMapper;
@@ -126,6 +136,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     @Autowired
     private IOmOrderService omOrderService;
+
+    @Autowired
+    private OmEvaluateQuartzMapper evaluateQuartzMapper;
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
@@ -138,7 +151,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
 
     //需要进行实行认证且计算税率的商品类型
-    private final List<String> needRealGoodsType = Lists.newArrayList("BONDED", "OVERSEA");
+    private final List<String> needRealGoodsType = Lists.newArrayList("保税仓", "海外直邮");
 
     /**
      * 添加商品到购物车
@@ -267,20 +280,18 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
         TotalCarVo totalCarVo = new TotalCarVo();
 
-
-        //判断商品是否保税仓或者海外直邮，是则需要进行实名认证，且计算税率
+        //判断商品是否保税仓或者海外直邮，是则需要进行实名认证
         List<ShopTicketSoWithCarGoodVo> needRealSkuList = shopTicketSoWithCarGoodVos.stream().filter(x -> needRealGoodsType.contains(x.getGoodsType())).collect(Collectors.toList());
         if (!ListUtil.isListNullAndEmpty(needRealSkuList)) {
-            // TODO: 2019/7/14  实名认证
+            totalCarVo.setNeedCertification(true);
         }
-
-        //获取系统基本设置
+       //获取系统基本设置
         BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
 
-        //设置会员等级比例和购物券比例
+         //设置会员等级比例和购物券比例
         setPurchasePresentAndMoneyToShopTicket(shopTicketSoWithCarGoodVos, currentUser, basicSettingPo);
         //拆单后的信息包括红包 购物券 金额 优惠 运费等
-        List<StoreOrderVo> storeOrderVos = getBySkuIds(shopTicketSoWithCarGoodVos, currentUser, basicSettingPo, settleDto.getAreaShipId());
+        List<StoreOrderVo> storeOrderVos = getBySkuIds(shopTicketSoWithCarGoodVos, currentUser, settleDto.getAreaShipId());
 
         totalCarVo.setStoreOrderVos(storeOrderVos);
 
@@ -290,10 +301,6 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         ).reduce(BigDecimal.ZERO, BigDecimal::add);
         //总数量
         int totalNumber = settleAccountsDtos.stream().mapToInt(SettleAccountsDto::getNumber).sum();
-        //奖励购物券=所有订单的总和
-        BigDecimal totalRewardShopTicket = storeOrderVos.stream().map(x ->
-                x.getGoodsTypeOrderVos().stream().map(GoodsTypeOrderVo::getRewardShopTicket).reduce(BigDecimal.ZERO, BigDecimal::add)
-        ).reduce(BigDecimal.ZERO, BigDecimal::add);
         //总邮费=所有订单的总和
         BigDecimal totalShipMoney = storeOrderVos.stream().map(x ->
                 x.getGoodsTypeOrderVos().stream().map(y -> y.getShipMoney()).reduce(BigDecimal.ZERO, BigDecimal::add)
@@ -313,12 +320,11 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 x.getGoodsTypeOrderVos().stream().map(GoodsTypeOrderVo::getRealPayMoney).reduce(BigDecimal.ZERO, BigDecimal::add)
         ).reduce(BigDecimal.ZERO, BigDecimal::add);*/
 
-
-        totalCarVo.setTotalMoney(totalMoney).setTotalNumber(totalNumber).setTotalRewardShopTicket(totalRewardShopTicket);
-        //红包、购物券、总优惠
+        totalCarVo.setTotalMoney(totalMoney).setTotalNumber(totalNumber);
+        //红包、购物券、可抵扣金额
         setDiscount(totalCarVo, currentUser, basicSettingPo);
-        //合计优惠暂时=可抵扣金额   后期要加上积分和优惠券
-        totalCarVo.setTotalDiscount(totalCarVo.getTotalDeductionMoney()).setTotalShipMoney(totalShipMoney)
+        //合计优惠暂时=0
+        totalCarVo.setTotalShipMoney(totalShipMoney)
                 .setTotalTaxMoney(totalTaxMoney).setTotalRealPayMoney(totalCarVo.calculationRealPayMoney());
 
 
@@ -332,7 +338,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
      * @return
      */
     private List<StoreOrderVo> getBySkuIds(List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVo, UmUserPo currentUser,
-                                           BasicSettingPo basicSettingPo, Long areaShipId) {
+                                            Long areaShipId) {
 
         //加快sql查询，用代码对店铺和商品类型进行分组拆单
         Map<List, Map<String, List<ShopTicketSoWithCarGoodVo>>> map
@@ -360,10 +366,11 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVos = entry1.getValue();
                 GoodsTypeOrderVo goodsTypeOrderVo = new GoodsTypeOrderVo();
                 goodsTypeOrderVo.setGoodsType(entry1.getKey());
+                BigDecimal taxMoney = BigDecimal.ZERO;
                 //判断商品是否保税仓或者海外直邮，且计算税率
                 if (needRealGoodsType.contains(entry1.getKey())) {
                     //商品的税率=数量*销售价*百分比/100
-                    BigDecimal taxMoney = shopTicketSoWithCarGoodVos.stream().map(x -> BigDecimalUtil.safeMultiply(x.getNumber(),
+                     taxMoney = shopTicketSoWithCarGoodVos.stream().map(x -> BigDecimalUtil.safeMultiply(x.getNumber(),
                             BigDecimalUtil.safeMultiply(x.getSellPrice(), transfromDecimal(x.getCustomTaxRate())))).
                             reduce(BigDecimal.ZERO, BigDecimal::add);
                     goodsTypeOrderVo.setTaxMoney(taxMoney);
@@ -371,7 +378,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     goodsTypeOrderVo.setTaxMoney(BigDecimal.ZERO);
                 }
                 //计算邮费
-                BigDecimal shipMoney = shopTicketSoWithCarGoodVos.stream().map(x -> getShipMoney(x, areaShipId, currentUser)).reduce(BigDecimal.ZERO, BigDecimal::add);
+                BigDecimal shipMoney = getShipMoney(shopTicketSoWithCarGoodVos, areaShipId, currentUser);
                 goodsTypeOrderVo.setShipMoney(shipMoney);
                 //商品详细信息
                 goodsTypeOrderVo.setShopTicketSoWithCarGoodVos(shopTicketSoWithCarGoodVos);
@@ -380,10 +387,11 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 //商品总额=数量*单价
                 BigDecimal totalMoney = shopTicketSoWithCarGoodVos.stream().map(x -> BigDecimalUtil.safeMultiply(x.getNumber(), x.getSellPrice())).
                         reduce(BigDecimal.ZERO, BigDecimal::add);
-                //奖励购物券
+                totalMoney=BigDecimalUtil.safeAdd(totalMoney,shipMoney,taxMoney);
+               /* //奖励购物券
                 BigDecimal rewardShopTicket = shopTicketSoWithCarGoodVos.stream().map(x -> BigDecimalUtil.safeMultiply(x.getNumber(), x.getRewardShopTicket()))
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
-                goodsTypeOrderVo.setTotalMoney(totalMoney).setRewardShopTicket(rewardShopTicket);
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);*/
+                goodsTypeOrderVo.setTotalMoney(totalMoney);/*.setRewardShopTicket(rewardShopTicket)*/
                 /*//设置可用红包、购物券、可抵扣金额 需要用到：totalMoney shipMoney1 taxMoney1
                 setDiscount(goodsTypeOrderVo, currentUser, basicSettingPo);*/
                 /*//第一版本总优惠=红包+抵用券
@@ -398,7 +406,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     }
 
-    /**
+   /**
      * 设置会员等级比例和购物券比例
      *
      * @param shopTicketSoWithCarGoodVoList
@@ -457,9 +465,68 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     /**
      * 算出运费
      *
-     * @param shopTicketSoWithCarGoodVo
+     * @param shopTicketSoWithCarGoodVos
      * @return
      */
+    private BigDecimal getShipMoney(List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVos, Long areaShipId, UmUserPo currentUser) {
+
+        //收货城市
+        Long myCityId;
+        //地址为空，采用默认地址
+        if (areaShipId == null) {
+            QueryWrapper<UmAreaShippingPo> myAreaWrapper = new QueryWrapper();
+            myAreaWrapper.lambda().eq(UmAreaShippingPo::getUmUserId, currentUser.getId());
+            myAreaWrapper.lambda().eq(UmAreaShippingPo::getIsDefault, true);
+            UmAreaShippingPo umAreaShippingPo = umAreaShippingMapper.selectOne(myAreaWrapper);
+            //如果用户没有设置默认地址
+            if (umAreaShippingPo == null) {
+                return BigDecimal.ZERO;
+            } else {
+                areaShipId = umAreaShippingPo.getId();
+            }
+        }
+        //收货城市
+        myCityId = umAreaShippingMapper.getCityId(areaShipId);
+        //找出非免邮的sku
+        List<ShopTicketSoWithCarGoodVo> needShipMoneys=shopTicketSoWithCarGoodVos.stream().filter(x->!x.getIsFreePostage())
+                .collect(Collectors.toList());
+        //按照运费模板分组
+        Map<Long, List<ShopTicketSoWithCarGoodVo>> map = needShipMoneys.stream().
+                collect(Collectors.groupingBy(ShopTicketSoWithCarGoodVo::getShippingTemplateId));
+        //订单总运费
+        BigDecimal shipMoney=BigDecimal.ZERO;
+        for (Map.Entry<Long, List<ShopTicketSoWithCarGoodVo>> entry : map.entrySet())
+        {
+            Long shipTemplateId=entry.getKey();
+            List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVoList=entry.getValue();
+            //运费模板对应的运费信息
+            List<MoneyShipBo> moneyShipBos = moneyShippingMapper.loadByTemplateId(shipTemplateId);
+
+            //匹配是否在指定地区内
+            MoneyShipBo moneyShipBo = moneyShipBos.stream().filter(x -> myCityId.equals(x.getDestinationId())).
+                    findFirst().orElse(null);
+            //采用默认运费
+            if (moneyShipBo == null) {
+                shipMoney=BigDecimalUtil.safeAdd( getShipByMoney(shopTicketSoWithCarGoodVoList, moneyShipBos.get(0).getDefaultFullMoney()
+                        , moneyShipBos.get(0).getDefaultPostMoney(), moneyShipBos.get(0).getDefaultFreight()),shipMoney);
+            }
+            //采用指定运费
+            else {
+                shipMoney=BigDecimalUtil.safeAdd(shipMoney, getShipByMoney(shopTicketSoWithCarGoodVoList, moneyShipBo.getDestinationFullMoney()
+                        , moneyShipBo.getDestinationPostMoney(), moneyShipBo.getDestinationBasisFreight())
+                );
+            }
+
+        }
+        return shipMoney;
+    }
+
+  /*  *//**
+     * 算出运费
+     *
+     * @param shopTicketSoWithCarGoodVo
+     * @return
+     *//*
     private BigDecimal getShipMoney(ShopTicketSoWithCarGoodVo shopTicketSoWithCarGoodVo, Long areaShipId, UmUserPo currentUser) {
         //如果该商品包邮
         if (shopTicketSoWithCarGoodVo.getIsFreePostage()) {
@@ -477,13 +544,13 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             if (umAreaShippingPo == null) {
                 return BigDecimal.ZERO;
             } else {
-                areaShipId = umAreaShippingPo.getAreaId();
+                areaShipId = umAreaShippingPo.getId();
             }
         }
         //收货城市
-        myCityId = areaRegionMapper.selectById(areaShipId).getCityId();
+        myCityId = umAreaShippingMapper.getCityId(areaShipId);
         //sku对应的运费信息
-        List<MoneyShipBo> moneyShipBos = moneyShippingMapper.loadBySkuId(shopTicketSoWithCarGoodVo.getShippingTemplateId());
+        List<MoneyShipBo> moneyShipBos = moneyShippingMapper.loadByTemplateId(shopTicketSoWithCarGoodVo.getShippingTemplateId());
         //匹配是否在指定地区内
         MoneyShipBo moneyShipBo = moneyShipBos.stream().filter(x -> myCityId.equals(x.getDestinationId())).
                 findFirst().orElse(null);
@@ -501,7 +568,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             );
         }
 
-    }
+    }*/
 
     /**
      * @param fullMoney    满金额条件
@@ -509,15 +576,16 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
      * @param basisFreight 基础运费
      * @return
      */
-    private BigDecimal getShipByMoney(ShopTicketSoWithCarGoodVo carGoodVo, BigDecimal fullMoney,
+    private BigDecimal getShipByMoney(List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVos, BigDecimal fullMoney,
                                       BigDecimal postMoney, BigDecimal basisFreight) {
-        //这个商品买了多少钱=售价*数量
-        BigDecimal price = BigDecimalUtil.safeMultiply(carGoodVo.getSellPrice(), carGoodVo.getNumber());
+        //同个模板下所有商品的总价
+        BigDecimal price = shopTicketSoWithCarGoodVos.stream().map(x->BigDecimalUtil.safeMultiply(x.getNumber(),x.getSellPrice()))
+                .reduce(BigDecimal.ZERO,BigDecimal::add);
         //满足金额优惠条件
         if (price.compareTo(fullMoney) >= 0) {
             return postMoney;
         } else {
-            return BigDecimalUtil.safeMultiply(carGoodVo.getNumber(), basisFreight);
+            return BigDecimalUtil.safeMultiply(shopTicketSoWithCarGoodVos.stream().mapToInt(ShopTicketSoWithCarGoodVo::getNumber).sum(), basisFreight);
         }
 
 
@@ -551,6 +619,76 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         if (goodsPo == null) {
             throw new ServiceException(ResultCode.NO_EXISTS, "数据库不存在该商品！");
         }
+        /**获取商品基本信息：名称、标题、轮播图、发货地等信息*/
+        specifiedGoodsVo = goodsMapper.findGoodsBase(goodsId);
+        /**获取商品详情显示的价格区间*/
+        BigDecimal lowestSellPrice = skuMapper.getLowestPrice(goodsId);
+        BigDecimal highestSellPrice = skuMapper.getHighestPrice(goodsId);
+        String sellPrice = "";
+        if (lowestSellPrice.equals(highestSellPrice)) {
+            sellPrice = lowestSellPrice.toString();
+        } else {
+            sellPrice = lowestSellPrice.toString() + "~" + highestSellPrice;
+        }
+        specifiedGoodsVo.setDisplayPrice(sellPrice);
+        /**运费详情*/
+        ShipFreightInfoVo shipFreightInfoVo = shippingTemplateMapper.findByGoodsId(goodsId);
+        if (shipFreightInfoVo.getCalculateWay() == 1){
+            //按金额计算的运费详情
+            List<MoneyShippingVo> moneyShippingVos = moneyShippingMapper.findByTemplateId(shipFreightInfoVo.getTemplateId());
+            shipFreightInfoVo.setMoneyShippingVos(moneyShippingVos);
+
+        }
+        else {
+            //按件数计算运费详情
+            List<NumberShippingVo> numberShippingVos = numberShippingMapper.findByTemplateId(shipFreightInfoVo.getTemplateId());
+            shipFreightInfoVo.setNumberShippingVos(numberShippingVos);
+        }
+
+        specifiedGoodsVo.setShipFreightInfoVo(shipFreightInfoVo);
+
+        /**活动列表*/
+        //待做
+
+        /**服务列表*/
+        List<AttributeVo> services = relAttributeGoodMapper.findServices(goodsId);
+        specifiedGoodsVo.setServiceList(services);
+
+        /**参数*/
+        List<AttributeVo> paramList = relAttributeGoodMapper.findParam(goodsId);
+        specifiedGoodsVo.setParamList(paramList);
+
+        /**店铺信息*/
+        Long storeId = goodsMapper.selectById(goodsId).getStoreId();
+
+        //获取店铺详情
+        SmStorePo storePo = storeMapper.selectById(storeId);
+
+        StoreVo storeVo = new StoreVo();
+
+        //获取定时任务刷新的表的数据
+        OmEvaluateQuartzPo evaluateQuartzPo = evaluateQuartzMapper.selectOne(new QueryWrapper<OmEvaluateQuartzPo>()
+                .lambda().eq(OmEvaluateQuartzPo::getStoreId,storeId));
+
+        if (evaluateQuartzPo == null){
+            storeVo.setBabyDescription(new BigDecimal(0))
+                    .setLogisticsServices(new BigDecimal(0))
+                    .setSellerService(new BigDecimal(0))
+                    .setStoreId(storeId)
+                    .setStoreIcon(storePo.getStoreImage())
+                    .setStoreName(storePo.getName());
+        }else {
+            storeVo.setBabyDescription(evaluateQuartzPo.getDescriptionStartLevel())
+                .setLogisticsServices(evaluateQuartzPo.getShipStartLevel())
+                .setSellerService(evaluateQuartzPo.getAttitudeStartLevel())
+                .setStoreId(storeId)
+                .setStoreIcon(storePo.getStoreImage())
+                .setStoreName(storePo.getName());
+        }
+        specifiedGoodsVo.setStoreVo(storeVo);
+
+
+
 
         /**获取商品下的所有规格信息*/
         //获取对应的分类ID
@@ -590,6 +728,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         }
         Map<String, SpecifiedSkuVo> skuDetail = Maps.newHashMap();
         //循环获取sku信息
+        SpecifiedGoodsVo finalSpecifiedGoodsVo = specifiedGoodsVo;
         goodsSkuPos.forEach(b -> {
             SpecifiedSkuVo specifiedSkuVo = new SpecifiedSkuVo();
             specifiedSkuVo.setHoldQuantity(goodsPo.getPurchaseLimit());
@@ -617,18 +756,29 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 relIds.append(attributeId).append(":").append(attributeValueId).append(";");
             });
             skuDetail.put(String.valueOf(relIds), specifiedSkuVo);
-            specifiedGoodsVo.setSkuDetail(skuDetail);
+            finalSpecifiedGoodsVo.setSkuDetail(skuDetail);
         });
+
         return specifiedGoodsVo;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long submitOrder(SubmitOrderDto submitOrderDto, UmUserPo currentUser) {
-        //检查库存,并把所有商品抽出来
+        //检查库存,设置一些需要计算购物券的值，并把所有商品抽出来
         List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVoList = checkStock(submitOrderDto);
+        //判断商品是否保税仓或者海外直邮，是则需要进行实名认证
+        List<ShopTicketSoWithCarGoodVo> needRealSkuList = shopTicketSoWithCarGoodVoList.stream().filter(x -> needRealGoodsType.contains(x.getGoodsType())).collect(Collectors.toList());
+        if (!ListUtil.isListNullAndEmpty(needRealSkuList)) {
+            if (submitOrderDto.getRealUserId()==null){
+                throw new ServiceException(ResultCode.PARAM_ERROR,"请先进行实名认证！");
+            }
+        }
         //获取系统基本参数
         BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
+        //设置会员等级比例和购物券比例
+        setPurchasePresentAndMoneyToShopTicket(shopTicketSoWithCarGoodVoList, currentUser, basicSettingPo);
+
         //红包金额换算成红包个数
         BigDecimal totalRedEnvelops = BigDecimalUtil.safeMultiply(submitOrderDto.getTotalRedEnvelopsMoney(), basicSettingPo.getMoneyToCurrentRedEnvelops());
         //优惠券金额换算成优惠券个数
@@ -641,23 +791,22 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         List<OmOrderPo> saveOrders = Lists.newArrayList();
         //总支付单
         PayOrderPo savePayOrderPo = new PayOrderPo();
-        //复制商品总额、预计奖励购物券、使用购物券、使用红包、运费、税费
+        //复制商品总额、使用购物券、使用红包、运费、税费
         //实际付款、总优惠
         BeanUtils.copyProperties(submitOrderDto, savePayOrderPo);
         //如果不使用葱鸭钱包
         if (!submitOrderDto.getIsUseWallet()) {
             submitOrderDto.setTotalRedEnvelopsMoney(BigDecimal.ZERO);
             submitOrderDto.setTotalShopTicketMoney(BigDecimal.ZERO);
-            submitOrderDto.setTotalDiscount(BigDecimal.ZERO);
             submitOrderDto.setTotalRealPayMoney(BigDecimalUtil.safeAdd(submitOrderDto.getTotalMoney()
                     , submitOrderDto.getTotalShipMoney(), submitOrderDto.getTotalTaxMoney()
             ));
-
         }
         UmAreaShippingPo umAreaShippingPo = umAreaShippingMapper.selectById(submitOrderDto.getUmAreaShipId());
         savePayOrderPo.setShipName(umAreaShippingPo.getShipName()).setPhone(umAreaShippingPo.getMobile())
                 .setShipAddress(umAreaShippingPo.getDetailedAddress()).setTotalRedEnvelops(totalRedEnvelops)
-                .setTotalShopTicket(totalShopTicket).setUmUserId(currentUser.getId()).setAreaName(umAreaShippingPo.getAreaName());
+                .setTotalShopTicket(totalShopTicket).setUmUserId(currentUser.getId()).setAreaName(umAreaShippingPo.getAreaName())
+        .setTotalDiscount(BigDecimal.ZERO);
         //生成支付单
         payOrderMapper.insert(savePayOrderPo);
 
@@ -670,21 +819,31 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             //店铺id
             QueryWrapper<SmStorePo> storeWrapper = new QueryWrapper();
             storeWrapper.lambda().eq(SmStorePo::getName, x.getStoreName());
-            Long storeId = storeMapper.selectOne(storeWrapper).getId();
+            SmStorePo queryStore = storeMapper.selectOne(storeWrapper);
+            Long storeId = queryStore.getId();
             //循环遍历店铺下的订单
             x.getGoodsTypeOrderVos().forEach(y -> {
                 //生成订单
                 OmOrderPo saveOrder = new OmOrderPo();
+                if (submitOrderDto.getRealUserId()!=null){
+                    saveOrder.setRealUserId(submitOrderDto.getRealUserId());
+                }
                 BeanUtils.copyProperties(y, saveOrder);
                 saveOrder.setUmUserId(currentUser.getId()).setAreaShippingId(submitOrderDto.getUmAreaShipId())
                         .setStoreId(storeId).setPayOrderId(savePayOrderPo.getId()).setCreateBy(currentUser.getPhone())
                         .setId(SnowFlakeUtil.getFlowIdInstance().nextId());
-                //设置一些优惠信息
+                //设置一些优惠信息：红包、购物券
                 setDiscountMessage(saveOrder, savePayOrderPo);
                 //设置用户所属店铺
-                saveOrder.setUserStoreId(userStoreId);
+                saveOrder.setUserStoreId(userStoreId).setIncomeRate(queryStore.getIncomeRate());
                 saveOrders.add(saveOrder);
 
+                //订单商品总金额
+                BigDecimal goodsMoney=BigDecimalUtil.safeSubtract(saveOrder.getTotalMoney(),saveOrder.getTaxMoney(),
+                        saveOrder.getShipMoney());
+
+                //订单实付总金额
+                BigDecimal realPayMoney=BigDecimalUtil.safeSubtract(goodsMoney,saveOrder.getRedEnvelopsMoney(),saveOrder.getShopTicketMoney());
                 //生成商品快照
                 y.getShopTicketSoWithCarGoodVos().forEach(g -> {
                     PmGoodsSkuPo skuPo = skuMapper.selectById(g.getId());
@@ -692,7 +851,18 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     BeanUtils.copyProperties(g, saveGoodsTemp);
                     saveGoodsTemp.setCreateBy(currentUser.getPhone()).setOrderId(saveOrder.getId()).setSkuId(g.getId());
                     saveGoodsTemp.setId(null).setSupplierPrice(skuPo.getSupplierPrice()).setProfitRate(skuPo.getProfitRate())
-                            .setGoodsId(skuPo.getGoodsId()).setArticleNumber(skuPo.getArticleNumber());
+                            .setGoodsId(skuPo.getGoodsId()).setArticleNumber(skuPo.getArticleNumber()).
+                            //预计奖励购物券
+                            setRewardShopTicket(g.getRewardShopTicket())
+                            //预计奖励经验值
+                    .setRewardExperience(BigDecimalUtil.safeMultiply(basicSettingPo.getMoneyToExperience(),g.getSellPrice()))
+                            //预计奖励积分
+                    .setRewardIntegrate(BigDecimalUtil.safeMultiply(basicSettingPo.getMoneyToIntegrate(),g.getSellPrice()))
+                    ;
+                    //商品价格占订单的比率
+                    BigDecimal ratio=BigDecimalUtil.safeDivide(BigDecimalUtil.safeMultiply(saveGoodsTemp.getSellPrice(),saveGoodsTemp.getNumber()),
+                            goodsMoney);
+                    saveGoodsTemp.setRealPayMoney(BigDecimalUtil.safeMultiply(ratio,realPayMoney));
                     saveGoodsTemps.add(saveGoodsTemp);
 
                 });
@@ -710,20 +880,37 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 totalShopTicket
                 , currentUser.getId()
         );
+        //减去购物车
+        delShopCatAfterOrder(shopTicketSoWithCarGoodVoList,currentUser.getId());
         //保存返佣用户信息
         PayUserRelationPo savePayUser = getPayUserMessage(currentUser.getId());
-        savePayUser.setCreateBy(currentUser.getPhone()).setPayId(savePayOrderPo.getId());
-        payUserRelationMapper.insert(savePayUser);
+        if (savePayUser!=null){
+            savePayUser.setCreateBy(currentUser.getPhone()).setPayId(savePayOrderPo.getId());
+            payUserRelationMapper.insert(savePayUser);
+        }
 
         // 添加延时队列
-        this.rabbitTemplate.convertAndSend(RabbitConstants.REGISTER_DELAY_EXCHANGE, RabbitConstants.DELAY_ROUTING_KEY, savePayOrderPo.getId(), message -> {
+        this.rabbitTemplate.convertAndSend(RabbitConstants.ORDER_UNPAID_DELAY_EXCHANGE, RabbitConstants.DELAY_ROUTING_KEY, savePayOrderPo.getId(), message -> {
             // TODO 如果配置了 params.put("x-message-ttl", 5 * 1000); 那么这一句也可以省略,具体根据业务需要是声明 Queue 的时候就指定好延迟时间还是在发送自己控制时间
-            message.getMessageProperties().setExpiration(30 * 60 * 1000 + "");
+
+            message.getMessageProperties().setExpiration(basicSettingPo.getAutoCloseOrderDay()*24*60*60*1000 + "");
             return message;
         });
-        LoggerUtil.info("【发送时间】:" + LocalDateTime.now());
+        LoggerUtil.info("【下单等待取消订单发送时间】:" + LocalDateTime.now());
 
         return savePayOrderPo.getId();
+    }
+
+    /**
+     * 下单后减去购物车对应的sku
+     * @param shopTicketSoWithCarGoodVos
+     * @param userId
+     */
+    private void delShopCatAfterOrder(List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVos,Long userId){
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.in("sku_id",shopTicketSoWithCarGoodVos.stream().map(x->x.getId()).collect(Collectors.toList()));
+        queryWrapper.eq("user_id",userId);
+        mapper.delete(queryWrapper);
     }
 
     /**
@@ -777,13 +964,10 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     secondLevel= (PayUserMessage) payUserMessages.get(i).clone();
                 }
             }
-
             savePayUser.setFirstUserId(firstLevel.getUserId());
             if (!secondLevel.getLevel().equals(0)){
                 savePayUser.setSecondUserId(secondLevel.getUserId());
             }
-
-
         }
         return savePayUser;
 
@@ -843,6 +1027,11 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         if (!ListUtil.isListNullAndEmpty(outOfStockVos)) {
             throw new ServiceException(ResultCode.NSUFFICIENT_INVENTORY, "某些商品库存不足", outOfStockVos);
         }
+        //查出sku的相关属性，然后算出预返购物券
+        shopTicketSoWithCarGoodVoList.forEach(x->{
+            ShopTicketSoWithCarGoodVo tempById = mapper.getTempById(x.getId());
+            BeanUtils.copyProperties(tempById,x,"number");
+        });
         return shopTicketSoWithCarGoodVoList;
     }
 }

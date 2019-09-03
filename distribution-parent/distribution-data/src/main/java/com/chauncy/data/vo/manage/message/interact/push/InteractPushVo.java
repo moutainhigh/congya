@@ -1,5 +1,6 @@
 package com.chauncy.data.vo.manage.message.interact.push;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -29,7 +30,7 @@ public class InteractPushVo {
     @ApiModelProperty(value = "推送时间")
     private LocalDateTime createTime;
 
-    @ApiModelProperty(value = "推送方式 1、通知栏推送 2、app内消息中心推送")
+    @ApiModelProperty(value = "推送方式 1、通知栏推送 2、APP内消息中心推送")
     private String pushType;
 
     @ApiModelProperty(value = "消息标题")
@@ -38,7 +39,8 @@ public class InteractPushVo {
     @ApiModelProperty(value = "图文详情")
     private String detailHtml;
 
-    @ApiModelProperty(value = "列表显示推送对象类型 1、全部用户 2、指定用户 3、指定会员等级")
+    @ApiModelProperty(value = "列表显示推送对象类型 1、全部用户 2、指定用户 3、指定会员等级",hidden = true)
+    @JSONField(serialize = false)
     private String objectType;
 
     @ApiModelProperty(value = "指定用户列表")

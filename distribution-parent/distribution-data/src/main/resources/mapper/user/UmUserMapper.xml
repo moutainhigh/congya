@@ -5,7 +5,6 @@
     <!-- 通用查询映射结果 -->
     <update id="updateUmUser">
         update um_user set
-
         <if test="t.memberLevelId!=0">
             member_level_id=#{t.memberLevelId},
         </if>
@@ -14,12 +13,12 @@
         </if>
         store_id=#{t.storeId},
         commission_status=#{t.commissionStatus},
-        current_red_envelops=current_red_envelops+#{t.currentRedEnvelops},
-        current_integral=current_integral+#{t.currentIntegral},
-        current_shop_ticket=current_shop_ticket+#{t.currentShopTicket},
-        total_red_envelops=total_red_envelops+#{t.currentRedEnvelops},
-        total_integral=total_integral+#{t.currentIntegral},
-        total_shop_ticket=total_shop_ticket+#{t.currentShopTicket},
+        current_red_envelops=#{t.currentRedEnvelops},
+        current_integral=#{t.currentIntegral},
+        current_shop_ticket=#{t.currentShopTicket},
+        total_red_envelops=#{t.totalAddRedEnvelops},
+        total_integral=#{t.totalAddIntegral},
+        total_shop_ticket=#{t.totalAddShopTicket},
         update_by=#{currentUserName}
         where id=#{t.id}
     </update>
@@ -213,7 +212,7 @@
     </select>
 
     <select id="loadSearchUsers" resultType="com.chauncy.data.vo.manage.message.interact.push.UmUsersVo">
-        SELECT
+        <!-- SELECT
         u.id,
         u.phone,
         u.true_name,
@@ -243,6 +242,24 @@
         </if>
         <if test="storeName!=null and storeName!=''">
             AND s.NAME LIKE concat('%', #{storeName}, '%')
+        </if>-->
+        SELECT
+        u.id,
+        u.phone,
+        u.true_name,
+        u.name
+        FROM
+        um_user u
+        WHERE
+        u.del_flag = 0 and u.enabled = 1
+        <if test="id!=null and id!=0">
+            AND u.id = #{id}
+        </if>
+        <if test="phone!=null and phone!=''">
+            AND u.phone LIKE concat('%', #{phone}, '%')
+        </if>
+        <if test="trueName!=null and trueName!=''">
+            AND u.true_name LIKE concat('%', #{trueName}, '%')
         </if>
     </select>
 
@@ -271,9 +288,7 @@
         SELECT store_id FROM childrenIds where store_id is not null limit 1
     </select>
     <select id="getPayUserMessage" resultType="com.chauncy.data.bo.manage.pay.PayUserMessage">
-
-
-					WITH RECURSIVE temp (id,level,parent_id) AS
+				WITH RECURSIVE temp (id,level,parent_id) AS
                 (
                 SELECT u.id,m.level,u.parent_id
                 FROM um_user u,pm_member_level m

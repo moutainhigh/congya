@@ -1,5 +1,6 @@
 package com.chauncy.data.vo.manage.order.bill;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.chauncy.data.vo.manage.store.RelStoreInfoVo;
 import com.chauncy.data.vo.manage.store.rel.StoreBankCardVo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -29,7 +30,7 @@ public class BillDetailVo  implements Serializable {
     private RelStoreInfoVo relStoreInfoVo;
 
     @ApiModelProperty(value = "年")
-    private String year;
+    private Integer year;
 
     @ApiModelProperty(value = "期数")
     private String monthDay;
@@ -72,17 +73,20 @@ public class BillDetailVo  implements Serializable {
 
     @ApiModelProperty(value = "创建时间")
     @JsonIgnore
+    @JSONField(serialize=false)
     private LocalDateTime createTime;
 
     @ApiModelProperty(value = "处理时间")
     @JsonIgnore
+    @JSONField(serialize=false)
     private LocalDateTime processingTime;
 
     @ApiModelProperty(value = "结算时间")
     @JsonIgnore
+    @JSONField(serialize=false)
     private LocalDateTime settlementTime;
 
-    @ApiModelProperty(value = "商品信息")
-    private List<BillRelGoodsTempVo> billRelGoodsTempVoList;
+    /*@ApiModelProperty(value = "商品信息")
+    private List<BillRelGoodsTempVo> billRelGoodsTempVoList;*/
 
 }

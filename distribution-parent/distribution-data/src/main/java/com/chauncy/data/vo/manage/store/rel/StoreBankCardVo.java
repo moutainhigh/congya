@@ -11,7 +11,7 @@ import java.io.Serializable;
  * @since 2019/7/23 11:50
  */
 @Data
-@ApiModel(value = "店铺银行卡信息")
+@ApiModel(description = "店铺银行卡信息", value = "StoreBankCardVo")
 public class StoreBankCardVo  implements Serializable {
 
     private static final long serialVersionUID = 1L;

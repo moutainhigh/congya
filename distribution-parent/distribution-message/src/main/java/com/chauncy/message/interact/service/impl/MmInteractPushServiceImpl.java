@@ -216,7 +216,11 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
                 case SPECIFYUSER:
                     QueryWrapper<MmInteractRelMessageObjectPo> query1 = new QueryWrapper<>();
                     query1.eq("push_id",a.getId());
-                    List<Long> userIds = relMessageObjectMapper.selectList(query1).stream().map(d->d.getObjectId()).collect(Collectors.toList());
+                    List<MmInteractRelMessageObjectPo> relMessageObjectPos = relMessageObjectMapper.selectList(query1);
+                    if (ListUtil.isListNullAndEmpty(relMessageObjectPos)){
+                        break;
+                    }
+                    List<Long> userIds = relMessageObjectPos.stream().map(d->d.getObjectId()).collect(Collectors.toList());
                     List<UmUsersVo> usersVos = userMapper.getUsersByIds(userIds);
                     a.setUserList(usersVos);
                     a.setSpecifiedObject(pushObject.getName());
@@ -224,7 +228,11 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
                 case SPECIFYMEMBERLEVEL:
                     QueryWrapper<MmInteractRelMessageObjectPo> query = new QueryWrapper<>();
                     query.eq("push_id",a.getId());
-                    Long memberLevelId = relMessageObjectMapper.selectOne(query).getId();
+                    MmInteractRelMessageObjectPo relMessageObjectPos1 = relMessageObjectMapper.selectOne(query);
+                    if (relMessageObjectPos1 == null){
+                        break;
+                    }
+                    Long memberLevelId = relMessageObjectPos1.getObjectId();
                     a.setMemberLevelId(memberLevelId);
                     String memberName = memberLevelMapper.selectById(memberLevelId).getLevelName();
                     a.setSpecifiedObject(memberName);
@@ -252,7 +260,9 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
             Map<String,Object> query = Maps.newHashMap();
             query.put("push_id",a);
             List<Long> relIds = relMessageObjectMapper.selectByMap(query).stream().map(b->b.getId()).collect(Collectors.toList());
-            relMessageObjectMapper.deleteBatchIds(relIds);
+            if (!ListUtil.isListNullAndEmpty(relIds)) {
+                relMessageObjectMapper.deleteBatchIds(relIds);
+            }
             mapper.deleteById(a);
         });
 

@@ -3,9 +3,8 @@ package com.chauncy.store.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.constant.SecurityConstant;
-import com.chauncy.common.enums.app.sort.SortFileEnum;
-import com.chauncy.common.enums.app.sort.SortWayEnum;
 import com.chauncy.common.enums.goods.GoodsCategoryLevelEnum;
+import com.chauncy.common.enums.store.StoreRelationEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.enums.system.SysRoleTypeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
@@ -14,11 +13,11 @@ import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.store.rel.SmRelStoreAttributePo;
 import com.chauncy.data.domain.po.store.rel.SmRelUserFocusStorePo;
+import com.chauncy.data.domain.po.store.rel.SmStoreRelLabelPo;
 import com.chauncy.data.domain.po.store.rel.SmStoreRelStorePo;
 import com.chauncy.data.domain.po.sys.SysRolePo;
 import com.chauncy.data.domain.po.sys.SysRoleUserPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
-import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
 import com.chauncy.data.dto.app.store.FindStoreCategoryDto;
 import com.chauncy.data.dto.app.store.SearchStoreDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
@@ -28,18 +27,16 @@ import com.chauncy.data.dto.manage.store.add.StoreRelStoreDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchByConditionDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.dto.supplier.store.update.StoreBusinessLicenseDto;
-import com.chauncy.data.mapper.product.PmGoodsAttributeMapper;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.store.rel.SmRelStoreAttributeMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.store.rel.SmRelUserFocusStoreMapper;
+import com.chauncy.data.mapper.store.rel.SmStoreRelLabelMapper;
 import com.chauncy.data.mapper.store.rel.SmStoreRelStoreMapper;
 import com.chauncy.data.mapper.sys.SysRoleMapper;
 import com.chauncy.data.mapper.sys.SysRoleUserMapper;
 import com.chauncy.data.mapper.sys.SysUserMapper;
 import com.chauncy.data.vo.JsonViewData;
-import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
-import com.chauncy.data.vo.app.message.information.InformationPagingVo;
 import com.chauncy.data.vo.app.store.StoreDetailVo;
 import com.chauncy.data.vo.app.store.StorePagingVo;
 import com.chauncy.data.vo.manage.product.SearchCategoryVo;
@@ -47,6 +44,7 @@ import com.chauncy.data.vo.manage.store.*;
 import com.chauncy.data.vo.supplier.store.BranchInfoVo;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.store.rel.service.ISmRelStoreAttributeService;
+import com.chauncy.store.rel.service.ISmStoreRelLabelService;
 import com.chauncy.store.rel.service.ISmStoreRelStoreService;
 import com.chauncy.store.service.ISmStoreService;
 import com.github.pagehelper.PageHelper;
@@ -87,6 +85,10 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
     private SysRoleUserMapper sysRoleUserMapper;
     @Autowired
     private SmRelStoreAttributeMapper smRelStoreAttributeMapper;
+    @Autowired
+    private ISmStoreRelLabelService smStoreRelLabelService;
+    @Autowired
+    private SmStoreRelLabelMapper smStoreRelLabelMapper;
     @Autowired
     private SmRelUserFocusStoreMapper smRelUserFocusStoreMapper;
     @Autowired
@@ -142,6 +144,9 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         storeBaseInfoDto.setId(smStorePo.getId());
         saveBatchRelStoreAttribute(storeBaseInfoDto, userName);
 
+        //批量插入店铺标签关联记录
+        saveBatchRelStoreLabel(storeBaseInfoDto, userName);
+
         //添加店铺后台账号
         createSysUser(smStorePo);
 
@@ -176,6 +181,10 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         oldSmStore.setCreateBy(userName);
         //店铺信息修改
         smStoreMapper.updateById(oldSmStore);
+
+        //绑定店铺关系
+        bindingStore(oldSmStore.getId(), storeBaseInfoDto.getStoreRelStoreDtoList());
+
         //查询新更改的品牌中缺少的已有品牌是否有关联的商品  如果有则编辑失败
         List<Long> oldAttributeIds = smStoreMapper.selectAttributeIdsById(storeBaseInfoDto.getId());
         List<Long> newAttributeIds = Arrays.asList(storeBaseInfoDto.getAttributeIds());
@@ -185,17 +194,38 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
             throw  new ServiceException(ResultCode.PARAM_ERROR, "修改失败，包含正被使用的关联的品牌");
         }
 
-
-        //绑定店铺关系
-        bindingStore(oldSmStore.getId(), storeBaseInfoDto.getStoreRelStoreDtoList());
-
-        //将店铺与品牌关联表的记录删除
-        Map<String, Object> map = new HashMap<>();
+        //将店铺与品牌关联表的记录删除  关联不能全部删除重新创建  因为可能已经有已存在关联，删除差集 needDelList
+        /*Map<String, Object> map = new HashMap<>();
         map.put("store_id", storeBaseInfoDto.getId());
-        smRelStoreAttributeMapper.deleteByMap(map);
+        smRelStoreAttributeMapper.deleteByMap(map);*/
+        // 获取店铺关联的品牌id
+        List<Long> relAttributeIds = smStoreMapper.selectRelAttributeIds(storeBaseInfoDto.getId());
+        List<Long> needDelList = relAttributeIds.stream().filter(item -> !newAttributeIds.contains(item)).collect(toList());
+        if(null != needDelList && needDelList.size() > 0) {
+            QueryWrapper<SmRelStoreAttributePo> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda()
+                    .eq(SmRelStoreAttributePo::getStoreId, storeBaseInfoDto.getId())
+                    .in(SmRelStoreAttributePo::getAttributeId, needDelList);
+            smRelStoreAttributeMapper.delete(queryWrapper);
+        }
 
-        //批量插入店铺品牌关联记录
-        saveBatchRelStoreAttribute(storeBaseInfoDto, userName);
+        //批量插入店铺品牌关联记录  此时需要插入的关联应该为 newAttributeIds  与 relAttributeIds 的差集
+        List<Long> needInsertList = newAttributeIds.stream().filter(item -> !relAttributeIds.contains(item)).collect(toList());
+        if(null != needInsertList && needInsertList.size() > 0) {
+            storeBaseInfoDto.setAttributeIds(needInsertList.toArray(new Long[needInsertList.size()]));
+            saveBatchRelStoreAttribute(storeBaseInfoDto, userName);
+        }
+
+        //将店铺与标签关联表的记录删除
+        List<Long> oldLabelIds = smStoreMapper.selectLabelIdsById(storeBaseInfoDto.getId());
+        QueryWrapper<SmStoreRelLabelPo> relLabelPoQueryWrapper = new QueryWrapper<>();
+        relLabelPoQueryWrapper.lambda()
+                .eq(SmStoreRelLabelPo::getStoreId, storeBaseInfoDto.getId())
+                .notIn(SmStoreRelLabelPo::getStoreLabelId, storeBaseInfoDto.getStoreLabelIds());
+                //.in(SmStoreRelLabelPo::getStoreLabelId, oldLabelIds)
+        smStoreRelLabelMapper.delete(relLabelPoQueryWrapper);
+        //批量插入店铺标签关联记录
+        saveBatchRelStoreLabel(storeBaseInfoDto, userName);
 
         return new JsonViewData(ResultCode.SUCCESS, "编辑成功");
     }
@@ -218,6 +248,32 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
     }
 
     /**
+     * 批量插入店铺标签关联记录
+     * @param storeBaseInfoDto
+     * @param userName
+     */
+    private void saveBatchRelStoreLabel (StoreBaseInfoDto storeBaseInfoDto, String userName) {
+        List<SmStoreRelLabelPo> smStoreRelLabelPoList = new ArrayList<>();
+        for(Long labelId : storeBaseInfoDto.getStoreLabelIds()) {
+            QueryWrapper<SmStoreRelLabelPo> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda()
+                    .eq(SmStoreRelLabelPo::getStoreId, storeBaseInfoDto.getId())
+                    .eq(SmStoreRelLabelPo::getStoreLabelId, labelId);
+            if(smStoreRelLabelService.count(queryWrapper) > 0) {
+                //已存在
+                continue;
+            } else {
+                SmStoreRelLabelPo smStoreRelLabelPo = new SmStoreRelLabelPo();
+                smStoreRelLabelPo.setStoreLabelId(labelId);
+                smStoreRelLabelPo.setCreateBy(userName);
+                smStoreRelLabelPo.setStoreId(storeBaseInfoDto.getId());
+                smStoreRelLabelPoList.add(smStoreRelLabelPo);
+            }
+        }
+        smStoreRelLabelService.saveBatch(smStoreRelLabelPoList);
+    }
+
+    /**
      * 绑定店铺关系
      * @param storeId
      * @param storeRelStoreDtoList
@@ -226,10 +282,6 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         if(null == storeRelStoreDtoList) {
             return ;
         }
-        //删除店铺关系
-        QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("store_id", storeId);
-        smStoreRelStoreMapper.delete(queryWrapper);
 
         List<SmStoreRelStorePo> smStoreRelStorePoList = new ArrayList<>();
         for(StoreRelStoreDto storeRelStoreDto : storeRelStoreDtoList) {
@@ -237,8 +289,7 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
             smStoreRelStorePo.setStoreId(storeId);
             smStoreRelStorePo.setParentId(storeRelStoreDto.getParentId());
             smStoreRelStorePo.setType(storeRelStoreDto.getType());
-            QueryWrapper<SmStoreRelStorePo> relQueryWrapper = new QueryWrapper<>(smStoreRelStorePo);
-            Integer count = smStoreRelStoreMapper.selectCount(relQueryWrapper);
+            Integer count = smStoreRelStoreMapper.selectStoreRelCount(storeRelStoreDto);
             if(count > 0) {
                 //关系已存在
             } else {
@@ -372,6 +423,13 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
      */
     @Override
     public StoreBaseInfoVo findBaseById(Long id) {
+        if(null == id) {
+            SysUserPo sysUserPo = securityUtil.getCurrUser();
+            if(null == sysUserPo.getStoreId()) {
+                throw  new ServiceException(ResultCode.FAIL, "当前登录用户不是商家用户");
+            }
+            id = sysUserPo.getStoreId();
+        }
         StoreBaseInfoVo storeBaseInfoVo = smStoreMapper.findBaseById(id);
         /*String attributeIds = storeBaseInfoVo.getAttributeIds();
         QueryWrapper<PmGoodsAttributePo> queryWrapper = new QueryWrapper<>();
@@ -389,8 +447,14 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
      * @return
      */
     @Override
-    public StoreAccountInfoVo findAccountById(@Param("id") Long id) {
-
+    public StoreAccountInfoVo findAccountById(Long id) {
+        if(null == id) {
+            SysUserPo sysUserPo = securityUtil.getCurrUser();
+            if(null == sysUserPo.getStoreId()) {
+                throw  new ServiceException(ResultCode.FAIL, "当前登录用户不是商家用户");
+            }
+            id = sysUserPo.getStoreId();
+        }
         return smStoreMapper.findAccountById(id);
     }
 
@@ -401,7 +465,14 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
      * @return
      */
     @Override
-    public StoreOperationalInfoVo findOperationalById(@Param("id") Long id) {
+    public StoreOperationalInfoVo findOperationalById(Long id) {
+        if(null == id) {
+            SysUserPo sysUserPo = securityUtil.getCurrUser();
+            if(null == sysUserPo.getStoreId()) {
+                throw  new ServiceException(ResultCode.FAIL, "当前登录用户不是商家用户");
+            }
+            id = sysUserPo.getStoreId();
+        }
         return smStoreMapper.findOperationalById(id);
     }
 
@@ -425,9 +496,16 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
      */
     @Override
     public void uploadBusinessLicense( StoreBusinessLicenseDto storeBusinessLicenseDto) {
+        //获取当前店铺用户
+        SysUserPo sysUserPo = securityUtil.getCurrUser();
+        if(null == sysUserPo.getStoreId()) {
+            //当前登录用户跟操作不匹配
+            throw  new ServiceException(ResultCode.FAIL, "操作失败，当前登录用户跟操作不匹配");
+        }
         SmStorePo smStorePo = new SmStorePo();
         smStorePo.setBusinessLicense(storeBusinessLicenseDto.getImgUrl());
-        smStoreMapper.update(smStorePo, new UpdateWrapper<SmStorePo>().eq("id",storeBusinessLicenseDto.getId()));
+        smStoreMapper.update(smStorePo,
+                new UpdateWrapper<SmStorePo>().lambda().eq(SmStorePo::getId,sysUserPo.getStoreId()));
     }
 
     /**

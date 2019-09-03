@@ -40,7 +40,6 @@ public class PmStoreRelGoodsStockPo implements Serializable {
     private Long id;
 
     @ApiModelProperty(value = "分配的商品记录库存来自哪个批次 如果是自有商品为空")
-    @TableId(value = "id", type = IdType.ID_WORKER)
     private Long parentId;
 
     @ApiModelProperty(value = "店铺库存id")
@@ -48,6 +47,9 @@ public class PmStoreRelGoodsStockPo implements Serializable {
 
     @ApiModelProperty(value = "库存所属店铺id")
     private Long storeId;
+
+    @ApiModelProperty(value = "直属店铺id")
+    private Long parentStoreId;
 
     @ApiModelProperty(value = "商品id")
     private Long goodsId;

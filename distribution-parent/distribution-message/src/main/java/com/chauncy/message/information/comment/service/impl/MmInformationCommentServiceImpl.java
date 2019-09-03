@@ -1,23 +1,32 @@
 package com.chauncy.message.information.comment.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.chauncy.common.constant.ServiceConstant;
+import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.common.util.RelativeDateFormatUtil;
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
+import com.chauncy.data.domain.po.message.information.comment.MmCommentLikedPo;
 import com.chauncy.data.domain.po.message.information.comment.MmInformationCommentPo;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.information.add.AddInformationCommentDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationCommentDto;
-import com.chauncy.data.dto.manage.message.information.select.InformationViceCommentDto;
 import com.chauncy.data.mapper.message.information.MmInformationMapper;
+import com.chauncy.data.mapper.message.information.comment.MmCommentLikedMapper;
 import com.chauncy.data.mapper.message.information.comment.MmInformationCommentMapper;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.vo.manage.message.information.comment.InformationMainCommentVo;
 import com.chauncy.data.vo.manage.message.information.comment.InformationViceCommentVo;
 import com.chauncy.message.information.comment.service.IMmInformationCommentService;
+import com.chauncy.message.information.service.IMmInformationService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.base.Splitter;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * <p>
@@ -35,6 +44,10 @@ public class MmInformationCommentServiceImpl extends AbstractService<MmInformati
     private MmInformationCommentMapper mmInformationCommentMapper;
     @Autowired
     private MmInformationMapper mmInformationMapper;
+    @Autowired
+    private MmCommentLikedMapper mmCommentLikedMapper;
+    @Autowired
+    private IMmInformationService mmInformationService;
 
     /**
      * 后台分条件页查询评论
@@ -56,18 +69,18 @@ public class MmInformationCommentServiceImpl extends AbstractService<MmInformati
     /**
      * 根据主评论id查询副评论
      *
-     * @param informationViceCommentDto
+     * @param mainId
      * @return
      */
     @Override
-    public PageInfo<InformationViceCommentVo> searchViceCommentByMainId(InformationViceCommentDto informationViceCommentDto) {
+    public List<InformationViceCommentVo> searchViceCommentByMainId(Long mainId, Long userId) {
 
-        Integer pageNo = informationViceCommentDto.getPageNo()==null ? defaultPageNo : informationViceCommentDto.getPageNo();
-        Integer pageSize = informationViceCommentDto.getPageSize()==null ? defaultPageSize : informationViceCommentDto.getPageSize();
+        MmInformationCommentPo mmInformationCommentPo = mmInformationCommentMapper.selectById(mainId);
+        if (null == mmInformationCommentPo){
+            throw new ServiceException(ResultCode.NO_EXISTS,"评论不存在");
+        }
 
-        PageInfo<InformationViceCommentVo> informationViceCommentVoPageInfo = PageHelper.startPage(pageNo, pageSize)
-                .doSelectPageInfo(() -> mmInformationCommentMapper.searchViceCommentByMainId(informationViceCommentDto.getId(), null));
-        return informationViceCommentVoPageInfo;
+        return mmInformationCommentMapper.searchViceCommentByMainId(mainId,  userId, null);
     }
 
     /**
@@ -83,7 +96,31 @@ public class MmInformationCommentServiceImpl extends AbstractService<MmInformati
         Integer pageSize = informationCommentDto.getPageSize()==null ? defaultPageSize : informationCommentDto.getPageSize();
 
         PageInfo<InformationMainCommentVo> informationMainCommentVoPageInfo = PageHelper.startPage(pageNo, pageSize)
-                .doSelectPageInfo(() -> mmInformationCommentMapper.searchInfoMainComment(informationCommentDto.getId()));
+                .doSelectPageInfo(() -> mmInformationCommentMapper.searchInfoMainComment(informationCommentDto));
+
+        informationMainCommentVoPageInfo.getList().forEach(informationMainCommentVo -> {
+            //店铺标签
+            if (null != informationMainCommentVo.getStoreLabels()){
+                informationMainCommentVo.setStoreLabelList(Splitter.on(",")
+                        .omitEmptyStrings().splitToList(informationMainCommentVo.getStoreLabels()));
+            }
+            //剩余评论条数
+            informationMainCommentVo.setViceCommentCount(
+                    informationMainCommentVo.getViceCommentCount() > ServiceConstant.VICE_COMMENT_NUM
+                            ? informationMainCommentVo.getViceCommentCount() - ServiceConstant.VICE_COMMENT_NUM : 0);
+            //主评论发布时间规则
+            informationMainCommentVo.setReleaseTime(RelativeDateFormatUtil.format(informationMainCommentVo.getCreateTime()));
+            //副评论发布时间规则
+            List<InformationViceCommentVo> informationViceCommentVoList =
+                    informationMainCommentVo.getInformationViceCommentVoList();
+            if(null != informationViceCommentVoList) {
+                informationViceCommentVoList.forEach(informationViceCommentVo -> {
+                    informationViceCommentVo.setReleaseTime(
+                            RelativeDateFormatUtil.format(informationViceCommentVo.getCreateTime()));
+                });
+            }
+        });
+
         return informationMainCommentVoPageInfo;
     }
 
@@ -128,9 +165,55 @@ public class MmInformationCommentServiceImpl extends AbstractService<MmInformati
         mmInformationCommentMapper.insert(mmInformationCommentPo);
         //资讯评论量+1
         MmInformationPo mmInformationPo = mmInformationMapper.selectById(addInformationCommentDto.getInfoId());
-        UpdateWrapper updateWrapper = new UpdateWrapper();
-        updateWrapper.eq("id", mmInformationPo.getId());
-        updateWrapper.set("liked_num", mmInformationPo.getLikedNum() + 1);
+        UpdateWrapper<MmInformationPo> updateWrapper = new UpdateWrapper();
+        updateWrapper.lambda().eq(MmInformationPo::getId, mmInformationPo.getId())
+                .set(MmInformationPo::getCommentNum, mmInformationPo.getCommentNum() + 1);
+        mmInformationService.update(updateWrapper);
+    }
+
+    /**
+     * 用户评论点赞、取消点赞
+     *
+     * @param commentId  评论id
+     * @param userId 用户id
+     */
+    @Override
+    public void likeComment(Long commentId, Long userId) {
+        MmInformationCommentPo mmInformationCommentPo = mmInformationCommentMapper.selectById(commentId);
+        if(null == mmInformationCommentPo) {
+            throw new ServiceException(ResultCode.NO_EXISTS,"评论不存在或已删除");
+        }
+
+        //评论点赞数
+        Integer infoLikedNum = mmInformationCommentPo.getLikedNum();
+
+        //查询是否点赞过
+        MmCommentLikedPo mmCommentLikedPo = mmCommentLikedMapper.selectForUpdate(commentId, userId);
+        if(null == mmCommentLikedPo) {
+            //未点赞过
+            mmCommentLikedPo = new MmCommentLikedPo();
+            mmCommentLikedPo.setCommentId(commentId);
+            mmCommentLikedPo.setCreateBy(userId.toString());
+            mmCommentLikedPo.setUserId(userId);
+            //新增点赞记录
+            mmCommentLikedMapper.insert(mmCommentLikedPo);
+            infoLikedNum += 1;
+        } else if(!mmCommentLikedPo.getDelFlag()) {
+            //取消点赞
+            mmCommentLikedPo.setDelFlag(true);
+            mmCommentLikedMapper.updateById(mmCommentLikedPo);
+            infoLikedNum -= 1;
+        } else {
+            //点赞
+            mmCommentLikedPo.setDelFlag(false);
+            mmCommentLikedMapper.updateById(mmCommentLikedPo);
+            infoLikedNum += 1;
+        }
+
+        //评论修改点赞数
+        UpdateWrapper<MmInformationCommentPo> updateWrapper = new UpdateWrapper();
+        updateWrapper.lambda().eq(MmInformationCommentPo::getId, commentId)
+                .set(MmInformationCommentPo::getLikedNum, infoLikedNum > 0 ? infoLikedNum : 0);
         this.update(updateWrapper);
     }
 }

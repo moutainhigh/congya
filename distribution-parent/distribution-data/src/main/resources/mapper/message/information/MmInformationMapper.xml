@@ -46,25 +46,116 @@
 
 
 
-    <select id="findBaseById" resultType="com.chauncy.data.vo.app.message.information.InformationBaseVo">
-        SELECT mi.*, ss.name AS storeName, ss.`logo_image`, ss.collection_num
+
+    <resultMap id="informationBaseResult" type="com.chauncy.data.vo.app.message.information.InformationBaseVo">
+        <id column="id" property="id" />
+        <result column="title" property="title" />
+        <result column="detail_html" property="detailHtml" />
+        <result column="cover_image" property="coverImage" />
+        <result column="forward_num" property="forwardNum" />
+        <result column="isForward" property="isForward" />
+        <result column="comment_num" property="commentNum" />
+        <result column="isComment" property="isComment" />
+        <result column="liked_num" property="likedNum" />
+        <result column="isLiked" property="isLiked" />
+        <result column="collection_num" property="collectionNum" />
+        <result column="isCollection" property="isCollection" />
+        <result column="update_time" property="updateTime" />
+        <!-- collection定义关联集合类型的属性封装规则
+        offType:指定集合中的元素类型
+        -->
+        <collection property="informationStoreInfo" ofType="com.chauncy.data.vo.app.message.information.InformationStoreInfoVo">
+            <id column="storeId" property="storeId"/>
+            <result column="logo_image" property="logoImage"/>
+            <result column="storeName" property="storeName"/>
+            <result column="store_describe" property="storeDescribe"/>
+            <result column="is_focus" property="isFocus"/>
+        </collection>
+    </resultMap>
+    <select id="findBaseById" resultMap="informationBaseResult">
+        SELECT
+            mi.id,
+            mi.title,
+            mi.detail_html,
+            mi.`cover_image`,
+            mi.`forward_num`,
+            mi.`comment_num`,
+            mi.`liked_num`,
+            mi.`collection_num`,
+            mi.update_time,
+            ss.`id` AS storeId,
+            ss.name AS storeName,
+            ss.`logo_image`,
+            ss.store_describe,
+            (EXISTS
+                (SELECT 1
+                FROM um_user_favorites uuf
+                WHERE uuf.favorites_id = ss.id
+                AND uuf.`type` = '店铺'
+                AND uuf.user_id = #{userId}
+                AND uuf.del_flag = 0)
+            ) AS is_focus,
+            (EXISTS
+                (SELECT 1
+                FROM um_user_favorites uuf
+                WHERE uuf.favorites_id = mi.id
+                AND uuf.`type` = '资讯'
+                AND uuf.user_id = #{userId}
+                AND uuf.del_flag = 0)
+            ) AS isCollection,
+            (EXISTS
+                (SELECT 1
+                FROM mm_information_comment mic
+                WHERE mic.info_id = mi.id
+                AND mic.user_id = #{userId}
+                )
+            ) as isComment,
+            (EXISTS
+                (SELECT 1
+                FROM mm_information_liked mil
+                WHERE mil.info_id = mi.id
+                AND mil.user_id = #{userId}
+                AND mil.del_flag = 0
+                )
+            ) as isLiked,
+            (EXISTS
+                (SELECT 1
+                FROM mm_information_forward mif
+                WHERE mif.info_id = mi.id
+                AND mif.user_id = #{userId}
+                )
+            ) as isForward
         FROM mm_information mi LEFT JOIN sm_store ss ON mi.`store_id` = ss.id
-        WHERE mi.id = #{id} AND mi.del_flag = 0
+        WHERE mi.id = #{mmInformationId} AND mi.del_flag = 0
     </select>
 
 
     <select id="searchInfoPaging" resultType="com.chauncy.data.vo.manage.message.information.InformationPageInfoVo">
-        select mi.id, mi.title, mi.enabled, mi.sort, mi.verify_status, mi.update_time, mil.name as infoLabelName, mic.name as infoCategoryName
+        select mi.id,
+            mi.title,
+            mi.enabled,
+            mi.sort,
+            mi.verify_status,
+            mi.update_time,
+            mi.browsing_num,
+            mi.forward_num,
+            mi.comment_num,
+            mi.liked_num,
+            mi.collection_num,
+            mil.name as infoLabelName,
+            mic.name as infoCategoryName
         from mm_information mi
-        left join mm_information_label mil on (mil.id = mi.info_label_id and mil.del_flag = 0)
-        left join mm_information_category mic on (mic.id = mi.info_category_id and mil.del_flag = 0)
+        left join mm_information_label mil on mil.id = mi.info_label_id
+        left join mm_information_category mic on mic.id = mi.info_category_id
         <where>
             mi.del_flag = 0
-            <if test="id !=null and id !=''">
-                and mi.id = #{id}
+            and mil.del_flag = 0
+            and mil.del_flag = 0
+            <if test="storeId != null">
+                and mi.store_id = #{storeId}
             </if>
-            <if test="name != null and name !=''">
-                and mi.title like concat('%', #{name}, '%')
+            <if test="id != null">
+                and mi.id = #{id}
             </if>
             <if test="startTime != null">
                 and date(mi.create_time) <![CDATA[>= ]]>  #{startTime}
@@ -72,20 +163,104 @@
             <if test="endTime != null">
                 and date(mi.create_time) <![CDATA[<= ]]> #{endTime}
             </if>
+            <if test="name != null and name !=''">
+                and mi.title like concat('%', #{name}, '%')
+            </if>
         </where>
         order by mi.sort desc
     </select>
 
-    <select id="searchInfoBasePaging" resultType="com.chauncy.data.vo.app.message.information.InformationPagingVo">
-        select mi.id, mi.title, mi.update_time, left(mi.pure_text,100) as pureText , mi.author, mi.browsing_num
+
+    <resultMap id="informationPagingResult" type="com.chauncy.data.vo.app.message.information.InformationPagingVo">
+        <id column="id" property="id" />
+        <result column="title" property="title" />
+        <result column="cover_image" property="coverImage" />
+        <result column="pure_text" property="pureText" />
+        <result column="forward_num" property="forwardNum" />
+        <result column="isForward" property="isForward" />
+        <result column="comment_num" property="commentNum" />
+        <result column="isComment" property="isComment" />
+        <result column="liked_num" property="likedNum" />
+        <result column="isLiked" property="isLiked" />
+        <result column="update_time" property="updateTime" />
+        <!-- collection定义关联集合类型的属性封装规则
+        offType:指定集合中的元素类型
+        -->
+        <collection property="informationStoreInfo" ofType="com.chauncy.data.vo.app.message.information.InformationStoreInfoVo">
+            <id column="storeId" property="storeId"/>
+            <result column="logo_image" property="logoImage"/>
+            <result column="storeName" property="storeName"/>
+            <result column="storeLabels" property="storeLabels"/>
+            <result column="collection_num" property="collectionNum"/>
+            <result column="likedSum" property="likedSum"/>
+            <result column="is_focus" property="isFocus"/>
+        </collection>
+    </resultMap>
+    <select id="searchInfoBasePaging" resultMap="informationPagingResult">
+        select mi.id,
+            mi.title,
+            LEFT(mi.pure_text,100) AS pureText ,
+            mi.`cover_image`,
+            mi.`forward_num`,
+            mi.`comment_num`,
+            mi.`liked_num`,
+            mi.update_time,
+            ss.`id` AS storeId,
+            ss.`logo_image`,
+            ss.`name` AS storeName,
+            (
+                SELECT GROUP_CONCAT(`ssl`.name)
+                FROM sm_store_label `ssl` ,sm_store_rel_label ssrl
+                WHERE `ssrl`.store_label_id = `ssl`.id
+                AND `ssrl`.store_id = ss.`id`
+                AND `ssl`.del_flag = 0
+            ) AS storeLabels,
+            ss.collection_num,
+            (
+                SELECT COUNT(mi1.liked_num)
+                FROM mm_information mi1
+                WHERE mi1.store_id = ss.id
+            ) AS likedSum,
+            (EXISTS
+                (SELECT 1
+                FROM um_user_favorites uuf
+                WHERE uuf.favorites_id = ss.id
+                AND uuf.`type` = '店铺'
+                AND uuf.user_id = #{userId}
+                AND uuf.del_flag = 0)
+            ) AS is_focus,
+            (EXISTS
+                (SELECT 1
+                FROM mm_information_comment mic
+                WHERE mic.info_id = mi.id
+                AND mic.user_id = #{userId}
+                )
+            ) as isComment,
+            (EXISTS
+                (SELECT 1
+                FROM mm_information_liked mil
+                WHERE mil.info_id = mi.id
+                AND mil.user_id = #{userId}
+                AND mil.del_flag = 0
+                )
+            ) as isLiked,
+            (EXISTS
+                (SELECT 1
+                FROM mm_information_forward mif
+                WHERE mif.info_id = mi.id
+                AND mif.user_id = #{userId}
+                )
+            ) as isForward
         from mm_information mi
+        LEFT JOIN sm_store ss
+        ON mi.`store_id` = ss.id
         <if test="informationTypeEnum != null and informationTypeEnum.getId() == 1">
             left join um_user_favorites uuf on mi.store_id = uuf.favorites_id
         </if>
         <where>
-            mi.del_flag = 0
+            mi.del_flag = 0 and mi.verify_status = 3
             <if test="storeId !=null and storeId !=0 ">
-                and mi.storeId = #{storeId}
+                and mi.store_id = #{storeId}
             </if>
              <if test="infoLabelId !=null and infoLabelId !=0 ">
                 and mi.info_label_id = #{infoLabelId}
@@ -100,6 +275,7 @@
                 and uuf.del_flag = 0 and uuf.user_id = #{userId}
             </if>
         </where>
+        GROUP BY mi.id,ss.id
         <choose>
             <when test="informationTypeEnum != null and informationTypeEnum.getId() == 2">
                 order by mi.sort desc
@@ -108,6 +284,12 @@
                 order by mi.browsing_num desc
             </otherwise>
         </choose>
+    </select>
+    <select id="selectRelGoodsIdsById" resultType="java.lang.Long">
+        select mirg.goods_id
+        from mm_information_rel_goods mirg
+        where mirg.information_id = #{id}
+        and mirg.del_flag = 0
     </select>
 
 </mapper>

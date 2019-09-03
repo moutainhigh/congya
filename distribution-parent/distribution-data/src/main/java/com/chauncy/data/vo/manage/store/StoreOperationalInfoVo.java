@@ -23,14 +23,14 @@ public class StoreOperationalInfoVo  implements Serializable {
     @JsonSerialize(using = LongJsonSerializer.class)
     private Long id;
 
-    @ApiModelProperty(value = "本店收入")
-    private BigDecimal storeIncome;
+    @ApiModelProperty(value = "是否启用 1-是 0-否 默认为1")
+    private Boolean enabled;
 
     @ApiModelProperty(value = "本店订单数量")
-    private Integer storeOrderNum;
+    private Integer orderNum;
 
     @ApiModelProperty(value = "本店商品总数")
-    private Integer storeGoodsNum;
+    private Integer goodsNum;
 
     @ApiModelProperty(value = "本店营业额")
     private BigDecimal storeTurnover;
@@ -38,7 +38,10 @@ public class StoreOperationalInfoVo  implements Serializable {
     @ApiModelProperty(value = "本店会员数量")
     private Integer storeMemberNum;
 
+    /*@ApiModelProperty(value = "本店收入")
+    private BigDecimal storeIncome;
+
     @ApiModelProperty(value = "旗下店铺数量")
-    private Integer storeSubNum;
+    private Integer storeSubNum;*/
 
 }

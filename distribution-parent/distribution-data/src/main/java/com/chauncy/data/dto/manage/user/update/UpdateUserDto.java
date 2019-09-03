@@ -41,15 +41,24 @@ public class UpdateUserDto {
     @NotNull(message = "佣金判断资格不能为空！")
     private Boolean commissionStatus;
 
-    @ApiModelProperty(value = "红包增加的数值")
-    @NotNull(message = "红包增加的数值不能为空！")
+    @ApiModelProperty(value = "红包数值")
+    @NotNull(message = "红包的数值不能为空！")
     private BigDecimal currentRedEnvelops;
 
-    @ApiModelProperty(value = "当前积分增加的数值")
-    @NotNull(message = "当前积分增加的数值不能为空！")
+    @ApiModelProperty(value = "积分数值")
+    @NotNull(message = "当前积分的数值不能为空！")
     private Integer currentIntegral;
 
-    @ApiModelProperty(value = "当前购物券增加的数值")
-    @NotNull(message = "当前购物券增加的数值不能为空！")
+    @ApiModelProperty(value = "购物券数值")
+    @NotNull(message = "当前购物券的数值不能为空！")
     private BigDecimal currentShopTicket;
+
+    @ApiModelProperty(hidden = true)
+    private BigDecimal totalAddRedEnvelops;
+
+    @ApiModelProperty(hidden = true)
+    private Integer totalAddIntegral;
+
+    @ApiModelProperty(hidden = true)
+    private BigDecimal totalAddShopTicket;
 }

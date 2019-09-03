@@ -13,12 +13,12 @@ import java.io.Serializable;
  * @since 2019/7/23 20:58
  */
 @Data
-@ApiModel(description = "账单批量审核", value = "BillBatchAuditDto")
-public class BillBatchAuditDto  implements Serializable {
+@ApiModel(description = "批量审核", value = "BatchAuditDto")
+public class BatchAuditDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty("账单ids")
+    @ApiModelProperty("ids")
     @NotEmpty(message = "ids参数不能为空")
     private Long[] ids;
 

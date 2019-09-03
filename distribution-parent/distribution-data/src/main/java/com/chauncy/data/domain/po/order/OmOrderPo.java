@@ -62,8 +62,6 @@ public class OmOrderPo implements Serializable {
     @ApiModelProperty(value = "收货地址ID")
     private Long areaShippingId;
 
-    @ApiModelProperty(value = "评价状态: 1--待评价 2--已评价 3--还不能评价")
-    private Integer evaluateStatus;
 
     @ApiModelProperty(value = "店铺ID")
     private Long storeId;
@@ -77,13 +75,13 @@ public class OmOrderPo implements Serializable {
     @ApiModelProperty(value = "活动类型0-无 1-秒杀 2-拼团 3-积分 4-满减")
     private Integer activityType;
 
-    @ApiModelProperty(value = "商品金额")
+    @ApiModelProperty(value = "订单总金额，包括运费、税费、商品")
     private BigDecimal totalMoney;
 
     @ApiModelProperty(value = "商品数量")
     private Integer totalNumber;
 
-    @ApiModelProperty(value = "订单商品类型  0-普通 1-自取 2-海外直邮 3-保税仓 4-服务类 5-虚拟商品 ")
+    @ApiModelProperty(value = "订单商品类型  0-普通商品 1-自取 2-海外直邮 3-保税仓 4-服务类 5-虚拟商品 ")
     private String goodsType;
 
     @ApiModelProperty(value = "支付时间")
@@ -95,11 +93,15 @@ public class OmOrderPo implements Serializable {
     @ApiModelProperty(value = "收货时间")
     private LocalDateTime receiveTime;
 
+    @ApiModelProperty(value = "取消时间")
+    private LocalDateTime closeTime;
+
+    @ApiModelProperty("售后截止时间")
+    private LocalDateTime afterSaleDeadline;
+
     @ApiModelProperty(value = "备注")
     private String remark;
 
-    @ApiModelProperty(value = "单个订单预计奖励购物券")
-    private BigDecimal rewardShopTicket;
 
     @ApiModelProperty(value = "运费")
     private BigDecimal shipMoney;
@@ -114,6 +116,9 @@ public class OmOrderPo implements Serializable {
     @ApiModelProperty(value = "优惠券id")
     private Long couponId;
 
+    @ApiModelProperty(value = "店铺收入配置比例")
+    private BigDecimal incomeRate;
+
 
     @ApiModelProperty(value = "使用红包")
     private BigDecimal redEnvelops;
@@ -127,6 +132,14 @@ public class OmOrderPo implements Serializable {
     @ApiModelProperty(value = "购物券抵扣金额")
     private BigDecimal redEnvelopsMoney;
 
+    @ApiModelProperty(value = "应付金额")
+    private BigDecimal realMoney;
+
+    @ApiModelProperty(value = "实名认证id")
+    private Long realUserId;
+
+    @ApiModelProperty(value = "二维码")
+    private String qRCode;
 
 
 }

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chauncy.data.mapper.afterSale.OmAfterSaleOrderMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.afterSale.OmAfterSaleOrderPo">
+        <id column="id" property="id"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="order_id" property="orderId"/>
+        <result column="phone" property="phone"/>
+        <result column="store_id" property="storeId"/>
+        <result column="store_name" property="storeName"/>
+        <result column="goods_name" property="goodsName"/>
+        <result column="number" property="number"/>
+        <result column="refund_money" property="refundMoney"/>
+        <result column="after_sale_type" property="afterSaleType"/>
+        <result column="reason" property="reason"/>
+        <result column="status" property="status"/>
+        <result column="goods_type" property="goodsType"/>
+        <result column="pictures" property="pictures"/>
+    </resultMap>
+
+    <resultMap id="AfterSaleListVo" type="com.chauncy.data.vo.manage.order.afterSale.AfterSaleListVo" autoMapping="true">
+        <result column="pictures" property="pictures" jdbcType="VARCHAR" typeHandler="com.chauncy.web.config.mybatisplus.StringToListTypeHandler" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, create_by, create_time, update_by, update_time, del_flag, order_id, phone, store_id, store_name, goods_name, number, refund_money, after_sale_type, reason, status, goods_type, pictures
+    </sql>
+    <select id="searchGoodsTempByOrderId"
+            resultType="com.chauncy.data.vo.app.order.my.afterSale.ApplyAfterSaleVo">
+             select id goodsTempId, name,icon,real_pay_money,standard_str,number,order_id
+             from om_goods_temp
+             where order_id=#{orderId} and del_flag=0
+
+    </select>
+    <select id="searchAfterSaleOrderList"
+            resultType="com.chauncy.data.vo.app.order.my.afterSale.MyAfterSaleOrderListVo">
+            SELECT
+                o.id,
+                t.`name` goodsName,
+                t.icon picture,
+                t.standard_str,
+                t.number,
+                l.after_sale_type afterSaleLogEnum
+            FROM
+                om_after_sale_order o,
+                om_after_sale_log l,
+                om_goods_temp t
+            WHERE
+                o.create_by = #{userId}
+                AND o.id = l.after_safe_order_id
+                AND t.id = o.goods_temp_id
+                AND o.del_flag = 0
+                AND l.del_flag = 0
+                AND t.del_flag = 0
+                AND l.create_time = (
+                SELECT
+                    MAX( l1.create_time )
+                    FROM
+                    om_after_sale_order o1,
+                    om_after_sale_log l1
+                WHERE
+                    o.create_by = #{userId}
+                    AND o.id = l.after_safe_order_id
+                AND o1.del_flag = 0  and l1.del_flag=0
+                )
+    </select>
+    <select id="searchAfterList" resultMap="AfterSaleListVo">
+        SELECT
+        ao.id afterSaleOrderId,
+        o.id orderId,
+        s.id storeId,
+        s.NAME storeName,
+        u.phone phone,
+        t.`name` goodsName,
+        ao.number,
+        ao.refund_money refund,
+        ao.after_sale_type afterSaleType,
+        ao.reason reason,
+        ao.`status` STATUS,
+        ao.create_time applyTime,
+        ao.update_time,
+        o.goods_type goodsType,
+        ao.pictures,
+        u.id userId,
+        u.`name` NAME,
+        t.sku_id skuId,
+        t.standard_str standardStr,
+        t.sell_price
+        FROM
+        om_after_sale_order ao,
+        om_order o,
+        sm_store s,
+        um_user u,
+        om_goods_temp t
+        WHERE
+        ao.del_flag = 0
+        AND t.del_flag = 0
+        AND o.del_flag = 0
+        AND u.del_flag = 0
+        AND ao.order_id = o.id
+        AND o.store_id = s.id
+        AND o.um_user_id = u.id
+        AND ao.goods_temp_id = t.id
+        <if test="t.phone!=null and t.phone !=''">
+            AND u.phone LIKE concat('%', #{t.phone}, '%')
+        </if>
+        <if test="t.storeName!=null and t.storeName !=''">
+            and s.name LIKE concat('%', #{t.storeName}, '%')
+        </if>
+        <if test="t.startApplyTime!=null">
+            AND ao.create_time &gt;= #{t.startApplyTime}
+
+        </if>
+        <if test="t.endApplyTime!=null">
+            AND ao.create_time &lt;= #{t.endApplyTime}
+        </if>
+        <if test="t.afterSaleType!=null">
+            AND ao.after_sale_type = #{t.afterSaleType}
+        </if>
+        <if test="t.status!=null">
+            AND ao.`status` = #{t.status}
+        </if>
+        <if test="t.minRefundMoney!=null">
+            and ao.refund_money&gt;=#{t.minRefundMoney}
+        </if>
+        <if test="t.maxRefundMoney!=null">
+            and ao.refund_money&lt;=#{t.maxRefundMoney}
+        </if>
+        <if test="storeId!=null">
+            and s.id=#{storeId}
+        </if>
+    </select>
+    <select id="searchCheckList" resultType="com.chauncy.data.vo.manage.order.afterSale.AfterSaleLogVo">
+            select `node`,`describe`,create_time
+            from om_after_sale_log
+            where del_flag=0 and after_sale_order_id=#{afterSaleOrderId}
+            order by create_time
+    </select>
+
+</mapper>

@@ -41,15 +41,15 @@ public class SaveGiftDto {
 
     @ApiModelProperty(value = "经验值")
     @NotNull(message = "经验值不能为空")
-    private Integer experience;
+    private BigDecimal experience;
 
     @ApiModelProperty(value = "购物券")
     @NotNull(message = "购物券不能为空")
-    private Integer vouchers;
+    private BigDecimal vouchers;
 
     @ApiModelProperty(value = "积分")
     @NotNull(message = "积分不能为空")
-    private Integer integrals;
+    private BigDecimal integrals;
 
     @ApiModelProperty(value = "购买金额,添加新人礼包时不用赋值")
     private BigDecimal purchasePrice;

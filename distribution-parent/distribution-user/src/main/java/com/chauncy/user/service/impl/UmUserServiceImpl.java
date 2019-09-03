@@ -6,10 +6,7 @@ import com.chauncy.common.enums.log.AccountTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.enums.user.ValidCodeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
-import com.chauncy.common.util.ListUtil;
-import com.chauncy.common.util.RedisUtil;
-import com.chauncy.common.util.SnowFlakeUtil;
-import com.chauncy.common.util.StringUtils;
+import com.chauncy.common.util.*;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.interact.MmFeedBackPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
@@ -186,6 +183,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         Integer pageSize = searchUserListDto.getPageSize() == null ? defaultPageSize : searchUserListDto.getPageSize();
         PageInfo<UmUserListVo> umUserListVoPageInfo =PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> mapper.loadSearchUserList(searchUserListDto));
+
         //通过条件构造器限制只需要查出name
         UmUserPo condition=new UmUserPo();
         //设置关联用户的名称,不要连表(数据库查出的是id，现在将id转为name)
@@ -223,6 +221,12 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
 
     @Override
     public boolean updateUmUser(UpdateUserDto updateUserDto,String currentUserName) {
+        UmUserPo userPo=mapper.selectById(updateUserDto.getId());
+        updateUserDto.setTotalAddIntegral(updateUserDto.getCurrentIntegral()-userPo.getCurrentIntegral());
+        updateUserDto.setTotalAddRedEnvelops(BigDecimalUtil.safeSubtract(updateUserDto.getCurrentRedEnvelops()
+        ,userPo.getCurrentRedEnvelops()));
+        updateUserDto.setTotalAddShopTicket(BigDecimalUtil.safeSubtract(updateUserDto.getCurrentShopTicket()
+        ,userPo.getCurrentShopTicket()));
         //修改主表字段
         mapper.updateUmUser(updateUserDto,currentUserName);
         if (!ListUtil.isListNullAndEmpty(updateUserDto.getLabelIds())){

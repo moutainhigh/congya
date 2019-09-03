@@ -2,26 +2,45 @@ package com.chauncy.order.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.chauncy.common.constant.RabbitConstants;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.common.enums.app.order.PayOrderStatusEnum;
+<<<<<<< HEAD
 import com.chauncy.common.enums.log.PaymentWayEnum;
+=======
+import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.exception.sys.ServiceException;
+>>>>>>> ye_store
 import com.chauncy.common.util.BigDecimalUtil;
+import com.chauncy.common.util.JSONUtils;
+import com.chauncy.common.util.ListUtil;
+import com.chauncy.common.util.LoggerUtil;
+import com.chauncy.common.util.rabbit.RabbitUtil;
+import com.chauncy.data.bo.app.logistics.LogisticsDataBo;
+import com.chauncy.data.bo.app.order.my.OrderRewardBo;
+import com.chauncy.data.bo.app.order.rabbit.RabbitOrderBo;
 import com.chauncy.data.domain.po.order.OmGoodsTempPo;
+import com.chauncy.data.domain.po.order.OmOrderLogisticsPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
-import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.domain.po.sys.BasicSettingPo;
 import com.chauncy.data.dto.app.order.my.SearchMyOrderDto;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
-import com.chauncy.data.dto.supplier.order.SmSendOrderDto;
+import com.chauncy.data.dto.supplier.order.SmSearchSendOrderDto;
 import com.chauncy.data.mapper.order.OmGoodsTempMapper;
+import com.chauncy.data.mapper.order.OmOrderLogisticsMapper;
 import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.mapper.order.OmShoppingCartMapper;
 import com.chauncy.data.mapper.pay.IPayOrderMapper;
 import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
+import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.vo.app.car.ShopTicketSoWithCarGoodVo;
 import com.chauncy.data.vo.app.order.my.AppSearchOrderVo;
+import com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailGoodsVo;
+import com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailStoreVo;
+import com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailVo;
 import com.chauncy.data.vo.manage.order.list.OrderDetailVo;
 import com.chauncy.data.vo.manage.order.list.SearchOrderVo;
 import com.chauncy.data.vo.supplier.order.*;
@@ -30,14 +49,21 @@ import com.chauncy.order.service.IPayOrderService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.rabbit.connection.RabbitUtils;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -71,6 +97,16 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     @Autowired
     private IPayOrderService payOrderService;
 
+    @Autowired
+    private OmOrderLogisticsMapper orderLogisticsMapper;
+
+    @Autowired
+    private BasicSettingMapper basicSettingMapper;
+
+    @Autowired
+    private RabbitUtil rabbitUtil;
+
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean closeOrderByPayId(Long payOrderId) {
@@ -84,12 +120,18 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         //查出订单
         QueryWrapper orderWrapper=new QueryWrapper();
         orderWrapper.eq("pay_order_id",payOrderId);
+        orderWrapper.eq("status",OrderStatusEnum.NEED_PAY.getId());
         List<OmOrderPo> updateOrders = mapper.selectList(orderWrapper);
+        //如果所有订单被支付了，就不需要取消订单了
+        if (ListUtil.isListNullAndEmpty(updateOrders)){
+            return true;
+        }
         List<Long> orderIds = updateOrders.stream().map(OmOrderPo::getId).collect(Collectors.toList());
 
         //修改状态
         OmOrderPo updateOrder=new OmOrderPo();
         updateOrder.setStatus(OrderStatusEnum.ALREADY_CANCEL);
+        updateOrder.setCloseTime(LocalDateTime.now());
         UpdateWrapper updateWrapper=new UpdateWrapper();
         updateWrapper.in("id",orderIds);
         this.update(updateOrder,updateWrapper);
@@ -112,14 +154,12 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         PayOrderPo queryPayOrder = payOrderMapper.selectById(payOrderId);
         shoppingCartMapper.updateDiscount(BigDecimalUtil.safeMultiply(-1,queryPayOrder.getTotalRedEnvelops()),
                 BigDecimalUtil.safeMultiply(-1,queryPayOrder.getTotalShopTicket()),queryPayOrder.getUmUserId() );
-
-
         return true;
     }
 
     @Override
     public boolean closeOrderByOrderId(Long orderId) {
-        //把支付单删掉,以后该支付单下的其他订单都单独生成支付单
+        //把支付单禁用,以后该支付单下的其他订单都单独生成支付单
         OmOrderPo orderPo = mapper.selectById(orderId);
         //支付单失效
         PayOrderPo updatePayOrder=new PayOrderPo();
@@ -127,6 +167,8 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         payOrderMapper.updateById(updatePayOrder);
         //订单改状态
         orderPo.setStatus(OrderStatusEnum.ALREADY_CANCEL);
+        orderPo.setRealMoney(null);
+        orderPo.setCloseTime(LocalDateTime.now());
         this.updateById(orderPo);
 
         //查找skuid和数量
@@ -144,6 +186,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         });
         goodsSkuMapper.updateStock(shopTicketSoWithCarGoodVoList);
 
+        //购物券和红包加回去
         shoppingCartMapper.updateDiscount(BigDecimalUtil.safeMultiply(-1,orderPo.getRedEnvelops()),
                 BigDecimalUtil.safeMultiply(-1,orderPo.getShopTicket()),orderPo.getUmUserId() );
         return true;
@@ -197,7 +240,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     }
 
     @Override
-    public PageInfo<SmSendOrderVo> searchSmSendOrderList(SmSendOrderDto smSendOrderDto) {
+    public PageInfo<SmSendOrderVo> searchSmSendOrderList(SmSearchSendOrderDto smSendOrderDto) {
         PageInfo<SmSendOrderVo> smSendOrderVoPageInfo = PageHelper.startPage(smSendOrderDto.getPageNo(), smSendOrderDto.getPageSize())
                 .doSelectPageInfo(() -> mapper.searchSendOrderVos(smSendOrderDto));
         smSendOrderVoPageInfo.getList().forEach(x->{
@@ -220,6 +263,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     public SmOrderDetailVo getSmDetailById(Long id) {
         SmOrderDetailVo smOrderDetailVo = mapper.loadSmById(id);
         smOrderDetailVo.setGoodsTempVos(mapper.searchGoodsTempVos(id));
+        smOrderDetailVo.setRewardShopTicket(mapper.getRewardShopTicketByOrderId(id));
 
         return smOrderDetailVo;
     }
@@ -241,6 +285,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Long payOrder(Long orderId) {
         //找出原先的支付单
         PayOrderPo queryPayOrder = mapper.getPayOrderByOrderId(orderId);
@@ -251,9 +296,90 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         }
         //生成新的支付单
         PayOrderPo savePayOrderPo=new PayOrderPo();
-        BeanUtils.copyProperties(queryPayOrder,savePayOrderPo);
+        BeanUtils.copyProperties(queryPayOrder,savePayOrderPo,"id");
 
         OmOrderPo queryOrder = mapper.selectById(orderId);
-        return null;
+
+        //新的支付单生成新的金额 没有活动，优惠金额为0
+        savePayOrderPo.setTotalRealPayMoney(queryOrder.getRealMoney()).setTotalDiscount(BigDecimal.ZERO)
+        .setTotalShipMoney(queryOrder.getShipMoney()).setTotalTaxMoney(queryOrder.getTaxMoney()).setTotalRedEnvelops(queryOrder.getRedEnvelops())
+        .setTotalShopTicket(queryOrder.getShopTicket()).setTotalMoney(queryOrder.getTotalMoney()).setTotalNumber(queryOrder.getTotalNumber())
+        .setTotalShopTicketMoney(queryOrder.getShopTicketMoney()).setTotalRedEnvelopsMoney(queryOrder.getRedEnvelopsMoney())
+        .setEnabled(true);
+
+        payOrderMapper.insert(savePayOrderPo);
+
+        //订单外键改为新的支付单
+        OmOrderPo updateOrder=new OmOrderPo();
+        updateOrder.setPayOrderId(savePayOrderPo.getId());
+        updateOrder.setId(queryOrder.getId());
+        mapper.updateById(updateOrder);
+
+        return savePayOrderPo.getId();
     }
+
+    @Override
+    public AppMyOrderDetailVo getAppMyOrderDetailVoByOrderId(Long orderId) {
+        //获取订单详情基本信息
+        AppMyOrderDetailVo appMyOrderDetailVo=mapper.getAppMyOrderDetailVoByOrderId(orderId);
+        //获取商品信息
+        List<AppMyOrderDetailGoodsVo> appMyOrderDetailGoodsVos=mapper.getAppMyOrderDetailGoodsVoByOrderId(orderId);
+        //组装店铺信息
+        AppMyOrderDetailStoreVo appMyOrderDetailStoreVo=new AppMyOrderDetailStoreVo();
+        appMyOrderDetailStoreVo.setStoreId(appMyOrderDetailVo.getStoreId()).setStoreName(appMyOrderDetailVo.getStoreName())
+        .setAppMyOrderDetailGoodsVos(appMyOrderDetailGoodsVos);
+        //物流节点信息
+        //根据订单号号获取物流信息
+        OmOrderLogisticsPo orderLogistics = orderLogisticsMapper.selectOne(new QueryWrapper<OmOrderLogisticsPo>().eq("order_id", orderId));
+        if (orderLogistics != null) {
+            List<LogisticsDataBo> logisticsDataBos = JSONUtils.toJSONArray(orderLogistics.getData());
+            appMyOrderDetailVo.setLogisticsData(logisticsDataBos);
+        }
+        //订单返回购物券、积分、经验值
+        OrderRewardBo orderRewardBo=mapper.getOrderRewardByOrderId(orderId);
+        BeanUtils.copyProperties(orderRewardBo,appMyOrderDetailVo);
+
+        appMyOrderDetailVo.setAppMyOrderDetailStoreVo(appMyOrderDetailStoreVo);
+
+        return appMyOrderDetailVo;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void receiveOrder(Long orderId) {
+        OmOrderPo queryOrder=mapper.selectById(orderId);
+        if (queryOrder==null){
+            throw new ServiceException(ResultCode.PARAM_ERROR,"订单id不存在！");
+        }
+        if (queryOrder.getStatus()!=OrderStatusEnum.NEED_RECEIVE_GOODS){
+            throw new ServiceException(ResultCode.FAIL,"该订单不是待收货订单，不能进行确认收货操作！");
+        }
+        BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
+        Integer refundDay;
+        //如果是含税商品
+        if (queryOrder.getTaxMoney().compareTo(BigDecimal.ZERO)!=0){
+            refundDay=basicSettingPo.getTaxRefundDay();
+        }
+        else {
+            refundDay=basicSettingPo.getRefundDay();
+        }
+        //计算截止时间
+        LocalDateTime afterSaleDeadline=LocalDateTime.now().plusDays(refundDay);
+        OmOrderPo updateOrder = new OmOrderPo();
+        updateOrder.setId(orderId).setReceiveTime(LocalDateTime.now()).setAfterSaleDeadline(afterSaleDeadline)
+        .setStatus(OrderStatusEnum.NEED_EVALUATE);
+        mapper.updateById(updateOrder);
+
+        //多久自动评价(毫秒)
+        String expiration=basicSettingPo.getAutoCommentDay()*24*60*60*1000+"";
+
+        RabbitOrderBo rabbitOrderBo=new RabbitOrderBo();
+        rabbitOrderBo.setOrderId(orderId).setOrderStatusEnum(OrderStatusEnum.NEED_EVALUATE);
+
+        //添加延时队列
+        rabbitUtil.sendDelayMessage(1*60*1000+"",rabbitOrderBo);
+        LoggerUtil.info("【确认收货等待自动评价发送时间】:" + LocalDateTime.now());
+
+    }
+
 }

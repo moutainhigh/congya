@@ -44,6 +44,12 @@ public class SysRolePo extends SysBaseEntity {
     @ApiModelProperty(value = "角色级别")
     private Integer level;
 
+    @ApiModelProperty(value = "系统类型 1-平台 2-商家")
+    private Integer systemType;
+
+    @ApiModelProperty(value = "店铺ID")
+    private Long storeId;
+
     @Transient
     @TableField(exist=false)
     @ApiModelProperty(value = "拥有权限")

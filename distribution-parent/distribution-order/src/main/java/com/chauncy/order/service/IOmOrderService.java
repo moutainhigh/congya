@@ -1,15 +1,18 @@
 package com.chauncy.order.service;
 
-import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.core.Service;
+<<<<<<< HEAD
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
+=======
+>>>>>>> ye_store
 import com.chauncy.data.dto.app.order.my.SearchMyOrderDto;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
-import com.chauncy.data.dto.supplier.order.SmSendOrderDto;
+import com.chauncy.data.dto.supplier.order.SmSearchSendOrderDto;
 import com.chauncy.data.vo.app.order.my.AppSearchOrderVo;
+import com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailVo;
 import com.chauncy.data.vo.manage.order.list.OrderDetailVo;
 import com.chauncy.data.vo.manage.order.list.SearchOrderVo;
 import com.chauncy.data.vo.supplier.order.SmOrderDetailVo;
@@ -20,7 +23,6 @@ import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Map;
-import java.util.List;
 
 /**
  * <p>
@@ -68,10 +70,10 @@ public interface IOmOrderService extends Service<OmOrderPo> {
 
     /**
      *商家端发货订单列表
-     * @param smSendOrderDto
+     * @param smSearchSendOrderDto
      * @return
      */
-    PageInfo<SmSendOrderVo> searchSmSendOrderList(SmSendOrderDto smSendOrderDto);
+    PageInfo<SmSendOrderVo> searchSmSendOrderList(SmSearchSendOrderDto smSearchSendOrderDto);
 
     /**
      * 查询平台订单详情
@@ -109,6 +111,24 @@ public interface IOmOrderService extends Service<OmOrderPo> {
      * @return
      */
     Long payOrder(Long orderId);
+
+    /**
+     * 获取app我的订单详情
+     * @param orderId
+     * @return
+     */
+    AppMyOrderDetailVo getAppMyOrderDetailVoByOrderId(Long orderId);
+
+
+    /**
+     * 确认收货
+     * @param orderId
+     */
+    void receiveOrder(Long orderId);
+
+
+
+
 
 
 

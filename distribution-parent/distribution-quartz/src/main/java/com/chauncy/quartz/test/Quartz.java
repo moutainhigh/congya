@@ -16,18 +16,19 @@ public class Quartz {
 
     public String texts = "测试spel";
 
-    public String quartzTest(){
+    public String quartzTest(String texts){
 
-        String text = "定时任务测试@@@@@@";
-        log.info("定时任务测试@@@@@");
+        String text = "测试定时任务传参数";
+        log.info("测试定时任务传参数");
+        log.info(texts);
         return text;
     }
 
 
     public String quartzTest2(){
 
-        String text = "定时任务测试";
-        log.info("定时任务测试");
+        String text = "无参定时任务测试";
+        log.info("无参定时任务测试");
         return text;
     }
 

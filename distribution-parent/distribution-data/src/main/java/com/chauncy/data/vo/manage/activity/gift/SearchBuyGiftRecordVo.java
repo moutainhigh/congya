@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -42,13 +43,13 @@ public class SearchBuyGiftRecordVo {
     private Long orderId;
 
     @ApiModelProperty("经验值")
-    private Integer experience;
+    private BigDecimal experience;
 
     @ApiModelProperty("购物券")
-    private Integer vouchers;
+    private BigDecimal vouchers;
 
     @ApiModelProperty("积分")
-    private Integer integrals;
+    private BigDecimal integrals;
 
     @ApiModelProperty("礼包图片")
     private String picture;

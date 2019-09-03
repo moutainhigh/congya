@@ -24,4 +24,10 @@
         id, create_by, create_time, update_by, update_time, del_flag, um_user_id, ship_name, mobile, area_id, detailed_address, postal_code, is_default
     </sql>
 
+
+    <select id="getCityId" resultType="java.lang.Long">
+              SELECT a.city_id FROM `area_region` a,um_area_shipping u
+              where u.area_id=a.id and u.id=#{areaShipId}
+    </select>
+
 </mapper>

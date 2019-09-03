@@ -21,5 +21,10 @@
         <result column="update_time" property="updateTime" />
         <result column="del_flag" property="delFlag" />
     </resultMap>
+    <select id="findByTemplateId" resultType="com.chauncy.data.vo.app.goods.NumberShippingVo">
+        select *
+        from pm_number_shipping a
+        where a.shipping_id = #{templateId}
+    </select>
 
 </mapper>

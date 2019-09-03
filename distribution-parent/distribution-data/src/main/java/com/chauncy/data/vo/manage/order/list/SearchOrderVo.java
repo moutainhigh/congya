@@ -39,7 +39,7 @@ public class SearchOrderVo {
     private Integer totalNumber;
 
     @ApiModelProperty("订单金额")
-    private BigDecimal sumMoney;
+    private BigDecimal totalMoney;
 
     @ApiModelProperty("应付金额")
     private BigDecimal needPayMoney;

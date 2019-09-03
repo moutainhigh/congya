@@ -2,6 +2,7 @@ package com.chauncy.data.vo.manage.store;
 
 import com.chauncy.common.util.serializer.LongJsonSerializer;
 import com.chauncy.data.vo.manage.product.PmGoodsBrandVo;
+import com.chauncy.data.vo.manage.store.label.SmStoreLabelVo;
 import com.chauncy.data.vo.manage.store.rel.SmRelStoreVo;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModel;
@@ -39,12 +40,8 @@ public class StoreBaseInfoVo implements Serializable {
     @ApiModelProperty(value = "是否展示在前端 0 不展示 1 展示")
     private boolean showStatus;
 
-    @ApiModelProperty(value = "店铺类型标签id（sm_store_label主键）")
-    private Long storeLabelId;
-
     @ApiModelProperty(value = "店铺标签")
-    private String storeLabelName;
-
+    private List<SmStoreLabelVo> smStoreLabelVoList;
 
     @ApiModelProperty(value = "店铺分类id（sm_store_category主键）")
     private Long storeCategoryId;

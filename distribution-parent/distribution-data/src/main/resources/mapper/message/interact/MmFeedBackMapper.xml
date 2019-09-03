@@ -20,11 +20,13 @@
             resultType="com.chauncy.data.vo.manage.message.interact.feedBack.SearchFeedBackVo">
         select user_id,create_by as nick_name,content,create_time as feed_time
         from mm_feed_back
-        <where>
+        where del_flag = 0
             <if test="feedTime !=null">
-                DATE_FORMAT(create_time,'%Y-%m-%d') = #{feedTime}
+               and DATE_FORMAT(create_time,'%Y-%m-%d') &gt;= #{feedTime}
             </if>
-        </where>
+        <if test="endTime !=null">
+            and DATE_FORMAT(create_time,'%Y-%m-%d') &lt;= #{endTime}
+        </if>
 
     </select>
 

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chauncy.data.mapper.order.report.OmOrderReportMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.order.report.OmOrderReportPo">
+        <id column="id" property="id" />
+        <result column="year" property="year" />
+        <result column="month_day" property="monthDay" />
+        <result column="total_amount" property="totalAmount" />
+        <result column="total_num" property="totalNum" />
+        <result column="store_id" property="storeId" />
+        <result column="branch_id" property="branchId" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="del_flag" property="delFlag" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, year, month_day, total_amount, total_num, store_id, branch_id, create_by, create_time, withdrawal_time, processing_time, settlement_time, update_by, update_time, del_flag
+    </sql>
+    <select id="searchReportPaging" resultType="com.chauncy.data.vo.manage.order.report.ReportBaseInfoVo">
+         SELECT oor.id,
+            total_amount,
+            total_num,
+            create_time,
+            store.`name` AS storeName,
+            branch.`name` AS branchName
+         FROM om_order_report oor
+         LEFT JOIN sm_store store
+         ON store.`id` = oor.`store_id`
+         LEFT JOIN sm_store branch
+         ON branch.`id` = oor.`branch_id`
+        <where>
+            <if test="reportType !=null and reportType == 'STORE_REPORT'">
+                and oor.`branch_id` = #{storeId}
+            </if>
+            <if test="reportType !=null and reportType == 'BRANCH_REPORT'">
+                and oor.`store_id` = #{storeId}
+            </if>
+            <if test="reportType !=null and reportType == 'PLATFORM_REPORT'">
+                and oor.is_parent_store = 0
+            </if>
+            <if test="id !=null">
+                and oor.`id` = #{id}
+            </if>
+            <if test="storeName != null and storeName != ''">
+                and store.`name` like concat('%', #{storeName}, '%')
+            </if>
+            <if test="branchName != null and branchName != ''">
+                and branch.`name` like concat('%', #{branchName}, '%')
+            </if>
+            <if test="startTime != null">
+                and date(oor.create_time) <![CDATA[>= ]]>  #{startTime}
+            </if>
+            <if test="endTime != null">
+                and date(oor.create_time) <![CDATA[<= ]]> #{endTime}
+            </if>
+        </where>
+        ORDER BY oor.create_time DESC
+    </select>
+    <select id="findReportById" resultType="com.chauncy.data.vo.manage.order.report.ReportRelGoodsTempVo">
+         SELECT ogt.`order_id`,
+            ogt.`goods_id`,
+            ogt.`name` as goodsName,
+            ogt.`standard_str`,
+            ogt.`article_number`,
+            ogt.`number` AS goodsNumber,
+            orrgt.`distribute_price`,
+            orrgt.`total_amount`,
+            oo.create_time as createTime
+         FROM om_report_rel_goods_temp orrgt
+         LEFT JOIN om_goods_temp ogt
+         ON ogt.`id` = orrgt.`goods_temp_id`
+         LEFT JOIN om_order oo
+         ON oo.id = ogt.`order_id`
+         WHERE orrgt.`report_id` = #{id}
+         ORDER BY orrgt.`create_time` DESC
+    </select>
+    <select id="searchOrderReport" resultType="com.chauncy.data.domain.po.order.report.OmOrderReportPo">
+        SELECT orrgt.store_id,
+            orrgt.branch_id,
+            SUM(orrgt.distribute_price) AS total_amount,
+            SUM(orrgt.goods_num) AS total_num,
+            ss.name AS create_by,
+            orrgt.is_parent_store
+        FROM om_report_rel_goods_temp orrgt, sm_store ss
+        WHERE ss.id = orrgt.store_id
+        AND orrgt.branch_id = #{branchId}
+        AND orrgt.report_id is null
+        AND DATE(orrgt.create_time) <![CDATA[>= ]]> #{startDate}
+        AND DATE(orrgt.create_time) <![CDATA[<= ]]> #{endDate}
+        GROUP BY orrgt.store_id, orrgt.branch_id, ss.name, orrgt.is_parent_store
+    </select>
+
+</mapper>

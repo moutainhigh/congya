@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -19,6 +20,7 @@ public class AddInformationCommentDto implements Serializable {
 
     @ApiModelProperty(value = "评论的资讯ID")
     @NeedExistConstraint(tableName = "mm_information")
+    @NotNull(message= "infoId参数不能为空")
     private Long infoId;
 
     @ApiModelProperty(value = "被回复的评论ID")

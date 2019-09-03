@@ -2,11 +2,15 @@ package com.chauncy.data.mapper.order.bill;
 
 import com.chauncy.data.domain.po.order.bill.OmOrderBillPo;
 import com.chauncy.data.dto.manage.order.bill.select.SearchBillDto;
+import com.chauncy.data.dto.manage.order.bill.select.SearchOrderReportDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.manage.order.bill.BillBaseInfoVo;
 import com.chauncy.data.vo.manage.order.bill.BillDetailVo;
+import com.chauncy.data.vo.manage.order.bill.BillRelGoodsTempVo;
+import com.chauncy.data.vo.manage.order.bill.BillReportVo;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -35,4 +39,32 @@ public interface OmOrderBillMapper extends IBaseMapper<OmOrderBillPo> {
      * @return
      */
     BillDetailVo findBillDetail(@Param("id") Long id);
+
+    /**
+     * 获取需要创建账单的店铺的数量
+     * @param endDate   需要创建账单的那一周   任何一天都可以
+     * @return
+     */
+    int getStoreSumNeedCreateBill(@Param("billType") Integer billType, @Param("endDate") LocalDate endDate, @Param("storeId") Long storeId);
+
+    /**
+     * 获取需要创建账单的店铺的id
+     * @param endDate
+     * @return
+     */
+    List<Long> getStoreNeedCreateBill(@Param("billType") Integer billType, @Param("endDate") LocalDate endDate, @Param("storeId") Long storeId);
+
+    /**
+     * 查询订单交易报表  团队合作利润账单
+     * @param searchOrderReportDto
+     * @return
+     */
+    List<BillReportVo> searchBillReportPaging(SearchOrderReportDto searchOrderReportDto);
+
+    /**
+     * 查询账单关联订单商品列表
+     * @param id
+     * @return
+     */
+    List<BillRelGoodsTempVo> findRelBillDetail(Long id);
 }

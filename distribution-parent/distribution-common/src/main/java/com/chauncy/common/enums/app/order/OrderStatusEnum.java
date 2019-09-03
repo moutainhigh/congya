@@ -20,10 +20,9 @@ public enum OrderStatusEnum implements BaseEnum {
     NEED_SEND_GOODS(1,"待发货"),
     NEED_RECEIVE_GOODS(2,"待收货"),
     NEED_EVALUATE(3,"待评价"),
-    ALREADY_FINISH(4,"已完成"),
+    ALREADY_EVALUATE(4,"已评价"),
     NEED_USE(5,"待使用"),
-    ALREADY_USE(6,"已使用"),
-    ALREADY_CANCEL(7,"已取消");
+    ALREADY_CANCEL(6,"已取消");
 
     @EnumValue
     private final Integer id;
@@ -43,6 +42,17 @@ public enum OrderStatusEnum implements BaseEnum {
                 return orderStatusEnum;
         }
         return null;
+    }
+
+    /**
+     * 判断是否有售后资格
+     * @return
+     */
+    public boolean canAfterSale(){
+        if (this.getId()>=1&&this.getId()<=4){
+            return true;
+        }
+        return false;
     }
 
 

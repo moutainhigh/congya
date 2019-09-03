@@ -2,6 +2,7 @@ package com.chauncy.system.service;
 
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.sys.SysRolePo;
+import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.github.pagehelper.PageInfo;
 
@@ -30,5 +31,5 @@ public interface ISysRoleService extends Service<SysRolePo> {
      * @param baseSearchDto
      * @return
      */
-    PageInfo<SysRolePo> getRoleByPage(BaseSearchDto baseSearchDto);
+    PageInfo<SysRolePo> getRoleByPage(BaseSearchDto baseSearchDto, SysUserPo userPo);
 }

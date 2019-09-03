@@ -1,14 +1,18 @@
 package com.chauncy.order.evaluate.service.impl;
 
+import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.order.OmEvaluatePo;
+import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.evaluate.add.AddValuateDto;
 import com.chauncy.data.dto.app.order.evaluate.add.SearchEvaluateDto;
 import com.chauncy.data.dto.app.order.evaluate.select.GetPersonalEvaluateDto;
+import com.chauncy.data.dto.supplier.evaluate.SaveStoreReplyDto;
 import com.chauncy.data.dto.supplier.good.select.SearchEvaluatesDto;
 import com.chauncy.data.mapper.order.OmEvaluateMapper;
+import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo;
 import com.chauncy.data.vo.supplier.evaluate.EvaluateVo;
@@ -17,9 +21,11 @@ import com.chauncy.order.evaluate.service.IOmEvaluateService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +51,9 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
     @Autowired
     private SmStoreMapper storeMapper;
 
+    @Autowired
+    private OmOrderMapper orderMapper;
+
     /**
      * 用户进行商品评价
      *
@@ -52,9 +61,26 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void addEvaluate(AddValuateDto addValuateDto) {
 
-        //判断是否是第一次评论
+        UmUserPo appCurrUser = securityUtil.getAppCurrUser();
+        List<OmEvaluatePo> saveOmEvaluatePos= Lists.newArrayList();
+        addValuateDto.getAddCommentSkus().forEach(x->{
+            OmEvaluatePo omEvaluatePo=new OmEvaluatePo();
+            BeanUtils.copyProperties(addValuateDto, omEvaluatePo);
+            BeanUtils.copyProperties(x, omEvaluatePo);
+            omEvaluatePo.setCreateBy(appCurrUser.getPhone());
+            saveOmEvaluatePos.add(omEvaluatePo);
+        });
+        this.saveBatch(saveOmEvaluatePos);
+
+        OmOrderPo updateOrder=new OmOrderPo();
+        updateOrder.setId(addValuateDto.getOrderId()).setStatus(OrderStatusEnum.ALREADY_EVALUATE);
+        orderMapper.updateById(updateOrder);
+
+
+        /*//判断是否是第一次评论
         if (addValuateDto.getId() == 0) {
             SysUserPo user= securityUtil.getCurrUser ();
             OmEvaluatePo omEvaluatePo = new OmEvaluatePo();
@@ -74,7 +100,7 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
             omEvaluatePo.setParentId(addValuateDto.getId());
             omEvaluatePo.setCreateBy(name);
             mapper.insert(omEvaluatePo);
-        }
+        }*/
     }
 
     /**
@@ -161,6 +187,15 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
             });
         }
         return searchEvaluateVo;
+    }
+
+    @Override
+    public void reply(SaveStoreReplyDto saveStoreReplyDto) {
+        SysUserPo sysUserPo = securityUtil.getCurrUser();
+        OmEvaluatePo saveEvaluate=new OmEvaluatePo();
+        saveEvaluate.setContent(saveStoreReplyDto.getContent()).setParentId(saveStoreReplyDto.getEvaluateId())
+        .setCreateBy(sysUserPo.getUsername()).setOrderId(saveStoreReplyDto.getOrderId());
+        mapper.insert(saveEvaluate);
     }
 
     /**

@@ -2,6 +2,7 @@ package com.chauncy.data.vo.app.store;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.chauncy.common.util.serializer.LongJsonSerializer;
+import com.chauncy.data.vo.manage.store.label.SmStoreLabelVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModel;
@@ -29,6 +30,9 @@ public class StoreDetailVo  implements Serializable {
 
     @ApiModelProperty(value = "店铺名称")
     private String storeName;
+
+    @ApiModelProperty(value = "店铺标签")
+    private List<SmStoreLabelVo> smStoreLabelVoList;
 
     @ApiModelProperty(value = "店铺logo")
     private String logoImage;

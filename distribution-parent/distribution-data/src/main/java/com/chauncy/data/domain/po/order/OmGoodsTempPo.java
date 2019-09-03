@@ -70,7 +70,7 @@ public class OmGoodsTempPo implements Serializable {
     @ApiModelProperty(value = "商品销售价")
     private BigDecimal sellPrice;
 
-    @ApiModelProperty(value = "支付单id")
+    @ApiModelProperty(value = "订单id")
     private Long orderId;
 
     @ApiModelProperty(value = "skuId")
@@ -87,6 +87,24 @@ public class OmGoodsTempPo implements Serializable {
 
     @ApiModelProperty(value = "商品利润比例")
     private BigDecimal profitRate;
+
+    @ApiModelProperty(value = "预计奖励购物券")
+    private BigDecimal rewardShopTicket;
+
+    @ApiModelProperty(value = "预计奖励经验值")
+    private BigDecimal rewardExperience;
+
+    @ApiModelProperty(value = "预计奖励积分")
+    private BigDecimal rewardIntegrate;
+
+    @ApiModelProperty(value = "实付金额")
+    private BigDecimal realPayMoney;
+
+    @ApiModelProperty(value = "能否进行售后")
+    private Boolean canAfterSale;
+
+    @ApiModelProperty(value = "是否售后成功")
+    private Boolean isAfterSale;
 
 
 }

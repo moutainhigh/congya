@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
@@ -38,6 +40,13 @@ public class RabbitConfig {
     }
 
     @Bean
+    public RabbitAdmin rabbitAdmin(ConnectionFactory connectionFactory){
+        RabbitAdmin rabbitAdmin = new RabbitAdmin(connectionFactory);
+        rabbitAdmin.setAutoStartup(true);
+        return  rabbitAdmin;
+    }
+
+    @Bean
     public MessageConverter jsonMessageConverter(ObjectMapper objectMapper) {
         return new Jackson2JsonMessageConverter(objectMapper);
     }
@@ -59,10 +68,10 @@ public class RabbitConfig {
     public Queue delayOrderQueue() {
         Map<String, Object> params = new HashMap<>();
         // x-dead-letter-exchange 声明了队列里的死信转发到的DLX名称，
-        params.put("x-dead-letter-exchange", RabbitConstants.SUBMIT_ORDER_EXCHANGE);
+        params.put("x-dead-letter-exchange", RabbitConstants.CLOSE_ORDER_EXCHANGE);
         // x-dead-letter-routing-key 声明了这些死信在转发时携带的 routing-key 名称。
         params.put("x-dead-letter-routing-key", RabbitConstants.ROUTING_KEY);
-        return new Queue(RabbitConstants.ORDER_DELAY_QUEUE, true, false, false, params);
+        return new Queue(RabbitConstants.ORDER_UNPAID_DELAY_QUEUE, true, false, false, params);
     }
 
     /**
@@ -74,7 +83,7 @@ public class RabbitConfig {
      */
     @Bean
     public DirectExchange delayOrderExchange() {
-        return new DirectExchange(RabbitConstants.REGISTER_DELAY_EXCHANGE);
+        return new DirectExchange(RabbitConstants.ORDER_UNPAID_DELAY_EXCHANGE);
     }
 
     @Bean
@@ -85,7 +94,7 @@ public class RabbitConfig {
 
     @Bean
     public Queue submitOrderQueue() {
-        return new Queue(RabbitConstants.SUBMIT_ORDER_QUEUE, true);
+        return new Queue(RabbitConstants.CLOSE_ORDER_QUEUE, true);
     }
 
     /**
@@ -94,7 +103,7 @@ public class RabbitConfig {
      **/
     @Bean
     public TopicExchange submitOrderTopicExchange() {
-        return new TopicExchange(RabbitConstants.SUBMIT_ORDER_EXCHANGE);
+        return new TopicExchange(RabbitConstants.CLOSE_ORDER_EXCHANGE);
     }
 
     @Bean
@@ -102,4 +111,56 @@ public class RabbitConfig {
         // TODO 如果要让延迟队列之间有关联,这里的 routingKey 和 绑定的交换机很关键
         return BindingBuilder.bind(submitOrderQueue()).to(submitOrderTopicExchange()).with(RabbitConstants.ROUTING_KEY);
     }
+
+    @Bean
+    public Queue orderDeadQueue() {
+        //死信队列
+        Map<String, Object> params = new HashMap<>();
+        params.put("x-dead-letter-exchange", RabbitConstants.ORDER_REDIRECT_EXCHANGE);
+        params.put("x-dead-letter-routing-key", RabbitConstants.ORDER_REDIRECT_KEY);
+        return new Queue(RabbitConstants.ORDER_DEAD_QUEUE, true, false, false, params);
+    }
+
+    @Bean
+    public DirectExchange orderDeadExchange() {
+        //死信交换机
+        return new DirectExchange(RabbitConstants.ORDER_DEAD_EXCHANGE);
+    }
+
+    @Bean
+    public Binding dlxOrderBinding() {
+        return BindingBuilder.bind(orderDeadQueue()).to(orderDeadExchange()).with(RabbitConstants.ORDER_DEAD_ROUTING_KEY);
+    }
+
+
+    /**
+     * 转发队列
+     * @return
+     */
+    @Bean
+    public Queue redirectOrderQueue() {
+        return new Queue(RabbitConstants.ORDER_REDIRECT_QUEUE, true);
+    }
+
+    /**
+     * 死信转发的交换机
+     * @return
+     */
+    @Bean
+    public TopicExchange orderRedirectExchange() {
+        return new TopicExchange(RabbitConstants.ORDER_REDIRECT_EXCHANGE);
+    }
+
+    /**
+     * 死信交换机与队列绑定
+     * @return
+     */
+    @Bean
+    public Binding orderRedirectBinding() {
+        // TODO 如果要让延迟队列之间有关联,这里的 routingKey 和 绑定的交换机很关键
+        return BindingBuilder.bind(redirectOrderQueue()).
+                to(orderRedirectExchange()).with(RabbitConstants.ORDER_REDIRECT_KEY);
+    }
+
+
 }

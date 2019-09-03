@@ -11,6 +11,7 @@ import com.chauncy.common.util.JSONUtils;
 import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.domain.po.product.*;
 import com.chauncy.data.domain.po.sys.BasicSettingPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
@@ -25,6 +26,7 @@ import com.chauncy.data.dto.supplier.good.select.*;
 import com.chauncy.data.dto.supplier.good.update.*;
 import com.chauncy.data.dto.supplier.store.update.SelectStockTemplateGoodsDto;
 import com.chauncy.data.mapper.area.AreaRegionMapper;
+import com.chauncy.data.mapper.message.information.MmInformationMapper;
 import com.chauncy.data.mapper.product.*;
 import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockMapper;
 import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockTemplateMapper;
@@ -36,6 +38,7 @@ import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.supplier.*;
 import com.chauncy.data.vo.supplier.good.AssociationGoodsVo;
 import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
+import com.chauncy.data.vo.supplier.good.RecommendGoodsVo;
 import com.chauncy.product.service.IPmAssociationGoodsService;
 import com.chauncy.data.vo.supplier.good.stock.GoodsStockTemplateVo;
 import com.chauncy.data.vo.supplier.good.stock.StockTemplateGoodsInfoVo;
@@ -99,6 +102,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
     @Autowired
     private PmGoodsRelAttributeValueGoodMapper goodsRelAttributeValueGoodMapper;
+
+    @Autowired
+    private MmInformationMapper mmInformationMapper;
 
     /*@Autowired
     private PmGoodsRelGoodsMemberLevelMapper goodsRelGoodsMemberLevelMapper;*/
@@ -824,6 +830,35 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     }
 
     /**
+     * 获取店铺推荐商品
+     * @param searchRecommendGoodsDto
+     * @return
+     */
+    @Override
+    public PageInfo<RecommendGoodsVo> storeRecommendGoods(SearchRecommendGoodsDto searchRecommendGoodsDto) {
+
+        if(null != searchRecommendGoodsDto.getInformationId()) {
+            MmInformationPo mmInformationPo = mmInformationMapper.selectById(searchRecommendGoodsDto.getInformationId());
+            searchRecommendGoodsDto.setStoreId(mmInformationPo.getStoreId());
+        } else {
+            //保存资讯时还没有资讯id
+            Long storeId = securityUtil.getCurrUser().getStoreId();
+            if(null == storeId) {
+                //当前登录用户跟操作不匹配
+                throw  new ServiceException(ResultCode.FAIL, "当前登录用户跟操作不匹配");
+            }
+            searchRecommendGoodsDto.setStoreId(storeId);
+        }
+
+        Integer pageNo = searchRecommendGoodsDto.getPageNo() == null ? defaultPageNo : searchRecommendGoodsDto.getPageNo();
+        Integer pageSize = searchRecommendGoodsDto.getPageSize() == null ? defaultPageSize : searchRecommendGoodsDto.getPageSize();
+        PageInfo<RecommendGoodsVo> recommendGoodsVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> mapper.storeRecommendGoods(searchRecommendGoodsDto));
+
+        return recommendGoodsVoPageInfo;
+    }
+
+    /**
      * 添加sku列表
      *
      * @param goodsId
@@ -1075,9 +1110,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         }
         findGoodOperationVo.setGoodsId (goodsId);
         //获取当前的限制会员等级
-        if (goodsPo.getMemberLevelId ()!=null) {
+        if (goodsPo.getMemberLevelId ()!=0) {
             findGoodOperationVo.setMemberLevelId (goodsPo.getMemberLevelId ());
-            if (memberLevelMapper.selectById (goodsPo.getMemberLevelId ()).getLevel () == lowestLevel)
+            if (memberLevelMapper.selectById  (goodsPo.getMemberLevelId ()).getLevel () == lowestLevel)
             findGoodOperationVo.setMemberLevelName (memberLevelMapper.selectById (goodsPo.getMemberLevelId ()).getLevelName ()+"/全部会员");
         }
         return findGoodOperationVo;
@@ -1594,6 +1629,8 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
     @Override
     public PageInfo<ExcelGoodVo> searchExcelGoods(SearchExcelDto searchExcelDto) {
+        SysUserPo currentUser=securityUtil.getCurrUser();
+        searchExcelDto.setStoreId(currentUser.getStoreId());
         Integer pageNo = searchExcelDto.getPageNo() == null ? defaultPageNo : searchExcelDto.getPageNo();
         Integer pageSize = searchExcelDto.getPageSize() == null ? defaultPageSize : searchExcelDto.getPageSize();
         PageInfo<ExcelGoodVo> excelGoodVoPageInfo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
@@ -1744,15 +1781,15 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             return new PageInfo<> ();
         }
         associationGoodsVoPageInfo.getList ().forEach (a->{
-            PmGoodsCategoryPo goodsCategoryPo3 = goodsCategoryMapper.selectById(mapper.selectById (associationGoodsDto.getGoodsId ()).getGoodsCategoryId ());
+            PmGoodsCategoryPo goodsCategoryPo3 = goodsCategoryMapper.selectById(mapper.selectById (a.getGoodsId ()).getGoodsCategoryId ());
             String level3 = goodsCategoryPo3.getName();
             PmGoodsCategoryPo goodsCategoryPo2 = goodsCategoryMapper.selectById(goodsCategoryPo3.getParentId());
             String level2 = goodsCategoryPo2.getName();
             String level1 = goodsCategoryMapper.selectById(goodsCategoryPo2.getParentId()).getName();
             String categoryName = level1 + "/" + level2 + "/" + level3;
             a.setCategory (categoryName);
-            BigDecimal lowestSellPrice = goodsSkuMapper.getLowestPrice (associationGoodsDto.getGoodsId ());
-            BigDecimal highestSellPrice = goodsSkuMapper.getHighestPrice (associationGoodsDto.getGoodsId ());
+            BigDecimal lowestSellPrice = goodsSkuMapper.getLowestPrice (a.getGoodsId ());
+            BigDecimal highestSellPrice = goodsSkuMapper.getHighestPrice (a.getGoodsId ());
             String sellPrice ="";
             if (lowestSellPrice.equals (highestSellPrice)){
                 sellPrice=lowestSellPrice.toString ();
