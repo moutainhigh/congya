@@ -87,5 +87,10 @@
         where a.id = #{goodsId} and a.id = d.goods_good_id and d.goods_attribute_id = e.id and
         e.type = 5 and a.del_flag = 0 and d.del_flag = 0 and  e.del_flag = 0
     </select>
+    <select id="searchBrandBase" resultType="com.chauncy.data.vo.app.advice.goods.SearchBrandAndSkuBaseVo">
+        select b.id as brand_id,b.name as brand_name,b.logo_image as brand_logo,b.subtitle,b.collection_num
+        from mm_advice_rel_tab_things a,pm_goods_attribute b
+        where a.tab_id = #{tabId} and a.association_id = b.id and a.del_flag	=0 and b.del_flag	= 0
+    </select>
 
 </mapper>
