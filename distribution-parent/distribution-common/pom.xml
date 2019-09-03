@@ -137,6 +137,7 @@
             <groupId>com.github.wxpay</groupId>
             <artifactId>wxpay-sdk</artifactId>
             <version>0.0.3</version>
+            <systemPath>${project.basedir}/src/main/resources/lib/wxpay-sdk-0.0.3.jar</systemPath>
         </dependency>
 
         <!--极光推送  start-->
