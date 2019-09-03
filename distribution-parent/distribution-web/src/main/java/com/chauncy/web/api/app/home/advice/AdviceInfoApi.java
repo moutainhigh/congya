@@ -1,8 +1,10 @@
 package com.chauncy.web.api.app.home.advice;
 
+import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.app.advice.goods.SearchBrandAndSkuBaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseVo;
 import com.chauncy.data.vo.app.advice.home.GetAdviceInfoVo;
 import com.chauncy.data.vo.app.advice.home.ShufflingVo;
@@ -17,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -86,13 +87,28 @@ public class AdviceInfoApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "根据选项卡分页获取特卖、主题、优选等选项卡关联的商品基本信息")
-    @PostMapping("/getGoodsBaseInfo")
+    @PostMapping("/searchGoodsBaseInfos")
     public JsonViewData<PageInfo<SearchGoodsBaseVo>> searchGoodsBase(@RequestBody @ApiParam(required = true,name = "searchGoodsBaseDto",value = "分页查询商品基本信息")
                                                                          @Validated SearchGoodsBaseDto searchGoodsBaseDto){
 
         return setJsonViewData(adviceService.searchGoodsBase(searchGoodsBaseDto));
     }
 
+    /**
+     * 根据选项卡分页获取关联的品牌和商品具体的sku基本信息
+     *
+     * 这里显示的商品是具体的sku信息
+     *
+     * @param searchBrandAndSkuBaseDto
+     * @return
+     */
+    @ApiOperation(value = "根据选项卡分页获取关联的品牌和商品具体的sku基本信息")
+    @PostMapping("/searchBrandAndSkuBaseInfos")
+    public JsonViewData<PageInfo<SearchBrandAndSkuBaseVo>> searchBrandAndSkuBase(@RequestBody @ApiParam(required = true,name = "searchGoodsBaseDto",value = "分页查询商品基本信息")
+                                                                     @Validated SearchBrandAndSkuBaseDto searchBrandAndSkuBaseDto){
+
+        return setJsonViewData(adviceService.searchBrandAndSkuBase(searchBrandAndSkuBaseDto));
+    }
 
 
 }
