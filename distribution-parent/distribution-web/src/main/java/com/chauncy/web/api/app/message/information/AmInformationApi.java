@@ -185,6 +185,21 @@ public class AmInformationApi extends BaseApi {
     }
 
     /**
+     * 用户转发资讯成功
+     * @param infoId  资讯id
+     * @return
+     */
+    @ApiOperation(value = "用户成功转发资讯", notes = "转发成功记录操作")
+    @ApiImplicitParam(name = "infoId", value = "资讯id", required = true, dataType = "Long", paramType = "path")
+    @GetMapping("/forwardInfo/{infoId}")
+    public JsonViewData forwardInfo(@PathVariable(value = "infoId")Long infoId) {
+
+        mmInformationService.forwardInfo(infoId, securityUtil.getAppCurrUser().getId());
+        return new JsonViewData(ResultCode.SUCCESS, "操作成功");
+
+    }
+
+    /**
      * 用户评论点赞/取消点赞
      * @param commentId  评论id
      * @return

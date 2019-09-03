@@ -101,4 +101,11 @@ public interface IMmInformationService extends Service<MmInformationPo> {
      * @param baseUpdateStatusDto
      */
     void editInformationStatus(BaseUpdateStatusDto baseUpdateStatusDto);
+
+    /**
+     * 用户转发资讯成功
+     * @param infoId
+     * @param userId
+     */
+    void forwardInfo(Long infoId, Long userId);
 }
