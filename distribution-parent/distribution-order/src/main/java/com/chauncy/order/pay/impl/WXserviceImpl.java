@@ -36,7 +36,7 @@ public class WXserviceImpl implements WXservice {
 
     private static final Logger logger = LoggerFactory.getLogger(WXserviceImpl.class);
 
-    public static final String NOTIFY_URL = "http://aaa/v1/weixin/notify.json";
+    public static final String NOTIFY_URL = "http://112.126.96.226/distribution/app/wxPay/wxPay/notify";
     public static final String TRADE_TYPE_APP = "APP";
 
 

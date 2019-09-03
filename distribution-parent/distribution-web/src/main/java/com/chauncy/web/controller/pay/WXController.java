@@ -29,7 +29,7 @@ import java.util.Map;
  */
 @Api(tags = "APP_支付管理接口")
 @RestController
-@RequestMapping("/app/wxPay")
+@RequestMapping("/app")
 @Slf4j
 public class WXController {
 
@@ -78,7 +78,7 @@ public class WXController {
      */
     @RequestMapping(value = "/wxPay/notify", method = {RequestMethod.GET, RequestMethod.POST}, produces={"application/xml;"})
     public String wxPayNotify(HttpServletRequest request, HttpServletResponse response) {
-        String resXml = "";
+        String resXml;
         try {
             InputStream inputStream = request.getInputStream();
             //将InputStream转换成xmlString

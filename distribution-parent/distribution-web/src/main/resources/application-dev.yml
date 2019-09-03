@@ -165,3 +165,10 @@ distribution:
   # mob api配置 mob官网注册申请即可
   mob:
     appKey: appKey
+
+  # 微信配置
+  wxpay:
+    APP_ID: wx42bfe19a00e22417
+    KEY: BoHUI2028CongYa8BoHUI2028CongYa8-
+    MCH_ID: 1498771872
+    BODY: 葱鸭百货
