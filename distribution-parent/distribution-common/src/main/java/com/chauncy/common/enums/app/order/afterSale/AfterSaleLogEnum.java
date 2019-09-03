@@ -72,10 +72,10 @@ public enum AfterSaleLogEnum {
     BUYER_RETURN_GOODS(17, "退货退款-买家已退货", "您已退货，请等待商家收货后处理",
             null),
 
-    BUYER_AGREE_REFUND(18, "退货退款-商家同意退款", null,
+    STORE_AGREE_REFUND(18, "退货退款-商家同意退款", null,
             null),
 
-    BUYER_REFUSE_REFUND(19, "退货退款-商家拒绝退款", "商家拒绝该退款申请，您可以协商修改或关闭申请。",
+    STORE_REFUSE_REFUND(19, "退货退款-商家拒绝退款", "商家拒绝该退款申请，您可以协商修改或关闭申请。",
             null),
 
     STORE_OVERTIME_UNHANDLED_REFUND(20, "退货退款-商家超时未处理退款", "\n" +

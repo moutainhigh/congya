@@ -1,7 +1,6 @@
 package com.chauncy.data.vo.manage.order.afterSale;
 
 import com.chauncy.common.enums.app.order.afterSale.AfterSaleLogEnum;
-import com.chauncy.common.enums.app.order.afterSale.AfterSaleStatusEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -16,8 +15,8 @@ import java.time.LocalDateTime;
 @Data
 public class AfterSaleLogVo {
 
-    @ApiModelProperty(value = "操作 1-待审核 2-处理中 3-售后成功 4-售后失败")
-    private AfterSaleLogEnum operate;
+    @ApiModelProperty("操作节点")
+    private AfterSaleLogEnum node;
 
     @ApiModelProperty(value = "审核信息")
     private String describe;

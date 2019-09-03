@@ -111,6 +111,11 @@ public interface IOmOrderService extends Service<OmOrderPo> {
      */
     void receiveOrder(Long orderId);
 
+    /**
+     * 支付成功后需要做的操作
+     */
+    void afterPayDo(Long payOrderId);
+
 
 
 

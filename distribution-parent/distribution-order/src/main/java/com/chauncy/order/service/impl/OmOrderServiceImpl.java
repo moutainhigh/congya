@@ -2,9 +2,9 @@ package com.chauncy.order.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.chauncy.common.constant.RabbitConstants;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.common.enums.app.order.PayOrderStatusEnum;
+import com.chauncy.common.enums.goods.GoodsTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
@@ -15,6 +15,7 @@ import com.chauncy.common.util.rabbit.RabbitUtil;
 import com.chauncy.data.bo.app.logistics.LogisticsDataBo;
 import com.chauncy.data.bo.app.order.my.OrderRewardBo;
 import com.chauncy.data.bo.app.order.rabbit.RabbitOrderBo;
+import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.domain.po.order.OmOrderLogisticsPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
@@ -27,9 +28,9 @@ import com.chauncy.data.dto.supplier.order.SmSearchSendOrderDto;
 import com.chauncy.data.mapper.order.OmGoodsTempMapper;
 import com.chauncy.data.mapper.order.OmOrderLogisticsMapper;
 import com.chauncy.data.mapper.order.OmOrderMapper;
-import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.mapper.order.OmShoppingCartMapper;
 import com.chauncy.data.mapper.pay.IPayOrderMapper;
+import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
 import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.vo.app.car.ShopTicketSoWithCarGoodVo;
@@ -44,23 +45,14 @@ import com.chauncy.order.service.IOmOrderService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.DirectExchange;
-import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.core.TopicExchange;
-import org.springframework.amqp.rabbit.connection.RabbitUtils;
-import org.springframework.amqp.rabbit.core.RabbitAdmin;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -97,6 +89,9 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
     @Autowired
     private RabbitUtil rabbitUtil;
+
+    @Autowired
+    private PmGoodsMapper goodsMapper;
 
 
     @Override
@@ -338,6 +333,38 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         //添加延时队列
         rabbitUtil.sendDelayMessage(1*60*1000+"",rabbitOrderBo);
         LoggerUtil.info("【确认收货等待自动评价发送时间】:" + LocalDateTime.now());
+
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void afterPayDo(Long payOrderId) {
+        //改订单状态
+        QueryWrapper<OmOrderPo> queryOrderWrapper=new QueryWrapper<>();
+        queryOrderWrapper.lambda().eq(OmOrderPo::getPayOrderId,payOrderId);
+        List<OmOrderPo> queryOrders = mapper.selectList(queryOrderWrapper);
+        queryOrders.forEach(x->{
+            OmOrderPo updateOrder=new OmOrderPo();
+            //自取与服务类商品没有发货状态
+            if (x.getGoodsType().equals(GoodsTypeEnum.PICK_UP_INSTORE.getName())||
+                    x.getGoodsType().equals(GoodsTypeEnum.SERVICES.getName()) ){
+                updateOrder.setStatus(OrderStatusEnum.NEED_USE).setId(x.getId()).setPayTime(LocalDateTime.now());
+            }
+            else {
+                updateOrder.setStatus(OrderStatusEnum.NEED_SEND_GOODS).setId(x.getId()).setPayTime(LocalDateTime.now());
+            }
+            mapper.updateById(updateOrder);
+        });
+
+        //sku和商品增加销量
+        QueryWrapper<OmGoodsTempPo> queryGoodsTempWrapper=new QueryWrapper<>();
+        queryGoodsTempWrapper.lambda().in(OmGoodsTempPo::getOrderId,queryOrders.stream().map(OmOrderPo::getId).collect(Collectors.toList()));
+        List<OmGoodsTempPo> queryGoodsTemps = goodsTempMapper.selectList(queryGoodsTempWrapper);
+        queryGoodsTemps.forEach(x->{
+            goodsSkuMapper.addASalesVolume(x.getSkuId(),x.getNumber());
+            goodsMapper.addASalesVolume(x.getGoodsId(),x.getNumber());
+        });
+
 
     }
 

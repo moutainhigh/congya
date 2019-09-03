@@ -302,4 +302,6 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @return
      */
     void delAssociationsByIds (Long[] ids);
+
+
 }
