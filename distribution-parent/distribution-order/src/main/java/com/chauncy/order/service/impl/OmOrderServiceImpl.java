@@ -217,14 +217,16 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         payOrderPoUpdateWrapper.lambda().set(PayOrderPo::getPayAmount, payAmount);
         payOrderPoUpdateWrapper.lambda().set(PayOrderPo::getPayTime, notifyMap.get("time_end"));
         payOrderService.update(payOrderPoUpdateWrapper);
-        //更新OmOrderPo
+        //付款成功后需要做的操作
+        afterPayDo(payOrderPo.getId());
+       /* //更新OmOrderPo
         UpdateWrapper<OmOrderPo> omOrderPoUpdateWrapper = new UpdateWrapper<>();
         omOrderPoUpdateWrapper.lambda().eq(OmOrderPo::getPayOrderId, payOrderPo.getId());
         omOrderPoUpdateWrapper.lambda().set(OmOrderPo::getPayOrderId, payOrderPo.getId());
         //设置待发货状态
         omOrderPoUpdateWrapper.lambda().set(OmOrderPo::getStatus, OrderStatusEnum.NEED_SEND_GOODS);
         omOrderPoUpdateWrapper.lambda().set(OmOrderPo::getPayTime, notifyMap.get("time_end"));
-        this.update(omOrderPoUpdateWrapper);
+        this.update(omOrderPoUpdateWrapper);*/
     }
 
     @Override
@@ -387,19 +389,21 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void afterPayDo(Long payOrderId) {
+        PayOrderPo queryPayOrder = payOrderMapper.selectById(payOrderId);
         //改订单状态
         QueryWrapper<OmOrderPo> queryOrderWrapper=new QueryWrapper<>();
         queryOrderWrapper.lambda().eq(OmOrderPo::getPayOrderId,payOrderId);
         List<OmOrderPo> queryOrders = mapper.selectList(queryOrderWrapper);
         queryOrders.forEach(x->{
             OmOrderPo updateOrder=new OmOrderPo();
+            updateOrder.setId(x.getId()).setPayTime(queryPayOrder.getPayTime());
             //自取与服务类商品没有发货状态
             if (x.getGoodsType().equals(GoodsTypeEnum.PICK_UP_INSTORE.getName())||
                     x.getGoodsType().equals(GoodsTypeEnum.SERVICES.getName()) ){
-                updateOrder.setStatus(OrderStatusEnum.NEED_USE).setId(x.getId()).setPayTime(LocalDateTime.now());
+                updateOrder.setStatus(OrderStatusEnum.NEED_USE);
             }
             else {
-                updateOrder.setStatus(OrderStatusEnum.NEED_SEND_GOODS).setId(x.getId()).setPayTime(LocalDateTime.now());
+                updateOrder.setStatus(OrderStatusEnum.NEED_SEND_GOODS);
             }
             mapper.updateById(updateOrder);
         });

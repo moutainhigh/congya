@@ -4,16 +4,22 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.app.advice.AdviceLocationEnum;
 import com.chauncy.common.enums.app.advice.AdviceTypeEnum;
 import com.chauncy.common.enums.app.advice.AssociationTypeEnum;
+import com.chauncy.common.enums.app.advice.ConditionTypeEnum;
+import com.chauncy.common.enums.app.sort.SortFileEnum;
+import com.chauncy.common.enums.app.sort.SortWayEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.ListUtil;
+import com.chauncy.data.bo.app.order.RewardShopTicketBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.advice.*;
 import com.chauncy.data.domain.po.message.information.category.MmInformationCategoryPo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
+import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.advice.add.SaveClassificationAdviceDto;
 import com.chauncy.data.dto.manage.message.advice.add.SaveOtherAdviceDto;
@@ -27,9 +33,12 @@ import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
+import com.chauncy.data.mapper.sys.BasicSettingMapper;
+import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.advice.goods.BrandGoodsVo;
 import com.chauncy.data.vo.app.advice.goods.SearchBrandAndSkuBaseVo;
+import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseVo;
 import com.chauncy.data.vo.app.advice.home.GetAdviceInfoVo;
 import com.chauncy.data.vo.app.advice.home.ShufflingVo;
@@ -53,10 +62,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -104,6 +110,12 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 
     @Autowired
     private PmGoodsSkuMapper skuMapper;
+
+    @Autowired
+    private PmMemberLevelMapper memberLevelMapper;
+
+    @Autowired
+    private BasicSettingMapper basicSettingMapper;
 
     @Autowired
     private PmGoodsCategoryMapper goodsCategoryMapper;
@@ -846,6 +858,75 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
         });
 
         return searchBrandAndSkuBaseVoPageInfo;
+    }
+
+    /**
+     * 分页条件查询品牌下的商品列表
+     *
+     * @param searchGoodsBaseListDto
+     * @return
+     */
+    @Override
+    public PageInfo<SearchGoodsBaseListVo> searchGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto) {
+
+        UmUserPo user = securityUtil.getAppCurrUser();
+        Long memberLevelId = user.getMemberLevelId();
+
+        Integer pageNo = searchGoodsBaseListDto.getPageNo() == null ? defaultPageNo : searchGoodsBaseListDto.getPageNo();
+        Integer pageSize = searchGoodsBaseListDto.getPageSize() == null ? defaultPageSize : searchGoodsBaseListDto.getPageSize();
+
+        if(null == searchGoodsBaseListDto.getSortFile()) {
+            //默认综合排序
+            searchGoodsBaseListDto.setSortFile(SortFileEnum.COMPREHENSIVE_SORT);
+        }
+        if(null == searchGoodsBaseListDto.getSortWay()) {
+            //默认降序
+            searchGoodsBaseListDto.setSortWay(SortWayEnum.DESC);
+        }
+
+        PageInfo<SearchGoodsBaseListVo> searchGoodsBaseListVoPageInfo = new PageInfo<>();
+        ConditionTypeEnum conditionTypeEnum = searchGoodsBaseListDto.getConditionType();
+        switch (conditionTypeEnum) {
+            case TAB:
+                searchGoodsBaseListVoPageInfo =PageHelper.startPage(pageNo, pageSize)
+                        .doSelectPageInfo(() -> mapper.searchTabGoodsBaseList(searchGoodsBaseListDto));
+                break;
+            case BRAND:
+                searchGoodsBaseListVoPageInfo =PageHelper.startPage(pageNo, pageSize)
+                        .doSelectPageInfo(() -> mapper.searchBrandGoodsBaseList(searchGoodsBaseListDto));
+                break;
+        }
+
+        searchGoodsBaseListVoPageInfo.getList().forEach(a->{
+
+            //获取商品的标签
+            List<String> labelNames = mapper.getLabelNames(a.getGoodsId());
+            a.setLabelNames(labelNames);
+
+            //获取最高返券值
+            List<Double> rewardShopTickes = Lists.newArrayList();
+            List<RewardShopTicketBo> rewardShopTicketBos = skuMapper.findRewardShopTicketInfos(a.getGoodsId());
+            rewardShopTicketBos.forEach(b->{
+                //商品活动百分比
+                b.setActivityCostRate(a.getActivityCostRate());
+                //让利成本比例
+                b.setProfitsRate(a.getProfitsRate());
+                //会员等级比例
+                BigDecimal purchasePresent = memberLevelMapper.selectById(memberLevelId).getPurchasePresent();
+                b.setPurchasePresent(purchasePresent);
+                //购物券比例
+                BigDecimal moneyToShopTicket = basicSettingMapper.selectList(null).get(0).getMoneyToShopTicket();
+                b.setMoneyToShopTicket(moneyToShopTicket);
+                BigDecimal rewardShopTicket= b.getRewardShopTicket();
+                rewardShopTickes.add(rewardShopTicket.doubleValue());
+            });
+            //获取RewardShopTickes列表最大返券值
+            Double maxRewardShopTicket = rewardShopTickes.stream().mapToDouble((x)->x).summaryStatistics().getMax();
+            a.setMaxRewardShopTicket(BigDecimal.valueOf(maxRewardShopTicket));
+        });
+
+
+        return searchGoodsBaseListVoPageInfo;
     }
 
 }
