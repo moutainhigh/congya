@@ -90,7 +90,33 @@
     <select id="searchBrandBase" resultType="com.chauncy.data.vo.app.advice.goods.SearchBrandAndSkuBaseVo">
         select b.id as brand_id,b.name as brand_name,b.logo_image as brand_logo,b.subtitle,b.collection_num
         from mm_advice_rel_tab_things a,pm_goods_attribute b
-        where a.tab_id = #{tabId} and a.association_id = b.id and a.del_flag	=0 and b.del_flag	= 0
+        where a.tab_id = #{tabId} and a.association_id = b.id and a.del_flag =0 and b.del_flag = 0
     </select>
-
+    <select id="searchBrandGoodsList" resultType="com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo">
+        select a.name as brand_name,b.id as goods_id,b.name as goods_name,b.icon as picture,b.activity_cost_rate,
+        b.profits_rate,b.sales_volume,MAX(d.sell_price) as maxPrice,MIN(d.sell_price) as minPrice,b.forward_num,b.collection_num
+        from pm_goods_attribute a,pm_goods b,pm_goods_rel_attribute_good c,pm_goods_sku	d
+        where a.del_flag = 0 and b.del_flag = 0 and c.del_flag =0 and d.del_flag =0 and a.id = #{conditionId}
+        and c.goods_attribute_id = a.id and c.goods_good_id = b.id and d.goods_id = b.id
+        group by b.id
+        having 1=1
+        <if test="lowestPrice !=null ">
+          and minPrice &gt;= #{lowestPrice}
+        </if>
+        <if test="highestPrice !=null ">
+            and minPrice &lt;= #{highestPrice}
+        </if>
+        <if test="sortFile.name() == 'PRICE_SORT' ">
+            order by minPrice ${sortWay.name}
+        </if>
+        <if test="sortFile.name() == 'COMPREHENSIVE_SORT'">
+            order by b.sales_volume ${sortWay.name}
+        </if>
+        <if test="sortFile.name() == 'SALES_SORT'">
+            order by b.sales_volume ${sortWay.name}
+        </if>
+        <if test="sortFile.name() == 'COLLECTION_NUM'">
+            order by b.collection_num ${sortWay.name}
+        </if>
+    </select>
 </mapper>

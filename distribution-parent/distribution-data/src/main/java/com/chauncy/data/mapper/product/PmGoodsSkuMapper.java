@@ -1,5 +1,6 @@
 package com.chauncy.data.mapper.product;
 
+import com.chauncy.data.bo.app.order.RewardShopTicketBo;
 import com.chauncy.data.domain.po.product.PmGoodsSkuPo;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.app.advice.goods.BrandGoodsVo;
@@ -64,4 +65,12 @@ public interface PmGoodsSkuMapper extends IBaseMapper<PmGoodsSkuPo> {
      */
     void addASalesVolume(@Param("id") Long id,@Param("salesVolume") Integer salesVolume);
 
+    /**
+     * 获取计算返购物券的参数
+     *
+     * @param goodsId
+     * @return
+     */
+    @Select("select * from pm_goods_sku where goods_id = #{goodsId}")
+    List<RewardShopTicketBo> findRewardShopTicketInfos(Long goodsId);
 }

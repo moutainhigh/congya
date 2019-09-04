@@ -4,6 +4,7 @@ import com.chauncy.data.domain.po.message.advice.MmAdvicePo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
+import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.advice.add.SaveClassificationAdviceDto;
 import com.chauncy.data.dto.manage.message.advice.add.SaveOtherAdviceDto;
@@ -12,6 +13,7 @@ import com.chauncy.data.dto.manage.message.advice.select.SearchAssociatedClassif
 import com.chauncy.data.dto.manage.message.advice.select.SearchInformationCategoryDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchBrandAndSkuBaseVo;
+import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseVo;
 import com.chauncy.data.vo.app.advice.home.GetAdviceInfoVo;
 import com.chauncy.data.vo.app.advice.home.ShufflingVo;
@@ -138,4 +140,12 @@ public interface IMmAdviceService extends Service<MmAdvicePo> {
      * @return
      */
     PageInfo<SearchBrandAndSkuBaseVo> searchBrandAndSkuBase(SearchBrandAndSkuBaseDto searchBrandAndSkuBaseDto);
+
+    /**
+     * 分页条件查询品牌下的商品列表
+     *
+     * @param searchGoodsBaseListDto
+     * @return
+     */
+    PageInfo<SearchGoodsBaseListVo> searchBrandGoodsList(SearchGoodsBaseListDto searchGoodsBaseListDto);
 }

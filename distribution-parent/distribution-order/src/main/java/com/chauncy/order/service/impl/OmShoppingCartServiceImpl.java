@@ -55,6 +55,7 @@ import com.chauncy.order.service.IOmShoppingCartService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 import org.assertj.core.util.Lists;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -91,6 +92,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     @Autowired
     private PmGoodsMapper goodsMapper;
+
+    @Autowired
+    private PmGoodsCategoryMapper categoryMapper;
 
     @Autowired
     private PmGoodsAttributeMapper goodsAttributeMapper;
@@ -621,6 +625,10 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         }
         /**获取商品基本信息：名称、标题、轮播图、发货地等信息*/
         specifiedGoodsVo = goodsMapper.findGoodsBase(goodsId);
+        String carouselImage = goodsMapper.selectById(goodsId).getCarouselImage();
+        //string转list
+        List<String> carouselImages =Splitter.on(",").trimResults().splitToList(carouselImage);
+        specifiedGoodsVo.setCarouselImages(carouselImages);
         /**获取商品详情显示的价格区间*/
         BigDecimal lowestSellPrice = skuMapper.getLowestPrice(goodsId);
         BigDecimal highestSellPrice = skuMapper.getHighestPrice(goodsId);
@@ -644,7 +652,17 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             List<NumberShippingVo> numberShippingVos = numberShippingMapper.findByTemplateId(shipFreightInfoVo.getTemplateId());
             shipFreightInfoVo.setNumberShippingVos(numberShippingVos);
         }
-
+        //获取税率
+        BigDecimal taxRate = null;
+        // 1--平台税率 2--自定义税率 3—无税率
+        if (specifiedGoodsVo.getTaxRateType() == 1){
+            taxRate = categoryMapper.selectById(specifiedGoodsVo.getCategoryId()).getTaxRate();
+        }else if (specifiedGoodsVo.getTaxRateType() == 2){
+            taxRate = specifiedGoodsVo.getCustomTaxRate();
+        }else {
+            taxRate = new BigDecimal(0);
+        }
+        specifiedGoodsVo.setTaxRate(taxRate);
         specifiedGoodsVo.setShipFreightInfoVo(shipFreightInfoVo);
 
         /**活动列表*/
@@ -737,9 +755,14 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             specifiedSkuVo.setOverSold(false);
             specifiedSkuVo.setPrice(b.getSellPrice());
             specifiedSkuVo.setSkuId(b.getId());
-            specifiedSkuVo.setPictrue(b.getPicture());
+            specifiedSkuVo.setPicture(b.getPicture());
             if (b.getStock() == 0) {
                 specifiedSkuVo.setOverSold(true);
+            }
+            if (b.getLinePrice() == null || b.getLinePrice().compareTo(new BigDecimal(0))==0){
+                specifiedSkuVo.setLinePrice(b.getSellPrice());
+            }else {
+                specifiedSkuVo.setLinePrice(b.getLinePrice());
             }
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.eq("del_flag", false);

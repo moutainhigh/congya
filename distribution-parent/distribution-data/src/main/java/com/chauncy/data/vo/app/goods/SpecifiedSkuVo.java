@@ -33,9 +33,12 @@ public class SpecifiedSkuVo {
     @ApiModelProperty("价格")
     private BigDecimal price;
 
+    @ApiModelProperty("划线价格")
+    private BigDecimal linePrice;
+
     @ApiModelProperty("skuId")
     private Long skuId;
 
     @ApiModelProperty("图片")
-    private String pictrue;
+    private String picture;
 }
