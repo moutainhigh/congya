@@ -88,8 +88,8 @@ public class AdviceInfoApi extends BaseApi {
      * @param searchGoodsBaseDto
      * @return
      */
-    @ApiOperation(value = "根据选项卡分页获取特卖、主题、优选等选项卡关联的商品基本信息")
-    @PostMapping("/searchGoodsBaseInfos")
+//    @ApiOperation(value = "根据选项卡分页获取特卖、主题、优选等选项卡关联的商品基本信息")
+//    @PostMapping("/searchGoodsBaseInfos")
     public JsonViewData<PageInfo<SearchGoodsBaseVo>> searchGoodsBase(@RequestBody @ApiParam(required = true,name = "searchGoodsBaseDto",value = "分页查询商品基本信息")
                                                                          @Validated SearchGoodsBaseDto searchGoodsBaseDto){
 
@@ -118,12 +118,12 @@ public class AdviceInfoApi extends BaseApi {
      * @param searchGoodsBaseListDto
      * @return
      */
-    @ApiOperation("分页条件查询品牌下的商品列表")
-    @PostMapping("/searchBrandGoodsList")
-    public JsonViewData<PageInfo<SearchGoodsBaseListVo>> searchBrandGoodsList(@RequestBody @ApiParam(required = true,name = "searchGoodsBaseListDto",value = "分页查询品牌商品列表")
+    @ApiOperation("分页条件查询品牌/选项卡下的商品列表")
+    @PostMapping("/searchGoodsBaseList")
+    public JsonViewData<PageInfo<SearchGoodsBaseListVo>> searchGoodsBaseList(@RequestBody @ApiParam(required = true,name = "searchGoodsBaseListDto",value = "分页查询品牌商品列表")
                                                                               @Validated SearchGoodsBaseListDto searchGoodsBaseListDto){
 
-        return setJsonViewData(adviceService.searchBrandGoodsList(searchGoodsBaseListDto));
+        return setJsonViewData(adviceService.searchGoodsBaseList(searchGoodsBaseListDto));
 
     }
 

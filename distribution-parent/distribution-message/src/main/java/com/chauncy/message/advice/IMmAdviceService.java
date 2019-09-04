@@ -147,5 +147,5 @@ public interface IMmAdviceService extends Service<MmAdvicePo> {
      * @param searchGoodsBaseListDto
      * @return
      */
-    PageInfo<SearchGoodsBaseListVo> searchBrandGoodsList(SearchGoodsBaseListDto searchGoodsBaseListDto);
+    PageInfo<SearchGoodsBaseListVo> searchGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto);
 }

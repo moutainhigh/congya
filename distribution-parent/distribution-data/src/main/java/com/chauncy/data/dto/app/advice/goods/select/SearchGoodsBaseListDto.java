@@ -1,5 +1,6 @@
 package com.chauncy.data.dto.app.advice.goods.select;
 
+import com.chauncy.common.enums.app.advice.ConditionTypeEnum;
 import com.chauncy.common.enums.app.sort.SortFileEnum;
 import com.chauncy.common.enums.app.sort.SortWayEnum;
 import com.chauncy.data.valid.annotation.EnumConstraint;
@@ -23,7 +24,10 @@ import java.math.BigDecimal;
 @Accessors(chain = true)
 public class SearchGoodsBaseListDto {
 
-    @ApiModelProperty(value = "查询商品列表前提条件Id(品牌ID/店铺ID等)")
+    @ApiModelProperty(value = "查询条件类型")
+    private ConditionTypeEnum conditionType;
+
+    @ApiModelProperty(value = "查询商品列表前提条件Id(品牌ID/店铺ID/选项卡Id等)")
     private Long conditionId;
 
     @ApiModelProperty(value = "排序方式 默认降序（desc）")

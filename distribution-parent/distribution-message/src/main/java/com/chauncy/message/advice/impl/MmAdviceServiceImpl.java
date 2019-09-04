@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.app.advice.AdviceLocationEnum;
 import com.chauncy.common.enums.app.advice.AdviceTypeEnum;
 import com.chauncy.common.enums.app.advice.AssociationTypeEnum;
+import com.chauncy.common.enums.app.advice.ConditionTypeEnum;
 import com.chauncy.common.enums.app.sort.SortFileEnum;
 import com.chauncy.common.enums.app.sort.SortWayEnum;
 import com.chauncy.common.enums.system.ResultCode;
@@ -866,7 +867,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
      * @return
      */
     @Override
-    public PageInfo<SearchGoodsBaseListVo> searchBrandGoodsList(SearchGoodsBaseListDto searchGoodsBaseListDto) {
+    public PageInfo<SearchGoodsBaseListVo> searchGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto) {
 
         UmUserPo user = securityUtil.getAppCurrUser();
         Long memberLevelId = user.getMemberLevelId();
@@ -883,15 +884,25 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
             searchGoodsBaseListDto.setSortWay(SortWayEnum.DESC);
         }
 
-        PageInfo<SearchGoodsBaseListVo> searchGoodsBaseListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
-                .doSelectPageInfo(() -> mapper.searchBrandGoodsList(searchGoodsBaseListDto));
+        PageInfo<SearchGoodsBaseListVo> searchGoodsBaseListVoPageInfo = new PageInfo<>();
+        ConditionTypeEnum conditionTypeEnum = searchGoodsBaseListDto.getConditionType();
+        switch (conditionTypeEnum) {
+            case TAB:
+                searchGoodsBaseListVoPageInfo =PageHelper.startPage(pageNo, pageSize)
+                        .doSelectPageInfo(() -> mapper.searchTabGoodsBaseList(searchGoodsBaseListDto));
+                break;
+            case BRAND:
+                searchGoodsBaseListVoPageInfo =PageHelper.startPage(pageNo, pageSize)
+                        .doSelectPageInfo(() -> mapper.searchBrandGoodsBaseList(searchGoodsBaseListDto));
+                break;
+        }
 
         searchGoodsBaseListVoPageInfo.getList().forEach(a->{
-            if (a.getMaxPrice().compareTo(a.getMinPrice()) == 0){
-                a.setDisplayPrice(a.getMaxPrice().toString());
-            }else{
-                a.setDisplayPrice(a.getMinPrice()+"~"+a.getMaxPrice());
-            }
+
+            //获取商品的标签
+            List<String> labelNames = mapper.getLabelNames(a.getGoodsId());
+            a.setLabelNames(labelNames);
+
             //获取最高返券值
             List<Double> rewardShopTickes = Lists.newArrayList();
             List<RewardShopTicketBo> rewardShopTicketBos = skuMapper.findRewardShopTicketInfos(a.getGoodsId());

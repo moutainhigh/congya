@@ -1,13 +1,13 @@
 package com.chauncy.data.vo.app.advice.goods;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.chauncy.common.util.BigDecimalUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @Author cheng
@@ -20,9 +20,9 @@ import java.math.BigDecimal;
 @ApiModel(description = "分页查询商品列表信息")
 public class SearchGoodsBaseListVo {
 
-    @ApiModelProperty(value = "品牌名称")
+    @ApiModelProperty(value = "品牌/选项卡名称")
     @JSONField(ordinal = 0)
-    private String brandName;
+    private String conditionName;
 
     @ApiModelProperty(value = "商品Id")
     @JSONField(ordinal = 1)
@@ -46,7 +46,7 @@ public class SearchGoodsBaseListVo {
 
     @ApiModelProperty(value = "价格")
     @JSONField(ordinal = 6)
-    private String displayPrice;
+    private BigDecimal sellPrice;
 
     @ApiModelProperty(value = "转发量")
     @JSONField(ordinal = 7)
@@ -67,5 +67,13 @@ public class SearchGoodsBaseListVo {
     @ApiModelProperty(value = "销量")
     @JSONField(ordinal = 11)
     private Integer salesVolume;
+
+    @ApiModelProperty("商品标签")
+    @JSONField(ordinal = 12)
+    private List<String> labelNames;
+
+    @ApiModelProperty("划线价")
+    @JSONField(ordinal = 13)
+    private BigDecimal linePrice;
 
 }

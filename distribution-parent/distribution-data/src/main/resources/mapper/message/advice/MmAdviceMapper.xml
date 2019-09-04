@@ -92,22 +92,58 @@
         from mm_advice_rel_tab_things a,pm_goods_attribute b
         where a.tab_id = #{tabId} and a.association_id = b.id and a.del_flag =0 and b.del_flag = 0
     </select>
-    <select id="searchBrandGoodsList" resultType="com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo">
-        select a.name as brand_name,b.id as goods_id,b.name as goods_name,b.icon as picture,b.activity_cost_rate,
-        b.profits_rate,b.sales_volume,MAX(d.sell_price) as maxPrice,MIN(d.sell_price) as minPrice,b.forward_num,b.collection_num
+    <select id="searchBrandGoodsBaseList" resultType="com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo">
+        select a.name as condition_name,b.id as goods_id,b.name as goods_name,b.icon as picture,b.activity_cost_rate,
+        b.profits_rate,b.sales_volume,d.sell_price as sell_price,d.line_price,b.forward_num,b.collection_num
         from pm_goods_attribute a,pm_goods b,pm_goods_rel_attribute_good c,pm_goods_sku	d
         where a.del_flag = 0 and b.del_flag = 0 and c.del_flag =0 and d.del_flag =0 and a.id = #{conditionId}
         and c.goods_attribute_id = a.id and c.goods_good_id = b.id and d.goods_id = b.id
-        group by b.id
+        and d.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = b.id  and d2.del_flag =0 and d2.sell_price =
+        (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = b.id  and d1.del_flag =0 LIMIT 1) limit 1)
+        <if test="lowestPrice !=null ">
+            and sell_price &gt;= #{lowestPrice}
+        </if>
+        <if test="highestPrice !=null ">
+            and sell_price &lt;= #{highestPrice}
+        </if>
+        <!--group by b.id
         having 1=1
         <if test="lowestPrice !=null ">
           and minPrice &gt;= #{lowestPrice}
         </if>
         <if test="highestPrice !=null ">
             and minPrice &lt;= #{highestPrice}
+        </if>-->
+        <if test="sortFile.name() == 'PRICE_SORT' ">
+            order by sell_price ${sortWay.name}
+        </if>
+        <if test="sortFile.name() == 'COMPREHENSIVE_SORT'">
+            order by b.sales_volume ${sortWay.name}
+        </if>
+        <if test="sortFile.name() == 'SALES_SORT'">
+            order by b.sales_volume ${sortWay.name}
+        </if>
+        <if test="sortFile.name() == 'COLLECTION_NUM'">
+            order by b.collection_num ${sortWay.name}
+        </if>
+    </select>
+    <select id="searchTabGoodsBaseList"
+            resultType="com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo">
+        select c.name as condition_name,b.id as goods_id,b.name as goods_name,b.icon as picture,b.activity_cost_rate,
+        b.profits_rate,b.sales_volume,d.sell_price as sell_price,d.line_price,b.forward_num,b.collection_num
+        from mm_advice_rel_tab_things a,pm_goods b,pm_goods_sku	d,mm_advice_tab c
+        where a.del_flag = 0 and b.del_flag = 0 and c.del_flag =0 and d.del_flag =0 and a.tab_id = #{conditionId}
+        and a.association_id	= b.id and d.goods_id=b.id and c.id = a.tab_id
+        and d.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = b.id  and d2.del_flag =0 and d2.sell_price =
+        (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = b.id  and d1.del_flag =0 LIMIT 1) limit 1)
+        <if test="lowestPrice !=null ">
+            and sell_price &gt;= #{lowestPrice}
+        </if>
+        <if test="highestPrice !=null ">
+            and sell_price &lt;= #{highestPrice}
         </if>
         <if test="sortFile.name() == 'PRICE_SORT' ">
-            order by minPrice ${sortWay.name}
+            order by sell_price ${sortWay.name}
         </if>
         <if test="sortFile.name() == 'COMPREHENSIVE_SORT'">
             order by b.sales_volume ${sortWay.name}
