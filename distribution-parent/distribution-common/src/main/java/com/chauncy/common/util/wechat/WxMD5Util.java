@@ -1,6 +1,9 @@
 package com.chauncy.common.util.wechat;
 
 import com.github.wxpay.sdk.WXPayConstants;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -13,10 +16,15 @@ import java.util.Set;
  * @author yeJH
  * @since 2019/7/5 16:27
  */
-
+@Slf4j
+@Component
 public class WxMD5Util {
+
+    @Autowired
+    private WXConfigUtil wxConfigUtil;
+
     public String getSign(Map<String, String> data) throws Exception {
-        WXConfigUtil config = new WXConfigUtil();
+        WXConfigUtil config = wxConfigUtil;
         Set<String> keySet = data.keySet();
         String[] keyArray = keySet.toArray(new String[keySet.size()]);
         Arrays.sort(keyArray);
@@ -32,6 +40,7 @@ public class WxMD5Util {
                 sb.append(k).append("=").append(data.get(k).trim()).append("&");
         }
         sb.append("key=").append(config.getKey());
+        System.out.println(sb);
         MessageDigest md = null;
         try {
             md = MessageDigest.getInstance("MD5");
@@ -48,6 +57,7 @@ public class WxMD5Util {
         for (byte item : array) {
             sb2.append(Integer.toHexString((item & 0xFF) | 0x100).substring(1, 3));
         }
+        System.out.println(sb2.toString().toUpperCase());
         return sb2.toString().toUpperCase();
     }
 }

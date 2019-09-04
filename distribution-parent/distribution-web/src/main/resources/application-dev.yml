@@ -168,7 +168,7 @@ distribution:
 
   # 微信配置
   wxpay:
-    APP_ID: wx42bfe19a00e22417
-    KEY: BoHUI2028CongYa8BoHUI2028CongYa8-
-    MCH_ID: 1498771872
+    APP_ID: wx1aaefbe9953a4485
+    KEY: BoHUI2028CongYa8BoHUI2028CongYa8
+    MCH_ID: 1530116071
     BODY: 葱鸭百货

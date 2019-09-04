@@ -1,6 +1,6 @@
 package com.chauncy.order.log.service;
 
-import com.chauncy.data.bo.order.log.AddAccountLogBo;
+import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
 import com.chauncy.data.domain.po.order.log.OmAccountLogPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.order.log.SearchUserLogDto;
