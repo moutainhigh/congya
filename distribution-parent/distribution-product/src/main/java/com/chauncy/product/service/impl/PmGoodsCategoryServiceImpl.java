@@ -1,8 +1,10 @@
 package com.chauncy.product.service.impl;
 
+import com.chauncy.common.util.TreeUtil;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.BaseTree;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
+import com.chauncy.data.dto.app.advice.category.select.GoodsCategoryVo;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.SearchAttributeByNamePageDto;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
@@ -71,5 +73,26 @@ public class PmGoodsCategoryServiceImpl extends AbstractService<PmGoodsCategoryM
     @Override
     public List<GoodsCategoryTreeVo> findGoodsCategoryTreeVo() {
         return categoryMapper.loadGoodsCategoryTreeVo();
+    }
+
+    /**
+     * 联动查询葱鸭百货广告位关联的商品分类
+     *
+     * @return
+     */
+    @Override
+    public List<GoodsCategoryVo> findGoodsCategory(Long adviceId) {
+
+        List<GoodsCategoryVo> goodsCategoryVos = categoryMapper.findGoodsCategoryTree(adviceId);
+        List<GoodsCategoryVo> goodsCategoryVoList = Lists.newArrayList();
+
+        //将goodsCategoryVos转为树结构
+        try {
+            goodsCategoryVoList = TreeUtil.getTree(goodsCategoryVos,"categoryId","parentId","children");
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getLocalizedMessage());
+        }
+        return goodsCategoryVoList;
     }
 }

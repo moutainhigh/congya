@@ -81,4 +81,6 @@ public class ComponentApi extends BaseApi {
 
         return setJsonViewData(bootPageService.findBootPage());
     }
+
+
 }

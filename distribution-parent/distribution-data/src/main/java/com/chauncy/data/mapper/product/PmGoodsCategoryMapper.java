@@ -3,6 +3,7 @@ package com.chauncy.data.mapper.product;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.chauncy.data.dto.app.advice.category.select.GoodsCategoryVo;
 import com.chauncy.data.dto.app.store.FindStoreCategoryDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.activity.SearchCategoryByActivityIdDto;
@@ -147,4 +148,11 @@ public interface PmGoodsCategoryMapper extends IBaseMapper<PmGoodsCategoryPo> {
      */
     List<SearchCategoryByActivityIdVo> searchCategoryByActivityId(@Param("t") SearchCategoryByActivityIdDto searchCategoryByActivityIdDto, @Param("pageSize") Integer pageSize, @Param("offset") Integer offset);
 
+    /**
+     * 联动查询葱鸭百货广告位关联的商品分类
+     *
+     * @param adviceId
+     * @return
+     */
+    List<GoodsCategoryVo> findGoodsCategoryTree(Long adviceId);
 }

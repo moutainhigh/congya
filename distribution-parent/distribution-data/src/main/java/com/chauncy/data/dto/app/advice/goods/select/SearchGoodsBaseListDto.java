@@ -27,7 +27,7 @@ public class SearchGoodsBaseListDto {
     @ApiModelProperty(value = "查询条件类型")
     private ConditionTypeEnum conditionType;
 
-    @ApiModelProperty(value = "查询商品列表前提条件Id(品牌ID/店铺ID/选项卡Id等)")
+    @ApiModelProperty(value = "查询商品列表前提条件Id(品牌ID/店铺ID/选项卡Id/商品分类ID等)")
     private Long conditionId;
 
     @ApiModelProperty(value = "排序方式 默认降序（desc）")

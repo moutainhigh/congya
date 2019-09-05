@@ -103,4 +103,12 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
      * @return
      */
     List<SearchGoodsBaseListVo> searchTabGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto);
+
+    /**
+     * 分页条件查询葱鸭优选推荐的分类的商品列表
+     *
+     * @param searchGoodsBaseListDto
+     * @return
+     */
+    PageInfo<SearchGoodsBaseListVo> searchCategoryGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto);
 }

@@ -16,7 +16,9 @@ public enum ConditionTypeEnum implements BaseEnum {
 
     TAB(1,"选项卡"),
 
-    BRAND(2,"商家");
+    BRAND(2,"商家"),
+
+    THIRD_CATEGORY(3,"商品三级分类");
 
     @EnumValue  //这个注解放在数据库存储的字段上
     private Integer id;
