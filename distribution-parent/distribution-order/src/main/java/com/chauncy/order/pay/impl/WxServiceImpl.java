@@ -370,7 +370,7 @@ public class WxServiceImpl implements IWxService {
         //随机字符串
         data.put("nonce_str", WXPayUtil.generateNonceStr());
         OrderRefundInfoBo orderRefundInfoBo = payOrderMapper.findOrderRefundInfo(afterSaleOrderId);
-        if(null == orderRefundInfoBo.getPayOrderNo()) {
+        if(null != orderRefundInfoBo.getPayOrderNo()) {
             //微信订单号
             data.put("transaction_id", orderRefundInfoBo.getPayOrderNo());
         } else {
