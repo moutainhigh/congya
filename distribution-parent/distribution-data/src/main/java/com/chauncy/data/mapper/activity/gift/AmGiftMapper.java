@@ -61,4 +61,12 @@ public interface AmGiftMapper extends IBaseMapper<AmGiftPo> {
      * @return
      */
     List<SearchBuyGiftRecordVo> searchBuyGiftRecord(SearchBuyGiftRecordDto searchBuyGiftRecordDto);
+
+    /**
+     * 获取提供给用户领取的新人礼包
+     *
+     * @return
+     */
+    @Select("select id,picture as name from am_gift where del_flag = 0 and enable = 1")
+    BaseVo getGift();
 }

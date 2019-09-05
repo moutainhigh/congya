@@ -14,6 +14,7 @@ import com.chauncy.data.domain.po.activity.gift.AmGiftRelGiftCouponPo;
 import com.chauncy.data.domain.po.activity.gift.AmGiftRelGiftUserPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.dto.manage.activity.EditEnableDto;
 import com.chauncy.data.dto.manage.activity.gift.add.SaveGiftDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchBuyGiftRecordDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchCouponDto;
@@ -38,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -323,5 +325,45 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
                 .doSelectPageInfo(() ->couponMapper.findAllCoupon());
 
         return couponVo;
+    }
+
+    /**
+     * 禁用启用新人礼包,只能有一个是启用状态
+     *
+     * @param enableDto
+     * @return
+     */
+    @Override
+    public void editGiftEnable(EditEnableDto enableDto) {
+
+        SysUserPo user = securityUtil.getCurrUser();
+        Long id = Arrays.asList(enableDto.getId()).get(0);
+        if (enableDto.getEnable()){
+            //判断礼包是否已有启用的，若有则置为0
+            List<AmGiftPo> amGiftPos = mapper.selectList(null).stream().filter(a->a.getEnable().equals(true)).collect(Collectors.toList());
+            if (!ListUtil.isListNullAndEmpty(amGiftPos)){
+                amGiftPos.forEach(b->{
+                    b.setEnable(false);
+                    mapper.updateById(b);
+                });
+            }
+
+            AmGiftPo giftPo = mapper.selectById(id);
+            giftPo.setEnable(enableDto.getEnable()).setUpdateBy(user.getUsername());
+            mapper.updateById(giftPo);
+        }
+    }
+
+    /**
+     * 获取提供给用户领取的新人礼包
+     *
+     * @return
+     */
+    @Override
+    public BaseVo getGift() {
+
+        BaseVo giftInfo = mapper.getGift();
+
+        return giftInfo;
     }
 }

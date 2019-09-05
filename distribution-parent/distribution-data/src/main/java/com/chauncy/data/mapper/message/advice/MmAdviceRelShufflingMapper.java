@@ -3,6 +3,7 @@ package com.chauncy.data.mapper.message.advice;
 import com.chauncy.data.domain.po.message.advice.MmAdviceRelShufflingPo;
 import com.chauncy.data.dto.manage.message.advice.shuffling.select.SearchShufflingAssociatedDetailDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.app.advice.home.ShufflingVo;
 import com.chauncy.data.vo.manage.message.advice.shuffling.FindShufflingVo;
 import com.chauncy.data.vo.manage.message.advice.shuffling.SearchShufflingAssociatedDetailVo;
 import com.chauncy.data.vo.manage.message.advice.tab.tab.BrandShufflingVo;
@@ -58,4 +59,11 @@ public interface MmAdviceRelShufflingMapper extends IBaseMapper<MmAdviceRelShuff
      * @return
      */
     List<FindShufflingVo> findShuffling(Long adviceId);
+
+    /***
+     * 获取选项卡下的品牌下的轮播图广告
+     * @param relTabBrandId
+     * @return
+     */
+    List<ShufflingVo> findBrandShuffling(Long relTabBrandId);
 }

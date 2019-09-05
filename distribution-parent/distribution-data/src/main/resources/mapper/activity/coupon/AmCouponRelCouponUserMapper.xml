@@ -10,11 +10,12 @@
         <result column="coupon_id" property="couponId" />
         <result column="user_id" property="userId" />
         <result column="use_status" property="useStatus" />
+        <result column="receive_num" property="receiveNum" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, create_by, create_time, coupon_id, user_id, use_status
+        id, create_by, create_time, coupon_id, user_id, use_status, receive_num
     </sql>
 
 </mapper>

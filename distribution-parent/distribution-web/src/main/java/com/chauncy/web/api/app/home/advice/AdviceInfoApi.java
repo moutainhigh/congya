@@ -1,5 +1,6 @@
 package com.chauncy.web.api.app.home.advice;
 
+import com.chauncy.data.dto.app.advice.brand.select.FindBrandShufflingDto;
 import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
@@ -27,7 +28,9 @@ import java.util.List;
  * @Author cheng
  * @create 2019-08-27 11:14
  *
- * app端获取广告信息
+ * app端获取首页显示的广告信息(首页广告；首页有品内部、有店内部、特卖内部、优选内部、葱鸭百货内部轮播图；
+ * 获取特卖、有品、主题、优选等广告选项卡；根据选项卡分页获取关联的品牌和商品具体的sku基本信息；
+ * 分页条件查询品牌下的商品列表)
  *
  */
 @Api(tags = "APP_首页_广告")
@@ -62,7 +65,8 @@ public class AdviceInfoApi extends BaseApi {
                           "YOUDIAN_INSIDE_SHUFFLING--有店内部 \n" +
                           "SALE_INSIDE_SHUFFLING--特卖内部 \n" +
                           "YOUXUAN_INSIDE_SHUFFLING--优选内部 \n" +
-                          "BAIHUO_INSIDE_SHUFFLING--葱鸭百货内部轮播图")
+                          "BAIHUO_INSIDE_SHUFFLING--葱鸭百货内部轮播图 \n" +
+                          "COUPON--领券")
     public JsonViewData<List<ShufflingVo>> getShuffling(@ApiParam(required = true,name = "广告位置",value = "location")
                                                   @PathVariable String location){
 
@@ -113,7 +117,7 @@ public class AdviceInfoApi extends BaseApi {
     }
 
     /**
-     * 分页条件查询品牌下的商品列表
+     * 分页条件查询品牌下/选项卡下的商品列表
      *
      * @param searchGoodsBaseListDto
      * @return
@@ -125,6 +129,20 @@ public class AdviceInfoApi extends BaseApi {
 
         return setJsonViewData(adviceService.searchGoodsBaseList(searchGoodsBaseListDto));
 
+    }
+
+    /**
+     * 获取选项卡下的品牌下的轮播图广告
+     *
+     * @param findBrandShufflingDto
+     * @return
+     */
+    @PostMapping("/findBrandShuffling")
+    @ApiOperation("获取品牌下的轮播图广告")
+    public JsonViewData<List<ShufflingVo>> findBrandShuffling(@RequestBody @ApiParam(required = true,name = "findBrandShufflingDto",value = "获取品牌下的轮播图广告")
+                                                        @Validated FindBrandShufflingDto findBrandShufflingDto){
+
+        return setJsonViewData(adviceService.findBrandShuffling(findBrandShufflingDto));
     }
 
 }

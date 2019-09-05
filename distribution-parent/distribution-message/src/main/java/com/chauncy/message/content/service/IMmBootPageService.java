@@ -7,6 +7,8 @@ import com.chauncy.data.dto.manage.message.content.select.search.SearchContentDt
 import com.chauncy.data.vo.manage.message.content.BootPageVo;
 import com.github.pagehelper.PageInfo;
 
+import java.util.List;
+
 /**
  * <p>
  * 启动页管理 服务类
@@ -47,4 +49,11 @@ public interface IMmBootPageService extends Service<MmBootPagePo> {
      * @return
      */
     PageInfo<BootPageVo> searchPages(SearchContentDto searchContentDto);
+
+    /**
+     * 获取引导页图片
+     *
+     * @return
+     */
+    List<String> findBootPage();
 }

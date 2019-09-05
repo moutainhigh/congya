@@ -17,6 +17,7 @@ import com.chauncy.data.domain.po.message.information.category.MmInformationCate
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.dto.app.advice.brand.select.FindBrandShufflingDto;
 import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
@@ -927,6 +928,26 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 
 
         return searchGoodsBaseListVoPageInfo;
+    }
+
+    /**
+     *
+     * 获取选项卡下的品牌下的轮播图广告
+     *
+     * @param findBrandShufflingDto
+     * @return
+     */
+    @Override
+    public List<ShufflingVo> findBrandShuffling(FindBrandShufflingDto findBrandShufflingDto) {
+
+        //获取该选项卡与关联的具体品牌的关联ID
+        Long relTabBrandId = relTabThingsMapper.selectOne(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                .and(obj->obj.eq(MmAdviceRelTabThingsPo::getTabId,findBrandShufflingDto.getTabId())
+                        .eq(MmAdviceRelTabThingsPo::getAssociationId,findBrandShufflingDto.getBrandId()))).getId();
+
+        List<ShufflingVo> brandShufflingVos = relShufflingMapper.findBrandShuffling(relTabBrandId);
+
+        return brandShufflingVos;
     }
 
 }

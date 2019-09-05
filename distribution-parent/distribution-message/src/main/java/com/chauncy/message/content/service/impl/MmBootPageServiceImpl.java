@@ -120,5 +120,18 @@ public class MmBootPageServiceImpl extends AbstractService<MmBootPageMapper, MmB
         return bootPageVos;
     }
 
+    /**
+     * 获取引导页图片
+     *
+     * @return
+     */
+    @Override
+    public List<String> findBootPage() {
+
+        List<String> pictures = mapper.selectList(null).stream().map(a->a.getPicture()).collect(Collectors.toList());
+
+        return pictures;
+    }
+
 
 }
