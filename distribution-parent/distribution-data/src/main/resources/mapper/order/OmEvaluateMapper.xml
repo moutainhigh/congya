@@ -37,7 +37,7 @@
         </where>
         order by b.create_time-->
         select a.photo as icon,a.name as nick_name,b.content,b.picture,b.id,ROUND((b.attitude_start_level+b.description_start_level+b.ship_start_level)/3) as startLevel
-                ,GROUP_CONCAT(CONCAT(h.`name`,":",g.`value`)) as sku
+                ,GROUP_CONCAT(CONCAT(h.`name`,":",g.`value`)) as sku,b.create_time as evaluate_time
         from um_user a,om_evaluate b,om_order c,pm_goods d,pm_goods_sku e,pm_goods_rel_attribute_value_sku f,pm_goods_attribute_value g,pm_goods_attribute h
         where isNull(b.parent_id) and b.order_id = c.id and c.um_user_id=a.id and
               b.sku_id = e.id and d.id = e.goods_id and d.id = #{t.goodsId}
@@ -94,6 +94,15 @@
         select c.name as nickName,c.photo as icon,content,picture,a.id,ROUND((a.attitude_start_level+a.description_start_level+a.ship_start_level)/3) as startLevel
         from om_evaluate a,om_order b,um_user c
         where b.id = a.order_id and b.id = #{orderId} and a.sku_id = #{skuId} and b.um_user_id = c.id and isNull(a.parent_id)
+    </select>
+    <select id="findEvaluateLevelNum" resultType="com.chauncy.data.vo.app.evaluate.EvaluateLevelNumVo">
+    SELECT b.id , SUM(description_start_level = 5) AS high_praise_num,
+        SUM(description_start_level=3 OR description_start_level=4) AS middlePraise_num,
+        SUM(description_start_level=1 OR description_start_level=2) AS lowPraise_num,
+        SUM(a.picture IS NOT NULL) AS price_num,,COUNT(1) as sum
+    FROM om_evaluate a, pm_goods b, pm_goods_sku c
+    WHERE a.sku_id = c.id AND b.id = c.goods_id
+    GROUP BY b.id
     </select>
 
 </mapper>

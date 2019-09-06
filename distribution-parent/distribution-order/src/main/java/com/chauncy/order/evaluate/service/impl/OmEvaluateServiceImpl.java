@@ -1,5 +1,6 @@
 package com.chauncy.order.evaluate.service.impl;
 
+import com.chauncy.common.enums.app.activity.evaluate.EvaluateEnum;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.order.OmEvaluatePo;
@@ -14,6 +15,7 @@ import com.chauncy.data.dto.supplier.good.select.SearchEvaluatesDto;
 import com.chauncy.data.mapper.order.OmEvaluateMapper;
 import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
+import com.chauncy.data.vo.app.evaluate.EvaluateLevelNumVo;
 import com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo;
 import com.chauncy.data.vo.supplier.evaluate.EvaluateVo;
 import com.chauncy.data.vo.supplier.evaluate.SearchEvaluateVo;
@@ -196,6 +198,20 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
         saveEvaluate.setContent(saveStoreReplyDto.getContent()).setParentId(saveStoreReplyDto.getEvaluateId())
         .setCreateBy(sysUserPo.getUsername()).setOrderId(saveStoreReplyDto.getOrderId());
         mapper.insert(saveEvaluate);
+    }
+
+    /**
+     * 获取商品不同评价级别的对应的评价数量
+     *
+     * @param goodsId
+     * @return
+     */
+    @Override
+    public EvaluateLevelNumVo findEvaluateLevelNum(Long goodsId) {
+
+        EvaluateLevelNumVo evaluateLevelNumVo = mapper.findEvaluateLevelNum(goodsId);
+
+        return evaluateLevelNumVo;
     }
 
     /**
