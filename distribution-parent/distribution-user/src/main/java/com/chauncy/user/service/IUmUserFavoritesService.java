@@ -24,7 +24,7 @@ public interface IUmUserFavoritesService extends Service<UmUserFavoritesPo> {
      * @param updateFavoritesDto
      * @return
      */
-    void updateFavorites (UpdateFavoritesDto updateFavoritesDto, UmUserPo userPo);
+    Integer updateFavorites (UpdateFavoritesDto updateFavoritesDto, UmUserPo userPo);
 
     /**
      * 批量删除收藏

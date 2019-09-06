@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.aspectj.weaver.ast.Not;
 
 import javax.validation.constraints.NotNull;
 
@@ -27,8 +28,7 @@ public class UpdateFavoritesDto {
 
     @ApiModelProperty (value = "收藏类型 商品 店铺 资讯 品牌")
     @EnumConstraint (target = KeyWordTypeEnum.class)
+    @NotNull(message = "收藏类型 不能为空")
     private String type;
 
-    @ApiModelProperty (value = "操作 1--收藏 0--取消收藏")
-    private Boolean operation;
 }

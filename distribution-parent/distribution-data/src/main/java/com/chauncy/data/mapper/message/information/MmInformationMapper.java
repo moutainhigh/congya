@@ -9,6 +9,7 @@ import com.chauncy.data.vo.app.message.information.InformationPagingVo;
 import com.chauncy.data.vo.manage.message.information.InformationPageInfoVo;
 import com.chauncy.data.vo.manage.message.information.InformationVo;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -57,4 +58,20 @@ public interface MmInformationMapper extends IBaseMapper<MmInformationPo> {
      * @return
      */
     List<Long> selectRelGoodsIdsById(Long id);
+
+    /**
+     * 不用updateById  update a=a+1
+     *
+     * @param favoritesId
+     */
+    @Update("update mm_information set collection_num = collection_num+1 where id = #{favoritesId}")
+    void addFavorites(Long favoritesId);
+
+    /**
+     * 不用updateById  update a=a-1
+     *
+     * @param favoritesId
+     */
+    @Update("update mm_information set collection_num = collection_num-1 where id = #{favoritesId}")
+    void delFavorites(Long favoritesId);
 }

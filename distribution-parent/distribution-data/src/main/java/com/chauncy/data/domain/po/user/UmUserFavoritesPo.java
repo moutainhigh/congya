@@ -54,4 +54,7 @@ public class UmUserFavoritesPo implements Serializable {
     @ApiModelProperty(value = "删除标志 1-删除 0未删除")
     private Boolean delFlag;
 
+    @ApiModelProperty(value = "删除标志 1-删除 0未删除")
+    private Boolean isFavorites;
+
 }

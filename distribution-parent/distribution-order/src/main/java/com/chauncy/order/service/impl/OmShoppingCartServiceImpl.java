@@ -26,6 +26,7 @@ import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.sys.BasicSettingPo;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.domain.po.user.UmAreaShippingPo;
+import com.chauncy.data.domain.po.user.UmUserFavoritesPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.car.SettleAccountsDto;
 import com.chauncy.data.dto.app.car.SettleDto;
@@ -42,6 +43,7 @@ import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.mapper.user.UmAreaShippingMapper;
+import com.chauncy.data.mapper.user.UmUserFavoritesMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.temp.order.service.IOmGoodsTempService;
 import com.chauncy.data.vo.app.car.*;
@@ -149,6 +151,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     @Autowired
     private UmUserMapper userMapper;
+
+    @Autowired
+    private UmUserFavoritesMapper userFavoritesMapper;
 
     @Autowired
     private PayUserRelationMapper payUserRelationMapper;
@@ -615,6 +620,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     @Override
     public SpecifiedGoodsVo selectSpecifiedGoods(Long goodsId) {
 
+        UmUserPo userPo = securityUtil.getAppCurrUser();
+
         SpecifiedGoodsVo specifiedGoodsVo = new SpecifiedGoodsVo();
         List<GoodsStandardVo> goodsStandardVoList = Lists.newArrayList();
 
@@ -625,6 +632,20 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         }
         /**获取商品基本信息：名称、标题、轮播图、发货地等信息*/
         specifiedGoodsVo = goodsMapper.findGoodsBase(goodsId);
+        /** 获取用户是否已经收藏该商品*/
+        UmUserFavoritesPo userFavoritesPo = userFavoritesMapper.selectOne(new QueryWrapper<UmUserFavoritesPo>().lambda()
+                .and(obj->obj.eq(UmUserFavoritesPo::getFavoritesId,goodsId)
+                        .eq(UmUserFavoritesPo::getUserId,userPo.getId())));
+        Boolean isFavorites = false;
+        if (userFavoritesPo ==null){
+            isFavorites = false;
+        }else if (userFavoritesPo.getIsFavorites()){
+            isFavorites = true;
+        }else if (!userFavoritesPo.getIsFavorites()){
+            isFavorites = false;
+        }
+        specifiedGoodsVo.setIsFavorites(isFavorites);
+
         String carouselImage = goodsMapper.selectById(goodsId).getCarouselImage();
         //string转list
         List<String> carouselImages =Splitter.on(",").trimResults().splitToList(carouselImage);
@@ -663,6 +684,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             taxRate = new BigDecimal(0);
         }
         specifiedGoodsVo.setTaxRate(taxRate);
+        BigDecimal taxCost = BigDecimalUtil.safeMultiply(lowestSellPrice,taxRate);
         specifiedGoodsVo.setShipFreightInfoVo(shipFreightInfoVo);
 
         /**活动列表*/

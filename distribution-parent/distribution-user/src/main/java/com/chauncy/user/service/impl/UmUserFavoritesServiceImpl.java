@@ -45,7 +45,7 @@ import java.util.Map;
  * @since 2019-07-13
  */
 @Service
-@Transactional (rollbackFor = Exception.class)
+@Transactional(rollbackFor = Exception.class)
 public class UmUserFavoritesServiceImpl extends AbstractService<UmUserFavoritesMapper, UmUserFavoritesPo> implements IUmUserFavoritesService {
 
     @Autowired
@@ -68,167 +68,206 @@ public class UmUserFavoritesServiceImpl extends AbstractService<UmUserFavoritesM
 
     /**
      * 更新用户收藏
+     *
      * @param updateFavoritesDto
      * @return
      */
     @Override
-    public void updateFavorites (UpdateFavoritesDto updateFavoritesDto, UmUserPo userPo) {
-
-        if (userPo==null){
-            throw new ServiceException (ResultCode.FAIL,"您不是app用户！");
+    public Integer updateFavorites(UpdateFavoritesDto updateFavoritesDto, UmUserPo userPo) {
+        if (userPo == null) {
+            throw new ServiceException(ResultCode.FAIL, "您不是app用户！");
         }
-        Map<String,Object> query = Maps.newHashMap();
-        query.put("user_id",userPo.getId());
-        query.put("favorites_id",updateFavoritesDto.getFavoritesId());
-        List<UmUserFavoritesPo> favoritesPoList = mapper.selectByMap(query);
-        KeyWordTypeEnum typeEnum = KeyWordTypeEnum.fromName (updateFavoritesDto.getType ());
+
+        //查询是否收藏过,并发情况，锁住行
+        UmUserFavoritesPo userFavoritesPo = mapper.selectOne(new QueryWrapper<UmUserFavoritesPo>().lambda()
+                .eq(UmUserFavoritesPo::getUserId, userPo.getId())
+                .eq(UmUserFavoritesPo::getFavoritesId, updateFavoritesDto.getFavoritesId())
+                .last("for update"));
+
+        Integer num = 0;
+
+        KeyWordTypeEnum typeEnum = KeyWordTypeEnum.fromName(updateFavoritesDto.getType());
         assert typeEnum != null;
         switch (typeEnum) {
             case GOODS:
-                if (goodsMapper.selectById (updateFavoritesDto.getFavoritesId ())==null){
-                    throw new ServiceException (ResultCode.FAIL,"不存在该商品");
-                }else{
-                    PmGoodsPo goodsPo = new PmGoodsPo ();
-                    goodsPo = goodsMapper.selectById (updateFavoritesDto.getFavoritesId ());
-                    if (updateFavoritesDto.getOperation()) {
-                        if (mapper.selectByMap(query).size()!=0 && mapper.selectByMap(query)!=null){
-                            throw new ServiceException(ResultCode.FAIL,"不能重复收藏该宝贝");
-                        }
-                        goodsPo.setCollectionNum(goodsPo.getCollectionNum() + 1);
-                    }else{
-                        if (mapper.selectByMap(query).size()==0 && mapper.selectByMap(query)==null){
-                            throw new ServiceException(ResultCode.FAIL,"您暂时没有收藏该宝贝，不能执行取消操作");
-                        }
-                        goodsPo.setCollectionNum(goodsPo.getCollectionNum() - 1);
-                    }
-                    goodsMapper.updateById (goodsPo);
+                //判断商品是否存在
+                if (goodsMapper.selectById(updateFavoritesDto.getFavoritesId()) == null) {
+                    throw new ServiceException(ResultCode.NO_EXISTS, "数据库不存在该商品，请检查");
                 }
+//                //并发情况，锁住行
+//                PmGoodsPo goodsPo = goodsMapper.selectOne(new QueryWrapper<PmGoodsPo>().lambda()
+//                        .eq(PmGoodsPo::getId,updateFavoritesDto.getFavoritesId()).last("for update"));
+
+                if (userFavoritesPo == null) { //未收藏过
+
+                    userFavoritesPo = new UmUserFavoritesPo();
+                    userFavoritesPo.setCreateBy(userPo.getTrueName()).setUserId(userPo.getId())
+                            .setId(null).setFavoritesId(updateFavoritesDto.getFavoritesId())
+                            .setType(typeEnum.getName()).setIsFavorites(true);
+                    mapper.insert(userFavoritesPo);
+                    //不用updateById  update a=a+1
+                    goodsMapper.addFavorites(updateFavoritesDto.getFavoritesId());
+
+                } else if (userFavoritesPo.getIsFavorites()) { //取消收藏
+
+                    userFavoritesPo.setIsFavorites(false);
+                    mapper.updateById(userFavoritesPo);
+                    //不用updateById  update a=a-1
+                    goodsMapper.delFavorites(updateFavoritesDto.getFavoritesId());
+
+                } else if (!userFavoritesPo.getIsFavorites()) { //收藏过且取消收藏再次收藏
+                    userFavoritesPo.setIsFavorites(true);
+                    mapper.updateById(userFavoritesPo);
+                    //不用updateById  update a=a+1
+                    goodsMapper.addFavorites(updateFavoritesDto.getFavoritesId());
+
+                }
+                num = goodsMapper.selectById(updateFavoritesDto.getFavoritesId()).getCollectionNum();
                 break;
             case MERCHANT:
-                if (smStoreMapper.selectById (updateFavoritesDto.getFavoritesId ())==null){
-                    throw new ServiceException (ResultCode.FAIL,"不存在该店铺");
-                }else {
-                    SmStorePo storePo = smStoreMapper.selectById (updateFavoritesDto.getFavoritesId ());
-                    if (updateFavoritesDto.getOperation()) {
-                        if (mapper.selectByMap(query).size()!=0 && mapper.selectByMap(query)!=null){
-                            throw new ServiceException(ResultCode.FAIL,"不能重复收藏该宝贝");
-                        }
-                        storePo.setCollectionNum(storePo.getCollectionNum() + 1);
-                    }else{
-                        if (mapper.selectByMap(query).size()==0 && mapper.selectByMap(query)==null){
-                            throw new ServiceException(ResultCode.FAIL,"您暂时没有收藏该宝贝，不能执行取消操作");
-                        }
-                        storePo.setCollectionNum(storePo.getCollectionNum() - 1);
+                if (smStoreMapper.selectById(updateFavoritesDto.getFavoritesId()) == null) {
+                    throw new ServiceException(ResultCode.FAIL, "不存在该店铺");
+                } else {
+
+                    if (userFavoritesPo == null) { //未收藏过
+
+                        userFavoritesPo = new UmUserFavoritesPo();
+                        userFavoritesPo.setCreateBy(userPo.getTrueName()).setUserId(userPo.getId())
+                                .setId(null).setFavoritesId(updateFavoritesDto.getFavoritesId())
+                                .setType(typeEnum.getName()).setIsFavorites(true);
+                        mapper.insert(userFavoritesPo);
+                        //不用updateById  update a=a+1
+                        smStoreMapper.addFavorites(updateFavoritesDto.getFavoritesId());
+
+                    } else if (userFavoritesPo.getIsFavorites()) { //取消收藏
+
+                        userFavoritesPo.setIsFavorites(false);
+                        mapper.updateById(userFavoritesPo);
+                        //不用updateById  update a=a-1
+                        smStoreMapper.delFavorites(updateFavoritesDto.getFavoritesId());
+                    } else if (!userFavoritesPo.getIsFavorites()) { //收藏过且取消收藏再次收藏
+                        userFavoritesPo.setIsFavorites(true);
+                        mapper.updateById(userFavoritesPo);
+                        //不用updateById  update a=a+1
+                        smStoreMapper.addFavorites(updateFavoritesDto.getFavoritesId());
                     }
-                    smStoreMapper.updateById (storePo);
                 }
+                num = smStoreMapper.selectById(updateFavoritesDto.getFavoritesId()).getCollectionNum();
                 break;
             case INFORMATION:
-                if (informationMapper.selectById (updateFavoritesDto.getFavoritesId ())==null){
-                    throw new ServiceException (ResultCode.FAIL,"不存在该资讯");
-                }else{
-                    MmInformationPo informationPo = informationMapper.selectById (updateFavoritesDto.getFavoritesId ());
-                    if (updateFavoritesDto.getOperation()) {
-                        if (mapper.selectByMap(query).size()!=0 && mapper.selectByMap(query)!=null){
-                            throw new ServiceException(ResultCode.FAIL,"不能重复收藏该宝贝");
-                        }
-                        informationPo.setCollectionNum(informationPo.getCollectionNum() + 1);
-                    }else {
-                        if (mapper.selectByMap(query).size()==0 && mapper.selectByMap(query)==null){
-                            throw new ServiceException(ResultCode.FAIL,"您暂时没有收藏该宝贝，不能执行取消操作");
-                        }
-                        informationPo.setCollectionNum(informationPo.getCollectionNum() - 1);
+                if (informationMapper.selectById(updateFavoritesDto.getFavoritesId()) == null) {
+                    throw new ServiceException(ResultCode.FAIL, "不存在该资讯");
+                } else {
+                    if (userFavoritesPo == null) { //未收藏过
+
+                        userFavoritesPo = new UmUserFavoritesPo();
+                        userFavoritesPo.setCreateBy(userPo.getTrueName()).setUserId(userPo.getId())
+                                .setId(null).setFavoritesId(updateFavoritesDto.getFavoritesId())
+                                .setType(typeEnum.getName()).setIsFavorites(true);
+                        mapper.insert(userFavoritesPo);
+                        //不用updateById  update a=a+1
+                        informationMapper.addFavorites(updateFavoritesDto.getFavoritesId());
+
+                    } else if (userFavoritesPo.getIsFavorites()) { //取消收藏
+
+                        userFavoritesPo.setIsFavorites(false);
+                        mapper.updateById(userFavoritesPo);
+                        //不用updateById  update a=a-1
+                        informationMapper.delFavorites(updateFavoritesDto.getFavoritesId());
+                    } else if (!userFavoritesPo.getIsFavorites()) { //收藏过且取消收藏再次收藏
+                        userFavoritesPo.setIsFavorites(true);
+                        mapper.updateById(userFavoritesPo);
+                        //不用updateById  update a=a+1
+                        informationMapper.addFavorites(updateFavoritesDto.getFavoritesId());
                     }
-                    informationMapper.updateById(informationPo);
                 }
+                num = informationMapper.selectById(updateFavoritesDto.getFavoritesId()).getCollectionNum();
                 break;
             case BRAND:
-                if (attributeMapper.selectById (updateFavoritesDto.getFavoritesId ())==null){
-                    throw new ServiceException (ResultCode.FAIL,"不存在该品牌");
-                }else{
-                    PmGoodsAttributePo brandVo = attributeMapper.selectById (updateFavoritesDto.getFavoritesId ());
-                    if (updateFavoritesDto.getOperation()) {
-                        if (mapper.selectByMap(query).size()!=0 && mapper.selectByMap(query)!=null){
-                            throw new ServiceException(ResultCode.FAIL,"不能重复收藏该宝贝");
-                        }
-                        brandVo.setCollectionNum(brandVo.getCollectionNum() + 1);
-                    }else {
-                        if (ListUtil.isListNullAndEmpty(favoritesPoList)){
-                            throw new ServiceException(ResultCode.FAIL,"您暂时没有收藏该宝贝，不能执行取消操作");
-                        }
-                        brandVo.setCollectionNum(brandVo.getCollectionNum() - 1);
+                if (attributeMapper.selectById(updateFavoritesDto.getFavoritesId()) == null) {
+                    throw new ServiceException(ResultCode.FAIL, "不存在该品牌");
+                } else {
+                    if (userFavoritesPo == null) { //未收藏过
+
+                        userFavoritesPo = new UmUserFavoritesPo();
+                        userFavoritesPo.setCreateBy(userPo.getTrueName()).setUserId(userPo.getId())
+                                .setId(null).setFavoritesId(updateFavoritesDto.getFavoritesId())
+                                .setType(typeEnum.getName()).setIsFavorites(true);
+                        mapper.insert(userFavoritesPo);
+                        //不用updateById  update a=a+1
+                        attributeMapper.addFavorites(updateFavoritesDto.getFavoritesId());
+
+                    } else if (userFavoritesPo.getIsFavorites()) { //取消收藏
+
+                        userFavoritesPo.setIsFavorites(false);
+                        mapper.updateById(userFavoritesPo);
+                        //不用updateById  update a=a-1
+                        attributeMapper.delFavorites(updateFavoritesDto.getFavoritesId());
+                    } else if (!userFavoritesPo.getIsFavorites()) { //收藏过且取消收藏再次收藏
+                        userFavoritesPo.setIsFavorites(true);
+                        mapper.updateById(userFavoritesPo);
+                        //不用updateById  update a=a+1
+                        attributeMapper.addFavorites(updateFavoritesDto.getFavoritesId());
                     }
-                    attributeMapper.updateById(brandVo);
+                    num = attributeMapper.selectById(updateFavoritesDto.getFavoritesId()).getCollectionNum();
+                    break;
                 }
-                break;
         }
-        if (updateFavoritesDto.getOperation()) {
-            UmUserFavoritesPo favoritesPo = new UmUserFavoritesPo();
-            BeanUtils.copyProperties(updateFavoritesDto, favoritesPo);
-            favoritesPo.setId(null);
-            favoritesPo.setCreateBy(userPo.getTrueName());
-            favoritesPo.setUserId(userPo.getId());
-            favoritesPo.setUpdateTime(LocalDateTime.now());
-            mapper.insert(favoritesPo);
-        }else{
-            QueryWrapper<UmUserFavoritesPo> queryWrapper = new QueryWrapper<>();
-            queryWrapper.lambda().and(obj->obj.eq(UmUserFavoritesPo::getFavoritesId,updateFavoritesDto.getFavoritesId())
-                    .eq(UmUserFavoritesPo::getUserId,userPo.getId()));
-            mapper.delete(queryWrapper);
-        }
+        return num;
     }
 
     /**
      * 批量删除收藏
+     *
      * @param delFavaritesDto
      * @return
      */
     @Override
-    public void delFavoritesByIds (DelFavaritesDto delFavaritesDto) {
+    public void delFavoritesByIds(DelFavaritesDto delFavaritesDto) {
 
-        if (delFavaritesDto.getIds ().size()==0 && delFavaritesDto.getIds ()==null){
-            throw new ServiceException (ResultCode.FAIL,"请选择宝贝");
+        if (delFavaritesDto.getIds().size() == 0 && delFavaritesDto.getIds() == null) {
+            throw new ServiceException(ResultCode.FAIL, "请选择宝贝");
         }
-        delFavaritesDto.getIds ().forEach (a->{
+        delFavaritesDto.getIds().forEach(a -> {
             Long favoritesId = mapper.selectById(a).getFavoritesId();
-            if (mapper.selectById (favoritesId)==null){
-                throw new ServiceException (ResultCode.FAIL,"出错了，宝贝不存在");
+            if (mapper.selectById(favoritesId) == null) {
+                throw new ServiceException(ResultCode.FAIL, "出错了，宝贝不存在");
             }
-            KeyWordTypeEnum typeEnum = KeyWordTypeEnum.fromName (delFavaritesDto.getType ());
+            KeyWordTypeEnum typeEnum = KeyWordTypeEnum.fromName(delFavaritesDto.getType());
             assert typeEnum != null;
             switch (typeEnum) {
                 case GOODS:
-                    if (goodsMapper.selectById (favoritesId)==null){
-                        throw new ServiceException (ResultCode.FAIL,"不存在该商品");
-                    }else{
-                        PmGoodsPo goodsPo = new PmGoodsPo ();
-                        goodsPo = goodsMapper.selectById (favoritesId);
-                        goodsPo.setCollectionNum (goodsPo.getCollectionNum ()-1);
-                        goodsMapper.updateById (goodsPo);
+                    if (goodsMapper.selectById(favoritesId) == null) {
+                        throw new ServiceException(ResultCode.FAIL, "不存在该商品");
+                    } else {
+                        PmGoodsPo goodsPo = new PmGoodsPo();
+                        goodsPo = goodsMapper.selectById(favoritesId);
+                        goodsPo.setCollectionNum(goodsPo.getCollectionNum() - 1);
+                        goodsMapper.updateById(goodsPo);
                     }
                     break;
                 case MERCHANT:
-                    if (smStoreMapper.selectById (favoritesId)==null){
-                        throw new ServiceException (ResultCode.FAIL,"不存在该店铺");
-                    }else {
-                        SmStorePo storePo = smStoreMapper.selectById (favoritesId);
-                        storePo.setCollectionNum(storePo.getCollectionNum()-1);
-                        smStoreMapper.updateById (storePo);
+                    if (smStoreMapper.selectById(favoritesId) == null) {
+                        throw new ServiceException(ResultCode.FAIL, "不存在该店铺");
+                    } else {
+                        SmStorePo storePo = smStoreMapper.selectById(favoritesId);
+                        storePo.setCollectionNum(storePo.getCollectionNum() - 1);
+                        smStoreMapper.updateById(storePo);
                     }
                     break;
                 case INFORMATION:
-                    if (informationMapper.selectById (favoritesId)==null){
-                        throw new ServiceException (ResultCode.FAIL,"不存在该资讯");
-                    }else{
-                        MmInformationPo informationPo = informationMapper.selectById (favoritesId);
-                        informationPo.setCollectionNum (informationPo.getCollectionNum ()-1);
+                    if (informationMapper.selectById(favoritesId) == null) {
+                        throw new ServiceException(ResultCode.FAIL, "不存在该资讯");
+                    } else {
+                        MmInformationPo informationPo = informationMapper.selectById(favoritesId);
+                        informationPo.setCollectionNum(informationPo.getCollectionNum() - 1);
                         informationMapper.updateById(informationPo);
                     }
                     break;
             }
 
         });
-        mapper.deleteBatchIds (delFavaritesDto.getIds ());
+        mapper.deleteBatchIds(delFavaritesDto.getIds());
     }
 
     /**
@@ -238,51 +277,51 @@ public class UmUserFavoritesServiceImpl extends AbstractService<UmUserFavoritesM
      * @return
      */
     @Override
-    public PageInfo<SearchFavoritesVo> searchFavorites (SelectFavoritesDto selectFavoritesDto, UmUserPo userPo) {
-        if (userPo == null){
-            throw new ServiceException (ResultCode.FAIL,"您不是App用户！");
+    public PageInfo<SearchFavoritesVo> searchFavorites(SelectFavoritesDto selectFavoritesDto, UmUserPo userPo) {
+        if (userPo == null) {
+            throw new ServiceException(ResultCode.FAIL, "您不是App用户！");
         }
         Integer pageNo = selectFavoritesDto.getPageNo() == null ? defaultPageNo : selectFavoritesDto.getPageNo();
         Integer pageSize = selectFavoritesDto.getPageSize() == null ? defaultPageSize : selectFavoritesDto.getPageSize();
         PageInfo<SearchFavoritesVo> searchFavoritesVoPageInfo;
-        KeyWordTypeEnum typeEnum = KeyWordTypeEnum.fromName (selectFavoritesDto.getType ());
+        KeyWordTypeEnum typeEnum = KeyWordTypeEnum.fromName(selectFavoritesDto.getType());
         assert typeEnum != null;
         switch (typeEnum) {
             case GOODS:
                 searchFavoritesVoPageInfo = PageHelper.startPage(pageNo, pageSize)
-                        .doSelectPageInfo(() -> mapper.searchGoodsFavorites(selectFavoritesDto,userPo.getId ()));
-                if (searchFavoritesVoPageInfo.getList ().size ()==0 || searchFavoritesVoPageInfo.getList ()==null){
-                    return new PageInfo<> ();
+                        .doSelectPageInfo(() -> mapper.searchGoodsFavorites(selectFavoritesDto, userPo.getId()));
+                if (searchFavoritesVoPageInfo.getList().size() == 0 || searchFavoritesVoPageInfo.getList() == null) {
+                    return new PageInfo<>();
                 }
-                searchFavoritesVoPageInfo.getList().forEach (a->{
-                    String sellPrice ="";
-                    BigDecimal lowestSellPrice = goodsSkuMapper.getLowestPrice (a.getGoodsId ());
-                    BigDecimal highestSellPrice = goodsSkuMapper.getHighestPrice (a.getGoodsId ());
-                    if (lowestSellPrice==null && highestSellPrice == null){
-                        a.setPrice (null);
-                    }else if (lowestSellPrice.equals (highestSellPrice)){
-                        sellPrice=lowestSellPrice.toString ();
-                    }else{
-                        sellPrice = lowestSellPrice.toString ()+"-"+highestSellPrice;
+                searchFavoritesVoPageInfo.getList().forEach(a -> {
+                    String sellPrice = "";
+                    BigDecimal lowestSellPrice = goodsSkuMapper.getLowestPrice(a.getGoodsId());
+                    BigDecimal highestSellPrice = goodsSkuMapper.getHighestPrice(a.getGoodsId());
+                    if (lowestSellPrice == null && highestSellPrice == null) {
+                        a.setPrice(null);
+                    } else if (lowestSellPrice.equals(highestSellPrice)) {
+                        sellPrice = lowestSellPrice.toString();
+                    } else {
+                        sellPrice = lowestSellPrice.toString() + "-" + highestSellPrice;
                     }
-                    a.setPrice (sellPrice);
+                    a.setPrice(sellPrice);
                 });
                 return searchFavoritesVoPageInfo;
             case MERCHANT:
                 searchFavoritesVoPageInfo = PageHelper.startPage(pageNo, pageSize)
-                        .doSelectPageInfo(() -> mapper.searchMerchantFavorites(selectFavoritesDto,userPo.getId ()));
-                if (searchFavoritesVoPageInfo.getList ().size ()==0 || searchFavoritesVoPageInfo.getList ()==null){
-                    return new PageInfo<> ();
+                        .doSelectPageInfo(() -> mapper.searchMerchantFavorites(selectFavoritesDto, userPo.getId()));
+                if (searchFavoritesVoPageInfo.getList().size() == 0 || searchFavoritesVoPageInfo.getList() == null) {
+                    return new PageInfo<>();
                 }
                 return searchFavoritesVoPageInfo;
             case INFORMATION:
                 searchFavoritesVoPageInfo = PageHelper.startPage(pageNo, pageSize)
-                        .doSelectPageInfo(() -> mapper.searchInformationFavorites(selectFavoritesDto,userPo.getId ()));
-                if (searchFavoritesVoPageInfo.getList ().size ()==0 || searchFavoritesVoPageInfo.getList ()==null){
-                    return new PageInfo<> ();
+                        .doSelectPageInfo(() -> mapper.searchInformationFavorites(selectFavoritesDto, userPo.getId()));
+                if (searchFavoritesVoPageInfo.getList().size() == 0 || searchFavoritesVoPageInfo.getList() == null) {
+                    return new PageInfo<>();
                 }
                 return searchFavoritesVoPageInfo;
         }
-        return new PageInfo<> ();
+        return new PageInfo<>();
     }
 }

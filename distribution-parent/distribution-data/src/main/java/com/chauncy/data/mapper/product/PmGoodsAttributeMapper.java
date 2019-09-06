@@ -13,6 +13,7 @@ import com.chauncy.data.vo.manage.product.AttributeIdNameTypeVo;
 import com.chauncy.data.vo.manage.product.PmGoodsAttributeVo;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -141,4 +142,20 @@ public interface PmGoodsAttributeMapper extends IBaseMapper<PmGoodsAttributePo> 
      * @return
      */
     List<BaseVo> searchBrands(@Param("name") String name, @Param("idList") List<Long> finalAssociatedBrandIdList1);
+
+    /**
+     * 不用updateById  update a=a+1
+     *
+     * @param favoritesId
+     */
+    @Update("update pm_goods_attribute set collection_num = collection_num+1 where id = #{favoritesId}")
+    void addFavorites(Long favoritesId);
+
+    /**
+     * 不用updateById  update a=a-1
+     *
+     * @param favoritesId
+     */
+    @Update("update pm_goods_attribute set collection_num = collection_num-1 where id = #{favoritesId}")
+    void delFavorites(Long favoritesId);
 }
