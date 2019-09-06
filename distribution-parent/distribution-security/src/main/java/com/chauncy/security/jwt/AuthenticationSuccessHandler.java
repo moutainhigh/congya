@@ -4,6 +4,8 @@ import cn.hutool.core.util.StrUtil;
 import com.chauncy.common.annotation.SystemLog;
 import com.chauncy.common.constant.SecurityConstant;
 import com.chauncy.common.enums.system.LogType;
+import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.sys.TokenUser;
 import com.chauncy.security.util.IpInfoUtil;
 import com.chauncy.security.util.ResponseUtil;
@@ -115,7 +117,14 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
                     .signWith(SignatureAlgorithm.HS512, SecurityConstant.JWT_SIGN_KEY)
                     .compact();
         }
+        String loginType=request.getParameter("loginType");
+        if (loginType.equals("MANAGE")||loginType.equals("SUPPLIER")){
+            ResponseUtil.out(response, ResponseUtil.resultMap(true,200,"登录成功", token));
+        }
+        else {
+            ResponseUtil.out(response, new JsonViewData<String>(token));
 
-        ResponseUtil.out(response, ResponseUtil.resultMap(true,200,"登录成功", token));
+        }
+
     }
 }
