@@ -80,52 +80,64 @@ public class SpecifiedGoodsVo {
     @JSONField(ordinal = 6)
     private Integer salesVolume;
 
-    @ApiModelProperty("商品ID")
+    @ApiModelProperty("收藏数量")
     @JSONField(ordinal = 7)
+    private Integer collectionNum;
+
+    @ApiModelProperty("用户是否已经收藏 0- 否 1-是")
+    @JSONField(ordinal = 8)
+    private Boolean isFavorites;
+
+    @ApiModelProperty("商品ID")
+    @JSONField(ordinal = 9)
     private Long goodsId;
 
     @ApiModelProperty(value = "税率类型 1--平台税率 2--自定义税率 3—无税率")
-    @JSONField(ordinal = 8)
+    @JSONField(ordinal = 10)
     private Integer taxRateType;
 
     @ApiModelProperty(value = "税率")
-    @JSONField(ordinal = 10)
+    @JSONField(ordinal = 11)
     private BigDecimal taxRate;
 
     @ApiModelProperty(value = "自定义税率")
-    @JSONField(serialize = false,ordinal = 11)
+    @JSONField(serialize = false,ordinal = 12)
     private BigDecimal customTaxRate;
 
+    @ApiModelProperty(value = "税费")
+    @JSONField(ordinal = 13)
+    private BigDecimal taxCost;
+
     @ApiModelProperty(value = "类目ID")
-    @JSONField(ordinal = 12)
+    @JSONField(ordinal = 14)
     private Long categoryId;
 
     @ApiModelProperty("运费信息")
-    @JSONField(ordinal = 13)
+    @JSONField(ordinal = 15)
     private ShipFreightInfoVo shipFreightInfoVo;
 
     @ApiModelProperty("店铺信息")
-    @JSONField(ordinal = 14)
+    @JSONField(ordinal = 16)
     private StoreVo storeVo;
 
     @ApiModelProperty("活动")
-    @JSONField(ordinal = 15)
+    @JSONField(ordinal = 17)
     private List<AttributeVo> activityVoList;
 
     @ApiModelProperty("服务")
-    @JSONField(ordinal = 16)
+    @JSONField(ordinal = 18)
     private List<AttributeVo> serviceList;
 
     @ApiModelProperty("参数")
-    @JSONField(ordinal = 17)
+    @JSONField(ordinal = 19)
     private List<AttributeVo> paramList;
 
     @ApiModelProperty("商品对应的所有规格信息")
-    @JSONField(ordinal = 18)
+    @JSONField(ordinal = 20)
     private List<GoodsStandardVo> goodsStandardVoList;
 
     @ApiModelProperty("每个sku的详情")
-    @JSONField(ordinal = 19)
+    @JSONField(ordinal = 21)
     private Map<String,SpecifiedSkuVo> skuDetail;
 
 }

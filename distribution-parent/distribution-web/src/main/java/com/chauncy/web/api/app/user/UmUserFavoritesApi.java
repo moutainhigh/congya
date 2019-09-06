@@ -44,12 +44,11 @@ public class UmUserFavoritesApi {
      */
     @PostMapping("/updateFavorites")
     @ApiOperation ("更新用户收藏信息，收藏或取消收藏")
-    public JsonViewData updateFavorites(@RequestBody @ApiParam(required = true,name = "updateFavoritesDto",value = "用户添加收藏")
+    public JsonViewData<Integer> updateFavorites(@RequestBody @ApiParam(required = true,name = "updateFavoritesDto",value = "用户添加或取消收藏")
                                      @Validated UpdateFavoritesDto updateFavoritesDto){
 
         UmUserPo userPo = securityUtil.getAppCurrUser ();
-        service.updateFavorites(updateFavoritesDto,userPo);
-        return new JsonViewData (ResultCode.SUCCESS);
+        return new JsonViewData (service.updateFavorites(updateFavoritesDto,userPo));
     }
 
     /**

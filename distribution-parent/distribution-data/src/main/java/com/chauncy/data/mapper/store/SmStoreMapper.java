@@ -16,6 +16,7 @@ import com.chauncy.data.vo.manage.store.rel.SmRelStoreVo;
 import com.chauncy.data.vo.supplier.store.BranchInfoVo;
 import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 import java.util.Map;
@@ -149,4 +150,20 @@ public interface SmStoreMapper extends IBaseMapper<SmStorePo> {
      * @return
      */
     List<BaseVo> searchStores(@Param("classificationId") Long classificationId , @Param("name") String name, @Param("associatedIds") List<Long> associatedIds);
+
+    /**
+     * 不用updateById  update a=a+1
+     *
+     * @param favoritesId
+     */
+    @Update("update sm_store set collection_num = collection_num+1 where id = #{favoritesId}")
+    void addFavorites(Long favoritesId);
+
+    /**
+     * 不用updateById  update a=a-1
+     *
+     * @param favoritesId
+     */
+    @Update("update sm_store set collection_num = collection_num-1 where id = #{favoritesId}")
+    void delFavorites(Long favoritesId);
 }
