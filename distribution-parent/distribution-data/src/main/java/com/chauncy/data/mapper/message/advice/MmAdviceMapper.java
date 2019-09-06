@@ -3,10 +3,12 @@ package com.chauncy.data.mapper.message.advice;
 import com.chauncy.data.domain.po.message.advice.MmAdvicePo;
 import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
+import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
 import com.chauncy.data.dto.manage.message.advice.select.SearchAdvicesDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchBrandAndSkuBaseVo;
+import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseVo;
 import com.chauncy.data.vo.app.advice.home.GetAdviceInfoVo;
 import com.chauncy.data.vo.app.advice.home.ShufflingVo;
@@ -85,4 +87,28 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
      * @return
      */
     List<SearchBrandAndSkuBaseVo> searchBrandBase(SearchBrandAndSkuBaseDto searchBrandAndSkuBaseDto);
+
+    /**
+     * 分页条件查询品牌下的商品列表
+     *
+     * @param searchGoodsBaseListDto
+     * @return
+     */
+    List<SearchGoodsBaseListVo> searchBrandGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto);
+
+    /**
+     * 分页条件查询品牌下的商品列表
+     *
+     * @param searchGoodsBaseListDto
+     * @return
+     */
+    List<SearchGoodsBaseListVo> searchTabGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto);
+
+    /**
+     * 分页条件查询葱鸭优选推荐的分类的商品列表
+     *
+     * @param searchGoodsBaseListDto
+     * @return
+     */
+    PageInfo<SearchGoodsBaseListVo> searchCategoryGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto);
 }

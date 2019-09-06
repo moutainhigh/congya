@@ -5,7 +5,7 @@ import com.chauncy.common.enums.log.LogTriggerEventEnum;
 import com.chauncy.common.enums.log.WithdrawalStatusEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
-import com.chauncy.data.bo.order.log.AddAccountLogBo;
+import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
 import com.chauncy.data.domain.po.order.OmUserWithdrawalPo;
 import com.chauncy.data.dto.manage.order.bill.update.BatchAuditDto;
 import com.chauncy.data.mapper.order.OmUserWithdrawalMapper;

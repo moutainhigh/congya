@@ -22,6 +22,7 @@
         <result column="status" property="status"/>
         <result column="goods_type" property="goodsType"/>
         <result column="pictures" property="pictures"/>
+        <result column="refund_id" property="refundId"/>
     </resultMap>
 
     <resultMap id="AfterSaleListVo" type="com.chauncy.data.vo.manage.order.afterSale.AfterSaleListVo"
@@ -32,7 +33,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, create_by, create_time, update_by, update_time, del_flag, order_id, phone, store_id, store_name, goods_name, number, refund_money, after_sale_type, reason, status, goods_type, pictures
+        id, create_by, create_time, update_by, update_time, del_flag, order_id, phone, store_id, store_name, goods_name, number, refund_money, after_sale_type, reason, status, goods_type, pictures, refund_id
     </sql>
     <select id="searchGoodsTempByOrderId"
             resultType="com.chauncy.data.vo.app.order.my.afterSale.ApplyAfterSaleVo">

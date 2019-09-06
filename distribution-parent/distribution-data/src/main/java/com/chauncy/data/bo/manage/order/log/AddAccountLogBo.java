@@ -1,4 +1,4 @@
-package com.chauncy.data.bo.order.log;
+package com.chauncy.data.bo.manage.order.log;
 
 import com.chauncy.common.enums.log.LogTriggerEventEnum;
 import com.chauncy.data.valid.annotation.EnumConstraint;

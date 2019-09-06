@@ -157,5 +157,8 @@ public class PmGoodsPo {
     @ApiModelProperty (value = "收藏数量")
     private Integer collectionNum;
 
+    @ApiModelProperty (value = "转发量")
+    private Integer forwardNum;
+
 
 }

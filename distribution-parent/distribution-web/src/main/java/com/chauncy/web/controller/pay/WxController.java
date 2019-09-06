@@ -4,7 +4,8 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.vo.JsonViewData;
-import com.chauncy.order.pay.impl.WXserviceImpl;
+import com.chauncy.data.vo.app.order.pay.UnifiedOrderVo;
+import com.chauncy.order.pay.IWxService;
 import com.chauncy.security.util.IpInfoUtil;
 import com.chauncy.security.util.SecurityUtil;
 import io.swagger.annotations.Api;
@@ -31,12 +32,12 @@ import java.util.Map;
 @RestController
 @RequestMapping("/app")
 @Slf4j
-public class WXController {
+public class WxController {
 
-    private final static Logger logger = LoggerFactory.getLogger(WXController.class);
+    private final static Logger logger = LoggerFactory.getLogger(WxController.class);
 
     @Autowired
-    private WXserviceImpl wxPayService;
+    private IWxService wxService;
 
     @Autowired
     private IpInfoUtil ipInfoUtil;
@@ -52,7 +53,7 @@ public class WXController {
      */
     @PostMapping("/wxPay/{payOrderId}")
     @ApiOperation("统一下单")
-    public JsonViewData wxPay(HttpServletRequest request, @PathVariable(value = "payOrderId") Long payOrderId) {
+    public JsonViewData<UnifiedOrderVo> wxPay(HttpServletRequest request, @PathVariable(value = "payOrderId") Long payOrderId) {
 
         //获取当前店铺用户
         UmUserPo umUserPo = securityUtil.getAppCurrUser();
@@ -61,8 +62,8 @@ public class WXController {
         }
         try {
             //请求预支付订单
-            Map<String, String> returnMap = wxPayService.doUnifiedOrder(ipInfoUtil.getIpAddr(request), payOrderId);
-            return new JsonViewData(ResultCode.SUCCESS, "操作成功", returnMap);
+            UnifiedOrderVo unifiedOrderVo = wxService.unifiedOrder(ipInfoUtil.getIpAddr(request), payOrderId);
+            return new JsonViewData(ResultCode.SUCCESS, "操作成功", unifiedOrderVo);
         } catch (ServiceException e) {
             throw e;
         } catch (Exception e) {
@@ -99,7 +100,7 @@ public class WXController {
                 }
             }
             resXml = sb.toString();
-            String result = wxPayService.payBack(resXml);
+            String result = wxService.payBack(resXml);
             return result;
         } catch (Exception e) {
             logger.error("微信手机支付失败:" + e.getMessage());

@@ -97,6 +97,9 @@ public class OmAfterSaleOrderPo implements Serializable {
     @ApiModelProperty(value = "商品快照id")
     private Long goodsTempId;
 
+    @ApiModelProperty(value = "微信退款单号")
+    private String refundId;
+
 
 
 }

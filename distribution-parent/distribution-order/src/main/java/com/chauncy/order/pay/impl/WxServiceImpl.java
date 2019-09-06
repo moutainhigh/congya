@@ -1,19 +1,29 @@
 package com.chauncy.order.pay.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.enums.app.order.PayOrderStatusEnum;
+import com.chauncy.common.enums.app.order.afterSale.AfterSaleStatusEnum;
+import com.chauncy.common.enums.app.order.afterSale.AfterSaleTypeEnum;
 import com.chauncy.common.enums.log.PaymentWayEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.common.util.wechat.WXConfigUtil;
 import com.chauncy.common.util.wechat.WxMD5Util;
+import com.chauncy.data.bo.manage.order.OrderRefundInfoBo;
+import com.chauncy.data.domain.po.afterSale.OmAfterSaleOrderPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
-import com.chauncy.data.mapper.order.OmOrderMapper;
+import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.mapper.afterSale.OmAfterSaleOrderMapper;
 import com.chauncy.data.mapper.pay.IPayOrderMapper;
-import com.chauncy.order.pay.WXservice;
+import com.chauncy.data.vo.app.order.pay.UnifiedOrderVo;
+import com.chauncy.order.afterSale.IOmAfterSaleOrderService;
+import com.chauncy.order.pay.IWxService;
 import com.chauncy.order.service.IOmOrderService;
+import com.chauncy.security.util.SecurityUtil;
 import com.github.wxpay.sdk.WXPay;
 import com.github.wxpay.sdk.WXPayUtil;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,11 +42,15 @@ import java.util.Map;
  */
 
 @Service
-public class WXserviceImpl implements WXservice {
+public class WxServiceImpl implements IWxService {
 
-    private static final Logger logger = LoggerFactory.getLogger(WXserviceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(WxServiceImpl.class);
 
-    public static final String NOTIFY_URL = "http://112.126.96.226/distribution/app/wxPay/wxPay/notify";
+    //支付结果通知地址
+    public static final String PAY_NOTIFY_URL = "http://112.126.96.226/distribution/app/wxPay/wxPay/notify";
+    //退款结果通知地址
+    public static final String REFUND_NOTIFY_URL = "http://112.126.96.226/distribution/app/wxPay/wxPay/notify";
+    //交易类型
     public static final String TRADE_TYPE_APP = "APP";
 
 
@@ -44,43 +58,58 @@ public class WXserviceImpl implements WXservice {
     private IPayOrderMapper payOrderMapper;
 
     @Autowired
+    private OmAfterSaleOrderMapper omAfterSaleOrderMapper;
+
+    @Autowired
     private IOmOrderService omOrderService;
+
+    @Autowired
+    private WXConfigUtil wxConfigUtil;
+
+    @Autowired
+    private WxMD5Util wxMD5Util;
+
+    @Autowired
+    private SecurityUtil securityUtil;
+
+    @Autowired
+    private IOmAfterSaleOrderService omAfterSaleOrderService;
 
     /**
      * 调用官方SDK统一下单 获取前端调起支付接口的参数
      * @return
      * @throws Exception
      */
-
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Map<String, String> doUnifiedOrder(String ipAddr, Long payOrderId) throws Exception {
+    public UnifiedOrderVo unifiedOrder(String ipAddr, Long payOrderId) throws Exception {
 
         PayOrderPo payOrderPo = payOrderMapper.selectById(payOrderId);
         if(null == payOrderPo) {
             throw new ServiceException(ResultCode.NO_EXISTS, "订单记录不存在");
         }
 
-        WxMD5Util md5Util = new WxMD5Util();
-        WXConfigUtil config = new WXConfigUtil();
+        WxMD5Util md5Util = wxMD5Util;
+        WXConfigUtil config = wxConfigUtil;
         WXPay wxpay = new WXPay(config);
         //app调起支付接口所需参数
-        Map<String, String> returnMap = new HashMap<>();
+        UnifiedOrderVo unifiedOrderVo = new UnifiedOrderVo();
         //参加调起支付的签名字段有且只能是6个，分别为appid、partnerid、prepayid、package、noncestr和timestamp，而且都必须是小写
-        returnMap.put("appid", config.getAppID());
-        returnMap.put("partnerid", config.getMchID());
-        returnMap.put("package", "Sign=WXPay");
-        returnMap.put("noncestr", WXPayUtil.generateNonceStr());
+        unifiedOrderVo.setAppId(config.getAppID());
+        unifiedOrderVo.setPartnerId(config.getMchID());
+        unifiedOrderVo.setPackageStr("Sign=WXPay");
+        unifiedOrderVo.setNonceStr(WXPayUtil.generateNonceStr());
         //时间戳 单位为秒
-        returnMap.put("timestamp", String.valueOf(System.currentTimeMillis() / 1000));
+        unifiedOrderVo.setTimestamp(String.valueOf(System.currentTimeMillis() / 1000));
         if(Strings.isNotBlank(payOrderPo.getPrePayId()) && payOrderPo.getPayTypeCode().equals(PaymentWayEnum.WECHAT.getName())) {
             //预支付交易会话标识 说明预支付单已生成
-            returnMap.put("prepayid", payOrderPo.getPrePayId());
+            unifiedOrderVo.setPrepayId(payOrderPo.getPrePayId());
             //returnMap.put("sign", response.get("sign"));
             //returnMap.put("trade_type", response.get("trade_type"));
             //调起支付参数重新签名  不要使用请求预支付订单时返回的签名
-            returnMap.put("sign", md5Util.getSign(returnMap));
-            return returnMap;
+            Map<String, String> returnMap = BeanUtils.describe(unifiedOrderVo);
+            unifiedOrderVo.setSign(md5Util.getSign(returnMap));
+            return unifiedOrderVo;
         }
 
         //统一下单接口微信签名参数
@@ -101,7 +130,7 @@ public class WXserviceImpl implements WXservice {
         //调用微信支付API的机器IP
         data.put("spbill_create_ip", ipAddr);
         //异步通知地址
-        data.put("notify_url", NOTIFY_URL);
+        data.put("notify_url", PAY_NOTIFY_URL);
         //交易类型
         data.put("trade_type", TRADE_TYPE_APP);
         //附加数据，在查询API和支付通知中原样返回，该字段主要用于商户携带订单的自定义数据
@@ -114,7 +143,7 @@ public class WXserviceImpl implements WXservice {
         payOrderPo.setPayTypeCode(PaymentWayEnum.WECHAT.getName());
         payOrderPo.setStartTime(LocalDateTime.now());
         payOrderPo.setUserIp(ipAddr);
-        payOrderPo.setNotifyUrl(NOTIFY_URL);
+        payOrderPo.setNotifyUrl(PAY_NOTIFY_URL);
         //payOrderPo.setExtra("");
         payOrderPo.setSubject(config.getBody());
         //payOrderPo.setDetail("");
@@ -130,13 +159,14 @@ public class WXserviceImpl implements WXservice {
             String resultCode = response.get("result_code");
             if ("SUCCESS".equals(resultCode)) {
                 //resultCode 为SUCCESS，才会返回prepay_id和trade_type
-                returnMap.put("prepayid", response.get("prepay_id"));
+                unifiedOrderVo.setPrepayId(response.get("prepay_id"));
                 //调起支付参数重新签名  不要使用请求预支付订单时返回的签名
-                returnMap.put("sign", md5Util.getSign(returnMap));
+                Map<String, String> returnMap = BeanUtils.describe(unifiedOrderVo);
+                unifiedOrderVo.setSign(md5Util.getSign(returnMap));
                 //更新支付订单
                 payOrderPo.setPrePayId(response.get("prepay_id"));
                 payOrderMapper.updateById(payOrderPo);
-                return returnMap;
+                return unifiedOrderVo;
             } else {
                 //调用微信统一下单接口返回失败
                 String errCodeDes = response.get("err_code_des");
@@ -299,6 +329,99 @@ public class WXserviceImpl implements WXservice {
         }
 
     }
+
+
+    /**
+     * 调用官方SDK申请退款
+     * @param afterSaleOrderId   售后订单id
+     * @throws Exception
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void refund(Long afterSaleOrderId) throws Exception {
+
+        OmAfterSaleOrderPo omAfterSaleOrderPo = omAfterSaleOrderMapper.selectById(afterSaleOrderId);
+        if(null == omAfterSaleOrderPo) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "退款订单记录不存在");
+        }
+        //获取当前店铺用户
+        SysUserPo sysUserPo = securityUtil.getCurrUser();
+        if(null == sysUserPo.getStoreId() || !sysUserPo.getStoreId().equals(omAfterSaleOrderPo.getStoreId())) {
+            //当前登录用户跟操作不匹配
+            throw  new ServiceException(ResultCode.FAIL, "当前登录用户跟操作不匹配");
+        }
+        //售后订单仅退款且状态为待商家处理  或者  售后订单退货退款且状态为待商家退款 才能退款
+        if(!((omAfterSaleOrderPo.getAfterSaleType() == AfterSaleTypeEnum.ONLY_REFUND &&
+                omAfterSaleOrderPo.getStatus() == AfterSaleStatusEnum.NEED_STORE_DO) ||
+                (omAfterSaleOrderPo.getAfterSaleType() == AfterSaleTypeEnum.RETURN_GOODS &&
+                        omAfterSaleOrderPo.getStatus() == AfterSaleStatusEnum.NEED_STORE_REFUND))) {
+            throw new ServiceException(ResultCode.FAIL, "退款操作跟当前售后订单状态不符");
+        }
+        WxMD5Util md5Util = wxMD5Util;
+        WXConfigUtil config = wxConfigUtil;
+        WXPay wxpay = new WXPay(config);
+
+        //申请退款接口微信签名参数
+        Map<String, String> data = new HashMap<>();
+        //应用id APPID
+        data.put("appid", config.getAppID());
+        //商户号
+        data.put("mch_id", config.getMchID());
+        //随机字符串
+        data.put("nonce_str", WXPayUtil.generateNonceStr());
+        OrderRefundInfoBo orderRefundInfoBo = payOrderMapper.findOrderRefundInfo(afterSaleOrderId);
+        if(null != orderRefundInfoBo.getPayOrderNo()) {
+            //微信订单号
+            data.put("transaction_id", orderRefundInfoBo.getPayOrderNo());
+        } else {
+            //商户订单号
+            data.put("out_trade_no", String.valueOf(orderRefundInfoBo.getPayOrderId()));
+        }
+        //商户退款单号
+        data.put("out_refund_no", String.valueOf(omAfterSaleOrderPo.getId()));
+        //退款金额
+        String refundFee = Integer.toString(
+                BigDecimalUtil.safeMultiply(omAfterSaleOrderPo.getRefundMoney(), new BigDecimal(100)).intValue());
+        data.put("refund_fee", refundFee);
+        //订单金额
+        String totalFee = Integer.toString(
+                BigDecimalUtil.safeMultiply(orderRefundInfoBo.getTotalRealPayMoney(), new BigDecimal(100)).intValue());
+        data.put("total_fee", totalFee);
+        //退款结果通知url
+        data.put("notify_url", REFUND_NOTIFY_URL);
+        //申请退款签名
+        String orderSign = md5Util.getSign(data);
+        data.put("sign", orderSign);
+
+        //使用微信申请退款API请求预付订单
+        Map<String, String> response = wxpay.refund(data);
+        //获取返回码
+        String returnCode = response.get("return_code");
+        //若返回码return_code为SUCCESS，则会返回一个result_code,再对该result_code进行判断
+        if (returnCode.equals("SUCCESS")) {
+            String resultCode = response.get("result_code");
+            if ("SUCCESS".equals(resultCode)) {
+                //resultCode 为SUCCESS
+                //更新售后订单订单
+                UpdateWrapper<OmAfterSaleOrderPo> updateWrapper = new UpdateWrapper<>();
+                updateWrapper.lambda().eq(OmAfterSaleOrderPo::getId, omAfterSaleOrderPo.getId())
+                        .set(OmAfterSaleOrderPo::getRefundId, response.get("refund_id"))
+                        .set(OmAfterSaleOrderPo::getStatus, AfterSaleStatusEnum.SUCCESS);
+                omAfterSaleOrderService.update(updateWrapper);
+            } else {
+                //调用微信申请退款接口返回失败
+                String errCodeDes = response.get("err_code_des");
+                throw new ServiceException(ResultCode.FAIL, errCodeDes);
+            }
+        } else {
+            //调用微信微信申请接口返回失败
+            String returnMsg = response.get("return_msg");
+            throw new ServiceException(ResultCode.FAIL, returnMsg);
+        }
+
+    }
+
+
 
 }
 

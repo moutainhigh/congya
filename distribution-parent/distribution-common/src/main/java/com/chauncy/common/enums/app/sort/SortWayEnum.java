@@ -17,7 +17,7 @@ public enum SortWayEnum implements BaseEnum {
 
     @ApiModelProperty("降序")
     DESC(1,"desc"),
-    @ApiModelProperty("降序")
+    @ApiModelProperty("升序")
     ASC(2,"asc");
 
     private Integer id;
@@ -29,7 +29,7 @@ public enum SortWayEnum implements BaseEnum {
 
     @Override
     public String toString(){
-        return this.id + "_" + this.name;
+        return this.name() + "_" + this.name;
     }
 
     public static String value(String name){
@@ -71,5 +71,8 @@ public enum SortWayEnum implements BaseEnum {
 
     @Override
     public boolean isExist(Object field) {
+        if (field == null){
+            return true;
+        }
         return Objects.nonNull(fromName(field.toString()));
     }}

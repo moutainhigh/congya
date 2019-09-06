@@ -33,13 +33,13 @@ public class WXConfigUtil implements WXPayConfig {
 
     public WXConfigUtil() throws Exception {
         //从微信商户平台下载的安全证书存放的路径
-        String certPath = Thread.currentThread().getContextClassLoader().getResource("").getPath()
+       /* String certPath = Thread.currentThread().getContextClassLoader().getResource("").getPath()
                 .concat("cert/BoHUI20190802_apiclient_cert.p12");
         File file = new File(certPath);
         InputStream certStream = new FileInputStream(file);
         this.certData = new byte[(int) file.length()];
         certStream.read(this.certData);
-        certStream.close();
+        certStream.close();*/
     }
 
     @Override

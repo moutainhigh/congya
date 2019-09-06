@@ -52,7 +52,7 @@ public class SaveCouponDto {
     @EnumConstraint(target = CouponFormEnum.class)
     private Integer type;
 
-    @ApiModelProperty(value = "指定范围 1-所有商品 2-指定类目 3-指定商品")
+    @ApiModelProperty(value = "指定范围 1-所有商品 2-指定类目 3-指定商品，当优惠形式为满减或者固定折扣时，指定范围只能是指定商品")
     @EnumConstraint(target = CouponScopeEnum.class)
     private Integer scope;
 

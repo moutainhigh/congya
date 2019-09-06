@@ -47,5 +47,19 @@
     <sql id="Base_Column_List">
         id, pay_type_code, pay_order_no, trade_pay_no, pre_pay_id, pay_id, user_ip, pay_amount, pay_time, status, error_code, error_msg, start_time, expire_time, open_id, buyer_logon_id, notify_url, extra, subject, detail, code_url, merchant_id, trade_type, return_url, refund_amount, ship_name, ship_address, phone, real_pay_money, total_discount, ship_money, tax_money, red_envelops, shop_ticket, total_money, total_number, total_reward_shop_ticket
     </sql>
+    <select id="findOrderRefundInfo" resultType="com.chauncy.data.bo.manage.order.OrderRefundInfoBo">
+        SELECT
+            po.id AS payOrderId,
+            po.pay_order_no,
+            po.total_real_pay_money
+        FROM
+            pay_order po,
+            om_order oo,
+            om_after_sale_order oaso
+        WHERE
+            po.id = oo.pay_order_id
+            AND oo.id = oaso.order_id
+            AND oaso.id = #{afterSaleOrderId}
+    </select>
 
 </mapper>
