@@ -6,6 +6,7 @@ import com.chauncy.data.dto.app.order.my.afterSale.ApplyRefundDto;
 import com.chauncy.data.dto.app.order.my.afterSale.RefundDto;
 import com.chauncy.data.dto.base.BasePageDto;
 import com.chauncy.data.dto.manage.order.afterSale.SearchAfterSaleOrderDto;
+import com.chauncy.data.vo.app.order.my.afterSale.AfterSaleDetailVo;
 import com.chauncy.data.vo.app.order.my.afterSale.ApplyAfterSaleVo;
 import com.chauncy.data.vo.app.order.my.afterSale.MyAfterSaleOrderListVo;
 import com.chauncy.data.vo.manage.order.afterSale.AfterSaleListVo;
@@ -25,10 +26,10 @@ public interface IOmAfterSaleOrderService extends Service<OmAfterSaleOrderPo> {
 
     /**
      * 用户点击退款，验证是否有资格并返回商品信息
-     * @param refundDto
+     * @param goodsTempId
      * @return
      */
-    ApplyAfterSaleVo validCanAfterSaleVo(RefundDto refundDto);
+    ApplyAfterSaleVo validCanAfterSaleVo(Long goodsTempId);
 
 
     /**
@@ -87,4 +88,11 @@ public interface IOmAfterSaleOrderService extends Service<OmAfterSaleOrderPo> {
      * @param afterSaleOrderId
      */
     void permitReceiveGoods(Long afterSaleOrderId);
+
+    /**
+     * 获取售后详情
+     * @param afterSaleOrderId
+     * @return
+     */
+    AfterSaleDetailVo getAfterSaleDetail(Long afterSaleOrderId);
 }

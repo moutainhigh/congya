@@ -9,6 +9,7 @@ import com.chauncy.data.dto.app.order.my.afterSale.RefundDto;
 import com.chauncy.data.dto.base.BasePageDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.order.my.AppSearchOrderVo;
+import com.chauncy.data.vo.app.order.my.afterSale.AfterSaleDetailVo;
 import com.chauncy.data.vo.app.order.my.afterSale.ApplyAfterSaleVo;
 import com.chauncy.data.vo.app.order.my.afterSale.MyAfterSaleOrderListVo;
 import com.chauncy.order.afterSale.IOmAfterSaleOrderService;
@@ -39,10 +40,10 @@ public class AfterSaleOrderApi extends BaseApi {
     private IOmAfterSaleOrderService service;
 
 
-    @PostMapping("/apply")
+    @PostMapping("/apply/{goodsTempId}")
     @ApiOperation("用户点击申请退款")
-    public JsonViewData<ApplyAfterSaleVo> apply(@RequestBody RefundDto refundDto) {
-        return setJsonViewData(service.validCanAfterSaleVo(refundDto));
+    public JsonViewData<ApplyAfterSaleVo> apply(@PathVariable Long goodsTempId ) {
+        return setJsonViewData(service.validCanAfterSaleVo(goodsTempId));
     }
 
     @PostMapping("/searchGoods/{orderId}")
@@ -52,7 +53,7 @@ public class AfterSaleOrderApi extends BaseApi {
     }
 
     @PostMapping("/refund")
-    @ApiOperation("提交退款申请")
+    @ApiOperation("申请售后")
     public JsonViewData refund(@RequestBody ApplyRefundDto applyRefundDto) {
         service.refund(applyRefundDto);
         return setJsonViewData(ResultCode.SUCCESS);
@@ -62,6 +63,12 @@ public class AfterSaleOrderApi extends BaseApi {
     @ApiOperation("售后列表")
     public JsonViewData<PageInfo<MyAfterSaleOrderListVo>> list(@RequestBody BasePageDto basePageDto) {
         return setJsonViewData(service.searchAfterSaleOrderList(basePageDto));
+    }
+
+    @PostMapping("/view/{afterSaleOrderId}")
+    @ApiOperation("售后详情")
+    public JsonViewData<AfterSaleDetailVo> view(@PathVariable Long afterSaleOrderId) {
+        return setJsonViewData(service.getAfterSaleDetail(afterSaleOrderId));
     }
 
 
