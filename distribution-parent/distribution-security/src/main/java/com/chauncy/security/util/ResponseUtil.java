@@ -20,7 +20,7 @@ public class ResponseUtil {
      * @param response
      * @param resultMap
      */
-    public static void out(ServletResponse response, Map<String, Object> resultMap){
+    public static void out(ServletResponse response, Object resultMap){
 
         PrintWriter out = null;
         try {
