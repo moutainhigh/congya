@@ -25,8 +25,10 @@
         <result column="refund_id" property="refundId"/>
     </resultMap>
 
-    <resultMap id="AfterSaleListVo" type="com.chauncy.data.vo.manage.order.afterSale.AfterSaleListVo" autoMapping="true">
-        <result column="pictures" property="pictures" jdbcType="VARCHAR" typeHandler="com.chauncy.web.config.mybatisplus.StringToListTypeHandler" />
+    <resultMap id="AfterSaleListVo" type="com.chauncy.data.vo.manage.order.afterSale.AfterSaleListVo"
+               autoMapping="true">
+        <result column="pictures" property="pictures" jdbcType="VARCHAR"
+                typeHandler="com.chauncy.web.config.mybatisplus.StringToListTypeHandler"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
@@ -48,29 +50,18 @@
                 t.icon picture,
                 t.standard_str,
                 t.number,
-                l.after_sale_type afterSaleLogEnum
+              o.`status`,
+              o.after_sale_type type
             FROM
                 om_after_sale_order o,
-                om_after_sale_log l,
                 om_goods_temp t
             WHERE
                 o.create_by = #{userId}
-                AND o.id = l.after_safe_order_id
+
                 AND t.id = o.goods_temp_id
                 AND o.del_flag = 0
-                AND l.del_flag = 0
                 AND t.del_flag = 0
-                AND l.create_time = (
-                SELECT
-                    MAX( l1.create_time )
-                    FROM
-                    om_after_sale_order o1,
-                    om_after_sale_log l1
-                WHERE
-                    o.create_by = #{userId}
-                    AND o.id = l.after_safe_order_id
-                AND o1.del_flag = 0  and l1.del_flag=0
-                )
+
     </select>
     <select id="searchAfterList" resultMap="AfterSaleListVo">
         SELECT
@@ -143,6 +134,33 @@
             from om_after_sale_log
             where del_flag=0 and after_sale_order_id=#{afterSaleOrderId}
             order by create_time
+    </select>
+    <select id="getAfterSaleDetail" resultType="com.chauncy.data.vo.app.order.my.afterSale.AfterSaleDetailVo">
+
+        SELECT
+            after_sale_type afterSaleTypeEnum,
+            STATUS afterSaleStatusEnum,
+            l.create_time operatingTime,
+            l.node,
+            o.reason,
+            o.refund_money,
+            o.number,
+            o.create_time applyTime,
+            o.id afterSaleOrderId,
+            t.`name` goodsName,
+            t.icon picture,
+            t.standard_str
+
+        FROM
+            om_after_sale_order o,
+            om_after_sale_log l,
+            om_goods_temp t
+        WHERE
+            o.del_flag = 0
+            AND l.del_flag = 0
+            AND t.del_flag = 0
+            AND t.id = o.goods_temp_id AND o.id = l.after_sale_order_id
+            AND l.create_time = ( SELECT MAX( create_time ) FROM om_after_sale_log l2 WHERE l2.after_sale_order_id = #{afterSaleOrderId} )
     </select>
 
 </mapper>

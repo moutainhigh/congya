@@ -3,6 +3,7 @@ package com.chauncy.data.mapper.afterSale;
 import com.chauncy.data.domain.po.afterSale.OmAfterSaleOrderPo;
 import com.chauncy.data.dto.manage.order.afterSale.SearchAfterSaleOrderDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.app.order.my.afterSale.AfterSaleDetailVo;
 import com.chauncy.data.vo.app.order.my.afterSale.ApplyAfterSaleVo;
 import com.chauncy.data.vo.app.order.my.afterSale.MyAfterSaleOrderListVo;
 import com.chauncy.data.vo.manage.order.afterSale.AfterSaleLogVo;
@@ -48,5 +49,12 @@ public interface OmAfterSaleOrderMapper extends IBaseMapper<OmAfterSaleOrderPo> 
      * @return
      */
     List<AfterSaleLogVo> searchCheckList(Long afterSaleOrderId);
+
+    /**
+     * 获取售后详情
+     * @param afterSaleOrderId
+     * @return
+     */
+    AfterSaleDetailVo getAfterSaleDetail( Long afterSaleOrderId);
 
 }

@@ -1,5 +1,9 @@
 package com.chauncy.data.vo.app.order.my.afterSale;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import com.chauncy.common.enums.app.order.afterSale.AfterSaleLogEnum;
+import com.chauncy.common.enums.app.order.afterSale.AfterSaleStatusEnum;
+import com.chauncy.common.enums.app.order.afterSale.AfterSaleTypeEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -15,14 +19,22 @@ import java.time.LocalDateTime;
 @Data
 public class AfterSaleDetailVo {
 
-    @ApiModelProperty(value = "当前售后状态")
-    private String currentStatus;
+    @ApiModelProperty(value = "售后方式：ONLY_REFUND-仅退款；RETURN_GOODS-退货退款")
+    private AfterSaleTypeEnum afterSaleTypeEnum;
+
+    @ApiModelProperty(value = "售后状态：NEED_STORE_DO-待商家处理；NEED_BUYER_DO-待买家处理；NEED_BUYER_RETURN-待买家退货" +
+            "NEED_STORE_REFUND-待商家退款；CLOSE-退款关闭；SUCCESS-退款成功")
+    private AfterSaleStatusEnum afterSaleStatusEnum;
 
     @ApiModelProperty(value = "操作时间")
     private LocalDateTime operatingTime;
 
     @ApiModelProperty("剩余分钟数")
     private Long remainMinute;
+
+    @ApiModelProperty(hidden = true)
+    @JSONField(serialize = false)
+    private AfterSaleLogEnum node;
 
     @ApiModelProperty("售后内容提示")
     private String contentTips;
@@ -52,13 +64,11 @@ public class AfterSaleDetailVo {
     private BigDecimal number;
 
     @ApiModelProperty(value = "申请时间")
-    private BigDecimal applyTime;
+    private LocalDateTime applyTime;
 
     @ApiModelProperty(value = "退款编号")
     private Long afterSaleOrderId;
 
-    @ApiModelProperty("退款方式")
-    private String refundWay;
 
 
 }

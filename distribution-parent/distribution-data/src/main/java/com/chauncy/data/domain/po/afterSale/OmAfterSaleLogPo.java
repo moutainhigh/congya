@@ -62,7 +62,7 @@ public class OmAfterSaleLogPo implements Serializable {
     private AfterSaleLogEnum node;
 
     @ApiModelProperty(value = "描述，包括用户描述和商家描述")
-    private String describe;
+    private String describes;
 
 
    /* @ApiModelProperty(value = "用户id")
