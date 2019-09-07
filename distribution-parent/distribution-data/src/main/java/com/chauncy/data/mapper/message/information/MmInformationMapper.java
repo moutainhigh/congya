@@ -1,6 +1,7 @@
 package com.chauncy.data.mapper.message.information;
 
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
+import com.chauncy.data.dto.app.component.ShareDto;
 import com.chauncy.data.dto.app.message.information.select.SearchInfoByConditionDto;
 import com.chauncy.data.dto.base.BaseSearchByTimeDto;
 import com.chauncy.data.mapper.IBaseMapper;
@@ -74,4 +75,12 @@ public interface MmInformationMapper extends IBaseMapper<MmInformationPo> {
      */
     @Update("update mm_information set collection_num = collection_num-1 where id = #{favoritesId}")
     void delFavorites(Long favoritesId);
+
+    /**
+     * 分享商品
+     *
+     * @param shareDto
+     * @return
+     */
+    void shareInformation(ShareDto shareDto);
 }

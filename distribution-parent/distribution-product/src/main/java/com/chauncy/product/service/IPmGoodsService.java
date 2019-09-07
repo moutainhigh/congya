@@ -3,6 +3,7 @@ package com.chauncy.product.service;
 import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
+import com.chauncy.data.dto.app.component.ShareDto;
 import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
@@ -303,5 +304,11 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      */
     void delAssociationsByIds (Long[] ids);
 
-
+    /**
+     * 分享商品
+     *
+     * @param shareDto
+     * @return
+     */
+    void share(ShareDto shareDto);
 }

@@ -887,6 +887,9 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 
         PageInfo<SearchGoodsBaseListVo> searchGoodsBaseListVoPageInfo = new PageInfo<>();
         ConditionTypeEnum conditionTypeEnum = searchGoodsBaseListDto.getConditionType();
+        if (conditionTypeEnum == null){
+            throw new ServiceException(ResultCode.NO_EXISTS,String.format("conditionType所传的值在枚举类中不存在！"));
+        }
         switch (conditionTypeEnum) {
             case TAB:
                 searchGoodsBaseListVoPageInfo =PageHelper.startPage(pageNo, pageSize)
@@ -900,6 +903,11 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
             case THIRD_CATEGORY:
                 searchGoodsBaseListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                         .doSelectPageInfo(() ->mapper.searchCategoryGoodsBaseList(searchGoodsBaseListDto));
+                break;
+
+            case BAIHUO_ASSOCIATED:
+                searchGoodsBaseListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                        .doSelectPageInfo(() ->mapper.searchAssociatedGoodsBaseList(searchGoodsBaseListDto));
                 break;
         }
 

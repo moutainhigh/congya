@@ -111,4 +111,12 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
      * @return
      */
     List<SearchGoodsBaseListVo> searchCategoryGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto);
+
+    /**
+     * 分页条件查询葱鸭百货关联三级分类的所有商品
+     *
+     * @param searchGoodsBaseListDto
+     * @return
+     */
+    List<SearchGoodsBaseListVo> searchAssociatedGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto);
 }

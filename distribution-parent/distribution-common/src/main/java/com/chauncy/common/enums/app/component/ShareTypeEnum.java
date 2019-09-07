@@ -1,4 +1,4 @@
-package com.chauncy.common.enums.app.advice;
+package com.chauncy.common.enums.app.component;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.chauncy.common.enums.BaseEnum;
@@ -9,25 +9,23 @@ import java.util.Objects;
 /**
  * @Author cheng
  * @create 2019-09-04 21:28
+ *
+ * 分享类型：商品、店铺、、、
  */
 @Getter
-public enum ConditionTypeEnum implements BaseEnum {
+public enum ShareTypeEnum implements BaseEnum {
 
 
-    TAB(1,"选项卡"),
+    GOODS(1,"商品"),
 
-    BRAND(2,"商家"),
-
-    THIRD_CATEGORY(3,"具体商品三级分类"),
-
-    BAIHUO_ASSOCIATED(4,"百货关联的所有商品");
+    INFORMATION(2,"资讯");
 
     @EnumValue  //这个注解放在数据库存储的字段上
     private Integer id;
 
     private String name;
 
-    ConditionTypeEnum(Integer id, String name) {
+    ShareTypeEnum(Integer id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -39,8 +37,8 @@ public enum ConditionTypeEnum implements BaseEnum {
     }
 
     //通过ID获取结果
-    public static ConditionTypeEnum fromId(Integer id) {
-        for (ConditionTypeEnum type : ConditionTypeEnum.values()) {
+    public static ShareTypeEnum fromId(Integer id) {
+        for (ShareTypeEnum type : ShareTypeEnum.values()) {
             if (type.getId().equals(id))
                 return type;
         }
@@ -48,8 +46,8 @@ public enum ConditionTypeEnum implements BaseEnum {
     }
 
     //通过名称来获取结果
-    public static ConditionTypeEnum fromName(String name) {
-        for (ConditionTypeEnum type : ConditionTypeEnum.values()) {
+    public static ShareTypeEnum fromName(String name) {
+        for (ShareTypeEnum type : ShareTypeEnum.values()) {
             if (type.getName().equals(name)) {
                 return type;
             }
@@ -58,8 +56,8 @@ public enum ConditionTypeEnum implements BaseEnum {
     }
 
     //通过enumName获取结果
-    public static ConditionTypeEnum fromEnumName(String name) {
-        for (ConditionTypeEnum type : ConditionTypeEnum.values()) {
+    public static ShareTypeEnum fromEnumName(String name) {
+        for (ShareTypeEnum type : ShareTypeEnum.values()) {
             if (type.name().equals(name))
                 return type;
         }
