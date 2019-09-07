@@ -1583,11 +1583,11 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         Integer pageNo = selectStockTemplateGoodsDto.getPageNo() == null ? defaultPageNo : selectStockTemplateGoodsDto.getPageNo();
         Integer pageSize = selectStockTemplateGoodsDto.getPageSize() == null ? defaultPageSize : selectStockTemplateGoodsDto.getPageSize();
 
-        if(selectStockTemplateGoodsDto.getType().equals(StoreGoodsTypeEnum.DISTRIBUTION_GOODS.name())) {
+        if(selectStockTemplateGoodsDto.getType().equals(StoreGoodsTypeEnum.DISTRIBUTION_GOODS.getId())) {
             // 分配商品
             return PageHelper.startPage(pageNo,pageSize).
                     doSelectPageInfo(()->mapper.selectDistributionGoods(selectStockTemplateGoodsDto));
-        } else if (selectStockTemplateGoodsDto.getType().equals(StoreGoodsTypeEnum.OWN_GOODS.name())) {
+        } else if (selectStockTemplateGoodsDto.getType().equals(StoreGoodsTypeEnum.OWN_GOODS.getId())) {
             // 自有商品
             return PageHelper.startPage(pageNo,pageSize).
                     doSelectPageInfo(()->mapper.selectOwnGoods(selectStockTemplateGoodsDto));
