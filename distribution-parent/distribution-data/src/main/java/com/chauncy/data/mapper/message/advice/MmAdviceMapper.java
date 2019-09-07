@@ -110,5 +110,5 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
      * @param searchGoodsBaseListDto
      * @return
      */
-    PageInfo<SearchGoodsBaseListVo> searchCategoryGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto);
+    List<SearchGoodsBaseListVo> searchCategoryGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto);
 }

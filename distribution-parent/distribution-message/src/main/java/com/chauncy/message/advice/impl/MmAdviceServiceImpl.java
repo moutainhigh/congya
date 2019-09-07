@@ -862,7 +862,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
     }
 
     /**
-     * 分页条件查询品牌下的商品列表
+     * 分页条件查询品牌/选项卡/分类下的商品列表
      *
      * @param searchGoodsBaseListDto
      * @return
@@ -898,7 +898,8 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 break;
 
             case THIRD_CATEGORY:
-                searchGoodsBaseListVoPageInfo = mapper.searchCategoryGoodsBaseList(searchGoodsBaseListDto);
+                searchGoodsBaseListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                        .doSelectPageInfo(() ->mapper.searchCategoryGoodsBaseList(searchGoodsBaseListDto));
                 break;
         }
 

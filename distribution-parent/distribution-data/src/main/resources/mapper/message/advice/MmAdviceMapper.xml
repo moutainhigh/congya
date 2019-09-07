@@ -160,10 +160,10 @@
     <select id="searchCategoryGoodsBaseList"
             resultType="com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo">
 
-        select b.id as goods_id,b.name as goods_name,b.icon as picture,b.activity_cost_rate,
+        select c.name as condition_name,b.id as goods_id,b.name as goods_name,b.icon as picture,b.activity_cost_rate,
         b.profits_rate,b.sales_volume,d.sell_price as sell_price,d.line_price,b.forward_num,b.collection_num
-        from pm_goods b,pm_goods_sku d
-        where  b.del_flag = 0 and d.del_flag =0 and b.goods_category_id = #{conditionId} and d.goods_id=b.id
+        from pm_goods b,pm_goods_sku d,pm_goods_category c
+        where  b.del_flag = 0 and d.del_flag =0 and c.id = #{conditionId} and b.goods_category_id = #{conditionId} and d.goods_id=b.id
         and d.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = b.id  and d2.del_flag =0 and d2.sell_price =
         (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = b.id  and d1.del_flag =0 LIMIT 1) limit 1)
         <if test="lowestPrice !=null ">
