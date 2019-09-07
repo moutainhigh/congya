@@ -84,7 +84,7 @@ public class PsGoodsVirtualStockTemplateApi extends BaseApi {
      */
     @PostMapping("/selectGoodsByType")
     @ApiOperation(value = "库存模板根据商品类型查询店铺商品信息 ")
-    public JsonViewData<PageInfo<BaseBo>> selectGoodsByType(@RequestBody @ApiParam(name = "selectStockTemplateGoodsDto", value = "根据商品类型查询店铺商品信息")
+    public JsonViewData<PageInfo<StockTemplateGoodsInfoVo >> selectGoodsByType(@RequestBody @ApiParam(name = "selectStockTemplateGoodsDto", value = "根据商品类型查询店铺商品信息")
                                                     @Validated SelectStockTemplateGoodsDto selectStockTemplateGoodsDto){
 
         return new JsonViewData(ResultCode.SUCCESS,"操作成功",

@@ -47,6 +47,86 @@
             and a.name like concat('%', #{name}, '%')
         </if>
     </select>
+
+    <select id="findStoreCategory" resultType="com.chauncy.data.vo.app.advice.store.StoreCategoryInfoVo">
+         SELECT
+            `mara`.id AS relId,
+            `ssc`.id AS storeCategoryId,
+            `ssc`.name AS storeCategoryName,
+            `ssc`.icon AS storeCategoryIcon
+         FROM
+            sm_store_category `ssc` ,
+            mm_advice_rel_associaiton `mara` ,
+            mm_advice `ma`
+         WHERE
+            `ssc`.id = `mara`.`association_id`
+            AND `mara`.`advice_id` = `ma`.id
+            AND `ma`.location = #{location}
+            AND `ma`.`enabled` = 1
+            AND `mara`.del_flag = 0
+            AND `ssc`.`enabled` = 1
+            AND `ssc`.`del_flag`= 0
+    </select>
+
+    <select id="findStoreCategoryTab" resultType="com.chauncy.data.vo.app.advice.AdviceTabVo">
+        SELECT
+            `mat`.id AS tabId,
+            `mat`.`name` AS tabName
+        FROM
+            mm_advice_rel_tab_association `marta`,
+            mm_advice_tab `mat`
+        WHERE
+            `marta`.tab_id = `mat`.`id`
+            AND `marta`.`rel_id` = #{relId}
+            AND `marta`.del_flag = 0
+            AND `mat`.del_flag = 0
+    </select>
+
+
+    <resultMap id="StoreCategoryDetailResult" type="com.chauncy.data.vo.app.advice.store.StoreCategoryDetailVo">
+        <id column="storeId" property="storeId"/>
+        <result column="logoImage" property="logoImage"/>
+        <result column="storeName" property="storeName"/>
+        <result column="storeDescribe" property="storeDescribe"/>
+        <result column="is_focus" property="isFocus"/>
+        <result column="storeLabels" property="storeLabels"/>
+        <!--collection定义关联集合类型的属性封装规则
+        延迟加载 传递两个参数
+　　　　{pMenuId=child_pid,userId=userId}
+　　　　 传递查询参数名称=字段名称-->
+        <collection property="goodsBaseInfoVoList" column="{storeId=storeId}"
+                    select="com.chauncy.data.mapper.product.PmGoodsMapper.findRecommandGoods">
+        </collection>
+    </resultMap>
+    <select id="findStoreCategoryDetail"
+            resultMap="StoreCategoryDetailResult">
+        SELECT
+            `ss`.id AS storeId,
+            `ss`.logo_image AS logoImage,
+            `ss`.name AS storeName,
+            `ss`.store_describe AS storeDescribe,
+        (EXISTS
+            (SELECT 1
+                FROM um_user_favorites uuf
+                WHERE uuf.favorites_id = ss.id
+                AND uuf.`type` = '店铺'
+                AND uuf.user_id = #{userId}
+                AND uuf.del_flag = 0)
+            ) AS is_focus,
+        (
+            SELECT GROUP_CONCAT(`ssl`.name)
+            FROM sm_store_label `ssl` ,
+                    sm_store_rel_label ssrl
+            WHERE
+                `ssrl`.store_label_id = `ssl`.id
+                AND `ssrl`.store_id = ss.`id`
+                AND `ssl`.del_flag = 0
+        ) AS storeLabels
+        FROM mm_advice_rel_tab_things `martt`, sm_store `ss`
+        WHERE `martt`.`association_id` = `ss`.id AND  `martt`.`tab_id` = #{tabId}
+        AND `martt`.del_flag = 0 AND `ss`.enabled = 1
+    </select>
+
     <select id="findAdvice" resultType="com.chauncy.data.vo.manage.message.advice.FindBaiHuoAdviceVo">
         select id as value,name as label
         from mm_advice
@@ -93,7 +173,7 @@
         where a.tab_id = #{tabId} and a.association_id = b.id and a.del_flag =0 and b.del_flag = 0
     </select>
     <select id="searchBrandGoodsBaseList" resultType="com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo">
-        select a.name as condition_name,b.id as goods_id,b.name as goods_name,b.icon as picture,b.activity_cost_rate,
+        select a.name as condition_name,b.id as goods_id,b.name as goods_name,b.subtitle,b.icon as picture,b.activity_cost_rate,
         b.profits_rate,b.sales_volume,d.sell_price as sell_price,d.line_price,b.forward_num,b.collection_num
         from pm_goods_attribute a,pm_goods b,pm_goods_rel_attribute_good c,pm_goods_sku	d
         where a.del_flag = 0 and b.del_flag = 0 and c.del_flag =0 and d.del_flag =0 and a.id = #{conditionId}
@@ -129,7 +209,7 @@
     </select>
     <select id="searchTabGoodsBaseList"
             resultType="com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo">
-        select c.name as condition_name,b.id as goods_id,b.name as goods_name,b.icon as picture,b.activity_cost_rate,
+        select c.name as condition_name,b.id as goods_id,b.name as goods_name,b.icon as picture,b.subtitle,b.activity_cost_rate,
         b.profits_rate,b.sales_volume,d.sell_price as sell_price,d.line_price,b.forward_num,b.collection_num
         from mm_advice_rel_tab_things a,pm_goods b,pm_goods_sku	d,mm_advice_tab c
         where a.del_flag = 0 and b.del_flag = 0 and c.del_flag =0 and d.del_flag =0 and a.tab_id = #{conditionId}

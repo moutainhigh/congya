@@ -32,48 +32,52 @@ public class SearchGoodsBaseListVo {
     @JSONField(ordinal = 2)
     private String goodsName;
 
-    @ApiModelProperty(value = "商品图片")
+    @ApiModelProperty(value = "副标题")
     @JSONField(ordinal = 3)
+    private String subtitle;
+
+    @ApiModelProperty(value = "商品图片")
+    @JSONField(ordinal = 4)
     private String picture;
 
     @ApiModelProperty(value = "商品最高价格",hidden = true)
-    @JSONField(serialize = false,ordinal = 4)
+    @JSONField(serialize = false,ordinal = 5)
     private BigDecimal maxPrice;
 
     @ApiModelProperty(value = "商品最低价格",hidden = true)
-    @JSONField(serialize = false,ordinal = 5)
+    @JSONField(serialize = false,ordinal = 6)
     private BigDecimal minPrice;
 
     @ApiModelProperty(value = "价格")
-    @JSONField(ordinal = 6)
+    @JSONField(ordinal = 7)
     private BigDecimal sellPrice;
 
     @ApiModelProperty(value = "转发量")
-    @JSONField(ordinal = 7)
+    @JSONField(ordinal = 8)
     private Integer forwardNum;
 
     @ApiModelProperty(value = "商品活动百分比",hidden = true)
-    @JSONField(serialize = false,ordinal = 8)
+    @JSONField(serialize = false,ordinal = 9)
     private BigDecimal activityCostRate;
 
     @ApiModelProperty(value = "让利成本比例",hidden = true)
-    @JSONField(serialize = false,ordinal = 9)
+    @JSONField(serialize = false,ordinal = 10)
     private BigDecimal profitsRate;
 
     @ApiModelProperty(value = "最大返券值")
-    @JSONField(ordinal = 10)
+    @JSONField(ordinal = 11)
     private BigDecimal maxRewardShopTicket;
 
     @ApiModelProperty(value = "销量")
-    @JSONField(ordinal = 11)
+    @JSONField(ordinal = 12)
     private Integer salesVolume;
 
     @ApiModelProperty("商品标签")
-    @JSONField(ordinal = 12)
+    @JSONField(ordinal = 13)
     private List<String> labelNames;
 
     @ApiModelProperty("划线价")
-    @JSONField(ordinal = 13)
+    @JSONField(ordinal = 14)
     private BigDecimal linePrice;
 
 }

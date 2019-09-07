@@ -72,6 +72,6 @@ public class InformationPagingVo implements Serializable {
     @ApiModelProperty(value = "更新时间")
     private LocalDateTime updateTime;
 
-    @ApiModelProperty(value = "发布时间")
+    @ApiModelProperty(value = "发布时间 多久之前")
     private String releaseTime;
 }

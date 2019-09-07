@@ -57,4 +57,12 @@ public interface MmInformationMapper extends IBaseMapper<MmInformationPo> {
      * @return
      */
     List<Long> selectRelGoodsIdsById(Long id);
+
+    /**
+     * 店铺详情-首页-动态
+     * @param storeId
+     * @param id
+     * @return
+     */
+    List<InformationPagingVo> searchInformationList(@Param("storeId")Long storeId, @Param("userId") Long userId);
 }
