@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -188,16 +189,14 @@ public class PmGoodsVirtualStockTemplateServiceImpl extends AbstractService<PmGo
     /**
      * 根据Id删除库存模板
      *
-     * @param id
+     * @param ids
      */
     @Override
-    public void delTemplateById(Long id) {
-        PmGoodsVirtualStockTemplatePo pmGoodsVirtualStockTemplatePo = pmGoodsVirtualStockTemplateMapper.selectById(id);
-        if(null == pmGoodsVirtualStockTemplatePo) {
-            throw  new ServiceException(ResultCode.NO_EXISTS, "库存模板不存在");
-        } else {
-            QueryWrapper queryWrapper = new QueryWrapper();
-            queryWrapper.eq("id", id);
+    public void delTemplateById(Long[] ids) {
+
+        if(null != ids && ids.length > 0) {
+            QueryWrapper<PmGoodsVirtualStockTemplatePo> queryWrapper = new QueryWrapper();
+            queryWrapper.lambda().in(PmGoodsVirtualStockTemplatePo::getId, Arrays.asList(ids));
             pmGoodsVirtualStockTemplateMapper.delete(queryWrapper);
         }
     }
