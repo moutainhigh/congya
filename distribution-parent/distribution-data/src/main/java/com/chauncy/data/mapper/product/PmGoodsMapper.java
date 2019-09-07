@@ -3,6 +3,7 @@ package com.chauncy.data.mapper.product;
 import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
+import com.chauncy.data.dto.app.component.ShareDto;
 import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
@@ -24,6 +25,7 @@ import com.chauncy.data.vo.supplier.good.RecommendGoodsVo;
 import com.chauncy.data.vo.supplier.good.stock.StockTemplateGoodsInfoVo;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -165,4 +167,29 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
      * @param salesVolume
      */
     void addASalesVolume(@Param("id") Long id,@Param("salesVolume") Integer salesVolume);
+
+    /**
+     * update a= a+1
+     *
+     * @param favoritesId
+     */
+    @Update("update pm_goods set collection_num = collection_num+1 where id = #{favoritesId}")
+    void addFavorites(Long favoritesId);
+
+    /**
+     * 不用updateById  update a=a-1
+     *
+     * @param favoritesId
+     */
+    @Update("update pm_goods set collection_num = collection_num-1 where id = #{favoritesId}")
+    void delFavorites(Long favoritesId);
+
+    /**
+     * 分享商品
+     *
+     * @param shareDto
+     * @return
+     */
+    void shareGoods(ShareDto shareDto);
+
 }

@@ -1,6 +1,7 @@
 package com.chauncy.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.chauncy.common.enums.app.component.ShareTypeEnum;
 import com.chauncy.common.enums.app.sort.SortFileEnum;
 import com.chauncy.common.enums.app.sort.SortWayEnum;
 import com.chauncy.common.enums.common.VerifyStatusEnum;
@@ -18,6 +19,7 @@ import com.chauncy.data.domain.po.sys.BasicSettingPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
+import com.chauncy.data.dto.app.component.ShareDto;
 import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
@@ -1874,6 +1876,35 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     @Override
     public void delAssociationsByIds (Long[] ids) {
         associationGoodsMapper.deleteBatchIds (Arrays.asList (ids));
+    }
+
+    /**
+     * 分享商品
+     *
+     * @param shareDto
+     * @return
+     */
+    @Override
+    public void share(ShareDto shareDto) {
+
+        ShareTypeEnum shareTypeEnum = shareDto.getShareType();
+
+        if (shareTypeEnum == null){
+            throw new ServiceException(ResultCode.NO_EXISTS,String.format("shareType所传的值在枚举类中不存在！"));
+        }
+
+        switch (shareTypeEnum) {
+            case GOODS:
+                mapper.shareGoods(shareDto);
+                break;
+
+            case INFORMATION:
+                mmInformationMapper.shareInformation(shareDto);
+
+                break;
+        }
+
+
     }
 
 }

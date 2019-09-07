@@ -5,6 +5,7 @@ import com.chauncy.data.dto.app.order.evaluate.add.SearchEvaluateDto;
 import com.chauncy.data.dto.app.order.evaluate.select.GetPersonalEvaluateDto;
 import com.chauncy.data.dto.supplier.good.select.SearchEvaluatesDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.app.evaluate.EvaluateLevelNumVo;
 import com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo;
 import com.chauncy.data.vo.supplier.evaluate.EvaluateVo;
 import com.chauncy.data.vo.supplier.evaluate.SearchEvaluateVo;
@@ -53,4 +54,13 @@ public interface OmEvaluateMapper extends IBaseMapper<OmEvaluatePo> {
      * @return
      */
     EvaluateVo getEvaluate(@Param("orderId") Long orderId, @Param("skuId") Long skuId);
+
+    /**
+     * 获取商品不同评价级别的对应的评价数量
+     *
+     * @param goodsId
+     * @return
+     */
+    EvaluateLevelNumVo findEvaluateLevelNum(Long goodsId);
 }
+

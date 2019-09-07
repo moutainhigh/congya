@@ -98,15 +98,15 @@ public class AmGiftApi extends BaseApi {
     }
 
     /**
-     * 批量禁用启用
+     * 禁用启用新人礼包,只能有一个是启用状态
      * @param enableDto
      * @return
      */
-    @ApiOperation("批量禁用启用")
+    @ApiOperation("禁用启用")
     @PostMapping("/editEnable")
-    public JsonViewData editEnable(@RequestBody @ApiParam(required = true,name="enableDto",value="批量禁用启用")
+    public JsonViewData editGiftEnable(@RequestBody @ApiParam(required = true,name="enableDto",value="禁用启用")
                                        @Validated EditEnableDto enableDto){
-        service.editEnable(enableDto);
+        service.editGiftEnable(enableDto);
         return setJsonViewData(ResultCode.SUCCESS,"修改成功");
     }
 

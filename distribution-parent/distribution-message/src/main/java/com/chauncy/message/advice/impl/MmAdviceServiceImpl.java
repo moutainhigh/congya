@@ -18,6 +18,7 @@ import com.chauncy.data.domain.po.message.information.category.MmInformationCate
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.dto.app.advice.brand.select.FindBrandShufflingDto;
 import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
@@ -921,7 +922,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
     }
 
     /**
-     * 分页条件查询品牌下的商品列表
+     * 分页条件查询品牌/选项卡/分类下的商品列表
      *
      * @param searchGoodsBaseListDto
      * @return
@@ -946,6 +947,9 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 
         PageInfo<SearchGoodsBaseListVo> searchGoodsBaseListVoPageInfo = new PageInfo<>();
         ConditionTypeEnum conditionTypeEnum = searchGoodsBaseListDto.getConditionType();
+        if (conditionTypeEnum == null){
+            throw new ServiceException(ResultCode.NO_EXISTS,String.format("conditionType所传的值在枚举类中不存在！"));
+        }
         switch (conditionTypeEnum) {
             case TAB:
                 searchGoodsBaseListVoPageInfo =PageHelper.startPage(pageNo, pageSize)
@@ -954,6 +958,16 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
             case BRAND:
                 searchGoodsBaseListVoPageInfo =PageHelper.startPage(pageNo, pageSize)
                         .doSelectPageInfo(() -> mapper.searchBrandGoodsBaseList(searchGoodsBaseListDto));
+                break;
+
+            case THIRD_CATEGORY:
+                searchGoodsBaseListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                        .doSelectPageInfo(() ->mapper.searchCategoryGoodsBaseList(searchGoodsBaseListDto));
+                break;
+
+            case BAIHUO_ASSOCIATED:
+                searchGoodsBaseListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                        .doSelectPageInfo(() ->mapper.searchAssociatedGoodsBaseList(searchGoodsBaseListDto));
                 break;
         }
 
@@ -987,6 +1001,26 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 
 
         return searchGoodsBaseListVoPageInfo;
+    }
+
+    /**
+     *
+     * 获取选项卡下的品牌下的轮播图广告
+     *
+     * @param findBrandShufflingDto
+     * @return
+     */
+    @Override
+    public List<ShufflingVo> findBrandShuffling(FindBrandShufflingDto findBrandShufflingDto) {
+
+        //获取该选项卡与关联的具体品牌的关联ID
+        Long relTabBrandId = relTabThingsMapper.selectOne(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                .and(obj->obj.eq(MmAdviceRelTabThingsPo::getTabId,findBrandShufflingDto.getTabId())
+                        .eq(MmAdviceRelTabThingsPo::getAssociationId,findBrandShufflingDto.getBrandId()))).getId();
+
+        List<ShufflingVo> brandShufflingVos = relShufflingMapper.findBrandShuffling(relTabBrandId);
+
+        return brandShufflingVos;
     }
 
 }

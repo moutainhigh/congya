@@ -20,7 +20,7 @@ import java.util.List;
 @ApiModel(description = "分页查询商品列表信息")
 public class SearchGoodsBaseListVo {
 
-    @ApiModelProperty(value = "品牌/选项卡名称")
+    @ApiModelProperty(value = "品牌/选项卡/商品分类名称")
     @JSONField(ordinal = 0)
     private String conditionName;
 

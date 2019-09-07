@@ -84,11 +84,17 @@ public interface AmCouponMapper extends IBaseMapper<AmCouponPo> {
     List<GoodsBaseVo> findGoodsBaseByCondition(@Param("t") FindGoodsBaseByConditionDto findGoodsBaseByConditionDto,@Param("ids") List<Long> ids);
 
     /**
+     * 条件分页获取全部优惠券
+     *
+     * @return
+     */
+    List<BaseVo> findAllCoupon(@Param("name") String name);
+
+    /**
      * 获取全部优惠券
      *
      * @return
      */
     @Select("select id,name from am_coupon where del_flag = 0")
-    List<BaseVo> findAllCoupon();
-
+    List<BaseVo> findCouponAll();
 }

@@ -1,5 +1,6 @@
 package com.chauncy.data.dto.app.order.my.afterSale;
 
+import com.chauncy.common.enums.app.order.afterSale.AfterSaleTypeEnum;
 import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -15,13 +16,12 @@ import javax.validation.constraints.NotNull;
 @ApiModel(description = "用户点击退款")
 public class RefundDto {
 
-    @ApiModelProperty(value = "订单id")
-    @NotNull
-    @NeedExistConstraint(tableName = "om_order",message = "orderId不存在！")
-    private Long orderId;
+    @NotNull(message = "仅付款和退货退款类型不能为空")
+    @ApiModelProperty(value = "售后类型：ONLY_REFUND-仅退款；RETURN_GOODS-退货退款")
+    private AfterSaleTypeEnum type;
 
-    @ApiModelProperty(value = "skuId")
+    @ApiModelProperty(value = "商品快照id")
     @NotNull
-    @NeedExistConstraint(tableName = "pm_goods_sku",message = "skuId不存在")
-    private Long skuId;
+    @NeedExistConstraint(tableName = "om_goods_temp",message = "商品快照id不存在")
+    private Long goodsTempId;
 }

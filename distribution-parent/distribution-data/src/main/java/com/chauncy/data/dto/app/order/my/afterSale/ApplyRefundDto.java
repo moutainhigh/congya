@@ -1,5 +1,6 @@
 package com.chauncy.data.dto.app.order.my.afterSale;
 
+import com.chauncy.common.enums.app.order.afterSale.AfterSaleTypeEnum;
 import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -20,6 +21,10 @@ import java.util.List;
 @ApiModel(description = "用户申请退款")
 public class ApplyRefundDto {
 
+    @NotNull(message = "仅付款和退货退款类型不能为空")
+    @ApiModelProperty(value = "售后类型：ONLY_REFUND-仅退款；RETURN_GOODS-退货退款")
+    private AfterSaleTypeEnum type;
+
     @NotEmpty
     @ApiModelProperty(value = "商品快照的id集合")
     private List<Long> goodsTempIds;
@@ -33,7 +38,7 @@ public class ApplyRefundDto {
     private BigDecimal refundMoney;
 
     @ApiModelProperty(value = "描述")
-    private String distribution;
+    private String describe;
 
     @ApiModelProperty(value = "图片，多个用逗号隔开")
     private String pictures;

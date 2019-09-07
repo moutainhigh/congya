@@ -1,6 +1,7 @@
 package com.chauncy.data.mapper.message.information;
 
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
+import com.chauncy.data.dto.app.component.ShareDto;
 import com.chauncy.data.dto.app.message.information.select.SearchInfoByConditionDto;
 import com.chauncy.data.dto.base.BaseSearchByTimeDto;
 import com.chauncy.data.mapper.IBaseMapper;
@@ -9,6 +10,7 @@ import com.chauncy.data.vo.app.message.information.InformationPagingVo;
 import com.chauncy.data.vo.manage.message.information.InformationPageInfoVo;
 import com.chauncy.data.vo.manage.message.information.InformationVo;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -61,8 +63,31 @@ public interface MmInformationMapper extends IBaseMapper<MmInformationPo> {
     /**
      * 店铺详情-首页-动态
      * @param storeId
-     * @param id
+     * @param userId
      * @return
      */
     List<InformationPagingVo> searchInformationList(@Param("storeId")Long storeId, @Param("userId") Long userId);
+    /**
+     * 不用updateById  update a=a+1
+     *
+     * @param favoritesId
+     */
+    @Update("update mm_information set collection_num = collection_num+1 where id = #{favoritesId}")
+    void addFavorites(Long favoritesId);
+
+    /**
+     * 不用updateById  update a=a-1
+     *
+     * @param favoritesId
+     */
+    @Update("update mm_information set collection_num = collection_num-1 where id = #{favoritesId}")
+    void delFavorites(Long favoritesId);
+
+    /**
+     * 分享商品
+     *
+     * @param shareDto
+     * @return
+     */
+    void shareInformation(ShareDto shareDto);
 }

@@ -19,7 +19,6 @@ import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.my.afterSale.ApplyRefundDto;
-import com.chauncy.data.dto.app.order.my.afterSale.RefundDto;
 import com.chauncy.data.dto.base.BasePageDto;
 import com.chauncy.data.dto.manage.order.afterSale.SearchAfterSaleOrderDto;
 import com.chauncy.data.mapper.afterSale.OmAfterSaleOrderMapper;
@@ -27,6 +26,7 @@ import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.mapper.order.OmGoodsTempMapper;
 import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
+import com.chauncy.data.vo.app.order.my.afterSale.AfterSaleDetailVo;
 import com.chauncy.data.vo.manage.order.afterSale.AfterSaleListVo;
 import com.chauncy.order.service.IOmAfterSaleLogService;
 import com.chauncy.data.vo.app.order.my.afterSale.ApplyAfterSaleVo;
@@ -41,6 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -78,22 +79,16 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApplyAfterSaleVo validCanAfterSaleVo(RefundDto refundDto) {
-        QueryWrapper<OmGoodsTempPo> goodsTempWrapper = new QueryWrapper<OmGoodsTempPo>();
-        goodsTempWrapper.lambda().eq(OmGoodsTempPo::getOrderId, refundDto.getOrderId()).eq(OmGoodsTempPo::getSkuId,
-                refundDto.getSkuId());
+    public ApplyAfterSaleVo validCanAfterSaleVo(Long goodsTempId) {
 
-        OmGoodsTempPo queryGoodsTemp = goodsTempMapper.selectOne(goodsTempWrapper);
-        if (queryGoodsTemp == null) {
-            throw new ServiceException(ResultCode.PARAM_ERROR, "订单id或skuId错误，未找到该商品快照！");
-        }
+        OmGoodsTempPo queryGoodsTemp = goodsTempMapper.selectById(goodsTempId);
 
         //用户点击过一次售后就不能再点击了
         if (!queryGoodsTemp.getCanAfterSale()) {
             throw new ServiceException(ResultCode.FAIL, "该商品已售后过，不能再进行售后！");
         }
 
-        OmOrderPo queryOrder = omOrderMapper.selectById(refundDto.getOrderId());
+        OmOrderPo queryOrder = omOrderMapper.selectById(queryGoodsTemp.getOrderId());
 
         OrderStatusEnum orderStatus = queryOrder.getStatus();
         if (!orderStatus.canAfterSale()) {
@@ -163,14 +158,21 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
             SmStorePo queryStore = storeMapper.selectById(queryOrder.getStoreId());
             saveAfterSaleOrder.setStoreName(queryStore.getName());
             //创建者、用户手机
-            saveAfterSaleOrder.setCreateBy(currentUser.getId().toString()).setPhone(currentUser.getPhone()).setAfterSaleType(AfterSaleTypeEnum.ONLY_REFUND)
+            saveAfterSaleOrder.setCreateBy(currentUser.getId().toString()).setPhone(currentUser.getPhone()).setAfterSaleType(applyRefundDto.getType())
             .setStatus(AfterSaleStatusEnum.NEED_STORE_DO).setId(SnowFlakeUtil.getFlowIdInstance().nextId());
             saveAfterSaleOrders.add(saveAfterSaleOrder);
 
             //售后进度日志
             OmAfterSaleLogPo saveAfterSaleLog=new OmAfterSaleLogPo();
             saveAfterSaleLog.setCreateBy(currentUser.getId().toString()).setAfterSaleOrderId(saveAfterSaleOrder.getId()).
-                    setNode(AfterSaleLogEnum.ONLY_REFUND_BUYER_START).setDescribe(applyRefundDto.getDistribution());
+                    setDescribes(applyRefundDto.getDescribe());
+            if (applyRefundDto.getType()==AfterSaleTypeEnum.ONLY_REFUND){
+                saveAfterSaleLog.setNode(AfterSaleLogEnum.ONLY_REFUND_BUYER_START);
+            }
+            else {
+                saveAfterSaleLog.setNode(AfterSaleLogEnum.BUYER_START);
+
+            }
             saveAfterSaleLogs.add(saveAfterSaleLog);
 
         });
@@ -380,5 +382,22 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         updateAfterOrder.setId(afterSaleOrderId).setUpdateBy(currUser.getId()).setStatus(AfterSaleStatusEnum.NEED_STORE_REFUND);
         mapper.updateById(updateAfterOrder);
 
+    }
+
+    @Override
+    public AfterSaleDetailVo getAfterSaleDetail(Long afterSaleOrderId) {
+        AfterSaleDetailVo afterSaleDetail = mapper.getAfterSaleDetail(afterSaleOrderId);
+        //售后关闭和售后成功都不需要倒计时
+        if (afterSaleDetail.getAfterSaleStatusEnum()!=AfterSaleStatusEnum.CLOSE&&
+                afterSaleDetail.getAfterSaleStatusEnum()!=AfterSaleStatusEnum.SUCCESS){
+            LocalDateTime expireTime = afterSaleDetail.getOperatingTime().plusDays(3);
+            Duration duration=Duration.between(LocalDateTime.now(),expireTime);
+            afterSaleDetail.setRemainMinute(duration.toMinutes());
+        }
+        //售后说明和售后提示
+        AfterSaleLogEnum node = afterSaleDetail.getNode();
+        afterSaleDetail.setContentExplain(node.getContentExplain());
+        afterSaleDetail.setContentTips(node.getContentTips());
+        return afterSaleDetail;
     }
 }

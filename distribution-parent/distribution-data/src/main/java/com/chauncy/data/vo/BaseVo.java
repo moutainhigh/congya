@@ -18,6 +18,6 @@ public class BaseVo {
 
     private Long id;
 
-    @ApiModelProperty("字段的名称或值")
+    @ApiModelProperty("字段的名称或值或图片路径")
     private String name;
 }

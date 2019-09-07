@@ -14,6 +14,7 @@ import com.chauncy.data.domain.po.activity.gift.AmGiftRelGiftCouponPo;
 import com.chauncy.data.domain.po.activity.gift.AmGiftRelGiftUserPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.dto.manage.activity.EditEnableDto;
 import com.chauncy.data.dto.manage.activity.gift.add.SaveGiftDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchBuyGiftRecordDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchCouponDto;
@@ -38,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -76,6 +78,7 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
 
     /**
      * 保存礼包
+     *
      * @param saveGiftDto
      * @return
      */
@@ -86,30 +89,94 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
         AmGiftPo giftPo = new AmGiftPo();
         List<AmGiftRelGiftCouponPo> relGiftCouponPos = Lists.newArrayList();
         //添加
-        if (saveGiftDto.getId()==0){
-            BeanUtils.copyProperties(saveGiftDto,giftPo);
+        if (saveGiftDto.getId() == 0) {
+            BeanUtils.copyProperties(saveGiftDto, giftPo);
             giftPo.setId(null);
             giftPo.setCreateBy(sysUserPo.getUsername());
             mapper.insert(giftPo);
+
+            if (!ListUtil.isListNullAndEmpty(saveGiftDto.getCouponIdList())) {
+                AmGiftPo finalGiftPo = giftPo;
+                saveGiftDto.getCouponIdList().forEach(a -> {
+                    AmGiftRelGiftCouponPo giftRelGiftCouponPo = new AmGiftRelGiftCouponPo();
+                    giftRelGiftCouponPo.setGiftId(finalGiftPo.getId());
+                    giftRelGiftCouponPo.setCouponId(a);
+                    giftRelGiftCouponPo.setCreateBy(sysUserPo.getUsername());
+                    relGiftCouponPos.add(giftRelGiftCouponPo);
+                });
+
+                //批量插入
+                relGiftCouponSaveBatchService.saveBatch(relGiftCouponPos);
+            }
         }
         //修改
-        else{
+        else {
             giftPo = mapper.selectById(saveGiftDto.getId());
-            BeanUtils.copyProperties(saveGiftDto,giftPo);
+            BeanUtils.copyProperties(saveGiftDto, giftPo);
             giftPo.setUpdateBy(sysUserPo.getUsername());
             mapper.updateById(giftPo);
-        }
-        if (!ListUtil.isListNullAndEmpty(saveGiftDto.getCouponIdList())){
-            AmGiftPo finalGiftPo = giftPo;
-            saveGiftDto.getCouponIdList().forEach(a->{
-                AmGiftRelGiftCouponPo giftRelGiftCouponPo = new AmGiftRelGiftCouponPo();
-                giftRelGiftCouponPo.setGiftId(finalGiftPo.getId());
-                giftRelGiftCouponPo.setCouponId(a);
-                giftRelGiftCouponPo.setCreateBy(sysUserPo.getUsername());
-                relGiftCouponPos.add(giftRelGiftCouponPo);
-            });
-            //批量插入
-           relGiftCouponSaveBatchService.saveBatch(relGiftCouponPos);
+
+            //获取数据库中该礼包已关联的优惠券
+            List<Long> couponIds = relGiftCouponMapper.selectList(new QueryWrapper<AmGiftRelGiftCouponPo>().lambda()
+                    .eq(AmGiftRelGiftCouponPo::getGiftId, giftPo.getId())).stream().map(a -> a.getCouponId()).collect(Collectors.toList());
+
+            //获取前端传来的优惠券ID
+            List<Long> webCouponIds = saveGiftDto.getCouponIdList();
+
+            if (!ListUtil.isListNullAndEmpty(couponIds)) {
+
+                //获取需要删除的优惠券ID
+                List<Long> delIds = Lists.newArrayList();
+                if (ListUtil.isListNullAndEmpty(webCouponIds)) {
+                    delIds = couponIds;
+                    delIds.forEach(b -> {
+                        relGiftCouponMapper.delete(new QueryWrapper<AmGiftRelGiftCouponPo>().lambda()
+                                .eq(AmGiftRelGiftCouponPo::getCouponId, b));
+                    });
+
+                } else {
+                    delIds = couponIds.stream().filter(a -> !webCouponIds.contains(a)).collect(Collectors.toList());
+                    //需要删除的优惠券
+                    if (!ListUtil.isListNullAndEmpty(delIds)) {
+
+                        delIds.forEach(b -> {
+                            relGiftCouponMapper.delete(new QueryWrapper<AmGiftRelGiftCouponPo>().lambda()
+                                    .eq(AmGiftRelGiftCouponPo::getCouponId, b));
+                        });
+                    }
+
+                    //获取需要保存的优惠券ID
+                    List<Long> needSaveIds = webCouponIds.stream().filter(a -> !couponIds.contains(a)).collect(Collectors.toList());
+                    if (!ListUtil.isListNullAndEmpty(needSaveIds)) {
+                        AmGiftPo finalGiftPo = giftPo;
+                        needSaveIds.forEach(a -> {
+                            AmGiftRelGiftCouponPo giftRelGiftCouponPo = new AmGiftRelGiftCouponPo();
+                            giftRelGiftCouponPo.setGiftId(finalGiftPo.getId());
+                            giftRelGiftCouponPo.setCouponId(a);
+                            giftRelGiftCouponPo.setCreateBy(sysUserPo.getUsername());
+                            relGiftCouponPos.add(giftRelGiftCouponPo);
+                        });
+
+                        //批量插入
+                        relGiftCouponSaveBatchService.saveBatch(relGiftCouponPos);
+                    }
+                }
+            } else {
+                if (!ListUtil.isListNullAndEmpty(webCouponIds)) {
+                    AmGiftPo finalGiftPo = giftPo;
+                    webCouponIds.forEach(a -> {
+                        AmGiftRelGiftCouponPo giftRelGiftCouponPo = new AmGiftRelGiftCouponPo();
+                        giftRelGiftCouponPo.setGiftId(finalGiftPo.getId());
+                        giftRelGiftCouponPo.setCouponId(a);
+                        giftRelGiftCouponPo.setCreateBy(sysUserPo.getUsername());
+                        relGiftCouponPos.add(giftRelGiftCouponPo);
+                    });
+
+                    //批量插入
+                    relGiftCouponSaveBatchService.saveBatch(relGiftCouponPos);
+                }
+            }
+
         }
     }
 
@@ -122,9 +189,9 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
     @Override
     public void delRelCouponByIds(List<Long> relIds) {
 
-        relIds.forEach(a->{
-            if (relGiftCouponMapper.selectById(a)==null){
-                throw new ServiceException(ResultCode.FAIL, String.format("不存在该优惠券:[%s],请检查",a));
+        relIds.forEach(a -> {
+            if (relGiftCouponMapper.selectById(a) == null) {
+                throw new ServiceException(ResultCode.FAIL, String.format("不存在该优惠券:[%s],请检查", a));
             }
         });
         relGiftCouponMapper.deleteBatchIds(relIds);
@@ -141,12 +208,12 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
 
         FindGiftVo findGiftVo = mapper.findById(id);
         //获取全部的优惠券
-        List<BaseVo> allCoupon = couponMapper.findAllCoupon();
+        List<BaseVo> allCoupon = couponMapper.findCouponAll();
         //获取已关联的优惠券
         List<BaseVo> associationed = mapper.findAssociationed(id);
-        List<Long> associationedIds = associationed.stream().map(a->a.getId()).collect(Collectors.toList());
+        List<Long> associationedIds = associationed.stream().map(a -> a.getId()).collect(Collectors.toList());
         //筛选未被关联的优惠券
-        List<BaseVo> association = allCoupon.stream().filter(a->!associationedIds.contains(a.getId())).collect(Collectors.toList());
+        List<BaseVo> association = allCoupon.stream().filter(a -> !associationedIds.contains(a.getId())).collect(Collectors.toList());
 
         findGiftVo.setAssociationedList(associationed);
         findGiftVo.setAssociationList(association);
@@ -156,29 +223,30 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
 
     /**
      * 多条件分页获取礼包信息
+     *
      * @param searchGiftDto
      * @return
      */
     @Override
     public PageInfo<SearchGiftListVo> searchGiftList(SearchGiftDto searchGiftDto) {
 
-        Integer pageNo = searchGiftDto.getPageNo()==null ? defaultPageNo : searchGiftDto.getPageNo();
-        Integer pageSize = searchGiftDto.getPageSize()==null ? defaultPageSize : searchGiftDto.getPageSize();
+        Integer pageNo = searchGiftDto.getPageNo() == null ? defaultPageNo : searchGiftDto.getPageNo();
+        Integer pageSize = searchGiftDto.getPageSize() == null ? defaultPageSize : searchGiftDto.getPageSize();
 
         PageInfo<SearchGiftListVo> searchGiftListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
-                .doSelectPageInfo(() ->mapper.searchGiftList(searchGiftDto));
+                .doSelectPageInfo(() -> mapper.searchGiftList(searchGiftDto));
 
-        searchGiftListVoPageInfo.getList().forEach(b->{
+        searchGiftListVoPageInfo.getList().forEach(b -> {
             //获取全部的优惠券
-            List<BaseVo> allCoupon = couponMapper.findAllCoupon();
+            List<BaseVo> allCoupon = couponMapper.findCouponAll();
             //获取已关联的优惠券
             List<BaseVo> associationed = mapper.findAssociationed(b.getId());
-            List<Long> associationedIds = associationed.stream().map(a->a.getId()).collect(Collectors.toList());
+            List<Long> associationedIds = associationed.stream().map(a -> a.getId()).collect(Collectors.toList());
             //筛选未被关联的优惠券
-            List<BaseVo> association = allCoupon.stream().filter(a->!associationedIds.contains(a.getId())).collect(Collectors.toList());
+            List<BaseVo> association = allCoupon.stream().filter(a -> !associationedIds.contains(a.getId())).collect(Collectors.toList());
             b.setAssociationedList(associationed);
-            b.setAssociationList(association);
-            if (!ListUtil.isListNullAndEmpty(associationed)){
+//            b.setAssociationList(association);
+            if (!ListUtil.isListNullAndEmpty(associationed)) {
                 b.setNum(associationed.size());
             }
 
@@ -196,18 +264,18 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
      */
     @Override
     public void delByIds(List<Long> ids) {
-        ids.forEach(a->{
-            if (mapper.selectById(a)==null){
-                throw new ServiceException(ResultCode.FAIL, String.format("不存在该礼包:[%s],请检查",a));
+        ids.forEach(a -> {
+            if (mapper.selectById(a) == null) {
+                throw new ServiceException(ResultCode.FAIL, String.format("不存在该礼包:[%s],请检查", a));
             }
             //礼包被领取或者被购买了则不能删除
-            AmGiftRelGiftUserPo giftRelGiftUserPo = relGiftUserMapper.selectOne(new QueryWrapper<AmGiftRelGiftUserPo>().eq("gift_id",a));
-            if (giftRelGiftUserPo!=null){
-                throw new ServiceException(ResultCode.FAIL,String.format("该礼包[%s]已被领取,不能删除",mapper.selectById(a).getName()));
+            AmGiftRelGiftUserPo giftRelGiftUserPo = relGiftUserMapper.selectOne(new QueryWrapper<AmGiftRelGiftUserPo>().eq("gift_id", a));
+            if (giftRelGiftUserPo != null) {
+                throw new ServiceException(ResultCode.FAIL, String.format("该礼包[%s]已被领取,不能删除", mapper.selectById(a).getName()));
             }
-            List<AmGiftOrderPo> giftOrderPos = giftOrderMapper.selectList(new QueryWrapper<AmGiftOrderPo>().eq("gift_id",a));
-            if (!ListUtil.isListNullAndEmpty(giftOrderPos)){
-                throw new ServiceException(ResultCode.FAIL,String.format("该礼包[%s]已被购买,不能删除",mapper.selectById(a).getName()));
+            List<AmGiftOrderPo> giftOrderPos = giftOrderMapper.selectList(new QueryWrapper<AmGiftOrderPo>().eq("gift_id", a));
+            if (!ListUtil.isListNullAndEmpty(giftOrderPos)) {
+                throw new ServiceException(ResultCode.FAIL, String.format("该礼包[%s]已被购买,不能删除", mapper.selectById(a).getName()));
             }
         });
 
@@ -216,6 +284,7 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
 
     /**
      * 新人领取礼包
+     *
      * @param giftId
      * @return
      */
@@ -225,10 +294,10 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
         UmUserPo userPo = securityUtil.getAppCurrUser();
         AmGiftPo giftPo = mapper.selectById(giftId);
         //判断礼包是否存在
-        if (giftPo==null){
-            throw new ServiceException(ResultCode.NO_EXISTS,String.format("该礼包【%s】不存在，请检查",giftId));
-        }else if (giftPo.getType()!= GiftTypeEnum.NEW_COMER.getId()){
-            throw new ServiceException(ResultCode.FAIL,String.format("该礼包【%s】不是新人礼包!",giftPo.getName()));
+        if (giftPo == null) {
+            throw new ServiceException(ResultCode.NO_EXISTS, String.format("该礼包【%s】不存在，请检查", giftId));
+        } else if (giftPo.getType() != GiftTypeEnum.NEW_COMER.getId()) {
+            throw new ServiceException(ResultCode.FAIL, String.format("该礼包【%s】不是新人礼包!", giftPo.getName()));
         }
         AmGiftRelGiftUserPo relGiftUserPo = new AmGiftRelGiftUserPo();
         relGiftUserPo.setCreateBy(userPo.getTrueName());
@@ -240,15 +309,16 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
 
     /**
      * 判断用户是否领取过新人礼包
+     *
      * @return
      */
     @Override
     public Boolean isReceive() {
         UmUserPo userPo = securityUtil.getAppCurrUser();
         AmGiftRelGiftUserPo relGiftUserPo = relGiftUserMapper.selectOne(new QueryWrapper<AmGiftRelGiftUserPo>().eq("user_id", userPo.getId()));
-        if (relGiftUserPo == null){
+        if (relGiftUserPo == null) {
             return true;
-        }else if (relGiftUserPo != null){
+        } else if (relGiftUserPo != null) {
             return false;
         }
         return null;
@@ -262,17 +332,17 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
      */
     @Override
     public PageInfo<SearchReceiveGiftRecordVo> searchReceiveRecord(SearchReceiveGiftRecordDto searchReceiveRecordDto) {
-        Integer pageNo = searchReceiveRecordDto.getPageNo()==null ? defaultPageNo : searchReceiveRecordDto.getPageNo();
-        Integer pageSize = searchReceiveRecordDto.getPageSize()==null ? defaultPageSize : searchReceiveRecordDto.getPageSize();
+        Integer pageNo = searchReceiveRecordDto.getPageNo() == null ? defaultPageNo : searchReceiveRecordDto.getPageNo();
+        Integer pageSize = searchReceiveRecordDto.getPageSize() == null ? defaultPageSize : searchReceiveRecordDto.getPageSize();
 
         PageInfo<SearchReceiveGiftRecordVo> searchReceiveGiftRecordVoPageInfo = PageHelper.startPage(pageNo, pageSize)
-                .doSelectPageInfo(() ->mapper.searchReceiveRecord(searchReceiveRecordDto));
+                .doSelectPageInfo(() -> mapper.searchReceiveRecord(searchReceiveRecordDto));
 
-        searchReceiveGiftRecordVoPageInfo.getList().forEach(b->{
+        searchReceiveGiftRecordVoPageInfo.getList().forEach(b -> {
             //获取已关联的优惠券
             List<BaseVo> associationed = mapper.findAssociationed(b.getGiftId());
             b.setCouponList(associationed);
-            if (!ListUtil.isListNullAndEmpty(associationed)){
+            if (!ListUtil.isListNullAndEmpty(associationed)) {
                 b.setNum(associationed.size());
             }
 
@@ -291,16 +361,16 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
     @Override
     public PageInfo<SearchBuyGiftRecordVo> searchBuyGiftRecord(SearchBuyGiftRecordDto searchBuyGiftRecordDto) {
 
-        Integer pageNo = searchBuyGiftRecordDto.getPageNo()==null ? defaultPageNo : searchBuyGiftRecordDto.getPageNo();
-        Integer pageSize = searchBuyGiftRecordDto.getPageSize()==null ? defaultPageSize : searchBuyGiftRecordDto.getPageSize();
+        Integer pageNo = searchBuyGiftRecordDto.getPageNo() == null ? defaultPageNo : searchBuyGiftRecordDto.getPageNo();
+        Integer pageSize = searchBuyGiftRecordDto.getPageSize() == null ? defaultPageSize : searchBuyGiftRecordDto.getPageSize();
 
         PageInfo<SearchBuyGiftRecordVo> searchBuyGiftRecordVoPageInfo = PageHelper.startPage(pageNo, pageSize)
-                .doSelectPageInfo(() ->mapper.searchBuyGiftRecord(searchBuyGiftRecordDto));
-        searchBuyGiftRecordVoPageInfo.getList().forEach(b->{
+                .doSelectPageInfo(() -> mapper.searchBuyGiftRecord(searchBuyGiftRecordDto));
+        searchBuyGiftRecordVoPageInfo.getList().forEach(b -> {
             //获取已关联的优惠券
             List<BaseVo> associationed = mapper.findAssociationed(b.getGiftId());
             b.setCouponList(associationed);
-            if (!ListUtil.isListNullAndEmpty(associationed)){
+            if (!ListUtil.isListNullAndEmpty(associationed)) {
                 b.setNum(associationed.size());
             }
 
@@ -309,19 +379,59 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
     }
 
     /**
-     *  分页查询优惠券
+     * 分页查询优惠券
      *
      * @param searchCouponDto
      * @return
      */
     @Override
     public PageInfo<BaseVo> searchCoupon(SearchCouponDto searchCouponDto) {
-        Integer pageNo = searchCouponDto.getPageNo()==null ? defaultPageNo : searchCouponDto.getPageNo();
-        Integer pageSize = searchCouponDto.getPageSize()==null ? defaultPageSize : searchCouponDto.getPageSize();
+        Integer pageNo = searchCouponDto.getPageNo() == null ? defaultPageNo : searchCouponDto.getPageNo();
+        Integer pageSize = searchCouponDto.getPageSize() == null ? defaultPageSize : searchCouponDto.getPageSize();
 
         PageInfo<BaseVo> couponVo = PageHelper.startPage(pageNo, pageSize)
-                .doSelectPageInfo(() ->couponMapper.findAllCoupon());
+                .doSelectPageInfo(() -> couponMapper.findAllCoupon(searchCouponDto.getName()));
 
         return couponVo;
+    }
+
+    /**
+     * 禁用启用新人礼包,只能有一个是启用状态
+     *
+     * @param enableDto
+     * @return
+     */
+    @Override
+    public void editGiftEnable(EditEnableDto enableDto) {
+
+        SysUserPo user = securityUtil.getCurrUser();
+        Long id = Arrays.asList(enableDto.getId()).get(0);
+        if (enableDto.getEnable()) {
+            //判断礼包是否已有启用的，若有则置为0
+            List<AmGiftPo> amGiftPos = mapper.selectList(null).stream().filter(a -> a.getEnable().equals(true)).collect(Collectors.toList());
+            if (!ListUtil.isListNullAndEmpty(amGiftPos)) {
+                amGiftPos.forEach(b -> {
+                    b.setEnable(false);
+                    mapper.updateById(b);
+                });
+            }
+
+            AmGiftPo giftPo = mapper.selectById(id);
+            giftPo.setEnable(enableDto.getEnable()).setUpdateBy(user.getUsername());
+            mapper.updateById(giftPo);
+        }
+    }
+
+    /**
+     * 获取提供给用户领取的新人礼包
+     *
+     * @return
+     */
+    @Override
+    public BaseVo getGift() {
+
+        BaseVo giftInfo = mapper.getGift();
+
+        return giftInfo;
     }
 }

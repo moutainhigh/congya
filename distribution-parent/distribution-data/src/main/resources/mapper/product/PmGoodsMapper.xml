@@ -78,6 +78,11 @@
         update pm_goods set stock=stock+#{number} where id=#{goodId}
     </update>
 
+    <update id="shareGoods">
+        update pm_goods set forward_num = forward_num+1 where id = #{shareId}
+    </update>
+
+
     <select id="findGoodsValue" resultType="com.chauncy.data.bo.supplier.good.GoodsValueBo">
         select b.id,b.value as name,b.is_custom
         from pm_goods_rel_attribute_value_sku a ,pm_goods_attribute_value b, pm_goods_attribute c,pm_goods_sku d
@@ -488,7 +493,7 @@
     </select>
     <select id="findGoodsBase" resultType="com.chauncy.data.vo.app.goods.SpecifiedGoodsVo">
         select a.id as goods_id,a.name as goods_name,a.subtitle,a.carousel_image,a.is_free_postage,
-        a.location as origin_place,a.sales_volume,a.goods_category_id as category_id,
+        a.location as origin_place,a.sales_volume,a.goods_category_id as category_id,a.collection_num
         a.carousel_image,a.tax_rate_type ,b.default_freight,b.default_full_money,b.default_post_money,
         b.default_max_number,b.default_max_number_money,b.default_addtional_freight,b.default_addtional_number
         from pm_goods a,pm_shipping_template b

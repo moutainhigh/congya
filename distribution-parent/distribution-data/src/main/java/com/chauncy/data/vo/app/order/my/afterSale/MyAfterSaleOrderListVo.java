@@ -1,6 +1,8 @@
 package com.chauncy.data.vo.app.order.my.afterSale;
 
 import com.chauncy.common.enums.app.order.afterSale.AfterSaleLogEnum;
+import com.chauncy.common.enums.app.order.afterSale.AfterSaleStatusEnum;
+import com.chauncy.common.enums.app.order.afterSale.AfterSaleTypeEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -29,6 +31,9 @@ public class MyAfterSaleOrderListVo {
     private Integer number;
 
     @ApiModelProperty(name = "status",value = "当前售后状态")
-    private AfterSaleLogEnum afterSaleLogEnum;
+    private AfterSaleStatusEnum status;
+
+    @ApiModelProperty(name = "type",value = "当前售后类型")
+    private AfterSaleTypeEnum type;
 
 }

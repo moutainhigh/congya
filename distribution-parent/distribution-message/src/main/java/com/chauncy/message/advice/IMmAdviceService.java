@@ -2,6 +2,7 @@ package com.chauncy.message.advice;
 
 import com.chauncy.data.domain.po.message.advice.MmAdvicePo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.dto.app.advice.brand.select.FindBrandShufflingDto;
 import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
@@ -172,4 +173,12 @@ public interface IMmAdviceService extends Service<MmAdvicePo> {
      * @return
      */
     PageInfo<SearchGoodsBaseListVo> searchGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto);
+
+    /**
+     * 获取选项卡下的品牌下的轮播图广告
+     *
+     * @param findBrandShufflingDto
+     * @return
+     */
+    List<ShufflingVo> findBrandShuffling(FindBrandShufflingDto findBrandShufflingDto);
 }

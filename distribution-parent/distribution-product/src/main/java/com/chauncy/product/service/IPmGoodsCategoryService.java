@@ -2,6 +2,7 @@ package com.chauncy.product.service;
 
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
+import com.chauncy.data.dto.app.advice.category.select.GoodsCategoryVo;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.SearchAttributeByNamePageDto;
 import com.chauncy.data.dto.manage.good.select.SearchGoodCategoryDto;
@@ -78,6 +79,10 @@ public interface IPmGoodsCategoryService extends Service<PmGoodsCategoryPo> {
      */
     List<GoodsCategoryTreeVo> findGoodsCategoryTreeVo();
 
-
-
+    /**
+     * 联动查询葱鸭百货广告位关联的商品分类
+     *
+     * @return
+     */
+    List<GoodsCategoryVo> findGoodsCategory(Long adviceId);
 }

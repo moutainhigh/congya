@@ -22,6 +22,9 @@ public class AppMyOrderDetailGoodsVo {
     @ApiModelProperty("skuId")
     private Long skuId;
 
+    @ApiModelProperty("商品快照id")
+    private Long goodsTempId;
+
     @ApiModelProperty("sku图片")
     private String picture;
 

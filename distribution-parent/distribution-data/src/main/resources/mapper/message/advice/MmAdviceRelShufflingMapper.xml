@@ -78,5 +78,11 @@
         from mm_advice_rel_shuffling
         where del_flag = 0 and advice_id = #{adviceId}
     </select>
+    <select id="findBrandShuffling" resultType="com.chauncy.data.vo.app.advice.home.ShufflingVo">
+        select b.id as shuffling_id,b.cover_photo,b.advice_type,b.detail_id,b.html_detail
+        from mm_advice_rel_shuffling b
+        where b.del_flag = 0 and b.start_time &lt;= now() and b.end_time &gt;= now() and b.rel_tab_brand_id = #{relTabBrandId}
+
+    </select>
 
 </mapper>

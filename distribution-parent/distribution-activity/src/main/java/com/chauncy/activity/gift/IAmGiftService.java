@@ -3,6 +3,7 @@ package com.chauncy.activity.gift;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.activity.gift.AmGiftPo;
+import com.chauncy.data.dto.manage.activity.EditEnableDto;
 import com.chauncy.data.dto.manage.activity.gift.add.SaveGiftDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchBuyGiftRecordDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchCouponDto;
@@ -102,4 +103,18 @@ public interface IAmGiftService extends Service<AmGiftPo> {
      * @return
      */
     PageInfo<BaseVo> searchCoupon(SearchCouponDto searchCouponDto);
+
+    /**
+     * 禁用启用新人礼包,只能有一个是启用状态
+     * @param enableDto
+     * @return
+     */
+    void editGiftEnable(EditEnableDto enableDto);
+
+    /**
+     * 获取提供给用户领取的新人礼包
+     *
+     * @return
+     */
+    BaseVo getGift();
 }
