@@ -205,16 +205,13 @@ public class PmGoodsVirtualStockTemplateServiceImpl extends AbstractService<PmGo
     /**
      * 删除商品与库存模板的关联
      *
-     * @param id
+     * @param ids
      */
     @Override
-    public void delRelById(Long id) {
-        PmGoodsRelStockTemplatePo pmGoodsRelStockTemplatePo = pmGoodsRelStockTemplateMapper.selectById(id);
-        if(null == pmGoodsRelStockTemplatePo) {
-            throw  new ServiceException(ResultCode.NO_EXISTS, "商品与库存模板关联不存在");
-        } else {
-            QueryWrapper queryWrapper = new QueryWrapper();
-            queryWrapper.eq("id", id);
+    public void delRelById(Long[] ids) {
+        if(null != ids && ids.length > 0) {
+            QueryWrapper<PmGoodsRelStockTemplatePo> queryWrapper = new QueryWrapper();
+            queryWrapper.lambda().in(PmGoodsRelStockTemplatePo::getId, Arrays.asList(ids));
             pmGoodsRelStockTemplateMapper.delete(queryWrapper);
         }
     }

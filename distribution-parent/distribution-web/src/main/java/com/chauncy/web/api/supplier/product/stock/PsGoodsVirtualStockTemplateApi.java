@@ -124,14 +124,14 @@ public class PsGoodsVirtualStockTemplateApi extends BaseApi {
     /**
      * 根据relId删除商品与库存模板的关联
      *
-     * @param id
+     * @param ids
      */
     @ApiOperation(value = "删除商品与库存模板的关联", notes = "根据relId删除")
-    @GetMapping("/delRelById/{id}")
-    public JsonViewData delRelById(@ApiParam(required = true, name = "id", value = "id")
-                                 @PathVariable Long id) {
+    @GetMapping("/delRelById/{ids}")
+    public JsonViewData delRelById(@ApiParam(required = true, name = "ids", value = "ids")
+                                 @PathVariable Long[] ids) {
 
-        pmGoodsVirtualStockTemplateService.delRelById(id);
+        pmGoodsVirtualStockTemplateService.delRelById(ids);
         return new JsonViewData(ResultCode.SUCCESS, "删除成功");
     }
 

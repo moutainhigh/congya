@@ -37,14 +37,14 @@ public interface IPmGoodsVirtualStockTemplateService extends Service<PmGoodsVirt
     /**
      * 根据Id删除库存模板
      *
-     * @param id
+     * @param ids
      */
     void delTemplateById(Long[] ids);
     /**
      * 删除商品与库存模板的关联
-     * @param id
+     * @param ids
      */
-    void delRelById(Long id);
+    void delRelById(Long[] ids);
 
     /**
      * 根据模板名称以及创建时间查询
