@@ -32,7 +32,11 @@ public class StoreDetailVo  implements Serializable {
     private String storeName;
 
     @ApiModelProperty(value = "店铺标签")
-    private List<SmStoreLabelVo> smStoreLabelVoList;
+    @JSONField(serialize=false)
+    private String storeLabels;
+
+    @ApiModelProperty(value = "店铺标签")
+    private List<String> storeLabelList;
 
     @ApiModelProperty(value = "店铺logo")
     private String logoImage;
@@ -49,8 +53,8 @@ public class StoreDetailVo  implements Serializable {
     @ApiModelProperty(value = "店铺描述")
     private String storeDescribe;
 
-    @ApiModelProperty(value = "店铺综合体验评分")
-    private BigDecimal totalScore;
+   /* @ApiModelProperty(value = "店铺综合体验评分")
+    private BigDecimal totalScore;*/
 
     @ApiModelProperty(value = "宝贝描述评分")
     private BigDecimal babyDescribeScore;
@@ -67,7 +71,7 @@ public class StoreDetailVo  implements Serializable {
     @ApiModelProperty(value = "公司地址")
     private String companyAddr;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @ApiModelProperty(value = "创建时间")
     private LocalDate createDate;
 

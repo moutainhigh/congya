@@ -293,50 +293,42 @@
     </select>
 
 
-    <resultMap id="storeDetailResult" type="com.chauncy.data.vo.app.store.StoreDetailVo">
-        <id column="storeId" property="storeId"/>
-        <result column="storeName" property="storeName"/>
-        <result column="logo_image" property="logoImage"/>
-        <result column="collection_num" property="collectionNum"/>
-        <result column="total_score" property="totalScore"/>
-        <result column="store_describe" property="storeDescribe"/>
-        <result column="baby_describe_score" property="babyDescribeScore"/>
-        <result column="service_attitude_score" property="serviceAttitudeScore"/>
-        <result column="logistics_service_score" property="logisticsServiceScore"/>
-        <result column="owner_name" property="ownerName"/>
-        <result column="owner_name" property="ownerName"/>
-        <result column="company_addr" property="companyAddr"/>
-        <result column="createDate" property="createDate"/>
-        <result column="business_license" property="businessLicense"/>
-        <!-- collection定义关联集合类型的属性封装规则
-        offType:指定集合中的元素类型
-        -->
-        <collection property="smStoreLabelVoList" ofType="com.chauncy.data.vo.manage.store.label.SmStoreRelLabelVo">
-            <result column="storeLabelId" property="id"/>
-            <result column="storeLabelName" property="name"/>
-        </collection>
-    </resultMap>
-    <select id="findDetailById" resultMap="storeDetailResult">
+    <select id="findDetailById" resultType="com.chauncy.data.vo.app.store.StoreDetailVo">
         select ss.id as storeId,
                 ss.name as storeName,
                 ss.logo_image,
                 ss.collection_num,
-                ss.total_score,
+                 (
+                    SELECT SUM(mi1.liked_num)
+                    FROM mm_information mi1
+                    WHERE mi1.store_id = ss.id
+                ) AS likedSum,
+                 (EXISTS
+                    (SELECT 1
+                    FROM um_user_favorites uuf
+                    WHERE uuf.favorites_id = ss.id
+                    AND uuf.`type` = '店铺'
+                    AND uuf.user_id = #{userId}
+                    AND uuf.del_flag = 0)
+                ) AS is_focus,
                 ss.store_describe,
-                ss.baby_describe_score,
-                ss.service_attitude_score,
-                ss.logistics_service_score,
+                oeq.description_start_level AS baby_describe_score,
+                oeq.description_start_level AS attitude_start_level,
+                oeq.description_start_level AS ship_start_level,
                 ss.owner_name,
                 ss.company_addr,
                 DATE(ss.create_time) as createDate,
                 ss.business_license,
-                ssl.id as storeLabelId,
-                ssl.name as storeLabelName
+                (
+                    SELECT GROUP_CONCAT(`ssl`.name)
+                    FROM sm_store_label `ssl` ,sm_store_rel_label ssrl
+                    WHERE `ssrl`.store_label_id = `ssl`.id
+                    AND `ssrl`.store_id = ss.`id`
+                    AND `ssl`.del_flag = 0
+                ) AS storeLabels
         from sm_store ss
-        left join sm_store_rel_label ssrl
-        on ssrl.store_id = ss.id
-        left join sm_store_label `ssl`
-        on ssl.id = ssrl.store_label_id
+        left join om_evaluate_quartz oeq
+        on ss.id = oeq.store_id
         where ss.id = #{storeId}
     </select>
     <select id="findOperationalById" resultType="com.chauncy.data.vo.manage.store.StoreOperationalInfoVo">
@@ -373,9 +365,8 @@
         <result column="logo_image" property="logoImage" />
         <result column="name" property="storeName" />
         <result column="storeLabels" property="storeLabels" />
-        <result column="isFocus" property="isFocus" />
+        <result column="is_focus" property="isFocus" />
         <result column="store_describe" property="storeDescribe" />
-        <result column="collection_num" property="collectionNum" />
         <result column="likedSum" property="likedSum" />
         <result column="collectionNum" property="collectionNum" />
         <result column="background_image" property="backgroundImage" />
@@ -408,13 +399,8 @@
                 AND uuf.`type` = '店铺'
                 AND uuf.user_id = #{userId}
                 AND uuf.del_flag = 0)
-            ) AS isFocus,
-            (
-                SELECT COUNT(1)
-                FROM um_user_favorites uuf
-                WHERE uuf.favorites_id = ss.id
-                AND uuf.del_flag = 0
-            ) AS collectionNum,
+            ) AS is_focus,
+            ss.collection_num,
             (
                 SELECT sum(mi1.liked_num)
                 FROM mm_information mi1

@@ -6,6 +6,7 @@ import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.advice.AdviceTabVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
+import com.chauncy.data.vo.app.advice.store.GoodsSecondCategoryListVo;
 import com.chauncy.data.vo.app.advice.store.StoreCategoryDetailVo;
 import com.chauncy.data.vo.app.advice.store.StoreCategoryInfoVo;
 import com.chauncy.data.vo.app.advice.store.StoreHomePageVo;
@@ -150,12 +151,25 @@ public class AdviceStoreInfoApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "app获取店铺资料", notes = "通过店铺id获取店铺资料")
-    @GetMapping("/findDetailById/{storeId}")
-    public JsonViewData<StoreDetailVo> findDetailById(@ApiParam(required = true, value = "storeId")
+    @GetMapping("/getDetailById/{storeId}")
+    public JsonViewData<StoreDetailVo> getDetailById(@ApiParam(required = true, value = "storeId")
                                                       @PathVariable Long storeId) {
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
                 smStoreService.findDetailById(storeId));
+    }
+
+    /**
+     * 店铺详情-商品分类
+     * @return
+     */
+    @ApiOperation(value = "店铺详情-商品分类", notes = "通过店铺id获取商品分类")
+    @GetMapping("/findGoodsCategory/{storeId}")
+    public JsonViewData<List<GoodsSecondCategoryListVo>> findGoodsCategory(@ApiParam(required = true, value = "storeId")
+                                                      @PathVariable Long storeId) {
+
+        return new JsonViewData(ResultCode.SUCCESS, "查找成功",
+                pmGoodsService.findGoodsCategory(storeId));
     }
 
 

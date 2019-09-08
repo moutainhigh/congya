@@ -72,6 +72,7 @@
             <result column="logo_image" property="logoImage"/>
             <result column="storeName" property="storeName"/>
             <result column="is_focus" property="isFocus"/>
+            <result column="store_describe" property="storeDescribe"/>
         </collection>
     </resultMap>
     <select id="findBaseById" resultMap="informationBaseResult">
@@ -219,7 +220,7 @@
             ) AS storeLabels,
             ss.collection_num,
             (
-                SELECT COUNT(mi1.liked_num)
+                SELECT SUM(mi1.liked_num)
                 FROM mm_information mi1
                 WHERE mi1.store_id = ss.id
             ) AS likedSum,

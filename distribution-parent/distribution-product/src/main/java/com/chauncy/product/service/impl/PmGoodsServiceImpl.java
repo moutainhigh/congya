@@ -15,6 +15,7 @@ import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.domain.po.product.*;
+import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.sys.BasicSettingPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
@@ -35,11 +36,13 @@ import com.chauncy.data.mapper.message.information.MmInformationMapper;
 import com.chauncy.data.mapper.product.*;
 import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockMapper;
 import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockTemplateMapper;
+import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.mapper.sys.SysUserMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
+import com.chauncy.data.vo.app.advice.store.GoodsSecondCategoryListVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.supplier.*;
 import com.chauncy.data.vo.supplier.good.AssociationGoodsVo;
@@ -134,6 +137,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     private PmGoodsMapper goodsMapper;
 
     @Autowired
+    private SmStoreMapper smStoreMapper;
+
+    @Autowired
     private BasicSettingMapper basicSettingMapper;
 
     @Autowired
@@ -167,6 +173,24 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     public List<String> findGoodsType() {
         List<String> types = Arrays.stream(GoodsTypeEnum.values()).map(a -> a.getName()).collect(Collectors.toList());
         return types;
+    }
+
+    /**
+     * 店铺详情-商品分类
+     * @param storeId
+     * @return
+     */
+    @Override
+    public List<GoodsSecondCategoryListVo> findGoodsCategory(Long storeId) {
+
+        SmStorePo smStorePo = smStoreMapper.selectById(storeId);
+        if(null == smStorePo) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "店铺不存在");
+        }
+
+        //List<GoodsSecondCategoryListVo> goodsSecondCategoryList
+
+        return null;
     }
 
     /**

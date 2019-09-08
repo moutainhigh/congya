@@ -26,8 +26,8 @@ public class InformationStoreInfoVo extends AppStoreBaseInfoVo implements Serial
     @ApiModelProperty(value = "点赞数")
     private Integer likedSum;
 
-    /*@ApiModelProperty(value = "店铺描述")
-    private String storeDescribe;*/
+    @ApiModelProperty(value = "店铺描述")
+    private String storeDescribe;
 
 
 }

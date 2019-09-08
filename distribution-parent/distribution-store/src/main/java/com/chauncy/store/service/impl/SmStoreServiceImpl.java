@@ -658,8 +658,12 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
             throw new ServiceException(ResultCode.PARAM_ERROR,"店铺已被禁用");
         }
 
-        StoreDetailVo storeDetailVo = smStoreMapper.findDetailById(storeId);;
-        if(null != storeDetailVo.getBusinessLicense()) {
+        StoreDetailVo storeDetailVo = smStoreMapper.findDetailById(storeId);
+        if (Strings.isNotBlank(storeDetailVo.getStoreLabels())){
+            storeDetailVo.setStoreLabelList(Splitter.on(",")
+                    .omitEmptyStrings().splitToList(storeDetailVo.getStoreLabels()));
+        }
+        if(Strings.isNotBlank(storeDetailVo.getBusinessLicense())) {
             storeDetailVo.setBusinessLicenseList(Arrays.asList(storeDetailVo.getBusinessLicense().split(",")));
         }
         return storeDetailVo;

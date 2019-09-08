@@ -56,6 +56,7 @@
             pgvst.`name` as stockTemplateName,
             psgs.store_id, psgs.remark,
             psgs.create_time,
+            psgs.enabled,
             sum(psrgs.distribute_stock_num) as distributestocksum,
             <!-- (SELECT ss.`name` FROM sm_store ss WHERE psgs.store_id = ss.id) AS storeName,
             (SELECT ss.`name` FROM sm_store ss WHERE psgs.distribute_store_id = ss.id) AS branchName -->
