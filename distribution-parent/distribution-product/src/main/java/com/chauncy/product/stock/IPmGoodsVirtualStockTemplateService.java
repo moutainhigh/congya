@@ -4,6 +4,7 @@ import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockTemplatePo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.base.BaseSearchByTimeDto;
+import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.supplier.good.add.StockTemplateBaseDto;
 import com.chauncy.data.vo.supplier.good.stock.GoodsStockTemplateVo;
 import com.chauncy.data.vo.supplier.good.stock.StockTemplateSkuInfoVo;
@@ -66,5 +67,5 @@ public interface IPmGoodsVirtualStockTemplateService extends Service<PmGoodsVirt
      * @param templateId
      * @return
      */
-    List<StockTemplateSkuInfoVo> searchSkuInfoByTemplateId(Long templateId);
+    PageInfo<StockTemplateSkuInfoVo> searchSkuInfoByTemplateId(Long templateId,  BaseSearchPagingDto baseSearchPagingDto);
 }

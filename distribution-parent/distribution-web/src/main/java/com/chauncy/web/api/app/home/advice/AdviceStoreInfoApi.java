@@ -10,6 +10,7 @@ import com.chauncy.data.vo.app.advice.store.StoreCategoryDetailVo;
 import com.chauncy.data.vo.app.advice.store.StoreCategoryInfoVo;
 import com.chauncy.data.vo.app.advice.store.StoreHomePageVo;
 import com.chauncy.data.vo.app.message.information.InformationPagingVo;
+import com.chauncy.data.vo.app.store.StoreDetailVo;
 import com.chauncy.message.advice.IMmAdviceService;
 import com.chauncy.message.information.service.IMmInformationService;
 import com.chauncy.product.service.IPmGoodsService;
@@ -142,6 +143,19 @@ public class AdviceStoreInfoApi extends BaseApi {
 
         return setJsonViewData(mmInformationService.searchInformationList(storeId, baseSearchPagingDto));
 
+    }
+
+    /**
+     * app获取店铺资料
+     * @return
+     */
+    @ApiOperation(value = "app获取店铺资料", notes = "通过店铺id获取店铺资料")
+    @GetMapping("/findDetailById/{storeId}")
+    public JsonViewData<StoreDetailVo> findDetailById(@ApiParam(required = true, value = "storeId")
+                                                      @PathVariable Long storeId) {
+
+        return new JsonViewData(ResultCode.SUCCESS, "查找成功",
+                smStoreService.findDetailById(storeId));
     }
 
 

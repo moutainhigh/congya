@@ -9,6 +9,7 @@ import com.chauncy.data.domain.po.product.stock.PmGoodsRelStockTemplatePo;
 import com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockTemplatePo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.base.BaseSearchByTimeDto;
+import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.supplier.good.add.StockTemplateBaseDto;
 import com.chauncy.data.mapper.product.stock.PmGoodsRelStockTemplateMapper;
 import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockTemplateMapper;
@@ -258,7 +259,7 @@ public class PmGoodsVirtualStockTemplateServiceImpl extends AbstractService<PmGo
      * @param templateId
      * @return
      */
-    public List<StockTemplateSkuInfoVo> searchSkuInfoByTemplateId(Long templateId) {
+    public PageInfo<StockTemplateSkuInfoVo> searchSkuInfoByTemplateId(Long templateId,  BaseSearchPagingDto baseSearchPagingDto) {
         PmGoodsVirtualStockTemplatePo pmGoodsVirtualStockTemplate = pmGoodsVirtualStockTemplateMapper.selectById(templateId);
         if(null == pmGoodsVirtualStockTemplate) {
             throw new ServiceException(ResultCode.NO_EXISTS, "库存模板不存在") ;
@@ -269,15 +270,20 @@ public class PmGoodsVirtualStockTemplateServiceImpl extends AbstractService<PmGo
             throw  new ServiceException(ResultCode.FAIL, "当前登录用户不是商家用户");
         }
 
-        List<StockTemplateSkuInfoVo> stockTemplateSkuInfoVoList = new ArrayList<>();
+        Integer pageNo = baseSearchPagingDto.getPageNo()==null ? defaultPageNo : baseSearchPagingDto.getPageNo();
+        Integer pageSize = baseSearchPagingDto.getPageSize()==null ? defaultPageSize : baseSearchPagingDto.getPageSize();
+
+        PageInfo<StockTemplateSkuInfoVo> stockTemplateSkuInfoVoPageInfo = new PageInfo<>();
         if(pmGoodsVirtualStockTemplate.getType().equals(StoreGoodsTypeEnum.OWN_GOODS.getId())) {
             //自有商品类型
-            stockTemplateSkuInfoVoList = pmGoodsVirtualStockTemplateMapper.searchSkuInfoByOwnType(templateId, storeId);
+            stockTemplateSkuInfoVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                    .doSelectPageInfo(() -> pmGoodsVirtualStockTemplateMapper.searchSkuInfoByOwnType(templateId, storeId));
         } else if(pmGoodsVirtualStockTemplate.getType().equals(StoreGoodsTypeEnum.DISTRIBUTION_GOODS.getId())) {
             //分配商品
-            stockTemplateSkuInfoVoList = pmGoodsVirtualStockTemplateMapper.searchSkuInfoByDistributionType(templateId, storeId);
+            stockTemplateSkuInfoVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                    .doSelectPageInfo(() -> pmGoodsVirtualStockTemplateMapper.searchSkuInfoByDistributionType(templateId, storeId));
         }
-        return stockTemplateSkuInfoVoList ;
+        return stockTemplateSkuInfoVoPageInfo ;
     }
 
 }

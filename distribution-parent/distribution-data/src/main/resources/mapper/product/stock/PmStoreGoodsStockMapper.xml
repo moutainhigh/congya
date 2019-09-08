@@ -49,6 +49,7 @@
                     sum(psrgs.distribute_stock_num) as distributeStockSum
         from pm_store_goods_stock psgs left join sm_store ss on ss.id = psgs.distribute_store_id
         left join pm_store_rel_goods_stock psrgs on psrgs.store_stock_id = psgs.id -->
+        select * from
         select
             psgs.id,
             psgs.`name`,
@@ -57,9 +58,12 @@
             psgs.store_id, psgs.remark,
             psgs.create_time,
             sum(psrgs.distribute_stock_num) as distributestocksum,
-            (SELECT ss.`name` FROM sm_store ss WHERE psgs.store_id = ss.id) AS storeName,
-            (SELECT ss.`name` FROM sm_store ss WHERE psgs.distribute_store_id = ss.id) AS branchName
+            <!-- (SELECT ss.`name` FROM sm_store ss WHERE psgs.store_id = ss.id) AS storeName,
+            (SELECT ss.`name` FROM sm_store ss WHERE psgs.distribute_store_id = ss.id) AS branchName -->
+        (SELECT ss.`name` FROM sm_store ss WHERE psgs.store_id = ss.id) AS storeName,
+            ss.name AS branchName
         from pm_store_goods_stock psgs
+        left join sm_store ss on ss.id = psgs.distribute_store_id
         left join pm_goods_virtual_stock_template pgvst on psgs.stock_template_id = pgvst.id,
         pm_store_rel_goods_stock psrgs
         <where>
@@ -115,9 +119,12 @@
             pgvst.`name` as stockTemplateName,
             psgs.store_id, psgs.remark,
             sum(psrgs.distribute_stock_num) as distributestocksum,
-            (SELECT ss.`name` FROM sm_store ss WHERE psgs.store_id = ss.id) AS storeName,
-            (SELECT ss.`name` FROM sm_store ss WHERE psgs.distribute_store_id = ss.id) AS branchName
+        <!-- (SELECT ss.`name` FROM sm_store ss WHERE psgs.store_id = ss.id) AS storeName,
+        (SELECT ss.`name` FROM sm_store ss WHERE psgs.distribute_store_id = ss.id) AS branchName -->
+        (SELECT ss.`name` FROM sm_store ss WHERE psgs.distribute_store_id = ss.id) AS branchName,
+            ss.name AS storeName
         from pm_store_goods_stock psgs
+        left join sm_store ss on ss.id = psgs.store_id
         left join pm_goods_virtual_stock_template pgvst on psgs.stock_template_id = pgvst.id,
         pm_store_rel_goods_stock psrgs
         <where>
@@ -150,20 +157,31 @@
         order by psgs.create_time desc
     </select>
     <select id="platformSearchPagingStock"  resultType="com.chauncy.data.vo.supplier.good.stock.StoreGoodsStockVo">
-        select psgs.id, psgs.`name`, store.`name` as storeName, branch.`name` as branchName, psgs.create_time,
+        <!-- select psgs.id, psgs.`name`, psgs.create_time,
             sum(psrgs.distribute_stock_num) as distributestocksum,
             (SELECT ss.`name` FROM sm_store ss WHERE psgs.store_id = ss.id) AS storeName,
             (SELECT ss.`name` FROM sm_store ss WHERE psgs.distribute_store_id = ss.id) AS branchName
         from pm_store_goods_stock psgs
         left join pm_store_rel_goods_stock psrgs
-        on psrgs.store_stock_id = psgs.id
+        on psrgs.store_stock_id = psgs.id -->
+        select
+            psgs.id,
+            psgs.`name`,
+            psgs.stock_template_id,
+            psgs.create_time,
+            pgvst.`name` as stockTemplateName,
+            psgs.store_id, psgs.remark,
+            sum(psrgs.distribute_stock_num) as distributestocksum,
+            (SELECT ss.`name` FROM sm_store ss WHERE psgs.store_id = ss.id) AS storeName,
+            (SELECT ss.`name` FROM sm_store ss WHERE psgs.distribute_store_id = ss.id) AS branchName
+        from pm_store_goods_stock psgs
+        left join sm_store ss on ss.id = psgs.store_id
+        left join pm_goods_virtual_stock_template pgvst on psgs.stock_template_id = pgvst.id,
+        pm_store_rel_goods_stock psrgs
         <where>
             psgs.del_flag = 0 and psrgs.del_flag = 0
             <if test="stockName !=null and stockName !=''">
                 and psgs.`name` like concat('%', #{stockName}, '%')
-            </if>
-            <if test="storeName != null and storeName !=''">
-                and ss.`name` like concat('%', #{storeName}, '%')
             </if>
             <if test="startTime != null">
                 and date(psgs.create_time) <![CDATA[>= ]]>  #{startTime}
