@@ -49,7 +49,6 @@
                     sum(psrgs.distribute_stock_num) as distributeStockSum
         from pm_store_goods_stock psgs left join sm_store ss on ss.id = psgs.distribute_store_id
         left join pm_store_rel_goods_stock psrgs on psrgs.store_stock_id = psgs.id -->
-        select * from
         select
             psgs.id,
             psgs.`name`,
@@ -86,11 +85,11 @@
             </if>
         </where>
         GROUP BY psgs.id
-        <if test="minStockNum != null and maxStockNum != null ">
+        <if test="minStockNum != null and maxStockNum != null and maxStockNum != 0">
             having distributeStockSum <![CDATA[>= ]]> #{minStockNum}
             and distributeStockSum <![CDATA[<= ]]> #{maxStockNum}
         </if>
-        <if test="maxStockNum != null and minStockNum == null ">
+        <if test="maxStockNum != null and minStockNum == null and maxStockNum != 0">
             having distributeStockSum <![CDATA[<= ]]> #{maxStockNum}
         </if>
         <if test="minStockNum != null and maxStockNum == null ">
@@ -144,11 +143,11 @@
             </if>
         </where>
         group by psgs.id
-        <if test="minStockNum != null and maxStockNum != null ">
+        <if test="minStockNum != null and maxStockNum != null  and maxStockNum != 0">
             having distributeStockSum <![CDATA[>= ]]> #{minStockNum}
             and distributeStockSum <![CDATA[<= ]]> #{maxStockNum}
         </if>
-        <if test="maxStockNum != null and minStockNum == null ">
+        <if test="maxStockNum != null and minStockNum == null  and maxStockNum != 0">
             having distributeStockSum <![CDATA[<= ]]> #{maxStockNum}
         </if>
         <if test="minStockNum != null and maxStockNum == null ">
@@ -191,11 +190,11 @@
             </if>
         </where>
         group by psgs.id
-        <if test="minStockNum != null and maxStockNum != null ">
+        <if test="minStockNum != null and maxStockNum != null  and maxStockNum != 0">
             having distributeStockSum <![CDATA[>= ]]> #{minStockNum}
             and distributeStockSum <![CDATA[<= ]]> #{maxStockNum}
         </if>
-        <if test="maxStockNum != null and minStockNum == null ">
+        <if test="maxStockNum != null and minStockNum == null  and maxStockNum != 0">
             having distributeStockSum <![CDATA[<= ]]> #{maxStockNum}
         </if>
         <if test="minStockNum != null and maxStockNum == null ">

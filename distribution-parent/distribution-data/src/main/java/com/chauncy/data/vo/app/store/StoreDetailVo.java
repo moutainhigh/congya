@@ -40,11 +40,17 @@ public class StoreDetailVo  implements Serializable {
     @ApiModelProperty(value = "收藏量/粉丝数")
     private Integer collectionNum;
 
-    @ApiModelProperty(value = "店铺综合体验评分")
-    private BigDecimal totalScore;
+    @ApiModelProperty(value = "点赞数")
+    private Integer likedSum;
+
+    @ApiModelProperty(value = "是否关注")
+    private Boolean isFocus;
 
     @ApiModelProperty(value = "店铺描述")
     private String storeDescribe;
+
+    @ApiModelProperty(value = "店铺综合体验评分")
+    private BigDecimal totalScore;
 
     @ApiModelProperty(value = "宝贝描述评分")
     private BigDecimal babyDescribeScore;
