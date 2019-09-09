@@ -22,6 +22,7 @@ import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.my.afterSale.ApplyRefundDto;
+import com.chauncy.data.dto.app.order.my.afterSale.SendDto;
 import com.chauncy.data.dto.app.order.my.afterSale.UpdateRefundDto;
 import com.chauncy.data.dto.base.BasePageDto;
 import com.chauncy.data.dto.manage.order.afterSale.SearchAfterSaleOrderDto;
@@ -578,24 +579,27 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
     }
 
     @Override
-    public void send(Long afterOrderId) {
+    public void send(SendDto sendDto) {
 
-        OmAfterSaleOrderPo querySaleOrder = mapper.selectById(afterOrderId);
+        OmAfterSaleOrderPo querySaleOrder = mapper.selectById(sendDto.getId());
         UmUserPo appCurrUser = securityUtil.getAppCurrUser();
         if (querySaleOrder.getStatus() != AfterSaleStatusEnum.NEED_BUYER_RETURN ) {
             throw new ServiceException(ResultCode.FAIL, "待买家退货状态才可以执行我已寄出操作！");
         }
 
-        //修改售后订单
+        //修改售后订单、并增加物流信息
         OmAfterSaleOrderPo updateAfterOrder = new OmAfterSaleOrderPo();
-        updateAfterOrder.setId(afterOrderId).setUpdateTime(LocalDateTime.now()).setStatus(AfterSaleStatusEnum.NEED_STORE_REFUND);
+        updateAfterOrder.setId(sendDto.getId()).setUpdateTime(LocalDateTime.now()).setStatus(AfterSaleStatusEnum.NEED_STORE_REFUND)
+        .setLogisticsCompany(sendDto.getLogisticsCompany()).setBillNo(sendDto.getBillNo()).setLogisticsCompany(sendDto.getLogisticsCompany());
         mapper.updateById(updateAfterOrder);
 
         //添加售后日志节点
         OmAfterSaleLogPo saveAfterLog = new OmAfterSaleLogPo();
-        saveAfterLog.setAfterSaleOrderId(afterOrderId).setCreateBy(appCurrUser.getPhone());
+        saveAfterLog.setAfterSaleOrderId(sendDto.getId()).setCreateBy(appCurrUser.getPhone());
         saveAfterLog.setNode(AfterSaleLogEnum.BUYER_RETURN_GOODS);
         afterSaleLogMapper.insert(saveAfterLog);
+
+
 
 
         //延时队列 买家发货后待商家退款==》退款成功

@@ -222,7 +222,8 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     @Override
     public boolean updateUmUser(UpdateUserDto updateUserDto,String currentUserName) {
         UmUserPo userPo=mapper.selectById(updateUserDto.getId());
-        updateUserDto.setTotalAddIntegral(updateUserDto.getCurrentIntegral()-userPo.getCurrentIntegral());
+        updateUserDto.setTotalAddIntegral(BigDecimalUtil.safeSubtract(updateUserDto.getCurrentIntegral()
+                ,userPo.getCurrentIntegral()));
         updateUserDto.setTotalAddRedEnvelops(BigDecimalUtil.safeSubtract(updateUserDto.getCurrentRedEnvelops()
         ,userPo.getCurrentRedEnvelops()));
         updateUserDto.setTotalAddShopTicket(BigDecimalUtil.safeSubtract(updateUserDto.getCurrentShopTicket()

@@ -14,4 +14,5 @@ public class RewardBo {
     private BigDecimal rewardShopTicket;
     private BigDecimal rewardExperience;
     private BigDecimal rewardIntegrate;
+    private BigDecimal realPayMoney;
 }

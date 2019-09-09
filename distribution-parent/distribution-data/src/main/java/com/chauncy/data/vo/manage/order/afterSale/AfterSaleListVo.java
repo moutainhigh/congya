@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -84,6 +85,15 @@ public class AfterSaleListVo implements Serializable {
 
     @ApiModelProperty(value = "价格")
     private BigDecimal sellPrice;
+
+    @ApiModelProperty(value = "物流公司")
+    private String logisticsCompany;
+
+    @ApiModelProperty(value = "运单号")
+    private String billNo;
+
+    @ApiModelProperty(value = "退货说明")
+    private String returnPolicy;
 
     @ApiModelProperty(value = "售后进度")
     List<AfterSaleLogVo> afterSaleLogVos;

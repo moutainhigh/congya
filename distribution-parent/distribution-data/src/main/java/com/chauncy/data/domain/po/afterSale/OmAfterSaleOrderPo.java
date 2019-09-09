@@ -100,6 +100,15 @@ public class OmAfterSaleOrderPo implements Serializable {
     @ApiModelProperty(value = "微信退款单号")
     private String refundId;
 
+    @ApiModelProperty(value = "物流公司")
+    private String logisticsCompany;
+
+    @ApiModelProperty(value = "运单号")
+    private String billNo;
+
+    @ApiModelProperty(value = "退货说明")
+    private String returnPolicy;
+
 
 
 }

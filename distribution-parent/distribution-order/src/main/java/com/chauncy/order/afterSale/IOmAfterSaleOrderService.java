@@ -4,6 +4,7 @@ import com.chauncy.data.domain.po.afterSale.OmAfterSaleOrderPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.order.my.afterSale.ApplyRefundDto;
 import com.chauncy.data.dto.app.order.my.afterSale.RefundDto;
+import com.chauncy.data.dto.app.order.my.afterSale.SendDto;
 import com.chauncy.data.dto.app.order.my.afterSale.UpdateRefundDto;
 import com.chauncy.data.dto.base.BasePageDto;
 import com.chauncy.data.dto.manage.order.afterSale.SearchAfterSaleOrderDto;
@@ -135,7 +136,7 @@ public interface IOmAfterSaleOrderService extends Service<OmAfterSaleOrderPo> {
 
     /**
      * 买家输入物流单号（发货）
-     * @param afterOrderId
+     * @param sendDto
      */
-    void send(Long afterOrderId);
+    void send(SendDto sendDto);
 }

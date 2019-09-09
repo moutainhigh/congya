@@ -6,6 +6,7 @@ import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.my.SearchMyOrderDto;
 import com.chauncy.data.dto.app.order.my.afterSale.ApplyRefundDto;
 import com.chauncy.data.dto.app.order.my.afterSale.RefundDto;
+import com.chauncy.data.dto.app.order.my.afterSale.SendDto;
 import com.chauncy.data.dto.app.order.my.afterSale.UpdateRefundDto;
 import com.chauncy.data.dto.base.BasePageDto;
 import com.chauncy.data.vo.JsonViewData;
@@ -91,13 +92,22 @@ public class AfterSaleOrderApi extends BaseApi {
     @PostMapping("/cancel/{afterSaleOrderId}")
     @ApiOperation("用户撤销申请")
     public JsonViewData cancel(@PathVariable Long afterSaleOrderId) {
-        return setJsonViewData(service.getAfterSaleDetail(afterSaleOrderId));
+        service.cancel(afterSaleOrderId,false);
+        return setJsonViewData(ResultCode.SUCCESS);
     }
 
     @PostMapping("/agreeCancel/{afterSaleOrderId}")
     @ApiOperation("用户同意取消")
     public JsonViewData agreeCancel(@PathVariable Long afterSaleOrderId) {
         service.agreeCancel(afterSaleOrderId);
+        return setJsonViewData(ResultCode.SUCCESS);
+    }
+
+
+    @PostMapping("/send")
+    @ApiOperation("我已寄出")
+    public JsonViewData send(@RequestBody SendDto sendDto) {
+        service.send(sendDto);
         return setJsonViewData(ResultCode.SUCCESS);
     }
 

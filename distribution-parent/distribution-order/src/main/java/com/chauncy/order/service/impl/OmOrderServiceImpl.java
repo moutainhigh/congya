@@ -24,6 +24,7 @@ import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.domain.po.pay.PayUserRelationPo;
 import com.chauncy.data.domain.po.sys.BasicSettingPo;
+import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.my.SearchMyOrderDto;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
@@ -38,6 +39,8 @@ import com.chauncy.data.mapper.pay.PayUserRelationMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
 import com.chauncy.data.mapper.sys.BasicSettingMapper;
+import com.chauncy.data.mapper.test.UserMapper;
+import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.app.car.ShopTicketSoWithCarGoodVo;
 import com.chauncy.data.vo.app.order.my.AppSearchOrderVo;
 import com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailGoodsVo;
@@ -117,6 +120,9 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
     @Autowired
     private SecurityUtil securityUtil;
+
+    @Autowired
+    private UmUserMapper userMapper;
 
 
     @Override
@@ -454,6 +460,11 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         //查出下单用户需要返的购物券、积分、经验值
         RewardBo rewardBo=mapper.getRewardBoByOrder(orderId);
         //用户增加返佣数据
+        UmUserPo addUser=new UmUserPo();
+        addUser.setCurrentExperience(rewardBo.getRewardExperience()).setCurrentIntegral(rewardBo.getRewardIntegrate())
+                .setCurrentShopTicket(rewardBo.getRewardShopTicket()).setId(userId).setTotalOrder(1).
+                setTotalConsumeMoney(rewardBo.getRealPayMoney());
+        userMapper.updateAdd(addUser);
 
 
 
