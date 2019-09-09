@@ -108,12 +108,13 @@ public class PsStoreGoodsStockApi extends BaseApi {
      * @param templateId
      */
     @ApiOperation(value = "根据商品库存模板Id获取商品规格信息", notes = "根据商品库存模板Id获取商品规格信息")
-    @GetMapping("/branch/searchSkuInfoByTemplateId/{templateId}")
-    public JsonViewData<StockTemplateSkuInfoVo> searchGoodsInfoByTemplateId(@ApiParam(required = true, name = "templateId", value = "templateId")
+    @PostMapping("/branch/searchSkuInfoByTemplateId/{templateId}")
+    public JsonViewData<PageInfo<StockTemplateSkuInfoVo>> searchGoodsInfoByTemplateId(@Valid @RequestBody @ApiParam(required = true,
+            name = "baseSearchPagingDto", value = "查询条件") BaseSearchPagingDto baseSearchPagingDto,@ApiParam(required = true, name = "templateId", value = "templateId")
                                         @PathVariable Long templateId) {
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
-                pmGoodsVirtualStockTemplateService.searchSkuInfoByTemplateId(templateId));
+                pmGoodsVirtualStockTemplateService.searchSkuInfoByTemplateId(templateId, baseSearchPagingDto));
 
     }
 
@@ -124,13 +125,14 @@ public class PsStoreGoodsStockApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "根据ID查找店铺分配给分店的库存信息", notes = "根据库存ID查找")
-    @GetMapping("/branch/findBranchStockById/{id}")
-    public JsonViewData<StoreGoodsStockVo> findBranchStockById(@ApiParam(required = true, value = "id")
+    @PostMapping("/branch/findBranchStockById/{id}")
+    public JsonViewData<PageInfo<StockTemplateSkuInfoVo>> findBranchStockById(@Valid @RequestBody @ApiParam(required = true,
+            name = "baseSearchPagingDto", value = "查询条件") BaseSearchPagingDto baseSearchPagingDto,@ApiParam(required = true, value = "id")
                                  @PathVariable Long id) {
 
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
-                pmStoreGoodsStockService.findStockById(id));
+                pmStoreGoodsStockService.findStockById(id, baseSearchPagingDto));
 
     }
 
@@ -141,13 +143,14 @@ public class PsStoreGoodsStockApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "库存管理_根据ID查找直属商家分配给店铺的库存信息", notes = "根据库存ID查找")
-    @GetMapping("/findStockById/{id}")
-    public JsonViewData<StoreGoodsStockVo> findStockById(@ApiParam(required = true, value = "id")
+    @PostMapping("/findStockById/{id}")
+    public JsonViewData<StoreGoodsStockVo> findStockById(@Valid @RequestBody @ApiParam(required = true,
+            name = "baseSearchPagingDto", value = "查询条件") BaseSearchPagingDto baseSearchPagingDto,@ApiParam(required = true, value = "id")
                                  @PathVariable Long id) {
 
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
-                pmStoreGoodsStockService.findStockById(id));
+                pmStoreGoodsStockService.findStockById(id, baseSearchPagingDto));
 
     }
 

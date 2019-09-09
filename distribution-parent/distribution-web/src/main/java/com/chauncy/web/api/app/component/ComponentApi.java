@@ -2,18 +2,18 @@ package com.chauncy.web.api.app.component;
 
 import com.chauncy.activity.gift.IAmGiftService;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.dto.app.component.ShareDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.message.content.service.IMmBootPageService;
+import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.web.base.BaseApi;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -33,6 +33,9 @@ public class ComponentApi extends BaseApi {
 
     @Autowired
     private IAmGiftService giftService;
+
+    @Autowired
+    private IPmGoodsService goodsService;
 
     /**
      * 判断用户是否领取过新人礼包
@@ -82,5 +85,20 @@ public class ComponentApi extends BaseApi {
         return setJsonViewData(bootPageService.findBootPage());
     }
 
+    /**
+     * 分享商品
+     *
+     * @param
+     * @return
+     */
+    @PostMapping("/share")
+    @ApiOperation("分享商品/资讯")
+    public JsonViewData shareGoods(@RequestBody @ApiParam(required = true,name = "shareDto",value = "分享商品/资讯Dto")
+                                   @Validated ShareDto shareDto){
+
+        goodsService.share(shareDto);
+
+        return setJsonViewData(ResultCode.SUCCESS,"转发成功");
+    }
 
 }

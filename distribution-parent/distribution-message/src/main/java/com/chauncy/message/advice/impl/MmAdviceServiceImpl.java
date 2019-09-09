@@ -10,6 +10,7 @@ import com.chauncy.common.enums.app.sort.SortWayEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.ListUtil;
+import com.chauncy.common.util.RelativeDateFormatUtil;
 import com.chauncy.data.bo.app.order.RewardShopTicketBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.advice.*;
@@ -21,6 +22,7 @@ import com.chauncy.data.dto.app.advice.brand.select.FindBrandShufflingDto;
 import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
+import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.advice.add.SaveClassificationAdviceDto;
 import com.chauncy.data.dto.manage.message.advice.add.SaveOtherAdviceDto;
@@ -37,12 +39,15 @@ import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.app.advice.AdviceTabVo;
 import com.chauncy.data.vo.app.advice.goods.BrandGoodsVo;
 import com.chauncy.data.vo.app.advice.goods.SearchBrandAndSkuBaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseVo;
 import com.chauncy.data.vo.app.advice.home.GetAdviceInfoVo;
 import com.chauncy.data.vo.app.advice.home.ShufflingVo;
+import com.chauncy.data.vo.app.advice.store.StoreCategoryDetailVo;
+import com.chauncy.data.vo.app.advice.store.StoreCategoryInfoVo;
 import com.chauncy.data.vo.manage.message.advice.ClassificationVo;
 import com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo;
 import com.chauncy.data.vo.manage.message.advice.shuffling.FindShufflingVo;
@@ -54,6 +59,7 @@ import com.chauncy.message.advice.IMmAdviceService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
@@ -143,6 +149,60 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
             locations.put(a.name(), a.getName());
         });
         return locations;
+    }
+
+    /**
+     * 获取有店下的店铺分类
+     *
+     * @return
+     */
+    @Override
+    public List<StoreCategoryInfoVo> findStoreCategory() {
+        return mapper.findStoreCategory(AdviceLocationEnum.STORE_DETAIL.name());
+    }
+
+    /**
+     * 获取有店下的店铺分类选项卡内容
+     *
+     * @param relId
+     * @return
+     */
+    @Override
+    public List<AdviceTabVo> findStoreCategoryTab(Long relId) {
+        MmAdviceRelAssociaitonPo adviceRelAssociaitonPo = relAssociaitonMapper.selectById(relId);
+        if(null == adviceRelAssociaitonPo) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "记录不存在");
+        }
+        return mapper.findStoreCategoryTab(relId);
+    }
+
+    /**
+     * 根据选项卡id获取有店下的店铺分类详情
+     *
+     * @param tabId
+     * @return
+     */
+    @Override
+    public PageInfo<StoreCategoryDetailVo> findStoreCategoryDetail(Long tabId,  BaseSearchPagingDto baseSearchPagingDto) {
+        MmAdviceTabPo mmAdviceTabPo = tabMapper.selectById(tabId);
+        if(null == mmAdviceTabPo) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "记录不存在");
+        }
+        //查找关联信息
+        Integer pageNo = baseSearchPagingDto.getPageNo() == null ? defaultPageNo : baseSearchPagingDto.getPageNo();
+        Integer pageSize  = baseSearchPagingDto.getPageSize() == null ? defaultPageSize : baseSearchPagingDto.getPageSize();
+
+        Long userId = securityUtil.getAppCurrUser().getId();
+        PageInfo<StoreCategoryDetailVo> storeCategoryDetailVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> mapper.findStoreCategoryDetail(tabId, userId));
+
+        storeCategoryDetailVoPageInfo.getList().forEach(storeCategoryDetailVo -> {
+            if (null != storeCategoryDetailVo.getStoreLabels()){
+                storeCategoryDetailVo.setStoreLabelList(Splitter.on(",")
+                        .omitEmptyStrings().splitToList(storeCategoryDetailVo.getStoreLabels()));
+            }
+        });
+        return storeCategoryDetailVoPageInfo;
     }
 
     /**
@@ -862,7 +922,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
     }
 
     /**
-     * 分页条件查询品牌下的商品列表
+     * 分页条件查询品牌/选项卡/分类下的商品列表
      *
      * @param searchGoodsBaseListDto
      * @return
@@ -887,6 +947,9 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 
         PageInfo<SearchGoodsBaseListVo> searchGoodsBaseListVoPageInfo = new PageInfo<>();
         ConditionTypeEnum conditionTypeEnum = searchGoodsBaseListDto.getConditionType();
+        if (conditionTypeEnum == null){
+            throw new ServiceException(ResultCode.NO_EXISTS,String.format("conditionType所传的值在枚举类中不存在！"));
+        }
         switch (conditionTypeEnum) {
             case TAB:
                 searchGoodsBaseListVoPageInfo =PageHelper.startPage(pageNo, pageSize)
@@ -898,7 +961,18 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 break;
 
             case THIRD_CATEGORY:
-                searchGoodsBaseListVoPageInfo = mapper.searchCategoryGoodsBaseList(searchGoodsBaseListDto);
+                searchGoodsBaseListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                        .doSelectPageInfo(() ->mapper.searchCategoryGoodsBaseList(searchGoodsBaseListDto));
+                break;
+
+            case BAIHUO_ASSOCIATED:
+                searchGoodsBaseListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                        .doSelectPageInfo(() ->mapper.searchAssociatedGoodsBaseList(searchGoodsBaseListDto));
+                break;
+
+            case COUPON:
+                searchGoodsBaseListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                        .doSelectPageInfo(() ->mapper.searchCouponGoodsBaseList(searchGoodsBaseListDto));
                 break;
         }
 

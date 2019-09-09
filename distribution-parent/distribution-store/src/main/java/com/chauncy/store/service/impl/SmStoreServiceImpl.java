@@ -18,6 +18,7 @@ import com.chauncy.data.domain.po.store.rel.SmStoreRelStorePo;
 import com.chauncy.data.domain.po.sys.SysRolePo;
 import com.chauncy.data.domain.po.sys.SysRoleUserPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.store.FindStoreCategoryDto;
 import com.chauncy.data.dto.app.store.SearchStoreDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
@@ -37,6 +38,7 @@ import com.chauncy.data.mapper.sys.SysRoleMapper;
 import com.chauncy.data.mapper.sys.SysRoleUserMapper;
 import com.chauncy.data.mapper.sys.SysUserMapper;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.app.advice.store.StoreHomePageVo;
 import com.chauncy.data.vo.app.store.StoreDetailVo;
 import com.chauncy.data.vo.app.store.StorePagingVo;
 import com.chauncy.data.vo.manage.product.SearchCategoryVo;
@@ -49,7 +51,9 @@ import com.chauncy.store.rel.service.ISmStoreRelStoreService;
 import com.chauncy.store.service.ISmStoreService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.base.Splitter;
 import org.apache.ibatis.annotations.Param;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -654,10 +658,38 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
             throw new ServiceException(ResultCode.PARAM_ERROR,"店铺已被禁用");
         }
 
-        StoreDetailVo storeDetailVo = smStoreMapper.findDetailById(storeId);;
-        if(null != storeDetailVo.getBusinessLicense()) {
+        StoreDetailVo storeDetailVo = smStoreMapper.findDetailById(storeId);
+        if (Strings.isNotBlank(storeDetailVo.getStoreLabels())){
+            storeDetailVo.setStoreLabelList(Splitter.on(",")
+                    .omitEmptyStrings().splitToList(storeDetailVo.getStoreLabels()));
+        }
+        if(Strings.isNotBlank(storeDetailVo.getBusinessLicense())) {
             storeDetailVo.setBusinessLicenseList(Arrays.asList(storeDetailVo.getBusinessLicense().split(",")));
         }
         return storeDetailVo;
+    }
+
+
+    /**
+     * 获取店铺首页-店铺详情信息
+     *
+     * @param storeId
+     * @return
+     */
+    @Override
+    public StoreHomePageVo getStoreHomePage(Long storeId) {
+        //获取当前app用户信息
+        UmUserPo umUserPo = securityUtil.getAppCurrUser();
+
+        SmStorePo smStorePo = smStoreMapper.getEnabledStoreById(storeId);
+        if(null == smStorePo) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "店铺不存在");
+        }
+        StoreHomePageVo storeHomePageVo = smStoreMapper.getStoreHomePage(storeId, umUserPo.getId());
+        if (Strings.isNotBlank(storeHomePageVo.getStoreLabels())){
+            storeHomePageVo.setStoreLabelList(Splitter.on(",")
+                    .omitEmptyStrings().splitToList(storeHomePageVo.getStoreLabels()));
+        }
+        return storeHomePageVo;
     }
 }

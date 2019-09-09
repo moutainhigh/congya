@@ -17,11 +17,12 @@
         <result column="effective_day" property="effectiveDay" />
         <result column="type" property="type" />
         <result column="scope" property="scope" />
+        <result column="stock" property="stock" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, create_by, create_time, update_by, update_time, del_flag, name, total_num, every_limit_num, level_id, effective_day, type, scope
+        id, create_by, create_time, update_by, update_time, del_flag, name, total_num, every_limit_num, level_id, effective_day, type, scope, stock
     </sql>
     <select id="searchCouponList" resultType="com.chauncy.data.vo.manage.activity.coupon.SearchCouponListVo">
         select a.id as coupon_id,a.name,a.enable,a.total_num,count(b.id) as receive_num,(a.total_num-count(b.id))as enable_num

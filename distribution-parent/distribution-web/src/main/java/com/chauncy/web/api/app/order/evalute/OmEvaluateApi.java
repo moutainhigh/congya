@@ -6,8 +6,10 @@ import com.chauncy.data.dto.app.order.evaluate.add.AddValuateDto;
 import com.chauncy.data.dto.app.order.evaluate.add.SearchEvaluateDto;
 import com.chauncy.data.dto.app.order.evaluate.select.GetPersonalEvaluateDto;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.app.evaluate.EvaluateLevelNumVo;
 import com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo;
 import com.chauncy.order.evaluate.service.IOmEvaluateService;
+import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -15,6 +17,8 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * <p>
@@ -27,7 +31,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/app/order/evaluate")
 @Api(tags = "app_用户_商品评价")
-public class OmEvaluateApi {
+public class OmEvaluateApi extends BaseApi {
 
     @Autowired
     private IOmEvaluateService service;
@@ -46,6 +50,20 @@ public class OmEvaluateApi {
         service.addEvaluate(addValuateDto);
 
         return new JsonViewData(ResultCode.SUCCESS);
+    }
+
+    /**
+     * 获取商品不同评价级别的对应的评价数量
+     *
+     * @param goodsId
+     * @return
+     */
+    @PostMapping("/findEvaluateLevelNum/{goodsId}")
+    @ApiOperation("获取商品不同评价级别的对应的评价数量")
+    public JsonViewData<EvaluateLevelNumVo> findEvaluateLevelNum(@ApiParam(required = true,name = "goodsId",value = "商品ID")
+                                                                 @PathVariable Long goodsId){
+        return setJsonViewData(service.findEvaluateLevelNum(goodsId));
+
     }
 
     /**

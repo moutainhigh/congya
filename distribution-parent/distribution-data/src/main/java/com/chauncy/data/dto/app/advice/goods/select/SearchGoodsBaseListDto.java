@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 /**
@@ -27,7 +28,11 @@ public class SearchGoodsBaseListDto {
     @ApiModelProperty(value = "查询条件类型")
     private ConditionTypeEnum conditionType;
 
-    @ApiModelProperty(value = "查询商品列表前提条件Id(品牌ID/店铺ID/选项卡Id/商品分类ID等)")
+    @ApiModelProperty(value = "只当查询条件类型为BAIHUO_ASSOCIATED——百货关联的所有商品,才传葱鸭百货ID,其它类型不传")
+    private Long adviceId;
+
+    @ApiModelProperty(value = "查询商品列表前提条件Id(品牌ID/店铺ID/选项卡Id/商品分类ID等) \n "
+            +"当查询条件类型为BAIHUO_ASSOCIATED——百货关联的所有商品,该值不传")
     private Long conditionId;
 
     @ApiModelProperty(value = "排序方式 默认降序（desc）")

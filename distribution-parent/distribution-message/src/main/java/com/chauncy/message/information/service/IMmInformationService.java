@@ -1,9 +1,11 @@
 package com.chauncy.message.information.service;
 
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.message.information.select.SearchInfoByConditionDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
+import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.information.add.InformationDto;
 import com.chauncy.data.dto.base.BaseSearchByTimeDto;
@@ -108,4 +110,11 @@ public interface IMmInformationService extends Service<MmInformationPo> {
      * @param userId
      */
     void forwardInfo(Long infoId, Long userId);
+
+    /**
+     * 店铺详情-首页-动态
+     * @param storeId
+     * @return
+     */
+    PageInfo<InformationPagingVo> searchInformationList(Long storeId, BaseSearchPagingDto baseSearchPagingDto);
 }

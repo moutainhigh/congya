@@ -3,6 +3,7 @@ package com.chauncy.data.mapper.product;
 import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
+import com.chauncy.data.dto.app.component.ShareDto;
 import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
@@ -13,6 +14,7 @@ import com.chauncy.data.dto.supplier.good.select.SearchRecommendGoodsDto;
 import com.chauncy.data.dto.supplier.store.update.SelectStockTemplateGoodsDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
 import com.chauncy.data.vo.supplier.activity.SearchAssociatedGoodsVo;
@@ -44,6 +46,21 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
      * @return
      */
     List<GoodsValueBo> findGoodsValue(@Param("goodsId") Long goodsId, @Param("attributeId") Long attributeId);
+
+    /**
+     * 获取店铺下商品列表
+     * @param searchStoreGoodsDto
+     * @return
+     */
+    List<SearchGoodsBaseListVo> searchStoreGoodsBaseList(SearchStoreGoodsDto searchStoreGoodsDto);
+
+    /**
+     * 查找店铺下的推荐商品列表  前六个
+     *
+     * @param storeId
+     * @return
+     */
+    List<GoodsBaseInfoVo> findRecommandGoods(@Param("storeId") Long storeId);
 
     /**
      * 条件查询商品信息
@@ -99,7 +116,7 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
      * @param selectStockTemplateGoodsDto
      * @return
      */
-    List<BaseBo> selectDistributionGoods(SelectStockTemplateGoodsDto selectStockTemplateGoodsDto);
+    List<StockTemplateGoodsInfoVo> selectDistributionGoods(SelectStockTemplateGoodsDto selectStockTemplateGoodsDto);
     /**
      * 库存模板获取自有店铺商品信息
      *
@@ -166,4 +183,13 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
      */
     @Update("update pm_goods set collection_num = collection_num-1 where id = #{favoritesId}")
     void delFavorites(Long favoritesId);
+
+    /**
+     * 分享商品
+     *
+     * @param shareDto
+     * @return
+     */
+    void shareGoods(ShareDto shareDto);
+
 }

@@ -15,6 +15,7 @@ import com.chauncy.data.vo.manage.activity.coupon.SearchReceiveRecordVo;
 import com.chauncy.data.vo.manage.common.goods.GoodsBaseVo;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -97,4 +98,21 @@ public interface AmCouponMapper extends IBaseMapper<AmCouponPo> {
      */
     @Select("select id,name from am_coupon where del_flag = 0")
     List<BaseVo> findCouponAll();
+
+    /**
+     * 用户获取当前需要领取的优惠券数据
+     *
+     * @param couponId
+     * @return
+     */
+    @Select("select * from am_coupon where id = #{couponId} for update")
+    AmCouponPo getCoupon(Long couponId);
+
+    /**
+     * update a= a+1
+     *
+     * @param couponId
+     */
+    @Update("update am_coupon set stock = stock-1 where id = #{couponId}")
+    void receiveForUpdate(Long couponId);
 }

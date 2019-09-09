@@ -8,6 +8,7 @@ import com.chauncy.data.dto.manage.store.select.StoreSearchByConditionDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.app.advice.store.StoreHomePageVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.app.store.StoreDetailVo;
 import com.chauncy.data.vo.app.store.StorePagingVo;
@@ -30,6 +31,13 @@ import java.util.Map;
  * @since 2019-06-03
  */
 public interface SmStoreMapper extends IBaseMapper<SmStorePo> {
+
+    /**
+     * APP 查询店铺  启用中
+     * @param id
+     * @return
+     */
+    SmStorePo getEnabledStoreById(@Param("id") Long id);
 
     /**
      * 根据账号获取店铺id
@@ -151,6 +159,13 @@ public interface SmStoreMapper extends IBaseMapper<SmStorePo> {
      */
     List<BaseVo> searchStores(@Param("classificationId") Long classificationId , @Param("name") String name, @Param("associatedIds") List<Long> associatedIds);
 
+    /**
+     * 获取店铺首页-店铺详情信息
+     * @param storeId
+     * @param userId
+     * @return
+     */
+    StoreHomePageVo getStoreHomePage(@Param("storeId") Long storeId, @Param("userId") Long userId);
     /**
      * 不用updateById  update a=a+1
      *

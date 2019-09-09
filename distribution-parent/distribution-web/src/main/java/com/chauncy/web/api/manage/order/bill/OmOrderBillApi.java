@@ -14,6 +14,7 @@ import com.chauncy.data.vo.manage.order.bill.BillBaseInfoVo;
 import com.chauncy.data.vo.manage.order.bill.BillDetailVo;
 import com.chauncy.data.vo.manage.order.report.ReportBaseInfoVo;
 import com.chauncy.data.vo.manage.order.report.ReportRelGoodsTempVo;
+import com.chauncy.data.vo.supplier.good.stock.StockTemplateSkuInfoVo;
 import com.chauncy.data.vo.supplier.good.stock.StoreGoodsStockVo;
 import com.chauncy.order.bill.service.IOmOrderBillService;
 import com.chauncy.order.report.service.IOmOrderReportService;
@@ -157,13 +158,15 @@ public class OmOrderBillApi  extends BaseApi {
      * @return
      */
     @ApiOperation(value = "根据ID查找店铺分配给分店的库存信息", notes = "根据库存ID查找")
-    @GetMapping("/stock/findStockById/{id}")
-    public JsonViewData<StoreGoodsStockVo> findBranchStockById(@ApiParam(required = true, value = "id")
+    @PostMapping("/stock/findStockById/{id}")
+    public JsonViewData<PageInfo<StockTemplateSkuInfoVo>> findBranchStockById(@Valid @RequestBody @ApiParam(required = true,
+            name = "baseSearchPagingDto", value = "查询条件") BaseSearchPagingDto baseSearchPagingDto,
+                                                                              @ApiParam(required = true, value = "id")
                                                                @PathVariable Long id) {
 
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
-                pmStoreGoodsStockService.findStockById(id));
+                pmStoreGoodsStockService.findStockById(id, baseSearchPagingDto));
 
     }
 

@@ -12,6 +12,7 @@ import com.chauncy.data.dto.manage.store.select.StoreSearchByConditionDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.dto.supplier.store.update.StoreBusinessLicenseDto;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.app.advice.store.StoreHomePageVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.app.store.StoreDetailVo;
 import com.chauncy.data.vo.app.store.StorePagingVo;
@@ -173,4 +174,11 @@ public interface ISmStoreService extends Service<SmStorePo> {
      * @return
      */
     StoreDetailVo findDetailById(Long storeId);
+
+    /**
+     * 获取店铺首页-店铺详情信息
+     * @param storeId
+     * @return
+     */
+    StoreHomePageVo getStoreHomePage(Long storeId);
 }

@@ -8,6 +8,7 @@ import lombok.Data;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author yeJH
@@ -26,9 +27,9 @@ public class SelectStockTemplateGoodsDto {
     @JsonIgnore
     private Long storeId;
 
-    @ApiModelProperty(value = "商品类型:OWN_GOODS：自有商品 DISTRIBUTION_GOODS：分配商品")
-    @NotBlank(message = "商品类型不能为空")
-    private String type;
+    @ApiModelProperty(value = "商品类型:1：自有商品 2：分配商品")
+    @NotNull(message = "商品类型不能为空")
+    private Integer type;
 
     @Min(1)
     @ApiModelProperty(value = "页码")

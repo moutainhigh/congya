@@ -95,6 +95,7 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
         if (saveCouponDto.getId() == 0) {
             BeanUtils.copyProperties(saveCouponDto, couponPo);
             couponPo.setCreateBy(userPo.getUsername());
+            couponPo.setStock(saveCouponDto.getTotalNum());//初始化库存信息
             couponPo.setId(null);
         }
         //修改操作

@@ -1,5 +1,6 @@
 package com.chauncy.common.enums.goods;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.chauncy.common.enums.BaseEnum;
 
 import java.util.Objects;
@@ -11,12 +12,11 @@ import java.util.Objects;
 public enum StoreGoodsListTypeEnum  implements BaseEnum {
 
 
-    ALL_LIST(1,"全部"),
-    NEW_LIST(2,"新品列表"),
-    RECOMMEND_LIST(3,"推荐列表"),
-    NEWEST_RECOMMEND_LIST(4,"最新推荐列表"),
-    START_LIST(5,"明星单品"),
-    ACTIVITY_LIST(6,"活动列表"),
+    ALL_LIST(1,"全部商品"),
+    HOME_PAGE_LIST(2,"首页"),
+    NEW_LIST(3,"新品列表"),
+    RECOMMEND_LIST(4,"推荐列表"),
+    ACTIVITY_LIST(5,"活动列表"),
     ;
 
     private Integer id;
@@ -29,7 +29,7 @@ public enum StoreGoodsListTypeEnum  implements BaseEnum {
 
     @Override
     public String toString(){
-        return this.name() + ":" + this.name;
+        return this.name();
     }
 
     public static String value(String name){
@@ -37,10 +37,12 @@ public enum StoreGoodsListTypeEnum  implements BaseEnum {
     }
 
     //通过枚举名称来获取结果
-    public static StoreGoodsTypeEnum fromName(String name) {
-        for (StoreGoodsTypeEnum type : StoreGoodsTypeEnum.values()) {
-            if (type.name().equals(name))
+    public static StoreGoodsListTypeEnum fromName(Object name) {
+        for (StoreGoodsListTypeEnum type : StoreGoodsListTypeEnum.values()) {
+            StoreGoodsListTypeEnum storeGoodsListTypeEnum = (StoreGoodsListTypeEnum)name;
+            if (type.equals(storeGoodsListTypeEnum)) {
                 return type;
+            }
         }
         return null;
     }
@@ -64,7 +66,7 @@ public enum StoreGoodsListTypeEnum  implements BaseEnum {
     @Override
     public boolean isExist(Object field) {
 
-        return Objects.nonNull(fromName(field.toString()));
+        return Objects.nonNull(fromName(field));
     }
 
 }
