@@ -12,6 +12,7 @@ import com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockTemplatePo;
 import com.chauncy.data.domain.po.product.stock.PmStoreGoodsStockPo;
 import com.chauncy.data.domain.po.product.stock.PmStoreRelGoodsStockPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.supplier.good.add.StoreGoodsStockBaseDto;
 import com.chauncy.data.dto.supplier.good.add.StoreRelGoodsStockBaseDto;
@@ -22,6 +23,7 @@ import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockTemplateMapper;
 import com.chauncy.data.mapper.product.stock.PmStoreGoodsStockMapper;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.mapper.store.SmStoreMapper;
+import com.chauncy.data.vo.manage.order.report.ReportRelGoodsTempVo;
 import com.chauncy.data.vo.supplier.good.stock.StockTemplateSkuInfoVo;
 import com.chauncy.data.vo.supplier.good.stock.StoreGoodsStockVo;
 import com.chauncy.product.stock.IPmGoodsVirtualStockService;
@@ -227,22 +229,30 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
      * @return
      */
     @Override
-    public StoreGoodsStockVo findStockById(Long id) {
+    public PageInfo<StockTemplateSkuInfoVo> findStockById(Long id, BaseSearchPagingDto baseSearchPagingDto) {
         PmStoreGoodsStockPo pmStoreGoodsStockPo = pmStoreGoodsStockMapper.selectById(id);
         if(null == pmStoreGoodsStockPo) {
             throw new ServiceException(ResultCode.NO_EXISTS, "记录不存在");
         }
 
-        //店铺库存基本信息
+        /*//店铺库存基本信息
         StoreGoodsStockVo storeGoodsStockVo = new StoreGoodsStockVo();
-        storeGoodsStockVo = pmStoreGoodsStockMapper.findStockById(id);
+        storeGoodsStockVo = pmStoreGoodsStockMapper.findStockById(id);*/
+
+
+        //查找关联信息
+        Integer pageNo = baseSearchPagingDto.getPageNo() == null ? defaultPageNo : baseSearchPagingDto.getPageNo();
+        Integer pageSize  = baseSearchPagingDto.getPageSize() == null ? defaultPageSize : baseSearchPagingDto.getPageSize();
 
         //店铺库存对应的分配库存详情
-        List<StockTemplateSkuInfoVo> stockTemplateSkuInfoVoList = new ArrayList<>();
+        /*List<StockTemplateSkuInfoVo> stockTemplateSkuInfoVoList = new ArrayList<>();
         stockTemplateSkuInfoVoList = pmStoreGoodsStockMapper.searchSkuInfoByStockId(id);
-        storeGoodsStockVo.setStockTemplateSkuInfoVoList(stockTemplateSkuInfoVoList);
+        storeGoodsStockVo.setStockTemplateSkuInfoVoList(stockTemplateSkuInfoVoList);*/
 
-        return storeGoodsStockVo;
+        PageInfo<StockTemplateSkuInfoVo> stockTemplateSkuInfoVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> pmStoreGoodsStockMapper.searchSkuInfoByStockId(id));
+
+        return stockTemplateSkuInfoVoPageInfo;
     }
 
     /**

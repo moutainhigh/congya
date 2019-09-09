@@ -84,7 +84,7 @@ public class PsGoodsVirtualStockTemplateApi extends BaseApi {
      */
     @PostMapping("/selectGoodsByType")
     @ApiOperation(value = "库存模板根据商品类型查询店铺商品信息 ")
-    public JsonViewData<PageInfo<BaseBo>> selectGoodsByType(@RequestBody @ApiParam(name = "selectStockTemplateGoodsDto", value = "根据商品类型查询店铺商品信息")
+    public JsonViewData<PageInfo<StockTemplateGoodsInfoVo >> selectGoodsByType(@RequestBody @ApiParam(name = "selectStockTemplateGoodsDto", value = "根据商品类型查询店铺商品信息")
                                                     @Validated SelectStockTemplateGoodsDto selectStockTemplateGoodsDto){
 
         return new JsonViewData(ResultCode.SUCCESS,"操作成功",
@@ -109,14 +109,14 @@ public class PsGoodsVirtualStockTemplateApi extends BaseApi {
     /**
      * 根据Id删除库存模板
      *
-     * @param id
+     * @param ids
      */
     @ApiOperation(value = "根据Id删除库存模板", notes = "根据Id删除")
-    @GetMapping("/delTemplateById/{id}")
-    public JsonViewData delTemplateById(@ApiParam(required = true, name = "id", value = "id")
-                                 @PathVariable Long id) {
+    @GetMapping("/delTemplateById/{ids}")
+    public JsonViewData delTemplateById(@ApiParam(required = true, name = "ids", value = "ids")
+                                 @PathVariable Long[] ids) {
 
-        pmGoodsVirtualStockTemplateService.delTemplateById(id);
+        pmGoodsVirtualStockTemplateService.delTemplateById(ids);
         return new JsonViewData(ResultCode.SUCCESS, "删除成功");
     }
 
@@ -124,14 +124,14 @@ public class PsGoodsVirtualStockTemplateApi extends BaseApi {
     /**
      * 根据relId删除商品与库存模板的关联
      *
-     * @param id
+     * @param ids
      */
     @ApiOperation(value = "删除商品与库存模板的关联", notes = "根据relId删除")
-    @GetMapping("/delRelById/{id}")
-    public JsonViewData delRelById(@ApiParam(required = true, name = "id", value = "id")
-                                 @PathVariable Long id) {
+    @GetMapping("/delRelById/{ids}")
+    public JsonViewData delRelById(@ApiParam(required = true, name = "ids", value = "ids")
+                                 @PathVariable Long[] ids) {
 
-        pmGoodsVirtualStockTemplateService.delRelById(id);
+        pmGoodsVirtualStockTemplateService.delRelById(ids);
         return new JsonViewData(ResultCode.SUCCESS, "删除成功");
     }
 

@@ -6,6 +6,7 @@ import com.chauncy.data.dto.app.advice.brand.select.FindBrandShufflingDto;
 import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
+import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.advice.add.SaveClassificationAdviceDto;
 import com.chauncy.data.dto.manage.message.advice.add.SaveOtherAdviceDto;
@@ -13,11 +14,14 @@ import com.chauncy.data.dto.manage.message.advice.select.SearchAdvicesDto;
 import com.chauncy.data.dto.manage.message.advice.select.SearchAssociatedClassificationDto;
 import com.chauncy.data.dto.manage.message.advice.select.SearchInformationCategoryDto;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.app.advice.AdviceTabVo;
 import com.chauncy.data.vo.app.advice.goods.SearchBrandAndSkuBaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseVo;
 import com.chauncy.data.vo.app.advice.home.GetAdviceInfoVo;
 import com.chauncy.data.vo.app.advice.home.ShufflingVo;
+import com.chauncy.data.vo.app.advice.store.StoreCategoryDetailVo;
+import com.chauncy.data.vo.app.advice.store.StoreCategoryInfoVo;
 import com.chauncy.data.vo.manage.message.advice.ClassificationVo;
 import com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo;
 import com.github.pagehelper.PageInfo;
@@ -39,6 +43,26 @@ public interface IMmAdviceService extends Service<MmAdvicePo> {
      * @return
      */
     Object findAdviceLocation();
+
+    /**
+     * 获取有店下的店铺分类
+     * @return
+     */
+    List<StoreCategoryInfoVo> findStoreCategory();
+
+    /**
+     * 获取有店下的店铺分类选项卡内容
+     * @param storeCategoryId
+     * @return
+     */
+    List<AdviceTabVo> findStoreCategoryTab(Long storeCategoryId);
+
+    /**
+     * 根据选项卡id获取有店下的店铺分类详情
+     * @param tabId
+     * @return
+     */
+    PageInfo<StoreCategoryDetailVo> findStoreCategoryDetail(Long tabId,  BaseSearchPagingDto baseSearchPagingDto);
 
     /**
      * 条件分页获取广告信息及其对应的详情

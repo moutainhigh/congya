@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -47,6 +48,9 @@ public class StoreGoodsStockVo  implements Serializable {
 
     @ApiModelProperty(value = "店铺分配库存总数")
     private Integer distributeStockSum;
+
+    @ApiModelProperty(value = "分配时间")
+    private LocalDateTime createTime;
 
     @ApiModelProperty(value = "库存对应的商品规格信息")
     private List<StockTemplateSkuInfoVo> stockTemplateSkuInfoVoList;

@@ -9,13 +9,17 @@ import com.chauncy.common.enums.goods.*;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.JSONUtils;
+import com.chauncy.data.bo.app.order.RewardShopTicketBo;
 import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.domain.po.product.*;
+import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.sys.BasicSettingPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
 import com.chauncy.data.dto.app.component.ShareDto;
 import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
@@ -32,10 +36,13 @@ import com.chauncy.data.mapper.message.information.MmInformationMapper;
 import com.chauncy.data.mapper.product.*;
 import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockMapper;
 import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockTemplateMapper;
+import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.mapper.sys.SysUserMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
+import com.chauncy.data.vo.app.advice.store.GoodsSecondCategoryListVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.supplier.*;
 import com.chauncy.data.vo.supplier.good.AssociationGoodsVo;
@@ -130,6 +137,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     private PmGoodsMapper goodsMapper;
 
     @Autowired
+    private SmStoreMapper smStoreMapper;
+
+    @Autowired
     private BasicSettingMapper basicSettingMapper;
 
     @Autowired
@@ -163,6 +173,24 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     public List<String> findGoodsType() {
         List<String> types = Arrays.stream(GoodsTypeEnum.values()).map(a -> a.getName()).collect(Collectors.toList());
         return types;
+    }
+
+    /**
+     * 店铺详情-商品分类
+     * @param storeId
+     * @return
+     */
+    @Override
+    public List<GoodsSecondCategoryListVo> findGoodsCategory(Long storeId) {
+
+        SmStorePo smStorePo = smStoreMapper.selectById(storeId);
+        if(null == smStorePo) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "店铺不存在");
+        }
+
+        //List<GoodsSecondCategoryListVo> goodsSecondCategoryList
+
+        return null;
     }
 
     /**
@@ -1572,18 +1600,18 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
      * @return
      */
     @Override
-    public PageInfo<BaseBo> selectGoodsByType(SelectStockTemplateGoodsDto selectStockTemplateGoodsDto) {
+    public PageInfo<StockTemplateGoodsInfoVo > selectGoodsByType(SelectStockTemplateGoodsDto selectStockTemplateGoodsDto) {
         Long storeId = securityUtil.getCurrUser().getStoreId();
         selectStockTemplateGoodsDto.setStoreId(storeId);
 
         Integer pageNo = selectStockTemplateGoodsDto.getPageNo() == null ? defaultPageNo : selectStockTemplateGoodsDto.getPageNo();
         Integer pageSize = selectStockTemplateGoodsDto.getPageSize() == null ? defaultPageSize : selectStockTemplateGoodsDto.getPageSize();
 
-        if(selectStockTemplateGoodsDto.getType().equals(StoreGoodsTypeEnum.DISTRIBUTION_GOODS.name())) {
+        if(selectStockTemplateGoodsDto.getType().equals(StoreGoodsTypeEnum.DISTRIBUTION_GOODS.getId())) {
             // 分配商品
             return PageHelper.startPage(pageNo,pageSize).
                     doSelectPageInfo(()->mapper.selectDistributionGoods(selectStockTemplateGoodsDto));
-        } else if (selectStockTemplateGoodsDto.getType().equals(StoreGoodsTypeEnum.OWN_GOODS.name())) {
+        } else if (selectStockTemplateGoodsDto.getType().equals(StoreGoodsTypeEnum.OWN_GOODS.getId())) {
             // 自有商品
             return PageHelper.startPage(pageNo,pageSize).
                     doSelectPageInfo(()->mapper.selectOwnGoods(selectStockTemplateGoodsDto));
@@ -1708,18 +1736,18 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         Integer pageNo = searchStoreGoodsDto.getPageNo()==null ? defaultPageNo : searchStoreGoodsDto.getPageNo();
         Integer pageSize = searchStoreGoodsDto.getPageSize()==null ? defaultPageSize : searchStoreGoodsDto.getPageSize();
 
-        if(null == searchStoreGoodsDto.getSortFileEnum()) {
+        if(null == searchStoreGoodsDto.getSortFile()) {
             //默认综合排序
-            searchStoreGoodsDto.setSortFileEnum(SortFileEnum.COMPREHENSIVE_SORT);
+            searchStoreGoodsDto.setSortFile(SortFileEnum.COMPREHENSIVE_SORT);
         }
-        if(null == searchStoreGoodsDto.getSortWayEnum()) {
+        if(null == searchStoreGoodsDto.getSortWay()) {
             //默认降序
-            searchStoreGoodsDto.setSortWayEnum(SortWayEnum.DESC);
+            searchStoreGoodsDto.setSortWay(SortWayEnum.DESC);
         }
-        if(null == searchStoreGoodsDto.getStoreGoodsListTypeEnum()) {
+        if(null == searchStoreGoodsDto.getStoreGoodsListType()) {
             //默认全部商品列表
-            searchStoreGoodsDto.setStoreGoodsListTypeEnum(StoreGoodsListTypeEnum.ALL_LIST);
-        } else if(searchStoreGoodsDto.getStoreGoodsListTypeEnum().equals(StoreGoodsListTypeEnum.NEW_LIST)) {
+            searchStoreGoodsDto.setStoreGoodsListType(StoreGoodsListTypeEnum.ALL_LIST);
+        } else if(searchStoreGoodsDto.getStoreGoodsListType().equals(StoreGoodsListTypeEnum.NEW_LIST)) {
             //获取系统基本设置
             BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
             searchStoreGoodsDto.setNewGoodsDays(basicSettingPo.getNewProductDay());
@@ -1727,6 +1755,65 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         PageInfo<GoodsBaseInfoVo> goodsBaseInfoVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> mapper.searchInfoBasePaging(searchStoreGoodsDto));
         return goodsBaseInfoVoPageInfo;
+    }
+
+    /**
+     * 获取店铺下商品列表
+     * @param searchStoreGoodsDto
+     * @return
+     */
+    @Override
+    public PageInfo<SearchGoodsBaseListVo> searchGoodsBaseList(SearchStoreGoodsDto searchStoreGoodsDto) {
+        UmUserPo user = securityUtil.getAppCurrUser();
+        Long memberLevelId = user.getMemberLevelId();
+
+        Integer pageNo = searchStoreGoodsDto.getPageNo()==null ? defaultPageNo : searchStoreGoodsDto.getPageNo();
+        Integer pageSize = searchStoreGoodsDto.getPageSize()==null ? defaultPageSize : searchStoreGoodsDto.getPageSize();
+
+        if(null == searchStoreGoodsDto.getSortFile()) {
+            //默认综合排序
+            searchStoreGoodsDto.setSortFile(SortFileEnum.COMPREHENSIVE_SORT);
+        }
+        if(null == searchStoreGoodsDto.getSortWay()) {
+            //默认降序
+            searchStoreGoodsDto.setSortWay(SortWayEnum.DESC);
+        }
+        if(null == searchStoreGoodsDto.getStoreGoodsListType()) {
+            //默认全部商品列表
+            searchStoreGoodsDto.setStoreGoodsListType(StoreGoodsListTypeEnum.ALL_LIST);
+        }
+        if(searchStoreGoodsDto.getStoreGoodsListType().equals(StoreGoodsListTypeEnum.NEW_LIST)) {
+            //获取系统基本设置  新品的评判标准  上架几天内为新品
+            BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
+            searchStoreGoodsDto.setNewGoodsDays(basicSettingPo.getNewProductDay());
+        }
+        PageInfo<SearchGoodsBaseListVo> searchGoodsBaseListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> mapper.searchStoreGoodsBaseList(searchStoreGoodsDto));
+
+        searchGoodsBaseListVoPageInfo.getList().forEach(a->{
+
+            //获取最高返券值
+            List<Double> rewardShopTickes = Lists.newArrayList();
+            List<RewardShopTicketBo> rewardShopTicketBos = goodsSkuMapper.findRewardShopTicketInfos(a.getGoodsId());
+            rewardShopTicketBos.forEach(b->{
+                //商品活动百分比
+                b.setActivityCostRate(a.getActivityCostRate());
+                //让利成本比例
+                b.setProfitsRate(a.getProfitsRate());
+                //会员等级比例
+                BigDecimal purchasePresent = memberLevelMapper.selectById(memberLevelId).getPurchasePresent();
+                b.setPurchasePresent(purchasePresent);
+                //购物券比例
+                BigDecimal moneyToShopTicket = basicSettingMapper.selectList(null).get(0).getMoneyToShopTicket();
+                b.setMoneyToShopTicket(moneyToShopTicket);
+                BigDecimal rewardShopTicket= b.getRewardShopTicket();
+                rewardShopTickes.add(rewardShopTicket.doubleValue());
+            });
+            //获取RewardShopTickes列表最大返券值
+            Double maxRewardShopTicket = rewardShopTickes.stream().mapToDouble((x)->x).summaryStatistics().getMax();
+            a.setMaxRewardShopTicket(BigDecimal.valueOf(maxRewardShopTicket));
+        });
+        return searchGoodsBaseListVoPageInfo;
     }
 
     /**

@@ -2,9 +2,11 @@ package com.chauncy.product.stock;
 
 import com.chauncy.data.domain.po.product.stock.PmStoreGoodsStockPo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.supplier.good.add.StoreGoodsStockBaseDto;
 import com.chauncy.data.dto.supplier.good.select.SearchStoreGoodsStockDto;
+import com.chauncy.data.vo.supplier.good.stock.StockTemplateSkuInfoVo;
 import com.chauncy.data.vo.supplier.good.stock.StoreGoodsStockVo;
 import com.chauncy.data.vo.supplier.store.BranchInfoVo;
 import com.github.pagehelper.PageInfo;
@@ -41,7 +43,7 @@ public interface IPmStoreGoodsStockService extends Service<PmStoreGoodsStockPo> 
      * @param id
      * @return
      */
-    StoreGoodsStockVo findStockById(Long id);
+    PageInfo<StockTemplateSkuInfoVo> findStockById(Long id, BaseSearchPagingDto baseSearchPagingDto);
 
     /**
      * 根据reld删除库存关联 退回库存

@@ -22,6 +22,7 @@ import com.chauncy.data.domain.po.user.UmUserFavoritesPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.message.information.select.SearchInfoByConditionDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
+import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.information.add.InformationDto;
 import com.chauncy.data.dto.base.BaseSearchByTimeDto;
@@ -332,10 +333,10 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
         Integer pageNo = searchInfoByConditionDto.getPageNo()==null ? defaultPageNo : searchInfoByConditionDto.getPageNo();
         Integer pageSize = searchInfoByConditionDto.getPageSize()==null ? defaultPageSize : searchInfoByConditionDto.getPageSize();
 
-        PageInfo<InformationPagingVo> informationBaseVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+        PageInfo<InformationPagingVo> informationPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> mmInformationMapper.searchInfoBasePaging(searchInfoByConditionDto));
 
-        informationBaseVoPageInfo.getList().forEach(informationPagingVo -> {
+        informationPageInfo.getList().forEach(informationPagingVo -> {
             if (null != informationPagingVo.getCoverImage()){
                 informationPagingVo.setCoverImageList(Splitter.on(",")
                         .omitEmptyStrings().splitToList(informationPagingVo.getCoverImage()));
@@ -347,7 +348,7 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
             informationPagingVo.setReleaseTime(RelativeDateFormatUtil.format(informationPagingVo.getUpdateTime()));
         });
 
-        return informationBaseVoPageInfo;
+        return informationPageInfo;
     }
 
 
@@ -428,6 +429,38 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
                     .set(MmInformationPo::getForwardNum, mmInformationPo.getForwardNum() + 1);
             this.update(updateWrapper);
         }
+    }
+
+    /**
+     * 店铺详情-首页-动态
+     * @param storeId
+     * @return
+     */
+    @Override
+    public PageInfo<InformationPagingVo> searchInformationList(Long storeId, BaseSearchPagingDto baseSearchPagingDto) {
+
+        //获取当前app用户信息
+        UmUserPo umUserPo = securityUtil.getAppCurrUser();
+        if(null == umUserPo) {
+            throw new ServiceException(ResultCode.NO_LOGIN,"未登陆或登陆已超时");
+        }
+
+        Integer pageNo = baseSearchPagingDto.getPageNo()==null ? defaultPageNo : baseSearchPagingDto.getPageNo();
+        Integer pageSize = baseSearchPagingDto.getPageSize()==null ? defaultPageSize : baseSearchPagingDto.getPageSize();
+
+        PageInfo<InformationPagingVo> informationPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> mmInformationMapper.searchInformationList(storeId, umUserPo.getId()));
+
+
+        informationPageInfo.getList().forEach(informationPagingVo -> {
+            if (null != informationPagingVo.getCoverImage()){
+                informationPagingVo.setCoverImageList(Splitter.on(",")
+                        .omitEmptyStrings().splitToList(informationPagingVo.getCoverImage()));
+            }
+            informationPagingVo.setReleaseTime(RelativeDateFormatUtil.format(informationPagingVo.getUpdateTime()));
+        });
+
+        return informationPageInfo;
     }
 
     /**

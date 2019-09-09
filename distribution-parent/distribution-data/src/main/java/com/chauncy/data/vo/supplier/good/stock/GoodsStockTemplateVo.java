@@ -32,7 +32,7 @@ public class GoodsStockTemplateVo  implements Serializable {
     @ApiModelProperty(value = "商品类型 1->自有商品  2->分配商品")
     private String typeName;
 
-    @ApiModelProperty(value = "修改时间")
+    @ApiModelProperty(value = "更新时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateTime;

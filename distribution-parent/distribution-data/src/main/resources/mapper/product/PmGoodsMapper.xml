@@ -49,6 +49,31 @@
         where id=#{id}
     </insert>
 
+    <select id="findRecommandGoods" resultType="com.chauncy.data.vo.app.goods.GoodsBaseInfoVo">
+        SELECT
+            `pg`.id AS goodsId,
+            `pg`.icon,
+            `pgs`.sell_price,
+            `pgs`.line_price
+        FROM
+            pm_goods `pg` ,
+            pm_goods_sku `pgs`
+        WHERE
+            `pg`.id = `pgs`.goods_id
+            AND `pg`.store_id = #{storeId}
+            AND `pg`.publish_status = 1
+            AND recommand_status = 1
+            AND `pgs`.id = (
+                    SELECT temp.id
+                    FROM pm_goods_sku temp
+                    WHERE temp.goods_id = pg.id
+                    AND temp.del_flag = 0
+                    ORDER BY sell_price
+                    LIMIT 1  )
+        ORDER BY `pg`.sort DESC
+        LIMIT 6
+    </select>
+
     <update id="updateStock">
         update pm_goods set stock=stock+#{number} where id=#{goodId}
     </update>
@@ -136,8 +161,8 @@
         GROUP BY mrig.id,pg.id
     </select>
 
-    <select id="selectDistributionGoods" resultType="com.chauncy.data.bo.base.BaseBo">
-        select pg.id, pg.`name`
+    <select id="selectDistributionGoods" resultType="com.chauncy.data.vo.supplier.good.stock.StockTemplateGoodsInfoVo">
+        <!--select pg.id, pg.`name`
         from pm_goods_virtual_stock pgvs left join pm_goods pg on pg.id = pgvs.goods_id
         where pgvs.store_id = #{storeId} and pgvs.del_flag = 0 and pg.del_flag = 0
         <if test="null != id">
@@ -150,11 +175,40 @@
             AND pgrst.stock_template_id = #{id}
             )
         </if>
-        order by pgvs.create_time desc
+        order by pgvs.create_time desc-->
+        SELECT
+            pg.id AS goodsId,
+            pg.icon,
+            pg.NAME AS good_name,
+            pg.sort,
+            pg.sales_volume,
+            pg.star_status,
+            MIN(pgs.supplier_price) AS supplier_price,
+            MIN(pgs.sell_price) AS sell_price,
+            pga.`name` AS brandName
+        FROM pm_goods_virtual_stock pgvs
+        LEFT JOIN pm_goods pg ON pg.id = pgvs.goods_id AND pgvs.store_id = #{storeId}
+        LEFT JOIN pm_goods_sku pgs ON pg.id = pgs.goods_id
+        LEFT JOIN pm_goods_rel_attribute_good pgrag ON pgrag.goods_good_id = pg.id
+        INNER JOIN pm_goods_attribute pga ON pgrag.goods_attribute_id = pga.id
+        WHERE pgvs.store_id = #{storeId} AND pgvs.`del_flag` = 0 AND pgs.`del_flag` = 0 AND pgrag.`del_flag` = 0
+        AND pga.`del_flag` = 0 AND pga.type=8 AND pg.`del_flag` = 0 #and pg.`verify_status` = 3
+        <if test="null != id">
+            AND NOT EXISTS
+            (
+            SELECT id
+            FROM  pm_goods_rel_stock_template pgrst
+            WHERE pgrst.`goods_id` = pg.`id`
+            AND pgrst.`del_flag` = 0
+            AND pgrst.stock_template_id = #{id}
+            )
+        </if>
+        GROUP BY pg.id, pga.name
+        ORDER BY pg.create_time DESC
     </select>
 
-    <select id="selectOwnGoods" resultType="com.chauncy.data.bo.base.BaseBo">
-        select pg.id, pg.`name`
+    <select id="selectOwnGoods" resultType="com.chauncy.data.vo.supplier.good.stock.StockTemplateGoodsInfoVo">
+        <!--select pg.id, pg.`name`
         from pm_goods pg
         where pg.store_id = #{storeId}  and pg.del_flag = 0
         <if test="null != id">
@@ -167,7 +221,96 @@
                 AND pgrst.stock_template_id = #{id}
             )
         </if>
-        order by pg.create_time desc
+        order by pg.create_time desc-->
+        SELECT
+            pg.id AS goodsId,
+            pg.icon,
+            pg.NAME AS good_name,
+            pg.sort,
+            pg.sales_volume,
+            pg.star_status,
+            MIN(pgs.supplier_price) AS supplier_price,
+            MIN(pgs.sell_price) AS sell_price,
+            pga.`name` AS brandName
+        FROM sm_store ss
+        LEFT JOIN pm_goods pg ON ss.id = pg.`store_id` AND ss.id = #{storeId}
+        LEFT JOIN pm_goods_sku pgs ON pg.id = pgs.goods_id
+        LEFT JOIN pm_goods_rel_attribute_good pgrag ON pgrag.goods_good_id = pg.id
+        INNER JOIN pm_goods_attribute pga ON pgrag.goods_attribute_id = pga.id
+        WHERE ss.id = #{storeId} AND ss.`enabled` = 1 and pg.`verify_status` = 3 and pg.`del_flag` = 0 AND pga.type=8
+        AND pgs.`del_flag` = 0 AND pgrag.`del_flag` = 0 AND pga.`del_flag` = 0
+        <if test="null != id">
+            AND NOT EXISTS
+            (
+                SELECT id
+                FROM  pm_goods_rel_stock_template pgrst
+                WHERE pgrst.`goods_id` = pg.`id`
+                AND pgrst.`del_flag` = 0
+                AND pgrst.stock_template_id = #{id}
+            )
+        </if>
+        GROUP BY pg.id, pga.name
+        ORDER BY pg.create_time desc
+    </select>
+
+    <select id="searchStoreGoodsBaseList"
+            resultType="com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo">
+        SELECT
+            pg.id AS goods_id ,
+            pg.name AS goods_name,
+            pg.icon AS picture,
+            pg.`activity_cost_rate`,
+            pg.`profits_rate`,
+            pg.`sales_volume`,
+            pg.`forward_num`,
+            pg.`collection_num`,
+            pgs.sell_price,
+            pgs.`line_price`
+        FROM
+            sm_store ss,
+            pm_goods pg,
+            pm_goods_sku pgs
+        <where>
+            <if test="null != storeId">
+                ss.id = #{storeId}
+            </if>
+            AND ss.id = pg.`store_id`
+            AND pg.id = pgs.`goods_id`
+            AND pg.`del_flag` = 0
+            AND pg.`publish_status` = 1
+            AND pgs.`del_flag` = 0
+            AND pgs.id =(
+                SELECT id
+                FROM pm_goods_sku temp
+                WHERE temp.`goods_id` = pg.id AND temp.`del_flag` = 0
+                ORDER BY temp.`sell_price`
+                LIMIT 1
+            )
+            <if test="storeGoodsListType.name() == 'NEW_LIST' ">
+                AND DATEDIFF(now(), pg.update_time)  <![CDATA[<= ]]>   #{newGoodsDays}
+            </if>
+            <if test="storeGoodsListType.name() == 'RECOMMEND_LIST' ">
+                AND (pg.recommand_status = 1 OR pg.star_status = 1)
+            </if>
+            <if test="lowestPrice !=null ">
+                and pgs.sell_price <![CDATA[>= ]]> #{lowestPrice}
+            </if>
+            <if test="highestPrice !=null ">
+                and pgs.sell_price<![CDATA[<= ]]> #{highestPrice}
+            </if>
+        </where>
+        <if test="sortFile.name() == 'PRICE_SORT' ">
+            ORDER BY pgs.sell_price ${sortWay.name}
+        </if>
+        <if test="sortFile.name() == 'COMPREHENSIVE_SORT'">
+            ORDER BY pg.sales_volume ${sortWay.name}
+        </if>
+        <if test="sortFile.name() == 'SALES_SORT'">
+            ORDER BY pg.sales_volume ${sortWay.name}
+        </if>
+        <if test="sortFile.name() == 'COLLECTION_NUM'">
+            ORDER BY pg.collection_num ${sortWay.name}
+        </if>
     </select>
 
     <select id="searchGoodsInfoByTemplateId" resultType="com.chauncy.data.vo.supplier.good.stock.StockTemplateGoodsInfoVo">
@@ -212,7 +355,7 @@
                 AND pgc1.del_flag = 0
             </if>
             <if test="storeGoodsListTypeEnum.name() == 'NEW_LIST' ">
-                AND DATEDIFF(now(), pg.update_time) > #{newGoodsDays}
+                AND DATEDIFF(now(), pg.update_time)  <![CDATA[>= ]]>   #{newGoodsDays}
             </if>
             <if test="storeGoodsListTypeEnum.name() == 'RECOMMEND_LIST' ">
                 AND pg.recommand_status = 1

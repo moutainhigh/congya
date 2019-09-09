@@ -7,14 +7,18 @@ import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
 import com.chauncy.data.dto.manage.message.advice.select.SearchAdvicesDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.app.advice.AdviceTabVo;
 import com.chauncy.data.vo.app.advice.goods.SearchBrandAndSkuBaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseVo;
 import com.chauncy.data.vo.app.advice.home.GetAdviceInfoVo;
 import com.chauncy.data.vo.app.advice.home.ShufflingVo;
+import com.chauncy.data.vo.app.advice.store.StoreCategoryDetailVo;
+import com.chauncy.data.vo.app.advice.store.StoreCategoryInfoVo;
 import com.chauncy.data.vo.manage.message.advice.FindBaiHuoAdviceVo;
 import com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo;
 import com.github.pagehelper.PageInfo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -35,6 +39,26 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
      * @return
      */
     List<SearchAdvicesVo> searchAdvices(SearchAdvicesDto searchAdvicesDto);
+
+    /**
+     * 获取有店下的店铺分类
+     * @return
+     */
+    List<StoreCategoryInfoVo> findStoreCategory(String location);
+
+    /**
+     * 获取有店下的店铺分类选项卡内容
+     * @param relId
+     * @return
+     */
+    List<AdviceTabVo> findStoreCategoryTab(Long relId);
+
+    /**
+     * 根据选项卡id获取有店下的店铺分类详情
+     * @param tabId
+     * @return
+     */
+    List<StoreCategoryDetailVo> findStoreCategoryDetail(@Param("tabId") Long tabId,@Param("userId") Long userId);
 
     /**
      * 查找广告位为葱鸭百货的所有广告
@@ -87,6 +111,13 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
      * @return
      */
     List<SearchBrandAndSkuBaseVo> searchBrandBase(SearchBrandAndSkuBaseDto searchBrandAndSkuBaseDto);
+
+    /**
+     * 分页条件查询店铺下的商品列表
+     * @param searchGoodsBaseListDto
+     * @return
+     */
+    List<SearchGoodsBaseListVo> searchStoreGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto);
 
     /**
      * 分页条件查询品牌下的商品列表

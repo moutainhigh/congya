@@ -1,8 +1,10 @@
 package com.chauncy.product.service;
 
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
+import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
 import com.chauncy.data.dto.app.component.ShareDto;
 import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
@@ -15,12 +17,15 @@ import com.chauncy.data.dto.supplier.good.select.*;
 import com.chauncy.data.dto.supplier.good.update.*;
 import com.chauncy.data.dto.supplier.store.update.SelectStockTemplateGoodsDto;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
+import com.chauncy.data.vo.app.advice.store.GoodsSecondCategoryListVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.supplier.*;
 import com.chauncy.data.vo.supplier.good.AssociationGoodsVo;
 import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
 import com.chauncy.data.vo.supplier.good.RecommendGoodsVo;
 import com.chauncy.data.vo.supplier.good.stock.GoodsStockTemplateVo;
+import com.chauncy.data.vo.supplier.good.stock.StockTemplateGoodsInfoVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -42,6 +47,13 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @return
      */
     List<String> findGoodsType();
+
+    /**
+     * 店铺详情-商品分类
+     * @param storeId
+     * @return
+     */
+    List<GoodsSecondCategoryListVo> findGoodsCategory(Long storeId);
 
     /**
      * 获取该商品所在类目下的不同类型的商品属性信息
@@ -244,7 +256,7 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @param selectStockTemplateGoodsDto
      * @return
      */
-    PageInfo<BaseBo> selectGoodsByType(SelectStockTemplateGoodsDto selectStockTemplateGoodsDto);
+    PageInfo<StockTemplateGoodsInfoVo> selectGoodsByType(SelectStockTemplateGoodsDto selectStockTemplateGoodsDto);
     /**
     * 库存模板id获取询商品信息
     *
@@ -280,6 +292,13 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @return
      */
     PageInfo<GoodsBaseInfoVo> searchStoreGoodsPaging(SearchStoreGoodsDto searchStoreGoodsDto);
+
+    /**
+     * 分页条件查询店铺下的商品列表
+     * @param searchStoreGoodsDto
+     * @return
+     */
+    PageInfo<SearchGoodsBaseListVo> searchGoodsBaseList(SearchStoreGoodsDto searchStoreGoodsDto);
 
     /**
      * 条件查询需要被关联商品信息

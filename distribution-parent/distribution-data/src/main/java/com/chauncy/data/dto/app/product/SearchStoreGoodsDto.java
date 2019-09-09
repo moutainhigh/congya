@@ -13,6 +13,7 @@ import lombok.Data;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * @author yeJH
@@ -25,26 +26,23 @@ public class SearchStoreGoodsDto  implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "店铺id")
-    @Min(value = 1, message = "店铺ID参数错误")
-    @NeedExistConstraint(tableName = "sm_store",  concatWhereSql = "and enabled = 1")
+    @NotNull(message = "店铺id不能为空")
+    @NeedExistConstraint(tableName = "sm_store",  concatWhereSql = "and enabled = 1", message = "店铺记录不存在")
     private Long storeId;
 
-    @ApiModelProperty(value = "分类id")
+    /*@ApiModelProperty(value = "分类id")
     @NeedExistConstraint(tableName = "pm_goods_category")
-    private Long goodsCategoryId;
+    private Long goodsCategoryId;*/
 
     @ApiModelProperty(value = "店铺商品列表类型")
     @NotNull(message = "店铺商品列表类型不能为空")
-    @EnumConstraint(target = StoreGoodsListTypeEnum.class)
-    private StoreGoodsListTypeEnum storeGoodsListTypeEnum;
+    private StoreGoodsListTypeEnum storeGoodsListType;
 
     @ApiModelProperty(value = "排序方式 默认降序（desc）")
-    @EnumConstraint(target = SortWayEnum.class)
-    private SortWayEnum sortWayEnum;
+    private SortWayEnum sortWay;
 
     @ApiModelProperty(value = "排序字段 默认综合排序（COMPREHENSIVE_SORT）")
-    @EnumConstraint(target = SortFileEnum.class)
-    private SortFileEnum sortFileEnum;
+    private SortFileEnum sortFile;
 
     @Min(1)
     @ApiModelProperty(value = "页码 默认1")
@@ -60,4 +58,11 @@ public class SearchStoreGoodsDto  implements Serializable {
     @ApiModelProperty(hidden = true)
     @JSONField(serialize = false)
     private Integer newGoodsDays;
+
+    @ApiModelProperty(value = "最低价")
+    private BigDecimal lowestPrice;
+
+    @ApiModelProperty(value = "最高价")
+    private BigDecimal highestPrice;
+
 }

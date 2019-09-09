@@ -4,6 +4,7 @@ import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockTemplatePo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.base.BaseSearchByTimeDto;
+import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.supplier.good.add.StockTemplateBaseDto;
 import com.chauncy.data.vo.supplier.good.stock.GoodsStockTemplateVo;
 import com.chauncy.data.vo.supplier.good.stock.StockTemplateSkuInfoVo;
@@ -37,14 +38,14 @@ public interface IPmGoodsVirtualStockTemplateService extends Service<PmGoodsVirt
     /**
      * 根据Id删除库存模板
      *
-     * @param id
+     * @param ids
      */
-    void delTemplateById(Long id);
+    void delTemplateById(Long[] ids);
     /**
      * 删除商品与库存模板的关联
-     * @param id
+     * @param ids
      */
-    void delRelById(Long id);
+    void delRelById(Long[] ids);
 
     /**
      * 根据模板名称以及创建时间查询
@@ -66,5 +67,5 @@ public interface IPmGoodsVirtualStockTemplateService extends Service<PmGoodsVirt
      * @param templateId
      * @return
      */
-    List<StockTemplateSkuInfoVo> searchSkuInfoByTemplateId(Long templateId);
+    PageInfo<StockTemplateSkuInfoVo> searchSkuInfoByTemplateId(Long templateId,  BaseSearchPagingDto baseSearchPagingDto);
 }

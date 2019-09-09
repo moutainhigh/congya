@@ -45,12 +45,30 @@
         group by psrgs.id, pgvs.id
     </select>
     <select id="searchPagingBranchStock" resultType="com.chauncy.data.vo.supplier.good.stock.StoreGoodsStockVo">
-        select psgs.id, psgs.`name`, ss.`name` as branchName, psgs.enabled, psgs.create_time, psgs.remark,
+        <!-- select psgs.id, psgs.`name`, ss.`name` as branchName, psgs.enabled, psgs.create_time, psgs.remark,
                     sum(psrgs.distribute_stock_num) as distributeStockSum
         from pm_store_goods_stock psgs left join sm_store ss on ss.id = psgs.distribute_store_id
-        left join pm_store_rel_goods_stock psrgs on psrgs.store_stock_id = psgs.id
+        left join pm_store_rel_goods_stock psrgs on psrgs.store_stock_id = psgs.id -->
+        select
+            psgs.id,
+            psgs.`name`,
+            psgs.stock_template_id,
+            pgvst.`name` as stockTemplateName,
+            psgs.store_id, psgs.remark,
+            psgs.create_time,
+            psgs.enabled,
+            sum(psrgs.distribute_stock_num) as distributestocksum,
+            <!-- (SELECT ss.`name` FROM sm_store ss WHERE psgs.store_id = ss.id) AS storeName,
+            (SELECT ss.`name` FROM sm_store ss WHERE psgs.distribute_store_id = ss.id) AS branchName -->
+        (SELECT ss.`name` FROM sm_store ss WHERE psgs.store_id = ss.id) AS storeName,
+            ss.name AS branchName
+        from pm_store_goods_stock psgs
+        left join sm_store ss on ss.id = psgs.distribute_store_id
+        left join pm_goods_virtual_stock_template pgvst on psgs.stock_template_id = pgvst.id,
+        pm_store_rel_goods_stock psrgs
         <where>
             psgs.store_id = #{storeId} and psgs.del_flag = 0  and psrgs.del_flag = 0
+            and psrgs.store_stock_id = psgs.id
             <if test="startTime != null">
                 and date(psgs.create_time) <![CDATA[>= ]]>  #{startTime}
             </if>
@@ -68,11 +86,11 @@
             </if>
         </where>
         GROUP BY psgs.id
-        <if test="minStockNum != null and maxStockNum != null ">
+        <if test="minStockNum != null and maxStockNum != null and maxStockNum != 0">
             having distributeStockSum <![CDATA[>= ]]> #{minStockNum}
             and distributeStockSum <![CDATA[<= ]]> #{maxStockNum}
         </if>
-        <if test="maxStockNum != null and minStockNum == null ">
+        <if test="maxStockNum != null and minStockNum == null and maxStockNum != 0">
             having distributeStockSum <![CDATA[<= ]]> #{maxStockNum}
         </if>
         <if test="minStockNum != null and maxStockNum == null ">
@@ -81,7 +99,8 @@
         ORDER BY psgs.create_time desc
     </select>
     <select id="searchPagingStock" resultType="com.chauncy.data.vo.supplier.good.stock.StoreGoodsStockVo">
-        select psgs.id,
+
+        <!-- select psgs.id,
             psgs.`name`,
             ss.`name` as storeName,
             psgs.create_time,
@@ -91,9 +110,26 @@
         left join sm_store ss
         on ss.id = psgs.store_id
         left join pm_store_rel_goods_stock psrgs
-        on psrgs.store_stock_id = psgs.id
+        on psrgs.store_stock_id = psgs.id -->
+        select
+            psgs.id,
+            psgs.`name`,
+            psgs.stock_template_id,
+            psgs.create_time,
+            pgvst.`name` as stockTemplateName,
+            psgs.store_id, psgs.remark,
+            sum(psrgs.distribute_stock_num) as distributestocksum,
+        <!-- (SELECT ss.`name` FROM sm_store ss WHERE psgs.store_id = ss.id) AS storeName,
+        (SELECT ss.`name` FROM sm_store ss WHERE psgs.distribute_store_id = ss.id) AS branchName -->
+        (SELECT ss.`name` FROM sm_store ss WHERE psgs.distribute_store_id = ss.id) AS branchName,
+            ss.name AS storeName
+        from pm_store_goods_stock psgs
+        left join sm_store ss on ss.id = psgs.store_id
+        left join pm_goods_virtual_stock_template pgvst on psgs.stock_template_id = pgvst.id,
+        pm_store_rel_goods_stock psrgs
         <where>
             psgs.distribute_store_id = #{storeId} and psgs.del_flag = 0 and psrgs.del_flag = 0
+            and psrgs.store_stock_id = psgs.id
             <if test="startTime != null">
                 and date(psgs.create_time) <![CDATA[>= ]]>  #{startTime}
             </if>
@@ -108,11 +144,11 @@
             </if>
         </where>
         group by psgs.id
-        <if test="minStockNum != null and maxStockNum != null ">
+        <if test="minStockNum != null and maxStockNum != null  and maxStockNum != 0">
             having distributeStockSum <![CDATA[>= ]]> #{minStockNum}
             and distributeStockSum <![CDATA[<= ]]> #{maxStockNum}
         </if>
-        <if test="maxStockNum != null and minStockNum == null ">
+        <if test="maxStockNum != null and minStockNum == null  and maxStockNum != 0">
             having distributeStockSum <![CDATA[<= ]]> #{maxStockNum}
         </if>
         <if test="minStockNum != null and maxStockNum == null ">
@@ -121,20 +157,31 @@
         order by psgs.create_time desc
     </select>
     <select id="platformSearchPagingStock"  resultType="com.chauncy.data.vo.supplier.good.stock.StoreGoodsStockVo">
-        select psgs.id, psgs.`name`, store.`name` as storeName, branch.`name` as branchName, psgs.create_time,
+        <!-- select psgs.id, psgs.`name`, psgs.create_time,
             sum(psrgs.distribute_stock_num) as distributestocksum,
             (SELECT ss.`name` FROM sm_store ss WHERE psgs.store_id = ss.id) AS storeName,
             (SELECT ss.`name` FROM sm_store ss WHERE psgs.distribute_store_id = ss.id) AS branchName
         from pm_store_goods_stock psgs
         left join pm_store_rel_goods_stock psrgs
-        on psrgs.store_stock_id = psgs.id
+        on psrgs.store_stock_id = psgs.id -->
+        select
+            psgs.id,
+            psgs.`name`,
+            psgs.stock_template_id,
+            psgs.create_time,
+            pgvst.`name` as stockTemplateName,
+            psgs.store_id, psgs.remark,
+            sum(psrgs.distribute_stock_num) as distributestocksum,
+            (SELECT ss.`name` FROM sm_store ss WHERE psgs.store_id = ss.id) AS storeName,
+            (SELECT ss.`name` FROM sm_store ss WHERE psgs.distribute_store_id = ss.id) AS branchName
+        from pm_store_goods_stock psgs
+        left join sm_store ss on ss.id = psgs.store_id
+        left join pm_goods_virtual_stock_template pgvst on psgs.stock_template_id = pgvst.id,
+        pm_store_rel_goods_stock psrgs
         <where>
             psgs.del_flag = 0 and psrgs.del_flag = 0
             <if test="stockName !=null and stockName !=''">
                 and psgs.`name` like concat('%', #{stockName}, '%')
-            </if>
-            <if test="storeName != null and storeName !=''">
-                and ss.`name` like concat('%', #{storeName}, '%')
             </if>
             <if test="startTime != null">
                 and date(psgs.create_time) <![CDATA[>= ]]>  #{startTime}
@@ -144,11 +191,11 @@
             </if>
         </where>
         group by psgs.id
-        <if test="minStockNum != null and maxStockNum != null ">
+        <if test="minStockNum != null and maxStockNum != null  and maxStockNum != 0">
             having distributeStockSum <![CDATA[>= ]]> #{minStockNum}
             and distributeStockSum <![CDATA[<= ]]> #{maxStockNum}
         </if>
-        <if test="maxStockNum != null and minStockNum == null ">
+        <if test="maxStockNum != null and minStockNum == null  and maxStockNum != 0">
             having distributeStockSum <![CDATA[<= ]]> #{maxStockNum}
         </if>
         <if test="minStockNum != null and maxStockNum == null ">

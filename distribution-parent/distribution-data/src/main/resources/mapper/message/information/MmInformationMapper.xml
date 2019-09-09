@@ -71,8 +71,8 @@
             <id column="storeId" property="storeId"/>
             <result column="logo_image" property="logoImage"/>
             <result column="storeName" property="storeName"/>
-            <result column="store_describe" property="storeDescribe"/>
             <result column="is_focus" property="isFocus"/>
+            <result column="store_describe" property="storeDescribe"/>
         </collection>
     </resultMap>
     <select id="findBaseById" resultMap="informationBaseResult">
@@ -220,7 +220,7 @@
             ) AS storeLabels,
             ss.collection_num,
             (
-                SELECT COUNT(mi1.liked_num)
+                SELECT SUM(mi1.liked_num)
                 FROM mm_information mi1
                 WHERE mi1.store_id = ss.id
             ) AS likedSum,
@@ -261,7 +261,7 @@
             left join um_user_favorites uuf on mi.store_id = uuf.favorites_id
         </if>
         <where>
-            mi.del_flag = 0 and mi.verify_status = 3
+            mi.del_flag = 0 and mi.enabled = 1
             <if test="storeId !=null and storeId !=0 ">
                 and mi.store_id = #{storeId}
             </if>
@@ -293,6 +293,48 @@
         from mm_information_rel_goods mirg
         where mirg.information_id = #{id}
         and mirg.del_flag = 0
+    </select>
+    <select id="searchInformationList"
+            resultType="com.chauncy.data.vo.app.message.information.InformationPagingVo">
+        select
+            mi.id,
+            mi.title,
+            LEFT(mi.pure_text,100) AS pureText ,
+            mi.`cover_image`,
+            mi.`forward_num`,
+            mi.`comment_num`,
+            mi.`liked_num`,
+            mi.update_time,
+            (EXISTS
+                (SELECT 1
+                FROM mm_information_comment mic
+                WHERE mic.info_id = mi.id
+                AND mic.user_id = #{userId}
+                )
+            ) as isComment,
+            (EXISTS
+                (SELECT 1
+                FROM mm_information_liked mil
+                WHERE mil.info_id = mi.id
+                AND mil.user_id = #{userId}
+                AND mil.del_flag = 0
+                )
+            ) as isLiked,
+            (EXISTS
+                (SELECT 1
+                FROM mm_information_forward mif
+                WHERE mif.info_id = mi.id
+                AND mif.user_id = #{userId}
+                )
+            ) as isForward
+        from mm_information mi
+        <where>
+            mi.del_flag = 0 and mi.enabled = 1
+            <if test="storeId !=null and storeId !=0 ">
+                and mi.store_id = #{storeId}
+            </if>
+        </where>
+        order by mi.update_time desc
     </select>
 
 </mapper>

@@ -22,7 +22,8 @@
 
 
     <select id="searchPaging" resultType="com.chauncy.data.vo.supplier.good.stock.GoodsStockTemplateVo">
-        select id, `name`, `type`, (case when `type`=1 then '自有商品' when `type`=2 then '分配商品' end) as typeName
+        select id, `name`, `type`, create_time AS update_time,
+            (case when `type`=1 then '自有商品' when `type`=2 then '分配商品' end) as typeName
         from pm_goods_virtual_stock_template
         <where>
             del_flag = 0 and store_id = #{id}
