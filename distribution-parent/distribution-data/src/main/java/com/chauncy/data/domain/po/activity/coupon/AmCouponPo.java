@@ -60,6 +60,9 @@ public class AmCouponPo implements Serializable {
     @ApiModelProperty(value = "发放总数")
     private Integer totalNum;
 
+    @ApiModelProperty(value = "库存")
+    private Integer stock;
+
     @ApiModelProperty(value = "每人限领数量")
     private Integer everyLimitNum;
 

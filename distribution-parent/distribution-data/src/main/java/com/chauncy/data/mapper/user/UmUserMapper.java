@@ -1,5 +1,6 @@
 package com.chauncy.data.mapper.user;
 
+import com.chauncy.data.bo.app.order.RewardBo;
 import com.chauncy.data.bo.manage.pay.PayUserMessage;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.manage.user.select.SearchUserIdCardDto;
@@ -112,4 +113,11 @@ public interface UmUserMapper extends IBaseMapper<UmUserPo> {
      * @return
      */
     List<PayUserMessage> getPayUserMessage(@Param("userId") Long userId);
+
+    /**
+     * 用户增加某些数据
+     * @param userPo
+     * @return
+     */
+    int updateAdd(UmUserPo userPo);
 }

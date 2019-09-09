@@ -122,7 +122,7 @@ public class AdviceInfoApi extends BaseApi {
      * @param searchGoodsBaseListDto
      * @return
      */
-    @ApiOperation("分页条件查询品牌id/选项卡id/商品分类id/葱鸭百货关联下的商品列表")
+    @ApiOperation("分页条件查询品牌id/选项卡id/商品分类id/葱鸭百货关联/优惠券关联下的商品列表")
     @PostMapping("/searchGoodsBaseList")
     public JsonViewData<PageInfo<SearchGoodsBaseListVo>> searchGoodsBaseList(@RequestBody @ApiParam(required = true,name = "searchGoodsBaseListDto",value = "分页查询品牌商品列表")
                                                                               @Validated SearchGoodsBaseListDto searchGoodsBaseListDto){

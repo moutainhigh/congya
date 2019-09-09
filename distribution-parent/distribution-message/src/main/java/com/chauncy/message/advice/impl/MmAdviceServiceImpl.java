@@ -969,6 +969,11 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 searchGoodsBaseListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                         .doSelectPageInfo(() ->mapper.searchAssociatedGoodsBaseList(searchGoodsBaseListDto));
                 break;
+
+            case COUPON:
+                searchGoodsBaseListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                        .doSelectPageInfo(() ->mapper.searchCouponGoodsBaseList(searchGoodsBaseListDto));
+                break;
         }
 
         searchGoodsBaseListVoPageInfo.getList().forEach(a->{

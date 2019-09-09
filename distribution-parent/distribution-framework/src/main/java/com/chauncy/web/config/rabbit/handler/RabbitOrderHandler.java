@@ -4,14 +4,21 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.constant.RabbitConstants;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.common.enums.app.order.PayOrderStatusEnum;
+import com.chauncy.common.enums.app.order.afterSale.AfterSaleStatusEnum;
+import com.chauncy.common.enums.app.order.afterSale.AfterSaleTypeEnum;
 import com.chauncy.common.util.LoggerUtil;
+import com.chauncy.data.bo.app.order.rabbit.RabbitAfterBo;
 import com.chauncy.data.bo.app.order.rabbit.RabbitOrderBo;
+import com.chauncy.data.domain.po.afterSale.OmAfterSaleOrderPo;
 import com.chauncy.data.domain.po.order.OmEvaluatePo;
 import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.temp.order.service.IOmGoodsTempService;
+import com.chauncy.order.afterSale.IOmAfterSaleOrderService;
 import com.chauncy.order.evaluate.service.impl.OmEvaluateServiceImpl;
+import com.chauncy.order.pay.IWxService;
+import com.chauncy.order.service.IOmAfterSaleLogService;
 import com.chauncy.order.service.IOmOrderService;
 import com.chauncy.order.service.IPayOrderService;
 import com.google.common.collect.Lists;
@@ -48,7 +55,17 @@ public class RabbitOrderHandler {
     @Autowired
     private OmEvaluateServiceImpl evaluateService;
 
+    @Autowired
+    private IOmAfterSaleOrderService afterSaleOrderService;
+
+    @Autowired
+    private IOmAfterSaleLogService afterSaleLogService;
+
+    @Autowired
+    private IWxService wxService;
+
     @RabbitListener(queues = {RabbitConstants.CLOSE_ORDER_QUEUE})
+    @Transactional(rollbackFor = Exception.class)
     public void listenerDelayQueue(Long payOrderId, Message message, Channel channel) {
         LoggerUtil.info(String.format("[closeOrderByPayId 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), payOrderId));
         PayOrderPo queryPayOrder = payOrderService.getById(payOrderId);
@@ -69,7 +86,11 @@ public class RabbitOrderHandler {
         LoggerUtil.info(String.format("[订单队列 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), rabbitOrderBo.toString()));
         //如果订单状态为未支评价,就去自动评价
         OmOrderPo queryOrder = orderService.getById(rabbitOrderBo.getOrderId());
-        //如果订单存在且状态未发生改变
+        //如果订单存在且状态为空，表示到了售后的截止时间
+        if (queryOrder != null && queryOrder.getStatus()==null) {
+
+        }
+            //如果订单存在且状态未发生改变
         if (queryOrder != null && queryOrder.getStatus().equals(rabbitOrderBo.getOrderStatusEnum())) {
             switch (queryOrder.getStatus()) {
                 case NEED_PAY:
@@ -108,6 +129,55 @@ public class RabbitOrderHandler {
                     break;
             }
         }
+        try {
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        } catch (IOException e) {
+            LoggerUtil.error(e);
+        }
+
+    }
+
+    /**
+     * 售后订单延迟处理
+     *
+     * @param rabbitAfterBo
+     * @param message
+     * @param channel
+     */
+    @RabbitListener(queues = {RabbitConstants.AFTER_REDIRECT_QUEUE})
+    @Transactional(rollbackFor = Exception.class)
+    public void afterDelay(RabbitAfterBo rabbitAfterBo, Message message, Channel channel) {
+        LoggerUtil.info(String.format("[售后订单 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), rabbitAfterBo.toString()));
+        OmAfterSaleOrderPo queryAfterOrder = afterSaleOrderService.getById(rabbitAfterBo.getAfterSaleOrderId());
+        //如果售后订单状态未改变、且修改时间不变,进行超时处理
+        if (queryAfterOrder.getUpdateTime().equals(rabbitAfterBo.getUpdateTime()) &&
+                queryAfterOrder.getStatus() == rabbitAfterBo.getAfterSaleStatusEnum()) {
+            //仅退款 待商家处理==》退款成功
+            if (queryAfterOrder.getAfterSaleType() == AfterSaleTypeEnum.ONLY_REFUND &&
+                    queryAfterOrder.getStatus() == AfterSaleStatusEnum.NEED_STORE_DO) {
+                wxService.refund(rabbitAfterBo.getAfterSaleOrderId(),true);
+            }
+            //仅退款和退货退款 待买家处理==》退款关闭
+            if (queryAfterOrder.getStatus() == AfterSaleStatusEnum.NEED_BUYER_DO) {
+                afterSaleOrderService.cancel(rabbitAfterBo.getAfterSaleOrderId(),true);
+            }
+            //退货退款 待商家处理==》待买家发货
+            if (queryAfterOrder.getAfterSaleType() == AfterSaleTypeEnum.RETURN_GOODS &&
+                    queryAfterOrder.getStatus() == AfterSaleStatusEnum.NEED_STORE_DO) {
+                afterSaleOrderService.permitReturnGoods(rabbitAfterBo.getAfterSaleOrderId(),true);
+            }
+            //退货退款 待买家退货==》退款关闭
+            if (queryAfterOrder.getAfterSaleType() == AfterSaleTypeEnum.RETURN_GOODS &&
+                    queryAfterOrder.getStatus() == AfterSaleStatusEnum.NEED_STORE_DO) {
+                afterSaleOrderService.cancel(rabbitAfterBo.getAfterSaleOrderId(),true);
+            }
+            //退货退款 待商家退款==》退款成功
+            if (queryAfterOrder.getAfterSaleType() == AfterSaleTypeEnum.RETURN_GOODS &&
+                    queryAfterOrder.getStatus() == AfterSaleStatusEnum.NEED_STORE_REFUND) {
+                wxService.refund(rabbitAfterBo.getAfterSaleOrderId(),true);
+            }
+        }
+
         try {
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (IOException e) {

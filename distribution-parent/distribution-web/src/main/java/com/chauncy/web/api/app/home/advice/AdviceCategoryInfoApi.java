@@ -40,7 +40,7 @@ public class AdviceCategoryInfoApi extends BaseApi {
      */
     @GetMapping("/findCategory/{adviceId}")
     @ApiOperation(value = "联动查询葱鸭百货广告位关联的商品分类")
-    public JsonViewData findGoodsCategoryTreeVo(@PathVariable Long adviceId){
+    public JsonViewData<List<GoodsCategoryVo>> findGoodsCategoryTreeVo(@PathVariable Long adviceId){
 
         List<GoodsCategoryVo> goodsCategoryVos = goodsCategoryService.findGoodsCategory(adviceId);
 

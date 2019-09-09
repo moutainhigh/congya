@@ -54,6 +54,7 @@ import com.chauncy.data.vo.supplier.GoodsStandardVo;
 import com.chauncy.data.vo.supplier.StandardValueAndStatusVo;
 import com.chauncy.order.service.IOmOrderService;
 import com.chauncy.order.service.IOmShoppingCartService;
+import com.chauncy.order.service.IPayUserRelationService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -156,7 +157,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     private UmUserFavoritesMapper userFavoritesMapper;
 
     @Autowired
-    private PayUserRelationMapper payUserRelationMapper;
+    private IPayUserRelationService payUserRelationService;
 
 
     //需要进行实行认证且计算税率的商品类型
@@ -875,7 +876,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 }
                 BeanUtils.copyProperties(y, saveOrder);
                 saveOrder.setUmUserId(currentUser.getId()).setAreaShippingId(submitOrderDto.getUmAreaShipId())
-                        .setStoreId(storeId).setPayOrderId(savePayOrderPo.getId()).setCreateBy(currentUser.getPhone())
+                        .setStoreId(storeId).setPayOrderId(savePayOrderPo.getId()).setCreateBy(currentUser.getId()+"")
                         .setId(SnowFlakeUtil.getFlowIdInstance().nextId());
                 //设置一些优惠信息：红包、购物券
                 setDiscountMessage(saveOrder, savePayOrderPo);
@@ -928,10 +929,16 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         //减去购物车
         delShopCatAfterOrder(shopTicketSoWithCarGoodVoList,currentUser.getId());
         //保存返佣用户信息
-        PayUserRelationPo savePayUser = getPayUserMessage(currentUser.getId());
-        if (savePayUser!=null){
-            savePayUser.setCreateBy(currentUser.getPhone()).setPayId(savePayOrderPo.getId());
-            payUserRelationMapper.insert(savePayUser);
+        PayUserRelationPo queryPayUser = getPayUserMessage(currentUser.getId());
+        if (queryPayUser!=null){
+            List<PayUserRelationPo> savePayUsers=Lists.newArrayList();
+            saveOrders.forEach(x->{
+                PayUserRelationPo savePayUser=new PayUserRelationPo();
+                BeanUtils.copyProperties(queryPayUser,savePayUser);
+                savePayUser.setCreateBy(currentUser.getPhone()).setOrderId(x.getId());
+                savePayUsers.add(savePayUser);
+            });
+            payUserRelationService.saveBatch(savePayUsers);
         }
 
         // 添加延时队列

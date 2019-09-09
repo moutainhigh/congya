@@ -32,8 +32,6 @@ public class ApplyAfterSaleVo {
     @ApiModelProperty("数量")
     private Integer number;
 
-    @ApiModelProperty(value = "订单id")
-    private Long orderId;
 
 
 }

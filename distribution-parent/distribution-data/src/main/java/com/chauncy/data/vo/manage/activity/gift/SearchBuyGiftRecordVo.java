@@ -27,10 +27,13 @@ public class SearchBuyGiftRecordVo {
     @ApiModelProperty("手机号")
     private String phone;
 
+    @ApiModelProperty(value = "购买金额")
+    private BigDecimal purchasePrice;
+
     @ApiModelProperty("用户名称")
     private String userName;
 
-    @ApiModelProperty("领取时间")
+    @ApiModelProperty("购买时间")
     private LocalDateTime createTime;
 
     @ApiModelProperty(value = "礼包ID",hidden = true)
