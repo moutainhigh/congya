@@ -13,4 +13,6 @@ import com.chauncy.data.mapper.IBaseMapper;
  */
 public interface OmAfterSaleLogMapper extends IBaseMapper<OmAfterSaleLogPo> {
 
+
+
 }

@@ -62,4 +62,40 @@ public interface RabbitConstants {
      * 订单转发死信的路由键
      */
     static final String ORDER_REDIRECT_KEY = "all";
+
+
+
+    /**
+     * 售后死信队列名称
+     */
+    static final String AFTER_DEAD_QUEUE = "after.dead.queue";
+    /**
+     * DLX，死信交换机
+     */
+    static final String AFTER_DEAD_EXCHANGE = "after.dead.exchange";
+    /**
+     * 死信交换机与队列的routing key 名称
+     */
+    static final String AFTER_DEAD_ROUTING_KEY = "after.dead.key";
+
+    /**
+     * 订单转发队列
+     */
+    static final String AFTER_REDIRECT_QUEUE = "after.redirect.queue";
+    /**
+     * 订单转发交换机
+     */
+    static final String AFTER_REDIRECT_EXCHANGE = "after.redirect.exchange";
+    /**
+     * 订单转发死信的路由键
+     */
+    static final String AFTER_REDIRECT_KEY = "after.redirect.key";
+
+
+    /**
+     * 售后订单延迟72小时
+     */
+    static final String AFTER_DELAY_TIME = 72*60*60*1000+"";
+
+
 }

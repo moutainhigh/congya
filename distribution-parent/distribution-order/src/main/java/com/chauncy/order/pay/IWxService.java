@@ -33,5 +33,5 @@ public interface IWxService {
      * @return
      * @throws Exception
      */
-    void refund(Long payOrderId) throws Exception;
+    void refund(Long afterOrderId,boolean isAuto) ;
 }

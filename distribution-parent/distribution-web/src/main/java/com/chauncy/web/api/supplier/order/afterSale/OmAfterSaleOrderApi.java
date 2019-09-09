@@ -52,12 +52,12 @@ public class OmAfterSaleOrderApi extends BaseApi {
     private SecurityUtil securityUtil;
 
 
-    /**
+   /* *//**
      * 申请退款
      * 官方文档:https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=9_4&index=6
      * @return
      * @throws Exception
-     */
+     *//*
     @PostMapping("/refund/{id}")
     @ApiOperation("申请退款")
     public JsonViewData refund(HttpServletRequest request, @PathVariable(value = "id") Long id) {
@@ -73,7 +73,7 @@ public class OmAfterSaleOrderApi extends BaseApi {
             throw new ServiceException(ResultCode.SYSTEM_ERROR, "系统错误");
         }
 
-    }
+    }*/
 
     @ApiOperation(value = "商家操作")
     @PostMapping("/operate")
@@ -82,7 +82,7 @@ public class OmAfterSaleOrderApi extends BaseApi {
 
             //确认退款
             case PERMIT_REFUND:
-                afterSaleOrderService.permitRefund(operateAfterSaleDto.getAfterSaleOrderId());
+                wxService.refund(operateAfterSaleDto.getAfterSaleOrderId(),false);
                 break;
 
             //拒绝退款
@@ -91,7 +91,7 @@ public class OmAfterSaleOrderApi extends BaseApi {
                 break;
             //确认退货
             case PERMIT_RETURN_GOODS:
-                afterSaleOrderService.permitReturnGoods(operateAfterSaleDto.getAfterSaleOrderId());
+                afterSaleOrderService.permitReturnGoods(operateAfterSaleDto.getAfterSaleOrderId(),false);
                 break;
             //拒绝退货
             case REFUSE_RETURN_GOODS:

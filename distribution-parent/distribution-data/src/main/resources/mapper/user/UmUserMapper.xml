@@ -63,6 +63,23 @@
     <update id="updateLogin">
              update um_user   set login_times=login_times+1,recent_login_time=now() where phone=#{phone}
     </update>
+    <update id="updateAdd">
+            UPDATE `um_user`
+            SET `current_experience` = current_experience+#{currentExperience},
+            `current_red_envelops` = current_red_envelops+#{currentRedEnvelops},
+            `current_integral` = current_integral+#{currentIntegral},
+            `current_shop_ticket` =current_shop_ticket+ #{currentShopTicket},
+            `total_consume_money` =total_consume_money+ #{totalConsumeMoney},
+            `invite_people_num` =invite_people_num+ #{invitePeopleNum},
+            `total_red_envelops` =total_red_envelops+ #{totalRedEnvelops},
+            `total_integral` =total_integral+ #{totalIntegral},
+            `total_shop_ticket` =total_shop_ticket+ #{totalShopTicket},
+            `total_order` =total_order+ #{totalOrder}
+            WHERE
+                `id` = #{id};
+
+
+    </update>
     <select id="loadSearchUserList" resultType="com.chauncy.data.vo.manage.user.list.UmUserListVo">
         SELECT
         u.id,

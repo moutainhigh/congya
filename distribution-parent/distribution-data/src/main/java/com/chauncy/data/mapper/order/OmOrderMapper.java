@@ -1,6 +1,7 @@
 package com.chauncy.data.mapper.order;
 
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
+import com.chauncy.data.bo.app.order.RewardBo;
 import com.chauncy.data.bo.app.order.my.OrderRewardBo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
@@ -132,6 +133,15 @@ public interface OmOrderMapper extends IBaseMapper<OmOrderPo> {
      * @return
      */
     OrderRewardBo getOrderRewardByOrderId(Long orderId);
+
+
+    /**
+     * 售后截止时间到了之后应该奖励的东西
+     * 购物券、积分、经验值
+     * @param orderId
+     * @return
+     */
+    RewardBo getRewardBoByOrder (Long orderId);
 
 
 

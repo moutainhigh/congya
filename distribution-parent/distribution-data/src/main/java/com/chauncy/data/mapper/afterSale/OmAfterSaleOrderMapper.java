@@ -4,6 +4,7 @@ import com.chauncy.data.domain.po.afterSale.OmAfterSaleOrderPo;
 import com.chauncy.data.dto.manage.order.afterSale.SearchAfterSaleOrderDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.app.order.my.afterSale.AfterSaleDetailVo;
+import com.chauncy.data.vo.app.order.my.afterSale.ApplyAfterDetailVo;
 import com.chauncy.data.vo.app.order.my.afterSale.ApplyAfterSaleVo;
 import com.chauncy.data.vo.app.order.my.afterSale.MyAfterSaleOrderListVo;
 import com.chauncy.data.vo.manage.order.afterSale.AfterSaleLogVo;
@@ -24,10 +25,10 @@ public interface OmAfterSaleOrderMapper extends IBaseMapper<OmAfterSaleOrderPo> 
 
     /**
      * 通过订单id查找商品快照
-     * @param orderId
+     * @param id
      * @return
      */
-    List<ApplyAfterSaleVo> searchGoodsTempByOrderId(Long orderId);
+    List<ApplyAfterSaleVo> searchBrothersById(Long id);
 
     /**
      * app我的售后订单列表
@@ -56,5 +57,12 @@ public interface OmAfterSaleOrderMapper extends IBaseMapper<OmAfterSaleOrderPo> 
      * @return
      */
     AfterSaleDetailVo getAfterSaleDetail( Long afterSaleOrderId);
+
+    /**
+     * 获取售后申请详情
+     * @param afterSaleOrderId
+     * @return
+     */
+    ApplyAfterDetailVo getApplyAfterDetail(Long afterSaleOrderId);
 
 }

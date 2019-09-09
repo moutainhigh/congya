@@ -14,6 +14,7 @@ import com.chauncy.common.util.ListUtil;
 import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.common.util.rabbit.RabbitUtil;
 import com.chauncy.data.bo.app.logistics.LogisticsDataBo;
+import com.chauncy.data.bo.app.order.RewardBo;
 import com.chauncy.data.bo.app.order.my.OrderRewardBo;
 import com.chauncy.data.bo.app.order.rabbit.RabbitOrderBo;
 import com.chauncy.data.core.AbstractService;
@@ -21,6 +22,7 @@ import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.domain.po.order.OmOrderLogisticsPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
+import com.chauncy.data.domain.po.pay.PayUserRelationPo;
 import com.chauncy.data.domain.po.sys.BasicSettingPo;
 import com.chauncy.data.dto.app.order.my.SearchMyOrderDto;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
@@ -32,6 +34,7 @@ import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.mapper.order.OmShoppingCartMapper;
 import com.chauncy.data.mapper.pay.IPayOrderMapper;
+import com.chauncy.data.mapper.pay.PayUserRelationMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
 import com.chauncy.data.mapper.sys.BasicSettingMapper;
@@ -45,6 +48,7 @@ import com.chauncy.data.vo.manage.order.list.SearchOrderVo;
 import com.chauncy.data.vo.supplier.order.*;
 import com.chauncy.order.service.IOmOrderService;
 import com.chauncy.order.service.IPayOrderService;
+import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
@@ -107,6 +111,12 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
     @Autowired
     private PmGoodsMapper goodsMapper;
+
+    @Autowired
+    private PayUserRelationMapper payUserRelationMapper;
+
+    @Autowired
+    private SecurityUtil securityUtil;
 
 
     @Override
@@ -376,13 +386,21 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
         //多久自动评价(毫秒)
         String expiration=basicSettingPo.getAutoCommentDay()*24*60*60*1000+"";
+        //多久售后截止(毫秒)
+        String afterExpiration = refundDay * 24 * 60 * 60 * 1000 + "";
 
         RabbitOrderBo rabbitOrderBo=new RabbitOrderBo();
         rabbitOrderBo.setOrderId(orderId).setOrderStatusEnum(OrderStatusEnum.NEED_EVALUATE);
 
-        //添加延时队列
+        //添加自动评价延时队列
         rabbitUtil.sendDelayMessage(1*60*1000+"",rabbitOrderBo);
+        //添加售后截止延时队列
+        RabbitOrderBo afterRabbitOrderBo=new RabbitOrderBo();
+        afterRabbitOrderBo.setOrderId(orderId);
+        rabbitUtil.sendDelayMessage(1*60*1000+"",afterRabbitOrderBo);
+
         LoggerUtil.info("【确认收货等待自动评价发送时间】:" + LocalDateTime.now());
+        LoggerUtil.info("【确认收货等待售后截止】:" + LocalDateTime.now());
 
     }
 
@@ -416,6 +434,28 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             goodsSkuMapper.addASalesVolume(x.getSkuId(),x.getNumber());
             goodsMapper.addASalesVolume(x.getGoodsId(),x.getNumber());
         });
+
+
+    }
+
+    @Override
+    public void orderDeadline(Long orderId) {
+        OmOrderPo queryOrder = mapper.selectById(orderId);
+        //订单总金额
+        BigDecimal totalMoney=queryOrder.getTotalMoney();
+
+        Long userId=Long.parseLong(queryOrder.getCreateBy());
+
+        //查出需要返佣的用户
+        QueryWrapper<PayUserRelationPo> payUserWrapper=new QueryWrapper<>();
+        payUserWrapper.lambda().eq(PayUserRelationPo::getOrderId,orderId);
+        PayUserRelationPo queryPayUser=payUserRelationMapper.selectOne(payUserWrapper);
+
+        //查出下单用户需要返的购物券、积分、经验值
+        RewardBo rewardBo=mapper.getRewardBoByOrder(orderId);
+        //用户增加返佣数据
+
+
 
 
     }

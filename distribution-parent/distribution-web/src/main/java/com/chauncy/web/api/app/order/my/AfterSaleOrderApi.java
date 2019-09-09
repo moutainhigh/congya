@@ -6,10 +6,12 @@ import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.my.SearchMyOrderDto;
 import com.chauncy.data.dto.app.order.my.afterSale.ApplyRefundDto;
 import com.chauncy.data.dto.app.order.my.afterSale.RefundDto;
+import com.chauncy.data.dto.app.order.my.afterSale.UpdateRefundDto;
 import com.chauncy.data.dto.base.BasePageDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.order.my.AppSearchOrderVo;
 import com.chauncy.data.vo.app.order.my.afterSale.AfterSaleDetailVo;
+import com.chauncy.data.vo.app.order.my.afterSale.ApplyAfterDetailVo;
 import com.chauncy.data.vo.app.order.my.afterSale.ApplyAfterSaleVo;
 import com.chauncy.data.vo.app.order.my.afterSale.MyAfterSaleOrderListVo;
 import com.chauncy.order.afterSale.IOmAfterSaleOrderService;
@@ -17,6 +19,7 @@ import com.chauncy.order.service.IOmOrderService;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -46,17 +49,24 @@ public class AfterSaleOrderApi extends BaseApi {
         return setJsonViewData(service.validCanAfterSaleVo(goodsTempId));
     }
 
-    @PostMapping("/searchGoods/{orderId}")
+    @PostMapping("/searchGoods/{id}")
+    @ApiImplicitParam(name="id",value="商品快照的id",required=true,paramType="path")
     @ApiOperation("添加或编辑")
-    public JsonViewData<List<ApplyAfterSaleVo>> addGoodsTemp(@PathVariable Long orderId) {
-        return setJsonViewData(service.searchGoodTempsByOrderId(orderId));
+    public JsonViewData<List<ApplyAfterSaleVo>> addGoodsTemp(@PathVariable Long id) {
+        return setJsonViewData(service.searchBrotherById(id));
     }
 
     @PostMapping("/refund")
-    @ApiOperation("申请售后")
+    @ApiOperation("用户提交售后申请")
     public JsonViewData refund(@RequestBody ApplyRefundDto applyRefundDto) {
         service.refund(applyRefundDto);
         return setJsonViewData(ResultCode.SUCCESS);
+    }
+
+    @PostMapping("applyView/{afterOrderId}")
+    @ApiOperation("用户查看售后申请详情")
+    public JsonViewData<ApplyAfterDetailVo> refund(@PathVariable Long afterOrderId) {
+        return setJsonViewData(service.getApplyAfterDetail(afterOrderId));
     }
 
     @PostMapping("/list")
@@ -70,6 +80,29 @@ public class AfterSaleOrderApi extends BaseApi {
     public JsonViewData<AfterSaleDetailVo> view(@PathVariable Long afterSaleOrderId) {
         return setJsonViewData(service.getAfterSaleDetail(afterSaleOrderId));
     }
+
+    @PostMapping("/update")
+    @ApiOperation("用户修改申请")
+    public JsonViewData update(@RequestBody UpdateRefundDto updateRefundDto) {
+        service.updateApply(updateRefundDto);
+        return setJsonViewData(ResultCode.SUCCESS);
+    }
+
+    @PostMapping("/cancel/{afterSaleOrderId}")
+    @ApiOperation("用户撤销申请")
+    public JsonViewData cancel(@PathVariable Long afterSaleOrderId) {
+        return setJsonViewData(service.getAfterSaleDetail(afterSaleOrderId));
+    }
+
+    @PostMapping("/agreeCancel/{afterSaleOrderId}")
+    @ApiOperation("用户同意取消")
+    public JsonViewData agreeCancel(@PathVariable Long afterSaleOrderId) {
+        service.agreeCancel(afterSaleOrderId);
+        return setJsonViewData(ResultCode.SUCCESS);
+    }
+
+
+
 
 
 

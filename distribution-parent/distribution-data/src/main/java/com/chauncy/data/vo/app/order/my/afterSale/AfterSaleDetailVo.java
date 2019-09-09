@@ -60,6 +60,9 @@ public class AfterSaleDetailVo {
     @ApiModelProperty(value = "退款金额")
     private BigDecimal refundMoney;
 
+    @ApiModelProperty(value = "最大退款金额")
+    private BigDecimal maxRefundMoney;
+
     @ApiModelProperty(value = "申请件数")
     private BigDecimal number;
 
