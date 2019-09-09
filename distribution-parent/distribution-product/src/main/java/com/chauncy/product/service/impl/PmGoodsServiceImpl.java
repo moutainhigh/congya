@@ -188,9 +188,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             throw new ServiceException(ResultCode.NO_EXISTS, "店铺不存在");
         }
 
-        //List<GoodsSecondCategoryListVo> goodsSecondCategoryList
-
-        return null;
+        return mapper.findGoodsCategory(storeId);
     }
 
     /**
@@ -1744,10 +1742,10 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             //默认降序
             searchStoreGoodsDto.setSortWay(SortWayEnum.DESC);
         }
-        if(null == searchStoreGoodsDto.getStoreGoodsListType()) {
+        if(null == searchStoreGoodsDto.getGoodsType()) {
             //默认全部商品列表
-            searchStoreGoodsDto.setStoreGoodsListType(StoreGoodsListTypeEnum.ALL_LIST);
-        } else if(searchStoreGoodsDto.getStoreGoodsListType().equals(StoreGoodsListTypeEnum.NEW_LIST)) {
+            searchStoreGoodsDto.setGoodsType(StoreGoodsListTypeEnum.ALL_LIST.getId());
+        } else if(searchStoreGoodsDto.getGoodsType().equals(StoreGoodsListTypeEnum.NEW_LIST)) {
             //获取系统基本设置
             BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
             searchStoreGoodsDto.setNewGoodsDays(basicSettingPo.getNewProductDay());
@@ -1764,6 +1762,20 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
      */
     @Override
     public PageInfo<SearchGoodsBaseListVo> searchGoodsBaseList(SearchStoreGoodsDto searchStoreGoodsDto) {
+
+        if(searchStoreGoodsDto.getGoodsType().equals(StoreGoodsListTypeEnum.CATEGORY_LIST.getId())) {
+            //根据商品分类获取商品列表
+            if(null == searchStoreGoodsDto.getGoodsCategoryId()) {
+                throw new ServiceException(ResultCode.PARAM_ERROR, "goodsCategoryId不能为空");
+            }
+        }
+        if(searchStoreGoodsDto.getGoodsType().equals(StoreGoodsListTypeEnum.SEARCH_LIST.getId())) {
+            //根据商品分类获取商品列表
+            if(null == searchStoreGoodsDto.getGoodsName()) {
+                throw new ServiceException(ResultCode.PARAM_ERROR, "goodsName不能为空");
+            }
+        }
+
         UmUserPo user = securityUtil.getAppCurrUser();
         Long memberLevelId = user.getMemberLevelId();
 
@@ -1778,11 +1790,11 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             //默认降序
             searchStoreGoodsDto.setSortWay(SortWayEnum.DESC);
         }
-        if(null == searchStoreGoodsDto.getStoreGoodsListType()) {
+        if(null == searchStoreGoodsDto.getGoodsType()) {
             //默认全部商品列表
-            searchStoreGoodsDto.setStoreGoodsListType(StoreGoodsListTypeEnum.ALL_LIST);
+            searchStoreGoodsDto.setGoodsType(StoreGoodsListTypeEnum.ALL_LIST.getId());
         }
-        if(searchStoreGoodsDto.getStoreGoodsListType().equals(StoreGoodsListTypeEnum.NEW_LIST)) {
+        if(searchStoreGoodsDto.getGoodsType().equals(StoreGoodsListTypeEnum.NEW_LIST.getId())) {
             //获取系统基本设置  新品的评判标准  上架几天内为新品
             BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
             searchStoreGoodsDto.setNewGoodsDays(basicSettingPo.getNewProductDay());

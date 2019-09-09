@@ -19,7 +19,7 @@
         id, create_by, update_time, favorites_id, type, user_id, is_favorites
     </sql>
     <select id="searchGoodsFavorites" resultType="com.chauncy.data.vo.app.user.favorites.SearchFavoritesVo">
-      select a.id,a.favorites_id as goods_id,b.name,b.icon as picture,b.collectionNum
+      select a.id,a.favorites_id as goods_id,b.name,b.icon as picture,b.collection_num
       from um_user_favorites a,pm_goods b
       where a.user_id = #{userId} and a.type="商品" and a.favorites_id = b.id
             <if test="selectFavoritesDto.categoryId !=null and selectFavoritesDto.categoryId !=''">
@@ -31,7 +31,7 @@
     </select>
 
     <select id="searchMerchantFavorites" resultType="com.chauncy.data.vo.app.user.favorites.SearchFavoritesVo">
-      select a.id,a.favorites_id as store_id,b.name,b.logo_image as picture,b.collectionNum
+      select a.id,a.favorites_id as store_id,b.name,b.logo_image as picture,b.collection_num
       from um_user_favorites a,sm_store b
       where a.user_id = #{userId} and a.type="店铺" and a.favorites_id = b.id
         <if test="selectFavoritesDto.name!=null and selectFavoritesDto.name!=''">
@@ -41,9 +41,9 @@
 
     <select id="searchInformationFavorites"
             resultType="com.chauncy.data.vo.app.user.favorites.SearchFavoritesVo">
-      select a.id,a.favorites_id as information_id,b.title,b.cover_image as picture,b.detail_html,b.collectionNum
+      select a.id,a.favorites_id as information_id,b.title,b.cover_image as picture,b.detail_html,b.collection_num
       from um_user_favorites a,mm_information b
-      where a.user_id = #{userId and a.type="资讯" and a.favorites_id = b.id
+      where a.user_id = #{userId} and a.type="资讯" and a.favorites_id = b.id
         <if test="selectFavoritesDto.name!=null and selectFavoritesDto.name!=''">
             and b.name like concat('%', #{selectFavoritesDto.name}, '%')
         </if>
