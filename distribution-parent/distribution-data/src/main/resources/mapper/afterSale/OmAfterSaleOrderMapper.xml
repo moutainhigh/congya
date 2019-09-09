@@ -90,7 +90,10 @@
         u.`name` NAME,
         t.sku_id skuId,
         t.standard_str standardStr,
-        t.sell_price
+        t.sell_price,
+        ao.logistics_company,
+        ao.bill_no,
+        ao.return_policy
         FROM
         om_after_sale_order ao,
         om_order o,

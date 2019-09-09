@@ -85,13 +85,13 @@ public class UmUserPo implements Serializable {
     private LocalDateTime recentLoginTime;
 
     @ApiModelProperty(value = "当前经验值")
-    private Integer currentExperience;
+    private BigDecimal currentExperience;
 
     @ApiModelProperty(value = "当前红包")
     private BigDecimal currentRedEnvelops;
 
     @ApiModelProperty(value = "当前积分")
-    private Integer currentIntegral;
+    private BigDecimal currentIntegral;
 
     @ApiModelProperty(value = "当前购物券")
     private BigDecimal currentShopTicket;
@@ -106,7 +106,7 @@ public class UmUserPo implements Serializable {
     private BigDecimal totalRedEnvelops;
 
     @ApiModelProperty(value = "累计获得积分")
-    private Integer totalIntegral;
+    private BigDecimal totalIntegral;
 
     @ApiModelProperty(value = "累计获得购物券")
     private BigDecimal totalShopTicket;
