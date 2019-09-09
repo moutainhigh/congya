@@ -119,4 +119,12 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
      * @return
      */
     List<SearchGoodsBaseListVo> searchAssociatedGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto);
+
+    /**
+     * 分页条件查询优惠券关联的所有商品
+     *
+     * @param searchGoodsBaseListDto
+     * @return
+     */
+    List<SearchGoodsBaseListVo> searchCouponGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto);
 }

@@ -17,5 +17,10 @@
     <sql id="Base_Column_List">
         id, create_by, create_time, coupon_id, user_id, use_status, receive_num
     </sql>
+    <select id="receiveCouponCenter" resultType="com.chauncy.data.vo.app.advice.coupon.SearchReceiveCouponVo">
+        select a.id as coupon_id,name,type,discount,discount_full_money,reduction_full_money,reduction_post_money,total_num,stock
+        from am_coupon a,pm_member_level b
+        where a.del_flag = 0 and a.del_flag = 0 and a.level_id = b.id and b.level &lt;= #{level}
+    </select>
 
 </mapper>
