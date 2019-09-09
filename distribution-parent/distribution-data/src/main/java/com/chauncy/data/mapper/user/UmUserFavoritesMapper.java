@@ -3,6 +3,9 @@ package com.chauncy.data.mapper.user;
 import com.chauncy.data.domain.po.user.UmUserFavoritesPo;
 import com.chauncy.data.dto.app.user.favorites.select.SelectFavoritesDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.app.user.favorites.FavoritesGoosVo;
+import com.chauncy.data.vo.app.user.favorites.FavoritesInformationVo;
+import com.chauncy.data.vo.app.user.favorites.FavoritesStoreVo;
 import com.chauncy.data.vo.app.user.favorites.SearchFavoritesVo;
 import org.apache.ibatis.annotations.Param;
 
@@ -24,7 +27,7 @@ public interface UmUserFavoritesMapper extends IBaseMapper<UmUserFavoritesPo> {
      * @param selectFavoritesDto
      * @return
      */
-    List<SearchFavoritesVo> searchGoodsFavorites (@Param ("selectFavoritesDto") SelectFavoritesDto selectFavoritesDto, @Param ("userId") Long userId);
+    List<FavoritesGoosVo> searchGoodsFavorites (@Param ("selectFavoritesDto") SelectFavoritesDto selectFavoritesDto, @Param ("userId") Long userId);
 
     /**
      * 条件查询收藏店铺信息
@@ -32,7 +35,7 @@ public interface UmUserFavoritesMapper extends IBaseMapper<UmUserFavoritesPo> {
      * @param selectFavoritesDto
      * @return
      */
-    List<SearchFavoritesVo> searchMerchantFavorites (@Param ("selectFavoritesDto") SelectFavoritesDto selectFavoritesDto, @Param ("userId") Long userId);
+    List<FavoritesStoreVo> searchMerchantFavorites (@Param ("selectFavoritesDto") SelectFavoritesDto selectFavoritesDto, @Param ("userId") Long userId);
 
     /**
      * 条件查询收藏资讯信息
@@ -40,5 +43,5 @@ public interface UmUserFavoritesMapper extends IBaseMapper<UmUserFavoritesPo> {
      * @param selectFavoritesDto
      * @return
      */
-    List<SearchFavoritesVo> searchInformationFavorites (@Param ("selectFavoritesDto") SelectFavoritesDto selectFavoritesDto, @Param ("userId") Long userId);
+    List<FavoritesInformationVo> searchInformationFavorites (@Param ("selectFavoritesDto") SelectFavoritesDto selectFavoritesDto, @Param ("userId") Long userId);
 }

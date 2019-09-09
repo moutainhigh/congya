@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.app.coupon.CouponUseStatusEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.domain.po.activity.coupon.AmCouponPo;
 import com.chauncy.data.domain.po.activity.coupon.AmCouponRelCouponUserPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
@@ -107,37 +108,32 @@ public class AmCouponRelCouponUserServiceImpl extends AbstractService<AmCouponRe
     public void receiveCoupon(Long couponId) {
 
         UmUserPo userPo = securityUtil.getAppCurrUser();
-
         //首先先判断优惠券库存是否足够
         AmCouponPo couponPo = couponMapper.getCoupon(couponId);
-        //判断用户是否领取过该优惠券
-        AmCouponRelCouponUserPo relCouponUserPo = relCouponUserMapper.selectOne(new QueryWrapper<AmCouponRelCouponUserPo>().lambda()
-                .eq(AmCouponRelCouponUserPo::getUserId,userPo.getId()).eq(AmCouponRelCouponUserPo::getCouponId,couponId));
-
         if (couponPo.getStock() == 0){
             throw new ServiceException(ResultCode.FAIL,String.format("优惠券:[%s]已被抢光了!",couponPo.getName()));
         }
-        else {
-            //是否已达到限购数量
-            if (relCouponUserPo == null){
-                //更新优惠券库存信息
-                couponMapper.receiveForUpdate(couponId);
-                //保存到用户与优惠券关联表
-                relCouponUserPo = new AmCouponRelCouponUserPo();
 
-                relCouponUserPo.setCreateBy(userPo.getTrueName()).setId(null).setCouponId(couponId).setReceiveNum(1)
-                        .setUserId(userPo.getId()).setUseStatus(CouponUseStatusEnum.NOT_USED.getId());
-                relCouponUserMapper.insert(relCouponUserPo);
-
-            }else if (relCouponUserPo.getReceiveNum() < couponPo.getEveryLimitNum()){
-                //更新优惠券库存信息
-                couponMapper.receiveForUpdate(couponId);
-                //更新用户与优惠券关联表
-                relCouponUserMapper.receiveForUpdate(couponId,userPo.getId());
-            }else {
-
-                throw new ServiceException(ResultCode.FAIL,String.format("领取的优惠券:【%s】以达到上限:[%s]！",couponPo.getName(),couponPo.getEveryLimitNum()));
-            }
+        //获取用户领取该优惠券的数量
+        List<AmCouponRelCouponUserPo> relCouponUserList = relCouponUserMapper.selectList(new QueryWrapper<AmCouponRelCouponUserPo>().lambda()
+                .eq(AmCouponRelCouponUserPo::getUserId,userPo.getId()).eq(AmCouponRelCouponUserPo::getCouponId,couponId));
+        AmCouponRelCouponUserPo relCouponUserPo = new AmCouponRelCouponUserPo();
+        if (ListUtil.isListNullAndEmpty(relCouponUserList)){
+            //更新优惠券库存信息
+            couponMapper.receiveForUpdate(couponId);
+            //保存到用户与优惠券关联表
+            relCouponUserPo.setCreateBy(userPo.getTrueName()).setId(null).setCouponId(couponId).setReceiveNum(1)
+                    .setUserId(userPo.getId()).setUseStatus(CouponUseStatusEnum.NOT_USED.getId());
+            relCouponUserMapper.insert(relCouponUserPo);
+        }else if (relCouponUserList.size() < couponPo.getEveryLimitNum()){
+            //更新优惠券库存信息
+            couponMapper.receiveForUpdate(couponId);
+            //保存到用户与优惠券关联表
+            relCouponUserPo.setCreateBy(userPo.getTrueName()).setId(null).setCouponId(couponId).setReceiveNum(1)
+                    .setUserId(userPo.getId()).setUseStatus(CouponUseStatusEnum.NOT_USED.getId());
+            relCouponUserMapper.insert(relCouponUserPo);
+        }else {
+            throw new ServiceException(ResultCode.FAIL,String.format("领取的优惠券:【%s】以达到上限:[%s]！",couponPo.getName(),couponPo.getEveryLimitNum()));
         }
 
     }

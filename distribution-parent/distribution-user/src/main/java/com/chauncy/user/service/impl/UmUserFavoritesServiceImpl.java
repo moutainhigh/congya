@@ -4,12 +4,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.message.KeyWordTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.common.util.GuavaUtil;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
-import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
+import com.chauncy.data.domain.po.store.rel.SmStoreRelLabelPo;
 import com.chauncy.data.domain.po.user.UmUserFavoritesPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.user.favorites.add.UpdateFavoritesDto;
@@ -20,21 +21,23 @@ import com.chauncy.data.mapper.product.PmGoodsAttributeMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
+import com.chauncy.data.mapper.store.label.SmStoreLabelMapper;
+import com.chauncy.data.mapper.store.rel.SmStoreRelLabelMapper;
 import com.chauncy.data.mapper.user.UmUserFavoritesMapper;
+import com.chauncy.data.vo.app.user.favorites.FavoritesGoosVo;
+import com.chauncy.data.vo.app.user.favorites.FavoritesInformationVo;
+import com.chauncy.data.vo.app.user.favorites.FavoritesStoreVo;
 import com.chauncy.data.vo.app.user.favorites.SearchFavoritesVo;
 import com.chauncy.user.service.IUmUserFavoritesService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.google.common.collect.Maps;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -56,6 +59,12 @@ public class UmUserFavoritesServiceImpl extends AbstractService<UmUserFavoritesM
 
     @Autowired
     private SmStoreMapper smStoreMapper;
+
+    @Autowired
+    private SmStoreLabelMapper storeLabelMapper;
+
+    @Autowired
+    private SmStoreRelLabelMapper storeRelLabelMapper;
 
     @Autowired
     private MmInformationMapper informationMapper;
@@ -213,6 +222,9 @@ public class UmUserFavoritesServiceImpl extends AbstractService<UmUserFavoritesM
                     break;
                 }
         }
+        if (num < 0){
+            num = 0;
+        }
         return num;
     }
 
@@ -277,51 +289,79 @@ public class UmUserFavoritesServiceImpl extends AbstractService<UmUserFavoritesM
      * @return
      */
     @Override
-    public PageInfo<SearchFavoritesVo> searchFavorites(SelectFavoritesDto selectFavoritesDto, UmUserPo userPo) {
+    public SearchFavoritesVo searchFavorites(SelectFavoritesDto selectFavoritesDto, UmUserPo userPo) {
         if (userPo == null) {
             throw new ServiceException(ResultCode.FAIL, "您不是App用户！");
         }
         Integer pageNo = selectFavoritesDto.getPageNo() == null ? defaultPageNo : selectFavoritesDto.getPageNo();
         Integer pageSize = selectFavoritesDto.getPageSize() == null ? defaultPageSize : selectFavoritesDto.getPageSize();
-        PageInfo<SearchFavoritesVo> searchFavoritesVoPageInfo;
+
+        SearchFavoritesVo searchFavoritesVo = new SearchFavoritesVo();
+
         KeyWordTypeEnum typeEnum = KeyWordTypeEnum.fromName(selectFavoritesDto.getType());
         assert typeEnum != null;
         switch (typeEnum) {
             case GOODS:
-                searchFavoritesVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                PageInfo<FavoritesGoosVo> favoritesGoosVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                         .doSelectPageInfo(() -> mapper.searchGoodsFavorites(selectFavoritesDto, userPo.getId()));
-                if (searchFavoritesVoPageInfo.getList().size() == 0 || searchFavoritesVoPageInfo.getList() == null) {
-                    return new PageInfo<>();
+                if (ListUtil.isListNullAndEmpty(favoritesGoosVoPageInfo.getList())) {
+                    favoritesGoosVoPageInfo = new PageInfo<>();
+
+                } else {
+                    favoritesGoosVoPageInfo.getList().forEach(a -> {
+                        String sellPrice = "";
+                        BigDecimal lowestSellPrice = goodsSkuMapper.getLowestPrice(a.getGoodsId());
+                        BigDecimal highestSellPrice = goodsSkuMapper.getHighestPrice(a.getGoodsId());
+                        if (lowestSellPrice == null && highestSellPrice == null) {
+                            a.setPrice(null);
+                        } else if (lowestSellPrice.equals(highestSellPrice)) {
+                            sellPrice = lowestSellPrice.toString();
+                        } else {
+                            sellPrice = lowestSellPrice.toString() + "-" + highestSellPrice;
+                        }
+                        a.setPrice(sellPrice);
+                    });
                 }
-                searchFavoritesVoPageInfo.getList().forEach(a -> {
-                    String sellPrice = "";
-                    BigDecimal lowestSellPrice = goodsSkuMapper.getLowestPrice(a.getGoodsId());
-                    BigDecimal highestSellPrice = goodsSkuMapper.getHighestPrice(a.getGoodsId());
-                    if (lowestSellPrice == null && highestSellPrice == null) {
-                        a.setPrice(null);
-                    } else if (lowestSellPrice.equals(highestSellPrice)) {
-                        sellPrice = lowestSellPrice.toString();
-                    } else {
-                        sellPrice = lowestSellPrice.toString() + "-" + highestSellPrice;
-                    }
-                    a.setPrice(sellPrice);
-                });
-                return searchFavoritesVoPageInfo;
+                searchFavoritesVo.setFavoritesGoosVo(favoritesGoosVoPageInfo);
+
+                break;
             case MERCHANT:
-                searchFavoritesVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                PageInfo<FavoritesStoreVo> favoritesStoreVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                         .doSelectPageInfo(() -> mapper.searchMerchantFavorites(selectFavoritesDto, userPo.getId()));
-                if (searchFavoritesVoPageInfo.getList().size() == 0 || searchFavoritesVoPageInfo.getList() == null) {
-                    return new PageInfo<>();
+
+                if (ListUtil.isListNullAndEmpty(favoritesStoreVoPageInfo.getList())) {
+                    favoritesStoreVoPageInfo = new PageInfo<>();
+                } else {
+                    favoritesStoreVoPageInfo.getList().forEach(a -> {
+                        //获取店铺标签
+                        List<Long> labelIds = storeRelLabelMapper.selectList(new QueryWrapper<SmStoreRelLabelPo>().lambda()
+                                .eq(SmStoreRelLabelPo::getStoreId, a.getStoreId())).stream().map(b -> b.getStoreLabelId()).collect(Collectors.toList());
+                        if (!ListUtil.isListNullAndEmpty(labelIds)) {
+                            List<String> labelNames = storeLabelMapper.selectBatchIds(labelIds).stream().map(c->c.getName()).collect(Collectors.toList());
+                            a.setStoreLabels(labelNames);
+                        }
+                    });
+                    searchFavoritesVo.setFavoritesStoreVo(favoritesStoreVoPageInfo);
+
                 }
-                return searchFavoritesVoPageInfo;
+                break;
+
             case INFORMATION:
-                searchFavoritesVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                PageInfo<FavoritesInformationVo>  favoritesInormationVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                         .doSelectPageInfo(() -> mapper.searchInformationFavorites(selectFavoritesDto, userPo.getId()));
-                if (searchFavoritesVoPageInfo.getList().size() == 0 || searchFavoritesVoPageInfo.getList() == null) {
-                    return new PageInfo<>();
+                if (ListUtil.isListNullAndEmpty(favoritesInormationVoPageInfo.getList())) {
+                    favoritesInormationVoPageInfo = new PageInfo<>();
+                }else {
+                    favoritesInormationVoPageInfo.getList().forEach(a->{
+                        if (a.getPicture() != null && a.getPicture() != "") {
+                            List<String> pictures = GuavaUtil.StringToList(a.getPicture(), String.class, ",");
+                            a.setPicture(pictures.get(0));
+                        }
+                    });
                 }
-                return searchFavoritesVoPageInfo;
+                searchFavoritesVo.setFavoritesInormationVo(favoritesInormationVoPageInfo);
+            break;
         }
-        return new PageInfo<>();
+        return searchFavoritesVo;
     }
 }

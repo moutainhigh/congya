@@ -54,5 +54,8 @@ public class AmCouponRelCouponUserPo implements Serializable {
     @ApiModelProperty(value = "优惠券是否已使用:1-已使用 2-未使用  3-失效")
     private Integer useStatus;
 
+    @ApiModelProperty(value = "用户有的优惠券的类型，1--领取 2--购买")
+    private Integer type;
+
 
 }

@@ -18,10 +18,10 @@
     <sql id="Base_Column_List">
         id, create_by, update_time, favorites_id, type, user_id, is_favorites
     </sql>
-    <select id="searchGoodsFavorites" resultType="com.chauncy.data.vo.app.user.favorites.SearchFavoritesVo">
-      select a.id,a.favorites_id as goods_id,b.name,b.icon as picture,b.collection_num
+    <select id="searchGoodsFavorites" resultType="com.chauncy.data.vo.app.user.favorites.FavoritesGoosVo">
+      select a.id,a.favorites_id as goods_id,b.name,b.icon as picture,b.sales_volume as buy_num
       from um_user_favorites a,pm_goods b
-      where a.user_id = #{userId} and a.type="商品" and a.favorites_id = b.id
+      where a.del_flag = 0 and b.del_flag = 0  and a.is_favorites = 1 and a.user_id = #{userId} and a.type="商品" and a.favorites_id = b.id
             <if test="selectFavoritesDto.categoryId !=null and selectFavoritesDto.categoryId !=''">
                 and b.category = #{selectFavoritesDto.categoryId}
             </if>
@@ -30,20 +30,22 @@
         </if>
     </select>
 
-    <select id="searchMerchantFavorites" resultType="com.chauncy.data.vo.app.user.favorites.SearchFavoritesVo">
-      select a.id,a.favorites_id as store_id,b.name,b.logo_image as picture,b.collection_num
+    <select id="searchMerchantFavorites" resultType="com.chauncy.data.vo.app.user.favorites.FavoritesStoreVo">
+      select a.id,a.favorites_id as store_id,b.name as store_name,b.logo_image as store_logo
+      ,b.store_describe as store_introduction
       from um_user_favorites a,sm_store b
-      where a.user_id = #{userId} and a.type="店铺" and a.favorites_id = b.id
+      where a.del_flag = 0 and b.del_flag = 0  and a.is_favorites = 1 and a.user_id = #{userId} and a.type="店铺" and a.favorites_id = b.id
         <if test="selectFavoritesDto.name!=null and selectFavoritesDto.name!=''">
             and b.name like concat('%', #{selectFavoritesDto.name}, '%')
         </if>
     </select>
 
     <select id="searchInformationFavorites"
-            resultType="com.chauncy.data.vo.app.user.favorites.SearchFavoritesVo">
-      select a.id,a.favorites_id as information_id,b.title,b.cover_image as picture,b.detail_html,b.collection_num
-      from um_user_favorites a,mm_information b
-      where a.user_id = #{userId} and a.type="资讯" and a.favorites_id = b.id
+            resultType="com.chauncy.data.vo.app.user.favorites.FavoritesInformationVo">
+      select a.id,a.favorites_id as information_id,b.title,b.cover_image as picture,b.detail_html,c.logo_image,c.name
+      from um_user_favorites a,mm_information b,sm_store c
+      where a.del_flag = 0 and b.del_flag = 0  and c.del_flag = 0 and a.is_favorites = 1 and a.user_id = #{userId}
+      and c.id = b.store_id and a.type="资讯" and a.favorites_id = b.id
         <if test="selectFavoritesDto.name!=null and selectFavoritesDto.name!=''">
             and b.name like concat('%', #{selectFavoritesDto.name}, '%')
         </if>
