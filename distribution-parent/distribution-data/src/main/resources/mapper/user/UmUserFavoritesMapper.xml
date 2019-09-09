@@ -41,7 +41,7 @@
 
     <select id="searchInformationFavorites"
             resultType="com.chauncy.data.vo.app.user.favorites.SearchFavoritesVo">
-      select a.id,a.favorites_id as information_id,b.title,b.cover_image as picture,b.detail_html,b.collectionNum
+      select a.id,a.favorites_id as information_id,b.title,b.cover_image as picture,b.detail_html,b.collection_num
       from um_user_favorites a,mm_information b
       where a.user_id = #{userId} and a.type="资讯" and a.favorites_id = b.id
         <if test="selectFavoritesDto.name!=null and selectFavoritesDto.name!=''">
