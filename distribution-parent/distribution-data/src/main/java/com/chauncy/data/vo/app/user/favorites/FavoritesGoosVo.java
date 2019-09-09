@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
+
 /**
  * @Author cheng
  * @create 2019-09-09 16:59
@@ -24,7 +26,7 @@ public class FavoritesGoosVo {
     public String picture;
 
     @ApiModelProperty("价格")
-    public String price;
+    public BigDecimal price;
 
     @ApiModelProperty("商品名称")
     public String name;

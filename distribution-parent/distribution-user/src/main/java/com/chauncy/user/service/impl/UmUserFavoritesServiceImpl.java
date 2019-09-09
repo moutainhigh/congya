@@ -319,7 +319,7 @@ public class UmUserFavoritesServiceImpl extends AbstractService<UmUserFavoritesM
                         } else {
                             sellPrice = lowestSellPrice.toString() + "-" + highestSellPrice;
                         }
-                        a.setPrice(sellPrice);
+                        a.setPrice(lowestSellPrice);
                     });
                 }
                 searchFavoritesVo.setFavoritesGoosVo(favoritesGoosVoPageInfo);
