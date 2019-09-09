@@ -4,6 +4,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.chauncy.common.enums.app.sort.SortFileEnum;
 import com.chauncy.common.enums.app.sort.SortWayEnum;
 import com.chauncy.common.enums.goods.StoreGoodsListTypeEnum;
+import com.chauncy.common.enums.goods.StoreGoodsTypeEnum;
 import com.chauncy.data.valid.annotation.EnumConstraint;
 import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import io.swagger.annotations.ApiModel;
@@ -36,7 +37,14 @@ public class SearchStoreGoodsDto  implements Serializable {
 
     @ApiModelProperty(value = "店铺商品列表类型")
     @NotNull(message = "店铺商品列表类型不能为空")
-    private StoreGoodsListTypeEnum storeGoodsListType;
+    @EnumConstraint(target = StoreGoodsListTypeEnum.class)
+    private Integer goodsType;
+
+    @ApiModelProperty(value = "商品三级分类id，goodsType为6时传参")
+    private Long goodsCategoryId;
+
+    @ApiModelProperty(value = "商品名称，goodsType为7时传参")
+    private String goodsName;
 
     @ApiModelProperty(value = "排序方式 默认降序（desc）")
     private SortWayEnum sortWay;

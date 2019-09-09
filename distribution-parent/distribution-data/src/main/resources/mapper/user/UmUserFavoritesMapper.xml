@@ -43,7 +43,7 @@
             resultType="com.chauncy.data.vo.app.user.favorites.SearchFavoritesVo">
       select a.id,a.favorites_id as information_id,b.title,b.cover_image as picture,b.detail_html,b.collectionNum
       from um_user_favorites a,mm_information b
-      where a.user_id = #{userId and a.type="资讯" and a.favorites_id = b.id
+      where a.user_id = #{userId} and a.type="资讯" and a.favorites_id = b.id
         <if test="selectFavoritesDto.name!=null and selectFavoritesDto.name!=''">
             and b.name like concat('%', #{selectFavoritesDto.name}, '%')
         </if>

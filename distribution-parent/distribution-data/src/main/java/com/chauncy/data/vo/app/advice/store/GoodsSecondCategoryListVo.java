@@ -23,7 +23,7 @@ public class GoodsSecondCategoryListVo implements Serializable {
     private String categoryName;
 
     @ApiModelProperty(value = "二级分类id")
-    private Integer categoryId;
+    private Long categoryId;
 
     @ApiModelProperty(value = "三级分类id")
     private List<GoodsThirdCategoryListVo> categoryList;

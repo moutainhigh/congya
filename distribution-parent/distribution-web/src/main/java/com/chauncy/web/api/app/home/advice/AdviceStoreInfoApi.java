@@ -113,12 +113,12 @@ public class AdviceStoreInfoApi extends BaseApi {
     }
 
     /**
-     * 店铺详情-首页/新品/推荐商品列表
+     * 店铺详情-首页/新品/推荐商品列表/全部商品/商品分类列表
      *
      * @param searchStoreGoodsDto
      * @return
      */
-    @ApiOperation("店铺详情-首页/新品/推荐商品列表")
+    @ApiOperation("店铺详情-首页/新品/推荐商品列表/全部商品/商品分类列表")
     @PostMapping("/searchGoodsBaseList")
     public JsonViewData<PageInfo<SearchGoodsBaseListVo>> searchGoodsBaseList(@RequestBody @ApiParam(required = true,
             name = "searchStoreGoodsDto",value = "查询条件")
