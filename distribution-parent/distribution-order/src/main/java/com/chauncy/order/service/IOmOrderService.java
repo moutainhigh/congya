@@ -1,5 +1,6 @@
 package com.chauncy.order.service;
 
+import com.chauncy.data.bo.app.order.RewardBo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
@@ -127,6 +128,15 @@ public interface IOmOrderService extends Service<OmOrderPo> {
      * 支付成功后需要做的操作
      */
     void afterPayDo(Long payOrderId);
+
+    /**
+     * 售后截止后需要做的操作
+     * @param orderId
+     */
+    void orderDeadline(Long orderId);
+
+
+
 
 
 

@@ -15,6 +15,7 @@ import com.chauncy.data.dto.supplier.store.update.SelectStockTemplateGoodsDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
+import com.chauncy.data.vo.app.advice.store.GoodsSecondCategoryListVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
 import com.chauncy.data.vo.supplier.activity.SearchAssociatedGoodsVo;
@@ -53,6 +54,13 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
      * @return
      */
     List<SearchGoodsBaseListVo> searchStoreGoodsBaseList(SearchStoreGoodsDto searchStoreGoodsDto);
+
+    /**
+     * 店铺详情-商品分类
+     * @param storeId
+     * @return
+     */
+    List<GoodsSecondCategoryListVo> findGoodsCategory(Long storeId);
 
     /**
      * 查找店铺下的推荐商品列表  前六个

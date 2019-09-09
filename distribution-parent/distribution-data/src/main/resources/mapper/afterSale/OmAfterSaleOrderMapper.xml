@@ -31,15 +31,21 @@
                 typeHandler="com.chauncy.web.config.mybatisplus.StringToListTypeHandler"/>
     </resultMap>
 
+    <resultMap id="ApplyAfterDetailVo" type="com.chauncy.data.vo.app.order.my.afterSale.ApplyAfterDetailVo"
+               autoMapping="true">
+        <result column="pictures" property="pictures" jdbcType="VARCHAR"
+                typeHandler="com.chauncy.web.config.mybatisplus.StringToListTypeHandler"/>
+    </resultMap>
+
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, create_by, create_time, update_by, update_time, del_flag, order_id, phone, store_id, store_name, goods_name, number, refund_money, after_sale_type, reason, status, goods_type, pictures, refund_id
     </sql>
-    <select id="searchGoodsTempByOrderId"
+    <select id="searchBrothersById"
             resultType="com.chauncy.data.vo.app.order.my.afterSale.ApplyAfterSaleVo">
-             select id goodsTempId, name,icon,real_pay_money,standard_str,number,order_id
+             select id goodsTempId, name,icon,real_pay_money,standard_str,number
              from om_goods_temp
-             where order_id=#{orderId} and del_flag=0
+             where order_id=(select order_id from om_goods_temp where id=#{id}) and del_flag=0
 
     </select>
     <select id="searchAfterSaleOrderList"
@@ -149,7 +155,32 @@
             o.id afterSaleOrderId,
             t.`name` goodsName,
             t.icon picture,
-            t.standard_str
+            t.standard_str,
+            t.real_pay_money maxRefundMoney
+
+        FROM
+            om_after_sale_order o,
+            om_after_sale_log l,
+            om_goods_temp t
+        WHERE
+            o.del_flag = 0
+            AND l.del_flag = 0
+            AND t.del_flag = 0
+            AND t.id = o.goods_temp_id AND o.id = l.after_sale_order_id
+            AND l.create_time = ( SELECT MAX( create_time ) FROM om_after_sale_log l2 WHERE l2.after_sale_order_id = #{afterSaleOrderId} )
+    </select>
+    <select id="getApplyAfterDetail" resultMap="ApplyAfterDetailVo">
+                SELECT
+
+            t.`name` name,
+            t.icon ,
+            t.standard_str,
+            t.real_pay_money realPayMoney,
+            t.number,
+            o.reason,
+            o.refund_money,
+            o.pictures,
+            l.describes describes
 
         FROM
             om_after_sale_order o,

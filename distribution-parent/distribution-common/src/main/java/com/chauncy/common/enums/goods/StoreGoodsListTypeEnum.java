@@ -12,11 +12,13 @@ import java.util.Objects;
 public enum StoreGoodsListTypeEnum  implements BaseEnum {
 
 
-    ALL_LIST(1,"全部商品"),
-    HOME_PAGE_LIST(2,"首页"),
+    ALL_LIST(1,"全部商品列表"),
+    HOME_PAGE_LIST(2,"首页商品列表"),
     NEW_LIST(3,"新品列表"),
     RECOMMEND_LIST(4,"推荐列表"),
     ACTIVITY_LIST(5,"活动列表"),
+    CATEGORY_LIST(6,"分类商品列表"),
+    SEARCH_LIST(7,"搜索商品列表"),
     ;
 
     private Integer id;
@@ -37,10 +39,9 @@ public enum StoreGoodsListTypeEnum  implements BaseEnum {
     }
 
     //通过枚举名称来获取结果
-    public static StoreGoodsListTypeEnum fromName(Object name) {
+    public static StoreGoodsListTypeEnum getById(Integer id) {
         for (StoreGoodsListTypeEnum type : StoreGoodsListTypeEnum.values()) {
-            StoreGoodsListTypeEnum storeGoodsListTypeEnum = (StoreGoodsListTypeEnum)name;
-            if (type.equals(storeGoodsListTypeEnum)) {
+            if (type.getId().equals(id)) {
                 return type;
             }
         }
@@ -66,7 +67,7 @@ public enum StoreGoodsListTypeEnum  implements BaseEnum {
     @Override
     public boolean isExist(Object field) {
 
-        return Objects.nonNull(fromName(field));
+        return Objects.nonNull(getById(Integer.parseInt(String.valueOf(field))));
     }
 
 }

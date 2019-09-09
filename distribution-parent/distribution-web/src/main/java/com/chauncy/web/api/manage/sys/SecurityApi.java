@@ -41,11 +41,11 @@ public class SecurityApi {
 
     @RequestMapping(value = "/needLogin",method = RequestMethod.GET)
     @ApiOperation(value = "没有登录")
-    public Result<Object> needLogin(){
+    public JsonViewData needLogin(){
 
         log.error("您还未登录");
 
-        return new ResultUtil<Object>().setErrorMsg(401, "您还未登录");
+        return new JsonViewData (ResultCode.FAIL,"您还未登录！");
     }
 
     @GetMapping("/logout")

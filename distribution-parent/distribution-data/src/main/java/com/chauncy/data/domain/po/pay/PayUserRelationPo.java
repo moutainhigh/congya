@@ -55,8 +55,8 @@ public class PayUserRelationPo implements Serializable {
     @TableLogic
     private Boolean delFlag;
 
-    @ApiModelProperty(value = "支付单id")
-    private Long payId;
+    @ApiModelProperty(value = "订单id")
+    private Long orderId;
 
     @ApiModelProperty(value = "上两级用户id")
     private Long lastTwoUserId;

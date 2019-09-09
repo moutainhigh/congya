@@ -117,14 +117,12 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
                     .signWith(SignatureAlgorithm.HS512, SecurityConstant.JWT_SIGN_KEY)
                     .compact();
         }
-        String loginType=request.getParameter("loginType");
+       /* String loginType=request.getParameter("loginType");
         if (loginType.equals("MANAGE")||loginType.equals("SUPPLIER")){
             ResponseUtil.out(response, ResponseUtil.resultMap(true,200,"登录成功", token));
-        }
-        else {
+        }*/
             ResponseUtil.out(response, new JsonViewData<String>(token));
 
-        }
 
     }
 }

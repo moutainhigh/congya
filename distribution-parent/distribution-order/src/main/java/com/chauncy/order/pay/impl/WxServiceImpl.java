@@ -8,6 +8,7 @@ import com.chauncy.common.enums.log.PaymentWayEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
+import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.common.util.wechat.WXConfigUtil;
 import com.chauncy.common.util.wechat.WxMD5Util;
 import com.chauncy.data.bo.manage.order.OrderRefundInfoBo;
@@ -338,17 +339,20 @@ public class WxServiceImpl implements IWxService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void refund(Long afterSaleOrderId) throws Exception {
+    public void refund(Long afterSaleOrderId,boolean isAuto)  {
 
         OmAfterSaleOrderPo omAfterSaleOrderPo = omAfterSaleOrderMapper.selectById(afterSaleOrderId);
         if(null == omAfterSaleOrderPo) {
             throw new ServiceException(ResultCode.NO_EXISTS, "退款订单记录不存在");
         }
-        //获取当前店铺用户
-        SysUserPo sysUserPo = securityUtil.getCurrUser();
-        if(null == sysUserPo.getStoreId() || !sysUserPo.getStoreId().equals(omAfterSaleOrderPo.getStoreId())) {
-            //当前登录用户跟操作不匹配
-            throw  new ServiceException(ResultCode.FAIL, "当前登录用户跟操作不匹配");
+        //如果不是延时任务，需要判断登录用户是否有权限
+        if (!isAuto) {
+            //获取当前店铺用户
+            SysUserPo sysUserPo = securityUtil.getCurrUser();
+            if (null == sysUserPo.getStoreId() || !sysUserPo.getStoreId().equals(omAfterSaleOrderPo.getStoreId())) {
+                //当前登录用户跟操作不匹配
+                throw new ServiceException(ResultCode.FAIL, "当前登录用户跟操作不匹配");
+            }
         }
         //售后订单仅退款且状态为待商家处理  或者  售后订单退货退款且状态为待商家退款 才能退款
         if(!((omAfterSaleOrderPo.getAfterSaleType() == AfterSaleTypeEnum.ONLY_REFUND &&
@@ -390,11 +394,23 @@ public class WxServiceImpl implements IWxService {
         //退款结果通知url
         data.put("notify_url", REFUND_NOTIFY_URL);
         //申请退款签名
-        String orderSign = md5Util.getSign(data);
+        String orderSign = null;
+        try {
+            orderSign = md5Util.getSign(data);
+        } catch (Exception e) {
+            LoggerUtil.error(e);
+            throw new ServiceException(ResultCode.FAIL,"微信退款出错！");
+        }
         data.put("sign", orderSign);
 
         //使用微信申请退款API请求预付订单
-        Map<String, String> response = wxpay.refund(data);
+        Map<String, String> response = null;
+        try {
+            response = wxpay.refund(data);
+        } catch (Exception e) {
+            LoggerUtil.error(e);
+            throw new ServiceException(ResultCode.FAIL,"微信退款出错！");
+        }
         //获取返回码
         String returnCode = response.get("return_code");
         //若返回码return_code为SUCCESS，则会返回一个result_code,再对该result_code进行判断
@@ -405,9 +421,9 @@ public class WxServiceImpl implements IWxService {
                 //更新售后订单订单
                 UpdateWrapper<OmAfterSaleOrderPo> updateWrapper = new UpdateWrapper<>();
                 updateWrapper.lambda().eq(OmAfterSaleOrderPo::getId, omAfterSaleOrderPo.getId())
-                        .set(OmAfterSaleOrderPo::getRefundId, response.get("refund_id"))
-                        .set(OmAfterSaleOrderPo::getStatus, AfterSaleStatusEnum.SUCCESS);
+                        .set(OmAfterSaleOrderPo::getRefundId, response.get("refund_id"));
                 omAfterSaleOrderService.update(updateWrapper);
+                omAfterSaleOrderService.permitRefund(afterSaleOrderId,isAuto);
             } else {
                 //调用微信申请退款接口返回失败
                 String errCodeDes = response.get("err_code_des");

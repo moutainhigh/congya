@@ -15,6 +15,7 @@ import com.chauncy.data.vo.manage.order.bill.BillRelGoodsTempVo;
 import com.chauncy.data.vo.manage.order.bill.BillReportVo;
 import com.chauncy.data.vo.supplier.good.stock.StockTemplateSkuInfoVo;
 import com.chauncy.data.vo.supplier.good.stock.StoreGoodsStockVo;
+import com.chauncy.data.vo.supplier.store.BranchInfoVo;
 import com.chauncy.order.bill.service.IOmOrderBillService;
 import com.chauncy.order.report.service.IOmOrderReportService;
 import com.chauncy.product.stock.IPmGoodsVirtualStockTemplateService;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 /**
  * @author yeJH
@@ -79,7 +81,7 @@ public class PsStoreGoodsStockApi extends BaseApi {
     @GetMapping("/branch/searchBranchByName")
     @ApiOperation(value = "获取当前店铺的下级店铺(分店)（模糊搜索）")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData searchBranchByName(@Valid @ApiParam("店铺名称") @RequestParam(required = false, name = "storeName", value = "")
+    public JsonViewData<List<BranchInfoVo>> searchBranchByName(@Valid @ApiParam("店铺名称") @RequestParam(required = false, name = "storeName", value = "")
                                      String storeName) {
 
 
