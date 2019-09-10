@@ -20,4 +20,11 @@ public interface IAmGiftOrderService extends Service<AmGiftOrderPo> {
      * @return
      */
     Long buyGift(Long giftId);
+
+    /**
+     * 用户购买礼包之后对用户信息进行更新处理
+     *
+     * @param orderId
+     */
+    void payPost(Long orderId);
 }

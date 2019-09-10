@@ -51,6 +51,12 @@ public interface IMmAdviceService extends Service<MmAdvicePo> {
     List<StoreCategoryInfoVo> findStoreCategory();
 
     /**
+     * 获取资讯动态下推荐的分类
+     * @return
+     */
+    List<BaseVo> findInfoCategory();
+
+    /**
      * 获取有店下的店铺分类选项卡内容
      * @param storeCategoryId
      * @return
@@ -167,7 +173,7 @@ public interface IMmAdviceService extends Service<MmAdvicePo> {
     PageInfo<SearchBrandAndSkuBaseVo> searchBrandAndSkuBase(SearchBrandAndSkuBaseDto searchBrandAndSkuBaseDto);
 
     /**
-     * 分页条件查询品牌下的商品列表
+     * 分页条件查询首页下面的商品列表/品牌id/选项卡id/商品分类id/葱鸭百货关联/优惠券关联下的商品列表
      *
      * @param searchGoodsBaseListDto
      * @return

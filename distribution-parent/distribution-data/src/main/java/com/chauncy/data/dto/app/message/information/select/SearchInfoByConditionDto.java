@@ -25,25 +25,27 @@ public class SearchInfoByConditionDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
 
-    @ApiModelProperty(value = "店铺id")
+    /*@ApiModelProperty(value = "店铺id")
     @NeedExistConstraint(tableName = "sm_store")
-    private Long storeId;
+    private Long storeId;*/
 
     @JsonIgnore
     @JSONField(serialize=false)
-    @ApiModelProperty(value = "店铺id")
+    @ApiModelProperty(value = "用户id 获取用户关注的店铺资讯")
     private Long userId;
 
-    @ApiModelProperty(value = "资讯标签id")
+    /*@ApiModelProperty(value = "资讯标签id")
     @NeedExistConstraint(tableName = "mm_information_label")
-    private Long infoLabelId;
+    private Long infoLabelId;*/
 
     @ApiModelProperty(value = "资讯分类id")
     @NeedExistConstraint(tableName = "mm_information_category")
     private Long infoCategoryId;
 
-    @ApiModelProperty(value = "资讯类型：  关注->FOCUSLIST  热榜->HOTLIST")
-    private InformationTypeEnum informationTypeEnum;
+    @ApiModelProperty(value = "资讯类型")
+    @NotNull(message = "资讯列表类型不能为空")
+    @EnumConstraint(target = InformationTypeEnum.class)
+    private Integer informationType;
 
     @ApiModelProperty(value = "模糊搜索关键字")
     private String keyword;

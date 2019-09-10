@@ -1,5 +1,6 @@
 package com.chauncy.common.enums.message;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.chauncy.common.enums.BaseEnum;
 
 import java.util.Objects;
@@ -13,13 +14,17 @@ public enum InformationTypeEnum implements BaseEnum {
     /**
      * 资讯标签
      * 1-关注  用户关注的店铺发布的资讯
-     * 2-热榜  店铺发布的资讯按浏览量排序
+     * 2-推荐
      */
-    FOCUSLIST(1,"关注"),
-    HOTLIST(2,"热榜"),
+    ALL_LIST(1, "全部资讯列表"),
+    FOCUS_LIST(2,"关注资讯列表"),
+    RECOMMEND_LIST(3,"推荐资讯列表"),
+    CATEGORY_LIST(4,"分类资讯列表"),
+    SEARCH_LIST(5,"搜索资讯列表"),
     ;
 
 
+    @EnumValue
     private Integer id;
     private String name;
     InformationTypeEnum(Integer id, String name){
@@ -29,7 +34,7 @@ public enum InformationTypeEnum implements BaseEnum {
 
     @Override
     public String toString(){
-        return this.name() + ":" + this.id + "_" + this.name;
+        return this.id + "_" + this.name;
     }
 
     public static String value(String name){
@@ -81,6 +86,6 @@ public enum InformationTypeEnum implements BaseEnum {
     @Override
     public boolean isExist(Object field) {
 
-        return Objects.nonNull(fromName(field.toString()));
+        return Objects.nonNull(getById((Integer)field));
     }
 }

@@ -22,7 +22,9 @@ public enum ConditionTypeEnum implements BaseEnum {
 
     BAIHUO_ASSOCIATED(4,"百货关联的所有商品列表"),
 
-    COUPON(5,"优惠券关联的所有商品列表");
+    COUPON(5,"优惠券关联的所有商品列表"),
+
+    HOME(6,"首页下面的商品列表");
 
     @EnumValue  //这个注解放在数据库存储的字段上
     private Integer id;
