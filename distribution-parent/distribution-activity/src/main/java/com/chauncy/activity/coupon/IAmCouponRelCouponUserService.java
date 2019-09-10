@@ -4,6 +4,7 @@ import com.chauncy.data.domain.po.activity.coupon.AmCouponRelCouponUserPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.advice.coupon.SearchReceiveCouponDto;
 import com.chauncy.data.vo.app.advice.coupon.SearchReceiveCouponVo;
+import com.chauncy.data.vo.app.advice.gift.SearchTopUpGiftVo;
 import com.github.pagehelper.PageInfo;
 
 /**

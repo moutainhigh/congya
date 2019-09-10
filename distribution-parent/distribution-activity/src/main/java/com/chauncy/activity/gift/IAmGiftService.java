@@ -3,6 +3,7 @@ package com.chauncy.activity.gift;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.activity.gift.AmGiftPo;
+import com.chauncy.data.dto.app.advice.goods.select.SearchTopUpGiftDto;
 import com.chauncy.data.dto.manage.activity.EditEnableDto;
 import com.chauncy.data.dto.manage.activity.gift.add.SaveGiftDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchBuyGiftRecordDto;
@@ -10,6 +11,7 @@ import com.chauncy.data.dto.manage.activity.gift.select.SearchCouponDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchGiftDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchReceiveGiftRecordDto;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.app.advice.gift.SearchTopUpGiftVo;
 import com.chauncy.data.vo.manage.activity.gift.FindGiftVo;
 import com.chauncy.data.vo.manage.activity.gift.SearchBuyGiftRecordVo;
 import com.chauncy.data.vo.manage.activity.gift.SearchGiftListVo;
@@ -117,4 +119,12 @@ public interface IAmGiftService extends Service<AmGiftPo> {
      * @return
      */
     BaseVo getGift();
+
+    /**
+     * 分页查询购买经验包信息
+     *
+     * @param searchTopUpGiftDto
+     * @return
+     */
+    PageInfo<SearchTopUpGiftVo> searchTopUPGift(SearchTopUpGiftDto searchTopUpGiftDto);
 }
