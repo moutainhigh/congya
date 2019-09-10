@@ -20,11 +20,12 @@
         <result column="integrals" property="integrals" />
         <result column="picture" property="picture" />
         <result column="detail_html" property="detailHtml" />
+        <result column="pay_status" property="payStatus" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, create_by, create_time, update_by, update_time, del_flag, pay_order_id, user_id, gift_id, gift_name, purchase_price, experience, vouchers, integrals,picture,detailHtml
+        id, create_by, create_time, update_by, update_time, del_flag, pay_order_id, user_id, gift_id, gift_name, purchase_price, experience, vouchers, integrals,picture,detailHtml,pay_status
     </sql>
 
 </mapper>

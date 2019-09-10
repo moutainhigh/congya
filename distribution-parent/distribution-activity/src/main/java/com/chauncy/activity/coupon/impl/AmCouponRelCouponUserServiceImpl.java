@@ -1,6 +1,7 @@
 package com.chauncy.activity.coupon.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.chauncy.common.enums.app.coupon.CouponBeLongTypeEnum;
 import com.chauncy.common.enums.app.coupon.CouponUseStatusEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
@@ -15,6 +16,7 @@ import com.chauncy.activity.coupon.IAmCouponRelCouponUserService;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.vo.app.advice.coupon.SearchReceiveCouponVo;
+import com.chauncy.data.vo.app.advice.gift.SearchTopUpGiftVo;
 import com.chauncy.data.vo.manage.message.content.BootPageVo;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
@@ -114,26 +116,39 @@ public class AmCouponRelCouponUserServiceImpl extends AbstractService<AmCouponRe
             throw new ServiceException(ResultCode.FAIL,String.format("优惠券:[%s]已被抢光了!",couponPo.getName()));
         }
 
-        //获取用户领取该优惠券的数量
+        //获取用户领取(type为1)该优惠券的数量
         List<AmCouponRelCouponUserPo> relCouponUserList = relCouponUserMapper.selectList(new QueryWrapper<AmCouponRelCouponUserPo>().lambda()
-                .eq(AmCouponRelCouponUserPo::getUserId,userPo.getId()).eq(AmCouponRelCouponUserPo::getCouponId,couponId));
+                .eq(AmCouponRelCouponUserPo::getUserId,userPo.getId()).eq(AmCouponRelCouponUserPo::getCouponId,couponId)
+                .eq(AmCouponRelCouponUserPo::getType,CouponBeLongTypeEnum.RECEIVE.getId()));
+
         AmCouponRelCouponUserPo relCouponUserPo = new AmCouponRelCouponUserPo();
-        if (ListUtil.isListNullAndEmpty(relCouponUserList)){
+        /*if (ListUtil.isListNullAndEmpty(relCouponUserList)){
             //更新优惠券库存信息
             couponMapper.receiveForUpdate(couponId);
             //保存到用户与优惠券关联表
             relCouponUserPo.setCreateBy(userPo.getTrueName()).setId(null).setCouponId(couponId).setReceiveNum(1)
-                    .setUserId(userPo.getId()).setUseStatus(CouponUseStatusEnum.NOT_USED.getId());
+                    .setUserId(userPo.getId()).setUseStatus(CouponUseStatusEnum.NOT_USED.getId()).setType(CouponBeLongTypeEnum.RECEIVE.getId());
             relCouponUserMapper.insert(relCouponUserPo);
         }else if (relCouponUserList.size() < couponPo.getEveryLimitNum()){
             //更新优惠券库存信息
             couponMapper.receiveForUpdate(couponId);
             //保存到用户与优惠券关联表
             relCouponUserPo.setCreateBy(userPo.getTrueName()).setId(null).setCouponId(couponId).setReceiveNum(1)
-                    .setUserId(userPo.getId()).setUseStatus(CouponUseStatusEnum.NOT_USED.getId());
+                    .setUserId(userPo.getId()).setUseStatus(CouponUseStatusEnum.NOT_USED.getId()).setType(CouponBeLongTypeEnum.RECEIVE.getId());
             relCouponUserMapper.insert(relCouponUserPo);
         }else {
             throw new ServiceException(ResultCode.FAIL,String.format("领取的优惠券:【%s】以达到上限:[%s]！",couponPo.getName(),couponPo.getEveryLimitNum()));
+        }*/
+
+        if (!ListUtil.isListNullAndEmpty(relCouponUserList) && relCouponUserList.size() >= couponPo.getEveryLimitNum()){
+            throw new ServiceException(ResultCode.FAIL,String.format("领取的优惠券:【%s】以达到上限:[%s]！",couponPo.getName(),couponPo.getEveryLimitNum()));
+        }else{
+            //更新优惠券库存信息
+            couponMapper.receiveForUpdate(couponId);
+            //保存到用户与优惠券关联表
+            relCouponUserPo.setCreateBy(userPo.getTrueName()).setId(null).setCouponId(couponId).setReceiveNum(1)
+                    .setUserId(userPo.getId()).setUseStatus(CouponUseStatusEnum.NOT_USED.getId()).setType(CouponBeLongTypeEnum.RECEIVE.getId());
+            relCouponUserMapper.insert(relCouponUserPo);
         }
 
     }

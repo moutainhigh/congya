@@ -1,11 +1,13 @@
 package com.chauncy.data.mapper.activity.gift;
 
 import com.chauncy.data.domain.po.activity.gift.AmGiftPo;
+import com.chauncy.data.dto.app.advice.goods.select.SearchTopUpGiftDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchBuyGiftRecordDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchGiftDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchReceiveGiftRecordDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.app.advice.gift.SearchTopUpGiftVo;
 import com.chauncy.data.vo.manage.activity.gift.FindGiftVo;
 import com.chauncy.data.vo.manage.activity.gift.SearchBuyGiftRecordVo;
 import com.chauncy.data.vo.manage.activity.gift.SearchGiftListVo;
@@ -55,7 +57,7 @@ public interface AmGiftMapper extends IBaseMapper<AmGiftPo> {
     List<SearchReceiveGiftRecordVo> searchReceiveRecord(SearchReceiveGiftRecordDto searchReceiveRecordDto);
 
     /**
-     * 多条件查询购买礼包记录
+     * 多条件查询购买礼包记录(pay_status为2)
      *
      * @param searchBuyGiftRecordDto
      * @return
@@ -69,4 +71,24 @@ public interface AmGiftMapper extends IBaseMapper<AmGiftPo> {
      */
     @Select("select id,picture as name from am_gift where del_flag = 0 and enable = 1")
     BaseVo getGift();
+
+    /**
+     * 分页查询购买经验包信息
+     *
+     * @param searchTopUpGiftDto
+     * @return
+     */
+    @Select("select id as gift_id,name as gift_name,picture,purchase_price,detail_html,integrals,vouchers,experience from am_gift where del_flag=0 and enable = 1 and type = #{type}")
+    List<SearchTopUpGiftVo> searchTopUPGift(SearchTopUpGiftDto searchTopUpGiftDto);
+
+    /**
+     * 获取礼包关联的优惠券
+     *
+     * @param giftId
+     * @return
+     */
+    @Select("SELECT a.id,a.name\n" +
+            "from am_coupon a,am_gift_rel_gift_coupon b\n" +
+            "where b.gift_id = #{giftId}  and a.id = b.coupon_id and a.del_flag = 0")
+    List<BaseVo> findCouponList(Long giftId);
 }
