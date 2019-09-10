@@ -71,17 +71,20 @@ public class AmGiftOrderPo implements Serializable {
     private BigDecimal purchasePrice;
 
     @ApiModelProperty(value = "经验值")
-    private Integer experience;
+    private BigDecimal experience;
 
     @ApiModelProperty(value = "购物券")
-    private Integer vouchers;
+    private BigDecimal vouchers;
 
     @ApiModelProperty(value = "积分")
-    private Integer integrals;
+    private BigDecimal integrals;
 
     @ApiModelProperty("礼包图片")
     private String picture;
 
     @ApiModelProperty("图文详情")
     private String detailHtml;
+
+    @ApiModelProperty(value = "支付状态 0-未支付。1-已支付")
+    private Integer payStatus;
 }

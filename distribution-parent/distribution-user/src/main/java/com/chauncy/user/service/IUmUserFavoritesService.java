@@ -39,5 +39,5 @@ public interface IUmUserFavoritesService extends Service<UmUserFavoritesPo> {
      * @param selectFavoritesDto
      * @return
      */
-    PageInfo<SearchFavoritesVo> searchFavorites (SelectFavoritesDto selectFavoritesDto, UmUserPo userPo);
+    SearchFavoritesVo searchFavorites (SelectFavoritesDto selectFavoritesDto, UmUserPo userPo);
 }

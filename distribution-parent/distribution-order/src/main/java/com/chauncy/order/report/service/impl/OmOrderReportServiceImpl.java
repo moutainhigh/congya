@@ -91,7 +91,7 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
     @Override
     public PageInfo<ReportBaseInfoVo> searchReportPaging(SearchReportDto searchReportDto) {
 
-        if(!ReportTypeEnum.PLATFORM_REPORT.name().equals(searchReportDto.getReportType())) {
+        if(!ReportTypeEnum.PLATFORM_REPORT.getId().equals(searchReportDto.getReportType())) {
             //店铺用户查找对应的商品销售报表
             //获取当前店铺用户
             Long storeId = securityUtil.getCurrUser().getStoreId();
@@ -185,6 +185,7 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
      *   下单的商品不同数量可能来自不同的批次
      * 2.店铺虚拟库存对应批次的商品规格剩余数量扣减
      * 3.店铺商品规格库存对应的库存减少
+     * 4.订单中已售后的商品不扣减库存
      * PS:不一定有足够的虚拟库存扣减
      * @param orderId  订单id
      */
@@ -196,7 +197,10 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
             throw new ServiceException(ResultCode.NO_EXISTS, "订单不存在");
         }
         QueryWrapper<OmGoodsTempPo> omGoodsTempPoWrapper = new QueryWrapper<>();
-        omGoodsTempPoWrapper.lambda().eq(OmGoodsTempPo::getOrderId, orderId);
+        //售后商品不需要扣减库存
+        omGoodsTempPoWrapper.lambda()
+                .eq(OmGoodsTempPo::getOrderId, orderId)
+                .eq(OmGoodsTempPo::getIsAfterSale, false);
         List<OmGoodsTempPo> omGoodsTempPoList = omGoodsTempMapper.selectList(omGoodsTempPoWrapper);
         for(OmGoodsTempPo omGoodsTempPo : omGoodsTempPoList) {
             //根据订单商品数量  判断店铺虚拟库存批次

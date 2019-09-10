@@ -3,17 +3,22 @@ package com.chauncy.activity.gift.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.activity.gift.IAmGiftRelGiftCouponService;
 import com.chauncy.activity.gift.IAmGiftService;
+import com.chauncy.common.enums.app.coupon.CouponBeLongTypeEnum;
+import com.chauncy.common.enums.app.coupon.CouponUseStatusEnum;
 import com.chauncy.common.enums.app.gift.GiftTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.activity.coupon.AmCouponRelCouponUserPo;
 import com.chauncy.data.domain.po.activity.gift.AmGiftOrderPo;
 import com.chauncy.data.domain.po.activity.gift.AmGiftPo;
 import com.chauncy.data.domain.po.activity.gift.AmGiftRelGiftCouponPo;
 import com.chauncy.data.domain.po.activity.gift.AmGiftRelGiftUserPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.dto.app.advice.goods.select.SearchTopUpGiftDto;
 import com.chauncy.data.dto.manage.activity.EditEnableDto;
 import com.chauncy.data.dto.manage.activity.gift.add.SaveGiftDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchBuyGiftRecordDto;
@@ -25,7 +30,9 @@ import com.chauncy.data.mapper.activity.gift.AmGiftMapper;
 import com.chauncy.data.mapper.activity.gift.AmGiftOrderMapper;
 import com.chauncy.data.mapper.activity.gift.AmGiftRelGiftCouponMapper;
 import com.chauncy.data.mapper.activity.gift.AmGiftRelGiftUserMapper;
+import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.app.advice.gift.SearchTopUpGiftVo;
 import com.chauncy.data.vo.manage.activity.gift.FindGiftVo;
 import com.chauncy.data.vo.manage.activity.gift.SearchBuyGiftRecordVo;
 import com.chauncy.data.vo.manage.activity.gift.SearchGiftListVo;
@@ -72,6 +79,9 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
 
     @Autowired
     private AmGiftRelGiftUserMapper relGiftUserMapper;
+
+    @Autowired
+    private UmUserMapper userMapper;
 
     @Autowired
     private AmGiftOrderMapper giftOrderMapper;
@@ -305,6 +315,27 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
         relGiftUserPo.setUserId(userPo.getId());
         relGiftUserPo.setGiftId(giftId);
         relGiftUserMapper.insert(relGiftUserPo);
+
+        //获取礼包里面的详情
+        //1、获取经验值并更新 2、获取购物券并更新 3、获取积分并更新
+        userPo.setCurrentExperience(BigDecimalUtil.safeAdd(userPo.getCurrentExperience(),giftPo.getExperience()))
+                .setCurrentShopTicket(BigDecimalUtil.safeAdd(userPo.getCurrentShopTicket(),giftPo.getVouchers()))
+                .setCurrentIntegral(BigDecimalUtil.safeAdd(userPo.getCurrentIntegral(),giftPo.getIntegrals()));
+        userMapper.updateById(userPo);
+
+        //4、获取优惠券并更新
+        List<Long> couponIds = relGiftCouponMapper.selectList(new QueryWrapper<AmGiftRelGiftCouponPo>().lambda()
+                .eq(AmGiftRelGiftCouponPo::getGiftId,giftId)).stream().map(a->a.getCouponId()).collect(Collectors.toList());
+
+        if (!ListUtil.isListNullAndEmpty(couponIds)){
+            couponIds.forEach(a->{
+                //保存到用户和优惠券关联表中
+                AmCouponRelCouponUserPo relCouponUserPo = new AmCouponRelCouponUserPo();
+                relCouponUserPo.setId(null).setCreateBy(userPo.getTrueName()).setUseStatus(CouponUseStatusEnum.NOT_USED.getId())
+                        .setReceiveNum(1).setType(CouponBeLongTypeEnum.RECEIVE.getId()).setUserId(userPo.getId()).setCouponId(a);
+            });
+        }
+        //TODO junhao补充流水
     }
 
     /**
@@ -433,5 +464,30 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
         BaseVo giftInfo = mapper.getGift();
 
         return giftInfo;
+    }
+
+    /**
+     * 分页查询购买经验包信息
+     *
+     * @param searchTopUpGiftDto
+     * @return
+     */
+    @Override
+    public PageInfo<SearchTopUpGiftVo> searchTopUPGift(SearchTopUpGiftDto searchTopUpGiftDto) {
+
+        int pageNo = searchTopUpGiftDto.getPageNo() == null ? defaultPageNo : searchTopUpGiftDto.getPageNo();
+        int pageSize = searchTopUpGiftDto.getPageSize() == null ? defaultPageSize : searchTopUpGiftDto.getPageSize();
+
+        PageInfo<SearchTopUpGiftVo> searchTopUpGiftVoPageInfo = PageHelper.startPage(pageNo,pageSize)
+                .doSelectPageInfo(()->mapper.searchTopUPGift(searchTopUpGiftDto)
+        );
+
+        //获取礼包关联的优惠券
+        searchTopUpGiftVoPageInfo.getList().forEach(a->{
+            List<BaseVo> couponList = mapper.findCouponList(a.getGiftId());
+            a.setCouponList(couponList);
+        });
+
+        return searchTopUpGiftVoPageInfo;
     }
 }

@@ -39,9 +39,9 @@ public enum ReportTypeEnum  implements BaseEnum {
     }
 
     //通过Id获取结果
-    public static ReportTypeEnum fromName(String name) {
+    public static ReportTypeEnum getById(Integer id) {
         for (ReportTypeEnum type : ReportTypeEnum.values()) {
-            if (type.name().equals(name))
+            if (type.getId().equals(id))
                 return type;
         }
         return null;
@@ -67,7 +67,7 @@ public enum ReportTypeEnum  implements BaseEnum {
     @Override
     public boolean isExist(Object field) {
 
-        return Objects.nonNull(fromName(field.toString()));
+        return Objects.nonNull(getById(Integer.parseInt(field.toString())));
     }
 
 

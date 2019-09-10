@@ -69,7 +69,7 @@
         select a.id as user_id,a.true_name as user_name,a.phone,c.create_time,c.gift_name,c.experience,c.vouchers,
         c.integrals,c.gift_id,c.id as order_id,c.picture,c.detail_html,c.purchase_price
         from um_user a,am_gift_order c
-        where c.user_id = a.id
+        where c.user_id = a.id and c.pay_status = 2
         <if test="userId != null">
             and a.id = #{userId}
         </if>

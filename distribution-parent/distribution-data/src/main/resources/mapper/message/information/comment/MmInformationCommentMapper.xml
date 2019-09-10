@@ -93,13 +93,14 @@
             mic.create_time,
             mic.enabled,
             mic.liked_num,
+            mic.content,
             (
-                SELECT GROUP_CONCAT(`ssl`.name)
-                FROM sm_store_label `ssl` ,sm_store_rel_label ssrl
-                WHERE `ssrl`.store_label_id = `ssl`.id
-                AND `ssrl`.store_id = su.`store_id`
-                AND `ssl`.del_flag = 0
-                ) AS storeLabels,
+                SELECT GROUP_CONCAT(`uul`.name)
+                FROM um_user_label `uul` ,um_rel_user_label urul
+                WHERE `urul`.user_label_id = `uul`.id
+                AND `urul`.user_id = uu.`id`
+                AND `urul`.del_flag = 0
+                ) AS labels,
             (EXISTS
                 (SELECT 1
                 FROM mm_comment_liked mcl

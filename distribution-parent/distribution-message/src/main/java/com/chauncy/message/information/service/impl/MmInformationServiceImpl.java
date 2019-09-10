@@ -263,11 +263,15 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
         if (null != informationBaseVo.getCoverImage()){
             informationBaseVo.setCoverImageList(Splitter.on(",")
                     .omitEmptyStrings().splitToList(informationBaseVo.getCoverImage()));
+            //资讯主图数量
+            informationBaseVo.setPictureNum( informationBaseVo.getCoverImageList().size());
         }
         //查询资讯关联的商品列表
         List<GoodsBaseInfoVo> goodsBaseInfoVoList = new ArrayList<>();
         goodsBaseInfoVoList = pmGoodsMapper.searchGoodsByInfoId(mmInformationPo.getId());
         informationBaseVo.setGoodsBaseInfoVoList(goodsBaseInfoVoList);
+        //商品数量
+        informationBaseVo.setGoodsNum(null != goodsBaseInfoVoList ? goodsBaseInfoVoList.size() : 0);
         return informationBaseVo;
     }
 

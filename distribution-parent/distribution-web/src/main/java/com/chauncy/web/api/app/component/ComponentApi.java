@@ -6,6 +6,7 @@ import com.chauncy.data.dto.app.component.ShareDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.message.content.service.IMmBootPageService;
+import com.chauncy.message.content.service.IMmKeywordsSearchService;
 import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.web.base.BaseApi;
 import io.swagger.annotations.Api;
@@ -35,6 +36,9 @@ public class ComponentApi extends BaseApi {
     private IAmGiftService giftService;
 
     @Autowired
+    private IMmKeywordsSearchService mmKeywordsSearchService;
+
+    @Autowired
     private IPmGoodsService goodsService;
 
     /**
@@ -46,6 +50,17 @@ public class ComponentApi extends BaseApi {
     @GetMapping("/isReceive")
     public JsonViewData isReceive(){
         return setJsonViewData(giftService.isReceive());
+    }
+
+    /**
+     * 获取搜索界面-热门搜索词语
+     *
+     * @return
+     */
+    @ApiOperation("获取搜索界面-热门搜索词语")
+    @GetMapping("/getKeyWordByType/{type}")
+    public JsonViewData<List<String>> isReceive(@ApiParam(required = true, value = "1：商品；2：店铺；3：资讯") @PathVariable Integer type){
+        return setJsonViewData(mmKeywordsSearchService.getKeyWordByType(type));
     }
 
     /**

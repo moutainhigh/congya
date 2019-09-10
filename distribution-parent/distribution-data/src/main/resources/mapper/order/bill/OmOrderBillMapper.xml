@@ -210,7 +210,7 @@
             ss.`name`,
             oob.`total_amount`,
             oob.`total_num`,
-            oob.`create_time`,
+            oob.`create_time`
         FROM om_bill_rel_store obrs
         LEFT JOIN om_order_bill oob
         ON obrs.bill_id = oob.id

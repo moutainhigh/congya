@@ -1,5 +1,6 @@
 package com.chauncy.message.content.service;
 
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.message.content.MmKeywordsSearchPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.manage.message.content.add.AddKeyWordsDto;
@@ -25,6 +26,13 @@ public interface IMmKeywordsSearchService extends Service<MmKeywordsSearchPo> {
      * @return
      */
     List<String> selectKeyWordType();
+
+    /**
+     *  获取搜索界面-热门搜索词语
+     * @param type
+     * @return
+     */
+    List<Object> getKeyWordByType(Integer type);
 
     /**
      * 添加关键字

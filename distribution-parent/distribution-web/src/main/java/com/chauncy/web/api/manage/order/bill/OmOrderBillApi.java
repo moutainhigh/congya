@@ -176,7 +176,9 @@ public class OmOrderBillApi  extends BaseApi {
      * @return
      */
     @ApiOperation(value = "查询商品销售报表",
-            notes = "根据账单号，生成时间，直属商家，分配商家等条件查找")
+            notes = "根据账单号，生成时间，直属商家，分配商家等条件查找    \n" +
+                    "商品销售报表类型（reportType）   \n" +
+                    "1.总后台展示商品销售报表； 2.商家后台展示商品销售报表 3.商家后台展示分店商品销售报表")
     @PostMapping("/report/searchReportPaging")
     public JsonViewData<PageInfo<ReportBaseInfoVo>> searchReportPaging(@Valid @RequestBody @ApiParam(required = true, name = "searchReportDto", value = "查询条件")
                                                                              SearchReportDto searchReportDto) {
