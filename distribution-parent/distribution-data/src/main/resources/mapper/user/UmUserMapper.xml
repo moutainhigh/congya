@@ -3,6 +3,48 @@
 <mapper namespace="com.chauncy.data.mapper.user.UmUserMapper">
 
     <!-- 通用查询映射结果 -->
+    <update id="updateAdd">
+        UPDATE `um_user`
+        SET
+        <if test="currentExperience!=null">
+            `current_experience` = current_experience+#{currentExperience},
+        </if>
+        <if test="currentRedEnvelops!=null">
+            `current_red_envelops` = current_red_envelops+#{currentRedEnvelops},
+        </if>
+        <if test="currentIntegral!=null">
+            `current_integral` = current_integral+#{currentIntegral},
+        </if>
+        <if test="currentShopTicket!=null">
+            `current_shop_ticket` =current_shop_ticket+ #{currentShopTicket},
+        </if>
+        <if test="totalConsumeMoney!=null">
+            `total_consume_money` =total_consume_money+ #{totalConsumeMoney},
+        </if>
+        <if test="invitePeopleNum!=null">
+            `invite_people_num` =invite_people_num+ #{invitePeopleNum},
+        </if>
+        <if test="currentRedEnvelops!=null">
+            `total_red_envelops` =total_red_envelops+ #{currentRedEnvelops},
+        </if>
+        <if test="currentIntegral!=null">
+            `total_integral` =total_integral+ #{currentIntegral},
+
+        </if>
+        <if test="currentShopTicket!=null">
+            `total_shop_ticket` =total_shop_ticket+ #{currentShopTicket},
+        </if>
+        <if test="totalOrder!=null">
+            `total_order` =total_order+ #{totalOrder},
+        </if>
+        id=#{id}
+        WHERE
+        `id` = #{id};
+
+
+    </update>
+
+    <!-- 通用查询结果列 -->
     <update id="updateUmUser">
         update um_user set
         <if test="t.memberLevelId!=0">
@@ -23,7 +65,6 @@
         where id=#{t.id}
     </update>
 
-    <!-- 通用查询结果列 -->
     <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.user.UmUserPo">
         <id column="id" property="id"/>
         <result column="create_by" property="createBy"/>
@@ -59,26 +100,8 @@
     <sql id="Base_Column_List">
         id, create_by, create_time, update_by, update_time, del_flag, name, sex, invite_code, parent_id, store_id, commission_status, enabled, login_times, recent_login_time, current_experience, current_red_envelops, current_integral, current_shop_ticket, total_consume_money, invite_people_num, total_red_envelops, total_integral, total_shop_ticket, total_order, member_level_id, phone, id_card, password
     </sql>
-
     <update id="updateLogin">
              update um_user   set login_times=login_times+1,recent_login_time=now() where phone=#{phone}
-    </update>
-    <update id="updateAdd">
-            UPDATE `um_user`
-            SET `current_experience` = current_experience+#{currentExperience},
-            `current_red_envelops` = current_red_envelops+#{currentRedEnvelops},
-            `current_integral` = current_integral+#{currentIntegral},
-            `current_shop_ticket` =current_shop_ticket+ #{currentShopTicket},
-            `total_consume_money` =total_consume_money+ #{totalConsumeMoney},
-            `invite_people_num` =invite_people_num+ #{invitePeopleNum},
-            `total_red_envelops` =total_red_envelops+ #{currentRedEnvelops},
-            `total_integral` =total_integral+ #{currentIntegral},
-            `total_shop_ticket` =total_shop_ticket+ #{currentShopTicket},
-            `total_order` =total_order+ #{totalOrder}
-            WHERE
-                `id` = #{id};
-
-
     </update>
     <select id="loadSearchUserList" resultType="com.chauncy.data.vo.manage.user.list.UmUserListVo">
         SELECT
@@ -327,6 +350,19 @@
                     u2.member_level_id=m2.id and u2.parent_id=1146432777142534145
                 UNION ALL
                 SELECT id,level FROM temp
+    </select>
+
+    <select id="getPacketPresent" resultType="java.math.BigDecimal">
+        SELECT
+            m.purchase_present
+        FROM
+            um_user u,
+            pm_member_level m
+        WHERE
+            u.del_flag = 0
+            AND m.del_flag = 0
+            AND u.member_level_id = m.id
+            AND u.id = #{userId}
     </select>
 
 </mapper>

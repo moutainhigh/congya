@@ -26,6 +26,7 @@ import com.chauncy.data.dto.manage.activity.gift.select.SearchCouponDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchGiftDto;
 import com.chauncy.data.dto.manage.activity.gift.select.SearchReceiveGiftRecordDto;
 import com.chauncy.data.mapper.activity.coupon.AmCouponMapper;
+import com.chauncy.data.mapper.activity.coupon.AmCouponRelCouponUserMapper;
 import com.chauncy.data.mapper.activity.gift.AmGiftMapper;
 import com.chauncy.data.mapper.activity.gift.AmGiftOrderMapper;
 import com.chauncy.data.mapper.activity.gift.AmGiftRelGiftCouponMapper;
@@ -38,6 +39,7 @@ import com.chauncy.data.vo.manage.activity.gift.SearchBuyGiftRecordVo;
 import com.chauncy.data.vo.manage.activity.gift.SearchGiftListVo;
 import com.chauncy.data.vo.manage.activity.gift.SearchReceiveGiftRecordVo;
 import com.chauncy.security.util.SecurityUtil;
+import com.chauncy.user.service.IUmUserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.assertj.core.util.Lists;
@@ -75,6 +77,9 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
     private AmGiftRelGiftCouponMapper relGiftCouponMapper;
 
     @Autowired
+    private AmCouponRelCouponUserMapper relCouponUserMapper;
+
+    @Autowired
     private AmCouponMapper couponMapper;
 
     @Autowired
@@ -85,6 +90,9 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
 
     @Autowired
     private AmGiftOrderMapper giftOrderMapper;
+
+    @Autowired
+    private IUmUserService userService;
 
     /**
      * 保存礼包
@@ -323,6 +331,9 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
                 .setCurrentIntegral(BigDecimalUtil.safeAdd(userPo.getCurrentIntegral(),giftPo.getIntegrals()));
         userMapper.updateById(userPo);
 
+        //经验值升级
+        userService.updateLevel(userPo.getId());
+
         //4、获取优惠券并更新
         List<Long> couponIds = relGiftCouponMapper.selectList(new QueryWrapper<AmGiftRelGiftCouponPo>().lambda()
                 .eq(AmGiftRelGiftCouponPo::getGiftId,giftId)).stream().map(a->a.getCouponId()).collect(Collectors.toList());
@@ -333,9 +344,10 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
                 AmCouponRelCouponUserPo relCouponUserPo = new AmCouponRelCouponUserPo();
                 relCouponUserPo.setId(null).setCreateBy(userPo.getTrueName()).setUseStatus(CouponUseStatusEnum.NOT_USED.getId())
                         .setReceiveNum(1).setType(CouponBeLongTypeEnum.RECEIVE.getId()).setUserId(userPo.getId()).setCouponId(a);
+                relCouponUserMapper.insert(relCouponUserPo);
             });
         }
-        //TODO junhao补充流水
+        //TODO junhao补充经验值、购物券、积分、优惠券等流水
     }
 
     /**

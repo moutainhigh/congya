@@ -1,13 +1,11 @@
 package com.chauncy.data.mapper.user;
 
-import com.chauncy.data.bo.app.order.RewardBo;
 import com.chauncy.data.bo.manage.pay.PayUserMessage;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.manage.user.select.SearchUserIdCardDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
 import com.chauncy.data.dto.manage.user.update.UpdateUserDto;
 import com.chauncy.data.mapper.IBaseMapper;
-import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import com.chauncy.data.vo.app.user.UserDataVo;
 import com.chauncy.data.vo.manage.message.interact.push.UmUsersVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserDetailVo;
@@ -16,6 +14,7 @@ import com.chauncy.data.vo.manage.user.idCard.SearchIdCardVo;
 import com.chauncy.data.vo.manage.user.list.UmUserListVo;
 import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -120,4 +119,11 @@ public interface UmUserMapper extends IBaseMapper<UmUserPo> {
      * @return
      */
     int updateAdd(UmUserPo userPo);
+
+    /**
+     * 根据用户id获取红包赠送比例
+     * @param userId
+     * @return
+     */
+    BigDecimal getPacketPresent(Long userId);
 }

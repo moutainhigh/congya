@@ -1,4 +1,4 @@
-package com.chauncy.data.bo.app.order;
+package com.chauncy.data.bo.app.order.reward;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.chauncy.common.util.BigDecimalUtil;

@@ -134,4 +134,10 @@ public interface IUmUserService extends Service<UmUserPo> {
      * @return
      */
     void addFeedBack(String content, UmUserPo userPo);
+
+    /**
+     * 判断用户经验值是否达到升级的门槛，如果是，则进行升级
+     * @param userId
+     */
+    void updateLevel(Long userId);
 }
