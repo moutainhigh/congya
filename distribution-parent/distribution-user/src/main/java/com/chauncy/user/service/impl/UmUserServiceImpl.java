@@ -10,6 +10,7 @@ import com.chauncy.common.util.*;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.interact.MmFeedBackPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
+import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.domain.po.user.UmRelUserLabelPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.user.add.AddUserDto;
@@ -19,6 +20,7 @@ import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
 import com.chauncy.data.dto.manage.user.update.UpdateUserDto;
 import com.chauncy.data.mapper.message.interact.MmFeedBackMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
+import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.mapper.user.UmRelUserLabelMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.app.user.UserDataVo;
@@ -67,6 +69,9 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     private SmStoreMapper smStoreMapper;
     @Autowired
     private MmFeedBackMapper feedBackMapper;
+
+    @Autowired
+    private PmMemberLevelMapper memberLevelMapper;
 
 
     @Override
@@ -268,5 +273,30 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         feedBackPo.setId(null);
         feedBackPo.setUserId(userPo.getId());
         feedBackMapper.insert(feedBackPo);
+    }
+
+
+
+    @Override
+    public void updateLevel(Long userId) {
+        UmUserPo queryUser = mapper.selectById(userId);
+
+        PmMemberLevelPo nextLevel= memberLevelMapper.getNextLevelByUserId(userId);
+        //要修改的会员等级id
+        Long memberLevelId=null;
+        //当用户经验值大于等级所需经验值的时候,进行升级
+        while (queryUser.getCurrentExperience().compareTo(nextLevel.getLevelExperience())>=0){
+            memberLevelId=nextLevel.getId();
+            //找出下一等级的会员详细信息
+            QueryWrapper<PmMemberLevelPo> levelQueryWrapper=new QueryWrapper<>();
+            levelQueryWrapper.lambda().eq(PmMemberLevelPo::getLevel,nextLevel.getLevel()+1);
+             nextLevel = memberLevelMapper.selectOne(levelQueryWrapper);
+        }
+        if (memberLevelId!=null){
+            UmUserPo updateUser=new UmUserPo();
+            updateUser.setId(userId).setMemberLevelId(memberLevelId);
+            mapper.updateById(updateUser);
+        }
+
     }
 }

@@ -45,7 +45,7 @@ public class AddMemberLevelDto {
     @ApiModelProperty(value = "会员等级经验值")
     @NotNull(message = "会员等级经验值不能为空！")
     @Min(message = "会员等级经验值必须大于0", value = 0)
-    private Integer levelExperience;
+    private BigDecimal levelExperience;
 
     @ApiModelProperty(value = "红包赠送比例")
     @NotNull(message = "红包赠送比例不能为空！")

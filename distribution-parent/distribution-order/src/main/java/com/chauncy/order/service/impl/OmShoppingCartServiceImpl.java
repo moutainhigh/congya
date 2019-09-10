@@ -935,7 +935,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             saveOrders.forEach(x->{
                 PayUserRelationPo savePayUser=new PayUserRelationPo();
                 BeanUtils.copyProperties(queryPayUser,savePayUser);
-                savePayUser.setCreateBy(currentUser.getPhone()).setOrderId(x.getId());
+                savePayUser.setCreateBy(currentUser.getId()+"").setOrderId(x.getId());
                 savePayUsers.add(savePayUser);
             });
             payUserRelationService.saveBatch(savePayUsers);

@@ -1,6 +1,6 @@
 package com.chauncy.data.mapper.product;
 
-import com.chauncy.data.bo.app.order.RewardShopTicketBo;
+import com.chauncy.data.bo.app.order.reward.RewardShopTicketBo;
 import com.chauncy.data.domain.po.product.PmGoodsSkuPo;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.app.advice.goods.BrandGoodsVo;

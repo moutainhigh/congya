@@ -34,7 +34,7 @@ public class MemberLevelVo extends PmMemberLevelPo {
     private BigDecimal purchasePresent;
 
     @ApiModelProperty(value = "会员等级经验值")
-    private Integer levelExperience;
+    private BigDecimal levelExperience;
 
     @ApiModelProperty(value = "红包赠送比例")
     private BigDecimal packetPresent;

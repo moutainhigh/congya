@@ -49,4 +49,14 @@ public interface PmMemberLevelMapper extends IBaseMapper<PmMemberLevelPo> {
      */
     @Select ("SELECT min(level) as lowestLevel FROM `pm_member_level` where del_flag=false")
     Integer getLowestLevelId ();
+
+    /**
+     * 获取用户下一等级的详细信息
+     * @param userId
+     * @return
+     */
+    PmMemberLevelPo getNextLevelByUserId(Long userId);
+
+
+
 }

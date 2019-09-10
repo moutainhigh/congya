@@ -1,10 +1,9 @@
 package com.chauncy.order.service;
 
-import com.chauncy.data.bo.app.order.RewardBo;
+import com.chauncy.data.bo.app.order.reward.RewardBuyerBo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
-import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.my.SearchMyOrderDto;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
@@ -134,6 +133,8 @@ public interface IOmOrderService extends Service<OmOrderPo> {
      * @param orderId
      */
     void orderDeadline(Long orderId);
+
+
 
 
 

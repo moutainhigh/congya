@@ -37,7 +37,7 @@ public class memberApi extends BaseApi {
     @ApiOperation("添加会员等级")
     public JsonViewData add(@Validated @RequestBody AddMemberLevelDto memberLevelDto){
         PmMemberLevelPo maxLevel = memberLevelService.findByMaxLevel();
-        if (memberLevelDto.getLevelExperience()<=maxLevel.getLevelExperience()){
+        if (memberLevelDto.getLevelExperience().compareTo(maxLevel.getLevelExperience())<0){
             return setJsonViewData(ResultCode.PARAM_ERROR,"新增会员等级经验值不得少于上一等级经验值！");
         }
         PmMemberLevelPo saveMemberLevel=new PmMemberLevelPo();
@@ -59,13 +59,13 @@ public class memberApi extends BaseApi {
        //获取上一等级的
         condition.setLevel(queryMemberLevel.getLevel()-1);
         PmMemberLevelPo lastLevel = memberLevelService.getOne(new QueryWrapper<>(condition));
-        if (lastLevel!=null && memberLevelDto.getLevelExperience()<=lastLevel.getLevelExperience()){
+        if (lastLevel!=null && memberLevelDto.getLevelExperience().compareTo(lastLevel.getLevelExperience())<0){
             return setJsonViewData(ResultCode.PARAM_ERROR,"修改后的经验值不得小于或等于上一等级的经验值！");
         }
         //获取下一等级的
         condition.setLevel(queryMemberLevel.getLevel()+1);
         PmMemberLevelPo nextLevel = memberLevelService.getOne(new QueryWrapper<>(condition));
-        if (nextLevel!=null && memberLevelDto.getLevelExperience()>=nextLevel.getLevelExperience()){
+        if (nextLevel!=null && memberLevelDto.getLevelExperience().compareTo(nextLevel.getLevelExperience())>0){
             return setJsonViewData(ResultCode.PARAM_ERROR,"修改后的经验值不得大于或等于下一等级的经验值！");
         }
         PmMemberLevelPo updateMemberLevel=new PmMemberLevelPo();
