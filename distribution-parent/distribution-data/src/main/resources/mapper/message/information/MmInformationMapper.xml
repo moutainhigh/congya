@@ -273,14 +273,7 @@
             </if>
         </where>
         GROUP BY mi.id,ss.id
-        <choose>
-            <when test="informationType != null and informationType == 2">
-                order by mi.sort desc
-            </when>
-            <otherwise>
-                order by mi.update_time desc
-            </otherwise>
-        </choose>
+        order by mi.update_time desc
     </select>
     <select id="selectRelGoodsIdsById" resultType="java.lang.Long">
         select mirg.goods_id

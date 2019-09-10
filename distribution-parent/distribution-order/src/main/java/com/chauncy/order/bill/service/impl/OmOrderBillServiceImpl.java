@@ -321,7 +321,7 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
         updateWrapper.set("bill_status", BillStatusEnum.SETTLEMENT_SUCCESS.getId());
         this.update(updateWrapper);
 
-        //生成流水
+        //1.店铺利润、货款账单提现生成流水
         AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
         addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.STORE_WITHDRAWAL);
         addAccountLogBo.setRelId(omOrderBillPo.getId());

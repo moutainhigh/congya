@@ -107,7 +107,7 @@ public class OmUserWithdrawalServiceImpl extends AbstractService<OmUserWithdrawa
         updateWrapper.set("withdrawal_status", WithdrawalStatusEnum.WITHDRAWAL_SUCCESS.getId());
         this.update(updateWrapper);
 
-        //生成流水
+        //APP用户提现红包  生成流水
         idList.forEach(id -> {
             OmUserWithdrawalPo omUserWithdrawalPo = omUserWithdrawalMapper.selectById(id);
             AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
