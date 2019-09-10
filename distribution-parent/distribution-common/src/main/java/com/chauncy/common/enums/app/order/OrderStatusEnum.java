@@ -22,7 +22,9 @@ public enum OrderStatusEnum implements BaseEnum {
     NEED_EVALUATE(3,"待评价"),
     ALREADY_EVALUATE(4,"已评价"),
     NEED_USE(5,"待使用"),
-    ALREADY_CANCEL(6,"已取消");
+    ALREADY_CANCEL(6,"已取消"),
+    WAIT_WRITE_OFF(7,"待核销"),
+    FINISH(8,"已完成");
 
     @EnumValue
     private final Integer id;

@@ -13,6 +13,7 @@ import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 @Slf4j
 public class JasyptUtil {
 
+
     /**
      * Jasypt生成加密结果
      * @param password 配置文件中设定的加密密码 jasypt.encryptor.password
@@ -54,8 +55,8 @@ public class JasyptUtil {
     public static void main(String[] args){
 
         //加密
-        System.out.println(encyptPwd("123456","root"));
+        System.out.println(encyptPwd("123456","171781179328958464"));
         //解密
-        System.out.println(decyptPwd("123456","3xY3RXlQPFgTTpokoEBnOg=="));
+        System.out.println(decyptPwd("123456","Pj0FySzj9Vy0nCzOXTMRqiedbjZVSG3nfyJuEMWGDUk="));
     }
 }

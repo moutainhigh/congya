@@ -45,8 +45,7 @@ public class MyOrderApi extends BaseApi {
     @PostMapping("/list")
     @ApiOperation("查看订单列表")
     public JsonViewData<AppSearchOrderVo> list(@RequestBody SearchMyOrderDto searchMyOrderDto) {
-        UmUserPo currentUser=getAppCurrUser();
-        return setJsonViewData(service.searchAppOrder(currentUser.getId(),searchMyOrderDto));
+        return setJsonViewData(service.searchAppOrder(searchMyOrderDto));
     }
 
     @PostMapping("/pay/{orderId}")
