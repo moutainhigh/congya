@@ -921,7 +921,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
     }
 
     /**
-     * 分页条件查询品牌/选项卡/分类下的商品列表
+     * 分页条件查询首页下面的商品列表/品牌id/选项卡id/商品分类id/葱鸭百货关联/优惠券关联下的商品列表
      *
      * @param searchGoodsBaseListDto
      * @return
@@ -972,6 +972,11 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
             case COUPON:
                 searchGoodsBaseListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                         .doSelectPageInfo(() ->mapper.searchCouponGoodsBaseList(searchGoodsBaseListDto));
+                break;
+
+            case HOME:
+                searchGoodsBaseListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                        .doSelectPageInfo(() ->mapper.searchHomeGoodsBaseList(searchGoodsBaseListDto));
                 break;
         }
 
