@@ -6,6 +6,7 @@ import com.chauncy.activity.gift.IAmGiftService;
 import com.chauncy.common.enums.app.gift.GiftTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.activity.gift.AmGiftOrderPo;
@@ -25,6 +26,7 @@ import com.chauncy.data.mapper.activity.gift.AmGiftMapper;
 import com.chauncy.data.mapper.activity.gift.AmGiftOrderMapper;
 import com.chauncy.data.mapper.activity.gift.AmGiftRelGiftCouponMapper;
 import com.chauncy.data.mapper.activity.gift.AmGiftRelGiftUserMapper;
+import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.manage.activity.gift.FindGiftVo;
 import com.chauncy.data.vo.manage.activity.gift.SearchBuyGiftRecordVo;
@@ -72,6 +74,9 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
 
     @Autowired
     private AmGiftRelGiftUserMapper relGiftUserMapper;
+
+    @Autowired
+    private UmUserMapper userMapper;
 
     @Autowired
     private AmGiftOrderMapper giftOrderMapper;
@@ -305,6 +310,23 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
         relGiftUserPo.setUserId(userPo.getId());
         relGiftUserPo.setGiftId(giftId);
         relGiftUserMapper.insert(relGiftUserPo);
+
+        //获取礼包里面的详情
+        //1、获取经验值并更新 2、获取购物券并更新 3、获取积分并更新
+        userPo.setCurrentExperience(BigDecimalUtil.safeAdd(userPo.getCurrentExperience(),giftPo.getExperience()))
+                .setCurrentShopTicket(BigDecimalUtil.safeAdd(userPo.getCurrentShopTicket(),giftPo.getVouchers()))
+                .setCurrentIntegral(BigDecimalUtil.safeAdd(userPo.getCurrentIntegral(),giftPo.getIntegrals()));
+        userMapper.updateById(userPo);
+
+        //4、获取优惠券并更新
+        List<Long> couponIds = relGiftCouponMapper.selectList(new QueryWrapper<AmGiftRelGiftCouponPo>().lambda()
+                .eq(AmGiftRelGiftCouponPo::getGiftId,giftId)).stream().map(a->a.getCouponId()).collect(Collectors.toList());
+
+        if (!ListUtil.isListNullAndEmpty(couponIds)){
+            couponIds.forEach(a->{
+                //保存到用户和优惠券关联表中
+            });
+        }
     }
 
     /**

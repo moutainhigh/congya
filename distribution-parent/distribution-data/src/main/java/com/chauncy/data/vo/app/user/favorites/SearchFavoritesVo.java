@@ -1,10 +1,9 @@
 package com.chauncy.data.vo.app.user.favorites;
 
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
-import java.math.BigDecimal;
 
 /**
  * @Author: HUANGWANCHENG
@@ -17,30 +16,13 @@ import java.math.BigDecimal;
 @ApiModel (description = "条件查询收藏商品Vo")
 public class SearchFavoritesVo {
 
-    @ApiModelProperty("id")
-    public Long id;
+    @ApiModelProperty("收藏商品信息")
+    private PageInfo<FavoritesGoosVo> favoritesGoosVo;
 
-    @ApiModelProperty("商品id")
-    public Long goodsId;
+    @ApiModelProperty("收藏资讯信息")
+    private PageInfo<FavoritesInformationVo> favoritesInormationVo;
 
-    @ApiModelProperty("收藏人数")
-    public Integer collectionNum;
+    @ApiModelProperty("收藏店铺信息")
+    private PageInfo<FavoritesStoreVo> favoritesStoreVo;
 
-    @ApiModelProperty("店铺id")
-    public Long storeId;
-
-    @ApiModelProperty("资讯id")
-    public Long informationId;
-
-    @ApiModelProperty("图片")
-    public String picture;
-
-    @ApiModelProperty("标题")
-    public String title;
-
-    @ApiModelProperty("价格")
-    public String price;
-
-    @ApiModelProperty("名称")
-    public String name;
 }

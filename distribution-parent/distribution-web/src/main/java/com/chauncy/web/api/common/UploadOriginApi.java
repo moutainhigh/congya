@@ -1,9 +1,11 @@
 package com.chauncy.web.api.common;
 
 import cn.hutool.core.util.StrUtil;
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.util.qiniu.Base64DecodeMultipartFileUtil;
 import com.chauncy.common.util.qiniu.QiniuUtil;
 import com.chauncy.data.util.ResultUtil;
+import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -36,9 +38,9 @@ public class UploadOriginApi {
 
     @RequestMapping(value = "/file", method = RequestMethod.POST)
     @ApiOperation(value = "文件上传")
-    public Result<Object> upload(@RequestParam(required = false) MultipartFile[] files,
-                                 @RequestParam(required = false) String base64,
-                                 HttpServletRequest request) {
+    public JsonViewData upload(@RequestParam(required = false) MultipartFile[] files,
+                               @RequestParam(required = false) String base64,
+                               HttpServletRequest request) {
 
         if (StrUtil.isNotBlank(base64)) {
             for (MultipartFile file : files) {
@@ -48,7 +50,7 @@ public class UploadOriginApi {
         }
 
         if (files == null ||files.length==0){
-            return new ResultUtil<Object>().setErrorMsg("请选择上传文件");
+            return new JsonViewData(ResultCode.FAIL,"请选择上传文件");
         }
 
         //获取当前日期
@@ -76,12 +78,12 @@ public class UploadOriginApi {
                 filePaths += result + splitStr;
             } catch (Exception e) {
                 log.error(e.toString());
-                return new ResultUtil<Object>().setErrorMsg(e.toString());
+                return new JsonViewData(e.toString());
             }
         }
         if (filePaths.endsWith(splitStr)){
             allFilePath = filePaths.substring(0, filePaths.length() - 1);
         }
-        return new ResultUtil<Object>().setData(allFilePath);
+        return new JsonViewData(allFilePath);
     }
 }

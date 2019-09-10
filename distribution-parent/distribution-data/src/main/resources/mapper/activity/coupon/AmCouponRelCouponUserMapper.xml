@@ -11,11 +11,12 @@
         <result column="user_id" property="userId" />
         <result column="use_status" property="useStatus" />
         <result column="receive_num" property="receiveNum" />
+        <result column="type" property="type" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, create_by, create_time, coupon_id, user_id, use_status, receive_num
+        id, create_by, create_time, coupon_id, user_id, use_status, receive_num, type
     </sql>
     <select id="receiveCouponCenter" resultType="com.chauncy.data.vo.app.advice.coupon.SearchReceiveCouponVo">
         select a.id as coupon_id,name,type,discount,discount_full_money,reduction_full_money,reduction_post_money,total_num,stock

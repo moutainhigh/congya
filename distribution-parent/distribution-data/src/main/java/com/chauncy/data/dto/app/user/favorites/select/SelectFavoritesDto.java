@@ -25,7 +25,7 @@ public class SelectFavoritesDto {
     @EnumConstraint (target = KeyWordTypeEnum.class)
     private String type;
 
-    @ApiModelProperty(value = "类目id")
+    @ApiModelProperty(value = "类目id",hidden = false)
     private Long categoryId;
 
     @ApiModelProperty(value = "模糊查询名称")

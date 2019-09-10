@@ -72,7 +72,7 @@ public class UmUserFavoritesApi {
      */
     @ApiOperation ("条件查询收藏信息")
     @PostMapping("/searchFavorites")
-    public JsonViewData<PageInfo<SearchFavoritesVo>> searchFavorites(@RequestBody @ApiParam(required = true,name = "selectFavoritesDto",value="条件查询收藏商品信息")
+    public JsonViewData<SearchFavoritesVo> searchFavorites(@RequestBody @ApiParam(required = true,name = "selectFavoritesDto",value="条件查询收藏商品信息")
                                                                      @Validated SelectFavoritesDto selectFavoritesDto){
 
         UmUserPo userPo = securityUtil.getAppCurrUser ();

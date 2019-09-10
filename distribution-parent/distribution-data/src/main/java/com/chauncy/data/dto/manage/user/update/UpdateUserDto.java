@@ -47,7 +47,7 @@ public class UpdateUserDto {
 
     @ApiModelProperty(value = "积分数值")
     @NotNull(message = "当前积分的数值不能为空！")
-    private Integer currentIntegral;
+    private BigDecimal currentIntegral;
 
     @ApiModelProperty(value = "购物券数值")
     @NotNull(message = "当前购物券的数值不能为空！")
@@ -57,7 +57,7 @@ public class UpdateUserDto {
     private BigDecimal totalAddRedEnvelops;
 
     @ApiModelProperty(hidden = true)
-    private Integer totalAddIntegral;
+    private BigDecimal totalAddIntegral;
 
     @ApiModelProperty(hidden = true)
     private BigDecimal totalAddShopTicket;
