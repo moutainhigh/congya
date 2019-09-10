@@ -68,6 +68,24 @@
             AND `ssc`.`del_flag`= 0
     </select>
 
+    <select id="findInfoCategory" resultType="com.chauncy.data.vo.BaseVo">
+        SELECT
+            `mic`.id ,
+            `mic`.name
+         FROM
+            mm_information_category `mic` ,
+            mm_advice_rel_associaiton `mara` ,
+            mm_advice `ma`
+         WHERE
+            `mic`.id = `mara`.`association_id`
+            AND `mara`.`advice_id` = `ma`.id
+            AND `ma`.location = #{location}
+            AND `ma`.`enabled` = 1
+            AND `mara`.del_flag = 0
+            AND `mic`.`enabled` = 1
+            AND `mic`.`del_flag`= 0
+    </select>
+
     <select id="findStoreCategoryTab" resultType="com.chauncy.data.vo.app.advice.AdviceTabVo">
         SELECT
             `mat`.id AS tabId,

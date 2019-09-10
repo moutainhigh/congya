@@ -162,6 +162,15 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
     }
 
     /**
+     * 获取资讯动态下推荐的分类
+     * @return
+     */
+    @Override
+    public List<BaseVo> findInfoCategory() {
+        return mapper.findInfoCategory(AdviceLocationEnum.information_recommended.name());
+    }
+
+    /**
      * 获取有店下的店铺分类选项卡内容
      *
      * @param relId

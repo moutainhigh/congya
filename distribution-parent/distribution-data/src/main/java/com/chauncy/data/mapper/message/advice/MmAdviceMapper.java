@@ -54,6 +54,13 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
     List<AdviceTabVo> findStoreCategoryTab(Long relId);
 
     /**
+     * 获取资讯动态下推荐的分类
+     * @param name
+     * @return
+     */
+    List<BaseVo> findInfoCategory(String name);
+
+    /**
      * 根据选项卡id获取有店下的店铺分类详情
      * @param tabId
      * @return

@@ -257,16 +257,13 @@
         from mm_information mi
         LEFT JOIN sm_store ss
         ON mi.`store_id` = ss.id
-        <if test="informationTypeEnum != null and informationTypeEnum.getId() == 1">
+        <if test="informationType != null and informationType == 2">
             left join um_user_favorites uuf on mi.store_id = uuf.favorites_id
         </if>
         <where>
             mi.del_flag = 0 and mi.enabled = 1
-            <if test="storeId !=null and storeId !=0 ">
-                and mi.store_id = #{storeId}
-            </if>
-             <if test="infoLabelId !=null and infoLabelId !=0 ">
-                and mi.info_label_id = #{infoLabelId}
+            <if test="informationType != null and informationType == 2">
+                and uuf.del_flag = 0 and uuf.user_id = #{userId}
             </if>
             <if test="infoCategoryId != null and infoCategoryId !=0">
                 and mi.info_category_id = #{infoCategoryId}
@@ -274,17 +271,14 @@
             <if test="keyword != null and keyword !=''">
                 and (mi.title  like concat('%', #{keyword}, '%') or mi.pure_text  like concat('%', #{keyword}, '%'))
             </if>
-            <if test="informationTypeEnum != null and informationTypeEnum.getId() == 1">
-                and uuf.del_flag = 0 and uuf.user_id = #{userId}
-            </if>
         </where>
         GROUP BY mi.id,ss.id
         <choose>
-            <when test="informationTypeEnum != null and informationTypeEnum.getId() == 2">
+            <when test="informationType != null and informationType == 2">
                 order by mi.sort desc
             </when>
             <otherwise>
-                order by mi.browsing_num desc
+                order by mi.update_time desc
             </otherwise>
         </choose>
     </select>
