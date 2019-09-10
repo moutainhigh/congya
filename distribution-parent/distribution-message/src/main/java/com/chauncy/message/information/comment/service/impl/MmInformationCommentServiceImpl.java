@@ -99,10 +99,10 @@ public class MmInformationCommentServiceImpl extends AbstractService<MmInformati
                 .doSelectPageInfo(() -> mmInformationCommentMapper.searchInfoMainComment(informationCommentDto));
 
         informationMainCommentVoPageInfo.getList().forEach(informationMainCommentVo -> {
-            //店铺标签
-            if (null != informationMainCommentVo.getStoreLabels()){
-                informationMainCommentVo.setStoreLabelList(Splitter.on(",")
-                        .omitEmptyStrings().splitToList(informationMainCommentVo.getStoreLabels()));
+            //用户标签
+            if (null != informationMainCommentVo.getLabels()){
+                informationMainCommentVo.setLabelList(Splitter.on(",")
+                        .omitEmptyStrings().splitToList(informationMainCommentVo.getLabels()));
             }
             //剩余评论条数
             informationMainCommentVo.setViceCommentCount(
@@ -153,13 +153,16 @@ public class MmInformationCommentServiceImpl extends AbstractService<MmInformati
         MmInformationCommentPo mmInformationCommentPo = new MmInformationCommentPo();
         mmInformationCommentPo.setInfoId(addInformationCommentDto.getInfoId());
         mmInformationCommentPo.setUserId(userId);
-        mmInformationCommentPo.setParentId(addInformationCommentDto.getParentId());
         mmInformationCommentPo.setContent(addInformationCommentDto.getContent());
-        if(null != addInformationCommentDto.getParentId()) {
+        if(null != addInformationCommentDto.getParentId() && addInformationCommentDto.getParentId() != 0L) {
             MmInformationCommentPo parentComment = mmInformationCommentMapper.selectById(addInformationCommentDto.getParentId());
             if(null != parentComment.getParentId()) {
                 //用户评论的评论不是主评论
+                mmInformationCommentPo.setParentId(parentComment.getParentId());
                 mmInformationCommentPo.setParentUserId(parentComment.getUserId());
+            } else {
+                //用户评论的评论是主评论  parentId是评论本身的id
+                mmInformationCommentPo.setParentId(parentComment.getId());
             }
         }
         mmInformationCommentMapper.insert(mmInformationCommentPo);

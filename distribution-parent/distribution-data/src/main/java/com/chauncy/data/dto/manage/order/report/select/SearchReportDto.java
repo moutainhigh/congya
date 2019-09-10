@@ -27,7 +27,7 @@ public class SearchReportDto  implements Serializable {
     @ApiModelProperty(value = "商品销售报表类型")
     @EnumConstraint(target = ReportTypeEnum.class)
     @NotNull(message = "reportType参数不能为空")
-    private String reportType;
+    private Integer reportType;
 
     @ApiModelProperty(value = "id")
     private Long id;

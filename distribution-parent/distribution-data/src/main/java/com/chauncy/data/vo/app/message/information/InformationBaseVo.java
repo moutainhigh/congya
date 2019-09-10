@@ -47,6 +47,12 @@ public class InformationBaseVo implements Serializable {
     @ApiModelProperty(value = "资讯正文带格式文本")
     private String detailHtml;
 
+    @ApiModelProperty(value = "主图数量")
+    private Integer pictureNum;
+
+    @ApiModelProperty(value = "商品数量")
+    private Integer goodsNum;
+
     @ApiModelProperty(value = "转发量")
     private Integer forwardNum;
 

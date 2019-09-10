@@ -39,11 +39,11 @@ public class OmOrderReportPo implements Serializable {
     @TableId(value = "id", type = IdType.ID_WORKER)
     private Long id;
 
-    @ApiModelProperty(value = "年")
+    /*@ApiModelProperty(value = "年")
     private Integer year;
 
     @ApiModelProperty(value = "期数")
-    private String monthDay;
+    private String monthDay;*/
 
     @ApiModelProperty(value = "总供货价金额")
     private BigDecimal totalAmount;
