@@ -1,5 +1,6 @@
 package com.chauncy.message.content.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.message.KeyWordTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
@@ -51,6 +52,21 @@ public class MmKeywordsSearchServiceImpl extends AbstractService<MmKeywordsSearc
     public List<String> selectKeyWordType() {
         List<String> types = Arrays.asList(KeyWordTypeEnum.values()).stream().map(a->a.getName()).collect(Collectors.toList());
         return types;
+    }
+
+    /**
+     *  获取搜索界面-热门搜索词语
+     * @param type
+     * @return
+     */
+    @Override
+    public List<Object> getKeyWordByType(Integer type) {
+        QueryWrapper<MmKeywordsSearchPo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda()
+                .eq(MmKeywordsSearchPo::getType, KeyWordTypeEnum.getKeyWordTypeById(type).getName())
+                .select(MmKeywordsSearchPo::getName)
+                .orderByDesc(MmKeywordsSearchPo::getSort);
+         return mapper.selectObjs(queryWrapper);
     }
 
     /**

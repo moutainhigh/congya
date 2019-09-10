@@ -24,9 +24,9 @@
     </sql>
     <select id="searchReportPaging" resultType="com.chauncy.data.vo.manage.order.report.ReportBaseInfoVo">
          SELECT oor.id,
-            total_amount,
-            total_num,
-            create_time,
+            oor.total_amount,
+            oor.total_num,
+            oor.create_time,
             store.`name` AS storeName,
             branch.`name` AS branchName
          FROM om_order_report oor
@@ -35,13 +35,13 @@
          LEFT JOIN sm_store branch
          ON branch.`id` = oor.`branch_id`
         <where>
-            <if test="reportType !=null and reportType == 'STORE_REPORT'">
+            <if test="reportType !=null and reportType == 2">
                 and oor.`branch_id` = #{storeId}
             </if>
-            <if test="reportType !=null and reportType == 'BRANCH_REPORT'">
+            <if test="reportType !=null and reportType == 3">
                 and oor.`store_id` = #{storeId}
             </if>
-            <if test="reportType !=null and reportType == 'PLATFORM_REPORT'">
+            <if test="reportType !=null and reportType == 1">
                 and oor.is_parent_store = 0
             </if>
             <if test="id !=null">

@@ -35,12 +35,12 @@ public class InformationMainCommentVo implements Serializable {
     @ApiModelProperty(value = "评论的用户头像")
     private String avatar;
 
-    @ApiModelProperty(value = "如果是店铺的评论有店铺标签")
+    @ApiModelProperty(value = "用户标签")
     @JSONField(serialize=false)
-    private String storeLabels;
+    private String labels;
 
     @ApiModelProperty(value = "店铺标签")
-    private List<String> storeLabelList;
+    private List<String> labelList;
 
     /*@ApiModelProperty(value = "被回复的用户ID")
     private Long parentUserId;*/

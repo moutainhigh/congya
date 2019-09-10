@@ -91,7 +91,7 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
     @Override
     public PageInfo<ReportBaseInfoVo> searchReportPaging(SearchReportDto searchReportDto) {
 
-        if(!ReportTypeEnum.PLATFORM_REPORT.name().equals(searchReportDto.getReportType())) {
+        if(!ReportTypeEnum.PLATFORM_REPORT.getId().equals(searchReportDto.getReportType())) {
             //店铺用户查找对应的商品销售报表
             //获取当前店铺用户
             Long storeId = securityUtil.getCurrUser().getStoreId();

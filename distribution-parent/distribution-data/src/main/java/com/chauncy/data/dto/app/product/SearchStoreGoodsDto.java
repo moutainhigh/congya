@@ -43,7 +43,7 @@ public class SearchStoreGoodsDto  implements Serializable {
     @ApiModelProperty(value = "商品三级分类id，goodsType为6时传参")
     private Long goodsCategoryId;
 
-    @ApiModelProperty(value = "商品名称，goodsType为7时传参")
+    @ApiModelProperty(value = "商品名称搜索，goodsType为7时传参")
     private String goodsName;
 
     @ApiModelProperty(value = "排序方式 默认降序（desc）")

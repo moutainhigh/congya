@@ -118,7 +118,13 @@ public class AdviceStoreInfoApi extends BaseApi {
      * @param searchStoreGoodsDto
      * @return
      */
-    @ApiOperation("店铺详情-首页/新品/推荐商品列表/全部商品/商品分类列表")
+    @ApiOperation(value = "店铺详情-首页/新品/推荐商品列表/全部商品/商品分类/搜索商品列表",
+                notes = "店铺详情-首页/新品/推荐商品列表/全部商品/商品分类/搜索商品列表  \n" +
+                        "店铺商品列表类型（goodsType）： 1.全部商品列表； 2.首页商品列表； 3.新品列表；  \n" +
+                        "           4.推荐列表； 5.活动列表； 6.分类商品列表； 7.搜索商品列表    \n     \n" +
+                        "排序字段（sortFile ）：  COMPREHENSIVE_SORT：综合排序  SALES_SORT：销量排序    \n" +
+                        "           PRICE_SORT：价格排序  COLLECTION_NUM：人气   \n     \n" +
+                        "排序方式（sortWay ）：   DESC：降序  ASC：升序  \n")
     @PostMapping("/searchGoodsBaseList")
     public JsonViewData<PageInfo<SearchGoodsBaseListVo>> searchGoodsBaseList(@RequestBody @ApiParam(required = true,
             name = "searchStoreGoodsDto",value = "查询条件")
