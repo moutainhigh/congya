@@ -13,4 +13,11 @@ import com.chauncy.data.core.Service;
  */
 public interface IAmGiftOrderService extends Service<AmGiftOrderPo> {
 
+    /**
+     * 购买礼包
+     *
+     * @param giftId
+     * @return
+     */
+    Long buyGift(Long giftId);
 }

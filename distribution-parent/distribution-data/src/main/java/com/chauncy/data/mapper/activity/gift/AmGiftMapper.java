@@ -57,7 +57,7 @@ public interface AmGiftMapper extends IBaseMapper<AmGiftPo> {
     List<SearchReceiveGiftRecordVo> searchReceiveRecord(SearchReceiveGiftRecordDto searchReceiveRecordDto);
 
     /**
-     * 多条件查询购买礼包记录
+     * 多条件查询购买礼包记录(pay_status为2)
      *
      * @param searchBuyGiftRecordDto
      * @return

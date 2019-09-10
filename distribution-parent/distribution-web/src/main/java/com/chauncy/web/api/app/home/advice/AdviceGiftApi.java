@@ -1,5 +1,6 @@
 package com.chauncy.web.api.app.home.advice;
 
+import com.chauncy.activity.gift.IAmGiftOrderService;
 import com.chauncy.activity.gift.IAmGiftService;
 import com.chauncy.data.dto.app.advice.goods.select.SearchTopUpGiftDto;
 import com.chauncy.data.vo.JsonViewData;
@@ -12,10 +13,7 @@ import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @Author cheng
@@ -30,6 +28,9 @@ public class AdviceGiftApi extends BaseApi {
     @Autowired
     private IAmGiftService giftService;
 
+    @Autowired
+    private IAmGiftOrderService giftOrderService;
+
     /**
      * 分页查询购买经验包信息
      *
@@ -41,5 +42,18 @@ public class AdviceGiftApi extends BaseApi {
                                                                      @Validated SearchTopUpGiftDto searchTopUpGiftDto){
 
         return setJsonViewData(giftService.searchTopUPGift(searchTopUpGiftDto));
+    }
+
+    /**
+     * 购买礼包
+     *
+     * @param giftId
+     * @return
+     */
+    @GetMapping("/buyGift/{giftId}")
+    @ApiOperation("购买礼包,返回购买礼包的订单ID")
+    public JsonViewData<Long> buyGift(@PathVariable Long giftId){
+
+        return setJsonViewData(giftOrderService.buyGift(giftId));
     }
 }
