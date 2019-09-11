@@ -945,7 +945,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         this.rabbitTemplate.convertAndSend(RabbitConstants.ORDER_UNPAID_DELAY_EXCHANGE, RabbitConstants.DELAY_ROUTING_KEY, savePayOrderPo.getId(), message -> {
             // TODO 如果配置了 params.put("x-message-ttl", 5 * 1000); 那么这一句也可以省略,具体根据业务需要是声明 Queue 的时候就指定好延迟时间还是在发送自己控制时间
 
-            message.getMessageProperties().setExpiration(basicSettingPo.getAutoCloseOrderDay()*24*60*60*1000 + "");
+           // message.getMessageProperties().setExpiration(basicSettingPo.getAutoCloseOrderDay()*24*60*60*1000 + "");
+            message.getMessageProperties().setExpiration(1*60*1000 + "");
             return message;
         });
         LoggerUtil.info("【下单等待取消订单发送时间】:" + LocalDateTime.now());

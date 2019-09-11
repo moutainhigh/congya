@@ -1,9 +1,12 @@
 package com.chauncy.web.api.app.order.logistics;
 
 
+import com.chauncy.common.enums.app.order.OrderStatusEnum;
+import com.chauncy.common.enums.goods.GoodsTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.bo.app.logistics.LastResultBo;
 import com.chauncy.data.bo.app.logistics.TaskResponseBo;
+import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.dto.app.order.logistics.SynQueryLogisticsDto;
 import com.chauncy.data.dto.app.order.logistics.TaskRequestDto;
 import com.chauncy.data.vo.JsonViewData;
@@ -12,6 +15,7 @@ import com.chauncy.data.vo.app.order.logistics.LogisticsCodeNumVo;
 import com.chauncy.data.vo.app.order.logistics.NoticeResponseVo;
 import com.chauncy.data.vo.app.order.logistics.SynQueryLogisticsVo;
 import com.chauncy.order.logistics.IOmOrderLogisticsService;
+import com.chauncy.order.service.IOmOrderService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +45,9 @@ public class OmOrderLogisticsApi extends BaseApi {
     @Autowired
     private IOmOrderLogisticsService service;
 
+    @Autowired
+    private IOmOrderService orderService;
+
     /**
      * 订单订阅物流信息
      *
@@ -49,15 +56,30 @@ public class OmOrderLogisticsApi extends BaseApi {
      * @param taskRequestDto
      * @return
      */
-    @ApiOperation("订单订阅物流信息请求接口")
+    @ApiOperation("订单订阅物流信息请求接口(商家发货)")
     @PostMapping("/subscribe")
     public JsonViewData subscribleLogistics(@RequestBody @ApiParam(required = true, name = "taskRequestDto", value = "订单订阅物流信息")
                                                     @Validated TaskRequestDto taskRequestDto) {
-        TaskResponseBo taskResponseBo = service.subscribleLogistics(taskRequestDto);
-        if (taskResponseBo.getResult()){
-            return setJsonViewData(ResultCode.SUCCESS,taskResponseBo.getMessage());
-        }else{
-            return setJsonViewData(ResultCode.FAIL,taskResponseBo.getMessage());
+        OmOrderPo queryOrder=orderService.getById(taskRequestDto.getOrderId());
+        if (queryOrder.getGoodsType().equals(GoodsTypeEnum.SERVICES.getName())||
+                queryOrder.getGoodsType().equals(GoodsTypeEnum.PICK_UP_INSTORE.getName())){
+            return setJsonViewData(ResultCode.FAIL,"服务类和自取订单没有发货流程！");
+        }
+        //如果不是虚拟商品是有物流的
+        if (!queryOrder.getGoodsType().equals(GoodsTypeEnum.VIRTUAL.getName())){
+
+            TaskResponseBo taskResponseBo = service.subscribleLogistics(taskRequestDto);
+
+            if (taskResponseBo.getResult()){
+                return setJsonViewData(ResultCode.SUCCESS,taskResponseBo.getMessage());
+            }else{
+                return setJsonViewData(ResultCode.FAIL,taskResponseBo.getMessage());
+            }
+        }
+        //虚拟物品不需要物流
+        else {
+            orderService.storeSend(taskRequestDto.getOrderId());
+            return setJsonViewData(ResultCode.SUCCESS);
         }
     }
 
