@@ -334,6 +334,19 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
             searchInfoByConditionDto.setUserId(umUserPo.getId());
         }
 
+        if(searchInfoByConditionDto.getInformationType().equals(InformationTypeEnum.CATEGORY_LIST.getId())) {
+            //根据资讯分类获取资讯列表
+            if(null == searchInfoByConditionDto.getInfoCategoryId()) {
+                throw new ServiceException(ResultCode.PARAM_ERROR, "infoCategoryId参数不能为空");
+            }
+        }
+        if(searchInfoByConditionDto.getInformationType().equals(InformationTypeEnum.SEARCH_LIST.getId())) {
+            //根据资讯名称搜索
+            if(null == searchInfoByConditionDto.getKeyword()) {
+                throw new ServiceException(ResultCode.PARAM_ERROR, "keyword参数不能为空");
+            }
+        }
+
         Integer pageNo = searchInfoByConditionDto.getPageNo()==null ? defaultPageNo : searchInfoByConditionDto.getPageNo();
         Integer pageSize = searchInfoByConditionDto.getPageSize()==null ? defaultPageSize : searchInfoByConditionDto.getPageSize();
 

@@ -51,6 +51,12 @@ public interface IMmAdviceService extends Service<MmAdvicePo> {
     List<StoreCategoryInfoVo> findStoreCategory();
 
     /**
+     * 获取资讯动态下推荐的分类
+     * @return
+     */
+    List<BaseVo> findInfoCategory();
+
+    /**
      * 获取有店下的店铺分类选项卡内容
      * @param storeCategoryId
      * @return

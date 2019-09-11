@@ -1,8 +1,7 @@
 package com.chauncy.order.service;
 
-import com.chauncy.data.bo.app.order.reward.RewardBuyerBo;
-import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.dto.app.order.my.SearchMyOrderDto;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
@@ -96,11 +95,10 @@ public interface IOmOrderService extends Service<OmOrderPo> {
 
     /**
      * 查询我的订单列表
-     * @param userId
      * @param searchMyOrderDto
      * @return
      */
-    PageInfo<AppSearchOrderVo> searchAppOrder(Long userId, SearchMyOrderDto searchMyOrderDto  );
+    PageInfo<AppSearchOrderVo> searchAppOrder( SearchMyOrderDto searchMyOrderDto  );
 
     /**
      * 返回支付单id
