@@ -1235,6 +1235,12 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         Long storeId = sysUserMapper.selectById(userId).getStoreId();
         PmGoodsPo goodsPo = mapper.selectById(updateGoodOperationDto.getGoodsId());
         BeanUtils.copyProperties(updateGoodOperationDto, goodsPo);
+
+        //应对前端在新增商品时传了校验状态为0的情况
+        if (updateGoodOperationDto.getVerifyStatus() == 0) {
+            goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId()).setPublishStatus(null);
+        }
+
         if (!goodsPo.getGoodsType ().equals (GoodsTypeEnum.OVERSEA.getName ()) && !goodsPo.getGoodsType ().equals (GoodsTypeEnum.BONDED.getName())) {
             goodsPo.setCustomTaxRate (null);
             goodsPo.setTaxRateType (TaxRateTypeEnum.NULL_TAX_RATE.getId ());

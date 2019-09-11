@@ -73,4 +73,13 @@ public interface PmGoodsSkuMapper extends IBaseMapper<PmGoodsSkuPo> {
      */
     @Select("select * from pm_goods_sku where goods_id = #{goodsId}")
     List<RewardShopTicketBo> findRewardShopTicketInfos(Long goodsId);
+
+    /**
+     * 根据skuId获取计算返券值需要的信息
+     * 、
+     * @param skuId
+     * @return
+     */
+    @Select("select * from pm_goods_sku where id = #{skuId}")
+    RewardShopTicketBo getRewardShopTicket(Long skuId);
 }

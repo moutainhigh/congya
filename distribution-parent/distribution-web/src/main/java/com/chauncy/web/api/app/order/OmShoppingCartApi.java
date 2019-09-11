@@ -7,11 +7,13 @@ import com.chauncy.data.dto.app.car.SettleDto;
 import com.chauncy.data.dto.app.car.SubmitOrderDto;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
+import com.chauncy.data.dto.app.order.cart.update.UpdateCartSkuDto;
 import com.chauncy.data.dto.app.user.add.AddIdCardDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.car.TotalCarVo;
 import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
 import com.chauncy.data.vo.app.order.cart.CartVo;
+import com.chauncy.data.vo.app.order.cart.MyCartVo;
 import com.chauncy.order.service.IOmRealUserService;
 import com.chauncy.order.service.IOmShoppingCartService;
 import com.chauncy.web.base.BaseApi;
@@ -80,7 +82,7 @@ public class OmShoppingCartApi extends BaseApi {
      */
     @ApiOperation("查看购物车")
     @PostMapping("/search")
-    public JsonViewData<PageInfo<CartVo>> searchCart(@RequestBody @ApiParam(required = true, name = "searchCartVo", value = "查看购物车")
+    public JsonViewData<MyCartVo> searchCart(@RequestBody @ApiParam(required = true, name = "searchCartVo", value = "查看购物车")
                                                      @Validated SearchCartDto searchCartDto) {
 
         return new JsonViewData(service.SearchCart(searchCartDto));
@@ -99,18 +101,19 @@ public class OmShoppingCartApi extends BaseApi {
     }
 
     /**
-     * 修改购物车商品
+     * 修改购物车商品数量
      *
      * @param updateCartDto
      * @return
      */
     @PostMapping("/updateCart")
     @ApiOperation("修改购物车商品")
-    public JsonViewData updateCart(@RequestBody @ApiParam(required = true, name = "updateCart", value = "编辑购物车信息")
-                                   @Validated AddCartDto updateCartDto) {
+    public JsonViewData updateCart(@RequestBody @ApiParam(required = true, name = "updateCart", value = "修改购物车商品数量")
+                                   @Validated UpdateCartSkuDto updateCartDto) {
         service.updateCart(updateCartDto);
         return new JsonViewData(ResultCode.SUCCESS);
     }
+
 
     @PostMapping("/settle")
     @ApiOperation("购物车结算")

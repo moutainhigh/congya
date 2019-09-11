@@ -17,6 +17,9 @@ import java.util.List;
 @Data
 public class StoreGoodsVo {
 
+    @ApiModelProperty("商品ID")
+    private Long goodsId;
+
     @ApiModelProperty("商品名称")
     private String goodsName;
 
@@ -32,7 +35,10 @@ public class StoreGoodsVo {
     @ApiModelProperty("sku销售价格")
     private BigDecimal sellPrice;
 
-    @ApiModelProperty("sku属性值")
+    @ApiModelProperty("sku销划线价格")
+    private BigDecimal linePrice;
+
+    @ApiModelProperty("sku属性值:蓝色,35码")
     private String value;
 
     @ApiModelProperty("数量")
@@ -46,6 +52,13 @@ public class StoreGoodsVo {
 
     @ApiModelProperty("是否售罄")
     private Boolean isSoldOut;
+
+    @ApiModelProperty("返券值")
+    private BigDecimal rewardShopTicke;
+
+//    @ApiModelProperty("满减活动信息")
+//    @ApiModelProperty("积分活动信息")
+//    @ApiModelProperty("秒杀活动信息")
 
 
 }

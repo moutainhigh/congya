@@ -196,7 +196,7 @@
         select a.name as condition_name,b.id as goods_id,b.name as goods_name,b.subtitle,b.icon as picture,b.activity_cost_rate,
         b.profits_rate,b.sales_volume,d.sell_price as sell_price,d.line_price,b.forward_num,b.collection_num
         from pm_goods_attribute a,pm_goods b,pm_goods_rel_attribute_good c,pm_goods_sku	d
-        where a.del_flag = 0 and b.del_flag = 0 and c.del_flag =0 and d.del_flag =0 and a.id = #{conditionId}
+        where b.publish_status = 1 and a.del_flag = 0 and b.del_flag = 0 and c.del_flag =0 and d.del_flag =0 and a.id = #{conditionId}
         and c.goods_attribute_id = a.id and c.goods_good_id = b.id and d.goods_id = b.id
         and d.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = b.id  and d2.del_flag =0 and d2.sell_price =
         (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = b.id  and d1.del_flag =0 LIMIT 1) limit 1)
@@ -232,8 +232,8 @@
         select c.name as condition_name,b.id as goods_id,b.name as goods_name,b.icon as picture,b.subtitle,b.activity_cost_rate,
         b.profits_rate,b.sales_volume,d.sell_price as sell_price,d.line_price,b.forward_num,b.collection_num
         from mm_advice_rel_tab_things a,pm_goods b,pm_goods_sku	d,mm_advice_tab c
-        where a.del_flag = 0 and b.del_flag = 0 and c.del_flag =0 and d.del_flag =0 and a.tab_id = #{conditionId}
-        and a.association_id	= b.id and d.goods_id=b.id and c.id = a.tab_id
+        where b.publish_status = 1 and a.del_flag = 0 and b.del_flag = 0 and c.del_flag =0 and d.del_flag =0 and a.tab_id = #{conditionId}
+        and a.association_id = b.id and d.goods_id=b.id and c.id = a.tab_id
         and d.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = b.id  and d2.del_flag =0 and d2.sell_price =
         (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = b.id  and d1.del_flag =0 LIMIT 1) limit 1)
         <if test="lowestPrice !=null ">
@@ -261,7 +261,7 @@
         select c.name as condition_name,b.id as goods_id,b.name as goods_name,b.icon as picture,b.activity_cost_rate,
         b.profits_rate,b.sales_volume,d.sell_price as sell_price,d.line_price,b.forward_num,b.collection_num
         from pm_goods b,pm_goods_sku d,pm_goods_category c
-        where  b.del_flag = 0 and d.del_flag =0 and c.del_flag = 0 and c.id = #{conditionId} and b.goods_category_id = #{conditionId} and d.goods_id=b.id
+        where  b.publish_status = 1 and b.del_flag = 0 and d.del_flag =0 and c.del_flag = 0 and c.id = #{conditionId} and b.goods_category_id = #{conditionId} and d.goods_id=b.id
         and d.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = b.id  and d2.del_flag =0 and d2.sell_price =
         (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = b.id  and d1.del_flag =0 LIMIT 1) limit 1)
         <if test="lowestPrice !=null ">
@@ -290,7 +290,7 @@
         select b.id as goods_id,b.name as goods_name,b.icon as picture,b.activity_cost_rate,
         b.profits_rate,b.sales_volume,d.sell_price as sell_price,d.line_price,b.forward_num,b.collection_num
         from pm_goods b,pm_goods_sku d,pm_goods_category c,mm_advice_rel_associaiton a
-        where  b.del_flag = 0 and d.del_flag =0 and c.del_flag = 0 and a.association_id = c.id and d.goods_id=b.id
+        where b.publish_status = 1 and b.del_flag = 0 and d.del_flag =0 and c.del_flag = 0 and a.association_id = c.id and d.goods_id=b.id
         and a.advice_id = #{adviceId}
         and d.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = b.id  and d2.del_flag =0 and d2.sell_price =
         (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = b.id  and d1.del_flag =0 LIMIT 1) limit 1)
@@ -302,7 +302,7 @@
         select b.id as goods_id,b.name as goods_name,b.icon as picture,b.activity_cost_rate,
         b.profits_rate,b.sales_volume,d.sell_price as sell_price,d.line_price,b.forward_num,b.collection_num
         from pm_goods b,pm_goods_sku d,am_coupon_rel_coupon_goods a
-        where  b.del_flag = 0 and d.del_flag =0 and a.association_id = b.id and d.goods_id=b.id
+        where b.publish_status = 1 and b.del_flag = 0 and d.del_flag =0 and a.association_id = b.id and d.goods_id=b.id
         and a.coupon_id = #{conditionId}
         and d.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = b.id  and d2.del_flag =0 and d2.sell_price =
         (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = b.id  and d1.del_flag =0 LIMIT 1) limit 1)
@@ -313,7 +313,7 @@
         select b.id as goods_id,b.name as goods_name,b.icon as picture,b.activity_cost_rate,
         b.profits_rate,b.sales_volume,d.sell_price as sell_price,d.line_price,b.forward_num,b.collection_num
         from pm_goods b,pm_goods_sku d
-        where  b.del_flag = 0 and d.del_flag =0 and d.goods_id=b.id
+        where b.publish_status = 1 and b.del_flag = 0 and d.del_flag =0 and d.goods_id=b.id
         and d.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = b.id  and d2.del_flag =0 and d2.sell_price =
         (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = b.id  and d1.del_flag =0 LIMIT 1) limit 1)
         order by b.collection_num desc
