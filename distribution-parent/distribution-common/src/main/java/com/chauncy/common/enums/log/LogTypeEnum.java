@@ -9,7 +9,7 @@ import java.util.Objects;
  * @author yeJH
  * @since 2019/7/26 14:04
  */
-public enum LogTypeEnm  implements BaseEnum {
+public enum LogTypeEnum implements BaseEnum {
 
 
     /**
@@ -25,7 +25,7 @@ public enum LogTypeEnm  implements BaseEnum {
     @EnumValue
     private Integer id;
     private String name;
-    LogTypeEnm(Integer id, String name){
+    LogTypeEnum(Integer id, String name){
         this.id = id;
         this.name = name;
     }
@@ -36,8 +36,8 @@ public enum LogTypeEnm  implements BaseEnum {
     }
 
     //通过名称来获取结果
-    public static LogTypeEnm getById(Integer id) {
-        for (LogTypeEnm type : LogTypeEnm.values()) {
+    public static LogTypeEnum getById(Integer id) {
+        for (LogTypeEnum type : LogTypeEnum.values()) {
             if (type.getId().equals(id))
                 return type;
         }

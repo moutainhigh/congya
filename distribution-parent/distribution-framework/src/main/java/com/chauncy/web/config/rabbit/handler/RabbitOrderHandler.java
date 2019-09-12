@@ -9,6 +9,7 @@ import com.chauncy.common.enums.app.order.afterSale.AfterSaleTypeEnum;
 import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.data.bo.app.order.rabbit.RabbitAfterBo;
 import com.chauncy.data.bo.app.order.rabbit.RabbitOrderBo;
+import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
 import com.chauncy.data.domain.po.afterSale.OmAfterSaleOrderPo;
 import com.chauncy.data.domain.po.order.OmEvaluatePo;
 import com.chauncy.data.domain.po.order.OmGoodsTempPo;
@@ -17,6 +18,7 @@ import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.temp.order.service.IOmGoodsTempService;
 import com.chauncy.order.afterSale.IOmAfterSaleOrderService;
 import com.chauncy.order.evaluate.service.impl.OmEvaluateServiceImpl;
+import com.chauncy.order.log.service.IOmAccountLogService;
 import com.chauncy.order.pay.IWxService;
 import com.chauncy.order.service.IOmAfterSaleLogService;
 import com.chauncy.order.service.IOmOrderService;
@@ -62,6 +64,9 @@ public class RabbitOrderHandler {
     private IOmAfterSaleLogService afterSaleLogService;
 
     @Autowired
+    private IOmAccountLogService omAccountLogService;
+
+    @Autowired
     private IWxService wxService;
 
     @RabbitListener(queues = {RabbitConstants.CLOSE_ORDER_QUEUE})
@@ -77,6 +82,19 @@ public class RabbitOrderHandler {
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (IOException e) {
 // TODO 如果报错了,那么我们可以进行容错处理,比如转移当前消息进入其它队列
+        }
+    }
+
+    @RabbitListener(queues = {RabbitConstants.ACCOUNT_LOG_QUEUE})
+    @Transactional(rollbackFor = Exception.class)
+    public void listenerOrderLogQueue(AddAccountLogBo addAccountLogBo, Message message, Channel channel) {
+        LoggerUtil.info(String.format("[closeOrderByPayId 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), addAccountLogBo));
+
+        omAccountLogService.saveAccountLog(addAccountLogBo);
+        try {
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        } catch (IOException e) {
+            // TODO 如果报错了,那么我们可以进行容错处理,比如转移当前消息进入其它队列
         }
     }
 

@@ -92,6 +92,30 @@ public class RabbitConfig {
     }
 
 
+    /**
+     * 账目流水 消息队列
+     * @return
+     */
+    @Bean
+    public Queue accountLogQueue() {
+        return new Queue(RabbitConstants.ACCOUNT_LOG_QUEUE, true);
+    }
+
+    /**
+     * 账目流水 消息交换机
+     **/
+    @Bean
+    public TopicExchange accountLogTopicExchange() {
+        return new TopicExchange(RabbitConstants.ACCOUNT_LOG_EXCHANGE);
+    }
+
+    @Bean
+    public Binding accountLogBinding() {
+        // TODO 如果要让延迟队列之间有关联,这里的 routingKey 和 绑定的交换机很关键
+        return BindingBuilder.bind(accountLogQueue()).to(accountLogTopicExchange()).with(RabbitConstants.ACCOUNT_LOG_ROUTING_KEY);
+    }
+
+
     @Bean
     public Queue submitOrderQueue() {
         return new Queue(RabbitConstants.CLOSE_ORDER_QUEUE, true);

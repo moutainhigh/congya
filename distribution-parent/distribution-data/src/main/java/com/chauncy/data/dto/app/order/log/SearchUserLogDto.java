@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
 
@@ -21,10 +22,10 @@ public class SearchUserLogDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "账目类型 accountTypeEnum   \nRED_ENVELOPS(红包)   \n" +
-            "SHOP_TICKET(购物券)   \nINTEGRATE(积分)   \n")
-    @EnumConstraint(target = AccountTypeEnum.class)
-    private AccountTypeEnum accountTypeEnum;
+    @ApiModelProperty(value = "账目类型 accountType   \n2：红包   \n" +
+            "3：购物券   \n4：积分   \n")
+    @NotNull(message = "账目类型不能为空")
+    private Integer accountType;
 
     @JsonIgnore
     @ApiModelProperty(value = "用户id")

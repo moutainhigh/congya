@@ -1,11 +1,16 @@
 package com.chauncy.activity.gift.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.chauncy.common.constant.RabbitConstants;
 import com.chauncy.common.enums.app.coupon.CouponBeLongTypeEnum;
 import com.chauncy.common.enums.app.coupon.CouponUseStatusEnum;
 import com.chauncy.common.enums.app.order.PayOrderStatusEnum;
+import com.chauncy.common.enums.log.LogTriggerEventEnum;
+import com.chauncy.common.enums.log.PaymentWayEnum;
 import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.common.util.ListUtil;
+import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
 import com.chauncy.data.domain.po.activity.coupon.AmCouponRelCouponUserPo;
 import com.chauncy.data.domain.po.activity.gift.AmGiftOrderPo;
 import com.chauncy.data.domain.po.activity.gift.AmGiftPo;
@@ -21,12 +26,14 @@ import com.chauncy.data.mapper.activity.gift.AmGiftRelGiftCouponMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.user.service.IUmUserService;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -62,6 +69,40 @@ public class AmGiftOrderServiceImpl extends AbstractService<AmGiftOrderMapper, A
     @Autowired
     private SecurityUtil securityUtil;
 
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+    /**
+     * 礼包充值成功业务处理
+     * @param amGiftOrderPo
+     * @param notifyMap
+     */
+    @Override
+    public void wxPayNotify(AmGiftOrderPo amGiftOrderPo, Map<String, String> notifyMap) {
+        //更新AmGiftOrderPo
+        UpdateWrapper<AmGiftOrderPo> updateWrapper = new UpdateWrapper<>();
+        //1.状态设置为已支付
+        //2.支付类型 微信
+        //3.微信支付单号
+        updateWrapper.lambda().eq(AmGiftOrderPo::getId, amGiftOrderPo.getId())
+                .set(AmGiftOrderPo::getPayStatus, PayOrderStatusEnum.ALREADY_PAY.getId())
+                .set(AmGiftOrderPo::getPayTypeCode, PaymentWayEnum.WECHAT.getName())
+                .set(AmGiftOrderPo::getPayOrderNo, notifyMap.get("transaction_id"));
+        this.update(updateWrapper);
+        //付款成功后需要做的操作
+        payPost(amGiftOrderPo.getId());
+        //礼包充值对应流水生成
+        UmUserPo umUserPo = userMapper.selectById(amGiftOrderPo.getUserId());
+        AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
+        addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.GIFT_RECHARGE);
+        addAccountLogBo.setRelId(amGiftOrderPo.getId());
+        addAccountLogBo.setOperator(String.valueOf(umUserPo.getId()));
+        //listenerOrderLogQueue 消息队列
+        this.rabbitTemplate.convertAndSend(
+                RabbitConstants.ACCOUNT_LOG_EXCHANGE, RabbitConstants.ACCOUNT_LOG_ROUTING_KEY, addAccountLogBo);
+
+    }
+
     /**
      * 购买礼包
      *
@@ -86,7 +127,7 @@ public class AmGiftOrderServiceImpl extends AbstractService<AmGiftOrderMapper, A
         return giftOrderPo.getId();
     }
 
-    //TODO junhao支付充值礼包成功后调用
+    //TODO 支付充值礼包成功后调用(完成)
     @Override
     public void payPost(Long orderId){
 
@@ -123,7 +164,7 @@ public class AmGiftOrderServiceImpl extends AbstractService<AmGiftOrderMapper, A
                 relCouponUserMapper.insert(relCouponUserPo);
             });
         }
-        //TODO junhao补充经验值、购物券、积分、优惠券等流水
+        //TODO junhao补充经验值、购物券、积分、优惠券等流水（完成）
 
 
     }

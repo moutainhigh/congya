@@ -3,6 +3,8 @@ package com.chauncy.activity.gift;
 import com.chauncy.data.domain.po.activity.gift.AmGiftOrderPo;
 import com.chauncy.data.core.Service;
 
+import java.util.Map;
+
 /**
  * <p>
  * 礼包订单表 服务类
@@ -13,6 +15,12 @@ import com.chauncy.data.core.Service;
  */
 public interface IAmGiftOrderService extends Service<AmGiftOrderPo> {
 
+    /**
+     * 礼包充值成功业务处理
+     * @param amGiftOrderPo
+     * @param notifyMap
+     */
+    void wxPayNotify(AmGiftOrderPo amGiftOrderPo, Map<String, String> notifyMap);
     /**
      * 购买礼包
      *

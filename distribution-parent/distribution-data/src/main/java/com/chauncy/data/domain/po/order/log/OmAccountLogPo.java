@@ -75,6 +75,18 @@ public class OmAccountLogPo implements Serializable {
     @ApiModelProperty(value = "流水事由 5种 LogMatterEnum")
     private Integer logMatter;
 
+    @ApiModelProperty(value = "流水详情当前状态 LogDetailStateEnum")
+    private Integer logDetailState;
+
+    @ApiModelProperty(value = "流水详情说明 LogDetailExplainEnum")
+    private Integer logDetailExplain;
+
+    @ApiModelProperty(value = "流水详情标题 LogDetailTitleEnum")
+    private String logDetailTitle;
+
+    @ApiModelProperty(value = "用户头像")
+    private String picture;
+
     @ApiModelProperty(value = "总支付单id")
     private Long payOrderId;
 

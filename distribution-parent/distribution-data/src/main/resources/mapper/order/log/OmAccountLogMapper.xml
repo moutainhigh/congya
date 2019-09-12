@@ -82,16 +82,28 @@
     </select>
     <select id="searchUserLogPaging" resultType="com.chauncy.data.vo.manage.order.log.UserLogDetailVo">
         SELECT oal.id as logId,
-            oal.`log_type`,
             oal.`amount`,
-            oal.`log_matter`,
-            oal.`event_time`,
-            oal.`payment_way`,
-            oal.`arrival_way`
+            <if test="accountType == 2">
+                oal.`log_matter` AS redEnvelopsLogMatter,
+            </if>
+            <if test="accountType == 3">
+                oal.`log_matter` AS shopTicketLogMatter,
+            </if>
+            <if test="accountType == 4">
+                oal.`log_matter` AS integrateLogMatter,
+            </if>
+            oal.`log_type`,
+            oal.`create_time`,
+            oal.`picture`,
+            oal.`log_detail_title`,
+            oal.`log_detail_state`,
+            oal.`log_detail_explain`,
+            oal.`om_rel_id`,
+            oal.`arrival_way` AS withdrawalWay
         FROM om_account_log oal
         <where>
             oal.user_id = #{userId}
-            AND account_type = #{accountTypeEnum.id}
+            AND account_type = #{accountType}
             AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
         </where>
         ORDER BY oal.`create_time`
@@ -178,7 +190,7 @@
             SELECT sum(oal.amount)
             FROM om_account_log oal
             where oal.user_id = #{userId}
-            AND account_type = #{accountTypeEnum.id}
+            AND account_type = #{accountType}
             AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
             AND oal.log_type = '收入'
             ) as income,
@@ -186,7 +198,7 @@
             SELECT ABS(sum(oal.amount))
             FROM om_account_log oal
             where oal.user_id = #{userId}
-            AND account_type = #{accountTypeEnum.id}
+            AND account_type = #{accountType}
             AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
             AND oal.log_type = '支出'
             ) as consume

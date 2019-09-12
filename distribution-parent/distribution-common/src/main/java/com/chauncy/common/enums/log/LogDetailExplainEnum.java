@@ -6,41 +6,28 @@ import com.chauncy.common.enums.BaseEnum;
 import java.util.Objects;
 
 /**
- *
- * 账目流水事由
- * 0 平台流水
- * 1 商家流水
- * 2 APP用户红包流水
- * 3 APP用户购物券流水
- * 4 APP用户积分流水
- *
  * @author yeJH
- * @since 2019/7/20 18:04
+ * @since 2019/9/11 18:57
  */
-public enum PlatformLogMatterEnum implements BaseEnum {
-
-
+public enum LogDetailExplainEnum  implements BaseEnum {
     /**
-     * 平台流水
-     * 1.订单收入  平台收入
-     * 2.售后退款  平台支出
-     * 3.订单取消  平台支出
-     * 4.用户提现  平台支出
-     * 5.商家货款提现  平台支出
-     * 6.商家利润提现  平台支出
+     * 流水详情说明
      */
-    ORDER_INCOME(1, "订单收入"),
-    ORDER_REFUND(2, "售后退款"),
-    ORDER_CANCEL(3, "订单取消"),
-    USER_WITHDRAWAL(4, "用户提现"),
-    PAYMENT_WITHDRAWAL(5, "商家货款提现"),
-    PROFIT_WITHDRAWAL(6, "商家利润提现"),
+    popularize_INCOME(1, "推广收入"),
+    EXPERIENCE_content(2, "经验包内容"),
+    Shopping_REWARD(3, "购物奖励"),
+    ORDER_PAYMENT(4, "消费抵扣"),
+    PLATFORM_GIVE(5, "系统赠送"),
+    Return_Wallet(6, "已退回我的钱包"),
+    WITHDRAWAL_SUCCESS(7, "会员奖励"),
+    STORE_REFUND(8, "卖家已退款"),
     ;
+
 
     @EnumValue
     private Integer id;
     private String name;
-    PlatformLogMatterEnum(Integer id, String name){
+    LogDetailExplainEnum(Integer id, String name){
         this.id = id;
         this.name = name;
     }
@@ -51,8 +38,8 @@ public enum PlatformLogMatterEnum implements BaseEnum {
     }
 
     //通过名称来获取结果
-    public static PlatformLogMatterEnum getById(Integer id) {
-        for (PlatformLogMatterEnum type : PlatformLogMatterEnum.values()) {
+    public static LogDetailExplainEnum getById(Integer id) {
+        for (LogDetailExplainEnum type : LogDetailExplainEnum.values()) {
             if (type.getId().equals(id))
                 return type;
         }
@@ -60,8 +47,8 @@ public enum PlatformLogMatterEnum implements BaseEnum {
     }
 
     //通过名称来获取结果
-    public static PlatformLogMatterEnum fromName(String name) {
-        for (PlatformLogMatterEnum type : PlatformLogMatterEnum.values()) {
+    public static LogDetailExplainEnum fromName(String name) {
+        for (LogDetailExplainEnum type : LogDetailExplainEnum.values()) {
             if (type.name().equals(name))
                 return type;
         }
@@ -92,7 +79,6 @@ public enum PlatformLogMatterEnum implements BaseEnum {
             return Objects.nonNull(getById(Integer.parseInt(field.toString())));
         }
     }
-
 
 
 }

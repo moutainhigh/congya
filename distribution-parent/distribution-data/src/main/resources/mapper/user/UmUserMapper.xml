@@ -58,9 +58,9 @@
         current_red_envelops=#{t.currentRedEnvelops},
         current_integral=#{t.currentIntegral},
         current_shop_ticket=#{t.currentShopTicket},
-        total_red_envelops=#{t.totalAddRedEnvelops},
-        total_integral=#{t.totalAddIntegral},
-        total_shop_ticket=#{t.totalAddShopTicket},
+        total_red_envelops=total_red_envelops+#{t.totalAddRedEnvelops},
+        total_integral=total_integral+#{t.totalAddIntegral},
+        total_shop_ticket=total_shop_ticket+#{t.totalAddShopTicket},
         update_by=#{currentUserName}
         where id=#{t.id}
     </update>
