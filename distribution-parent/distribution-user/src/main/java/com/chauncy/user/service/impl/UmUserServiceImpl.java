@@ -227,12 +227,18 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     @Override
     public boolean updateUmUser(UpdateUserDto updateUserDto,String currentUserName) {
         UmUserPo userPo=mapper.selectById(updateUserDto.getId());
-        updateUserDto.setTotalAddIntegral(BigDecimalUtil.safeSubtract(updateUserDto.getCurrentIntegral()
-                ,userPo.getCurrentIntegral()));
-        updateUserDto.setTotalAddRedEnvelops(BigDecimalUtil.safeSubtract(updateUserDto.getCurrentRedEnvelops()
-        ,userPo.getCurrentRedEnvelops()));
-        updateUserDto.setTotalAddShopTicket(BigDecimalUtil.safeSubtract(updateUserDto.getCurrentShopTicket()
-        ,userPo.getCurrentShopTicket()));
+        //积分差额
+        BigDecimal marginIntegral = BigDecimalUtil.safeSubtract(updateUserDto.getCurrentIntegral()
+                ,userPo.getCurrentIntegral());
+        updateUserDto.setTotalAddIntegral(marginIntegral);
+        //红包差额
+        BigDecimal marginRedEnvelops = BigDecimalUtil.safeSubtract(updateUserDto.getCurrentRedEnvelops()
+                ,userPo.getCurrentRedEnvelops());
+        updateUserDto.setTotalAddRedEnvelops(marginRedEnvelops);
+        //购物券差额
+        BigDecimal marginShopTicket = BigDecimalUtil.safeSubtract(updateUserDto.getCurrentShopTicket()
+                ,userPo.getCurrentShopTicket());
+        updateUserDto.setTotalAddShopTicket(marginShopTicket);
         //修改主表字段
         mapper.updateUmUser(updateUserDto,currentUserName);
         if (!ListUtil.isListNullAndEmpty(updateUserDto.getLabelIds())){

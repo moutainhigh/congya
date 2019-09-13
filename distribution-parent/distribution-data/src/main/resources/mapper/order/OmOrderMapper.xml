@@ -254,5 +254,22 @@
             and t.del_flag=0
 
     </select>
+    <select id="searchStoreAppOrder" resultType="com.chauncy.data.vo.app.order.my.AppSearchOrderVo">
+        select o.goods_type,o.id orderId,o.`status`,o.real_money,o.total_number,o.store_id,
+        s.name storeName
+        FROM om_order o,sm_store s
+        where o.store_id=s.id  and s.id=#{storeId}
+        and
+        <choose>
+            <when test="isFinish">
+                (o.status=3 or o.status=4)
+            </when>
+            <otherwise>
+                o.status=5
+            </otherwise>
+        </choose>
+        and (o.goods_type='自取' or o.goods_type='服务类')
+        and o.del_flag=0 and s.del_flag=0
+    </select>
 
 </mapper>

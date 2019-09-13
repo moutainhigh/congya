@@ -97,6 +97,15 @@ public interface OmOrderMapper extends IBaseMapper<OmOrderPo> {
      */
     List<AppSearchOrderVo> searchAppOrder(@Param("userId") Long userId,@Param("orderStatusEnum") OrderStatusEnum orderStatusEnum);
 
+    /**
+     * 商家app查询订单
+     * 只能查看自取和服务类型的商品
+     * @param storeId
+     * @param isFinish 1-已完成 0-待核销
+     * @return
+     */
+    List<AppSearchOrderVo> searchStoreAppOrder(@Param("storeId") Long storeId,@Param("isFinish") boolean isFinish);
+
 
     /**
      * 根据订单id获取支付单id

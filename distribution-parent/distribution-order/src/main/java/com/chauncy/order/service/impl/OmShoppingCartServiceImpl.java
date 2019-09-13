@@ -9,6 +9,7 @@ import com.chauncy.common.util.ListUtil;
 import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.common.util.SnowFlakeUtil;
 import com.chauncy.data.bo.app.car.MoneyShipBo;
+import com.chauncy.data.bo.app.order.reward.RewardShopTicketBo;
 import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.bo.manage.pay.PayUserMessage;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
@@ -33,6 +34,7 @@ import com.chauncy.data.dto.app.car.SettleDto;
 import com.chauncy.data.dto.app.car.SubmitOrderDto;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
+import com.chauncy.data.dto.app.order.cart.update.UpdateCartSkuDto;
 import com.chauncy.data.mapper.area.AreaRegionMapper;
 import com.chauncy.data.mapper.order.OmEvaluateQuartzMapper;
 import com.chauncy.data.mapper.order.OmShoppingCartMapper;
@@ -49,6 +51,7 @@ import com.chauncy.data.temp.order.service.IOmGoodsTempService;
 import com.chauncy.data.vo.app.car.*;
 import com.chauncy.data.vo.app.goods.*;
 import com.chauncy.data.vo.app.order.cart.CartVo;
+import com.chauncy.data.vo.app.order.cart.MyCartVo;
 import com.chauncy.data.vo.app.order.cart.StoreGoodsVo;
 import com.chauncy.data.vo.supplier.GoodsStandardVo;
 import com.chauncy.data.vo.supplier.StandardValueAndStatusVo;
@@ -212,16 +215,26 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
      * @return
      */
     @Override
-    public PageInfo<CartVo> SearchCart(SearchCartDto searchCartDto) {
+    public MyCartVo SearchCart(SearchCartDto searchCartDto) {
+
+        MyCartVo myCartVo = new MyCartVo();
+
         //获取当前用户
         UmUserPo userPo = securityUtil.getAppCurrUser();
+        Long memberLevelId = userPo.getMemberLevelId();
+
         Integer pageNo = searchCartDto.getPageNo() == null ? defaultPageNo : searchCartDto.getPageNo();
         Integer pageSize = searchCartDto.getPageSize() == null ? defaultPageSize : searchCartDto.getPageSize();
         PageInfo<CartVo> cartVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> mapper.searchCart(userPo.getId()));
+        //记录已经失效的商品
+        List<StoreGoodsVo> disableList = Lists.newArrayList();
+
+        final Integer[] num = {0};
         //对购物车库存处理
         cartVoPageInfo.getList().forEach(a -> {
             List<StoreGoodsVo> storeGoodsVos = Lists.newArrayList();
+            List<StoreGoodsVo> validGoodsVos = Lists.newArrayList();
             a.getStoreGoodsVoList().forEach(b -> {
                 Integer sum = skuMapper.selectById(b.getSkuId()).getStock();
                 b.setSum(sum);
@@ -232,19 +245,53 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 } else if (b.getNum() >= sum) {
                     b.setNum(sum);
                 }
+
+                RewardShopTicketBo rewardShopTicketBo = skuMapper.getRewardShopTicket(b.getSkuId());
+                //商品信息
+                PmGoodsPo goods = goodsMapper.selectById(skuMapper.selectById(b.getSkuId()).getGoodsId());
+
+                //商品活动百分比
+                rewardShopTicketBo.setActivityCostRate(goods.getActivityCostRate());
+                //让利成本比例
+                rewardShopTicketBo.setProfitsRate(goods.getProfitsRate());
+
+                //会员等级比例
+                BigDecimal purchasePresent = levelMapper.selectById(memberLevelId).getPurchasePresent();
+                rewardShopTicketBo.setPurchasePresent(purchasePresent);
+                //购物券比例
+                BigDecimal moneyToShopTicket = basicSettingMapper.selectList(null).get(0).getMoneyToShopTicket();
+                rewardShopTicketBo.setMoneyToShopTicket(moneyToShopTicket);
+                BigDecimal rewardShopTicket= rewardShopTicketBo.getRewardShopTicket();
+
+                b.setRewardShopTicke(rewardShopTicket);
+
+
                 //下架处理,宝贝失效处理
                 if (goodsMapper.selectById(skuMapper.selectById(b.getSkuId()).getGoodsId()).getPublishStatus() != null) {
                     boolean publish = goodsMapper.selectById(skuMapper.selectById(b.getSkuId()).getGoodsId()).getPublishStatus();
                     if (!publish) {
                         b.setIsObtained(true);
+                        disableList.add(b);
                     }
                 }
+
                 storeGoodsVos.add(b);
             });
-            a.setStoreGoodsVoList(storeGoodsVos);
+            //失效id
+            List<Long> disableIds = disableList.stream().map(g->g.getSkuId()).collect(Collectors.toList());
+            //获取除失效的商品
+            validGoodsVos = storeGoodsVos.stream().filter(d->!disableIds.contains(d.getSkuId())).collect(Collectors.toList());
+//            storeGoodsVos.removeAll(disableList);
+
+            a.setStoreGoodsVoList(validGoodsVos);
+            num[0] += a.getStoreGoodsVoList().size();
         });
 
-        return cartVoPageInfo;
+        myCartVo.setNum(num[0]);
+        myCartVo.setCartVo(cartVoPageInfo);
+        myCartVo.setDisableList(disableList);
+
+        return myCartVo;
     }
 
     /**
@@ -270,9 +317,43 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
      * @return
      */
     @Override
-    public void updateCart(AddCartDto updateCartDto) {
+    public void updateCart(UpdateCartSkuDto updateCartDto) {
+
+        UmUserPo user = securityUtil.getAppCurrUser();
+
         OmShoppingCartPo cartPo = new OmShoppingCartPo();
         BeanUtils.copyProperties(updateCartDto, cartPo);
+
+        Long skuId = mapper.selectById(updateCartDto.getId()).getSkuId();
+        if (!skuId.equals(updateCartDto.getNeedChangeId())){
+            throw new ServiceException(ResultCode.FAIL,String.format("需要修改的sku:【%s】不属于该购物车id:[%s],请检查",
+                    updateCartDto.getNeedChangeId(),updateCartDto.getId()));
+        }
+
+        if (updateCartDto.getSelectId() != 0) {
+
+            //获取该用户收藏的所有sku
+            List<Long> skuIds = mapper.selectList(new QueryWrapper<OmShoppingCartPo>().lambda()
+                    .eq(OmShoppingCartPo::getUserId,user.getId())).stream().map(a->a.getSkuId()).collect(Collectors.toList());
+
+            //是否针对相同的商品
+            Long goodsId1 = skuMapper.selectById(updateCartDto.getNeedChangeId()).getGoodsId();
+            Long goodsId2 = skuMapper.selectById(updateCartDto.getSelectId()).getGoodsId();
+            if (!goodsId1.equals(goodsId2)){
+                throw new ServiceException(ResultCode.FAIL,"更改的sku不属于需要被更改的商品");
+            }
+            //判断更改前的sku和更改后的sku是否一样
+            if (updateCartDto.getSelectId().equals(updateCartDto.getNeedChangeId())) {
+                throw new ServiceException(ResultCode.FAIL, "您修改后的购买信息和修改前一致");
+            }else if (skuIds.contains(updateCartDto.getSelectId())) {
+                mapper.deleteById(updateCartDto.getId());
+            }else {
+                //更改后的sku保存到购物车的数量为1
+                cartPo.setNum(1);
+                cartPo.setSkuId(updateCartDto.getSelectId());
+            }
+        }
+
         mapper.updateById(cartPo);
     }
 
@@ -945,7 +1026,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         this.rabbitTemplate.convertAndSend(RabbitConstants.ORDER_UNPAID_DELAY_EXCHANGE, RabbitConstants.DELAY_ROUTING_KEY, savePayOrderPo.getId(), message -> {
             // TODO 如果配置了 params.put("x-message-ttl", 5 * 1000); 那么这一句也可以省略,具体根据业务需要是声明 Queue 的时候就指定好延迟时间还是在发送自己控制时间
 
-            message.getMessageProperties().setExpiration(basicSettingPo.getAutoCloseOrderDay()*24*60*60*1000 + "");
+           // message.getMessageProperties().setExpiration(basicSettingPo.getAutoCloseOrderDay()*24*60*60*1000 + "");
+            message.getMessageProperties().setExpiration(1*60*1000 + "");
             return message;
         });
         LoggerUtil.info("【下单等待取消订单发送时间】:" + LocalDateTime.now());

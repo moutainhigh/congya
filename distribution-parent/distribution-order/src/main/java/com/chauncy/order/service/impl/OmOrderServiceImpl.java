@@ -10,10 +10,7 @@ import com.chauncy.common.enums.log.PaymentWayEnum;
 import com.chauncy.common.enums.goods.GoodsTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
-import com.chauncy.common.util.BigDecimalUtil;
-import com.chauncy.common.util.JSONUtils;
-import com.chauncy.common.util.ListUtil;
-import com.chauncy.common.util.LoggerUtil;
+import com.chauncy.common.util.*;
 import com.chauncy.common.util.rabbit.RabbitUtil;
 import com.chauncy.data.bo.app.logistics.LogisticsDataBo;
 import com.chauncy.data.bo.app.order.reward.RewardBuyerBo;
@@ -28,9 +25,11 @@ import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.domain.po.pay.PayUserRelationPo;
 import com.chauncy.data.domain.po.sys.BasicSettingPo;
+import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.my.SearchMyOrderDto;
+import com.chauncy.data.dto.app.order.store.WriteOffDto;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchSendOrderDto;
@@ -53,6 +52,7 @@ import com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailVo;
 import com.chauncy.data.vo.manage.order.list.OrderDetailVo;
 import com.chauncy.data.vo.manage.order.list.SearchOrderVo;
 import com.chauncy.data.vo.supplier.order.*;
+import com.chauncy.order.report.service.IOmOrderReportService;
 import com.chauncy.order.service.IOmOrderService;
 import com.chauncy.order.service.IPayOrderService;
 import com.chauncy.security.util.SecurityUtil;
@@ -63,6 +63,7 @@ import com.google.common.collect.Lists;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -134,8 +135,11 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
+    @Autowired
+    private IOmOrderReportService omOrderReportService;
 
-
+    @Value("${jasypt.encryptor.password}")
+    private String password;
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean closeOrderByPayId(Long payOrderId) {
@@ -293,6 +297,30 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         return smSendOrderVoPageInfo;
     }
 
+    @Override
+    public void storeSend(Long orderId) {
+        //修改订单状态为已发货
+        OmOrderPo order = mapper.selectById(orderId);
+        if (order != null) {
+            OmOrderPo saveOrder = new OmOrderPo();
+            saveOrder.setId(order.getId()).setStatus(OrderStatusEnum.NEED_RECEIVE_GOODS)
+                    .setSendTime(LocalDateTime.now());
+            mapper.updateById(saveOrder);
+        }
+
+        //获取系统基本设置
+        BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
+        //多久自动收货(毫秒)
+        String expiration=basicSettingPo.getAutoReceiveDay()*24*60*60*1000+"";
+
+        RabbitOrderBo rabbitOrderBo=new RabbitOrderBo();
+        rabbitOrderBo.setOrderId(orderId).setOrderStatusEnum(OrderStatusEnum.NEED_RECEIVE_GOODS);
+        //添加自动收货的消息队列
+        rabbitUtil.sendDelayMessage(5*60*1000+"",rabbitOrderBo);
+        LoggerUtil.info("【已发货等待自动收货消息发送时间】:" + LocalDateTime.now());
+
+    }
+
 
     @Override
     public OrderDetailVo getDetailById(Long id) {
@@ -316,14 +344,36 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     }
 
     @Override
-    public PageInfo<AppSearchOrderVo> searchAppOrder(Long userId, SearchMyOrderDto searchMyOrderDto) {
-        PageInfo<AppSearchOrderVo> appSearchOrderVoPageInfo = PageHelper.startPage(searchMyOrderDto.getPageNo(), searchMyOrderDto.getPageSize())
-                .doSelectPageInfo(() -> mapper.searchAppOrder(userId, searchMyOrderDto.getStatus()));
-        appSearchOrderVoPageInfo.getList().forEach(x -> {
-            List<SmSendGoodsTempVo> smSendGoodsTempVos = mapper.searchSendGoodsTemp(x.getOrderId());
-            x.setSmSendGoodsTempVos(smSendGoodsTempVos);
-        });
-        return appSearchOrderVoPageInfo;
+    public PageInfo<AppSearchOrderVo> searchAppOrder(SearchMyOrderDto searchMyOrderDto) {
+        //待核销和已完成是商家的
+        if (searchMyOrderDto.getStatus().getId()>=OrderStatusEnum.WAIT_WRITE_OFF.getId()){
+            SysUserPo currUser = securityUtil.getCurrUser();
+            boolean isFinish=true;
+            //商家待核销==》未使用 已完成==》待评价、已评价
+            if (searchMyOrderDto.getStatus()==OrderStatusEnum.WAIT_WRITE_OFF){
+                isFinish=false;
+            }
+            boolean finalIsFinish = isFinish;
+            PageInfo<AppSearchOrderVo> appSearchOrderVoPageInfo = PageHelper.startPage(searchMyOrderDto.getPageNo(), searchMyOrderDto.getPageSize())
+                    .doSelectPageInfo(() -> mapper.searchStoreAppOrder(currUser.getStoreId(), finalIsFinish));
+            if (isFinish){
+                appSearchOrderVoPageInfo.getList().forEach(x->x.setStatus(OrderStatusEnum.FINISH));
+            }
+            else {
+                appSearchOrderVoPageInfo.getList().forEach(x->x.setStatus(OrderStatusEnum.WAIT_WRITE_OFF));
+            }
+            return appSearchOrderVoPageInfo;
+        }
+        else {
+            UmUserPo appCurrUser = securityUtil.getAppCurrUser();
+            PageInfo<AppSearchOrderVo> appSearchOrderVoPageInfo = PageHelper.startPage(searchMyOrderDto.getPageNo(), searchMyOrderDto.getPageSize())
+                    .doSelectPageInfo(() -> mapper.searchAppOrder(appCurrUser.getId(), searchMyOrderDto.getStatus()));
+            appSearchOrderVoPageInfo.getList().forEach(x -> {
+                List<SmSendGoodsTempVo> smSendGoodsTempVos = mapper.searchSendGoodsTemp(x.getOrderId());
+                x.setSmSendGoodsTempVos(smSendGoodsTempVos);
+            });
+            return appSearchOrderVoPageInfo;
+        }
     }
 
     @Override
@@ -383,6 +433,13 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
         appMyOrderDetailVo.setAppMyOrderDetailStoreVo(appMyOrderDetailStoreVo);
 
+        //如果是自取或者服务类的商品就有二维码
+        if (appMyOrderDetailVo.getGoodsType().equals(GoodsTypeEnum.PICK_UP_INSTORE.getName())||
+                appMyOrderDetailVo.getGoodsType().equals(GoodsTypeEnum.SERVICES.getName()) ){
+            appMyOrderDetailVo.setQRCode(JasyptUtil.encyptPwd(password,appMyOrderDetailVo.getOrderId().toString()));
+
+        }
+
         return appMyOrderDetailVo;
     }
 
@@ -421,12 +478,12 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
         //添加自动评价延时队列
         rabbitUtil.sendDelayMessage(1 * 60 * 1000 + "", rabbitOrderBo);
-        //添加售后截止延时队列
+        //添加售后截止延时队列,售后截止队列的状态为空
         RabbitOrderBo afterRabbitOrderBo = new RabbitOrderBo();
         afterRabbitOrderBo.setOrderId(orderId);
         rabbitUtil.sendDelayMessage(1 * 60 * 1000 + "", afterRabbitOrderBo);
 
-        LoggerUtil.info("【确认收货等待自动评价发送时间】:" + LocalDateTime.now());
+        LoggerUtil.info("【确认收货后：待评价===》自动评价发送时间】:" + LocalDateTime.now());
         LoggerUtil.info("【确认收货等待售后截止】:" + LocalDateTime.now());
 
     }
@@ -466,6 +523,8 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
     @Override
     public void orderDeadline(Long orderId) {
+
+        // TODO: 2019/9/10 俊浩流水
         OmOrderPo queryOrder = mapper.selectById(orderId);
 
 
@@ -536,6 +595,41 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         updateUser.setId(userId).setTotalConsumeMoney(realPayMoney).setTotalOrder(1);
         umUserService.updateById(updateUser);
 
+        //商品销售报表
+        omOrderReportService.orderClosure(orderId);
+
+
+
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void writeOffOrder(WriteOffDto writeOffDto) {
+        SysUserPo currUser = securityUtil.getCurrUser();
+        //二维码内容解密成订单id
+        Long orderId = Long.parseLong(JasyptUtil.decyptPwd(password, writeOffDto.getQRCode()));
+        OmOrderPo queryOrder = mapper.selectById(orderId);
+        if (!currUser.getStoreId().equals(queryOrder.getStoreId())){
+            throw new ServiceException(ResultCode.FAIL,"操作失败！不是该店铺的订单！");
+        }
+        if (queryOrder.getStatus()!=OrderStatusEnum.NEED_USE){
+            throw new ServiceException(ResultCode.FAIL,String.format("该订单处于【%s】状态！不允许使用",queryOrder.getStatus().getName()));
+        }
+
+        //修改订单状态
+        OmOrderPo updateOrder=new OmOrderPo();
+        updateOrder.setId(orderId).setStatus(OrderStatusEnum.NEED_EVALUATE).setUpdateBy(currUser.getId());
+        mapper.updateById(updateOrder);
+        //延迟队列：待评价===》已评价
+        BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
+        //多久自动评价(毫秒)
+        String expiration = basicSettingPo.getAutoCommentDay() * 24 * 60 * 60 * 1000 + "";
+        RabbitOrderBo rabbitOrderBo = new RabbitOrderBo();
+        rabbitOrderBo.setOrderId(orderId).setOrderStatusEnum(OrderStatusEnum.NEED_EVALUATE);
+
+        //添加自动评价延时队列
+        rabbitUtil.sendDelayMessage(1 * 60 * 1000 + "", rabbitOrderBo);
+        LoggerUtil.info("【确认收货后：待评价===》自动评价发送时间】:" + LocalDateTime.now());
 
 
     }
@@ -546,7 +640,6 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
      * @param queryPayUser
      */
     private void rewardRed(PayUserRelationPo queryPayUser, BasicSettingPo basicSettingPo) {
-        //最高级用户不为空
         UmUserPo userPo = userMapper.selectById(queryPayUser.getCreateBy());
         PmMemberLevelPo queryMember = memberLevelMapper.selectById(userPo.getMemberLevelId());
 
@@ -562,8 +655,9 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             BigDecimal red = x.calculateRed();
             totalRed[0] = BigDecimalUtil.safeAdd(totalRed[0], BigDecimalUtil.safeMultiply(red, x.getNumber()));
         });
-        //如果只有第一级上级用户
-        if (queryPayUser.getSecondUserId() == null) {
+        UmUserPo queryFirstUser=umUserService.getById(queryPayUser.getFirstUserId());
+        //如果只有第一级上级用户且一级用户有返佣资格
+        if (queryPayUser.getSecondUserId() == null&&queryFirstUser.getCommissionStatus()) {
             UmUserPo updateFirst = new UmUserPo();
             updateFirst.setId(queryPayUser.getFirstUserId()).setCurrentRedEnvelops(totalRed[0]);
             userMapper.updateAdd(updateFirst);
@@ -583,13 +677,21 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             //第二级别用户获得红包
             BigDecimal secondRed = BigDecimalUtil.safeMultiply(totalRed[0], secondRatio);
 
-            UmUserPo updateFirst = new UmUserPo();
-            updateFirst.setId(queryPayUser.getFirstUserId()).setCurrentRedEnvelops(firstRed);
-            userMapper.updateAdd(updateFirst);
+            UmUserPo querySecondUser=umUserService.getById(queryPayUser.getFirstUserId());
 
-            UmUserPo updateSecond = new UmUserPo();
-            updateFirst.setId(queryPayUser.getFirstUserId()).setCurrentRedEnvelops(secondRed);
-            userMapper.updateAdd(updateSecond);
+            //一级佣金判断资格
+            if (queryFirstUser.getCommissionStatus()) {
+                UmUserPo updateFirst = new UmUserPo();
+                updateFirst.setId(queryPayUser.getFirstUserId()).setCurrentRedEnvelops(firstRed);
+                userMapper.updateAdd(updateFirst);
+            }
+
+            //二级佣金判定资格
+            if (querySecondUser.getCommissionStatus()) {
+                UmUserPo updateSecond = new UmUserPo();
+                updateSecond.setId(queryPayUser.getFirstUserId()).setCurrentRedEnvelops(secondRed);
+                userMapper.updateAdd(updateSecond);
+            }
 
         }
     }

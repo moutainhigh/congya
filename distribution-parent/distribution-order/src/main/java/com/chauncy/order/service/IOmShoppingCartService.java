@@ -10,12 +10,14 @@ import com.chauncy.data.dto.app.car.SettleDto;
 import com.chauncy.data.dto.app.car.SubmitOrderDto;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
+import com.chauncy.data.dto.app.order.cart.update.UpdateCartSkuDto;
 import com.chauncy.data.dto.app.order.evaluate.select.GetEvaluatesDto;
 import com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo;
 import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
 import com.chauncy.data.vo.app.car.CarGoodsVo;
 import com.chauncy.data.vo.app.car.TotalCarVo;
 import com.chauncy.data.vo.app.order.cart.CartVo;
+import com.chauncy.data.vo.app.order.cart.MyCartVo;
 import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 
@@ -44,7 +46,7 @@ public interface IOmShoppingCartService extends Service<OmShoppingCartPo> {
      *
      * @return
      */
-    PageInfo<CartVo> SearchCart(SearchCartDto searchCartDto);
+    MyCartVo SearchCart(SearchCartDto searchCartDto);
 
     /**
      * 批量删除购物车
@@ -59,7 +61,7 @@ public interface IOmShoppingCartService extends Service<OmShoppingCartPo> {
      * @param updateCartDto
      * @return
      */
-    void updateCart(AddCartDto updateCartDto);
+    void updateCart(UpdateCartSkuDto updateCartDto);
 
 
     /**

@@ -106,7 +106,7 @@ public class RabbitOrderHandler {
         OmOrderPo queryOrder = orderService.getById(rabbitOrderBo.getOrderId());
         //如果订单存在且状态为空，表示到了售后的截止时间
         if (queryOrder != null && queryOrder.getStatus()==null) {
-
+            orderService.orderDeadline(rabbitOrderBo.getOrderId());
         }
             //如果订单存在且状态未发生改变
         if (queryOrder != null && queryOrder.getStatus().equals(rabbitOrderBo.getOrderStatusEnum())) {
