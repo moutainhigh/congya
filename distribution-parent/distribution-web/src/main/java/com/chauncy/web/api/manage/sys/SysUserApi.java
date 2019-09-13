@@ -2,12 +2,16 @@ package com.chauncy.web.api.manage.sys;
 
 
 import cn.hutool.core.util.StrUtil;
+import com.chauncy.common.constant.Constants;
 import com.chauncy.common.constant.SecurityConstant;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.third.easemob.RegistIM;
+import com.chauncy.common.third.easemob.comm.RegUserBo;
 import com.chauncy.data.domain.po.sys.SysDepartmentPo;
 import com.chauncy.data.domain.po.sys.SysRolePo;
 import com.chauncy.data.domain.po.sys.SysRoleUserPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.manage.sys.user.add.AddPlatformUserDto;
 import com.chauncy.data.util.PageUtil;
 import com.chauncy.data.valid.group.IUpdateGroup;
@@ -124,6 +128,15 @@ public class SysUserApi {
     ur.setCreateBy(currentUser.getUsername());
     iUserRoleService.save(ur);
    }
+  }
+
+    RegUserBo regUserBo = new RegUserBo();
+    //判断该用户是否已经注册过IM账号
+    if (RegistIM.getUser(sysUserPo.getId().toString()) == null) {
+     regUserBo.setPassword(Constants.PASSWORD);
+     regUserBo.setUsername(sysUserPo.getId().toString());
+     regUserBo.setNickname(sysUserPo.getNickName());
+     RegistIM.reg(regUserBo);
   }
 
   return new JsonViewData(ResultCode.SUCCESS);

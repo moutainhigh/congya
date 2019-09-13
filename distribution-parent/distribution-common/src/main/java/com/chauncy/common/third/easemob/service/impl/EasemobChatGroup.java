@@ -1,10 +1,10 @@
-package com.chauncy.message.easemob.service.impl;
+package com.chauncy.common.third.easemob.service.impl;
 
-import com.chauncy.message.easemob.comm.EasemobAPI;
-import com.chauncy.message.easemob.comm.OrgInfo;
-import com.chauncy.message.easemob.comm.ResponseHandler;
-import com.chauncy.message.easemob.comm.TokenUtil;
-import com.chauncy.message.easemob.service.ChatGroupAPI;
+import com.chauncy.common.third.easemob.comm.EasemobAPI;
+import com.chauncy.common.third.easemob.comm.OrgInfo;
+import com.chauncy.common.third.easemob.comm.ResponseHandler;
+import com.chauncy.common.third.easemob.comm.TokenUtil;
+import com.chauncy.common.third.easemob.service.ChatGroupAPI;
 import io.swagger.client.ApiException;
 import io.swagger.client.StringUtil;
 import io.swagger.client.api.GroupsApi;

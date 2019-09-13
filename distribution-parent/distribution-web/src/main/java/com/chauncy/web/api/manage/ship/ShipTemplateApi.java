@@ -1,6 +1,5 @@
 package com.chauncy.web.api.manage.ship;
 
-import com.chauncy.common.constant.logistics.LogisticsContants;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.manage.ship.add.AddShipTemplateDto;
 import com.chauncy.data.dto.manage.ship.delete.DelListDto;
@@ -9,7 +8,6 @@ import com.chauncy.data.dto.manage.ship.update.EnableTemplateDto;
 import com.chauncy.data.dto.manage.ship.update.VerifyTemplateDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.ship.PlatTemplateVo;
-import com.chauncy.message.easemob.comm.OrgInfo;
 import com.chauncy.product.service.IPmShippingTemplateService;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;

@@ -1,4 +1,4 @@
-package com.chauncy.message.easemob.comm;
+package com.chauncy.common.third.easemob.comm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

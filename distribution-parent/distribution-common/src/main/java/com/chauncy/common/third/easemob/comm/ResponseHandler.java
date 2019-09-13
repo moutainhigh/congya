@@ -1,4 +1,4 @@
-package com.chauncy.message.easemob.comm;
+package com.chauncy.common.third.easemob.comm;
 
 import com.google.gson.Gson;
 import io.swagger.client.ApiException;

@@ -1,4 +1,4 @@
-package com.chauncy.data.bo.message;
+package com.chauncy.common.third.easemob.comm;
 
 import io.swagger.annotations.ApiModel;
 import lombok.Data;

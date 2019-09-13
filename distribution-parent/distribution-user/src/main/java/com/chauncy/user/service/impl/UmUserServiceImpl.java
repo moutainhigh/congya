@@ -2,10 +2,13 @@ package com.chauncy.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.chauncy.common.constant.Constants;
 import com.chauncy.common.enums.log.AccountTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.enums.user.ValidCodeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.common.third.easemob.RegistIM;
+import com.chauncy.common.third.easemob.comm.RegUserBo;
 import com.chauncy.common.util.*;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.interact.MmFeedBackPo;
@@ -78,7 +81,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     public boolean validVerifyCode(String verifyCode, String phone, ValidCodeEnum validCodeEnum) {
         String redisKey = String.format(validCodeEnum.getRedisKey(), phone);
         Object redisValue = redisUtil.get(redisKey);
-        if ("8888".equals(verifyCode.trim())){
+        if ("8888".equals(verifyCode.trim())) {
             return true;
         }
         if (redisValue == null) {
@@ -103,7 +106,13 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
          * 设置一些值
          */
         saveUser.setInviteCode(SnowFlakeUtil.getFlowIdInstance().nextId());
-        return mapper.insert(saveUser) > 0;
+
+        Boolean isSuccess = mapper.insert(saveUser) > 0;
+
+        /** 注册IM账号**/
+        registIM(saveUser, isSuccess);
+
+        return isSuccess;
     }
 
     @Override
@@ -114,7 +123,29 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         UmUserPo saveUser = new UmUserPo();
         BeanUtils.copyProperties(userDto, saveUser);
         saveUser.setInviteCode(SnowFlakeUtil.getFlowIdInstance().nextId());
-        return mapper.insert(saveUser) > 0;
+        Boolean isSuccess = mapper.insert(saveUser) > 0;
+
+        registIM(saveUser, isSuccess);
+
+        return isSuccess;
+    }
+
+    /**
+     * 注册IM账号
+     *
+     * @param saveUser
+     */
+    private void registIM(UmUserPo saveUser, Boolean isSuccess) {
+        if (isSuccess) {
+            RegUserBo regUserBo = new RegUserBo();
+            //判断该用户是否已经注册过IM账号
+            if (RegistIM.getUser(saveUser.getId().toString()) == null) {
+                regUserBo.setPassword(Constants.PASSWORD);
+                regUserBo.setUsername(saveUser.getId().toString());
+                regUserBo.setNickname(saveUser.getName());
+                RegistIM.reg(regUserBo);
+            }
+        }
     }
 
     @Override
@@ -132,7 +163,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
 
     @Override
     public boolean updateLogin(String phone) {
-        return mapper.updateLogin(phone)>0;
+        return mapper.updateLogin(phone) > 0;
     }
 
     /**
@@ -144,9 +175,9 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     @Override
     public BigDecimal getAccount(AccountTypeEnum accountType, UmUserPo umUserPo) {
         BigDecimal amount = new BigDecimal(0);
-        if(accountType.equals(AccountTypeEnum.RED_ENVELOPS)) {
+        if (accountType.equals(AccountTypeEnum.RED_ENVELOPS)) {
             amount = umUserPo.getCurrentRedEnvelops();
-        } else if(accountType.equals(AccountTypeEnum.SHOP_TICKET)) {
+        } else if (accountType.equals(AccountTypeEnum.SHOP_TICKET)) {
             amount = umUserPo.getCurrentShopTicket();
         }
         return amount;
@@ -168,16 +199,16 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
 
     @Override
     public void setParent(Long inviteCode, Long userId) {
-        UmUserPo condition=new UmUserPo();
+        UmUserPo condition = new UmUserPo();
         condition.setInviteCode(inviteCode);
         UmUserPo parentUserPo = mapper.selectOne(new QueryWrapper<>(condition).select("id,invite_people_num,store_id"));
         //子跟随父亲的店铺id 设置parentid
-        UmUserPo updateChildUserPo=new UmUserPo();
+        UmUserPo updateChildUserPo = new UmUserPo();
         updateChildUserPo.setId(userId).setParentId(parentUserPo.getId()).setStoreId(parentUserPo.getStoreId());
         mapper.updateById(updateChildUserPo);
         //父增加邀请人数
-        UmUserPo updateParentUserPo=new UmUserPo();
-        updateParentUserPo.setInvitePeopleNum(parentUserPo.getInvitePeopleNum()+1).setId(parentUserPo.getId());
+        UmUserPo updateParentUserPo = new UmUserPo();
+        updateParentUserPo.setInvitePeopleNum(parentUserPo.getInvitePeopleNum() + 1).setId(parentUserPo.getId());
         mapper.updateById(updateParentUserPo);
 
     }
@@ -186,18 +217,18 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     public PageInfo<UmUserListVo> searchUserList(SearchUserListDto searchUserListDto) {
         Integer pageNo = searchUserListDto.getPageNo() == null ? defaultPageNo : searchUserListDto.getPageNo();
         Integer pageSize = searchUserListDto.getPageSize() == null ? defaultPageSize : searchUserListDto.getPageSize();
-        PageInfo<UmUserListVo> umUserListVoPageInfo =PageHelper.startPage(pageNo, pageSize)
+        PageInfo<UmUserListVo> umUserListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> mapper.loadSearchUserList(searchUserListDto));
 
         //通过条件构造器限制只需要查出name
-        UmUserPo condition=new UmUserPo();
+        UmUserPo condition = new UmUserPo();
         //设置关联用户的名称,不要连表(数据库查出的是id，现在将id转为name)
-        umUserListVoPageInfo.getList().stream().filter(x->x.getParent()!=null).
-                forEach(x->{
+        umUserListVoPageInfo.getList().stream().filter(x -> x.getParent() != null).
+                forEach(x -> {
                     condition.setId(Long.parseLong(x.getParent()));
                     //当trueName为空时，查出的实体也为空
                     UmUserPo queryParentUser = mapper.selectOne(new QueryWrapper<>(condition, "true_name"));
-                    x.setParent(queryParentUser==null ||queryParentUser.getTrueName()==null?"":queryParentUser.getTrueName());
+                    x.setParent(queryParentUser == null || queryParentUser.getTrueName() == null ? "" : queryParentUser.getTrueName());
                 });
         return umUserListVoPageInfo;
     }
@@ -207,50 +238,50 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         UmUserDetailVo umUserDetailVo = mapper.loadUserDetailVo(id);
         //组装labelNames storeName nextLevelExperience parentName(数据库查出来的是id)
         umUserDetailVo.setLabelNames(mapper.getLabelNamesByUserId(id));
-        if (umUserDetailVo.getStoreId()!=null){
-            QueryWrapper storeWrapper=new QueryWrapper();
-            storeWrapper.eq("id",umUserDetailVo.getStoreId());
+        if (umUserDetailVo.getStoreId() != null) {
+            QueryWrapper storeWrapper = new QueryWrapper();
+            storeWrapper.eq("id", umUserDetailVo.getStoreId());
             storeWrapper.select("name");
             SmStorePo queryStore = smStoreMapper.selectOne(storeWrapper);
             umUserDetailVo.setStoreName(queryStore.getName());
         }
-        if (umUserDetailVo.getParentName()!=null){
-            QueryWrapper userWrapper=new QueryWrapper();
-            userWrapper.eq("id",umUserDetailVo.getParentName());
+        if (umUserDetailVo.getParentName() != null) {
+            QueryWrapper userWrapper = new QueryWrapper();
+            userWrapper.eq("id", umUserDetailVo.getParentName());
             userWrapper.select("true_name");
             UmUserPo queryParentUser = mapper.selectOne(userWrapper);
-            umUserDetailVo.setParentName(queryParentUser==null?null:queryParentUser.getTrueName());
+            umUserDetailVo.setParentName(queryParentUser == null ? null : queryParentUser.getTrueName());
         }
         return umUserDetailVo;
     }
 
     @Override
-    public boolean updateUmUser(UpdateUserDto updateUserDto,String currentUserName) {
-        UmUserPo userPo=mapper.selectById(updateUserDto.getId());
+    public boolean updateUmUser(UpdateUserDto updateUserDto, String currentUserName) {
+        UmUserPo userPo = mapper.selectById(updateUserDto.getId());
         //积分差额
         BigDecimal marginIntegral = BigDecimalUtil.safeSubtract(updateUserDto.getCurrentIntegral()
-                ,userPo.getCurrentIntegral());
+                , userPo.getCurrentIntegral());
         updateUserDto.setTotalAddIntegral(marginIntegral);
         //红包差额
         BigDecimal marginRedEnvelops = BigDecimalUtil.safeSubtract(updateUserDto.getCurrentRedEnvelops()
-                ,userPo.getCurrentRedEnvelops());
+                , userPo.getCurrentRedEnvelops());
         updateUserDto.setTotalAddRedEnvelops(marginRedEnvelops);
         //购物券差额
         BigDecimal marginShopTicket = BigDecimalUtil.safeSubtract(updateUserDto.getCurrentShopTicket()
-                ,userPo.getCurrentShopTicket());
+                , userPo.getCurrentShopTicket());
         updateUserDto.setTotalAddShopTicket(marginShopTicket);
         //修改主表字段
-        mapper.updateUmUser(updateUserDto,currentUserName);
-        if (!ListUtil.isListNullAndEmpty(updateUserDto.getLabelIds())){
+        mapper.updateUmUser(updateUserDto, currentUserName);
+        if (!ListUtil.isListNullAndEmpty(updateUserDto.getLabelIds())) {
             //修改用户与标签关联表
             List<Long> labelIds = updateUserDto.getLabelIds();
             //先删掉关联数据
-            QueryWrapper queryWrapper=new QueryWrapper();
-            queryWrapper.eq("user_id",updateUserDto.getId());
+            QueryWrapper queryWrapper = new QueryWrapper();
+            queryWrapper.eq("user_id", updateUserDto.getId());
             relUserLabelMapper.delete(queryWrapper);
             //插入关联数据
-            if (!ListUtil.isListNullAndEmpty(labelIds)){
-                labelIds.forEach(x->{
+            if (!ListUtil.isListNullAndEmpty(labelIds)) {
+                labelIds.forEach(x -> {
                     UmRelUserLabelPo umRelUserLabelPo = new UmRelUserLabelPo();
                     umRelUserLabelPo.setCreateBy(currentUserName).setUserId(updateUserDto.getId())
                             .setUserLabelId(x);
@@ -267,7 +298,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     }
 
     /**
-     *用户反馈信息
+     * 用户反馈信息
      *
      * @return
      */
@@ -282,24 +313,23 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     }
 
 
-
     @Override
     public void updateLevel(Long userId) {
         UmUserPo queryUser = mapper.selectById(userId);
 
-        PmMemberLevelPo nextLevel= memberLevelMapper.getNextLevelByUserId(userId);
+        PmMemberLevelPo nextLevel = memberLevelMapper.getNextLevelByUserId(userId);
         //要修改的会员等级id
-        Long memberLevelId=null;
+        Long memberLevelId = null;
         //当用户经验值大于等级所需经验值的时候,进行升级
-        while (queryUser.getCurrentExperience().compareTo(nextLevel.getLevelExperience())>=0){
-            memberLevelId=nextLevel.getId();
+        while (queryUser.getCurrentExperience().compareTo(nextLevel.getLevelExperience()) >= 0) {
+            memberLevelId = nextLevel.getId();
             //找出下一等级的会员详细信息
-            QueryWrapper<PmMemberLevelPo> levelQueryWrapper=new QueryWrapper<>();
-            levelQueryWrapper.lambda().eq(PmMemberLevelPo::getLevel,nextLevel.getLevel()+1);
-             nextLevel = memberLevelMapper.selectOne(levelQueryWrapper);
+            QueryWrapper<PmMemberLevelPo> levelQueryWrapper = new QueryWrapper<>();
+            levelQueryWrapper.lambda().eq(PmMemberLevelPo::getLevel, nextLevel.getLevel() + 1);
+            nextLevel = memberLevelMapper.selectOne(levelQueryWrapper);
         }
-        if (memberLevelId!=null){
-            UmUserPo updateUser=new UmUserPo();
+        if (memberLevelId != null) {
+            UmUserPo updateUser = new UmUserPo();
             updateUser.setId(userId).setMemberLevelId(memberLevelId);
             mapper.updateById(updateUser);
         }
