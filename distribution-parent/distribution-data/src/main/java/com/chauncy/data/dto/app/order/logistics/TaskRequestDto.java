@@ -2,6 +2,7 @@ package com.chauncy.data.dto.app.order.logistics;
 
 import com.chauncy.common.constant.logistics.LogisticsContantsConfig;
 import com.chauncy.data.bo.app.logistics.LogisticsRequestParametersBo;
+import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -9,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 
 /**
@@ -62,14 +64,14 @@ import java.util.HashMap;
 public class TaskRequestDto {
 
     @ApiModelProperty("快递公司编码")
-    @NotBlank(message = "快递公司编码不能为空！！")
     private String company;
 
     @ApiModelProperty("快递单号")
-    @NotBlank(message = "快递单号不能为空！")
     private String number;
 
     @ApiModelProperty("订单编号")
+    @NotNull(message = "订单id不能为空")
+    @NeedExistConstraint(tableName = "om_order",message = "该订单数据库中不存在！")
     private Long orderId;
 
     @ApiModelProperty(value = "出发地城市",hidden = true)

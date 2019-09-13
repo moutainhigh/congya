@@ -26,6 +26,7 @@ import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.my.SearchMyOrderDto;
+import com.chauncy.data.dto.app.order.store.WriteOffDto;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchSendOrderDto;
@@ -278,6 +279,30 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         return smSendOrderVoPageInfo;
     }
 
+    @Override
+    public void storeSend(Long orderId) {
+        //修改订单状态为已发货
+        OmOrderPo order = mapper.selectById(orderId);
+        if (order != null) {
+            OmOrderPo saveOrder = new OmOrderPo();
+            saveOrder.setId(order.getId()).setStatus(OrderStatusEnum.NEED_RECEIVE_GOODS)
+                    .setSendTime(LocalDateTime.now());
+            mapper.updateById(saveOrder);
+        }
+
+        //获取系统基本设置
+        BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
+        //多久自动收货(毫秒)
+        String expiration=basicSettingPo.getAutoReceiveDay()*24*60*60*1000+"";
+
+        RabbitOrderBo rabbitOrderBo=new RabbitOrderBo();
+        rabbitOrderBo.setOrderId(orderId).setOrderStatusEnum(OrderStatusEnum.NEED_RECEIVE_GOODS);
+        //添加自动收货的消息队列
+        rabbitUtil.sendDelayMessage(5*60*1000+"",rabbitOrderBo);
+        LoggerUtil.info("【已发货等待自动收货消息发送时间】:" + LocalDateTime.now());
+
+    }
+
 
     @Override
     public OrderDetailVo getDetailById(Long id) {
@@ -440,7 +465,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         afterRabbitOrderBo.setOrderId(orderId);
         rabbitUtil.sendDelayMessage(1 * 60 * 1000 + "", afterRabbitOrderBo);
 
-        LoggerUtil.info("【确认收货等待自动评价发送时间】:" + LocalDateTime.now());
+        LoggerUtil.info("【确认收货后：待评价===》自动评价发送时间】:" + LocalDateTime.now());
         LoggerUtil.info("【确认收货等待售后截止】:" + LocalDateTime.now());
 
     }
@@ -555,6 +580,38 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         //商品销售报表
         omOrderReportService.orderClosure(orderId);
 
+
+
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void writeOffOrder(WriteOffDto writeOffDto) {
+        SysUserPo currUser = securityUtil.getCurrUser();
+        //二维码内容解密成订单id
+        Long orderId = Long.parseLong(JasyptUtil.decyptPwd(password, writeOffDto.getQRCode()));
+        OmOrderPo queryOrder = mapper.selectById(orderId);
+        if (!currUser.getStoreId().equals(queryOrder.getStoreId())){
+            throw new ServiceException(ResultCode.FAIL,"操作失败！不是该店铺的订单！");
+        }
+        if (queryOrder.getStatus()!=OrderStatusEnum.NEED_USE){
+            throw new ServiceException(ResultCode.FAIL,String.format("该订单处于【%s】状态！不允许使用",queryOrder.getStatus().getName()));
+        }
+
+        //修改订单状态
+        OmOrderPo updateOrder=new OmOrderPo();
+        updateOrder.setId(orderId).setStatus(OrderStatusEnum.NEED_EVALUATE).setUpdateBy(currUser.getId());
+        mapper.updateById(updateOrder);
+        //延迟队列：待评价===》已评价
+        BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
+        //多久自动评价(毫秒)
+        String expiration = basicSettingPo.getAutoCommentDay() * 24 * 60 * 60 * 1000 + "";
+        RabbitOrderBo rabbitOrderBo = new RabbitOrderBo();
+        rabbitOrderBo.setOrderId(orderId).setOrderStatusEnum(OrderStatusEnum.NEED_EVALUATE);
+
+        //添加自动评价延时队列
+        rabbitUtil.sendDelayMessage(1 * 60 * 1000 + "", rabbitOrderBo);
+        LoggerUtil.info("【确认收货后：待评价===》自动评价发送时间】:" + LocalDateTime.now());
 
 
     }
