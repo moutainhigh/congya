@@ -1,4 +1,4 @@
-package com.chauncy.message.easemob.service;
+package com.chauncy.common.third.easemob.service;
 
 import io.swagger.client.ApiException;
 

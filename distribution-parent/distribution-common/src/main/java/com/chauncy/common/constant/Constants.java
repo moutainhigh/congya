@@ -63,6 +63,9 @@ public class Constants {
          */
         public static String IS_ASC = "isAsc";
 
-
+        /**
+         * 环信注册IM账号密码
+         */
+        public static String PASSWORD = "123456";
 
 }

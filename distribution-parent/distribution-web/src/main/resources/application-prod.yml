@@ -155,11 +155,11 @@ distribution:
 
   # 环信配置
   easemob:
-    APP_KEY: 1129190803157243#congya
-    ORG_NAME: 1129190803157243
-    APP_NAME: congya
-    CLIENT_ID: YXA6KeDnQTWvQgG0k5TPtn3V6w
-    CLIENT_SECRET: YXA6Dqm1Jd8k9-WEUrIChQf0z2k14OM
+    APP_KEY: 1113190911148562#congya1
+    ORG_NAME: 1113190911148562
+    APP_NAME: congya1
+    CLIENT_ID: YXA6vqWDClFgR8aGvbJNAHT7Vw
+    CLIENT_SECRET: YXA6LNEwloSjkQsb6HoF6J8LynCNHtM
     GRANT_TYPE: client_credentials
 
   # mob api配置 mob官网注册申请即可

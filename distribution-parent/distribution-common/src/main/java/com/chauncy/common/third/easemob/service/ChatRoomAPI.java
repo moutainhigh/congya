@@ -1,4 +1,4 @@
-package com.chauncy.message.easemob.service;
+package com.chauncy.common.third.easemob.service;
 
 /**
  * This interface is created for RestAPI of Chat Room, it should be synchronized
