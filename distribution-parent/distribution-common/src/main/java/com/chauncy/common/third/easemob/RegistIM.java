@@ -43,7 +43,9 @@ public class RegistIM {
 
         Object result = easemobIMUsers.deleteIMUserByUserName(name);
 
-        System.out.println(JSONUtils.toJSONObject(result));
+//        System.out.println(JSONUtils.toJSONObject(result));
+
+        log.info(String.valueOf(result));
 
         return result;
     }

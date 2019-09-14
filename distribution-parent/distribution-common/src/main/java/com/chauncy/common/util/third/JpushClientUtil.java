@@ -300,11 +300,11 @@ public class JpushClientUtil {
     /**
      * 别名
      *
-     * @param aliasList
-     * @param notification_title
-     * @param msg_title
-     * @param msg_content
-     * @param extrasparams
+     * @param aliasList 别名列表
+     * @param notification_title 通知内容标题
+     * @param msg_title 消息内容标题
+     * @param msg_content 消息内容
+     * @param extrasparams 扩展字段
      * @return
      */
     private static PushPayload buildPushObject_all_BieMing_alertWithTitle(/*String bieming*/List<String> aliasList, String notification_title, String msg_title, String msg_content, Map<String, String> extrasparams) {
@@ -455,9 +455,9 @@ public class JpushClientUtil {
     }
 
     public static void main(String[] args){
-        String notification_title="发送All";
-        String msg_title="抢购！抢购！抢购！抢购！";
-        String msg_content="促销活动仅剩3小时";
+        String notification_title="发送All";//title
+        String msg_title="抢购！抢购！抢购！抢购！"; //content
+        String msg_content="促销活动仅剩3小时";//第一个页面
         Map<String, String> extrasparams=new HashMap<>();
         extrasparams.put("a","额外字段1");
         extrasparams.put("b","额外字段2");
