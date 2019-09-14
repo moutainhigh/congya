@@ -1,9 +1,8 @@
 package com.chauncy.order.pay;
 
+import com.chauncy.common.enums.order.OrderPayTypeEnum;
+import com.chauncy.data.dto.app.order.pay.PayParamDto;
 import com.chauncy.data.vo.app.order.pay.UnifiedOrderVo;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Map;
 
 /**
  * @author yeJH
@@ -15,7 +14,7 @@ public interface IWxService {
      * @return
      * @throws Exception
      */
-    UnifiedOrderVo unifiedOrder(String ipAddr, Long payOrderId) throws Exception;
+    UnifiedOrderVo unifiedOrder(PayParamDto payParamDto) throws Exception;
     /**
      * 微信支付结果通知
      * @param notifyData 异步通知后的XML数据

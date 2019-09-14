@@ -34,8 +34,31 @@ public interface RabbitConstants {
      */
     static final String ROUTING_KEY = "all";
 
+    /**
+     * 账目流水队列
+     */
+    static final String ACCOUNT_LOG_QUEUE = "account.log.queue";
+    /**
+     * 账目流水交换机
+     */
+    static final String ACCOUNT_LOG_EXCHANGE = "account.log.exchange";
+    /**
+     * 延迟交换机与队列的路由键
+     */
+    static final String ACCOUNT_LOG_ROUTING_KEY = "account.log.key";
 
-
+    /**
+     * 账目流水队列
+     */
+    static final String PLATFORM_GIVE_QUEUE = "platform.give.queue";
+    /**
+     * 账目流水交换机
+     */
+    static final String PLATFORM_GIVE_EXCHANGE = "platform.give.exchange";
+    /**
+     * 延迟交换机与队列的路由键
+     */
+    static final String PLATFORM_GIVE_ROUTING_KEY = "platform.give.key";
 
     /**
      * 死信队列名称

@@ -125,9 +125,11 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
      * @param pmStoreGoodsStockPo
      * @param storeRelGoodsStockBaseDtoList
      */
-    private void insertStoreRelGoodsStock(PmStoreGoodsStockPo pmStoreGoodsStockPo, List<StoreRelGoodsStockBaseDto> storeRelGoodsStockBaseDtoList) {
+    private void insertStoreRelGoodsStock(PmStoreGoodsStockPo pmStoreGoodsStockPo,
+                                          List<StoreRelGoodsStockBaseDto> storeRelGoodsStockBaseDtoList) {
         List<PmStoreRelGoodsStockPo> pmStoreRelGoodsStockPoList = new ArrayList<>();
-        PmGoodsVirtualStockTemplatePo pmGoodsVirtualStockTemplatePo = pmGoodsVirtualStockTemplateMapper.selectById(pmStoreGoodsStockPo.getStockTemplateId());
+        PmGoodsVirtualStockTemplatePo pmGoodsVirtualStockTemplatePo =
+                pmGoodsVirtualStockTemplateMapper.selectById(pmStoreGoodsStockPo.getStockTemplateId());
         for(StoreRelGoodsStockBaseDto storeRelGoodsStockBaseDto : storeRelGoodsStockBaseDtoList) {
             //获取来源批次的库存信息  如果是自有商品则为空
             PmStoreRelGoodsStockPo parentStockPo = pmStoreRelGoodsStockService.getById(storeRelGoodsStockBaseDto.getParentId());
@@ -155,8 +157,9 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
                 throw new ServiceException(ResultCode.FAIL, "操作失败");
             }
             if(stockNum >= storeRelGoodsStockBaseDto.getDistributeStockNum()) {
-                if(storeRelGoodsStockBaseDto.getDistributePrice().compareTo(sellPrice) == 1 || storeRelGoodsStockBaseDto.getDistributePrice().compareTo(supplierPrice) == -1) {
-                    //分配的供货价 > 销售价  或者  分配的供货价 < 原始供货价
+                if(storeRelGoodsStockBaseDto.getDistributePrice().compareTo(sellPrice) >= 0
+                        || storeRelGoodsStockBaseDto.getDistributePrice().compareTo(supplierPrice) <= 0) {
+                    //分配的供货价 >= 销售价  或者  分配的供货价 <= 原始供货价
                     throw new ServiceException(ResultCode.PARAM_ERROR, "供货价出错");
                 }
                 //库存充足 分配库存详情插入
@@ -177,15 +180,19 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
                 pmStoreRelGoodsStockPoList.add(pmStoreRelGoodsStockPo);
 
                 //分配库存成功 修改库存信息
-                int result = pmGoodsVirtualStockMapper.updateGoodsVirtualStock(pmStoreGoodsStockPo.getStoreId(), pmStoreGoodsStockPo.getDistributeStoreId(),
-                        storeRelGoodsStockBaseDto.getGoodsSkuId(), storeRelGoodsStockBaseDto.getDistributeStockNum());
+                int result = pmGoodsVirtualStockMapper.updateGoodsVirtualStock(
+                        pmStoreGoodsStockPo.getStoreId(),
+                        pmStoreGoodsStockPo.getDistributeStoreId(),
+                        storeRelGoodsStockBaseDto.getGoodsSkuId(),
+                        storeRelGoodsStockBaseDto.getDistributeStockNum());
                 if(result < 1) {
                     //没有更新两条数据
                     throw new ServiceException(ResultCode.PARAM_ERROR, "库存不足");
                 }
                 //被分配的批次修改剩余库存
                 if(pmGoodsVirtualStockTemplatePo.getType().equals(StoreGoodsTypeEnum.DISTRIBUTION_GOODS.getId())) {
-                    parentStockPo.setRemainingStockNum(parentStockPo.getRemainingStockNum() - storeRelGoodsStockBaseDto.getDistributeStockNum());
+                    parentStockPo.setRemainingStockNum(parentStockPo.getRemainingStockNum()
+                            - storeRelGoodsStockBaseDto.getDistributeStockNum());
                     pmStoreRelGoodsStockService.updateById(parentStockPo);
                 }
             } else {

@@ -3,13 +3,17 @@ package com.chauncy.user.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.constant.Constants;
+import com.chauncy.common.constant.RabbitConstants;
 import com.chauncy.common.enums.log.AccountTypeEnum;
+import com.chauncy.common.enums.log.LogTriggerEventEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.enums.user.ValidCodeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.third.easemob.RegistIM;
 import com.chauncy.common.third.easemob.comm.RegUserBo;
 import com.chauncy.common.util.*;
+import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
+import com.chauncy.data.bo.order.log.PlatformGiveBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.interact.MmFeedBackPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
@@ -36,6 +40,7 @@ import com.chauncy.user.service.IUmUserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.catalina.security.SecurityUtil;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
@@ -67,7 +72,8 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
 
     @Autowired
     private UmRelUserLabelMapper relUserLabelMapper;
-
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
     @Autowired
     private SmStoreMapper smStoreMapper;
     @Autowired
@@ -110,7 +116,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         Boolean isSuccess = mapper.insert(saveUser) > 0;
 
         /** 注册IM账号**/
-        registIM(saveUser,isSuccess);
+        registIM(saveUser, isSuccess);
 
         return isSuccess;
     }
@@ -125,7 +131,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         saveUser.setInviteCode(SnowFlakeUtil.getFlowIdInstance().nextId());
         Boolean isSuccess = mapper.insert(saveUser) > 0;
 
-        registIM(saveUser,isSuccess);
+        registIM(saveUser, isSuccess);
 
         return isSuccess;
     }
@@ -135,7 +141,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
      *
      * @param saveUser
      */
-    private void registIM(UmUserPo saveUser,Boolean isSuccess) {
+    private void registIM(UmUserPo saveUser, Boolean isSuccess) {
         if (isSuccess) {
             RegUserBo regUserBo = new RegUserBo();
             //判断该用户是否已经注册过IM账号
@@ -258,12 +264,18 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     @Override
     public boolean updateUmUser(UpdateUserDto updateUserDto, String currentUserName) {
         UmUserPo userPo = mapper.selectById(updateUserDto.getId());
-        updateUserDto.setTotalAddIntegral(BigDecimalUtil.safeSubtract(updateUserDto.getCurrentIntegral()
-                , userPo.getCurrentIntegral()));
-        updateUserDto.setTotalAddRedEnvelops(BigDecimalUtil.safeSubtract(updateUserDto.getCurrentRedEnvelops()
-                , userPo.getCurrentRedEnvelops()));
-        updateUserDto.setTotalAddShopTicket(BigDecimalUtil.safeSubtract(updateUserDto.getCurrentShopTicket()
-                , userPo.getCurrentShopTicket()));
+        //积分差额
+        BigDecimal marginIntegral = BigDecimalUtil.safeSubtract(updateUserDto.getCurrentIntegral()
+                , userPo.getCurrentIntegral());
+        updateUserDto.setTotalAddIntegral(marginIntegral);
+        //红包差额
+        BigDecimal marginRedEnvelops = BigDecimalUtil.safeSubtract(updateUserDto.getCurrentRedEnvelops()
+                , userPo.getCurrentRedEnvelops());
+        updateUserDto.setTotalAddRedEnvelops(marginRedEnvelops);
+        //购物券差额
+        BigDecimal marginShopTicket = BigDecimalUtil.safeSubtract(updateUserDto.getCurrentShopTicket()
+                , userPo.getCurrentShopTicket());
+        updateUserDto.setTotalAddShopTicket(marginShopTicket);
         //修改主表字段
         mapper.updateUmUser(updateUserDto, currentUserName);
         if (!ListUtil.isListNullAndEmpty(updateUserDto.getLabelIds())) {
@@ -283,6 +295,21 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
                 });
             }
         }
+        //系统赠送流水生成
+        PlatformGiveBo platformGiveBo = new PlatformGiveBo();
+        AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
+        addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.PLATFORM_GIVE);
+        addAccountLogBo.setRelId(null);
+        addAccountLogBo.setOperator(currentUserName);
+        platformGiveBo.setAddAccountLogBo(addAccountLogBo);
+        platformGiveBo.setMarginIntegral(marginIntegral);
+        platformGiveBo.setMarginRedEnvelops(marginRedEnvelops);
+        platformGiveBo.setMarginShopTicket(marginShopTicket);
+        platformGiveBo.setUmUserId(userPo.getId());
+        //listenerPlatformGiveQueue 消息队列
+        this.rabbitTemplate.convertAndSend(
+                RabbitConstants.PLATFORM_GIVE_EXCHANGE, RabbitConstants.PLATFORM_GIVE_ROUTING_KEY, platformGiveBo);
+
         return true;
     }
 

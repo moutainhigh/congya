@@ -1,7 +1,6 @@
 package com.chauncy.data.vo.manage.order.log;
 
-import com.chauncy.common.enums.log.PlatformLogMatterEnum;
-import com.chauncy.common.enums.log.PaymentWayEnum;
+import com.chauncy.common.enums.log.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -26,18 +25,36 @@ public class UserLogDetailVo implements Serializable {
     @ApiModelProperty(value = "发生额")
     private BigDecimal amount;
 
-    @ApiModelProperty(value = "流水事由")
-    private PlatformLogMatterEnum logMatter;
+    @ApiModelProperty(value = "红包流水事由")
+    private RedEnvelopsLogMatterEnum redEnvelopsLogMatter;
+
+    @ApiModelProperty(value = "购物券流水事由")
+    private ShopTicketLogMatterEnum shopTicketLogMatter;
+
+    @ApiModelProperty(value = "积分流水事由")
+    private IntegrateLogMatterEnum integrateLogMatter;
 
     @ApiModelProperty(value = "流水类型 收入  支出")
     private String logType;
 
-    @ApiModelProperty(value = "创建时间")
+    @ApiModelProperty(value = "时间")
     private LocalDateTime createTime;
 
-    @ApiModelProperty(value = "支付方式 1-微信  2-支付宝  3-银行卡  4-余额")
-    private PaymentWayEnum paymentWay;
+    @ApiModelProperty(value = "图片")
+    private String picture;
 
-    @ApiModelProperty(value = "到账方式 1-微信  2-支付宝  3-银行卡  4-余额")
-    private PaymentWayEnum arrivalWay;
+    @ApiModelProperty(value = "流水详情标题 LogDetailTitleEnum")
+    private String logDetailTitle;
+
+    @ApiModelProperty(value = "流水详情当前状态 LogDetailStateEnum")
+    private LogDetailStateEnum logDetailState;
+
+    @ApiModelProperty(value = "流水详情说明 LogDetailExplainEnum")
+    private LogDetailExplainEnum logDetailExplain;
+
+    @ApiModelProperty(value = "关联订单id")
+    private Long omRelId;
+
+    @ApiModelProperty(value = "提现方式  微信  支付宝")
+    private WithdrawalWayEnum withdrawalWay;
 }

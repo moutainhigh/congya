@@ -24,11 +24,11 @@
     <!-- 分配库存 修改库存信息 -->
     <update id="updateGoodsVirtualStock">
         update pm_goods_virtual_stock
-        set stock_num = stock_num + #{distributeStockNum}
-        where goods_sku_id = #{goodSkuId} and store_id = #{toStoreId};
-        update pm_goods_virtual_stock
         set stock_num = stock_num - #{distributeStockNum}
         where goods_sku_id = #{goodSkuId} and store_id = #{fromStoreId} and stock_num >=  #{distributeStockNum};
+        update pm_goods_virtual_stock
+        set stock_num = stock_num + #{distributeStockNum}
+        where goods_sku_id = #{goodSkuId} and store_id = #{toStoreId};
     </update>
 
     <update id="deductionVirtualStock">

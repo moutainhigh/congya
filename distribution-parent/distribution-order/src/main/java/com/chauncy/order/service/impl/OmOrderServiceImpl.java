@@ -2,8 +2,10 @@ package com.chauncy.order.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.chauncy.common.constant.RabbitConstants;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.common.enums.app.order.PayOrderStatusEnum;
+import com.chauncy.common.enums.log.LogTriggerEventEnum;
 import com.chauncy.common.enums.log.PaymentWayEnum;
 import com.chauncy.common.enums.goods.GoodsTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
@@ -15,6 +17,7 @@ import com.chauncy.data.bo.app.order.reward.RewardBuyerBo;
 import com.chauncy.data.bo.app.order.my.OrderRewardBo;
 import com.chauncy.data.bo.app.order.rabbit.RabbitOrderBo;
 import com.chauncy.data.bo.app.order.reward.RewardRedBo;
+import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.domain.po.order.OmOrderLogisticsPo;
@@ -57,6 +60,8 @@ import com.chauncy.user.service.IUmUserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -126,12 +131,15 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     private IUmUserService umUserService;
 
     @Autowired
+    private RabbitAdmin rabbitAdmin;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+    @Autowired
     private IOmOrderReportService omOrderReportService;
 
     @Value("${jasypt.encryptor.password}")
     private String password;
-
-
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean closeOrderByPayId(Long payOrderId) {
@@ -243,6 +251,16 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         payOrderService.update(payOrderPoUpdateWrapper);
         //付款成功后需要做的操作
         afterPayDo(payOrderPo.getId());
+        //订单下单流水生成
+        UmUserPo umUserPo = userMapper.selectById(payOrderPo.getUmUserId());
+        AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
+        addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.APP_ORDER);
+        addAccountLogBo.setRelId(payOrderPo.getId());
+        addAccountLogBo.setOperator(String.valueOf(umUserPo.getId()));
+        //listenerOrderLogQueue 消息队列
+        this.rabbitTemplate.convertAndSend(
+                RabbitConstants.ACCOUNT_LOG_EXCHANGE, RabbitConstants.ACCOUNT_LOG_ROUTING_KEY, addAccountLogBo);
+
        /* //更新OmOrderPo
         UpdateWrapper<OmOrderPo> omOrderPoUpdateWrapper = new UpdateWrapper<>();
         omOrderPoUpdateWrapper.lambda().eq(OmOrderPo::getPayOrderId, payOrderPo.getId());

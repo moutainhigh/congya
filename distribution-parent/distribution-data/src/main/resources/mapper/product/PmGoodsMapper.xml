@@ -216,6 +216,7 @@
             pg.star_status,
             MIN(pgs.supplier_price) AS supplier_price,
             MIN(pgs.sell_price) AS sell_price,
+            SUM(pgs.stock) AS stock,
             pga.`name` AS brandName
         FROM pm_goods_virtual_stock pgvs
         LEFT JOIN pm_goods pg ON pg.id = pgvs.goods_id AND pgvs.store_id = #{storeId}
@@ -223,7 +224,7 @@
         LEFT JOIN pm_goods_rel_attribute_good pgrag ON pgrag.goods_good_id = pg.id
         INNER JOIN pm_goods_attribute pga ON pgrag.goods_attribute_id = pga.id
         WHERE pgvs.store_id = #{storeId} AND pgvs.`del_flag` = 0 AND pgs.`del_flag` = 0 AND pgrag.`del_flag` = 0
-        AND pga.`del_flag` = 0 AND pga.type=8 AND pg.`del_flag` = 0 #and pg.`verify_status` = 3
+        AND pga.`del_flag` = 0 AND pga.type=8 AND pg.`del_flag` = 0 and pg.`verify_status` = 3
         <if test="null != id">
             AND NOT EXISTS
             (
@@ -262,6 +263,7 @@
             pg.star_status,
             MIN(pgs.supplier_price) AS supplier_price,
             MIN(pgs.sell_price) AS sell_price,
+            SUM(pgs.stock) AS stock,
             pga.`name` AS brandName
         FROM sm_store ss
         LEFT JOIN pm_goods pg ON ss.id = pg.`store_id` AND ss.id = #{storeId}
