@@ -10,6 +10,7 @@ import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.data.bo.app.order.rabbit.RabbitAfterBo;
 import com.chauncy.data.bo.app.order.rabbit.RabbitOrderBo;
 import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
+import com.chauncy.data.bo.order.log.PlatformGiveBo;
 import com.chauncy.data.domain.po.afterSale.OmAfterSaleOrderPo;
 import com.chauncy.data.domain.po.order.OmEvaluatePo;
 import com.chauncy.data.domain.po.order.OmGoodsTempPo;
@@ -88,9 +89,22 @@ public class RabbitOrderHandler {
     @RabbitListener(queues = {RabbitConstants.ACCOUNT_LOG_QUEUE})
     @Transactional(rollbackFor = Exception.class)
     public void listenerOrderLogQueue(AddAccountLogBo addAccountLogBo, Message message, Channel channel) {
-        LoggerUtil.info(String.format("[closeOrderByPayId 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), addAccountLogBo));
+        LoggerUtil.info(String.format("[saveAccountLog 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), addAccountLogBo));
 
         omAccountLogService.saveAccountLog(addAccountLogBo);
+        try {
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        } catch (IOException e) {
+            // TODO 如果报错了,那么我们可以进行容错处理,比如转移当前消息进入其它队列
+        }
+    }
+
+    @RabbitListener(queues = {RabbitConstants.PLATFORM_GIVE_QUEUE})
+    @Transactional(rollbackFor = Exception.class)
+    public void listenerPlatformGiveQueue(PlatformGiveBo platformGiveBo, Message message, Channel channel) {
+        LoggerUtil.info(String.format("[platformGive 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), platformGiveBo));
+
+        omAccountLogService.platformGive(platformGiveBo);
         try {
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (IOException e) {

@@ -3,13 +3,17 @@ package com.chauncy.user.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.constant.Constants;
+import com.chauncy.common.constant.RabbitConstants;
 import com.chauncy.common.enums.log.AccountTypeEnum;
+import com.chauncy.common.enums.log.LogTriggerEventEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.enums.user.ValidCodeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.third.easemob.RegistIM;
 import com.chauncy.common.third.easemob.comm.RegUserBo;
 import com.chauncy.common.util.*;
+import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
+import com.chauncy.data.bo.order.log.PlatformGiveBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.interact.MmFeedBackPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
@@ -36,6 +40,7 @@ import com.chauncy.user.service.IUmUserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.catalina.security.SecurityUtil;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
@@ -67,7 +72,8 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
 
     @Autowired
     private UmRelUserLabelMapper relUserLabelMapper;
-
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
     @Autowired
     private SmStoreMapper smStoreMapper;
     @Autowired
@@ -289,6 +295,21 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
                 });
             }
         }
+        //系统赠送流水生成
+        PlatformGiveBo platformGiveBo = new PlatformGiveBo();
+        AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
+        addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.PLATFORM_GIVE);
+        addAccountLogBo.setRelId(null);
+        addAccountLogBo.setOperator(currentUserName);
+        platformGiveBo.setAddAccountLogBo(addAccountLogBo);
+        platformGiveBo.setMarginIntegral(marginIntegral);
+        platformGiveBo.setMarginRedEnvelops(marginRedEnvelops);
+        platformGiveBo.setMarginShopTicket(marginShopTicket);
+        platformGiveBo.setUmUserId(userPo.getId());
+        //listenerPlatformGiveQueue 消息队列
+        this.rabbitTemplate.convertAndSend(
+                RabbitConstants.PLATFORM_GIVE_EXCHANGE, RabbitConstants.PLATFORM_GIVE_ROUTING_KEY, platformGiveBo);
+
         return true;
     }
 

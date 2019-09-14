@@ -8,6 +8,7 @@ import com.chauncy.common.enums.user.UserTypeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
+import com.chauncy.data.bo.order.log.PlatformGiveBo;
 import com.chauncy.data.domain.po.activity.gift.AmGiftOrderPo;
 import com.chauncy.data.domain.po.order.OmUserWithdrawalPo;
 import com.chauncy.data.domain.po.order.bill.OmOrderBillPo;
@@ -138,6 +139,10 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
                 //礼包充值
                 this.gifiRecharge(addAccountLogBo);
                 break;
+            case PLATFORM_GIVE:
+                //系统赠送  没有赠送记录，直接在修改用户参数的时候调用生成流水的方法
+                //this.platformGive;
+                break;
         }
     }
 
@@ -235,6 +240,84 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
     }
 
     /**
+     * 流水触发事件：系统赠送
+     * 过程：用户积分，购物券，红包增加
+     * 用户积分余额+  用户红包余额+  用户购物券余额+
+     * @param platformGiveBo
+     */
+    @Override
+    public void platformGive(PlatformGiveBo platformGiveBo) {
+        UmUserPo umUserPo = umUserMapper.selectById(platformGiveBo.getUmUserId());
+        //积分+系统赠送
+       if(null != platformGiveBo.getMarginIntegral()
+               && platformGiveBo.getMarginIntegral().compareTo(BigDecimal.ZERO) > 0) {
+            platformGive(platformGiveBo.getAddAccountLogBo(),
+                    umUserPo,
+                    AccountTypeEnum.INTEGRATE,
+                    platformGiveBo.getMarginIntegral());
+        }
+        //红包+系统赠送
+        if(null != platformGiveBo.getMarginRedEnvelops()
+                && platformGiveBo.getMarginRedEnvelops().compareTo(BigDecimal.ZERO) > 0) {
+            platformGive(platformGiveBo.getAddAccountLogBo(),
+                    umUserPo,
+                    AccountTypeEnum.RED_ENVELOPS,
+                    platformGiveBo.getMarginRedEnvelops());
+        }
+        //购物券+系统赠送
+        if(null != platformGiveBo.getMarginShopTicket()
+                && platformGiveBo.getMarginShopTicket().compareTo(BigDecimal.ZERO) > 0) {
+            platformGive(platformGiveBo.getAddAccountLogBo(),
+                    umUserPo,
+                    AccountTypeEnum.SHOP_TICKET,
+                    platformGiveBo.getMarginShopTicket());
+        }
+    }
+
+    /**
+     * 系统赠送
+     * @param addAccountLogBo  保存流水参数
+     * @param umUserPo   系统赠送用户
+     * @param accountTypeEnum   账目类型
+     * @param margin  系统赠送数额
+     */
+    private void platformGive(AddAccountLogBo addAccountLogBo,
+                              UmUserPo umUserPo,
+                              AccountTypeEnum accountTypeEnum,
+                              BigDecimal margin) {
+        OmAccountLogPo toAccountLog = getFromOmAccountLogPo(addAccountLogBo, UserTypeEnum.APP_USER,
+                accountTypeEnum, LogTypeEnum.INCOME);
+        toAccountLog.setUserId(umUserPo.getId());
+        BigDecimal current = BigDecimal.ZERO;
+        if(accountTypeEnum.equals(AccountTypeEnum.RED_ENVELOPS)) {
+            current = umUserPo.getCurrentRedEnvelops();
+        } else if (accountTypeEnum.equals(AccountTypeEnum.SHOP_TICKET)) {
+            current = umUserPo.getCurrentShopTicket();
+        } else if (accountTypeEnum.equals(AccountTypeEnum.INTEGRATE)) {
+            current = umUserPo.getCurrentIntegral();
+        }
+        toAccountLog.setBalance(BigDecimalUtil.safeAdd(current, margin));
+        toAccountLog.setLastBalance(current);
+        //流水发生金额  系统赠送
+        toAccountLog.setAmount(margin);
+        //流水事由
+        if(accountTypeEnum.equals(AccountTypeEnum.RED_ENVELOPS)) {
+            toAccountLog.setLogMatter(RedEnvelopsLogMatterEnum.PLATFORM_GIVE.getId());
+        } else if (accountTypeEnum.equals(AccountTypeEnum.SHOP_TICKET)) {
+            toAccountLog.setLogMatter(ShopTicketLogMatterEnum.PLATFORM_GIVE.getId());
+        } else if (accountTypeEnum.equals(AccountTypeEnum.INTEGRATE)) {
+            toAccountLog.setLogMatter(IntegrateLogMatterEnum.PLATFORM_GIVE.getId());
+        }
+        //流水详情标题
+        toAccountLog.setLogDetailTitle(LogDetailTitleEnum.CONGYA_OFFICIAL.getName());
+        //流水详情当前状态
+        toAccountLog.setLogDetailState(LogDetailStateEnum.DEPOSIT_WALLET.getId());
+        //流水详情说明
+        toAccountLog.setLogDetailExplain(LogDetailExplainEnum.PLATFORM_GIVE.getId());
+        omAccountLogMapper.insert(toAccountLog);
+    }
+
+    /**
      * 流水触发事件：app用户礼包充值
      * 过程：用户积分，购物券增加
      * 用户积分余额+    用户购物券余额+
@@ -257,7 +340,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         //流水详情当前状态
         toShopTicketLog.setLogDetailState(LogDetailStateEnum.DEPOSIT_WALLET.getId());
         //流水详情说明
-        toShopTicketLog.setLogDetailExplain(LogDetailExplainEnum.EXPERIENCE_content.getId());
+        toShopTicketLog.setLogDetailExplain(LogDetailExplainEnum.EXPERIENCE_CONTENT.getId());
         omAccountLogMapper.insert(toShopTicketLog);
         //APP用户 积分 收入流水 积分+礼包充值
         OmAccountLogPo toIntegralsLog = getFromOmAccountLogPo(addAccountLogBo, UserTypeEnum.APP_USER,
@@ -274,7 +357,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         //流水详情当前状态
         toIntegralsLog.setLogDetailState(LogDetailStateEnum.DEPOSIT_WALLET.getId());
         //流水详情说明
-        toIntegralsLog.setLogDetailExplain(LogDetailExplainEnum.EXPERIENCE_content.getId());
+        toIntegralsLog.setLogDetailExplain(LogDetailExplainEnum.EXPERIENCE_CONTENT.getId());
         omAccountLogMapper.insert(toIntegralsLog);
     }
 

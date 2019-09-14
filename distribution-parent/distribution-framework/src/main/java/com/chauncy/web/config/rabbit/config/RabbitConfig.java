@@ -115,6 +115,29 @@ public class RabbitConfig {
         return BindingBuilder.bind(accountLogQueue()).to(accountLogTopicExchange()).with(RabbitConstants.ACCOUNT_LOG_ROUTING_KEY);
     }
 
+    /**
+     * 系统赠送 消息队列
+     * @return
+     */
+    @Bean
+    public Queue platformGiveQueue() {
+        return new Queue(RabbitConstants.PLATFORM_GIVE_QUEUE, true);
+    }
+
+    /**
+     * 账目流水 消息交换机
+     **/
+    @Bean
+    public TopicExchange platformGiveTopicExchange() {
+        return new TopicExchange(RabbitConstants.PLATFORM_GIVE_EXCHANGE);
+    }
+
+    @Bean
+    public Binding platformGiveBinding() {
+        // TODO 如果要让延迟队列之间有关联,这里的 routingKey 和 绑定的交换机很关键
+        return BindingBuilder.bind(platformGiveQueue()).to(platformGiveTopicExchange()).with(RabbitConstants.PLATFORM_GIVE_ROUTING_KEY);
+    }
+
 
     @Bean
     public Queue submitOrderQueue() {

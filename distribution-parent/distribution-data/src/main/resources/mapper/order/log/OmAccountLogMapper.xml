@@ -106,7 +106,7 @@
             AND account_type = #{accountType}
             AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
         </where>
-        ORDER BY oal.`create_time`
+        ORDER BY oal.`create_time` DESC
     </select>
     <select id="searchUserWithdrawalPaging" resultType="com.chauncy.data.vo.manage.order.log.SearchUserWithdrawalVo">
         SELECT ouw.id,

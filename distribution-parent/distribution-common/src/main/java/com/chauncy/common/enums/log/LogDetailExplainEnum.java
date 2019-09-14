@@ -13,12 +13,12 @@ public enum LogDetailExplainEnum  implements BaseEnum {
     /**
      * 流水详情说明
      */
-    popularize_INCOME(1, "推广收入"),
-    EXPERIENCE_content(2, "经验包内容"),
-    Shopping_REWARD(3, "购物奖励"),
+    POPULARIZE_INCOME(1, "推广收入"),
+    EXPERIENCE_CONTENT(2, "经验包内容"),
+    SHOPPING_REWARD(3, "购物奖励"),
     ORDER_PAYMENT(4, "消费抵扣"),
     PLATFORM_GIVE(5, "系统赠送"),
-    Return_Wallet(6, "已退回我的钱包"),
+    RETURN_WALLET(6, "已退回我的钱包"),
     WITHDRAWAL_SUCCESS(7, "会员奖励"),
     STORE_REFUND(8, "卖家已退款"),
     ;
