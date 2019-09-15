@@ -532,7 +532,7 @@
             and name like concat('%', #{name}, '%')
         </if>
         <if test="categoryId!=null and categoryId!=''">
-            and categoryId = #{categoryId}
+            and goods_category_id = #{categoryId}
         </if>
     </select>
     <select id="findGoodsBase" resultType="com.chauncy.data.vo.app.goods.SpecifiedGoodsVo">
