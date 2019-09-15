@@ -7,6 +7,7 @@ import com.chauncy.data.dto.app.component.ShareDto;
 import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
+import com.chauncy.data.dto.manage.message.advice.tab.tab.search.SearchAdviceGoodsDto;
 import com.chauncy.data.dto.supplier.activity.select.SearchAssociatedGoodsDto;
 import com.chauncy.data.dto.supplier.good.select.SearchExcelDto;
 import com.chauncy.data.dto.supplier.good.select.SearchGoodInfosDto;
@@ -18,6 +19,7 @@ import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.advice.store.GoodsSecondCategoryListVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
+import com.chauncy.data.vo.manage.message.advice.tab.tab.SearchAdviceGoodsVo;
 import com.chauncy.data.vo.supplier.activity.SearchAssociatedGoodsVo;
 import com.chauncy.data.vo.supplier.good.InformationRelGoodsVo;
 import com.chauncy.data.vo.supplier.PmGoodsVo;
@@ -161,10 +163,10 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
     /**
      * 条件分页查询需要被关联的商品(考虑数据量大，就不排除已经关联的了，直接查找全部的商品)
      *
-     * @param name
+     * @param searchAdviceGoodsDto
      * @return
      */
-    List<BaseVo> searchTabNeedGoods(String name);
+    List<SearchAdviceGoodsVo> searchTabNeedGoods(SearchAdviceGoodsDto searchAdviceGoodsDto);
 
     //获取商品基本信息：名称、标题、轮播图、发货地等信息
     SpecifiedGoodsVo findGoodsBase(Long goodsId);

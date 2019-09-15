@@ -11,6 +11,7 @@ import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.message.advice.tab.tab.BrandVo;
 import com.chauncy.data.vo.manage.message.advice.tab.tab.GoodsVo;
+import com.chauncy.data.vo.manage.message.advice.tab.tab.SearchAdviceGoodsVo;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiModel;
@@ -65,7 +66,7 @@ public class MmAdviceRelTabApi extends BaseApi {
      */
     @ApiOperation("条件分页查询需要被关联的商品")
     @PostMapping("/searchAdviceGoods")
-    public JsonViewData<PageInfo<BaseVo>> searchAdviceGoods(@RequestBody @ApiParam(required = true,name = "searchAdviceGoodsDto",value = "条件分页查询需要被关联的商品")
+    public JsonViewData<PageInfo<SearchAdviceGoodsVo>> searchAdviceGoods(@RequestBody @ApiParam(required = true,name = "searchAdviceGoodsDto",value = "条件分页查询需要被关联的商品")
                                                       @Validated SearchAdviceGoodsDto searchAdviceGoodsDto){
 
         return setJsonViewData(service.searchAdviceGoods(searchAdviceGoodsDto));
