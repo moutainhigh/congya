@@ -3,6 +3,7 @@ package com.chauncy.data.mapper.activity.coupon;
 import com.chauncy.data.domain.po.activity.coupon.AmCouponRelCouponUserPo;
 import com.chauncy.data.dto.app.advice.coupon.SearchReceiveCouponDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.app.advice.coupon.SearchMyCouponVo;
 import com.chauncy.data.vo.app.advice.coupon.SearchReceiveCouponVo;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -34,4 +35,11 @@ public interface AmCouponRelCouponUserMapper extends IBaseMapper<AmCouponRelCoup
      */
     @Select("update am_coupon_rel_coupon_user set receive_num = receive_num+1 where coupon_id = #{couponId} and user_id = #{userId}")
     void receiveForUpdate(@Param("couponId") Long couponId, @Param("userId")Long userId);
+
+    /**
+     * 我的优惠券
+     *
+     * @return
+     */
+    List<SearchMyCouponVo> searchMyCoupon(@Param("userId") Long userId, @Param("isAvailable") Boolean isAvailable);
 }

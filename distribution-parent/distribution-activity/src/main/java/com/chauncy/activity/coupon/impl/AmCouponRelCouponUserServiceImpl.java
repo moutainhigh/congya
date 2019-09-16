@@ -9,12 +9,14 @@ import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.domain.po.activity.coupon.AmCouponPo;
 import com.chauncy.data.domain.po.activity.coupon.AmCouponRelCouponUserPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.dto.app.advice.coupon.SearchMyCouponDto;
 import com.chauncy.data.dto.app.advice.coupon.SearchReceiveCouponDto;
 import com.chauncy.data.mapper.activity.coupon.AmCouponMapper;
 import com.chauncy.data.mapper.activity.coupon.AmCouponRelCouponUserMapper;
 import com.chauncy.activity.coupon.IAmCouponRelCouponUserService;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
+import com.chauncy.data.vo.app.advice.coupon.SearchMyCouponVo;
 import com.chauncy.data.vo.app.advice.coupon.SearchReceiveCouponVo;
 import com.chauncy.data.vo.app.advice.gift.SearchTopUpGiftVo;
 import com.chauncy.data.vo.manage.message.content.BootPageVo;
@@ -26,6 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -145,11 +149,40 @@ public class AmCouponRelCouponUserServiceImpl extends AbstractService<AmCouponRe
         }else{
             //更新优惠券库存信息
             couponMapper.receiveForUpdate(couponId);
+            LocalDateTime deadLine = LocalDateTime.now().plusDays(10L);
             //保存到用户与优惠券关联表
             relCouponUserPo.setCreateBy(userPo.getTrueName()).setId(null).setCouponId(couponId).setReceiveNum(1)
-                    .setUserId(userPo.getId()).setUseStatus(CouponUseStatusEnum.NOT_USED.getId()).setType(CouponBeLongTypeEnum.RECEIVE.getId());
+                    .setUserId(userPo.getId()).setUseStatus(CouponUseStatusEnum.NOT_USED.getId())
+                    .setType(CouponBeLongTypeEnum.RECEIVE.getId()).setDeadLine(deadLine);
             relCouponUserMapper.insert(relCouponUserPo);
         }
 
+    }
+
+    /**
+     * 我的优惠券
+     *
+     * @return
+     */
+    @Override
+    public PageInfo<SearchMyCouponVo> searchMyCoupon(SearchMyCouponDto searchMyCouponDto) {
+
+        UmUserPo user = securityUtil.getAppCurrUser();
+
+        int pageNo = searchMyCouponDto.getPageNo() == null ? defaultPageNo : searchMyCouponDto.getPageNo();
+        int pageSize = searchMyCouponDto.getPageSize() == null ? defaultPageSize : searchMyCouponDto.getPageSize();
+
+        PageInfo<SearchMyCouponVo> searchMyCouponVoPageInfo = PageHelper.startPage(pageNo,pageSize)
+                .doSelectPageInfo(()->mapper.searchMyCoupon(user.getId(),searchMyCouponDto.getIsAvailable()));
+
+        if (searchMyCouponDto.getIsAvailable() == false) {
+            searchMyCouponVoPageInfo.getList().forEach(a -> {
+                if (a.getDeadLine().compareTo(LocalDate.now()) < 0 && a.getUseStatus() == CouponUseStatusEnum.NOT_USED.getId()){
+                    a.setUseStatus(CouponUseStatusEnum.FAILURE.getId());
+                }
+            });
+        }
+
+        return searchMyCouponVoPageInfo;
     }
 }
