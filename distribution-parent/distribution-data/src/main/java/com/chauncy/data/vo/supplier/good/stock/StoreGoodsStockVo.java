@@ -37,6 +37,9 @@ public class StoreGoodsStockVo  implements Serializable {
     @ApiModelProperty(value = "直属商家名称")
     private String storeName;
 
+    @ApiModelProperty(value = "分店店铺id")
+    private String distributeStoreId;
+
     @ApiModelProperty(value = "分店店铺名称")
     private String branchName;
 

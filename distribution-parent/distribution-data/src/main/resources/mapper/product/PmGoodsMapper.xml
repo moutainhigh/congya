@@ -343,9 +343,6 @@
         <if test="sortFile.name() == 'PRICE_SORT' ">
             ORDER BY pgs.sell_price ${sortWay.name}
         </if>
-        <if test="null != goodsType and goodsType == 3 ">
-            ORDER BY pg.sales_volume ${sortWay.name}
-        </if>
         <if test="sortFile.name() == 'SALES_SORT'">
             ORDER BY pg.sales_volume ${sortWay.name}
         </if>

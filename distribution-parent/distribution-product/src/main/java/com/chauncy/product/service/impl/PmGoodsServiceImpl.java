@@ -1,6 +1,7 @@
 package com.chauncy.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.enums.app.component.ShareTypeEnum;
 import com.chauncy.common.enums.app.sort.SortFileEnum;
 import com.chauncy.common.enums.app.sort.SortWayEnum;
@@ -53,6 +54,7 @@ import com.chauncy.data.vo.supplier.good.stock.StockTemplateGoodsInfoVo;
 import com.chauncy.product.service.IPmGoodsRelAttributeGoodService;
 import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.product.service.IPmGoodsSkuService;
+import com.chauncy.product.stock.IPmGoodsVirtualStockService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -109,6 +111,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
     @Autowired
     private PmGoodsRelAttributeValueGoodMapper goodsRelAttributeValueGoodMapper;
+
+    @Autowired
+    private IPmGoodsVirtualStockService pmGoodsVirtualStockService;
 
     @Autowired
     private MmInformationMapper mmInformationMapper;
@@ -747,6 +752,15 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
                     PmGoodsSkuPo goodsSkuPo = goodsSkuMapper.selectById (a.getSkuId ());
                     BeanUtils.copyProperties (a, goodsSkuPo);
                     goodsSkuMapper.updateById (goodsSkuPo);
+                    //判断商品虚拟库存是否需要修改
+                    if(!a.getStock().equals(goodsSkuPo.getStock())) {
+                        //库存发生变化
+                        UpdateWrapper<PmGoodsVirtualStockPo> updateWrapper = new UpdateWrapper<>();
+                        updateWrapper.lambda().eq(PmGoodsVirtualStockPo::getStoreId, storeId)
+                                .eq(PmGoodsVirtualStockPo::getGoodsSkuId, goodsSkuPo.getId())
+                                .set(PmGoodsVirtualStockPo::getStockNum, a.getStock());
+                        pmGoodsVirtualStockService.update(updateWrapper);
+                    }
                 }
             });
             //新增
@@ -891,6 +905,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
      * @param user
      */
     private void addSkus(List<AddSkuAttributeDto> skuAttributeDtoList,Long goodsId,String user) {
+        PmGoodsPo pmGoodsPo = mapper.selectById(goodsId);
         for (AddSkuAttributeDto addSkuAttributeDto : skuAttributeDtoList) {
             //保存非关联信息到sku
             PmGoodsSkuPo goodsSkuPo = new PmGoodsSkuPo();
@@ -898,6 +913,14 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             goodsSkuPo.setCreateBy(user);
             goodsSkuPo.setGoodsId(goodsId);
             goodsSkuMapper.insert(goodsSkuPo);
+            //插入商品虚拟库存
+            PmGoodsVirtualStockPo pmGoodsVirtualStockPo = new PmGoodsVirtualStockPo();
+            pmGoodsVirtualStockPo.setStoreId(pmGoodsPo.getStoreId())
+                    .setGoodsId(goodsId)
+                    .setGoodsSkuId(goodsSkuPo.getId())
+                    .setStockNum(goodsSkuPo.getStock())
+                    .setCreateBy(user);
+            pmGoodsVirtualStockMapper.insert(pmGoodsVirtualStockPo);
             //获取前端传的规格信息
             List<AddStandardToGoodDto> standardToGoodDtos = addSkuAttributeDto.getStandardInfos();
             standardToGoodDtos.forEach(x -> {
