@@ -33,4 +33,8 @@ public class SearchAdviceGoodsDto {
     @ApiModelProperty(value = "广告ID,当新增时广告ID传0")
     @NotNull(message = "广告ID不能为空")
     private Long adviceId;
+
+    @ApiModelProperty(value = "三级分类ID")
+    private Long categoryId;
+
 }

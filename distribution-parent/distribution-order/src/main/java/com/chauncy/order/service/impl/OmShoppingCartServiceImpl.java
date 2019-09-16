@@ -25,6 +25,7 @@ import com.chauncy.data.domain.po.product.PmGoodsRelAttributeValueSkuPo;
 import com.chauncy.data.domain.po.product.PmGoodsSkuPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.sys.BasicSettingPo;
+import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.domain.po.user.UmAreaShippingPo;
 import com.chauncy.data.domain.po.user.UmUserFavoritesPo;
@@ -43,6 +44,7 @@ import com.chauncy.data.mapper.pay.PayUserRelationMapper;
 import com.chauncy.data.mapper.product.*;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.sys.BasicSettingMapper;
+import com.chauncy.data.mapper.sys.SysUserMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.mapper.user.UmAreaShippingMapper;
 import com.chauncy.data.mapper.user.UmUserFavoritesMapper;
@@ -155,6 +157,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     @Autowired
     private UmUserMapper userMapper;
+
+    @Autowired
+    private SysUserMapper sysUserMapper;
 
     @Autowired
     private UmUserFavoritesMapper userFavoritesMapper;
@@ -782,6 +787,13 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
         /**店铺信息*/
         Long storeId = goodsMapper.selectById(goodsId).getStoreId();
+
+        /**店铺IM账号*/
+        specifiedGoodsVo.setStoreImId(String.valueOf(storeId));
+
+        /**平台IM账号*/
+        //TODO 暂时写死Admin账号
+        specifiedGoodsVo.setPlatImId(sysUserMapper.selectOne(new QueryWrapper<SysUserPo>().lambda().eq(SysUserPo::getUsername,"admin")).getId());
 
         //获取店铺详情
         SmStorePo storePo = storeMapper.selectById(storeId);

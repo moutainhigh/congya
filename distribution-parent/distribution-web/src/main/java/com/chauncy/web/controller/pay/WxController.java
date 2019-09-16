@@ -8,6 +8,7 @@ import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.dto.app.order.pay.PayParamDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.order.pay.UnifiedOrderVo;
 import com.chauncy.order.pay.IWxService;
@@ -17,11 +18,13 @@ import com.chauncy.security.util.IpInfoUtil;
 import com.chauncy.security.util.SecurityUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -67,9 +70,10 @@ public class WxController {
      * @return
      * @throws Exception
      */
-    @PostMapping("/wxPay/{payOrderId}")
+    @PostMapping("/wxPay")
     @ApiOperation("统一下单")
-    public JsonViewData<UnifiedOrderVo> wxPay(HttpServletRequest request, @PathVariable(value = "payOrderId") Long payOrderId) {
+    public JsonViewData<UnifiedOrderVo> wxPay(HttpServletRequest request, @RequestBody @ApiParam(required = true,
+            name = "payParamDto",value = "下单参数") @Validated PayParamDto payParamDto) {
 
         //获取当前店铺用户
         UmUserPo umUserPo = securityUtil.getAppCurrUser();
@@ -77,22 +81,10 @@ public class WxController {
             throw  new ServiceException(ResultCode.NO_LOGIN, "未登陆或登陆已超时");
         }
         try {
-            UpdateWrapper<PayOrderPo> payOrderPoUpdateWrapper = new UpdateWrapper<>();
-            payOrderPoUpdateWrapper.lambda().eq(PayOrderPo::getId, payOrderId);
-            //状态设置为已支付
-            payOrderPoUpdateWrapper.lambda().set(PayOrderPo::getStatus, PayOrderStatusEnum.ALREADY_PAY.getId());
-            //支付类型 微信
-            payOrderPoUpdateWrapper.lambda().set(PayOrderPo::getPayTypeCode, PaymentWayEnum.WECHAT.getName());
-            //微信支付单号
-            payOrderPoUpdateWrapper.lambda().set(PayOrderPo::getPayOrderNo, "test"+ RandomStringUtils.random(3));
-            payOrderPoUpdateWrapper.lambda().set(PayOrderPo::getPayAmount, 123);
-            payOrderPoUpdateWrapper.lambda().set(PayOrderPo::getPayTime, LocalDateTime.now());
-            payOrderService.update(payOrderPoUpdateWrapper);
-          /*  //请求预支付订单
-            UnifiedOrderVo unifiedOrderVo = wxService.unifiedOrder(ipInfoUtil.getIpAddr(request), payOrderId);
-            return new JsonViewData(ResultCode.SUCCESS, "操作成功", unifiedOrderVo);*/
-            orderService.afterPayDo(payOrderId);
-            return new JsonViewData<>(ResultCode.SUCCESS);
+            //请求预支付订单
+            payParamDto.setIpAddr(ipInfoUtil.getIpAddr(request));
+            UnifiedOrderVo unifiedOrderVo = wxService.unifiedOrder(payParamDto);
+            return new JsonViewData(ResultCode.SUCCESS, "操作成功", unifiedOrderVo);
         } catch (ServiceException e) {
             throw e;
         } catch (Exception e) {

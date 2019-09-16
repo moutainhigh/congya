@@ -26,7 +26,7 @@ public class AddAccountLogBo  implements Serializable {
     @ApiModelProperty(value = "流水对应的id，订单id，提现单id等")
     private Long relId;
 
-    @ApiModelProperty(value = "当前操作用户后台userName，spp用户phone")
+    @ApiModelProperty(value = "当前操作用户后台userName，app用户phone")
     private String operator;
 
 }

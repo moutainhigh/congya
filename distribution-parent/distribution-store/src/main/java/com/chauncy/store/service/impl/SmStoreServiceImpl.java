@@ -2,12 +2,15 @@ package com.chauncy.store.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.chauncy.common.constant.Constants;
 import com.chauncy.common.constant.SecurityConstant;
 import com.chauncy.common.enums.goods.GoodsCategoryLevelEnum;
 import com.chauncy.common.enums.store.StoreRelationEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.enums.system.SysRoleTypeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.common.third.easemob.RegistIM;
+import com.chauncy.common.third.easemob.comm.RegUserBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
@@ -153,6 +156,14 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
 
         //添加店铺后台账号
         createSysUser(smStorePo);
+
+        RegUserBo regStoreBo = new RegUserBo();
+        //判断该店铺是否已经注册过IM账号
+        if (RegistIM.getUser(String.valueOf(smStorePo.getId())) == null) {
+            regStoreBo.setPassword(Constants.PASSWORD);
+            regStoreBo.setUsername(String.valueOf(smStorePo.getId()));
+            RegistIM.reg(regStoreBo);
+        }
 
         return new JsonViewData(ResultCode.SUCCESS, "添加成功", smStorePo);
     }

@@ -21,6 +21,7 @@ public enum PlatformLogMatterEnum implements BaseEnum {
 
 
     /**
+     * 平台流水
      * 1.订单收入  平台收入
      * 2.售后退款  平台支出
      * 3.订单取消  平台支出

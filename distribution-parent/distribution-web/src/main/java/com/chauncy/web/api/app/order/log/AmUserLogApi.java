@@ -41,8 +41,7 @@ public class AmUserLogApi extends BaseApi {
      * @return
      */
     @ApiOperation(value = "查询用户红包，购物券流水",
-            notes = "查询用户红包，购物券，积分流水   \naccountTypeEnum   \nRED_ENVELOPS(红包)   \n" +
-                    "SHOP_TICKET(购物券)   \nINTEGRATE(积分)   \n")
+            notes = "查询用户红包，购物券，积分流水")
     @PostMapping("/searchUserLogPaging")
     public JsonViewData<SearchUserLogVo> searchUserLogPaging(@RequestBody @ApiParam(required = true,
             name = "searchUserLogDto", value = "根据账目类型查询用户流水") @Validated SearchUserLogDto searchUserLogDto) {

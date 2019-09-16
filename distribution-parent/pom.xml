@@ -205,11 +205,13 @@
             <version>[7.2.0, 7.2.99]</version>
         </dependency>
 
+        <!--环信即时通讯 start-->
         <dependency>
             <groupId>com.easemob</groupId>
             <artifactId>rest-java-sdk</artifactId>
             <version>1.0.2</version>
         </dependency>
+        <!--环信即时通讯 end-->
 
     </dependencies>
 

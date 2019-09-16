@@ -13,6 +13,7 @@ public enum StoreLogMatterEnum  implements BaseEnum {
 
 
     /**
+     * 商家流水
      * 11.货款收入  店铺收入
      * 12.利润收入  店铺收入
      */

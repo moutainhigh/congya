@@ -85,6 +85,17 @@ public class AmGiftOrderPo implements Serializable {
     @ApiModelProperty("图文详情")
     private String detailHtml;
 
+    @ApiModelProperty(value = "微信支付内部订单号(transaction_id)，  支付宝内部交易号(trade_no)，  一般使用 payOrderNo,")
+    private String payOrderNo;
+
+    @ApiModelProperty(value = "如果创建订单失败，则保存第三方返回的失败错误码")
+    private String errorCode;
+
+    private String errorMsg;
+
+    @ApiModelProperty(value = "支付类型，微信 ，支付宝")
+    private String payTypeCode;
+
     @ApiModelProperty(value = "支付状态 0-未支付。1-已支付")
     private Integer payStatus;
 }
