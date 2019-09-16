@@ -63,7 +63,25 @@
 
     <select id="searchUserSystemNoticeList"
             resultType="com.chauncy.data.vo.app.message.information.interact.UserNoticeListVo">
-
+        SELECT
+            mip.id,
+            '2' AS noticeType,
+            mipru.is_read,
+            mip.title,
+            mip.detail_html,
+            '' AS picture,
+            mip.create_time
+        FROM mm_interact_push mip
+        LEFT JOIN mm_interact_push_rel_user mipru
+        ON mip.id = mipru.push_id
+        WHERE
+            mip.object_type = '全部用户' AND mip.push_type = 'APP内消息中心推送'
+            OR  (
+                mip.object_type = '指定会员等级' AND mipru.rel_id = #{levelId}
+                OR
+                mip.object_type = '指定用户' AND mipru.rel_id =  #{userId}
+                )
+        ORDER BY mip.create_time DESC
     </select>
 
 </mapper>

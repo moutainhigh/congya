@@ -36,5 +36,5 @@ public interface MmUserNoticeMapper extends IBaseMapper<MmUserNoticePo> {
      * @param userId
      * @return
      */
-    List<UserNoticeListVo> searchUserSystemNoticeList(Long userId);
+    List<UserNoticeListVo> searchUserSystemNoticeList(@Param("userId") Long userId, @Param("levelId") Long levelId);
 }
