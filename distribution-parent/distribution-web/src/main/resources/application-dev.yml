@@ -46,7 +46,7 @@ spring:
     port: 5672
     username: admin
     password: admin
-    virtual-host: test
+    virtual-host: my_vhost
     publisher-confirms: true #消息发送确认机制：开启发送确认
     publisher-returns: true #开启发送失败退回
 #    connection-timeout: 10000
