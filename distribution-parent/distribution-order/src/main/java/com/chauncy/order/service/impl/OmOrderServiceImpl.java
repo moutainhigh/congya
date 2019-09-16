@@ -298,7 +298,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         RabbitOrderBo rabbitOrderBo=new RabbitOrderBo();
         rabbitOrderBo.setOrderId(orderId).setOrderStatusEnum(OrderStatusEnum.NEED_RECEIVE_GOODS);
         //添加自动收货的消息队列
-        rabbitUtil.sendDelayMessage(5*60*1000+"",rabbitOrderBo);
+        rabbitUtil.sendDelayMessage(1*60*1000+"",rabbitOrderBo);
         LoggerUtil.info("【已发货等待自动收货消息发送时间】:" + LocalDateTime.now());
 
     }
@@ -328,7 +328,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     @Override
     public PageInfo<AppSearchOrderVo> searchAppOrder(SearchMyOrderDto searchMyOrderDto) {
         //待核销和已完成是商家的
-        if (searchMyOrderDto.getStatus().getId()>=OrderStatusEnum.WAIT_WRITE_OFF.getId()){
+        if (searchMyOrderDto.getStatus()!=null&&searchMyOrderDto.getStatus().getId()>=OrderStatusEnum.WAIT_WRITE_OFF.getId()){
             SysUserPo currUser = securityUtil.getCurrUser();
             boolean isFinish=true;
             //商家待核销==》未使用 已完成==》待评价、已评价
@@ -575,7 +575,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         //用户总消费、总订单数
         UmUserPo updateUser=new UmUserPo();
         updateUser.setId(userId).setTotalConsumeMoney(realPayMoney).setTotalOrder(1);
-        umUserService.updateById(updateUser);
+        userMapper.updateAdd(updateUser);
 
         //商品销售报表
         omOrderReportService.orderClosure(orderId);

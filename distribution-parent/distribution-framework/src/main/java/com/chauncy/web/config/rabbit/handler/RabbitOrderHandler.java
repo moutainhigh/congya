@@ -30,6 +30,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -87,7 +88,7 @@ public class RabbitOrderHandler {
         //如果订单状态为未支评价,就去自动评价
         OmOrderPo queryOrder = orderService.getById(rabbitOrderBo.getOrderId());
         //如果订单存在且状态为空，表示到了售后的截止时间
-        if (queryOrder != null && queryOrder.getStatus()==null) {
+        if (queryOrder != null && rabbitOrderBo.getOrderStatusEnum()==null) {
             orderService.orderDeadline(rabbitOrderBo.getOrderId());
         }
             //如果订单存在且状态未发生改变
@@ -147,41 +148,49 @@ public class RabbitOrderHandler {
     @RabbitListener(queues = {RabbitConstants.AFTER_REDIRECT_QUEUE})
     @Transactional(rollbackFor = Exception.class)
     public void afterDelay(RabbitAfterBo rabbitAfterBo, Message message, Channel channel) {
-        LoggerUtil.info(String.format("[售后订单 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), rabbitAfterBo.toString()));
-        OmAfterSaleOrderPo queryAfterOrder = afterSaleOrderService.getById(rabbitAfterBo.getAfterSaleOrderId());
-        //如果售后订单状态未改变、且修改时间不变,进行超时处理
-        if (queryAfterOrder.getUpdateTime().equals(rabbitAfterBo.getUpdateTime()) &&
-                queryAfterOrder.getStatus() == rabbitAfterBo.getAfterSaleStatusEnum()) {
-            //仅退款 待商家处理==》退款成功
-            if (queryAfterOrder.getAfterSaleType() == AfterSaleTypeEnum.ONLY_REFUND &&
-                    queryAfterOrder.getStatus() == AfterSaleStatusEnum.NEED_STORE_DO) {
-                wxService.refund(rabbitAfterBo.getAfterSaleOrderId(),true);
-            }
-            //仅退款和退货退款 待买家处理==》退款关闭
-            if (queryAfterOrder.getStatus() == AfterSaleStatusEnum.NEED_BUYER_DO) {
-                afterSaleOrderService.cancel(rabbitAfterBo.getAfterSaleOrderId(),true);
-            }
-            //退货退款 待商家处理==》待买家发货
-            if (queryAfterOrder.getAfterSaleType() == AfterSaleTypeEnum.RETURN_GOODS &&
-                    queryAfterOrder.getStatus() == AfterSaleStatusEnum.NEED_STORE_DO) {
-                afterSaleOrderService.permitReturnGoods(rabbitAfterBo.getAfterSaleOrderId(),true);
-            }
-            //退货退款 待买家退货==》退款关闭
-            if (queryAfterOrder.getAfterSaleType() == AfterSaleTypeEnum.RETURN_GOODS &&
-                    queryAfterOrder.getStatus() == AfterSaleStatusEnum.NEED_STORE_DO) {
-                afterSaleOrderService.cancel(rabbitAfterBo.getAfterSaleOrderId(),true);
-            }
-            //退货退款 待商家退款==》退款成功
-            if (queryAfterOrder.getAfterSaleType() == AfterSaleTypeEnum.RETURN_GOODS &&
-                    queryAfterOrder.getStatus() == AfterSaleStatusEnum.NEED_STORE_REFUND) {
-                wxService.refund(rabbitAfterBo.getAfterSaleOrderId(),true);
-            }
-        }
+
 
         try {
+            LoggerUtil.info(String.format("[售后订单 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), rabbitAfterBo.toString()));
+            OmAfterSaleOrderPo queryAfterOrder = afterSaleOrderService.getById(rabbitAfterBo.getAfterSaleOrderId());
+            Duration duration = Duration.between(queryAfterOrder.getUpdateTime(),  rabbitAfterBo.getUpdateTime());
+            //如果售后订单状态未改变、且修改时间不变,进行超时处理
+            //没办法完全比较时间相等，留着两秒冗余， mysql会对时间进行四舍五入
+            if ((duration.toMillis()<2000&&duration.toMillis()>-2000) &&
+                    queryAfterOrder.getStatus() == rabbitAfterBo.getAfterSaleStatusEnum()) {
+                //仅退款 待商家处理==》退款成功
+                if (queryAfterOrder.getAfterSaleType() == AfterSaleTypeEnum.ONLY_REFUND &&
+                        queryAfterOrder.getStatus() == AfterSaleStatusEnum.NEED_STORE_DO) {
+                    wxService.refund(rabbitAfterBo.getAfterSaleOrderId(),true);
+                }
+                //仅退款和退货退款 待买家处理==》退款关闭
+                if (queryAfterOrder.getStatus() == AfterSaleStatusEnum.NEED_BUYER_DO) {
+                    afterSaleOrderService.cancel(rabbitAfterBo.getAfterSaleOrderId(),true);
+                }
+                //退货退款 待商家处理==》待买家发货
+                if (queryAfterOrder.getAfterSaleType() == AfterSaleTypeEnum.RETURN_GOODS &&
+                        queryAfterOrder.getStatus() == AfterSaleStatusEnum.NEED_STORE_DO) {
+                    afterSaleOrderService.permitReturnGoods(rabbitAfterBo.getAfterSaleOrderId(),true);
+                }
+                //退货退款 待买家退货==》退款关闭
+                if (queryAfterOrder.getAfterSaleType() == AfterSaleTypeEnum.RETURN_GOODS &&
+                        queryAfterOrder.getStatus() == AfterSaleStatusEnum.NEED_BUYER_RETURN) {
+                    afterSaleOrderService.cancel(rabbitAfterBo.getAfterSaleOrderId(),true);
+                }
+                //退货退款 待商家退款==》退款成功
+                if (queryAfterOrder.getAfterSaleType() == AfterSaleTypeEnum.RETURN_GOODS &&
+                        queryAfterOrder.getStatus() == AfterSaleStatusEnum.NEED_STORE_REFUND) {
+                    wxService.refund(rabbitAfterBo.getAfterSaleOrderId(),true);
+                }
+            }
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
-        } catch (IOException e) {
-            LoggerUtil.error(e);
+        } catch (Exception e) {
+            try {
+                channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+            } catch (IOException ex) {
+                LoggerUtil.error(e);
+            }
+
         }
 
     }

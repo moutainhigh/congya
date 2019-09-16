@@ -46,13 +46,14 @@ spring:
     port: 5672
     username: admin
     password: admin
-    virtual-host: my_vhost
+    virtual-host: test
+    publisher-confirms: true #消息发送确认机制：开启发送确认
+    publisher-returns: true #开启发送失败退回
 #    connection-timeout: 10000
     listener:
       simple:
         acknowledge-mode: MANUAL # 自动应答 manual手动应答
-        auto-startup: true
-        default-requeue-rejected: false # 不重回队列
+        default-requeue-rejected: false # 监听抛异常不重回队列
         concurrency: 5
         max-concurrency: 20
         prefetch: 1 # 每次只处理1个信息

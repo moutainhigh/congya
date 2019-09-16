@@ -50,7 +50,7 @@
         select a.photo as icon,a.name as nick_name,b.content,b.picture,b.sku_id,b.id
         from um_user a,om_evaluate b,om_order c
         <where>
-            c.id = b.order_id and c.um_user_id = a.id and c.evaluate_status = 2 and isNull(b.parent_id)
+            c.id = b.order_id and c.um_user_id = a.id and c.status = 4 and isNull(b.parent_id)
             <if test="userId !=null">
                 and c.um_user_id = #{userId}
             </if>
