@@ -48,6 +48,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -342,8 +343,10 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
             couponIds.forEach(a->{
                 //保存到用户和优惠券关联表中
                 AmCouponRelCouponUserPo relCouponUserPo = new AmCouponRelCouponUserPo();
+                LocalDateTime deadLine = LocalDateTime.now().plusDays(10L);
                 relCouponUserPo.setId(null).setCreateBy(userPo.getTrueName()).setUseStatus(CouponUseStatusEnum.NOT_USED.getId())
-                        .setReceiveNum(1).setType(CouponBeLongTypeEnum.RECEIVE.getId()).setUserId(userPo.getId()).setCouponId(a);
+                        .setReceiveNum(1).setType(CouponBeLongTypeEnum.RECEIVE.getId()).setUserId(userPo.getId()).setCouponId(a)
+                        .setDeadLine(deadLine);
                 relCouponUserMapper.insert(relCouponUserPo);
             });
         }
