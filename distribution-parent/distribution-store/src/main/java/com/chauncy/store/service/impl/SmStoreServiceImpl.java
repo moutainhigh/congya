@@ -668,8 +668,10 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         } else if(smStorePo.getEnabled().equals(false)) {
             throw new ServiceException(ResultCode.PARAM_ERROR,"店铺已被禁用");
         }
+        //获取当前app用户信息
+        UmUserPo umUserPo = securityUtil.getAppCurrUser();
 
-        StoreDetailVo storeDetailVo = smStoreMapper.findDetailById(storeId);
+        StoreDetailVo storeDetailVo = smStoreMapper.findDetailById(storeId, umUserPo.getId());
         if (Strings.isNotBlank(storeDetailVo.getStoreLabels())){
             storeDetailVo.setStoreLabelList(Splitter.on(",")
                     .omitEmptyStrings().splitToList(storeDetailVo.getStoreLabels()));

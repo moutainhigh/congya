@@ -37,6 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.management.Query;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -114,7 +115,9 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
         pmStoreGoodsStockMapper.insert(pmStoreGoodsStockPo);
 
         //店铺分配商品库存
-        insertStoreRelGoodsStock(pmStoreGoodsStockPo, storeGoodsStockBaseDto.getStoreRelGoodsStockBaseDtoList());
+        insertStoreRelGoodsStock(sysUserPo.getUsername(),
+                pmStoreGoodsStockPo,
+                storeGoodsStockBaseDto.getStoreRelGoodsStockBaseDtoList());
 
         return pmStoreGoodsStockPo.getId();
     }
@@ -125,7 +128,8 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
      * @param pmStoreGoodsStockPo
      * @param storeRelGoodsStockBaseDtoList
      */
-    private void insertStoreRelGoodsStock(PmStoreGoodsStockPo pmStoreGoodsStockPo,
+    private void insertStoreRelGoodsStock(String createBy,
+                                          PmStoreGoodsStockPo pmStoreGoodsStockPo,
                                           List<StoreRelGoodsStockBaseDto> storeRelGoodsStockBaseDtoList) {
         List<PmStoreRelGoodsStockPo> pmStoreRelGoodsStockPoList = new ArrayList<>();
         PmGoodsVirtualStockTemplatePo pmGoodsVirtualStockTemplatePo =
@@ -180,7 +184,14 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
                 pmStoreRelGoodsStockPoList.add(pmStoreRelGoodsStockPo);
 
                 //分配库存成功 修改库存信息
-                int result = pmGoodsVirtualStockMapper.updateGoodsVirtualStock(
+                updateGoodsVirtualStock(
+                        createBy,
+                        pmGoodsSkuPo.getGoodsId(),
+                        pmStoreGoodsStockPo.getStoreId(),
+                        pmStoreGoodsStockPo.getDistributeStoreId(),
+                        storeRelGoodsStockBaseDto.getGoodsSkuId(),
+                        storeRelGoodsStockBaseDto.getDistributeStockNum());
+                /*int result = pmGoodsVirtualStockMapper.updateGoodsVirtualStock(
                         pmStoreGoodsStockPo.getStoreId(),
                         pmStoreGoodsStockPo.getDistributeStoreId(),
                         storeRelGoodsStockBaseDto.getGoodsSkuId(),
@@ -188,7 +199,7 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
                 if(result < 1) {
                     //没有更新两条数据
                     throw new ServiceException(ResultCode.PARAM_ERROR, "库存不足");
-                }
+                }*/
                 //被分配的批次修改剩余库存
                 if(pmGoodsVirtualStockTemplatePo.getType().equals(StoreGoodsTypeEnum.DISTRIBUTION_GOODS.getId())) {
                     parentStockPo.setRemainingStockNum(parentStockPo.getRemainingStockNum()
@@ -200,6 +211,55 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
             }
         }
         pmStoreRelGoodsStockService.saveBatch(pmStoreRelGoodsStockPoList);
+    }
+
+    /**
+     * 分配库存 修改库存信息
+     * @param createBy              操作员
+     * @param GoodsId               商品id
+     * @param fromStoreId           扣减库存店铺
+     * @param toStoreId             获得库存店铺
+     * @param goodsSkuId            分配的规格
+     * @param distributeStockNum    分配的库存数量
+     */
+    private void updateGoodsVirtualStock(String createBy,
+                                Long goodsId,
+                                Long fromStoreId,
+                                Long toStoreId,
+                                Long goodsSkuId,
+                                Integer distributeStockNum) {
+        //扣减库存
+        QueryWrapper<PmGoodsVirtualStockPo> fromQueryWrapper = new QueryWrapper<>();
+        fromQueryWrapper.lambda().eq(PmGoodsVirtualStockPo::getStoreId, fromStoreId)
+                .eq(PmGoodsVirtualStockPo::getGoodsSkuId, goodsSkuId);
+        PmGoodsVirtualStockPo fromStock = pmGoodsVirtualStockMapper.selectOne(fromQueryWrapper);
+        if(null == fromStock || fromStock.getStockNum() < distributeStockNum) {
+            throw new ServiceException(ResultCode.PARAM_ERROR, "可分配库存不足");
+        }  else {
+            UpdateWrapper<PmGoodsVirtualStockPo> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.lambda().eq(PmGoodsVirtualStockPo::getId, fromStock.getId())
+                    .set(PmGoodsVirtualStockPo::getStockNum, fromStock.getStockNum() - distributeStockNum);
+            pmGoodsVirtualStockService.update(updateWrapper);
+        }
+        //获得库存
+        QueryWrapper<PmGoodsVirtualStockPo> toQueryWrapper = new QueryWrapper<>();
+        toQueryWrapper.lambda().eq(PmGoodsVirtualStockPo::getStoreId, toStoreId)
+                .eq(PmGoodsVirtualStockPo::getGoodsSkuId, goodsSkuId);
+        PmGoodsVirtualStockPo toStock = pmGoodsVirtualStockMapper.selectOne(toQueryWrapper);
+        if(null == toStock) {
+            toStock = new PmGoodsVirtualStockPo();
+            toStock.setStoreId(toStoreId)
+                    .setGoodsId(goodsId)
+                    .setGoodsSkuId(goodsSkuId)
+                    .setStockNum(distributeStockNum)
+                    .setCreateBy(createBy);
+            pmGoodsVirtualStockMapper.insert(toStock);
+        }  else {
+            UpdateWrapper<PmGoodsVirtualStockPo> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.lambda().eq(PmGoodsVirtualStockPo::getId, toStock.getId())
+                    .set(PmGoodsVirtualStockPo::getStockNum, fromStock.getStockNum() + distributeStockNum);
+            pmGoodsVirtualStockService.update(updateWrapper);
+        }
     }
 
     /**

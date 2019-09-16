@@ -68,6 +68,12 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
     List<StoreCategoryDetailVo> findStoreCategoryDetail(@Param("tabId") Long tabId,@Param("userId") Long userId);
 
     /**
+     * 首页跳转内容-有店（所有店铺列表）
+     * @param userId
+     */
+    List<StoreCategoryDetailVo> searchAllStoreDetail(@Param("userId")Long userId);
+
+    /**
      * 查找广告位为葱鸭百货的所有广告
      *
      * @return

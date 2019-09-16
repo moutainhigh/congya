@@ -151,7 +151,7 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         queryWrapper.lambda().in(OmGoodsTempPo::getId, applyRefundDto.getGoodsTempIds());
         List<OmGoodsTempPo> queryGoodsTempPos = goodsTempMapper.selectList(queryWrapper);
         //该退款列表最大能退多少钱
-        BigDecimal realPayMoney = queryGoodsTempPos.stream().map(x -> BigDecimalUtil.safeMultiply(x.getRealPayMoney(), x.getNumber())).
+        BigDecimal realPayMoney = queryGoodsTempPos.stream().map(x -> x.getRealPayMoney()).
                 reduce(BigDecimal.ZERO, BigDecimal::add);
         if (realPayMoney.compareTo(applyRefundDto.getRefundMoney()) < 0) {
             throw new ServiceException(ResultCode.FAIL, String.format("操作失败！退款金额大于实付金额:【%s】>【%s】", applyRefundDto.getRefundMoney()
@@ -176,7 +176,7 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
             SmStorePo queryStore = storeMapper.selectById(queryOrder.getStoreId());
             saveAfterSaleOrder.setStoreName(queryStore.getName());
             //创建者、用户手机
-            saveAfterSaleOrder.setCreateBy(currentUser.getId().toString()).setUpdateTime(LocalDateTime.now()).setPhone(currentUser.getPhone()).setAfterSaleType(applyRefundDto.getType())
+            saveAfterSaleOrder.setCreateBy(currentUser.getId().toString()).setUpdateTime(LocalDateTime.now().plusDays(1)).setPhone(currentUser.getPhone()).setAfterSaleType(applyRefundDto.getType())
                     .setStatus(AfterSaleStatusEnum.NEED_STORE_DO).setId(SnowFlakeUtil.getFlowIdInstance().nextId());
             saveAfterSaleOrders.add(saveAfterSaleOrder);
 
@@ -224,7 +224,7 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         // 添加延时队列
         this.rabbitTemplate.convertAndSend(RabbitConstants.AFTER_DEAD_EXCHANGE, RabbitConstants.AFTER_DEAD_ROUTING_KEY, rabbitAfterBo, message -> {
 
-            message.getMessageProperties().setExpiration(RabbitConstants.AFTER_DELAY_TIME);
+            message.getMessageProperties().setExpiration(5*60*1000+"");
             return message;
         });
         LoggerUtil.info(String.format("售后订单id【%s】,状态【%s】发送消息队列时间：",rabbitAfterBo.getAfterSaleOrderId(),rabbitAfterBo.getAfterSaleStatusEnum().getName())
@@ -280,7 +280,14 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
             if (queryAfterSaleOrder.getStatus() != AfterSaleStatusEnum.NEED_STORE_DO) {
                 throw new ServiceException(ResultCode.FAIL, String.format("当前售后订单状态为【%s】,不允许退款", queryAfterSaleOrder.getStatus().getName()));
             } else {
-                saveAfterSaleLog.setNode(AfterSaleLogEnum.ONLY_REFUND_STORE_AGREE);
+                if (isAuto){
+
+                    saveAfterSaleLog.setNode(AfterSaleLogEnum.ONLY_REFUND_STORE_OVERTIME);
+                }
+                else {
+
+                    saveAfterSaleLog.setNode(AfterSaleLogEnum.ONLY_REFUND_STORE_AGREE);
+                }
             }
         }
         //退货退款只有待商家退款状态才可以进行退款
@@ -288,7 +295,14 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
             if (queryAfterSaleOrder.getStatus() != AfterSaleStatusEnum.NEED_STORE_REFUND) {
                 throw new ServiceException(ResultCode.FAIL, String.format("当前售后订单状态为【%s】,不允许退款", queryAfterSaleOrder.getStatus().getName()));
             } else {
-                saveAfterSaleLog.setNode(AfterSaleLogEnum.STORE_AGREE_REFUND);
+                if (isAuto){
+
+                    saveAfterSaleLog.setNode(AfterSaleLogEnum.STORE_OVERTIME_UNHANDLED_REFUND);
+                }
+                else {
+                    saveAfterSaleLog.setNode(AfterSaleLogEnum.STORE_AGREE_REFUND);
+
+                }
             }
         }
         saveAfterSaleLog.setAfterSaleOrderId(afterSaleOrderId).setCreateBy(userId);
@@ -303,8 +317,6 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         OmGoodsTempPo updateGoodsTemp = new OmGoodsTempPo();
         updateGoodsTemp.setId(queryAfterSaleOrder.getGoodsTempId()).setIsAfterSale(true).setUpdateBy(userId);
         goodsTempMapper.updateById(updateGoodsTemp);
-
-
 
     }
 
@@ -383,7 +395,13 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
             if (queryAfterSaleOrder.getStatus() != AfterSaleStatusEnum.NEED_STORE_DO) {
                 throw new ServiceException(ResultCode.FAIL, String.format("当前售后订单状态为【%s】,不允许确认退货", queryAfterSaleOrder.getStatus().getName()));
             } else {
-                saveAfterSaleLog.setNode(AfterSaleLogEnum.STORE_AGREE_GOODS);
+                if (isAuto){
+                    saveAfterSaleLog.setNode(AfterSaleLogEnum.STORE_OVERTIME_UNHANDLED_GOODS);
+
+                }else {
+                    saveAfterSaleLog.setNode(AfterSaleLogEnum.STORE_AGREE_GOODS);
+
+                }
             }
         }
         saveAfterSaleLog.setAfterSaleOrderId(afterSaleOrderId).setCreateBy(userId);
@@ -492,24 +510,61 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
     @Transactional(rollbackFor = Exception.class)
     public void updateApply(UpdateRefundDto updateRefundDto) {
         OmAfterSaleOrderPo querySaleOrder = mapper.selectById(updateRefundDto.getId());
+
+        QueryWrapper<OmGoodsTempPo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(OmGoodsTempPo::getId, querySaleOrder.getGoodsTempId());
+        OmGoodsTempPo queryGoodsTempPo = goodsTempMapper.selectOne(queryWrapper);
+        //该退款列表最大能退多少钱
+        BigDecimal realPayMoney = queryGoodsTempPo.getRealPayMoney();
+        if (realPayMoney.compareTo(updateRefundDto.getRefundMoney()) < 0) {
+            throw new ServiceException(ResultCode.FAIL, String.format("操作失败！退款金额大于实付金额:【%s】>【%s】", updateRefundDto.getRefundMoney()
+                    , realPayMoney));
+        }
         //待商家处理和待买家处理状态才可以修改订单申请
         if (querySaleOrder.getStatus() != AfterSaleStatusEnum.NEED_STORE_DO &&
                 querySaleOrder.getStatus() != AfterSaleStatusEnum.NEED_BUYER_DO) {
             throw new ServiceException(ResultCode.FAIL, "待商家处理和待买家处理状态才可以修改订单申请");
         } else {
             OmAfterSaleOrderPo updateAfterOrder = new OmAfterSaleOrderPo();
+
+            LocalDateTime updateTime=LocalDateTime.now();
             //修改售后订单
             updateAfterOrder.setStatus(AfterSaleStatusEnum.NEED_STORE_DO).setPictures(updateRefundDto.getPictures())
                     .setId(updateRefundDto.getId()).setRefundMoney(updateRefundDto.getRefundMoney())
-                    .setReason(updateRefundDto.getReason());
+                    .setReason(updateRefundDto.getReason()).setUpdateTime(updateTime);
             mapper.updateById(updateAfterOrder);
 
-            //修改日志
+            //找出用户第一个节点是什么（仅退款还是退货退款）
+            //是否仅退款
+            boolean isOnLyRefund;
+            AfterSaleLogEnum firstLog;
+            if (querySaleOrder.getAfterSaleType()==AfterSaleTypeEnum.ONLY_REFUND){
+                firstLog=AfterSaleLogEnum.ONLY_REFUND_BUYER_START;
+                isOnLyRefund=true;
+            }
+            else {
+                firstLog=AfterSaleLogEnum.BUYER_START;
+                isOnLyRefund=false;
+            }
+
+            //用户修改申请
             UpdateWrapper<OmAfterSaleLogPo> updateWrapper = new UpdateWrapper<>();
             updateWrapper.lambda().and(a -> a.eq(OmAfterSaleLogPo::getAfterSaleOrderId, updateRefundDto.getId()).
-                    eq(OmAfterSaleLogPo::getNode, AfterSaleLogEnum.BUYER_START)).
+                    eq(OmAfterSaleLogPo::getNode, firstLog)).
                     set(OmAfterSaleLogPo::getDescribes, updateRefundDto.getDescribe());
             afterSaleLogService.update(updateWrapper);
+
+            //新增用户修改节点
+            OmAfterSaleLogPo saveLog=new OmAfterSaleLogPo();
+            saveLog.setNode(isOnLyRefund?AfterSaleLogEnum.ONLY_REFUND_BUYER_UPDATE:AfterSaleLogEnum.BUYER_UPDATE)
+                    .setAfterSaleOrderId(updateRefundDto.getId()).setCreateBy(querySaleOrder.getCreateBy());
+            afterSaleLogService.save(saveLog);
+
+            RabbitAfterBo rabbitAfterBo = new RabbitAfterBo();
+            rabbitAfterBo.setAfterSaleOrderId(updateRefundDto.getId());
+            rabbitAfterBo.setAfterSaleStatusEnum(AfterSaleStatusEnum.NEED_STORE_DO);
+            rabbitAfterBo.setUpdateTime(updateTime);
+            sendMessage(rabbitAfterBo);
 
         }
     }
@@ -522,10 +577,13 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
             userId=appCurrUser.getId()+"";
         }
         OmAfterSaleOrderPo querySaleOrder = mapper.selectById(afterOrderId);
-        if (querySaleOrder.getStatus() != AfterSaleStatusEnum.NEED_STORE_DO &&
-                querySaleOrder.getStatus() != AfterSaleStatusEnum.NEED_BUYER_RETURN) {
-            throw new ServiceException(ResultCode.FAIL, "待商家处理和待买家退货状态才可以撤销售后！");
-        }
+        /*//如果不是超时处理的
+        if (!isAuto) {
+            if (querySaleOrder.getStatus() != AfterSaleStatusEnum.NEED_STORE_DO &&
+                    querySaleOrder.getStatus() != AfterSaleStatusEnum.NEED_BUYER_RETURN) {
+                throw new ServiceException(ResultCode.FAIL, "待商家处理和待买家退货状态才可以撤销售后！");
+            }
+        }*/
 
         //修改售后订单
         OmAfterSaleOrderPo updateAfterOrder = new OmAfterSaleOrderPo();
@@ -537,11 +595,22 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         saveAfterLog.setCreateBy(userId).setAfterSaleOrderId(afterOrderId);
         //如果是仅付款
         if (querySaleOrder.getAfterSaleType()==AfterSaleTypeEnum.ONLY_REFUND){
-            saveAfterLog.setNode(AfterSaleLogEnum.ONLY_REFUND_BUYER_CANCEL);
+            if (isAuto){
+                saveAfterLog.setNode(AfterSaleLogEnum.ONLY_REFUND_BUYER_OVERTIME);
+            }else {
+                saveAfterLog.setNode(AfterSaleLogEnum.ONLY_REFUND_BUYER_CANCEL);
+            }
         }
         //如果是退货退款
         else {
-            saveAfterLog.setNode(AfterSaleLogEnum.BUYER_CANCEL);
+            if (isAuto){
+
+                saveAfterLog.setNode(AfterSaleLogEnum.BUYER_OVERTIME);
+            }
+            else {
+
+                saveAfterLog.setNode(AfterSaleLogEnum.BUYER_CANCEL);
+            }
         }
         afterSaleLogMapper.insert(saveAfterLog);
 

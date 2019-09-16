@@ -148,7 +148,7 @@ public interface SmStoreMapper extends IBaseMapper<SmStorePo> {
      * @param storeId
      * @return
      */
-    StoreDetailVo findDetailById(Long storeId);
+    StoreDetailVo findDetailById(@Param("storeId") Long storeId, @Param("userId") Long userId);
 
     /**
      * 分页查询广告为首页有店+店铺分类详情：除选项卡关联的店铺外的店铺

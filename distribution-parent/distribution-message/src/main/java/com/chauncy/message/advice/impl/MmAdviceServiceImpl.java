@@ -214,6 +214,31 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
     }
 
     /**
+     * 首页跳转内容-有店（所有店铺列表）
+     * @param baseSearchPagingDto
+     * @return
+     */
+    @Override
+    public PageInfo<StoreCategoryDetailVo> searchAll(BaseSearchPagingDto baseSearchPagingDto) {
+
+        //查找关联信息
+        Integer pageNo = baseSearchPagingDto.getPageNo() == null ? defaultPageNo : baseSearchPagingDto.getPageNo();
+        Integer pageSize  = baseSearchPagingDto.getPageSize() == null ? defaultPageSize : baseSearchPagingDto.getPageSize();
+
+        Long userId = securityUtil.getAppCurrUser().getId();
+        PageInfo<StoreCategoryDetailVo> storeCategoryDetailVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> mapper.searchAllStoreDetail(userId));
+
+        storeCategoryDetailVoPageInfo.getList().forEach(storeCategoryDetailVo -> {
+            if (null != storeCategoryDetailVo.getStoreLabels()){
+                storeCategoryDetailVo.setStoreLabelList(Splitter.on(",")
+                        .omitEmptyStrings().splitToList(storeCategoryDetailVo.getStoreLabels()));
+            }
+        });
+        return storeCategoryDetailVoPageInfo;
+    }
+
+    /**
      * 条件分页获取广告信息及其对应的详情
      *
      * @param searchAdvicesDto

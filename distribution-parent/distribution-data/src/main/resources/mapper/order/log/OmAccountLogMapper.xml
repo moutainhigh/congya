@@ -34,15 +34,16 @@
     <select id="searchPlatformLogPaging" resultType="com.chauncy.data.vo.manage.order.log.SearchPlatformLogVo">
         SELECT
             oal.id,
+            po.pay_order_no,
             oal.om_rel_id,
-            uu.`user_id`,
+            uu.`id` AS umUserId,
             uu.phone,
             oal.`log_type`,
             oal.`log_matter`,
             ABS(oal.amount) AS totalAmount,
             oal.payment_way,
             oal.arrival_way,
-            oal.`create_by`
+            oal.`create_time`
         from om_account_log oal
         left join pay_order po
         on oal.pay_order_id = po.id
@@ -53,7 +54,7 @@
             <if test="omRelId != null">
                 and oal.om_rel_id = #{omRelId}
             </if>
-            <if test="payId != null">
+            <if test="payOrderNo != null">
                 and po.pay_order_no = #{payOrderNo}
             </if>
             <if test="logId != null">
@@ -153,7 +154,7 @@
             oal.`log_type`,
             oal.`log_matter`,
             ABS(oal.amount) AS totalAmount,
-            oal.`create_by`
+            oal.`create_time`
         FROM om_account_log oal
         <where>
             oal.user_type = #{userType}
@@ -179,7 +180,7 @@
             <if test="minAmount != null">
                 and ABS(oal.amount) <![CDATA[>= ]]>  #{minAmount}
             </if>
-            <if test="maxAmount != null">
+            <if test="maxAmount != null">F
                 and ABS(oal.amount) <![CDATA[<= ]]> #{maxAmount}
             </if>
         </where>

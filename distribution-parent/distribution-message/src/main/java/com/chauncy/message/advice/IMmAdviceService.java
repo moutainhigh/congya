@@ -71,6 +71,12 @@ public interface IMmAdviceService extends Service<MmAdvicePo> {
     PageInfo<StoreCategoryDetailVo> findStoreCategoryDetail(Long tabId,  BaseSearchPagingDto baseSearchPagingDto);
 
     /**
+     * 首页跳转内容-有店（店铺列表）
+     * @param baseSearchPagingDto
+     * @return
+     */
+    PageInfo<StoreCategoryDetailVo> searchAll(BaseSearchPagingDto baseSearchPagingDto);
+    /**
      * 条件分页获取广告信息及其对应的详情
      *
      * @param searchAdvicesDto

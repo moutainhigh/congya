@@ -1,18 +1,26 @@
 package com.chauncy.web.controller.pay;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.chauncy.common.enums.app.order.PayOrderStatusEnum;
+import com.chauncy.common.enums.log.PaymentWayEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.common.util.BigDecimalUtil;
+import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.pay.PayParamDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.order.pay.UnifiedOrderVo;
 import com.chauncy.order.pay.IWxService;
+import com.chauncy.order.service.IOmOrderService;
+import com.chauncy.order.service.IPayOrderService;
 import com.chauncy.security.util.IpInfoUtil;
 import com.chauncy.security.util.SecurityUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +33,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 /**
@@ -47,6 +57,12 @@ public class WxController {
 
     @Autowired
     private SecurityUtil securityUtil;
+
+    @Autowired
+    private IOmOrderService orderService;
+
+    @Autowired
+    private IPayOrderService payOrderService;
 
     /**
      * 统一下单

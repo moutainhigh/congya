@@ -20,6 +20,9 @@ import java.util.List;
 @Data
 public class ApplyAfterDetailVo {
 
+    @ApiModelProperty("售后订单id")
+    private String afterOrderId;
+
     @ApiModelProperty("商品名称")
     private String name;
 
