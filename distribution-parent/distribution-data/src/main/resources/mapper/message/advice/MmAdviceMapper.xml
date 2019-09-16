@@ -145,6 +145,34 @@
         AND `martt`.del_flag = 0 AND `ss`.enabled = 1
     </select>
 
+    <select id="searchAllStoreDetail" resultMap="StoreCategoryDetailResult">
+        SELECT
+            `ss`.id AS storeId,
+            `ss`.logo_image AS logoImage,
+            `ss`.name AS storeName,
+            `ss`.store_describe AS storeDescribe,
+        (EXISTS
+            (SELECT 1
+                FROM um_user_favorites uuf
+                WHERE uuf.favorites_id = ss.id
+                AND uuf.`type` = '店铺'
+                AND uuf.user_id = #{userId}
+                AND uuf.del_flag = 0)
+            ) AS is_focus,
+        (
+            SELECT GROUP_CONCAT(`ssl`.name)
+            FROM sm_store_label `ssl` ,
+                    sm_store_rel_label ssrl
+            WHERE
+                `ssrl`.store_label_id = `ssl`.id
+                AND `ssrl`.store_id = ss.`id`
+                AND `ssl`.del_flag = 0
+        ) AS storeLabels
+        FROM sm_store `ss`
+        WHERE `ss`.enabled = 1
+        ORDER BY `ss`.create_time DESC
+    </select>
+
     <select id="findAdvice" resultType="com.chauncy.data.vo.manage.message.advice.FindBaiHuoAdviceVo">
         select id as value,name as label
         from mm_advice
