@@ -150,6 +150,7 @@
             `ss`.id AS storeId,
             `ss`.logo_image AS logoImage,
             `ss`.name AS storeName,
+            `ss`.background_image AS backgroundImage,
             `ss`.store_describe AS storeDescribe,
         (EXISTS
             (SELECT 1
