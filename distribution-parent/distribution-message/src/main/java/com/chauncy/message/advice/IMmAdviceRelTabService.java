@@ -11,6 +11,7 @@ import com.chauncy.data.dto.manage.message.advice.tab.tab.search.SearchTabAssoci
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.manage.message.advice.tab.tab.BrandVo;
 import com.chauncy.data.vo.manage.message.advice.tab.tab.GoodsVo;
+import com.chauncy.data.vo.manage.message.advice.tab.tab.SearchAdviceGoodsVo;
 import com.github.pagehelper.PageInfo;
 
 /**
@@ -37,7 +38,7 @@ public interface IMmAdviceRelTabService extends Service<MmAdviceRelTabPo> {
      * @param searchAdviceGoodsDto
      * @return
      */
-    PageInfo<BaseVo> searchAdviceGoods(SearchAdviceGoodsDto searchAdviceGoodsDto);
+    PageInfo<SearchAdviceGoodsVo> searchAdviceGoods(SearchAdviceGoodsDto searchAdviceGoodsDto);
 
     /**
      * 保存特卖、有品、主题、优选等广告信息

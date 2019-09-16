@@ -112,32 +112,40 @@ public class SpecifiedGoodsVo {
     @JSONField(ordinal = 14)
     private Long categoryId;
 
-    @ApiModelProperty("运费信息")
+    @ApiModelProperty(value = "店铺IM账号")
     @JSONField(ordinal = 15)
+    private String storeImId;
+
+    @ApiModelProperty(value = "平台IM账号")
+    @JSONField(ordinal = 16)
+    private String platImId;
+
+    @ApiModelProperty("运费信息")
+    @JSONField(ordinal = 17)
     private ShipFreightInfoVo shipFreightInfoVo;
 
     @ApiModelProperty("店铺信息")
-    @JSONField(ordinal = 16)
+    @JSONField(ordinal = 18)
     private StoreVo storeVo;
 
     @ApiModelProperty("活动")
-    @JSONField(ordinal = 17)
+    @JSONField(ordinal = 19)
     private List<AttributeVo> activityVoList;
 
     @ApiModelProperty("服务")
-    @JSONField(ordinal = 18)
+    @JSONField(ordinal = 20)
     private List<AttributeVo> serviceList;
 
     @ApiModelProperty("参数")
-    @JSONField(ordinal = 19)
+    @JSONField(ordinal = 21)
     private List<AttributeVo> paramList;
 
     @ApiModelProperty("商品对应的所有规格信息")
-    @JSONField(ordinal = 20)
+    @JSONField(ordinal = 22)
     private List<GoodsStandardVo> goodsStandardVoList;
 
     @ApiModelProperty("每个sku的详情")
-    @JSONField(ordinal = 21)
+    @JSONField(ordinal = 23)
     private Map<String,SpecifiedSkuVo> skuDetail;
 
 }

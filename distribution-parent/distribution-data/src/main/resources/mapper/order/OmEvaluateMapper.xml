@@ -43,6 +43,15 @@
               b.sku_id = e.id and d.id = e.goods_id and d.id = #{t.goodsId}
               and f.goods_sku_id = e.id and f.goods_attribute_value_id = g.id
               and h.id = g.product_attribute_id
+              <if test="t.evaluateLevel == 1">
+                  and (b.description_start_level = 5 OR b.description_start_level=4)
+              </if>
+              <if test="t.evaluateLevel == 2">
+                  and b.description_start_level = 3
+              </if>
+              <if test="t.evaluateLevel == 3">
+                  and (b.description_start_level = 1 OR b.description_start_level=2)
+              </if>
               group by b.id
     </select>
 
@@ -50,7 +59,7 @@
         select a.photo as icon,a.name as nick_name,b.content,b.picture,b.sku_id,b.id
         from um_user a,om_evaluate b,om_order c
         <where>
-            c.id = b.order_id and c.um_user_id = a.id and c.evaluate_status = 2 and isNull(b.parent_id)
+            c.id = b.order_id and c.um_user_id = a.id and c.status = 4 and isNull(b.parent_id)
             <if test="userId !=null">
                 and c.um_user_id = #{userId}
             </if>
@@ -96,12 +105,12 @@
         where b.id = a.order_id and b.id = #{orderId} and a.sku_id = #{skuId} and b.um_user_id = c.id and isNull(a.parent_id)
     </select>
     <select id="findEvaluateLevelNum" resultType="com.chauncy.data.vo.app.evaluate.EvaluateLevelNumVo">
-    SELECT b.id , SUM(description_start_level = 5) AS high_praise_num,
-        SUM(description_start_level=3 OR description_start_level=4) AS middlePraise_num,
-        SUM(description_start_level=1 OR description_start_level=2) AS lowPraise_num,
-        SUM(a.picture IS NOT NULL) AS price_num,,COUNT(1) as sum
+    SELECT b.id , SUM(description_start_level = 5 OR description_start_level=4) AS high_praise_num,
+        SUM(description_start_level=3) AS middlePraise_num,
+        SUM(description_start_level=1 OR description_start_level=2) AS low_praise_num,
+        SUM(a.picture IS NOT NULL) AS price_num,COUNT(1) as sum
     FROM om_evaluate a, pm_goods b, pm_goods_sku c
-    WHERE a.sku_id = c.id AND b.id = c.goods_id
+    WHERE a.sku_id = c.id AND b.id = c.goods_id and b.id = #{goodsId}
     GROUP BY b.id
     </select>
 

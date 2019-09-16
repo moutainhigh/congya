@@ -521,12 +521,15 @@
             </where>
             GROUP BY pg.id
     </select>
-    <select id="searchTabNeedGoods" resultType="com.chauncy.data.vo.BaseVo">
-        select id,name
+    <select id="searchTabNeedGoods" resultType="com.chauncy.data.vo.manage.message.advice.tab.tab.SearchAdviceGoodsVo">
+        select id,name,goods_category_id
         from pm_goods
         where del_flag = 0
         <if test="name!=null and name!=''">
             and name like concat('%', #{name}, '%')
+        </if>
+        <if test="categoryId!=null and categoryId!=''">
+            and goods_category_id = #{categoryId}
         </if>
     </select>
     <select id="findGoodsBase" resultType="com.chauncy.data.vo.app.goods.SpecifiedGoodsVo">

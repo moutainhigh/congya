@@ -41,12 +41,14 @@ public class OmShoppingCartServiceImplTest {
     }*/
    @Test
    public void searchByIds() {
-       userService.updateLevel(1l);
+
+       orderService.orderDeadline(184499553754419200l);
    }
 
    @Test
     public void firstSecond(){
        shoppingCartService.getPayUserMessage(1146432777142534145l);
    }
+
 
 }

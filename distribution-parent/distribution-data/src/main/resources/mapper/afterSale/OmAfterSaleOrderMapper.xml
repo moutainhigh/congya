@@ -46,6 +46,7 @@
              select id goodsTempId, name,icon,real_pay_money,standard_str,number
              from om_goods_temp
              where order_id=(select order_id from om_goods_temp where id=#{id}) and del_flag=0
+             and can_after_sale=1
 
     </select>
     <select id="searchAfterSaleOrderList"
@@ -174,7 +175,7 @@
     </select>
     <select id="getApplyAfterDetail" resultMap="ApplyAfterDetailVo">
                 SELECT
-
+            o.id afterOrderId,
             t.`name` name,
             t.icon ,
             t.standard_str,
@@ -194,6 +195,7 @@
             AND l.del_flag = 0
             AND t.del_flag = 0
             AND t.id = o.goods_temp_id AND o.id = l.after_sale_order_id
+            and l.after_sale_order_id=#{afterSaleOrderId}
             AND l.create_time = ( SELECT MAX( create_time ) FROM om_after_sale_log l2 WHERE l2.after_sale_order_id = #{afterSaleOrderId} )
     </select>
 

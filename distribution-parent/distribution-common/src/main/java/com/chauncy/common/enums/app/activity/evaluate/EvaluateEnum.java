@@ -65,6 +65,10 @@ public enum EvaluateEnum implements BaseEnum {
 
     @Override
     public boolean isExist(Object field) {
+
+        if (Integer.parseInt(field.toString()) == 0){
+            return true;
+        }
         //通过ID判断
         return Objects.nonNull(fromId(Integer.parseInt(field.toString())));
 

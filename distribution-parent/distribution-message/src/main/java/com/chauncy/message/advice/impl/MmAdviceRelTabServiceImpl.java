@@ -9,8 +9,8 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.domain.po.message.advice.*;
-import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
+import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.manage.message.advice.tab.tab.add.SaveRelTabDto;
 import com.chauncy.data.dto.manage.message.advice.tab.tab.search.SearchAdviceGoodsDto;
@@ -21,18 +21,19 @@ import com.chauncy.data.mapper.message.advice.*;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.mapper.message.information.MmInformationMapper;
 import com.chauncy.data.mapper.product.PmGoodsAttributeMapper;
+import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.manage.message.advice.tab.tab.BrandVo;
 import com.chauncy.data.vo.manage.message.advice.tab.tab.GoodsVo;
+import com.chauncy.data.vo.manage.message.advice.tab.tab.SearchAdviceGoodsVo;
 import com.chauncy.message.advice.IMmAdviceRelTabService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import jdk.nashorn.internal.ir.IfNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -44,9 +45,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-
-import static com.chauncy.common.enums.app.advice.AdviceLocationEnum.SHOUYE_ZHUTI;
 
 /**
  * <p>
@@ -72,6 +72,9 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
 
     @Autowired
     private PmGoodsMapper goodsMapper;
+
+    @Autowired
+    private PmGoodsCategoryMapper goodsCategoryMapper;
 
     @Autowired
     private MmAdviceMapper adviceMapper;
@@ -153,12 +156,33 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
      * @return
      */
     @Override
-    public PageInfo<BaseVo> searchAdviceGoods(SearchAdviceGoodsDto searchAdviceGoodsDto) {
+    public PageInfo<SearchAdviceGoodsVo> searchAdviceGoods(SearchAdviceGoodsDto searchAdviceGoodsDto) {
 
         Integer pageNo = searchAdviceGoodsDto.getPageNo() == null ? defaultPageNo : searchAdviceGoodsDto.getPageNo();
         Integer pageSize = searchAdviceGoodsDto.getPageSize() == null ? defaultPageSize : searchAdviceGoodsDto.getPageSize();
-        PageInfo<BaseVo> goodsList = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
-                .doSelectPageInfo(() -> goodsMapper.searchTabNeedGoods(searchAdviceGoodsDto.getName()));
+        PageInfo<SearchAdviceGoodsVo> goodsList = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
+                .doSelectPageInfo(() -> goodsMapper.searchTabNeedGoods(searchAdviceGoodsDto));
+
+        //获取三级类目名称
+        AtomicReference<String> level3 = new AtomicReference<>("");
+        AtomicReference<String> level2 = new AtomicReference<>("");
+        AtomicReference<String> level1 = new AtomicReference<>("");
+        goodsList.getList().forEach(a -> {
+            PmGoodsCategoryPo goodsCategoryPo3 = goodsCategoryMapper.selectById(a.getGoodsCategoryId());
+            if (goodsCategoryPo3 != null) {
+                level3.set(goodsCategoryPo3.getName());
+                PmGoodsCategoryPo goodsCategoryPo2 = goodsCategoryMapper.selectById(goodsCategoryPo3.getParentId());
+                if (goodsCategoryPo2 != null) {
+                    level2.set(goodsCategoryPo2.getName());
+                    PmGoodsCategoryPo goodsCategoryPo1 = goodsCategoryMapper.selectById(goodsCategoryPo2.getParentId());
+                    if (goodsCategoryPo1 != null) {
+                        level1.set(goodsCategoryPo1.getName());
+                    }
+                    String categoryName = level1 + "/" + level2 + "/" + level3;
+                    a.setCategory(categoryName);
+                }
+            }
+        });
 
         return goodsList;
     }
@@ -328,11 +352,11 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
                                             if (goodsMapper.selectById(c.getDetailId()) == null) {
                                                 throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在ID为[%s]的商品不存在，请检查", c.getDetailId()));
                                             }
-                                        }else if (adviceTypeEnum.equals(AdviceTypeEnum.INFORMATION)) {
+                                        } else if (adviceTypeEnum.equals(AdviceTypeEnum.INFORMATION)) {
                                             if (informationMapper.selectById(c.getDetailId()) == null) {
                                                 throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在ID为[%s]的资讯不存在，请检查", c.getDetailId()));
                                             }
-                                        }else if (adviceTypeEnum.equals(AdviceTypeEnum.STROE)) {
+                                        } else if (adviceTypeEnum.equals(AdviceTypeEnum.STROE)) {
                                             if (storeMapper.selectById(c.getDetailId()) == null) {
                                                 throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在ID为[%s]的店铺不存在，请检查", c.getDetailId()));
                                             }
@@ -720,11 +744,11 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
                                                     if (goodsMapper.selectById(c.getDetailId()) == null) {
                                                         throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在ID为[%s]的商品不存在，请检查", c.getDetailId()));
                                                     }
-                                                }else if (adviceTypeEnum.equals(AdviceTypeEnum.INFORMATION)) {
+                                                } else if (adviceTypeEnum.equals(AdviceTypeEnum.INFORMATION)) {
                                                     if (informationMapper.selectById(c.getDetailId()) == null) {
                                                         throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在ID为[%s]的资讯不存在，请检查", c.getDetailId()));
                                                     }
-                                                }else if (adviceTypeEnum.equals(AdviceTypeEnum.STROE)) {
+                                                } else if (adviceTypeEnum.equals(AdviceTypeEnum.STROE)) {
                                                     if (storeMapper.selectById(c.getDetailId()) == null) {
                                                         throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在ID为[%s]的店铺不存在，请检查", c.getDetailId()));
                                                     }
@@ -741,7 +765,7 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
 
                                     /******************************************* 修改选项卡信息时 修改轮播图 start******************************************/
                                     //修改轮播图
-                                    else{
+                                    else {
                                         //判断开始时间和结束时间都不能小于当前时间，开始时间不能大于结束时间
                                         if (c.getEndTime().isBefore(c.getStartTime()) || c.getEndTime().equals(c.getStartTime())) {
                                             throw new ServiceException(ResultCode.FAIL, String.format("开始时间不能大于等于结束时间"));
@@ -749,9 +773,9 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
                                         //判断是否修改开始时间和结束时间
                                         LocalDateTime startTime = relShufflingMapper.selectById(c.getShufflingId()).getStartTime();
                                         LocalDateTime endTime = relShufflingMapper.selectById(c.getShufflingId()).getEndTime();
-                                        if (!startTime.equals(c.getStartTime())){
+                                        if (!startTime.equals(c.getStartTime())) {
                                             //已经开始但还没结束，不能修改开始时间
-                                            if (startTime.isBefore(LocalDateTime.now())&&endTime.isAfter(LocalDateTime.now())){
+                                            if (startTime.isBefore(LocalDateTime.now()) && endTime.isAfter(LocalDateTime.now())) {
                                                 throw new ServiceException(ResultCode.FAIL, String.format("存在轮播图广告已经开始,不能修改开始时间,请检查"));
                                             }
                                             if (c.getStartTime().isBefore(LocalDateTime.now())) {
@@ -782,11 +806,11 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
                                                     if (goodsMapper.selectById(c.getDetailId()) == null) {
                                                         throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在ID为[%s]的商品不存在，请检查", c.getDetailId()));
                                                     }
-                                                }else if (adviceTypeEnum.equals(AdviceTypeEnum.INFORMATION)) {
+                                                } else if (adviceTypeEnum.equals(AdviceTypeEnum.INFORMATION)) {
                                                     if (informationMapper.selectById(c.getDetailId()) == null) {
                                                         throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在ID为[%s]的资讯不存在，请检查", c.getDetailId()));
                                                     }
-                                                }else if (adviceTypeEnum.equals(AdviceTypeEnum.STROE)) {
+                                                } else if (adviceTypeEnum.equals(AdviceTypeEnum.STROE)) {
                                                     if (storeMapper.selectById(c.getDetailId()) == null) {
                                                         throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在ID为[%s]的店铺不存在，请检查", c.getDetailId()));
                                                     }
