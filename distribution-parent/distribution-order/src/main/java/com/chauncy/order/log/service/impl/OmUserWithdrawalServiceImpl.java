@@ -109,10 +109,10 @@ public class OmUserWithdrawalServiceImpl extends AbstractService<OmUserWithdrawa
 
         //APP用户提现红包  生成流水
         idList.forEach(id -> {
-            OmUserWithdrawalPo omUserWithdrawalPo = omUserWithdrawalMapper.selectById(id);
+            //OmUserWithdrawalPo omUserWithdrawalPo = omUserWithdrawalMapper.selectById(id);
             AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
             addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.APP_WITHDRAWAL);
-            addAccountLogBo.setRelId(omUserWithdrawalPo.getId());
+            addAccountLogBo.setRelId(id);
             addAccountLogBo.setOperator(userName);
             omAccountLogService.saveAccountLog(addAccountLogBo);
         });

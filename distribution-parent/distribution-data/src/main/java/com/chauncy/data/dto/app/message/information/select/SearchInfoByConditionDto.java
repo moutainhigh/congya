@@ -38,16 +38,17 @@ public class SearchInfoByConditionDto implements Serializable {
     @NeedExistConstraint(tableName = "mm_information_label")
     private Long infoLabelId;*/
 
-    @ApiModelProperty(value = "资讯分类id")
+    @ApiModelProperty(value = "资讯分类id，informationType=4时传参")
     @NeedExistConstraint(tableName = "mm_information_category")
     private Long infoCategoryId;
 
-    @ApiModelProperty(value = "资讯类型")
+    @ApiModelProperty(value = "资讯类型   \n1：全部资讯列表    \n2：关注资讯列表   \n" +
+            "3：推荐资讯列表   \n4：分类资讯列表   \n5：搜索资讯列表   \n")
     @NotNull(message = "资讯列表类型不能为空")
     @EnumConstraint(target = InformationTypeEnum.class)
     private Integer informationType;
 
-    @ApiModelProperty(value = "模糊搜索关键字")
+    @ApiModelProperty(value = "模糊搜索关键字，informationType=5时传参")
     private String keyword;
 
     @Min(1)

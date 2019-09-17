@@ -6,7 +6,6 @@ import com.chauncy.data.dto.manage.user.select.SearchUserIdCardDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
 import com.chauncy.data.dto.manage.user.update.UpdateUserDto;
 import com.chauncy.data.mapper.IBaseMapper;
-import com.chauncy.data.vo.app.user.GetMembersCenterVo;
 import com.chauncy.data.vo.app.user.UserDataVo;
 import com.chauncy.data.vo.manage.message.interact.push.UmUsersVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserDetailVo;
@@ -14,7 +13,6 @@ import com.chauncy.data.vo.manage.user.detail.UmUserRelVo;
 import com.chauncy.data.vo.manage.user.idCard.SearchIdCardVo;
 import com.chauncy.data.vo.manage.user.list.UmUserListVo;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -140,4 +138,10 @@ public interface UmUserMapper extends IBaseMapper<UmUserPo> {
             "from um_user a,pm_member_level b " +
             "where a.id = #{userId} and a.member_level_id = b.id and a.del_flag = 0 and b.del_flag = 0")
     GetMembersCenterVo getMembersCenter(Long userId);
+
+    /**
+     * 获得所有用户的手机
+     * @return
+     */
+    List<String> getAllPhones();
 }

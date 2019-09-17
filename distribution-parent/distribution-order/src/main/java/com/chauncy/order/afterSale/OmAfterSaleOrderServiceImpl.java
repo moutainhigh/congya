@@ -8,12 +8,14 @@ import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.common.enums.app.order.afterSale.AfterSaleLogEnum;
 import com.chauncy.common.enums.app.order.afterSale.AfterSaleStatusEnum;
 import com.chauncy.common.enums.app.order.afterSale.AfterSaleTypeEnum;
+import com.chauncy.common.enums.log.LogTriggerEventEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.common.util.SnowFlakeUtil;
 import com.chauncy.data.bo.app.order.rabbit.RabbitAfterBo;
+import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
 import com.chauncy.data.domain.po.afterSale.OmAfterSaleLogPo;
 import com.chauncy.data.domain.po.afterSale.OmAfterSaleOrderPo;
 import com.chauncy.data.domain.po.order.OmGoodsTempPo;
@@ -32,12 +34,14 @@ import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.mapper.order.OmGoodsTempMapper;
 import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
+import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.app.order.my.afterSale.AfterSaleDetailVo;
 import com.chauncy.data.vo.app.order.my.afterSale.ApplyAfterDetailVo;
 import com.chauncy.data.vo.manage.order.afterSale.AfterSaleListVo;
 import com.chauncy.order.service.IOmAfterSaleLogService;
 import com.chauncy.data.vo.app.order.my.afterSale.ApplyAfterSaleVo;
 import com.chauncy.data.vo.app.order.my.afterSale.MyAfterSaleOrderListVo;
+import com.chauncy.order.service.IOmOrderService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -93,6 +97,15 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
 
     @Autowired
     private OmAfterSaleLogMapper afterSaleLogMapper;
+
+    @Autowired
+    private IOmOrderService omOrderService;
+
+
+    @Autowired
+    private UmUserMapper userMapper;
+
+
 
 
     @Override
@@ -318,6 +331,29 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         updateGoodsTemp.setId(queryAfterSaleOrder.getGoodsTempId()).setIsAfterSale(true).setUpdateBy(userId);
         goodsTempMapper.updateById(updateGoodsTemp);
 
+        //售后成功  购物券，红包退还 对应流水生成
+        AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
+        addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.ORDER_REFUND);
+        addAccountLogBo.setRelId(queryAfterSaleOrder.getId());
+        addAccountLogBo.setOperator(userId);
+        //listenerOrderLogQueue 消息队列
+        this.rabbitTemplate.convertAndSend(
+                RabbitConstants.ACCOUNT_LOG_EXCHANGE, RabbitConstants.ACCOUNT_LOG_ROUTING_KEY, addAccountLogBo);
+        //退还使用的红包、购物券
+        OmGoodsTempPo queryGoodsTemp = goodsTempMapper.selectById(queryAfterSaleOrder.getGoodsTempId());
+        OmOrderPo queryOrder=omOrderMapper.selectById(queryGoodsTemp.getOrderId());
+        //根据商品销售价在订单中的比例算出退还的红包、购物券
+        BigDecimal ratio=BigDecimalUtil.safeDivide(BigDecimalUtil.safeMultiply(queryGoodsTemp.getNumber(),queryGoodsTemp.getSellPrice()),
+               BigDecimalUtil.safeSubtract(queryOrder.getTotalMoney(),queryOrder.getShipMoney(),queryOrder.getTaxMoney()) );
+        UmUserPo updateUser=new UmUserPo();
+        updateUser.setCurrentRedEnvelops(BigDecimalUtil.safeMultiply(ratio,queryOrder.getRedEnvelops()))
+                .setCurrentShopTicket(BigDecimalUtil.safeMultiply(ratio,queryOrder.getShopTicket()));
+        userMapper.updateAdd(updateUser);
+
+
+
+
+
     }
 
     @Override
@@ -354,6 +390,8 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         //如果是退货退款，订单直接关闭
          if (queryAfterSaleOrder.getAfterSaleType() == AfterSaleTypeEnum.RETURN_GOODS){
              updateAfterOrder.setStatus(AfterSaleStatusEnum.CLOSE);
+             //售后订单关闭后进行返佣
+             omOrderService.rakeBack(queryAfterSaleOrder.getGoodsTempId());
          }
          //如果是仅退款，订单变成待买家处理
         else {
@@ -570,6 +608,7 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void cancel(Long afterOrderId,boolean isAuto) {
         String userId="auto";
         if (!isAuto){
@@ -612,12 +651,15 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
                 saveAfterLog.setNode(AfterSaleLogEnum.BUYER_CANCEL);
             }
         }
+        //售后订单关闭后进行返佣
+        omOrderService.rakeBack(querySaleOrder.getGoodsTempId());
         afterSaleLogMapper.insert(saveAfterLog);
 
 
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void agreeCancel(Long afterOrderId) {
         UmUserPo appCurrUser = securityUtil.getAppCurrUser();
         OmAfterSaleOrderPo querySaleOrder = mapper.selectById(afterOrderId);
@@ -642,12 +684,15 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         else {
             saveAfterLog.setNode(AfterSaleLogEnum.BUYER_AGREE_CANCEL);
         }
+        //售后订单关闭后进行返佣
+        omOrderService.rakeBack(querySaleOrder.getGoodsTempId());
         afterSaleLogMapper.insert(saveAfterLog);
 
 
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void send(SendDto sendDto) {
 
         OmAfterSaleOrderPo querySaleOrder = mapper.selectById(sendDto.getId());

@@ -26,7 +26,7 @@ import com.chauncy.web.base.BaseApi;
  */
 @RestController
 @RequestMapping("/app/user/log")
-@Api(tags = "APP_我的红包/购物券/积分")
+@Api(tags = "APP_我的_我的红包/购物券/积分")
 public class AmUserLogApi extends BaseApi {
 
     @Autowired

@@ -988,7 +988,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     PmGoodsSkuPo skuPo = skuMapper.selectById(g.getId());
                     com.chauncy.data.domain.po.order.OmGoodsTempPo saveGoodsTemp = new com.chauncy.data.domain.po.order.OmGoodsTempPo();
                     BeanUtils.copyProperties(g, saveGoodsTemp);
-                    saveGoodsTemp.setCreateBy(currentUser.getPhone()).setOrderId(saveOrder.getId()).setSkuId(g.getId());
+                    saveGoodsTemp.setCreateBy(currentUser.getId()+"").setOrderId(saveOrder.getId()).setSkuId(g.getId());
                     saveGoodsTemp.setId(null).setSupplierPrice(skuPo.getSupplierPrice()).setProfitRate(skuPo.getProfitRate())
                             .setGoodsId(skuPo.getGoodsId()).setArticleNumber(skuPo.getArticleNumber()).
                             //预计奖励购物券

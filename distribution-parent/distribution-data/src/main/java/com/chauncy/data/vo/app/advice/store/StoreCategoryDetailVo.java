@@ -26,6 +26,9 @@ public class StoreCategoryDetailVo extends AppStoreBaseInfoVo implements Seriali
     @ApiModelProperty(value = "店铺描述")
     private String storeDescribe;
 
+    @ApiModelProperty(value = "店铺背景图")
+    private String backgroundImage;
+
     @ApiModelProperty(value = "店铺推荐商品列表")
     private List<GoodsBaseInfoVo> goodsBaseInfoVoList;
 

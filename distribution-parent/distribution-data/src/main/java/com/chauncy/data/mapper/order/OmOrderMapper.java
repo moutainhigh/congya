@@ -153,6 +153,14 @@ public interface OmOrderMapper extends IBaseMapper<OmOrderPo> {
      */
     RewardBuyerBo getRewardBoByOrder (Long orderId);
 
+    /**
+     * 售后订单关闭之后（表示这个商品无法再申请售后）应该奖励的东西
+     * 购物券、积分、经验值
+     * @param goodsTempId
+     * @return
+     */
+    RewardBuyerBo getRewardBoByGoodsTempId(Long goodsTempId);
+
 
     /**
      * 计算订单返佣的字段
@@ -160,6 +168,14 @@ public interface OmOrderMapper extends IBaseMapper<OmOrderPo> {
      * @return
      */
     List<RewardRedBo> getRewardBuyer(Long orderId);
+
+
+    /**
+     * 计算订单返佣的字段
+     * @param goodsTempId
+     * @return
+     */
+    RewardRedBo getRewardBuyerByGoodsTempId(Long goodsTempId);
 
 
 

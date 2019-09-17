@@ -117,4 +117,10 @@ public interface IMmInformationService extends Service<MmInformationPo> {
      * @return
      */
     PageInfo<InformationPagingVo> searchInformationList(Long storeId, BaseSearchPagingDto baseSearchPagingDto);
+
+    /**
+     * 获取关注的店铺更新的资讯数目
+     * @return
+     */
+    Integer getFocusInfoSum();
 }

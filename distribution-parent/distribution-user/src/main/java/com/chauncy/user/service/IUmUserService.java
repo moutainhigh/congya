@@ -9,7 +9,6 @@ import com.chauncy.data.dto.app.user.add.BindUserDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserIdCardDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
 import com.chauncy.data.dto.manage.user.update.UpdateUserDto;
-import com.chauncy.data.vo.app.user.GetMembersCenterVo;
 import com.chauncy.data.vo.app.user.UserDataVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserDetailVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserRelVo;
@@ -149,4 +148,10 @@ public interface IUmUserService extends Service<UmUserPo> {
      * @return
      */
     GetMembersCenterVo getMembersCenter(UmUserPo userPo);
+
+    /**
+     * 获取所有前端用户的手机
+     * @return
+     */
+    List<String> getAllPhones();
 }
