@@ -365,7 +365,7 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
 
         //添加售后进度
         OmAfterSaleLogPo saveAfterSaleLog = new OmAfterSaleLogPo();
-        //仅退款只有待商家处理状态才可以进行退款
+        //仅退款只有待商家处理状态才可以拒绝退款
         if (queryAfterSaleOrder.getAfterSaleType() == AfterSaleTypeEnum.ONLY_REFUND) {
             if (queryAfterSaleOrder.getStatus() != AfterSaleStatusEnum.NEED_STORE_DO) {
                 throw new ServiceException(ResultCode.FAIL, String.format("当前售后订单状态为【%s】,不允许拒绝退款", queryAfterSaleOrder.getStatus().getName()));
@@ -373,7 +373,7 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
                 saveAfterSaleLog.setNode(AfterSaleLogEnum.ONLY_REFUND_STORE_REFUSE);
             }
         }
-        //退货退款只有待商家退款状态才可以进行退款
+        //退货退款只有待商家退款状态才可以拒绝退款
         if (queryAfterSaleOrder.getAfterSaleType() == AfterSaleTypeEnum.RETURN_GOODS) {
             if (queryAfterSaleOrder.getStatus() != AfterSaleStatusEnum.NEED_STORE_REFUND) {
                 throw new ServiceException(ResultCode.FAIL, String.format("当前售后订单状态为【%s】,不允许拒绝退款", queryAfterSaleOrder.getStatus().getName()));
@@ -623,6 +623,10 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
                 throw new ServiceException(ResultCode.FAIL, "待商家处理和待买家退货状态才可以撤销售后！");
             }
         }*/
+
+        if (querySaleOrder.getStatus() == AfterSaleStatusEnum.SUCCESS||querySaleOrder.getStatus() == AfterSaleStatusEnum.CLOSE ) {
+            throw new ServiceException(ResultCode.FAIL, "退款关闭与退款成功的订单不可以进行撤销操作！");
+        }
 
         //修改售后订单
         OmAfterSaleOrderPo updateAfterOrder = new OmAfterSaleOrderPo();

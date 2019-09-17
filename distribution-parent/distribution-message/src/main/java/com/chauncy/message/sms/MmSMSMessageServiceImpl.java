@@ -71,7 +71,7 @@ public class MmSMSMessageServiceImpl extends AbstractService<MmSMSMessageMapper,
                 //阿里批量发送短信一次只能发送1000条
                   loopSize=userMapper.selectCount(Wrappers.emptyWrapper());
                  for (int i=0;i<loopSize;i++){
-                     PageInfo<String> pageUserPhones = PageHelper.startPage(i + 1, 1000).doSelectPageInfo(() -> umUserService.getAllPhones());
+                     PageInfo<String> pageUserPhones = PageHelper.startPage(i + 1, 1000).doSelectPageInfo(() -> userMapper.getAllPhones());
                      if (!ListUtil.isListNullAndEmpty(pageUserPhones.getList())){
                          //阿里云发送短信
                          SendSms.sendContent(GuavaUtil.ListToString(pageUserPhones.getList(),","),addSmsMessageDto.getTemplateCode());
@@ -103,7 +103,5 @@ public class MmSMSMessageServiceImpl extends AbstractService<MmSMSMessageMapper,
                 break;
         }
 
-        //阿里云发送短信
-        SendSms.sendContent(phones.toString(),addSmsMessageDto.getTemplateCode());
     }
 }

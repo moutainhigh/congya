@@ -536,7 +536,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
         //查出下单用户需要返的购物券、积分、经验值
         RewardBuyerBo rewardBuyerBo = mapper.getRewardBoByGoodsTempId(goodsTempId);
-        //用户返购物券 积分 经验值
+        //用户返购物券 积分 经验值 订单数  消费额
         UmUserPo addUser = new UmUserPo();
         addUser.setCurrentExperience(rewardBuyerBo.getRewardExperience()).setCurrentIntegral(rewardBuyerBo.getRewardIntegrate())
                 .setCurrentShopTicket(rewardBuyerBo.getRewardShopTicket()).setId(Long.parseLong(queryGoodsTemp.getCreateBy())).setTotalOrder(1).
@@ -594,10 +594,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
         }
 
-        //用户总消费、总订单数
-        UmUserPo updateUser=new UmUserPo();
-        updateUser.setId(Long.parseLong(queryGoodsTemp.getCreateBy())).setTotalConsumeMoney(realPayMoney).setTotalOrder(1);
-        userMapper.updateAdd(updateUser);
+        // TODO: 2019/9/17 叶俊浩
 
         //商品销售报表
         //omOrderReportService.orderClosure(orderId);
@@ -788,7 +785,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         if (queryPayUser.getFirstUserId() == null) {
             return;
         }
-        RewardRedBo rewardBuyer = mapper.getRewardBuyerByGoodsTempId(queryPayUser.getOrderId());
+        RewardRedBo rewardBuyer = mapper.getRewardBuyerByGoodsTempId(goodsTempId);
         //计算红包
         rewardBuyer.setPacketPresent(queryMember.getPacketPresent());
         rewardBuyer.setMoneyToRed(basicSettingPo.getMoneyToCurrentRedEnvelops());
