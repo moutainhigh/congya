@@ -95,6 +95,7 @@
         <result column="phone" property="phone"/>
         <result column="id_card" property="idCard"/>
         <result column="password" property="password"/>
+        <result column="share_num" property="shareNum"/>
     </resultMap>
 
     <sql id="Base_Column_List">

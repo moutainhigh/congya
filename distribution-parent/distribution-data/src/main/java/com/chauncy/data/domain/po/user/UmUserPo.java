@@ -144,5 +144,8 @@ public class UmUserPo implements Serializable {
     @ApiModelProperty(value = "反面照片")
     private String backPhoto;
 
+    @ApiModelProperty(value = "分享数量")
+    private Integer shareNum;
+
 
 }
