@@ -9,6 +9,7 @@ import com.chauncy.common.util.GuavaUtil;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.common.util.third.SendSms;
 import com.chauncy.data.domain.po.message.MmSMSMessagePo;
+import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.manage.message.interact.add.AddSmsMessageDto;
 import com.chauncy.data.mapper.message.MmSMSMessageMapper;
@@ -97,9 +98,19 @@ public class MmSMSMessageServiceImpl extends AbstractService<MmSMSMessageMapper,
                 }
                 //通过会员ID获取对应的用户ID
                 String memberLevelId = addSmsMessageDto.getObjectIds().get(0);
-                if (memberLevelMapper.selectById(memberLevelId)==null){
+                PmMemberLevelPo queryMemberLevel = memberLevelMapper.selectById(memberLevelId);
+                if (queryMemberLevel ==null){
                     throw new ServiceException(ResultCode.NO_EXISTS,"数据库不存在该会员等级，请检查");
                 }
+                List<String> phones = userMapper.getPhonesLtOrEqLevel(queryMemberLevel.getLevel());
+                //每1000个用户手机分组
+                List<List<String>> levelUserPhones = Lists.partition(phones, 1000);
+                levelUserPhones.forEach(x->{
+                    if (!ListUtil.isListNullAndEmpty(x)){
+                        //阿里云发送短信
+                        SendSms.sendContent(GuavaUtil.ListToString(x,","),addSmsMessageDto.getTemplateCode());
+                    }
+                });
                 break;
         }
 

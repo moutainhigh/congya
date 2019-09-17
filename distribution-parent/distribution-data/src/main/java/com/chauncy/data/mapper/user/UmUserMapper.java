@@ -146,4 +146,18 @@ public interface UmUserMapper extends IBaseMapper<UmUserPo> {
      * @return
      */
     List<String> getAllPhones();
-}
+
+    /**
+     * 查询等级《=level的用户id集合
+     * @param level
+     * @return
+     */
+    List<Long> getIdsLtOrEqLevel(Integer level);
+
+    /**
+     * 查询等级《=level的用户手机号码集合
+     * @param level
+     * @return
+     */
+    List<String> getPhonesLtOrEqLevel(Integer level);
+ }

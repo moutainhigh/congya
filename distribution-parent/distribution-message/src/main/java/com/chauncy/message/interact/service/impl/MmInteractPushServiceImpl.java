@@ -10,6 +10,7 @@ import com.chauncy.common.util.third.JpushClientUtil;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.interact.MmInteractPushPo;
 import com.chauncy.data.domain.po.message.interact.MmInteractRelMessageObjectPo;
+import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.dto.manage.message.interact.add.AddPushMessageDto;
 import com.chauncy.data.dto.manage.message.interact.select.SearchPushDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
@@ -140,7 +141,8 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
                         }
                         //通过会员ID获取对应的用户ID
                         Long memberLevelId = addPushMessageDto.getObjectIds().get(0);
-                        if (memberLevelMapper.selectById(memberLevelId) == null) {
+                        PmMemberLevelPo queryMemberLevel = memberLevelMapper.selectById(memberLevelId);
+                        if (queryMemberLevel == null) {
                             throw new ServiceException(ResultCode.NO_EXISTS, "数据库不存在该会员等级，请检查");
                         }
                         MmInteractRelMessageObjectPo relMessageObjectPo = new MmInteractRelMessageObjectPo();
@@ -150,9 +152,7 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
                         relMessageObjectPo.setCreateBy(securityUtil.getCurrUser().getUsername());
                         relMessageObjectMapper.insert(relMessageObjectPo);
 
-                        Map<String, Object> query = Maps.newHashMap();
-                        query.put("member_level_id", memberLevelId);
-                        List<Long> userIds = userMapper.selectByMap(query).stream().map(b -> b.getId()).collect(Collectors.toList());
+                        List<Long> userIds = userMapper.getIdsLtOrEqLevel(queryMemberLevel.getLevel());
                         //List<long> 转List<String>
                         List<String> alia = ListUtil.transferLongToString(userIds);
                         List<List<String>> aliaLists = Lists.partition(alia, 1000);
