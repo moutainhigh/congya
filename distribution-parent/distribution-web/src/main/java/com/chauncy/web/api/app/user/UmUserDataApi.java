@@ -15,6 +15,7 @@ import com.chauncy.data.dto.app.user.update.UpdateUserDataDto;
 import com.chauncy.data.valid.group.ISaveGroup;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.app.user.MyDataStatisticsVo;
 import com.chauncy.data.vo.app.user.ShipAreaVo;
 import com.chauncy.data.vo.app.user.UserDataVo;
 import com.chauncy.security.util.SecurityUtil;
@@ -256,7 +257,20 @@ public class UmUserDataApi extends BaseApi {
         return setJsonViewData(service.getUserDataVo(getAppCurrUser().getPhone()));
     }
 
+    /**
+     *
+     * App我的页面需要的数据
+     *
+     * @return
+     */
+    @ApiOperation("我的数据")
+    @PostMapping("/getMyDataStatistics")
+    public JsonViewData<MyDataStatisticsVo> getMyDataStatistics(){
 
+        UmUserPo userPo = securityUtil.getAppCurrUser();
+
+        return setJsonViewData(service.getMyDataStatistics(userPo));
+    }
 
 
 }

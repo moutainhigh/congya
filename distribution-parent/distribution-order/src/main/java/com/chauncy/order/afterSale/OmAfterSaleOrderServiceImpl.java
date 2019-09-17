@@ -34,12 +34,14 @@ import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.mapper.order.OmGoodsTempMapper;
 import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
+import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.app.order.my.afterSale.AfterSaleDetailVo;
 import com.chauncy.data.vo.app.order.my.afterSale.ApplyAfterDetailVo;
 import com.chauncy.data.vo.manage.order.afterSale.AfterSaleListVo;
 import com.chauncy.order.service.IOmAfterSaleLogService;
 import com.chauncy.data.vo.app.order.my.afterSale.ApplyAfterSaleVo;
 import com.chauncy.data.vo.app.order.my.afterSale.MyAfterSaleOrderListVo;
+import com.chauncy.order.service.IOmOrderService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -95,6 +97,15 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
 
     @Autowired
     private OmAfterSaleLogMapper afterSaleLogMapper;
+
+    @Autowired
+    private IOmOrderService omOrderService;
+
+
+    @Autowired
+    private UmUserMapper userMapper;
+
+
 
 
     @Override
@@ -328,6 +339,21 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         //listenerOrderLogQueue 消息队列
         this.rabbitTemplate.convertAndSend(
                 RabbitConstants.ACCOUNT_LOG_EXCHANGE, RabbitConstants.ACCOUNT_LOG_ROUTING_KEY, addAccountLogBo);
+        //退还使用的红包、购物券
+        OmGoodsTempPo queryGoodsTemp = goodsTempMapper.selectById(queryAfterSaleOrder.getGoodsTempId());
+        OmOrderPo queryOrder=omOrderMapper.selectById(queryGoodsTemp.getOrderId());
+        //根据商品销售价在订单中的比例算出退还的红包、购物券
+        BigDecimal ratio=BigDecimalUtil.safeDivide(BigDecimalUtil.safeMultiply(queryGoodsTemp.getNumber(),queryGoodsTemp.getSellPrice()),
+               BigDecimalUtil.safeSubtract(queryOrder.getTotalMoney(),queryOrder.getShipMoney(),queryOrder.getTaxMoney()) );
+        UmUserPo updateUser=new UmUserPo();
+        updateUser.setCurrentRedEnvelops(BigDecimalUtil.safeMultiply(ratio,queryOrder.getRedEnvelops()))
+                .setCurrentShopTicket(BigDecimalUtil.safeMultiply(ratio,queryOrder.getShopTicket()));
+        userMapper.updateAdd(updateUser);
+
+
+
+
+
     }
 
     @Override
@@ -339,7 +365,7 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
 
         //添加售后进度
         OmAfterSaleLogPo saveAfterSaleLog = new OmAfterSaleLogPo();
-        //仅退款只有待商家处理状态才可以进行退款
+        //仅退款只有待商家处理状态才可以拒绝退款
         if (queryAfterSaleOrder.getAfterSaleType() == AfterSaleTypeEnum.ONLY_REFUND) {
             if (queryAfterSaleOrder.getStatus() != AfterSaleStatusEnum.NEED_STORE_DO) {
                 throw new ServiceException(ResultCode.FAIL, String.format("当前售后订单状态为【%s】,不允许拒绝退款", queryAfterSaleOrder.getStatus().getName()));
@@ -347,7 +373,7 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
                 saveAfterSaleLog.setNode(AfterSaleLogEnum.ONLY_REFUND_STORE_REFUSE);
             }
         }
-        //退货退款只有待商家退款状态才可以进行退款
+        //退货退款只有待商家退款状态才可以拒绝退款
         if (queryAfterSaleOrder.getAfterSaleType() == AfterSaleTypeEnum.RETURN_GOODS) {
             if (queryAfterSaleOrder.getStatus() != AfterSaleStatusEnum.NEED_STORE_REFUND) {
                 throw new ServiceException(ResultCode.FAIL, String.format("当前售后订单状态为【%s】,不允许拒绝退款", queryAfterSaleOrder.getStatus().getName()));
@@ -364,6 +390,8 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         //如果是退货退款，订单直接关闭
          if (queryAfterSaleOrder.getAfterSaleType() == AfterSaleTypeEnum.RETURN_GOODS){
              updateAfterOrder.setStatus(AfterSaleStatusEnum.CLOSE);
+             //售后订单关闭后进行返佣
+             omOrderService.rakeBack(queryAfterSaleOrder.getGoodsTempId());
          }
          //如果是仅退款，订单变成待买家处理
         else {
@@ -580,6 +608,7 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void cancel(Long afterOrderId,boolean isAuto) {
         String userId="auto";
         if (!isAuto){
@@ -594,6 +623,10 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
                 throw new ServiceException(ResultCode.FAIL, "待商家处理和待买家退货状态才可以撤销售后！");
             }
         }*/
+
+        if (querySaleOrder.getStatus() == AfterSaleStatusEnum.SUCCESS||querySaleOrder.getStatus() == AfterSaleStatusEnum.CLOSE ) {
+            throw new ServiceException(ResultCode.FAIL, "退款关闭与退款成功的订单不可以进行撤销操作！");
+        }
 
         //修改售后订单
         OmAfterSaleOrderPo updateAfterOrder = new OmAfterSaleOrderPo();
@@ -622,12 +655,15 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
                 saveAfterLog.setNode(AfterSaleLogEnum.BUYER_CANCEL);
             }
         }
+        //售后订单关闭后进行返佣
+        omOrderService.rakeBack(querySaleOrder.getGoodsTempId());
         afterSaleLogMapper.insert(saveAfterLog);
 
 
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void agreeCancel(Long afterOrderId) {
         UmUserPo appCurrUser = securityUtil.getAppCurrUser();
         OmAfterSaleOrderPo querySaleOrder = mapper.selectById(afterOrderId);
@@ -652,12 +688,15 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         else {
             saveAfterLog.setNode(AfterSaleLogEnum.BUYER_AGREE_CANCEL);
         }
+        //售后订单关闭后进行返佣
+        omOrderService.rakeBack(querySaleOrder.getGoodsTempId());
         afterSaleLogMapper.insert(saveAfterLog);
 
 
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void send(SendDto sendDto) {
 
         OmAfterSaleOrderPo querySaleOrder = mapper.selectById(sendDto.getId());

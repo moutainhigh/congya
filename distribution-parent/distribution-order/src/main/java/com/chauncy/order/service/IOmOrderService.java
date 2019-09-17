@@ -33,40 +33,46 @@ public interface IOmOrderService extends Service<OmOrderPo> {
 
     /**
      * 取消整个支付订单
+     *
      * @param payOrderId
      */
     boolean closeOrderByPayId(Long payOrderId);
 
     /**
      * 取消单个订单
+     *
      * @param orderId
      */
     boolean closeOrderByOrderId(Long orderId);
 
     /**
      * 支付成功通知
-     * @param payOrderPo  支付订单
+     *
+     * @param payOrderPo 支付订单
      * @param notifyMap  微信回调参数
      * @throws Exception
      */
     void wxPayNotify(PayOrderPo payOrderPo, Map<String, String> notifyMap) throws Exception;
 
     /**
-     *总后台订单列表
+     * 总后台订单列表
+     *
      * @param searchOrderDto
      * @return
      */
     PageInfo<SearchOrderVo> search(SearchOrderDto searchOrderDto);
 
     /**
-     *商家端订单列表
+     * 商家端订单列表
+     *
      * @param smSearchOrderDto
      * @return
      */
     PageInfo<SmSearchOrderVo> searchSmOrderList(SmSearchOrderDto smSearchOrderDto);
 
     /**
-     *商家端发货订单列表
+     * 商家端发货订单列表
+     *
      * @param smSearchSendOrderDto
      * @return
      */
@@ -74,12 +80,14 @@ public interface IOmOrderService extends Service<OmOrderPo> {
 
     /**
      * 商家端虚拟商品发货
+     *
      * @param orderId
      */
     void storeSend(Long orderId);
 
     /**
      * 查询平台订单详情
+     *
      * @param id
      * @return
      */
@@ -87,6 +95,7 @@ public interface IOmOrderService extends Service<OmOrderPo> {
 
     /**
      * 查询店铺订单详情
+     *
      * @param id
      * @return
      */
@@ -94,24 +103,24 @@ public interface IOmOrderService extends Service<OmOrderPo> {
 
     /**
      * 商家获取订单物流信息
+     *
      * @param id
      * @return
      */
-    SmOrderLogisticsVo getLogisticsById( Long id);
-
-
-
+    SmOrderLogisticsVo getLogisticsById(Long id);
 
 
     /**
      * 查询我的订单列表
+     *
      * @param searchMyOrderDto
      * @return
      */
-    PageInfo<AppSearchOrderVo> searchAppOrder( SearchMyOrderDto searchMyOrderDto  );
+    PageInfo<AppSearchOrderVo> searchAppOrder(SearchMyOrderDto searchMyOrderDto);
 
     /**
      * 返回支付单id
+     *
      * @param orderId
      * @return
      */
@@ -119,6 +128,7 @@ public interface IOmOrderService extends Service<OmOrderPo> {
 
     /**
      * 获取app我的订单详情
+     *
      * @param orderId
      * @return
      */
@@ -127,6 +137,7 @@ public interface IOmOrderService extends Service<OmOrderPo> {
 
     /**
      * 确认收货
+     *
      * @param orderId
      */
     void receiveOrder(Long orderId);
@@ -136,30 +147,26 @@ public interface IOmOrderService extends Service<OmOrderPo> {
      */
     void afterPayDo(Long payOrderId);
 
+
+    /**
+     * 商品快照返佣
+     * @param goodsTempId
+     */
+    void rakeBack(Long goodsTempId);
+
     /**
      * 售后截止后需要做的操作
+     *
      * @param orderId
      */
     void orderDeadline(Long orderId);
 
     /**
      * 商家核销订单
+     *
      * @param writeOffDto
      */
     void writeOffOrder(WriteOffDto writeOffDto);
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

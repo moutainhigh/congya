@@ -81,7 +81,6 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
     }
 
 
-
     /**
      * 添加推送信息
      *
@@ -114,8 +113,8 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
                         break;
                     //指定用户
                     case SPECIFYUSER:
-                        if (addPushMessageDto.getObjectIds()==null && addPushMessageDto.getObjectIds().size()==0){
-                            throw new ServiceException(ResultCode.NO_EXISTS,"请选择指定用户");
+                        if (addPushMessageDto.getObjectIds() == null || addPushMessageDto.getObjectIds().size() == 0) {
+                            throw new ServiceException(ResultCode.NO_EXISTS, "请选择指定用户");
                         }
                         addPushMessageDto.getObjectIds().forEach(a -> {
                             MmInteractRelMessageObjectPo relMessageObjectPo = new MmInteractRelMessageObjectPo();
@@ -136,13 +135,13 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
                         break;
                     //指定会员
                     case SPECIFYMEMBERLEVEL:
-                        if (addPushMessageDto.getObjectIds()==null && addPushMessageDto.getObjectIds().size()==0){
-                            throw new ServiceException(ResultCode.NO_EXISTS,"请选择指定会员等级");
+                        if (addPushMessageDto.getObjectIds() == null && addPushMessageDto.getObjectIds().size() == 0) {
+                            throw new ServiceException(ResultCode.NO_EXISTS, "请选择指定会员等级");
                         }
                         //通过会员ID获取对应的用户ID
                         Long memberLevelId = addPushMessageDto.getObjectIds().get(0);
-                        if (memberLevelMapper.selectById(memberLevelId)==null){
-                            throw new ServiceException(ResultCode.NO_EXISTS,"数据库不存在该会员等级，请检查");
+                        if (memberLevelMapper.selectById(memberLevelId) == null) {
+                            throw new ServiceException(ResultCode.NO_EXISTS, "数据库不存在该会员等级，请检查");
                         }
                         MmInteractRelMessageObjectPo relMessageObjectPo = new MmInteractRelMessageObjectPo();
                         relMessageObjectPo.setPushId(interactPushPo.getId());
@@ -207,7 +206,7 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
         PageInfo<InteractPushVo> interactPushVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> mapper.search(searchPushDto));
         //根据不同推送对象获取对应的信息
-        interactPushVoPageInfo.getList().forEach(a->{
+        interactPushVoPageInfo.getList().forEach(a -> {
             PushObjectEnum pushObject = PushObjectEnum.fromName(a.getObjectType());
             switch (pushObject) {
                 case ALLUSER:
@@ -215,21 +214,21 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
                     break;
                 case SPECIFYUSER:
                     QueryWrapper<MmInteractRelMessageObjectPo> query1 = new QueryWrapper<>();
-                    query1.eq("push_id",a.getId());
+                    query1.eq("push_id", a.getId());
                     List<MmInteractRelMessageObjectPo> relMessageObjectPos = relMessageObjectMapper.selectList(query1);
-                    if (ListUtil.isListNullAndEmpty(relMessageObjectPos)){
+                    if (ListUtil.isListNullAndEmpty(relMessageObjectPos)) {
                         break;
                     }
-                    List<Long> userIds = relMessageObjectPos.stream().map(d->d.getObjectId()).collect(Collectors.toList());
+                    List<Long> userIds = relMessageObjectPos.stream().map(d -> d.getObjectId()).collect(Collectors.toList());
                     List<UmUsersVo> usersVos = userMapper.getUsersByIds(userIds);
                     a.setUserList(usersVos);
                     a.setSpecifiedObject(pushObject.getName());
                     break;
                 case SPECIFYMEMBERLEVEL:
                     QueryWrapper<MmInteractRelMessageObjectPo> query = new QueryWrapper<>();
-                    query.eq("push_id",a.getId());
+                    query.eq("push_id", a.getId());
                     MmInteractRelMessageObjectPo relMessageObjectPos1 = relMessageObjectMapper.selectOne(query);
-                    if (relMessageObjectPos1 == null){
+                    if (relMessageObjectPos1 == null) {
                         break;
                     }
                     Long memberLevelId = relMessageObjectPos1.getObjectId();
@@ -253,13 +252,13 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
     public void delPushByIds(Long[] ids) {
 
         List<Long> idList = Arrays.asList(ids);
-        idList.forEach(a->{
-            if (mapper.selectById(a)==null){
-                throw new ServiceException(ResultCode.NO_EXISTS,"数据库不存在该数据");
+        idList.forEach(a -> {
+            if (mapper.selectById(a) == null) {
+                throw new ServiceException(ResultCode.NO_EXISTS, "数据库不存在该数据");
             }
-            Map<String,Object> query = Maps.newHashMap();
-            query.put("push_id",a);
-            List<Long> relIds = relMessageObjectMapper.selectByMap(query).stream().map(b->b.getId()).collect(Collectors.toList());
+            Map<String, Object> query = Maps.newHashMap();
+            query.put("push_id", a);
+            List<Long> relIds = relMessageObjectMapper.selectByMap(query).stream().map(b -> b.getId()).collect(Collectors.toList());
             if (!ListUtil.isListNullAndEmpty(relIds)) {
                 relMessageObjectMapper.deleteBatchIds(relIds);
             }

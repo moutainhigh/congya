@@ -78,9 +78,5 @@ public class OmSmOrderManageApi extends BaseApi {
         return setJsonViewData(orderService.getLogisticsById(id));
     }
 
-  /*  @ApiOperation(value = "商家发货")
-    @PostMapping("/send")
-    public JsonViewData<SmOrderLogisticsVo> send(@PathVariable Long id) {
-        return setJsonViewData(orderService.getLogisticsById(id));
-    }*/
+
 }

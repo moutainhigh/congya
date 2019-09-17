@@ -15,6 +15,8 @@ import com.chauncy.common.util.*;
 import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
 import com.chauncy.data.bo.order.log.PlatformGiveBo;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.message.information.comment.MmInformationCommentPo;
+import com.chauncy.data.domain.po.message.information.rel.MmInformationLikedPo;
 import com.chauncy.data.domain.po.message.interact.MmFeedBackPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
@@ -25,11 +27,15 @@ import com.chauncy.data.dto.app.user.add.BindUserDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserIdCardDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
 import com.chauncy.data.dto.manage.user.update.UpdateUserDto;
+import com.chauncy.data.mapper.message.information.comment.MmInformationCommentMapper;
+import com.chauncy.data.mapper.message.information.rel.MmInformationLikedMapper;
 import com.chauncy.data.mapper.message.interact.MmFeedBackMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.mapper.user.UmRelUserLabelMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
+import com.chauncy.data.vo.app.user.GetMembersCenterVo;
+import com.chauncy.data.vo.app.user.MyDataStatisticsVo;
 import com.chauncy.data.vo.app.user.UserDataVo;
 import com.chauncy.data.vo.manage.order.log.SearchUserLogVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserDetailVo;
@@ -48,6 +54,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -78,6 +85,12 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     private SmStoreMapper smStoreMapper;
     @Autowired
     private MmFeedBackMapper feedBackMapper;
+
+    @Autowired
+    private MmInformationLikedMapper informationLikedMapper;
+
+    @Autowired
+    private MmInformationCommentMapper informationCommentMapper;
 
     @Autowired
     private PmMemberLevelMapper memberLevelMapper;
@@ -355,5 +368,94 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
             mapper.updateById(updateUser);
         }
 
+    }
+
+    /**
+     * 会员中心
+     *
+     * @param userPo
+     * @return
+     */
+    @Override
+    public GetMembersCenterVo getMembersCenter(UmUserPo userPo) {
+
+        GetMembersCenterVo membersCenterVo = mapper.getMembersCenter(userPo.getId());
+        //经验值百分比
+        BigDecimal percentage = BigDecimalUtil.safeDivide(membersCenterVo.getCurrentExperience(),membersCenterVo.getSumExperience());
+        membersCenterVo.setPercentage(percentage);
+
+        //平均消费
+        BigDecimal avgConsumer = BigDecimalUtil.safeDivide(membersCenterVo.getTotalConsumeMoney(),membersCenterVo.getTotalOrder());
+        membersCenterVo.setAvgConsumer(avgConsumer);
+
+        //赞
+        Integer praise1 = informationLikedMapper.selectCount(new QueryWrapper<MmInformationLikedPo>().lambda().and(obj->obj
+                .eq(MmInformationLikedPo::getUserId,userPo.getId()).eq(MmInformationLikedPo::getDelFlag,0)));
+//                .stream().mapToLong((a)->a.getId()).summaryStatistics().getCount();
+        Integer praise2 = informationCommentMapper.selectCount(new QueryWrapper<MmInformationCommentPo>().lambda().and(obj->obj
+                .eq(MmInformationCommentPo::getUserId,userPo.getId()).eq(MmInformationCommentPo::getDelFlag,0)));
+//                .stream().mapToLong((a)->a.getId()).summaryStatistics().getCount();
+        membersCenterVo.setPraise(praise1+praise2);
+
+        //经验/天
+        BigDecimal experience = BigDecimalUtil.safeDivide(membersCenterVo.getCurrentExperience(), (LocalDate.now().toEpochDay()-membersCenterVo.getCreateTime().toLocalDate().toEpochDay()));
+        membersCenterVo.setExperience(experience);
+
+        //分享
+        Integer share = mapper.selectCount(new QueryWrapper<UmUserPo>().lambda().and(obj->
+                obj.eq(UmUserPo::getDelFlag,0).eq(UmUserPo::getId,userPo.getId())));
+        membersCenterVo.setShare(share);
+
+        //评论
+        Integer informationComments = informationCommentMapper.selectCount(new QueryWrapper<MmInformationCommentPo>().lambda().and(obj->obj
+                .eq(MmInformationCommentPo::getDelFlag,0).eq(MmInformationCommentPo::getUserId,userPo.getId())));
+        membersCenterVo.setComments(informationComments);
+
+        //好友
+        Integer friend = mapper.selectList(new QueryWrapper<UmUserPo>().lambda().and(obj->obj
+                .eq(UmUserPo::getParentId,userPo.getId()).eq(UmUserPo::getDelFlag,0))).size();
+        membersCenterVo.setFriend(friend);
+
+
+        //CRO
+        Integer cRO = 0;
+
+        //奖励/订单
+        Integer reward;
+
+        //资产
+        BigDecimal assets;
+
+        //综合
+        BigDecimal comprehensive;
+
+        //发育
+        BigDecimal development;
+
+        //贡献
+        BigDecimal contribution;
+
+        //活跃
+        BigDecimal active;
+
+
+        return membersCenterVo;
+    }
+
+    @Override
+    public List<String> getAllPhones() {
+        return mapper.getAllPhones();
+    }
+
+    /**
+     * App我的页面需要的数据
+     *
+     * @param userPo
+     * @return
+     */
+    @Override
+    public MyDataStatisticsVo getMyDataStatistics(UmUserPo userPo) {
+
+        return null;
     }
 }
