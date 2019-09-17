@@ -51,6 +51,9 @@ public class MmSMSMessageServiceImpl extends AbstractService<MmSMSMessageMapper,
     private UmUserMapper userMapper;
 
     @Autowired
+    private IUmUserService umUserService;
+
+    @Autowired
     private PmMemberLevelMapper memberLevelMapper;
 
     @Override
@@ -104,6 +107,6 @@ public class MmSMSMessageServiceImpl extends AbstractService<MmSMSMessageMapper,
         }
 
         //阿里云发送短信
-        SendSms.sendContent(phones.toString(),addSmsMessageDto.getTemplateCode());
+//        SendSms.sendContent(phones.toString(),addSmsMessageDto.getTemplateCode());
     }
 }

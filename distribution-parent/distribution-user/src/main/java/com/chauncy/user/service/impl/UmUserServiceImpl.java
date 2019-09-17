@@ -15,6 +15,8 @@ import com.chauncy.common.util.*;
 import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
 import com.chauncy.data.bo.order.log.PlatformGiveBo;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.message.information.comment.MmInformationCommentPo;
+import com.chauncy.data.domain.po.message.information.rel.MmInformationLikedPo;
 import com.chauncy.data.domain.po.message.interact.MmFeedBackPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
@@ -25,11 +27,14 @@ import com.chauncy.data.dto.app.user.add.BindUserDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserIdCardDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
 import com.chauncy.data.dto.manage.user.update.UpdateUserDto;
+import com.chauncy.data.mapper.message.information.comment.MmInformationCommentMapper;
+import com.chauncy.data.mapper.message.information.rel.MmInformationLikedMapper;
 import com.chauncy.data.mapper.message.interact.MmFeedBackMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.mapper.user.UmRelUserLabelMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
+import com.chauncy.data.vo.app.user.GetMembersCenterVo;
 import com.chauncy.data.vo.app.user.UserDataVo;
 import com.chauncy.data.vo.manage.order.log.SearchUserLogVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserDetailVo;
@@ -48,6 +53,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -78,6 +84,12 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     private SmStoreMapper smStoreMapper;
     @Autowired
     private MmFeedBackMapper feedBackMapper;
+
+    @Autowired
+    private MmInformationLikedMapper informationLikedMapper;
+
+    @Autowired
+    private MmInformationCommentMapper informationCommentMapper;
 
     @Autowired
     private PmMemberLevelMapper memberLevelMapper;
