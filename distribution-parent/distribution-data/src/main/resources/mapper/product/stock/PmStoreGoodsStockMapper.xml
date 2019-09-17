@@ -25,7 +25,8 @@
     <select id="findStockById" resultType="com.chauncy.data.vo.supplier.good.stock.StoreGoodsStockVo">
         select psgs.id, psgs.`name`, psgs.stock_template_id, pgvst.`name` as stockTemplateName, psgs.store_id, psgs.remark,
             (SELECT ss.`name` FROM sm_store ss WHERE psgs.store_id = ss.id) AS storeName,
-            (SELECT ss.`name` FROM sm_store ss WHERE psgs.distribute_store_id = ss.id) AS branchName
+            (SELECT ss.`name` FROM sm_store ss WHERE psgs.distribute_store_id = ss.id) AS branchName,
+            psgs.distribute_store_id AS distributeStoreId
         from pm_store_goods_stock psgs
         left join pm_goods_virtual_stock_template pgvst on psgs.stock_template_id = pgvst.id
         where psgs.id = #{id}
@@ -61,7 +62,8 @@
             <!-- (SELECT ss.`name` FROM sm_store ss WHERE psgs.store_id = ss.id) AS storeName,
             (SELECT ss.`name` FROM sm_store ss WHERE psgs.distribute_store_id = ss.id) AS branchName -->
         (SELECT ss.`name` FROM sm_store ss WHERE psgs.store_id = ss.id) AS storeName,
-            ss.name AS branchName
+            ss.name AS branchName,
+            ss.id AS distributeStoreId
         from pm_store_goods_stock psgs
         left join sm_store ss on ss.id = psgs.distribute_store_id
         left join pm_goods_virtual_stock_template pgvst on psgs.stock_template_id = pgvst.id,
@@ -122,6 +124,7 @@
         <!-- (SELECT ss.`name` FROM sm_store ss WHERE psgs.store_id = ss.id) AS storeName,
         (SELECT ss.`name` FROM sm_store ss WHERE psgs.distribute_store_id = ss.id) AS branchName -->
         (SELECT ss.`name` FROM sm_store ss WHERE psgs.distribute_store_id = ss.id) AS branchName,
+            psgs.distribute_store_id AS distributeStoreId,
             ss.name AS storeName
         from pm_store_goods_stock psgs
         left join sm_store ss on ss.id = psgs.store_id
@@ -173,7 +176,8 @@
             psgs.store_id, psgs.remark,
             sum(psrgs.distribute_stock_num) as distributestocksum,
             (SELECT ss.`name` FROM sm_store ss WHERE psgs.store_id = ss.id) AS storeName,
-            (SELECT ss.`name` FROM sm_store ss WHERE psgs.distribute_store_id = ss.id) AS branchName
+            (SELECT ss.`name` FROM sm_store ss WHERE psgs.distribute_store_id = ss.id) AS branchName,
+            psgs.distribute_store_id AS distributeStoreId
         from pm_store_goods_stock psgs
         left join sm_store ss on ss.id = psgs.store_id
         left join pm_goods_virtual_stock_template pgvst on psgs.stock_template_id = pgvst.id,

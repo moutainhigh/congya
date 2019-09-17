@@ -96,7 +96,7 @@
             <if test="enabled != null">
                 and enabled = #{enabled}
             </if>
-            <if test="type != null and type != ''">
+            <if test="type != null ">
                 and type = #{type}
             </if>
             <if test="name != null and name !=''">

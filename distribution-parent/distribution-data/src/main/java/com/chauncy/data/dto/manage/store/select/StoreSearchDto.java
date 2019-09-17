@@ -32,7 +32,6 @@ public class StoreSearchDto extends BaseSearchDto implements Serializable {
 
 
     @ApiModelProperty(value = "店铺类型")
-    @EnumConstraint(target = StoreTypeEnum.class)
     private Integer type;
 
     @ApiModelProperty(value = "店铺名称")

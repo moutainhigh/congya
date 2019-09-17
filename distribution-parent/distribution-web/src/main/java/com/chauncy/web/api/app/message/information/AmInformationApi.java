@@ -87,7 +87,9 @@ public class AmInformationApi extends BaseApi {
      * @param searchInfoByConditionDto
      * @return
      */
-    @ApiOperation(value = "资讯专区列表", notes = "根据店铺ID，资讯分类，标签，关注，热榜以及内容、标题模糊搜索资讯")
+    @ApiOperation(value = "资讯专区列表",
+            notes = "资讯类型（informationType）：    \n1：全部资讯列表    \n2：关注资讯列表   \n" +
+                    "3：推荐资讯列表   \n4：分类资讯列表   \n5：搜索资讯列表   \n")
     @PostMapping("/searchPaging")
     public JsonViewData<PageInfo<InformationPagingVo>> searchPaging(@Valid @ApiParam(required = true,
             name = "searchInfoByConditionDto", value = "查询条件") @RequestBody SearchInfoByConditionDto searchInfoByConditionDto) {
@@ -95,6 +97,18 @@ public class AmInformationApi extends BaseApi {
         PageInfo<InformationPagingVo> smStoreBaseVoPageInfo = mmInformationService.searchPaging(searchInfoByConditionDto);
         return new JsonViewData(ResultCode.SUCCESS, "查询成功",
                 smStoreBaseVoPageInfo);
+    }
+
+    /**
+     * 获取关注的店铺更新的资讯数目
+     *
+     * @return
+     */
+    @GetMapping("/getFocusInfoSum")
+    @ApiOperation(value = "获取关注的店铺更新的资讯数目")
+    public JsonViewData getFocusInfoSum(){
+
+        return new JsonViewData(ResultCode.SUCCESS,"查找成功",mmInformationService.getFocusInfoSum());
     }
 
     /**

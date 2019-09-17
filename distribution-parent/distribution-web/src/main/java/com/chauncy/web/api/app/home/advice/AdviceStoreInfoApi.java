@@ -81,6 +81,7 @@ public class AdviceStoreInfoApi extends BaseApi {
         return new JsonViewData(ResultCode.SUCCESS,"查找成功",adviceTabVoList);
     }
 
+
     /**
      * 根据选项卡id获取有店下的店铺分类详情
      *
@@ -90,10 +91,27 @@ public class AdviceStoreInfoApi extends BaseApi {
     @ApiOperation(value = "根据选项卡id获取有店下的店铺分类详情")
     public JsonViewData<PageInfo<StoreCategoryDetailVo>> findStoreCategoryDetail(@ApiParam(required = true,
             value = "店铺分类选项卡id", name = "tabId") @PathVariable Long tabId,
+                                                                                 @ApiParam(required = true,name = "baseSearchPagingDto", value = "分页条件")
+                                                                                 @RequestBody BaseSearchPagingDto baseSearchPagingDto){
+
+        PageInfo<StoreCategoryDetailVo> detailVoPageInfo = adviceService.findStoreCategoryDetail(tabId, baseSearchPagingDto);
+        return new JsonViewData(ResultCode.SUCCESS,"查找成功",detailVoPageInfo);
+    }
+
+
+
+    /**
+     * 首页跳转内容-有店（所有店铺列表）
+     *
+     * @return
+     */
+    @PostMapping("/searchAll")
+    @ApiOperation(value = "首页跳转内容-有店（所有店铺列表）")
+    public JsonViewData<PageInfo<StoreCategoryDetailVo>> searchAll(
             @ApiParam(required = true,name = "baseSearchPagingDto", value = "分页条件")
             @RequestBody BaseSearchPagingDto baseSearchPagingDto){
 
-        PageInfo<StoreCategoryDetailVo> detailVoPageInfo = adviceService.findStoreCategoryDetail(tabId, baseSearchPagingDto);
+        PageInfo<StoreCategoryDetailVo> detailVoPageInfo = adviceService.searchAll(baseSearchPagingDto);
         return new JsonViewData(ResultCode.SUCCESS,"查找成功",detailVoPageInfo);
     }
 

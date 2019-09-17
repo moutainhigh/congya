@@ -57,5 +57,6 @@ public class AmCouponRelCouponUserPo implements Serializable {
     @ApiModelProperty(value = "用户有的优惠券的类型，1--领取 2--购买")
     private Integer type;
 
-
+    @ApiModelProperty(value = "截止日期")
+    private LocalDateTime deadLine;
 }

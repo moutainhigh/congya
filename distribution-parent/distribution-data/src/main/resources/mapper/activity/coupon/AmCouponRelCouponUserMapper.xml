@@ -12,16 +12,30 @@
         <result column="use_status" property="useStatus" />
         <result column="receive_num" property="receiveNum" />
         <result column="type" property="type" />
+        <result column="dead_line" property="deadLine" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, create_by, create_time, coupon_id, user_id, use_status, receive_num, type
+        id, create_by, create_time, coupon_id, user_id, use_status, receive_num, type ,dead_line
     </sql>
     <select id="receiveCouponCenter" resultType="com.chauncy.data.vo.app.advice.coupon.SearchReceiveCouponVo">
         select a.id as coupon_id,name,type,discount,discount_full_money,reduction_full_money,reduction_post_money,total_num,stock
         from am_coupon a,pm_member_level b
         where a.del_flag = 0 and a.del_flag = 0 and a.level_id = b.id and b.level &lt;= #{level}
+    </select>
+
+    <select id="searchMyCoupon" resultType="com.chauncy.data.vo.app.advice.coupon.SearchMyCouponVo">
+        select a.id as coupon_id,b.id as receive_id,a.name,a.reduction_full_money,a.reduction_post_money,a.discount_full_money,a.discount,a.type,b.receive_time,
+			 b.dead_line as dead_line,use_status
+        from am_coupon a,am_coupon_rel_coupon_user b
+        where a.del_flag = 0 and b.user_id = #{userId}  and a.id = b.coupon_id
+        <if test="isAvailable == true">
+            and b.use_status = 2 and DATE_FORMAT(b.dead_line, '%Y-%m-%d') &gt;= DATE_FORMAT(NOW(), '%Y-%m-%d')
+        </if>
+        <if test="isAvailable == false">
+            and (b.use_status = 1 or DATE_FORMAT(b.dead_line,'%Y-%m-%d') &lt;= DATE_FORMAT(NOW(),'%Y-%m-%d'))
+        </if>
     </select>
 
 </mapper>

@@ -2,7 +2,9 @@ package com.chauncy.web.api.app.home.advice;
 
 import com.chauncy.activity.coupon.IAmCouponRelCouponUserService;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.dto.app.advice.coupon.SearchMyCouponDto;
 import com.chauncy.data.dto.app.advice.coupon.SearchReceiveCouponDto;
+import com.chauncy.data.vo.app.advice.coupon.SearchMyCouponVo;
 import com.chauncy.data.vo.app.advice.coupon.SearchReceiveCouponVo;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.web.base.BaseApi;
@@ -58,6 +60,19 @@ public class AdviceCouponApi extends BaseApi {
 
         return setJsonViewData(ResultCode.SUCCESS,"操作成功");
 
+    }
+
+    /**
+     * 我的优惠券
+     *
+     * @return
+     */
+    @ApiOperation("我的优惠券")
+    @PostMapping("/myCoupon")
+    public JsonViewData<PageInfo<SearchMyCouponVo>> searchMyCoupon(@RequestBody @ApiParam(required = true,name = "",value = "")
+                                                                   @Validated SearchMyCouponDto searchMyCouponDto){
+
+        return setJsonViewData(relCouponUserService.searchMyCoupon(searchMyCouponDto));
     }
 
 }

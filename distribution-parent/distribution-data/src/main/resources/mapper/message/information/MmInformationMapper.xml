@@ -323,5 +323,20 @@
         </where>
         order by mi.update_time desc
     </select>
+    <select id="getFocusInfoSum" resultType="java.lang.Integer">
+        SELECT  COUNT(1)
+        FROM mm_information mi
+        LEFT JOIN sm_store ss
+        ON mi.`store_id` = ss.id
+        LEFT JOIN um_user_favorites uuf
+        ON mi.store_id = uuf.favorites_id
+        <where>
+            mi.del_flag = 0
+            AND mi.enabled = 1
+            AND uuf.del_flag = 0
+            AND uuf.user_id = #{userId}
+            AND mi.update_time <![CDATA[>= ]]> #{readTime}
+        </where>
+    </select>
 
 </mapper>

@@ -8,6 +8,7 @@ import com.chauncy.common.util.ListUtil;
 import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.common.util.StringUtils;
 import com.chauncy.data.domain.po.product.*;
+import com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockPo;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.dto.supplier.good.select.SearchExcelDto;
 import com.chauncy.data.temp.product.service.IPmGoodsRelAttributeValueGoodService;
@@ -16,6 +17,7 @@ import com.chauncy.data.vo.excel.ExcelImportErrorLogVo;
 import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
 import com.chauncy.poi.util.ReadExcelUtil;
 import com.chauncy.product.service.*;
+import com.chauncy.product.stock.IPmGoodsVirtualStockService;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.user.service.IPmMemberLevelService;
 import com.chauncy.web.base.BaseApi;
@@ -92,6 +94,9 @@ public class ExcelGoodApi extends BaseApi {
 
     @Autowired
     private IPmGoodsSkuService skuService;
+
+    @Autowired
+    private IPmGoodsVirtualStockService pmGoodsVirtualStockService;
 
     @Autowired
     private IPmGoodsRelAttributeValueSkuService relAttributeValueSkuService;
@@ -464,6 +469,14 @@ public class ExcelGoodApi extends BaseApi {
 
             //保存sku主表
             skuService.save(skuPo);
+            //插入商品虚拟库存
+            PmGoodsVirtualStockPo pmGoodsVirtualStockPo = new PmGoodsVirtualStockPo();
+            pmGoodsVirtualStockPo.setStoreId(queryGood.getStoreId())
+                    .setGoodsId(queryGood.getId())
+                    .setGoodsSkuId(skuPo.getId())
+                    .setStockNum(skuPo.getStock())
+                    .setCreateBy(getUser().getUsername());
+            pmGoodsVirtualStockService.save(pmGoodsVirtualStockPo);
             //修改库存
             pmGoodsService.updateStock(skuPo.getGoodsId(), skuPo.getStock());
 
