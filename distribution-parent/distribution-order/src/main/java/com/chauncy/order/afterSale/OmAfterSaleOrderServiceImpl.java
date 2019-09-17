@@ -8,12 +8,14 @@ import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.common.enums.app.order.afterSale.AfterSaleLogEnum;
 import com.chauncy.common.enums.app.order.afterSale.AfterSaleStatusEnum;
 import com.chauncy.common.enums.app.order.afterSale.AfterSaleTypeEnum;
+import com.chauncy.common.enums.log.LogTriggerEventEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.common.util.SnowFlakeUtil;
 import com.chauncy.data.bo.app.order.rabbit.RabbitAfterBo;
+import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
 import com.chauncy.data.domain.po.afterSale.OmAfterSaleLogPo;
 import com.chauncy.data.domain.po.afterSale.OmAfterSaleOrderPo;
 import com.chauncy.data.domain.po.order.OmGoodsTempPo;
@@ -318,6 +320,14 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         updateGoodsTemp.setId(queryAfterSaleOrder.getGoodsTempId()).setIsAfterSale(true).setUpdateBy(userId);
         goodsTempMapper.updateById(updateGoodsTemp);
 
+        //售后成功  购物券，红包退还 对应流水生成
+        AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
+        addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.ORDER_REFUND);
+        addAccountLogBo.setRelId(queryAfterSaleOrder.getId());
+        addAccountLogBo.setOperator(userId);
+        //listenerOrderLogQueue 消息队列
+        this.rabbitTemplate.convertAndSend(
+                RabbitConstants.ACCOUNT_LOG_EXCHANGE, RabbitConstants.ACCOUNT_LOG_ROUTING_KEY, addAccountLogBo);
     }
 
     @Override

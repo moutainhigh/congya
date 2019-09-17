@@ -12,6 +12,7 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.RelativeDateFormatUtil;
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
+import com.chauncy.data.domain.po.message.information.MmUserInformationTimePo;
 import com.chauncy.data.domain.po.message.information.rel.MmInformationForwardPo;
 import com.chauncy.data.domain.po.message.information.rel.MmInformationLikedPo;
 import com.chauncy.data.domain.po.message.information.rel.MmRelInformationGoodsPo;
@@ -28,6 +29,7 @@ import com.chauncy.data.dto.manage.message.information.add.InformationDto;
 import com.chauncy.data.dto.base.BaseSearchByTimeDto;
 import com.chauncy.data.dto.manage.order.bill.update.BatchAuditDto;
 import com.chauncy.data.mapper.message.information.MmInformationMapper;
+import com.chauncy.data.mapper.message.information.MmUserInformationTimeMapper;
 import com.chauncy.data.mapper.message.information.rel.MmInformationForwardMapper;
 import com.chauncy.data.mapper.message.information.rel.MmInformationLikedMapper;
 import com.chauncy.data.mapper.message.information.rel.MmRelInformationGoodsMapper;
@@ -83,6 +85,8 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
     private MmInformationForwardMapper mmInformationForwardMapper;
     @Autowired
     private PmGoodsCategoryMapper pmGoodsCategoryMapper;
+    @Autowired
+    private MmUserInformationTimeMapper mmUserInformationTimeMapper;
     @Autowired
     private PmGoodsMapper pmGoodsMapper;
     @Autowired
@@ -365,6 +369,15 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
             informationPagingVo.setReleaseTime(RelativeDateFormatUtil.format(informationPagingVo.getUpdateTime()));
         });
 
+        //关注资讯列表  更新用户最近一次访问资讯时间
+        if(searchInfoByConditionDto.getInformationType().equals(InformationTypeEnum.FOCUS_LIST.getId())) {
+            MmUserInformationTimePo mmUserInformationTimePo = mmUserInformationTimeMapper.selectById(umUserPo.getId());
+            if(null != mmUserInformationTimePo) {
+                //记录已存在 更新访问时间
+                mmUserInformationTimePo.setReadTime(LocalDateTime.now());
+                mmUserInformationTimeMapper.updateById(mmUserInformationTimePo);
+            }
+        }
         return informationPageInfo;
     }
 
@@ -479,6 +492,35 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
 
         return informationPageInfo;
     }
+
+    /**
+     * 获取关注的店铺更新的资讯数目
+     * @return
+     */
+    @Override
+    public Integer getFocusInfoSum() {
+
+        UmUserPo umUserPo = securityUtil.getAppCurrUser();
+        Integer focusInfoSum;
+        //关注资讯列表  更新用户最近一次访问资讯时间
+        MmUserInformationTimePo mmUserInformationTimePo = mmUserInformationTimeMapper.selectById(umUserPo.getId());
+        if(null == mmUserInformationTimePo) {
+            //记录不存在 添加记录，记录用户访问关注店铺的时间
+            mmUserInformationTimePo = new MmUserInformationTimePo();
+            mmUserInformationTimePo.setId(umUserPo.getId());
+            mmUserInformationTimePo.setReadTime(LocalDateTime.now());
+            mmUserInformationTimeMapper.insert(mmUserInformationTimePo);
+            //获取数目
+            focusInfoSum = mmInformationMapper.getFocusInfoSum(umUserPo.getId(), mmUserInformationTimePo.getReadTime());
+        } else {
+            //获取数目
+            focusInfoSum = mmInformationMapper.getFocusInfoSum(umUserPo.getId(), mmUserInformationTimePo.getReadTime());
+            //记录已存在 更新访问时间
+            mmUserInformationTimePo.setReadTime(LocalDateTime.now());
+            mmUserInformationTimeMapper.updateById(mmUserInformationTimePo);
+        }
+        return focusInfoSum;
+}
 
     /**
      * 审核资讯

@@ -12,6 +12,7 @@ import com.chauncy.data.vo.manage.message.information.InformationVo;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -90,4 +91,12 @@ public interface MmInformationMapper extends IBaseMapper<MmInformationPo> {
      * @return
      */
     void shareInformation(ShareDto shareDto);
+
+    /**
+     * 获取关注的店铺更新的资讯数目
+     * @param userId
+     * @param readTime
+     * @return
+     */
+    Integer getFocusInfoSum(@Param("userId") Long userId, @Param("readTime") LocalDateTime readTime);
 }

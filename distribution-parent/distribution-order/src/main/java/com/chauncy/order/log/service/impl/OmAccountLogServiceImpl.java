@@ -10,6 +10,7 @@ import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
 import com.chauncy.data.bo.order.log.PlatformGiveBo;
 import com.chauncy.data.domain.po.activity.gift.AmGiftOrderPo;
+import com.chauncy.data.domain.po.afterSale.OmAfterSaleOrderPo;
 import com.chauncy.data.domain.po.order.OmUserWithdrawalPo;
 import com.chauncy.data.domain.po.order.bill.OmOrderBillPo;
 import com.chauncy.data.domain.po.order.log.OmAccountLogPo;
@@ -23,6 +24,7 @@ import com.chauncy.data.dto.manage.order.log.select.SearchPlatformLogDto;
 import com.chauncy.data.dto.manage.order.log.select.SearchStoreLogDto;
 import com.chauncy.data.dto.manage.order.log.select.SearchUserWithdrawalDto;
 import com.chauncy.data.mapper.activity.gift.AmGiftOrderMapper;
+import com.chauncy.data.mapper.afterSale.OmAfterSaleOrderMapper;
 import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.mapper.order.OmUserWithdrawalMapper;
 import com.chauncy.data.mapper.order.bill.OmOrderBillMapper;
@@ -84,6 +86,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
     private AmGiftOrderMapper amGiftOrderMapper;
 
     @Autowired
+    private OmAfterSaleOrderMapper omAfterSaleOrderMapper;
+
+    @Autowired
     private OmOrderMapper omOrderMapper;
 
     @Autowired
@@ -136,12 +141,16 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
                 this.appOrder(addAccountLogBo);
                 break;
             case GIFT_RECHARGE:
-                //礼包充值
-                this.gifiRecharge(addAccountLogBo);
+                //礼包充值  获得购物券，积分
+                this.giftRecharge(addAccountLogBo);
                 break;
             case PLATFORM_GIVE:
                 //系统赠送  没有赠送记录，直接在修改用户参数的时候调用生成流水的方法
                 //this.platformGive;
+                break;
+            case ORDER_REFUND:
+                //售后退款  退回抵扣的红包，购物券
+                this.orderRefund(addAccountLogBo);
                 break;
         }
     }
@@ -318,11 +327,55 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
     }
 
     /**
+     * 流水触发事件：订单退款
+     * 过程：售后退还红包购物券  用户红包，购物券增加
+     * 用户红包余额+    用户购物券余额+
+     */
+    private void orderRefund(AddAccountLogBo addAccountLogBo) {
+        /*OmAfterSaleOrderPo omAfterSaleOrderPo = omAfterSaleOrderMapper.selectById(addAccountLogBo.getRelId());
+        //APP用户 购物券 收入流水 购物券+订单抵扣
+        OmAccountLogPo toShopTicketLog = getFromOmAccountLogPo(addAccountLogBo, UserTypeEnum.APP_USER,
+                AccountTypeEnum.SHOP_TICKET, LogTypeEnum.INCOME);
+        UmUserPo umUserPo = umUserMapper.selectById(omAfterSaleOrderPo.getCreateBy());
+        toShopTicketLog.setUserId(umUserPo.getId());
+        toShopTicketLog.setBalance(BigDecimalUtil.safeAdd(umUserPo.getCurrentShopTicket(), omAfterSaleOrderPo.));
+        toShopTicketLog.setLastBalance(umUserPo.getCurrentShopTicket());
+        //流水发生金额  礼包充值获得购物券
+        toShopTicketLog.setAmount(amGiftOrderPo.getVouchers());
+        //流水事由
+        toShopTicketLog.setLogMatter(ShopTicketLogMatterEnum.EXPERIENCE_PACK.getId());
+        //流水详情标题
+        toShopTicketLog.setLogDetailTitle(LogDetailTitleEnum.FROM_EXPERIENCE.getName());
+        //流水详情当前状态
+        toShopTicketLog.setLogDetailState(LogDetailStateEnum.DEPOSIT_WALLET.getId());
+        //流水详情说明
+        toShopTicketLog.setLogDetailExplain(LogDetailExplainEnum.EXPERIENCE_CONTENT.getId());
+        omAccountLogMapper.insert(toShopTicketLog);
+        //APP用户 积分 收入流水 积分+礼包充值
+        OmAccountLogPo toIntegralsLog = getFromOmAccountLogPo(addAccountLogBo, UserTypeEnum.APP_USER,
+                AccountTypeEnum.INTEGRATE, LogTypeEnum.INCOME);
+        toIntegralsLog.setUserId(umUserPo.getId());
+        toIntegralsLog.setBalance(BigDecimalUtil.safeSubtract(umUserPo.getCurrentIntegral(), amGiftOrderPo.getIntegrals()));
+        toIntegralsLog.setLastBalance(umUserPo.getCurrentIntegral());
+        //流水发生金额  礼包充值获得积分
+        toIntegralsLog.setAmount(amGiftOrderPo.getIntegrals());
+        //流水事由
+        toIntegralsLog.setLogMatter(IntegrateLogMatterEnum.EXPERIENCE_PACK.getId());
+        //流水详情标题
+        toIntegralsLog.setLogDetailTitle(LogDetailTitleEnum.FROM_EXPERIENCE.getName());
+        //流水详情当前状态
+        toIntegralsLog.setLogDetailState(LogDetailStateEnum.DEPOSIT_WALLET.getId());
+        //流水详情说明
+        toIntegralsLog.setLogDetailExplain(LogDetailExplainEnum.EXPERIENCE_CONTENT.getId());
+        omAccountLogMapper.insert(toIntegralsLog);*/
+    }
+
+    /**
      * 流水触发事件：app用户礼包充值
      * 过程：用户积分，购物券增加
      * 用户积分余额+    用户购物券余额+
      */
-    private void gifiRecharge(AddAccountLogBo addAccountLogBo) {
+    private void giftRecharge(AddAccountLogBo addAccountLogBo) {
         AmGiftOrderPo amGiftOrderPo = amGiftOrderMapper.selectById(addAccountLogBo.getRelId());
         //APP用户 购物券 收入流水 购物券+礼包充值
         OmAccountLogPo toShopTicketLog = getFromOmAccountLogPo(addAccountLogBo, UserTypeEnum.APP_USER,
