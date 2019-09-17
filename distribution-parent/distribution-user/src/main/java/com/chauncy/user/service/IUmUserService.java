@@ -140,4 +140,10 @@ public interface IUmUserService extends Service<UmUserPo> {
      * @param userId
      */
     void updateLevel(Long userId);
+
+    /**
+     * 获取所有前端用户的手机
+     * @return
+     */
+    List<String> getAllPhones();
 }

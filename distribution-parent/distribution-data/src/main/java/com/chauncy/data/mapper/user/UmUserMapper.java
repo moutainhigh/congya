@@ -126,4 +126,10 @@ public interface UmUserMapper extends IBaseMapper<UmUserPo> {
      * @return
      */
     BigDecimal getPacketPresent(Long userId);
+
+    /**
+     * 获得所有用户的手机
+     * @return
+     */
+    List<String> getAllPhones();
 }

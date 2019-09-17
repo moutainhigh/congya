@@ -27,7 +27,10 @@ public enum ResultCode  {
     OCCUPATION(8, "数据被占用，系统繁忙！"),
 
     REMOTE_LOGIN(9, "异地登录,被挤下线！"),
+
     NSUFFICIENT_INVENTORY(10,"库存不足！"),
+
+    THIRD_FAIL(11,"第三方调用出错！！"),
 
     LOGISTICS_ERROR1(600,"您不是合法的订阅者（即授权Key出错)"),
     LOGISTICS_ERROR2(601,"POLL:KEY已过期"),

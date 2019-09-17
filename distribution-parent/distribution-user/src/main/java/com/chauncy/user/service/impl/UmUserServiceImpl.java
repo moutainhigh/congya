@@ -31,7 +31,6 @@ import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.mapper.user.UmRelUserLabelMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.app.user.UserDataVo;
-import com.chauncy.data.vo.manage.order.log.SearchUserLogVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserDetailVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserRelVo;
 import com.chauncy.data.vo.manage.user.idCard.SearchIdCardVo;
@@ -39,7 +38,6 @@ import com.chauncy.data.vo.manage.user.list.UmUserListVo;
 import com.chauncy.user.service.IUmUserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.apache.catalina.security.SecurityUtil;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -355,5 +353,10 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
             mapper.updateById(updateUser);
         }
 
+    }
+
+    @Override
+    public List<String> getAllPhones() {
+        return mapper.getAllPhones();
     }
 }
