@@ -2,12 +2,16 @@ package com.chauncy.web.api.app.component;
 
 import com.chauncy.activity.gift.IAmGiftService;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.component.ShareDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.app.user.GetMembersCenterVo;
 import com.chauncy.message.content.service.IMmBootPageService;
 import com.chauncy.message.content.service.IMmKeywordsSearchService;
 import com.chauncy.product.service.IPmGoodsService;
+import com.chauncy.security.util.SecurityUtil;
+import com.chauncy.user.service.IUmUserService;
 import com.chauncy.web.base.BaseApi;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -40,6 +44,12 @@ public class ComponentApi extends BaseApi {
 
     @Autowired
     private IPmGoodsService goodsService;
+
+    @Autowired
+    private IUmUserService userService;
+
+    @Autowired
+    private SecurityUtil securityUtil;
 
     /**
      * 判断用户是否领取过新人礼包
@@ -114,6 +124,20 @@ public class ComponentApi extends BaseApi {
         goodsService.share(shareDto);
 
         return setJsonViewData(ResultCode.SUCCESS,"转发成功");
+    }
+
+    /**
+     * 会员中心
+     *
+     * @return
+     */
+    @PostMapping("/getMembersCenter")
+    @ApiOperation("会员中心")
+    public JsonViewData<GetMembersCenterVo> getMembersCenter(){
+
+        UmUserPo userPo = securityUtil.getAppCurrUser();
+
+        return setJsonViewData(userService.getMembersCenter(userPo));
     }
 
 }

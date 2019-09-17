@@ -40,6 +40,7 @@ import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.mapper.sys.SysUserMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
+import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.advice.store.GoodsSecondCategoryListVo;
@@ -114,6 +115,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
     @Autowired
     private IPmGoodsVirtualStockService pmGoodsVirtualStockService;
+
+    @Autowired
+    private UmUserMapper umUserMapper;
 
     @Autowired
     private MmInformationMapper mmInformationMapper;
@@ -1951,6 +1955,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     public void share(ShareDto shareDto) {
 
         ShareTypeEnum shareTypeEnum = shareDto.getShareType();
+        UmUserPo userPo = securityUtil.getAppCurrUser();
 
         if (shareTypeEnum == null){
             throw new ServiceException(ResultCode.NO_EXISTS,String.format("shareType所传的值在枚举类中不存在！"));
@@ -1967,6 +1972,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
                 break;
         }
 
+        userPo.setShareNum(userPo.getShareNum()+1);
+
+        umUserMapper.updateById(userPo);
 
     }
 
