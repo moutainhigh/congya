@@ -35,6 +35,7 @@ import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.mapper.user.UmRelUserLabelMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.app.user.GetMembersCenterVo;
+import com.chauncy.data.vo.app.user.MyDataStatisticsVo;
 import com.chauncy.data.vo.app.user.UserDataVo;
 import com.chauncy.data.vo.manage.order.log.SearchUserLogVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserDetailVo;
@@ -444,5 +445,17 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     @Override
     public List<String> getAllPhones() {
         return mapper.getAllPhones();
+    }
+
+    /**
+     * App我的页面需要的数据
+     *
+     * @param userPo
+     * @return
+     */
+    @Override
+    public MyDataStatisticsVo getMyDataStatistics(UmUserPo userPo) {
+
+        return null;
     }
 }
