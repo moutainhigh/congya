@@ -1,6 +1,7 @@
 package com.chauncy.user.service;
 
 import com.chauncy.common.enums.log.AccountTypeEnum;
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.enums.user.ValidCodeEnum;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.core.Service;
@@ -10,6 +11,7 @@ import com.chauncy.data.dto.manage.user.select.SearchUserIdCardDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
 import com.chauncy.data.dto.manage.user.update.UpdateUserDto;
 import com.chauncy.data.vo.app.user.GetMembersCenterVo;
+import com.chauncy.data.vo.app.user.MyDataStatisticsVo;
 import com.chauncy.data.vo.app.user.UserDataVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserDetailVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserRelVo;
@@ -155,4 +157,12 @@ public interface IUmUserService extends Service<UmUserPo> {
      * @return
      */
     List<String> getAllPhones();
+
+    /**
+     * App我的页面需要的数据
+     *
+     * @param userPo
+     * @return
+     */
+    MyDataStatisticsVo getMyDataStatistics(UmUserPo userPo);
 }
