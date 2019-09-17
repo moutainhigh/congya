@@ -7,6 +7,7 @@ import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
 import com.chauncy.data.dto.manage.user.update.UpdateUserDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.app.user.GetMembersCenterVo;
+import com.chauncy.data.vo.app.user.MyDataStatisticsVo;
 import com.chauncy.data.vo.app.user.UserDataVo;
 import com.chauncy.data.vo.manage.message.interact.push.UmUsersVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserDetailVo;
@@ -146,4 +147,11 @@ public interface UmUserMapper extends IBaseMapper<UmUserPo> {
      * @return
      */
     List<String> getAllPhones();
+
+    /**
+     * App我的页面需要的数据
+     * @param userId
+     * @return
+     */
+    MyDataStatisticsVo getMyDataStatistics(Long userId);
 }
