@@ -370,5 +370,44 @@
         from um_user
         where del_flag=0
     </select>
+    <select id="getMyDataStatistics" resultType="com.chauncy.data.vo.app.user.MyDataStatisticsVo">
+        SELECT
+            uu.id,
+            uu.photo,
+            uu.name,
+            pul.actor,
+            pul.level_name,
+            (
+                SELECT COUNT(1) FROM um_user_favorites uuf WHERE uuf.user_id = uu.id AND uuf.is_favorites = 1 AND (uuf.type = '商品' OR uuf.type = '资讯')
+             ) AS collectionNum,
+            (
+                SELECT COUNT(1) FROM um_user_favorites uuf WHERE uuf.user_id = uu.id AND uuf.is_favorites = 1 AND uuf.type = '店铺'
+            ) AS attentionNum,
+            (
+                SELECT COUNT(1) FROM om_order oo WHERE oo.um_user_id =  uu.id AND oo.status = 0
+            ) AS needPayNum,
+            (
+                SELECT COUNT(1) FROM om_order oo WHERE oo.um_user_id =  uu.id  AND oo.status = 1
+            ) AS needSendGoodsNum,
+            (
+                SELECT COUNT(1) FROM om_order oo WHERE oo.um_user_id = uu.id  AND oo.status = 2
+            ) AS needReceiveGoodsNum,
+            (
+                SELECT COUNT(1) FROM om_order oo WHERE oo.um_user_id =  uu.id  AND oo.status = 3
+            ) AS needEvaluateNum,
+            (
+                SELECT COUNT(1) FROM om_after_sale_order oaso WHERE oaso.create_by =  uu.id  AND oaso.status IN (1,2,3,4)
+            ) AS afterMarketNum,
+            (
+                SELECT COUNT(1) FROM am_coupon_rel_coupon_user acrcu WHERE acrcu.user_id =  uu.id  AND acrcu.use_status = 2
+            ) AS couponNum,
+            uu.current_integral AS integralNum,
+            uu.current_shop_ticket AS vouchersNum,
+            uu.current_red_envelops AS redEnvelopeNum
+        FROM um_user uu
+        LEFT JOIN pm_member_level pul
+        ON uu.member_level_id = pul.id
+        WHERE uu.id = #{userId}
+    </select>
 
 </mapper>

@@ -1,5 +1,6 @@
 package com.chauncy.data.vo.manage.order.list;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -92,6 +93,22 @@ public class OrderDetailVo {
 
     @ApiModelProperty(value = "详细地址")
     private String detailedAddress;
+
+    @ApiModelProperty(hidden = true,value = "用户实名认证id")
+    @JSONField(serialize = false)
+    private Long realUserId;
+
+    @ApiModelProperty(value = "身份证号码")
+    private String idCard;
+
+    @ApiModelProperty(value = "真实姓名")
+    private String trueName;
+
+    @ApiModelProperty(value = "身份证正面照片")
+    private String frontPhoto;
+
+    @ApiModelProperty(value = "身份证反面照片")
+    private String backPhoto;
 
     @ApiModelProperty(value = "商品信息列表")
     private List<GoodsTempVo> goodsTempVos;

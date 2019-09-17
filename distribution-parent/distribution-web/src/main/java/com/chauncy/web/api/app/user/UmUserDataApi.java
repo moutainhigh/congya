@@ -109,7 +109,7 @@ public class UmUserDataApi extends BaseApi {
      * @param accountType
      * @return
      */
-    @GetMapping("/getAccount/{accountType}")
+    /*@GetMapping("/getAccount/{accountType}")
     @ApiOperation("获取用户的账户余额")
     public JsonViewData getAccount(@ApiParam(required = true,name = "accountType",value = "accountType账目类型   \nRED_ENVELOPS(红包)   \nSHOP_TICKET(购物券)")
                                 @PathVariable AccountTypeEnum accountType){
@@ -122,7 +122,7 @@ public class UmUserDataApi extends BaseApi {
         }
         return new JsonViewData(ResultCode.SUCCESS, "查询成功", umUserService.getAccount(accountType, umUserPo));
 
-    }
+    }*/
 
     /**
      * 查找用户收货地址

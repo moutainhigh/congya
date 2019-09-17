@@ -456,6 +456,6 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     @Override
     public MyDataStatisticsVo getMyDataStatistics(UmUserPo userPo) {
 
-        return null;
+        return mapper.getMyDataStatistics(userPo.getId());
     }
 }

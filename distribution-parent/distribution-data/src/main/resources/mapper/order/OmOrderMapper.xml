@@ -51,7 +51,7 @@
             select o.id orderId,p.area_name,o.goods_type,o.`status`,o.ship_money,o.total_money,o.total_money needPayMoney,
             o.real_money,o.create_time,o.pay_time,o.send_time,o.receive_time,p.pay_order_no,p.pay_type_code
             ,o.real_money payAmount,s.id storeId,s.name storeName,o.um_user_id,u.phone,p.ship_address detailedAddress,
-            p.phone mobile,u.name name,p.ship_name
+            p.phone mobile,u.name name,p.ship_name,o.real_user_id
             FROM om_order o,pay_order p,sm_store s,um_user u,um_area_shipping a
             where o.pay_order_id=p.id and o.store_id=s.id and o.um_user_id=u.id and o.area_shipping_id=a.id
             and o.id=#{id}

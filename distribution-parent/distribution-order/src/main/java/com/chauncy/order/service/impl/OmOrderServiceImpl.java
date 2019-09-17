@@ -23,6 +23,7 @@ import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.domain.po.order.OmOrderLogisticsPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
+import com.chauncy.data.domain.po.order.OmRealUserPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.domain.po.pay.PayUserRelationPo;
 import com.chauncy.data.domain.po.sys.BasicSettingPo;
@@ -34,10 +35,7 @@ import com.chauncy.data.dto.app.order.store.WriteOffDto;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchSendOrderDto;
-import com.chauncy.data.mapper.order.OmGoodsTempMapper;
-import com.chauncy.data.mapper.order.OmOrderLogisticsMapper;
-import com.chauncy.data.mapper.order.OmOrderMapper;
-import com.chauncy.data.mapper.order.OmShoppingCartMapper;
+import com.chauncy.data.mapper.order.*;
 import com.chauncy.data.mapper.pay.IPayOrderMapper;
 import com.chauncy.data.mapper.pay.PayUserRelationMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
@@ -138,6 +136,9 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     private RabbitTemplate rabbitTemplate;
     @Autowired
     private IOmOrderReportService omOrderReportService;
+
+    @Autowired
+    private OmRealUserMapper realUserMapper;
 
     @Value("${jasypt.encryptor.password}")
     private String password;
@@ -325,7 +326,15 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
     @Override
     public OrderDetailVo getDetailById(Long id) {
+        //订单基本信息
         OrderDetailVo orderDetailVo = mapper.loadById(id);
+        //订单实名认证信息
+        if (orderDetailVo.getRealUserId()!=null){
+            OmRealUserPo queryRealUser = realUserMapper.selectById(orderDetailVo.getRealUserId());
+            //防止实名认证的创建时间复制过去
+            BeanUtils.copyProperties(queryRealUser,orderDetailVo,"createTime");
+        }
+        //订单商品信息
         orderDetailVo.setGoodsTempVos(mapper.searchGoodsTempVos(id));
         return orderDetailVo;
     }
