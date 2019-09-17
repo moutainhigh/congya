@@ -50,9 +50,14 @@ public class MmUserNoticeServiceImpl extends AbstractService<MmUserNoticeMapper,
     @Override
     public UnreadNoticeNumVo getUnreadNoticeNum() {
         UmUserPo userPo = securityUtil.getAppCurrUser();
-        UnreadNoticeNumVo unreadNoticeNum = mapper.getUnreadNoticeNum(userPo.getId());
-        unreadNoticeNum.setSystemNoticeNum(unreadNoticeNum.getSystemNoticeNum1() + unreadNoticeNum.getSystemNoticeNum2());
-        return unreadNoticeNum;
+        UnreadNoticeNumVo unreadNoticeNumVo = mapper.getUnreadNoticeNum(userPo.getId());
+        //系统消息总未读数目 = 指定用户消息  +  全部/指定等级消息
+        unreadNoticeNumVo.setSystemNoticeNum(unreadNoticeNumVo.getSystemNoticeNum1() + unreadNoticeNumVo.getSystemNoticeNum2());
+        //未读消息总数
+        unreadNoticeNumVo.setSum(unreadNoticeNumVo.getSystemNoticeNum() +
+                unreadNoticeNumVo.getExpressNum() +
+                unreadNoticeNumVo.getTaskRewardNum());
+        return unreadNoticeNumVo;
     }
 
     /**

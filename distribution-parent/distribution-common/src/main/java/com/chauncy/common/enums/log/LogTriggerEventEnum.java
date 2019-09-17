@@ -16,6 +16,8 @@ public enum  LogTriggerEventEnum  implements BaseEnum {
      * 2.APP用户提现红包
      * 3.订单下单
      * 4.礼包充值
+     * 5.系统赠送
+     * 6.售后退款
      */
     STORE_WITHDRAWAL(1, "店铺利润、货款账单提现"),
     APP_WITHDRAWAL(2, "APP用户提现红包"),
@@ -23,6 +25,7 @@ public enum  LogTriggerEventEnum  implements BaseEnum {
     GIFT_RECHARGE(4, "礼包充值"),
     PLATFORM_GIVE(5, "系统赠送"),
     ORDER_REFUND(6, "售后退款"),
+    NEW_GIFT(7, "新人礼包"),
     ;
 
 

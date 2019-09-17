@@ -18,7 +18,7 @@ public enum LogDetailTitleEnum   implements BaseEnum {
     CONGYA_OFFICIAL(3, "葱鸭官方"),
     RED_ENVELOPS_WITHDRAWAL(4, "红包提现"),
     WITHDRAWAL_FAIL(5, "提现失败"),
-    WITHDRAWAL_SUCCESS(6, "会员奖励"),
+    MEMBER_AWARD(6, "会员奖励"),
     REFUND(7, "退款"),
     ORDER_PAYMENT(7, "消费抵扣"),
     ;

@@ -19,7 +19,7 @@ public enum LogDetailExplainEnum  implements BaseEnum {
     ORDER_PAYMENT(4, "消费抵扣"),
     PLATFORM_GIVE(5, "系统赠送"),
     RETURN_WALLET(6, "已退回我的钱包"),
-    WITHDRAWAL_SUCCESS(7, "会员奖励"),
+    MEMBER_AWARD(7, "会员奖励"),
     STORE_REFUND(8, "卖家已退款"),
     ;
 
