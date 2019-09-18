@@ -169,7 +169,6 @@ public interface UmUserMapper extends IBaseMapper<UmUserPo> {
      * @return
      */
     int countLtOrEqLevel(Integer level);
- }
 
     /**
      * App我的页面需要的数据
