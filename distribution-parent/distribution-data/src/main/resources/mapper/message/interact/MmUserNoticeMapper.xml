@@ -31,8 +31,6 @@
                 FROM mm_interact_push mip
                 LEFT JOIN mm_user_notice_rel_user munru
                 ON mip.id = munru.push_id
-                LEFT JOIN pm_member_level pml
-                ON mip.id = munru.push_id
                 WHERE
                     mip.push_type = 'APP内消息中心推送' AND mip.create_time  <![CDATA[> ]]>  #{readTime}
                     AND  (
