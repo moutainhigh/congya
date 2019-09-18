@@ -1,6 +1,6 @@
 package com.chauncy.data.mapper.message.interact;
 
-import com.chauncy.data.domain.po.message.interact.MmInteractPushRelUserPo;
+import com.chauncy.data.domain.po.message.interact.MmUserNoticeRelUserPo;
 import com.chauncy.data.mapper.IBaseMapper;
 
 /**
@@ -11,6 +11,6 @@ import com.chauncy.data.mapper.IBaseMapper;
  * @author huangwancheng
  * @since 2019-09-16
  */
-public interface MmInteractPushRelUserMapper extends IBaseMapper<MmInteractPushRelUserPo> {
+public interface MmInteractPushRelUserMapper extends IBaseMapper<MmUserNoticeRelUserPo> {
 
 }

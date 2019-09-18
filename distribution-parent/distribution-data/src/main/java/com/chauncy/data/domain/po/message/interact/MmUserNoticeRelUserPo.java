@@ -27,9 +27,9 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("mm_interact_push_rel_user")
-@ApiModel(value = "MmInteractPushRelUserPo对象", description = "平台信息关联APP用户")
-public class MmInteractPushRelUserPo implements Serializable {
+@TableName("mm_user_notice_rel_user")
+@ApiModel(value = "MmUserNoticeRelUserPo", description = "平台信息关联APP用户")
+public class MmUserNoticeRelUserPo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

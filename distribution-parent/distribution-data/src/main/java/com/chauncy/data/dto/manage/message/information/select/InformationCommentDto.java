@@ -27,6 +27,10 @@ public class InformationCommentDto extends BaseSearchPagingDto implements Serial
     private Long id;
 
     @JsonIgnore
+    @ApiModelProperty(value = "评论id  只获取某条主评论的信息")
+    private Long commentId;
+
+    @JsonIgnore
     @ApiModelProperty(value = "用户id")
     private Long userId;
 
