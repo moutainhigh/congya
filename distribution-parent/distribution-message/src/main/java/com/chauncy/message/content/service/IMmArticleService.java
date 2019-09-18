@@ -2,6 +2,7 @@ package com.chauncy.message.content.service;
 
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.message.content.MmArticlePo;
+import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.content.add.AddArticleDto;
 import com.chauncy.data.dto.manage.message.content.select.search.SearchContentDto;
 import com.chauncy.data.vo.manage.message.content.ArticleVo;
@@ -56,4 +57,16 @@ public interface IMmArticleService extends Service<MmArticlePo> {
      * @return
      */
     void delArticleByIds(Long[] ids);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-18 11:17
+     * @Description //批量启用或禁用,同一个文章位置只能有一个是启用状态
+     *
+     * @Update chauncy
+     *
+     * @Param [baseUpdateStatusDto]
+     * @return void
+     **/
+    void editEnabled(BaseUpdateStatusDto baseUpdateStatusDto);
 }

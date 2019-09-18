@@ -56,23 +56,30 @@ public class MyDataStatisticsVo {
     private Integer needSendGoodsNum;
 
     @ApiModelProperty(value = "待收货")
+    @JSONField(ordinal = 9)
     private Integer needReceiveGoodsNum;
 
     @ApiModelProperty(value = "待评价")
+    @JSONField(ordinal = 10)
     private Integer needEvaluateNum;
 
     @ApiModelProperty(value = "售后")
+    @JSONField(ordinal = 11)
     private Integer afterMarketNum;
 
     @ApiModelProperty(value = "优惠券数量")
+    @JSONField(ordinal = 12)
     private Integer couponNum;
 
     @ApiModelProperty(value = "积分数量")
+    @JSONField(ordinal = 13)
     private Integer integralNum;
 
     @ApiModelProperty(value = "购物券数量")
+    @JSONField(ordinal = 14)
     private Integer vouchersNum;
 
     @ApiModelProperty(value = "红包数量")
+    @JSONField(ordinal = 15)
     private Integer redEnvelopeNum;
 }

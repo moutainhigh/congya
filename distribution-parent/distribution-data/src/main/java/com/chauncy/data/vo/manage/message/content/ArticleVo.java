@@ -39,4 +39,7 @@ public class ArticleVo {
 
     @ApiModelProperty(value = "文章位置")
     private String articleLocation;
+
+    @ApiModelProperty(value = "是否启用：1/true-是 0/false-否")
+    private Boolean enabled;
 }
