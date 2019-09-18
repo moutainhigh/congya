@@ -19,7 +19,7 @@ public class AfterSaleLogVo {
     private AfterSaleLogEnum node;
 
     @ApiModelProperty(value = "审核信息")
-    private String describe;
+    private String describes;
 
     @ApiModelProperty(value = "操作时间 ")
     private LocalDateTime createTime;

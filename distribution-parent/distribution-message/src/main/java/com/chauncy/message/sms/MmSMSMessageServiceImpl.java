@@ -7,8 +7,10 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.GuavaUtil;
 import com.chauncy.common.util.ListUtil;
+import com.chauncy.common.util.third.JpushClientUtil;
 import com.chauncy.common.util.third.SendSms;
 import com.chauncy.data.domain.po.message.MmSMSMessagePo;
+import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.manage.message.interact.add.AddSmsMessageDto;
 import com.chauncy.data.mapper.message.MmSMSMessageMapper;
@@ -57,48 +59,58 @@ public class MmSMSMessageServiceImpl extends AbstractService<MmSMSMessageMapper,
     public void saveSmsMessage(AddSmsMessageDto addSmsMessageDto) {
 
         //保存发送短信信息到数据库
-        MmSMSMessagePo saveSms=new MmSMSMessagePo();
-        BeanUtils.copyProperties(addSmsMessageDto,saveSms);
+        MmSMSMessagePo saveSms = new MmSMSMessagePo();
+        BeanUtils.copyProperties(addSmsMessageDto, saveSms);
         UmUserPo appCurrUser = securityUtil.getAppCurrUser();
-        saveSms.setCreateBy(appCurrUser.getId()+"");
+        saveSms.setCreateBy(appCurrUser.getId() + "");
         mapper.insert(saveSms);
 
         //获取用户手机号，逗号隔开
         int loopSize;
-        PushObjectEnum pushObjectEnum=PushObjectEnum.getPushObjectEnumById(addSmsMessageDto.getPushObject());
-        switch (pushObjectEnum){
+        PushObjectEnum pushObjectEnum = PushObjectEnum.getPushObjectEnumById(addSmsMessageDto.getPushObject());
+        switch (pushObjectEnum) {
             case ALLUSER:
                 //阿里批量发送短信一次只能发送1000条
-                  loopSize=userMapper.selectCount(Wrappers.emptyWrapper());
-                 for (int i=0;i<loopSize;i++){
-                     PageInfo<String> pageUserPhones = PageHelper.startPage(i + 1, 1000).doSelectPageInfo(() -> userMapper.getAllPhones());
-                     if (!ListUtil.isListNullAndEmpty(pageUserPhones.getList())){
-                         //阿里云发送短信
-                         SendSms.sendContent(GuavaUtil.ListToString(pageUserPhones.getList(),","),addSmsMessageDto.getTemplateCode());
-                     }
-                 }
-                 break;
+                loopSize = userMapper.selectCount(Wrappers.emptyWrapper());
+                for (int i = 0; i < loopSize; i++) {
+                    PageInfo<String> pageUserPhones = PageHelper.startPage(i + 1, 1000).doSelectPageInfo(() -> userMapper.getAllPhones());
+                    if (!ListUtil.isListNullAndEmpty(pageUserPhones.getList())) {
+                        //阿里云发送短信
+                        SendSms.sendContent(GuavaUtil.ListToString(pageUserPhones.getList(), ","), addSmsMessageDto.getTemplateCode());
+                    }
+                }
+                break;
             case SPECIFYUSER:
-                if (ListUtil.isListNullAndEmpty(addSmsMessageDto.getObjectIds())){
-                    throw new ServiceException(ResultCode.PARAM_ERROR,"选择指定用户时，用户的手机号码不能为空");
+                if (ListUtil.isListNullAndEmpty(addSmsMessageDto.getObjectIds())) {
+                    throw new ServiceException(ResultCode.PARAM_ERROR, "选择指定用户时，用户的手机号码不能为空");
                 }
                 //每1000个用户手机分组
                 List<List<String>> specifyUserPhones = Lists.partition(addSmsMessageDto.getObjectIds(), 1000);
-                specifyUserPhones.forEach(x->{
-                    if (!ListUtil.isListNullAndEmpty(x)){
+                specifyUserPhones.forEach(x -> {
+                    if (!ListUtil.isListNullAndEmpty(x)) {
                         //阿里云发送短信
-                        SendSms.sendContent(GuavaUtil.ListToString(x,","),addSmsMessageDto.getTemplateCode());
+                        SendSms.sendContent(GuavaUtil.ListToString(x, ","), addSmsMessageDto.getTemplateCode());
                     }
                 });
                 break;
             case SPECIFYMEMBERLEVEL:
-                if (ListUtil.isListNullAndEmpty(addSmsMessageDto.getObjectIds())){
-                    throw new ServiceException(ResultCode.NO_EXISTS,"选择指定用户时，会员等级id不能为空");
+                if (ListUtil.isListNullAndEmpty(addSmsMessageDto.getObjectIds())) {
+                    throw new ServiceException(ResultCode.NO_EXISTS, "选择指定会员等级时，会员等级id不能为空");
                 }
                 //通过会员ID获取对应的用户ID
                 String memberLevelId = addSmsMessageDto.getObjectIds().get(0);
-                if (memberLevelMapper.selectById(memberLevelId)==null){
-                    throw new ServiceException(ResultCode.NO_EXISTS,"数据库不存在该会员等级，请检查");
+                PmMemberLevelPo queryMemberLevel = memberLevelMapper.selectById(memberLevelId);
+                if (queryMemberLevel == null) {
+                    throw new ServiceException(ResultCode.NO_EXISTS, "数据库不存在该会员等级，请检查");
+                }
+
+                loopSize = userMapper.countLtOrEqLevel(queryMemberLevel.getLevel());
+                for (int i = 0; i < loopSize; i++) {
+                    PageInfo<String> pageUserPhone = PageHelper.startPage(i + 1, 1000).doSelectPageInfo(() -> userMapper.getPhonesLtOrEqLevel(queryMemberLevel.getLevel()));
+                    if (!ListUtil.isListNullAndEmpty(pageUserPhone.getList())) {
+                        //阿里云发送短信
+                        SendSms.sendContent(GuavaUtil.ListToString(pageUserPhone.getList(), ","), addSmsMessageDto.getTemplateCode());
+                    }
                 }
                 break;
         }

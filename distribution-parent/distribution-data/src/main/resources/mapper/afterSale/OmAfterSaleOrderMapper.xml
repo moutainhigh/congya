@@ -140,7 +140,7 @@
         </if>
     </select>
     <select id="searchCheckList" resultType="com.chauncy.data.vo.manage.order.afterSale.AfterSaleLogVo">
-            select `node`,`describe`,create_time
+            select `node`,`describes`,create_time
             from om_after_sale_log
             where del_flag=0 and after_sale_order_id=#{afterSaleOrderId}
             order by create_time

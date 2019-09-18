@@ -293,6 +293,13 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         updateUserDto.setTotalAddShopTicket(marginShopTicket);
         //修改主表字段
         mapper.updateUmUser(updateUserDto, currentUserName);
+        //更改等级时，顺便更改用户表冗余字段level和经验值
+        if (!updateUserDto.getMemberLevelId().equals(userPo.getMemberLevelId())){
+            PmMemberLevelPo queryMemberLevel = memberLevelMapper.selectById(updateUserDto.getMemberLevelId());
+            UmUserPo updateUser=new UmUserPo();
+            updateUser.setId(updateUserDto.getId()).setMemberLevelId(updateUserDto.getMemberLevelId())
+                    .setLevel(queryMemberLevel.getLevel()).setCurrentExperience(queryMemberLevel.getLevelExperience());
+        }
         if (!ListUtil.isListNullAndEmpty(updateUserDto.getLabelIds())) {
             //修改用户与标签关联表
             List<Long> labelIds = updateUserDto.getLabelIds();
@@ -366,7 +373,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         }
         if (memberLevelId != null) {
             UmUserPo updateUser = new UmUserPo();
-            updateUser.setId(userId).setMemberLevelId(memberLevelId);
+            updateUser.setId(userId).setMemberLevelId(memberLevelId).setLevel(nextLevel.getLevel()-1);
             mapper.updateById(updateUser);
         }
 

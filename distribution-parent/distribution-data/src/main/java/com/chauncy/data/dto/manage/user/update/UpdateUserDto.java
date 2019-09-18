@@ -1,5 +1,6 @@
 package com.chauncy.data.dto.manage.user.update;
 
+import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

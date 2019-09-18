@@ -1,15 +1,19 @@
 package com.chauncy.message.interact.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chauncy.common.enums.message.PushObjectEnum;
 import com.chauncy.common.enums.message.PushTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.common.util.GuavaUtil;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.common.util.third.JpushClientUtil;
+import com.chauncy.common.util.third.SendSms;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.interact.MmInteractPushPo;
 import com.chauncy.data.domain.po.message.interact.MmInteractRelMessageObjectPo;
+import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.dto.manage.message.interact.add.AddPushMessageDto;
 import com.chauncy.data.dto.manage.message.interact.select.SearchPushDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
@@ -135,12 +139,13 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
                         break;
                     //指定会员
                     case SPECIFYMEMBERLEVEL:
-                        if (addPushMessageDto.getObjectIds() == null && addPushMessageDto.getObjectIds().size() == 0) {
+                        if (addPushMessageDto.getObjectIds() == null || addPushMessageDto.getObjectIds().size() == 0) {
                             throw new ServiceException(ResultCode.NO_EXISTS, "请选择指定会员等级");
                         }
                         //通过会员ID获取对应的用户ID
                         Long memberLevelId = addPushMessageDto.getObjectIds().get(0);
-                        if (memberLevelMapper.selectById(memberLevelId) == null) {
+                        PmMemberLevelPo queryMemberLevel = memberLevelMapper.selectById(memberLevelId);
+                        if (queryMemberLevel == null) {
                             throw new ServiceException(ResultCode.NO_EXISTS, "数据库不存在该会员等级，请检查");
                         }
                         MmInteractRelMessageObjectPo relMessageObjectPo = new MmInteractRelMessageObjectPo();
@@ -150,13 +155,14 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
                         relMessageObjectPo.setCreateBy(securityUtil.getCurrUser().getUsername());
                         relMessageObjectMapper.insert(relMessageObjectPo);
 
-                        Map<String, Object> query = Maps.newHashMap();
-                        query.put("member_level_id", memberLevelId);
-                        List<Long> userIds = userMapper.selectByMap(query).stream().map(b -> b.getId()).collect(Collectors.toList());
-                        //List<long> 转List<String>
-                        List<String> alia = ListUtil.transferLongToString(userIds);
-                        List<List<String>> aliaLists = Lists.partition(alia, 1000);
-                        aliaLists.forEach(c -> JpushClientUtil.sendToBieMing(c, notificationTitle, addPushMessageDto.getTitle(), addPushMessageDto.getDetailHtml(), extras));
+                        int loopSize=userMapper.countLtOrEqLevel(queryMemberLevel.getLevel());
+                        for (int i=0;i<loopSize;i++){
+                            PageInfo<String> pageUserId = PageHelper.startPage(i + 1, 1000).doSelectPageInfo(() -> userMapper.getIdsLtOrEqLevel(queryMemberLevel.getLevel()));
+                            if (!ListUtil.isListNullAndEmpty(pageUserId.getList())){
+                                //极光推送
+                                JpushClientUtil.sendToBieMing(pageUserId.getList(), notificationTitle, addPushMessageDto.getTitle(), addPushMessageDto.getDetailHtml(), extras)           ;
+                            }
+                        }
                         break;
                 }
                 break;

@@ -25,30 +25,32 @@ public class OmShoppingCartServiceImplTest {
     @Autowired
     private OmOrderServiceImpl orderService;
 
+
     @Autowired
     private IUmUserService userService;
 
-   /* @Test
-    public void searchByIds() {
-        List<SettleAccountsDto> totalCarVos= Lists.newArrayList(
-                new SettleAccountsDto(1147887217915179009L,1),
-                new SettleAccountsDto(1147887218905034753L,1),
-                new SettleAccountsDto(1147887219978776577L,1),
-                new SettleAccountsDto(1148259822342352897L,1),
-                new SettleAccountsDto(1148258455756460033L,1)
-        );
-        shoppingCartService.searchByIds(totalCarVos);
-    }*/
-   @Test
-   public void searchByIds() {
+    /* @Test
+     public void searchByIds() {
+         List<SettleAccountsDto> totalCarVos= Lists.newArrayList(
+                 new SettleAccountsDto(1147887217915179009L,1),
+                 new SettleAccountsDto(1147887218905034753L,1),
+                 new SettleAccountsDto(1147887219978776577L,1),
+                 new SettleAccountsDto(1148259822342352897L,1),
+                 new SettleAccountsDto(1148258455756460033L,1)
+         );
+         shoppingCartService.searchByIds(totalCarVos);
+     }*/
+    @Test
+    public void updateUserLevel() {
+        userService.list().forEach(  x->userService.updateLevel(x.getId()));
 
-       orderService.orderDeadline(184499553754419200l);
-   }
 
-   @Test
-    public void firstSecond(){
-       shoppingCartService.getPayUserMessage(1146432777142534145l);
-   }
+    }
+
+    @Test
+    public void firstSecond() {
+        shoppingCartService.getPayUserMessage(1146432777142534145l);
+    }
 
 
 }
