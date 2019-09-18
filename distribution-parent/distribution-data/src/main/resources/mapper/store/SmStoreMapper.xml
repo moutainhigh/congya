@@ -408,12 +408,13 @@
             ) AS likedSum,
             `pg`.icon AS goodsIcon,
             `pg`.id AS goodsId
-        FROM sm_store ss , pm_goods `pg`
-        WHERE  ss.id = #{storeId}
-        AND ss.id = `pg`.store_id
+        FROM sm_store ss LEFT JOIN pm_goods `pg`
+        ON ss.id = `pg`.store_id
         AND `pg`.del_flag = 0
         AND pg.publish_status = 1
         AND pg.star_status = 1
+        WHERE  ss.id = #{storeId}
+
     </select>
 
 </mapper>

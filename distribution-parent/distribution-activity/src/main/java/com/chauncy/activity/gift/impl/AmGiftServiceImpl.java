@@ -3,13 +3,16 @@ package com.chauncy.activity.gift.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.activity.gift.IAmGiftRelGiftCouponService;
 import com.chauncy.activity.gift.IAmGiftService;
+import com.chauncy.common.constant.RabbitConstants;
 import com.chauncy.common.enums.app.coupon.CouponBeLongTypeEnum;
 import com.chauncy.common.enums.app.coupon.CouponUseStatusEnum;
 import com.chauncy.common.enums.app.gift.GiftTypeEnum;
+import com.chauncy.common.enums.log.LogTriggerEventEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.common.util.ListUtil;
+import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.activity.coupon.AmCouponRelCouponUserPo;
 import com.chauncy.data.domain.po.activity.gift.AmGiftOrderPo;
@@ -43,6 +46,7 @@ import com.chauncy.user.service.IUmUserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.assertj.core.util.Lists;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -95,6 +99,8 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
     @Autowired
     private IUmUserService userService;
 
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
     /**
      * 保存礼包
      *
@@ -351,6 +357,14 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
             });
         }
         //TODO junhao补充经验值、购物券、积分、优惠券等流水
+        //新人领取礼包对应流水生成
+        AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
+        addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.NEW_GIFT);
+        addAccountLogBo.setRelId(giftId);
+        addAccountLogBo.setOperator(String.valueOf(userPo.getId()));
+        //listenerOrderLogQueue 消息队列
+        this.rabbitTemplate.convertAndSend(
+                RabbitConstants.ACCOUNT_LOG_EXCHANGE, RabbitConstants.ACCOUNT_LOG_ROUTING_KEY, addAccountLogBo);
     }
 
     /**
@@ -461,11 +475,10 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
                     mapper.updateById(b);
                 });
             }
-
-            AmGiftPo giftPo = mapper.selectById(id);
-            giftPo.setEnable(enableDto.getEnable()).setUpdateBy(user.getUsername());
-            mapper.updateById(giftPo);
         }
+        AmGiftPo giftPo = mapper.selectById(id);
+        giftPo.setEnable(enableDto.getEnable()).setUpdateBy(user.getUsername());
+        mapper.updateById(giftPo);
     }
 
     /**

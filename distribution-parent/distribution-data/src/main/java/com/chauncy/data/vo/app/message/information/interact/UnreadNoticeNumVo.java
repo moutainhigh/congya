@@ -24,18 +24,11 @@ public class UnreadNoticeNumVo implements Serializable {
     @ApiModelProperty(value = "系统通知消息未读数目")
     private Integer systemNoticeNum;
 
-    @JsonIgnore
-    @JSONField(serialize=false)
-    @ApiModelProperty(value = "系统指定用户通知消息未读数目")
-    private Integer systemNoticeNum1;
-
-    @JsonIgnore
-    @JSONField(serialize=false)
-    @ApiModelProperty(value = "系统全部用户通知消息未读数目")
-    private Integer systemNoticeNum2;
-
     @ApiModelProperty(value = "任务奖励消息未读数目")
-    private String taskRewardNum;
+    private Integer taskRewardNum;
+
+    @ApiModelProperty(value = "总未读数目")
+    private Integer sum;
 
 
 }

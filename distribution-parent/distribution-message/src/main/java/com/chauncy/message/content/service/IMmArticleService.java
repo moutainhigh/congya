@@ -1,13 +1,17 @@
 package com.chauncy.message.content.service;
 
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.message.content.MmArticlePo;
+import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.content.add.AddArticleDto;
 import com.chauncy.data.dto.manage.message.content.select.search.SearchContentDto;
+import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.manage.message.content.ArticleVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -56,4 +60,28 @@ public interface IMmArticleService extends Service<MmArticlePo> {
      * @return
      */
     void delArticleByIds(Long[] ids);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-18 11:17
+     * @Description //批量启用或禁用,同一个文章位(除帮助中心外)只能有一个是启用状态
+     *
+     * @Update chauncy
+     *
+     * @Param [baseUpdateStatusDto]
+     * @return void
+     **/
+    void editEnabled(BaseUpdateStatusDto baseUpdateStatusDto);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-18 16:11
+     * @Description //查找所有的文章位置
+     *
+     * @Update chauncy
+     *
+     * @Param []
+     * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.BaseVo>>
+     **/
+    Map<Integer,String> findArticleLocations();
 }

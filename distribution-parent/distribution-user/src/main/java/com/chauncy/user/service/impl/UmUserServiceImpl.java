@@ -24,6 +24,7 @@ import com.chauncy.data.domain.po.user.UmRelUserLabelPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.user.add.AddUserDto;
 import com.chauncy.data.dto.app.user.add.BindUserDto;
+import com.chauncy.data.dto.app.user.select.SearchMyFriendDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserIdCardDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
 import com.chauncy.data.dto.manage.user.update.UpdateUserDto;
@@ -36,6 +37,7 @@ import com.chauncy.data.mapper.user.UmRelUserLabelMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.app.user.GetMembersCenterVo;
 import com.chauncy.data.vo.app.user.MyDataStatisticsVo;
+import com.chauncy.data.vo.app.user.SearchMyFriendVo;
 import com.chauncy.data.vo.app.user.UserDataVo;
 import com.chauncy.data.vo.manage.order.log.SearchUserLogVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserDetailVo;
@@ -463,6 +465,29 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     @Override
     public MyDataStatisticsVo getMyDataStatistics(UmUserPo userPo) {
 
-        return null;
+        return mapper.getMyDataStatistics(userPo.getId());
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-18 10:26
+     * @Description //条件分页查询我的粉丝
+     *
+     * @Update chauncy
+     *
+     * @Param [searchMyFriendDto, umUserPo]
+     * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.user.SearchMyFriendVo>
+     **/
+    @Override
+    public PageInfo<SearchMyFriendVo> searchMyFriend(SearchMyFriendDto searchMyFriendDto, UmUserPo umUserPo) {
+
+        Integer pageNo = searchMyFriendDto.getPageNo() == null ? defaultPageNo : searchMyFriendDto.getPageNo();
+        Integer pageSize = searchMyFriendDto.getPageSize() == null ? defaultPageSize : searchMyFriendDto.getPageSize();
+
+        PageInfo<SearchMyFriendVo> searchMyFriendVoPageInfo = PageHelper.startPage(pageNo,pageSize)
+                .doSelectPageInfo(()->mapper.searchMyFriend(umUserPo.getId()));
+
+
+        return searchMyFriendVoPageInfo;
     }
 }

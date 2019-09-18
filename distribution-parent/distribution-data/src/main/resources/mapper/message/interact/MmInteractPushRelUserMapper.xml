@@ -3,7 +3,7 @@
 <mapper namespace="com.chauncy.data.mapper.message.interact.MmInteractPushRelUserMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.message.interact.MmInteractPushRelUserPo">
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.message.interact.MmUserNoticeRelUserPo">
         <id column="id" property="id" />
         <result column="push_id" property="pushId" />
         <result column="rel_id" property="relId" />

@@ -13,11 +13,13 @@
         <result column="name" property="name" />
         <result column="detail_html" property="detailHtml" />
         <result column="article_location" property="articleLocation" />
+        <result column="article_location" property="articleLocation" />
+        <result column="enabled" property="enabled" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, create_by, create_time, update_by, update_time, del_flag, name, detail_html, article_location
+        id, create_by, create_time, update_by, update_time, del_flag, name, detail_html, article_location, enabled
     </sql>
 
     <select id="searchArticle" resultType="com.chauncy.data.vo.manage.message.content.ArticleVo">
@@ -35,7 +37,7 @@
                 and DATE_FORMAT(update_time,'%Y-%m-%d') &lt;= #{updateEndTime}
             </if>
         </where>
-        order by update_time
+        order by create_time desc
     </select>
 
 </mapper>

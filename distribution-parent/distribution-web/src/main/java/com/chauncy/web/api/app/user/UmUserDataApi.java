@@ -10,18 +10,21 @@ import com.chauncy.data.dto.app.user.add.AddAreaDto;
 import com.chauncy.data.dto.app.user.add.AddIdCardDto;
 import com.chauncy.data.dto.app.user.add.AddUserDto;
 import com.chauncy.data.dto.app.user.add.BindUserDto;
+import com.chauncy.data.dto.app.user.select.SearchMyFriendDto;
 import com.chauncy.data.dto.app.user.update.UpdatePhoneDto;
 import com.chauncy.data.dto.app.user.update.UpdateUserDataDto;
 import com.chauncy.data.valid.group.ISaveGroup;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.user.MyDataStatisticsVo;
+import com.chauncy.data.vo.app.user.SearchMyFriendVo;
 import com.chauncy.data.vo.app.user.ShipAreaVo;
 import com.chauncy.data.vo.app.user.UserDataVo;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.user.service.IUmAreaShippingService;
 import com.chauncy.user.service.IUmUserService;
 import com.chauncy.web.base.BaseApi;
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -109,7 +112,7 @@ public class UmUserDataApi extends BaseApi {
      * @param accountType
      * @return
      */
-    @GetMapping("/getAccount/{accountType}")
+    /*@GetMapping("/getAccount/{accountType}")
     @ApiOperation("获取用户的账户余额")
     public JsonViewData getAccount(@ApiParam(required = true,name = "accountType",value = "accountType账目类型   \nRED_ENVELOPS(红包)   \nSHOP_TICKET(购物券)")
                                 @PathVariable AccountTypeEnum accountType){
@@ -122,7 +125,7 @@ public class UmUserDataApi extends BaseApi {
         }
         return new JsonViewData(ResultCode.SUCCESS, "查询成功", umUserService.getAccount(accountType, umUserPo));
 
-    }
+    }*/
 
     /**
      * 查找用户收货地址
@@ -272,5 +275,23 @@ public class UmUserDataApi extends BaseApi {
         return setJsonViewData(service.getMyDataStatistics(userPo));
     }
 
+    /**
+     * @Author chauncy
+     * @Date 2019-09-18 10:26
+     * @Description //条件分页查询我的粉丝
+     *
+     * @Update chauncy
+     *
+     * @Param [searchMyFriendDto]
+     * @return com.chauncy.data.vo.JsonViewData<com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.user.SearchMyFriendVo>>
+     **/
+    @ApiOperation("条件分页查询我的粉丝")
+    @PostMapping("/searchMyFriend")
+    public JsonViewData<PageInfo<SearchMyFriendVo>> searchMyFriend(@RequestBody @ApiParam(required = true,name ="",value = "条件分页查询我的粉丝")
+                                                         @Validated SearchMyFriendDto searchMyFriendDto){
 
+        UmUserPo umUserPo = securityUtil.getAppCurrUser();
+
+        return setJsonViewData(service.searchMyFriend(searchMyFriendDto,umUserPo));
+    }
 }

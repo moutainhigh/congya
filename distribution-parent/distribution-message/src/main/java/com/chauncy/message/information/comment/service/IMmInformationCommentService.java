@@ -58,7 +58,7 @@ public interface IMmInformationCommentService extends Service<MmInformationComme
     /**
      * 保存评论
      */
-    void saveInfoComment(AddInformationCommentDto addInformationCommentDto, Long userId);
+    InformationMainCommentVo saveInfoComment(AddInformationCommentDto addInformationCommentDto, Long userId);
 
     /**
      * 用户点赞评论

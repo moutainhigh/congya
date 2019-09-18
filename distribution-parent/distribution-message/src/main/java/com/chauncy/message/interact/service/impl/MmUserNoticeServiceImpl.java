@@ -1,6 +1,7 @@
 package com.chauncy.message.interact.service.impl;
 
 import com.chauncy.common.enums.message.NoticeTypeEnum;
+import com.chauncy.data.domain.po.message.information.MmUserInformationTimePo;
 import com.chauncy.data.domain.po.message.interact.MmUserNoticePo;
 import com.chauncy.data.domain.po.message.interact.MmUserNoticeTimePo;
 import com.chauncy.data.domain.po.user.UmUserPo;
@@ -50,9 +51,22 @@ public class MmUserNoticeServiceImpl extends AbstractService<MmUserNoticeMapper,
     @Override
     public UnreadNoticeNumVo getUnreadNoticeNum() {
         UmUserPo userPo = securityUtil.getAppCurrUser();
-        UnreadNoticeNumVo unreadNoticeNum = mapper.getUnreadNoticeNum(userPo.getId());
-        unreadNoticeNum.setSystemNoticeNum(unreadNoticeNum.getSystemNoticeNum1() + unreadNoticeNum.getSystemNoticeNum2());
-        return unreadNoticeNum;
+        MmUserNoticeTimePo mmUserNoticeTimePo = mmUserNoticeTimeMapper.selectById(userPo);
+        if(null == mmUserNoticeTimePo) {
+            //记录不存在 添加记录
+            mmUserNoticeTimePo = new MmUserNoticeTimePo();
+            mmUserNoticeTimePo.setId(userPo.getId());
+            mmUserNoticeTimeMapper.insert(mmUserNoticeTimePo);
+        }
+        UnreadNoticeNumVo unreadNoticeNumVo = mapper.getUnreadNoticeNum(
+                userPo.getId(),
+                mmUserNoticeTimePo.getReadTime(),
+                userPo.getLevel());
+        //未读消息总数
+        unreadNoticeNumVo.setSum(unreadNoticeNumVo.getSystemNoticeNum() +
+                unreadNoticeNumVo.getExpressNum() +
+                unreadNoticeNumVo.getTaskRewardNum());
+        return unreadNoticeNumVo;
     }
 
     /**
@@ -77,19 +91,13 @@ public class MmUserNoticeServiceImpl extends AbstractService<MmUserNoticeMapper,
         } else if (noticeType.equals(NoticeTypeEnum.System_Notice.getId())) {
             //系统通知从mm_interact_push表获取
             userNoticeListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
-                    .doSelectPageInfo(() -> mapper.searchUserSystemNoticeList(userPo.getId(), userPo.getMemberLevelId()));
+                    .doSelectPageInfo(() -> mapper.searchUserSystemNoticeList(userPo.getId(), userPo.getLevel()));
             //判断消息是否已读  MmUserNoticeTimePo保存用户最近一次访问消息接口的时间
             MmUserNoticeTimePo mmUserNoticeTimePo = mmUserNoticeTimeMapper.selectById(userPo.getId());
-            if(null == mmUserNoticeTimePo) {
-                //系统消息全部未读
-                userNoticeListVoPageInfo.getList().forEach(userNoticeListVo -> userNoticeListVo.setIsRead(false));
-                //记录不存在 添加记录，记录用户访问系统消息的时间
-                mmUserNoticeTimePo = new MmUserNoticeTimePo();
-                mmUserNoticeTimePo.setId(userPo.getId());
+            if(null != mmUserNoticeTimePo) {
+                //记录已存在 更新访问时间
                 mmUserNoticeTimePo.setReadTime(LocalDateTime.now());
-                mmUserNoticeTimeMapper.insert(mmUserNoticeTimePo);
-            } else {
-                //系统消息全部未读
+                mmUserNoticeTimeMapper.updateById(mmUserNoticeTimePo);
                 MmUserNoticeTimePo finalMmUserNoticeTimePo = mmUserNoticeTimePo;
                 userNoticeListVoPageInfo.getList().forEach(userNoticeListVo -> {
                     if(userNoticeListVo.getCreateTime().isBefore(finalMmUserNoticeTimePo.getReadTime())) {
@@ -100,7 +108,9 @@ public class MmUserNoticeServiceImpl extends AbstractService<MmUserNoticeMapper,
                         userNoticeListVo.setIsRead(false);
                     }
                 });
-                //记录已存在 更新访问时间
+            } else {
+                mmUserNoticeTimePo = new MmUserNoticeTimePo();
+                mmUserNoticeTimePo.setId(userPo.getId());
                 mmUserNoticeTimePo.setReadTime(LocalDateTime.now());
                 mmUserNoticeTimeMapper.updateById(mmUserNoticeTimePo);
             }

@@ -1,18 +1,24 @@
 package com.chauncy.message.content.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.message.ArticleLocationEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.content.MmArticlePo;
+import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.content.add.AddArticleDto;
 import com.chauncy.data.dto.manage.message.content.select.search.SearchContentDto;
 import com.chauncy.data.mapper.message.content.MmArticleMapper;
+import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.manage.message.content.ArticleVo;
 import com.chauncy.message.content.service.IMmArticleService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Maps;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,11 +60,11 @@ public class MmArticleServiceImpl extends AbstractService<MmArticleMapper, MmArt
         map.put("article_location",addArticleDto.getArticleLocation());
         List<MmArticlePo> contentDtos = mapper.selectByMap(map);
         //只有帮助中心位置才能有多个文章
-        if (!addArticleDto.getArticleLocation().equals(ArticleLocationEnum.HELP_CENTER.getName())){
+        /*if (!addArticleDto.getArticleLocation().equals(ArticleLocationEnum.HELP_CENTER.getName())){
             if (contentDtos!=null && contentDtos.size()!=0){
                 throw new ServiceException(ResultCode.DUPLICATION,addArticleDto.getArticleLocation()+"位置下已有文章,请检查");
             }
-        }
+        }*/
         MmArticlePo articlePo = new MmArticlePo();
         BeanUtils.copyProperties(addArticleDto,articlePo);
         articlePo.setId(null);
@@ -128,4 +134,60 @@ public class MmArticleServiceImpl extends AbstractService<MmArticleMapper, MmArt
         });
        mapper.deleteBatchIds(Arrays.asList(ids));
     }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-18 11:17
+     * @Description //批量启用或禁用,同一个文章位(除帮助中心外)只能有一个是启用状态
+     *
+     * @Update chauncy
+     *
+     * @Param [baseUpdateStatusDto]
+     * @return void
+     **/
+    @Override
+    public void editEnabled(BaseUpdateStatusDto baseUpdateStatusDto) {
+
+        SysUserPo userPo = securityUtil.getCurrUser();
+        Long id = Arrays.asList(baseUpdateStatusDto.getId()).get(0);
+        //获取该文章位置下(除帮助中心外)的所有文章的启用状态，若有启用状态的置为禁用--0/false
+        String location = mapper.selectById(id).getArticleLocation();
+        if (!location.equals(ArticleLocationEnum.HELP_CENTER.getName())) {
+            if (baseUpdateStatusDto.getEnabled()) {
+                //获取该广告下的所有启用广告并禁用
+                List<MmArticlePo> articlePos = mapper.selectList(new QueryWrapper<MmArticlePo>().lambda().and(obj ->
+                        obj.eq(MmArticlePo::getEnabled, true).eq(MmArticlePo::getArticleLocation, location)));
+                articlePos.forEach(b -> {
+                    b.setEnabled(false);
+                    mapper.updateById(b);
+                });
+            }
+        }
+        MmArticlePo articlePo = mapper.selectById(id);
+        articlePo.setEnabled(baseUpdateStatusDto.getEnabled()).setUpdateBy(userPo.getUsername());
+        mapper.updateById(articlePo);
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-18 16:11
+     * @Description //查找所有的文章位置
+     *
+     * @Update chauncy
+     *
+     * @Param []
+     * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.BaseVo>>
+     **/
+    @Override
+    public Map<Integer,String> findArticleLocations() {
+
+        //存储文章位置
+        Map<Integer, String> locations = Maps.newHashMap();
+        List<ArticleLocationEnum> articleLocationEnums = Arrays.stream(ArticleLocationEnum.values()).collect(Collectors.toList());
+        articleLocationEnums.forEach(a -> {
+            locations.put(a.getId(), a.getName());
+        });
+        return locations;
+    }
+
 }

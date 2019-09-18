@@ -2,6 +2,7 @@ package com.chauncy.web.api.manage.message.content;
 
 
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.content.add.AddArticleDto;
 import com.chauncy.data.dto.manage.message.content.select.search.SearchContentDto;
 import com.chauncy.data.valid.group.IUpdateGroup;
@@ -97,5 +98,22 @@ public class ArticleApi {
         return new JsonViewData(ResultCode.SUCCESS);
     }
 
+    /**
+     * @Author chauncy
+     * @Date 2019-09-18 11:08
+     * @Description //批量启用或禁用,同一个文章位(除帮助中心外)只能有一个是启用状态
+     *
+     * @Update chauncy
+     *
+     * @Param [baseUpdateStatusDto]
+     * @return com.chauncy.data.vo.JsonViewData
+     **/
+    @PostMapping("/editEnable")
+    @ApiOperation("启用或禁用,没有批量启用/禁用")
+    public JsonViewData editEnable(@Validated @RequestBody  @ApiParam(required = true, name = "baseUpdateStatusDto", value = "启用禁用广告")
+                                           BaseUpdateStatusDto baseUpdateStatusDto){
+        service.editEnabled(baseUpdateStatusDto);
+        return new JsonViewData(ResultCode.SUCCESS,"操作成功");
+    }
 
 }

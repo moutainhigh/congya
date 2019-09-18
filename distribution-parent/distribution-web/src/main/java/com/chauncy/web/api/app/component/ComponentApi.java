@@ -7,6 +7,7 @@ import com.chauncy.data.dto.app.component.ShareDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.user.GetMembersCenterVo;
+import com.chauncy.message.content.service.IMmArticleService;
 import com.chauncy.message.content.service.IMmBootPageService;
 import com.chauncy.message.content.service.IMmKeywordsSearchService;
 import com.chauncy.product.service.IPmGoodsService;
@@ -21,6 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author cheng
@@ -47,6 +49,9 @@ public class ComponentApi extends BaseApi {
 
     @Autowired
     private IUmUserService userService;
+
+    @Autowired
+    private IMmArticleService articleService;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -139,5 +144,26 @@ public class ComponentApi extends BaseApi {
 
         return setJsonViewData(userService.getMembersCenter(userPo));
     }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-18 16:11
+     * @Description //查找所有的文章位置
+     *
+     * @Update chauncy
+     *
+     * @Param []
+     * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.BaseVo>>
+     **/
+    @GetMapping("/selectLocations")
+    @ApiOperation("查找所有的文章位置")
+    public JsonViewData<Map<Integer,String>> selectLocations(){
+
+//        System.out.println(articleService.findArticleLocations());
+
+        return setJsonViewData(articleService.findArticleLocations());
+    }
+
+//    public JsonViewData<List<FindArticleContentVo>> findArticleContent(@PathVariable Integer type)
 
 }
