@@ -7,6 +7,7 @@ import com.chauncy.data.dto.app.component.ShareDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.user.GetMembersCenterVo;
+import com.chauncy.data.vo.manage.message.content.app.FindArticleContentVo;
 import com.chauncy.message.content.service.IMmArticleService;
 import com.chauncy.message.content.service.IMmBootPageService;
 import com.chauncy.message.content.service.IMmKeywordsSearchService;
@@ -164,6 +165,21 @@ public class ComponentApi extends BaseApi {
         return setJsonViewData(articleService.findArticleLocations());
     }
 
-//    public JsonViewData<List<FindArticleContentVo>> findArticleContent(@PathVariable Integer type)
+    /**
+     * @Author chauncy
+     * @Date 2019-09-18 21:14
+     * @Description //根据文章位置类型获取文章信息
+     *
+     * @Update chauncy
+     *
+     * @Param [type]
+     * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.manage.message.content.app.FindArticleContentVo>>
+     **/
+    @GetMapping("/findArticleContent/{type}")
+    @ApiOperation("根据文章位置类型获取文章信息")
+    public JsonViewData<List<FindArticleContentVo>> findArticleContent(@PathVariable Integer type){
+
+        return setJsonViewData(articleService.findArticleContent(type));
+    }
 
 }

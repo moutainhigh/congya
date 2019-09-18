@@ -29,6 +29,9 @@ public class SearchAdvicesDto {
     @ApiModelProperty(value = "广告名称")
     private String name;
 
+    @ApiModelProperty(value = "广告位")
+    private String location;
+
     @ApiModelProperty(value = "状态： 1->启用 0->禁用")
     private Boolean enabled;
 }

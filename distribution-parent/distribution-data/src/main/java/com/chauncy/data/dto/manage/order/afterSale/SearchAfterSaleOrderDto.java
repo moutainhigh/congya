@@ -7,6 +7,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.Min;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * @Author zhangrt
@@ -23,10 +25,10 @@ public class SearchAfterSaleOrderDto {
     private String storeName;
 
     @ApiModelProperty("开始申请时间")
-    private String startApplyTime;
+    private LocalDateTime startApplyTime;
 
     @ApiModelProperty("结束申请时间")
-    private String endApplyTime;
+    private LocalDateTime endApplyTime;
 
     @ApiModelProperty(value = "售后类型：ONLY_REFUND-仅退款 RETURN_GOODS-退款退货")
     private AfterSaleTypeEnum afterSaleType;
@@ -36,10 +38,10 @@ public class SearchAfterSaleOrderDto {
     private AfterSaleStatusEnum status;
 
     @ApiModelProperty("售后最小金额")
-    private String minRefundMoney;
+    private BigDecimal minRefundMoney;
 
     @ApiModelProperty("售后最大金额")
-    private String maxRefundMoney;
+    private BigDecimal maxRefundMoney;
 
     @Min(1)
     @ApiModelProperty(value = "页码")
