@@ -1,10 +1,14 @@
 package com.chauncy.message.content.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.message.ArticleLocationEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.content.MmArticlePo;
+import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.content.add.AddArticleDto;
 import com.chauncy.data.dto.manage.message.content.select.search.SearchContentDto;
 import com.chauncy.data.mapper.message.content.MmArticleMapper;
@@ -127,5 +131,37 @@ public class MmArticleServiceImpl extends AbstractService<MmArticleMapper, MmArt
             }
         });
        mapper.deleteBatchIds(Arrays.asList(ids));
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-18 11:17
+     * @Description //批量启用或禁用,同一个文章位置只能有一个是启用状态
+     *
+     * @Update chauncy
+     *
+     * @Param [baseUpdateStatusDto]
+     * @return void
+     **/
+    @Override
+    public void editEnabled(BaseUpdateStatusDto baseUpdateStatusDto) {
+
+        SysUserPo userPo = securityUtil.getCurrUser();
+
+        Long id = Arrays.asList(baseUpdateStatusDto.getId()).get(0);
+        if (baseUpdateStatusDto.getEnabled()){
+            //获取该文章位置下的所有文章的启用状态，若有启用状态的置为禁用--0/false、
+            String location = mapper.selectById(id).getArticleLocation();
+            //获取该广告下的所有启用广告并禁用
+            List<MmArticlePo> articlePos = mapper.selectList(new QueryWrapper<MmArticlePo>().lambda().and(obj->
+                    obj.eq(MmArticlePo::getEnabled,true).eq(MmArticlePo::getArticleLocation,location)));
+            articlePos.forEach(b->{
+                b.setEnabled(false);
+                mapper.updateById(b);
+            });
+        }
+        MmArticlePo articlePo = mapper.selectById(id);
+        articlePo.setEnabled(baseUpdateStatusDto.getEnabled()).setUpdateBy(userPo.getUsername());
+        mapper.updateById(articlePo);
     }
 }

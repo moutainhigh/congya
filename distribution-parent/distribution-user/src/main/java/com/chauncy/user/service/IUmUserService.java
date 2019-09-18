@@ -7,11 +7,13 @@ import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.user.add.AddUserDto;
 import com.chauncy.data.dto.app.user.add.BindUserDto;
+import com.chauncy.data.dto.app.user.select.SearchMyFriendDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserIdCardDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
 import com.chauncy.data.dto.manage.user.update.UpdateUserDto;
 import com.chauncy.data.vo.app.user.GetMembersCenterVo;
 import com.chauncy.data.vo.app.user.MyDataStatisticsVo;
+import com.chauncy.data.vo.app.user.SearchMyFriendVo;
 import com.chauncy.data.vo.app.user.UserDataVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserDetailVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserRelVo;
@@ -165,4 +167,16 @@ public interface IUmUserService extends Service<UmUserPo> {
      * @return
      */
     MyDataStatisticsVo getMyDataStatistics(UmUserPo userPo);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-18 10:26
+     * @Description //条件分页查询我的粉丝
+     *
+     * @Update chauncy
+     *
+     * @Param [searchMyFriendDto, umUserPo]
+     * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.user.SearchMyFriendVo>
+     **/
+    PageInfo<SearchMyFriendVo> searchMyFriend(SearchMyFriendDto searchMyFriendDto, UmUserPo umUserPo);
 }

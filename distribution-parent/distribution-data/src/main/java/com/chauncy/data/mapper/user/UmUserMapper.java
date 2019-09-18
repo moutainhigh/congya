@@ -8,6 +8,7 @@ import com.chauncy.data.dto.manage.user.update.UpdateUserDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.app.user.GetMembersCenterVo;
 import com.chauncy.data.vo.app.user.MyDataStatisticsVo;
+import com.chauncy.data.vo.app.user.SearchMyFriendVo;
 import com.chauncy.data.vo.app.user.UserDataVo;
 import com.chauncy.data.vo.manage.message.interact.push.UmUsersVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserDetailVo;
@@ -154,4 +155,19 @@ public interface UmUserMapper extends IBaseMapper<UmUserPo> {
      * @return
      */
     MyDataStatisticsVo getMyDataStatistics(Long userId);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-18 10:35
+     * @Description //条件分页查询我的粉丝
+     *
+     * @Update chauncy
+     *
+     * @Param [userId]
+     * @return java.util.List<com.chauncy.data.vo.app.user.SearchMyFriendVo>
+     **/
+    @Select("select a.id as user_id,a.photo,a.name as user_name,b.actor_image " +
+            "from um_user a,pm_member_level b " +
+            "where a.del_flag=0 and b.del_flag =0  and a.parent_id = #{userId} and a.member_level_id = b.id")
+    List<SearchMyFriendVo> searchMyFriend(@Param("userId") Long userId);
 }

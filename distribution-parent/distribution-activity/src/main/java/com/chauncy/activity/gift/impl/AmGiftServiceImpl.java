@@ -475,11 +475,10 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
                     mapper.updateById(b);
                 });
             }
-
-            AmGiftPo giftPo = mapper.selectById(id);
-            giftPo.setEnable(enableDto.getEnable()).setUpdateBy(user.getUsername());
-            mapper.updateById(giftPo);
         }
+        AmGiftPo giftPo = mapper.selectById(id);
+        giftPo.setEnable(enableDto.getEnable()).setUpdateBy(user.getUsername());
+        mapper.updateById(giftPo);
     }
 
     /**
