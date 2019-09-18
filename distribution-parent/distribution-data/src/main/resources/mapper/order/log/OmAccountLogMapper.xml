@@ -81,7 +81,7 @@
             <if test="minAmount != null">
                 and ABS(oal.amount) <![CDATA[>= ]]>  #{minAmount}
             </if>
-            <if test="maxAmount != null">F
+            <if test="maxAmount != null">
                 and ABS(oal.amount) <![CDATA[<= ]]> #{maxAmount}
             </if>
         </where>
