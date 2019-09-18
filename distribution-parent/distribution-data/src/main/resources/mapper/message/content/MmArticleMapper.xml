@@ -37,7 +37,7 @@
                 and DATE_FORMAT(update_time,'%Y-%m-%d') &lt;= #{updateEndTime}
             </if>
         </where>
-        order by update_time
+        order by create_time desc
     </select>
 
 </mapper>

@@ -101,7 +101,7 @@ public class ArticleApi {
     /**
      * @Author chauncy
      * @Date 2019-09-18 11:08
-     * @Description //批量启用或禁用,同一个文章位置只能有一个是启用状态
+     * @Description //批量启用或禁用,同一个文章位(除帮助中心外)只能有一个是启用状态
      *
      * @Update chauncy
      *
