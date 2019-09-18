@@ -1,5 +1,6 @@
 package com.chauncy.message.interact.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.enums.message.NoticeTypeEnum;
 import com.chauncy.data.domain.po.message.information.MmUserInformationTimePo;
 import com.chauncy.data.domain.po.message.interact.MmUserNoticePo;
@@ -88,6 +89,13 @@ public class MmUserNoticeServiceImpl extends AbstractService<MmUserNoticeMapper,
             //物流快递 跟 任务奖励的消息从 mm_user_notice表获取
             userNoticeListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                     .doSelectPageInfo(() -> mapper.searchUserNoticeList(userPo.getId(), noticeType));
+            //消息设置为已读
+            UpdateWrapper<MmUserNoticePo> userNoticePoUpdateWrapper = new UpdateWrapper<>();
+            userNoticePoUpdateWrapper.lambda()
+                    .eq(MmUserNoticePo::getUserId, userPo.getId())
+                    .eq(MmUserNoticePo::getNoticeType, noticeType)
+                    .set(MmUserNoticePo::getIsRead, true);
+            this.update(userNoticePoUpdateWrapper);
         } else if (noticeType.equals(NoticeTypeEnum.System_Notice.getId())) {
             //系统通知从mm_interact_push表获取
             userNoticeListVoPageInfo = PageHelper.startPage(pageNo, pageSize)

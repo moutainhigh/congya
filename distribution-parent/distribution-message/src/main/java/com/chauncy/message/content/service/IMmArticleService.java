@@ -83,5 +83,5 @@ public interface IMmArticleService extends Service<MmArticlePo> {
      * @Param []
      * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.BaseVo>>
      **/
-    Map<Integer,String> findArticleLocations();
+    Map<String, String> findArticleLocations();
 }

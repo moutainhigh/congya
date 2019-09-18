@@ -23,7 +23,7 @@ import java.util.List;
  * @author yeJH
  * @since 2019/9/14 14:17
  */
-@Api(tags = "APP_消息列表接口（未完成）")
+@Api(tags = "APP_消息列表接口")
 @RestController
 @RequestMapping("/app/user/notice")
 @Slf4j
