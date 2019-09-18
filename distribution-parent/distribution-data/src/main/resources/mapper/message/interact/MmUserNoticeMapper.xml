@@ -26,29 +26,29 @@
             SUM(mun.notice_type = 1) AS expressNum,
             SUM(mun.notice_type = 3) AS taskRewardNum ,
             (
-                SELECT COUNT(1)
-                FROM mm_interact_rel_message_object mirmo
-                LEFT JOIN mm_interact_push mip
-                ON mirmo.push_id  = mip.id
-                WHERE mirmo.object_id = #{userId}
-                AND mip.push_type = 'APP内消息中心推送'
-                AND mirmo.is_read = 0
-            ) AS systemNoticeNum1,
-            (
-                SELECT COUNT(1)
-                FROM mm_interact_push mip, um_user uu
-                WHERE uu.id = #{userId}
-                AND mip.object_type = '全部用户'
-                AND push_type = 'APP内消息中心推送'
-                AND uu.create_time > mip.create_time
-            ) AS systemNoticeNum2
+                SELECT
+                    COUNT(1)
+                FROM mm_interact_push mip
+                LEFT JOIN mm_user_notice_rel_user munru
+                ON mip.id = munru.push_id
+                LEFT JOIN pm_member_level pml
+                ON mip.id = munru.push_id
+                WHERE
+                    mip.object_type = '全部用户' AND mip.push_type = 'APP内消息中心推送'
+                    AND mip.create_time  <![CDATA[> ]]>  #{readTime}
+                    OR  (
+                        mip.object_type = '指定会员等级' AND #{userLevel} <![CDATA[<= ]]>  munru.rel_id
+                        OR
+                        mip.object_type = '指定用户' AND munru.rel_id =  #{userId}
+                        )
+            ) AS systemNoticeNum
          FROM mm_user_notice mun
          WHERE mun.user_id = #{userId}
          AND mun.is_read = 0
     </select>
     <select id="searchUserNoticeList"
             resultType="com.chauncy.data.vo.app.message.information.interact.UserNoticeListVo">
-        SELECT mun.id
+        SELECT mun.id,
             mun.notice_type,
             mun.is_read,
             mun.title,
@@ -66,20 +66,19 @@
         SELECT
             mip.id,
             '2' AS noticeType,
-            mipru.is_read,
             mip.title,
             mip.detail_html,
             '' AS picture,
             mip.create_time
         FROM mm_interact_push mip
-        LEFT JOIN mm_interact_push_rel_user mipru
-        ON mip.id = mipru.push_id
+        LEFT JOIN mm_user_notice_rel_user munru
+        ON mip.id = munru.push_id
         WHERE
             mip.object_type = '全部用户' AND mip.push_type = 'APP内消息中心推送'
             OR  (
-                mip.object_type = '指定会员等级' AND mipru.rel_id = #{levelId}
+                mip.object_type = '指定会员等级' AND  #{userLevel} <![CDATA[<= ]]>  munru.rel_id
                 OR
-                mip.object_type = '指定用户' AND mipru.rel_id =  #{userId}
+                mip.object_type = '指定用户' AND munru.rel_id =  #{userId}
                 )
         ORDER BY mip.create_time DESC
     </select>

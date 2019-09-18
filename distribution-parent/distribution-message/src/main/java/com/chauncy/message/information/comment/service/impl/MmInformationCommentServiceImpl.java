@@ -98,7 +98,23 @@ public class MmInformationCommentServiceImpl extends AbstractService<MmInformati
         PageInfo<InformationMainCommentVo> informationMainCommentVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> mmInformationCommentMapper.searchInfoMainComment(informationCommentDto));
 
-        informationMainCommentVoPageInfo.getList().forEach(informationMainCommentVo -> {
+        //获取发布时间，用户标签，剩余评论条数等
+        editCommentVo(informationMainCommentVoPageInfo.getList());
+        return informationMainCommentVoPageInfo;
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/18 11:54
+     * @Description 查询资讯评论  评论的用户标签，主评论副评论发布时间格式，剩余评论条数等获取
+     *
+     * @Update yeJH
+     *
+     * @Param [informationMainCommentVoList]
+     * @return void
+     **/
+    private void editCommentVo(List<InformationMainCommentVo> informationMainCommentVoList) {
+        informationMainCommentVoList.forEach(informationMainCommentVo -> {
             //用户标签
             if (null != informationMainCommentVo.getLabels()){
                 informationMainCommentVo.setLabelList(Splitter.on(",")
@@ -120,8 +136,6 @@ public class MmInformationCommentServiceImpl extends AbstractService<MmInformati
                 });
             }
         });
-
-        return informationMainCommentVoPageInfo;
     }
 
     /**
@@ -149,12 +163,14 @@ public class MmInformationCommentServiceImpl extends AbstractService<MmInformati
      * 保存评论
      */
     @Override
-    public void saveInfoComment(AddInformationCommentDto addInformationCommentDto, Long userId) {
+    public InformationMainCommentVo saveInfoComment(AddInformationCommentDto addInformationCommentDto, Long userId) {
+
         MmInformationCommentPo mmInformationCommentPo = new MmInformationCommentPo();
         mmInformationCommentPo.setInfoId(addInformationCommentDto.getInfoId());
         mmInformationCommentPo.setUserId(userId);
         mmInformationCommentPo.setContent(addInformationCommentDto.getContent());
         if(null != addInformationCommentDto.getParentId() && addInformationCommentDto.getParentId() != 0L) {
+            //用户评论的评论
             MmInformationCommentPo parentComment = mmInformationCommentMapper.selectById(addInformationCommentDto.getParentId());
             if(null != parentComment.getParentId()) {
                 //用户评论的评论不是主评论
@@ -172,6 +188,18 @@ public class MmInformationCommentServiceImpl extends AbstractService<MmInformati
         updateWrapper.lambda().eq(MmInformationPo::getId, mmInformationPo.getId())
                 .set(MmInformationPo::getCommentNum, mmInformationPo.getCommentNum() + 1);
         mmInformationService.update(updateWrapper);
+
+        //获取主评论 查询该主评论以及下面的副评论，返回给前端
+        InformationCommentDto informationCommentDto = new InformationCommentDto();
+        informationCommentDto.setUserId(userId);
+        informationCommentDto.setCommentId(mmInformationCommentPo.getParentId());
+        List<InformationMainCommentVo> commentVoList = mmInformationCommentMapper.searchInfoMainComment(informationCommentDto);
+        if(null != commentVoList && commentVoList.size() > 0) {
+            editCommentVo(commentVoList);
+            return commentVoList.get(0);
+        } else {
+            return null;
+        }
     }
 
     /**

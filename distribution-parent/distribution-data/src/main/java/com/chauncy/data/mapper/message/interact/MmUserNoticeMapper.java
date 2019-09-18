@@ -6,6 +6,7 @@ import com.chauncy.data.vo.app.message.information.interact.UnreadNoticeNumVo;
 import com.chauncy.data.vo.app.message.information.interact.UserNoticeListVo;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -19,11 +20,22 @@ import java.util.List;
 public interface MmUserNoticeMapper extends IBaseMapper<MmUserNoticePo> {
 
     /**
-     * 获取用户消息列表未读消息数目
-     * @param userId
-     * @return
-     */
-    UnreadNoticeNumVo getUnreadNoticeNum(Long userId);
+     * @Author yeJH
+     * @Date 2019/9/18 10:41
+     * @Description  获取用户消息列表未读消息数目
+     *
+     * @Update yeJH
+     *
+     * @param userId   用户id
+     * @param readTime   用户最近一次查看系统消息的时间
+     * @param userLevel  用户等级level
+     * @return com.chauncy.data.vo.app.message.information.interact.UnreadNoticeNumVo
+     **/
+    UnreadNoticeNumVo getUnreadNoticeNum(
+            @Param("userId") Long userId,
+            @Param("readTime")LocalDateTime readTime,
+            @Param("userLevel") Integer userLevel
+            );
 
     /**
      * 物流快递 跟 任务奖励的消息从 mm_user_notice表获取
@@ -36,5 +48,7 @@ public interface MmUserNoticeMapper extends IBaseMapper<MmUserNoticePo> {
      * @param userId
      * @return
      */
-    List<UserNoticeListVo> searchUserSystemNoticeList(@Param("userId") Long userId, @Param("levelId") Long levelId);
+    List<UserNoticeListVo> searchUserSystemNoticeList(
+            @Param("userId") Long userId,
+            @Param("userLevel") Integer userLevel);
 }

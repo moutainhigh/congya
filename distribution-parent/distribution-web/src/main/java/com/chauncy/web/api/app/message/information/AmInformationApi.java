@@ -195,11 +195,11 @@ public class AmInformationApi extends BaseApi {
      */
     @ApiOperation(value = "保存app用户资讯评论", notes = "保存app用户资讯评论")
     @PostMapping("/comment/save")
-    public JsonViewData saveUserInfoComment(@Valid @ApiParam(required = true, name = "addInformationCommentDto",
+    public JsonViewData<InformationMainCommentVo> saveUserInfoComment(@Valid @ApiParam(required = true, name = "addInformationCommentDto",
             value = "查询条件")@RequestBody AddInformationCommentDto addInformationCommentDto) {
 
-        mmInformationCommentService.saveInfoComment(addInformationCommentDto, securityUtil.getAppCurrUser().getId());
-        return new JsonViewData(ResultCode.SUCCESS, "保存成功");
+        return new JsonViewData(ResultCode.SUCCESS, "保存成功",
+                mmInformationCommentService.saveInfoComment(addInformationCommentDto, securityUtil.getAppCurrUser().getId()));
     }
 
     /**

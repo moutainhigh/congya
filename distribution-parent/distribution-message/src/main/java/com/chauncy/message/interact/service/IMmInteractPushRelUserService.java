@@ -1,6 +1,6 @@
 package com.chauncy.message.interact.service;
 
-import com.chauncy.data.domain.po.message.interact.MmInteractPushRelUserPo;
+import com.chauncy.data.domain.po.message.interact.MmUserNoticeRelUserPo;
 import com.chauncy.data.core.Service;
 
 /**
@@ -11,6 +11,6 @@ import com.chauncy.data.core.Service;
  * @author huangwancheng
  * @since 2019-09-16
  */
-public interface IMmInteractPushRelUserService extends Service<MmInteractPushRelUserPo> {
+public interface IMmInteractPushRelUserService extends Service<MmUserNoticeRelUserPo> {
 
 }

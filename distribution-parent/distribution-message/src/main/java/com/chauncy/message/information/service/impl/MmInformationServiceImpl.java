@@ -376,6 +376,11 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
                 //记录已存在 更新访问时间
                 mmUserInformationTimePo.setReadTime(LocalDateTime.now());
                 mmUserInformationTimeMapper.updateById(mmUserInformationTimePo);
+            } else {
+                mmUserInformationTimePo = new MmUserInformationTimePo();
+                mmUserInformationTimePo.setId(umUserPo.getId());
+                mmUserInformationTimePo.setReadTime(LocalDateTime.now());
+                mmUserInformationTimeMapper.insert(mmUserInformationTimePo);
             }
         }
         return informationPageInfo;
@@ -508,17 +513,10 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
             //记录不存在 添加记录，记录用户访问关注店铺的时间
             mmUserInformationTimePo = new MmUserInformationTimePo();
             mmUserInformationTimePo.setId(umUserPo.getId());
-            mmUserInformationTimePo.setReadTime(LocalDateTime.now());
             mmUserInformationTimeMapper.insert(mmUserInformationTimePo);
-            //获取数目
-            focusInfoSum = mmInformationMapper.getFocusInfoSum(umUserPo.getId(), mmUserInformationTimePo.getReadTime());
-        } else {
-            //获取数目
-            focusInfoSum = mmInformationMapper.getFocusInfoSum(umUserPo.getId(), mmUserInformationTimePo.getReadTime());
-            //记录已存在 更新访问时间
-            mmUserInformationTimePo.setReadTime(LocalDateTime.now());
-            mmUserInformationTimeMapper.updateById(mmUserInformationTimePo);
         }
+        //获取数目
+        focusInfoSum = mmInformationMapper.getFocusInfoSum(umUserPo.getId(), mmUserInformationTimePo.getReadTime());
         return focusInfoSum;
 }
 
