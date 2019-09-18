@@ -34,9 +34,10 @@
                 LEFT JOIN pm_member_level pml
                 ON mip.id = munru.push_id
                 WHERE
-                    mip.object_type = '全部用户' AND mip.push_type = 'APP内消息中心推送'
-                    AND mip.create_time  <![CDATA[> ]]>  #{readTime}
-                    OR  (
+                    mip.push_type = 'APP内消息中心推送' AND mip.create_time  <![CDATA[> ]]>  #{readTime}
+                    AND  (
+                        mip.object_type = '全部用户'
+                        OR
                         mip.object_type = '指定会员等级' AND #{userLevel} <![CDATA[<= ]]>  munru.rel_id
                         OR
                         mip.object_type = '指定用户' AND munru.rel_id =  #{userId}
@@ -74,8 +75,10 @@
         LEFT JOIN mm_user_notice_rel_user munru
         ON mip.id = munru.push_id
         WHERE
-            mip.object_type = '全部用户' AND mip.push_type = 'APP内消息中心推送'
-            OR  (
+            mip.push_type = 'APP内消息中心推送'
+            AND   (
+                mip.object_type = '全部用户'
+                OR
                 mip.object_type = '指定会员等级' AND  #{userLevel} <![CDATA[<= ]]>  munru.rel_id
                 OR
                 mip.object_type = '指定用户' AND munru.rel_id =  #{userId}
