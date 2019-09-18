@@ -129,13 +129,13 @@
         <if test="t.status!=null">
             AND ao.`status` = #{t.status}
         </if>
-        <if test="t.minRefundMoney!=null">
+        <if test="t.minRefundMoney!=null and t.minRefundMoney!=0">
             and ao.refund_money&gt;=#{t.minRefundMoney}
         </if>
-        <if test="t.maxRefundMoney!=null">
+        <if test="t.maxRefundMoney!=null and t.maxRefundMoney!=0">
             and ao.refund_money&lt;=#{t.maxRefundMoney}
         </if>
-        <if test="storeId!=null">
+        <if test="storeId!=null and storeId!=0">
             and s.id=#{storeId}
         </if>
     </select>
