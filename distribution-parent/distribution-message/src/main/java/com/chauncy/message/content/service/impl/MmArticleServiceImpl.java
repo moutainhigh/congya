@@ -179,13 +179,13 @@ public class MmArticleServiceImpl extends AbstractService<MmArticleMapper, MmArt
      * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.BaseVo>>
      **/
     @Override
-    public Map<Integer,String> findArticleLocations() {
+    public Map<String, String> findArticleLocations() {
 
         //存储文章位置
-        Map<Integer, String> locations = Maps.newHashMap();
+        Map<String, String> locations = Maps.newHashMap();
         List<ArticleLocationEnum> articleLocationEnums = Arrays.stream(ArticleLocationEnum.values()).collect(Collectors.toList());
         articleLocationEnums.forEach(a -> {
-            locations.put(a.getId(), a.getName());
+            locations.put(String.valueOf(a.getId()), a.getName());
         });
         return locations;
     }

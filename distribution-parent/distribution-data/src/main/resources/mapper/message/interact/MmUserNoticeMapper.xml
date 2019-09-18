@@ -23,8 +23,8 @@
     <select id="getUnreadNoticeNum"
             resultType="com.chauncy.data.vo.app.message.information.interact.UnreadNoticeNumVo">
          SELECT
-            SUM(mun.notice_type = 1) AS expressNum,
-            SUM(mun.notice_type = 3) AS taskRewardNum ,
+            IFNULL(SUM(mun.notice_type = 1),0) AS expressNum,
+            IFNULL(SUM(mun.notice_type = 3),0) AS taskRewardNum ,
             (
                 SELECT
                     COUNT(1)
