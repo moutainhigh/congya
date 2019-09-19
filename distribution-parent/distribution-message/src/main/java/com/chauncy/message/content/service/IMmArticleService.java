@@ -8,6 +8,7 @@ import com.chauncy.data.dto.manage.message.content.add.AddArticleDto;
 import com.chauncy.data.dto.manage.message.content.select.search.SearchContentDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.manage.message.content.ArticleVo;
+import com.chauncy.data.vo.manage.message.content.app.FindArticleContentVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -84,4 +85,16 @@ public interface IMmArticleService extends Service<MmArticlePo> {
      * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.BaseVo>>
      **/
     Map<String, String> findArticleLocations();
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-18 21:14
+     * @Description //根据文章位置类型获取文章信息
+     *
+     * @Update chauncy
+     *
+     * @Param [type]
+     * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.manage.message.content.app.FindArticleContentVo>>
+     **/
+    List<FindArticleContentVo> findArticleContent(Integer type);
 }

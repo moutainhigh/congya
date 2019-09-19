@@ -179,4 +179,16 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
      * @return
      */
     List<SearchGoodsBaseListVo> searchHomeGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-19 13:11
+     * @Description //分页条件查询葱鸭百货关联二级分类的所有商品
+     *
+     * @Update chauncy
+     *
+     * @Param [searchGoodsBaseListDto]
+     * @return java.util.List<com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo>
+     **/
+    List<SearchGoodsBaseListVo> searchSecondCategoryGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto);
 }

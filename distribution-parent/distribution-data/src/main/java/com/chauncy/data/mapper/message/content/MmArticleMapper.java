@@ -4,6 +4,8 @@ import com.chauncy.data.domain.po.message.content.MmArticlePo;
 import com.chauncy.data.dto.manage.message.content.select.search.SearchContentDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.manage.message.content.ArticleVo;
+import com.chauncy.data.vo.manage.message.content.app.FindArticleContentVo;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -24,4 +26,17 @@ public interface MmArticleMapper extends IBaseMapper<MmArticlePo> {
      * @return
      */
     List<ArticleVo> searchArticle(SearchContentDto searchContentDto);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-18 21:42
+     * @Description //根据文章位置类型获取文章信息
+     *
+     * @Update chauncy
+     *
+     * @Param [name]
+     * @return java.util.List<com.chauncy.data.vo.manage.message.content.app.FindArticleContentVo>
+     **/
+    @Select("select id,name,detail_html from mm_article where del_flag =0 and enabled = 1 and article_location = #{location}  ")
+    List<FindArticleContentVo> findArticleContent(String location);
 }

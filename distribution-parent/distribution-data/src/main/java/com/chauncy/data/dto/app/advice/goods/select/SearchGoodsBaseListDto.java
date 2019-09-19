@@ -31,7 +31,7 @@ public class SearchGoodsBaseListDto {
     @ApiModelProperty(value = "只当查询条件类型为BAIHUO_ASSOCIATED——百货关联的所有商品,才传葱鸭百货广告ID,其它类型不传")
     private Long adviceId;
 
-    @ApiModelProperty(value = "查询商品列表前提条件Id(品牌ID/店铺ID/选项卡Id/商品分类ID等) \n "
+    @ApiModelProperty(value = "查询商品列表前提条件Id(品牌ID/店铺ID/选项卡Id/商品二级/三级分类ID等) \n "
             +"当查询条件类型为BAIHUO_ASSOCIATED——百货关联的所有商品,该值不传")
     private Long conditionId;
 

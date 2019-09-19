@@ -15,6 +15,7 @@ import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
+import com.chauncy.data.domain.po.message.information.rel.MmInformationForwardPo;
 import com.chauncy.data.domain.po.product.*;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.sys.BasicSettingPo;
@@ -33,6 +34,7 @@ import com.chauncy.data.dto.supplier.good.update.*;
 import com.chauncy.data.dto.supplier.store.update.SelectStockTemplateGoodsDto;
 import com.chauncy.data.mapper.area.AreaRegionMapper;
 import com.chauncy.data.mapper.message.information.MmInformationMapper;
+import com.chauncy.data.mapper.message.information.rel.MmInformationForwardMapper;
 import com.chauncy.data.mapper.product.*;
 import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockMapper;
 import com.chauncy.data.mapper.product.stock.PmGoodsVirtualStockTemplateMapper;
@@ -100,6 +102,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
     @Autowired
     private SecurityUtil securityUtil;
+
+    @Autowired
+    private MmInformationForwardMapper mmInformationForwardMapper;
 
     @Autowired
     private PmGoodsAttributeValueMapper goodsAttributeValueMapper;
@@ -1967,8 +1972,25 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
                 break;
 
             case INFORMATION:
-                mmInformationMapper.shareInformation(shareDto);
-
+                //mmInformationMapper.shareInformation(shareDto);
+                MmInformationPo mmInformationPo = mmInformationMapper.selectById(shareDto.getShareId());
+                if(null == mmInformationPo){
+                    throw new ServiceException(ResultCode.NO_EXISTS,"资讯不存在");
+                }
+                //查询是否转发过
+                MmInformationForwardPo mmInformationForwardPo =
+                        mmInformationForwardMapper.selectForUpdate(shareDto.getShareId(), userPo.getId());
+                if(null == mmInformationForwardPo) {
+                    //未转发过
+                    mmInformationForwardPo = new MmInformationForwardPo();
+                    mmInformationForwardPo.setInfoId(shareDto.getShareId());
+                    mmInformationForwardPo.setCreateBy(userPo.getId().toString());
+                    mmInformationForwardPo.setUserId(userPo.getId());
+                    //新增转发记录
+                    mmInformationForwardMapper.insert(mmInformationForwardPo);
+                    //转发量+1
+                    mmInformationMapper.shareInformation(shareDto);
+                }
                 break;
         }
 

@@ -80,4 +80,8 @@ public class SearchGoodsBaseListVo {
     @JSONField(ordinal = 14)
     private BigDecimal linePrice;
 
+    @ApiModelProperty(value = "收藏量")
+    @JSONField(ordinal = 15)
+    private Integer collectionNum;
+
 }

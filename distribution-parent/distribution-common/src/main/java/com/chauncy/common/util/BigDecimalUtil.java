@@ -3,6 +3,7 @@ package com.chauncy.common.util;
 import com.google.common.base.Optional;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 
 /**
  * @Author zhangrt
@@ -11,6 +12,8 @@ import java.math.BigDecimal;
 public class BigDecimalUtil {
 
 
+    // 保留一位小数点
+    private static final DecimalFormat df = new DecimalFormat("0.00");//保留两位小数点
 
 
 
@@ -234,6 +237,37 @@ public class BigDecimalUtil {
 
     }
 
+    /**
+     * @Author chauncy
+     * @Date 2019-09-19 11:55
+     * @Description //BigDecimal的除法运算封装，如果除数或者被除数为0，返回默认值
+     *
+     * @Update chauncy
+     *
+     * @Param [b1, b2, defaultValue]
+     * @param num 保留位数
+     * @return java.math.BigDecimal
+     **/
+    public static <T extends Number> BigDecimal safeDivide(T b1, T b2,Integer num,BigDecimal defaultValue) {
+
+        if (null == b1 ||  null == b2) {
+
+            return defaultValue;
+
+        }
+
+        try {
+
+            return BigDecimal.valueOf(b1.doubleValue()).divide(BigDecimal.valueOf(b2.doubleValue()), num, BigDecimal.ROUND_HALF_UP);
+
+        } catch (Exception e) {
+
+            return defaultValue;
+
+        }
+
+    }
+
 
 
     /**
@@ -260,6 +294,33 @@ public class BigDecimalUtil {
             return BigDecimal.ZERO;
         }
         return BigDecimal.valueOf(b1.doubleValue()).multiply(BigDecimal.valueOf(b2.doubleValue())).setScale(2, BigDecimal.ROUND_HALF_UP);
+    }
+
+    /**x
+
+     * BigDecimal的乘法运算封装
+
+     * @author : chauncy
+
+     * 2019年9月19日 10:09
+
+     * @param b1
+
+     * @param b2
+
+     * @param num 保留位数
+
+     * @return
+
+     */
+
+    public static <T extends Number> BigDecimal safeMultiply(T b1, T b2,Integer num) {
+
+        if (null == b1 ||  null == b2) {
+
+            return BigDecimal.ZERO;
+        }
+        return BigDecimal.valueOf(b1.doubleValue()).multiply(BigDecimal.valueOf(b2.doubleValue())).setScale(num,BigDecimal.ROUND_HALF_UP);
     }
 
 

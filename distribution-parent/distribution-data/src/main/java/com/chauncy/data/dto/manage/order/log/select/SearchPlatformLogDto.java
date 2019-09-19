@@ -13,6 +13,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.Min;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
@@ -60,6 +61,12 @@ public class SearchPlatformLogDto implements Serializable {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @ApiModelProperty(value = "创建时间")
     private LocalDate endTime;
+
+    @ApiModelProperty(value = "最小发生额")
+    private BigDecimal minAmount;
+
+    @ApiModelProperty(value = "最大发生额")
+    private BigDecimal maxAmount;
 
     @Min(1)
     @ApiModelProperty(value = "页码")

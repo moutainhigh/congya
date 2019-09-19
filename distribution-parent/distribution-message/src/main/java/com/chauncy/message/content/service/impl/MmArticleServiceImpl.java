@@ -14,6 +14,7 @@ import com.chauncy.data.dto.manage.message.content.select.search.SearchContentDt
 import com.chauncy.data.mapper.message.content.MmArticleMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.manage.message.content.ArticleVo;
+import com.chauncy.data.vo.manage.message.content.app.FindArticleContentVo;
 import com.chauncy.message.content.service.IMmArticleService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
@@ -188,6 +189,30 @@ public class MmArticleServiceImpl extends AbstractService<MmArticleMapper, MmArt
             locations.put(String.valueOf(a.getId()), a.getName());
         });
         return locations;
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-18 21:14
+     * @Description //根据文章位置类型获取文章信息
+     *
+     * @Update chauncy
+     *
+     * @Param [type]
+     * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.manage.message.content.app.FindArticleContentVo>>
+     **/
+    @Override
+    public List<FindArticleContentVo> findArticleContent(Integer type) {
+
+        ArticleLocationEnum locationEnum = ArticleLocationEnum.getArticalLocationById(type);
+
+        if (locationEnum == null){
+            throw new ServiceException(ResultCode.NO_EXISTS,String.format("所传的值(type:%s)在枚举类中不存在！",type));
+        }
+
+        List<FindArticleContentVo> findArticleContentVos = mapper.findArticleContent(locationEnum.getName());
+
+        return findArticleContentVos;
     }
 
 }
