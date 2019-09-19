@@ -2,13 +2,16 @@ package com.chauncy.web.api.manage.message.interact;
 
 
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.util.third.SendSms;
 import com.chauncy.data.dto.manage.message.interact.add.AddPushMessageDto;
 import com.chauncy.data.dto.manage.message.interact.add.AddSmsMessageDto;
 import com.chauncy.data.dto.manage.message.interact.select.SearchPushDto;
+import com.chauncy.data.dto.manage.message.interact.select.SearchSmsDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.message.interact.push.InteractPushVo;
+import com.chauncy.data.vo.manage.message.interact.push.SmsPushVo;
 import com.chauncy.data.vo.manage.message.interact.push.UmUsersVo;
 import com.chauncy.data.vo.manage.user.list.UmUserListVo;
 import com.chauncy.message.sms.impl.IMmSMSMessageService;
@@ -22,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import io.swagger.annotations.Api;
 import com.chauncy.message.interact.service.IMmInteractPushService;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -109,6 +113,14 @@ public class MmInteractPushApi {
         return new JsonViewData(ResultCode.SUCCESS);
     }
 
+    @GetMapping("/delSmsPushByIds/{ids}")
+    @ApiOperation("批量删除短信推送信息")
+    public JsonViewData delSmsPushByIds(@PathVariable Long[] ids){
+
+        smsMessageService.removeByIds(Arrays.asList(ids));
+        return new JsonViewData(ResultCode.SUCCESS);
+    }
+
     /**
      * @param addSmsMessageDto
      * @return
@@ -116,7 +128,15 @@ public class MmInteractPushApi {
     @PostMapping("/addPushSms")
     @ApiOperation("添加推送短信")
     public JsonViewData addPushSms(@RequestBody  @Validated AddSmsMessageDto addSmsMessageDto){
+        //验证短信模板是否存在
+        SendSms.validTemplateCode(addSmsMessageDto.getTemplateCode());
         smsMessageService.saveSmsMessage(addSmsMessageDto);
         return new JsonViewData(ResultCode.SUCCESS);
+    }
+
+    @PostMapping("/searchSmsPush")
+    @ApiOperation("条件查询短信推送信息")
+    public JsonViewData<PageInfo<SmsPushVo>> searchSms(@RequestBody @Validated SearchSmsDto searchSmsDto){
+        return new JsonViewData(smsMessageService.searchSmsPushVo(searchSmsDto));
     }
 }
