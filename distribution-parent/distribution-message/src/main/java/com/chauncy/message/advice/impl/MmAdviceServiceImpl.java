@@ -28,9 +28,11 @@ import com.chauncy.data.dto.manage.message.advice.add.SaveOtherAdviceDto;
 import com.chauncy.data.dto.manage.message.advice.select.SearchAdvicesDto;
 import com.chauncy.data.dto.manage.message.advice.select.SearchAssociatedClassificationDto;
 import com.chauncy.data.dto.manage.message.advice.select.SearchInformationCategoryDto;
+import com.chauncy.data.mapper.activity.coupon.AmCouponMapper;
 import com.chauncy.data.mapper.message.advice.*;
 import com.chauncy.data.mapper.message.information.MmInformationMapper;
 import com.chauncy.data.mapper.message.information.category.MmInformationCategoryMapper;
+import com.chauncy.data.mapper.product.PmGoodsAttributeMapper;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
@@ -113,6 +115,12 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 
     @Autowired
     private PmGoodsMapper goodsMapper;
+
+    @Autowired
+    private PmGoodsAttributeMapper attributeMapper;
+
+    @Autowired
+    private AmCouponMapper couponMapper;
 
     @Autowired
     private PmGoodsSkuMapper skuMapper;
@@ -985,15 +993,24 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
         }
         switch (conditionTypeEnum) {
             case TAB:
+                if (tabMapper.selectById(searchGoodsBaseListDto.getConditionId()) == null){
+                    throw new ServiceException(ResultCode.NO_EXISTS,String.format("不存在ID为%s的选项卡",searchGoodsBaseListDto.getConditionId()));
+                }
                 searchGoodsBaseListVoPageInfo =PageHelper.startPage(pageNo, pageSize)
                         .doSelectPageInfo(() -> mapper.searchTabGoodsBaseList(searchGoodsBaseListDto));
                 break;
             case BRAND:
+                if (attributeMapper.selectById(searchGoodsBaseListDto.getConditionId()) == null){
+                    throw new ServiceException(ResultCode.NO_EXISTS,String.format("不存在ID为%s的品牌",searchGoodsBaseListDto.getConditionId()));
+                }
                 searchGoodsBaseListVoPageInfo =PageHelper.startPage(pageNo, pageSize)
                         .doSelectPageInfo(() -> mapper.searchBrandGoodsBaseList(searchGoodsBaseListDto));
                 break;
 
             case THIRD_CATEGORY:
+                if (goodsCategoryMapper.selectById(searchGoodsBaseListDto.getConditionId()) == null){
+                    throw new ServiceException(ResultCode.NO_EXISTS,String.format("不存在ID为%s的商品分类",searchGoodsBaseListDto.getConditionId()));
+                }
                 searchGoodsBaseListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                         .doSelectPageInfo(() ->mapper.searchCategoryGoodsBaseList(searchGoodsBaseListDto));
                 break;
@@ -1004,6 +1021,9 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 break;
 
             case COUPON:
+                if (couponMapper.selectById(searchGoodsBaseListDto.getConditionId()) == null){
+                    throw new ServiceException(ResultCode.NO_EXISTS,String.format("不存在ID为%s的优惠券",searchGoodsBaseListDto.getConditionId()));
+                }
                 searchGoodsBaseListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                         .doSelectPageInfo(() ->mapper.searchCouponGoodsBaseList(searchGoodsBaseListDto));
                 break;
@@ -1011,6 +1031,14 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
             case HOME:
                 searchGoodsBaseListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                         .doSelectPageInfo(() ->mapper.searchHomeGoodsBaseList(searchGoodsBaseListDto));
+                break;
+
+            case SECOND_CATEGORY:
+                if (goodsCategoryMapper.selectById(searchGoodsBaseListDto.getConditionId()) == null){
+                    throw new ServiceException(ResultCode.NO_EXISTS,String.format("不存在ID为%s的商品分类",searchGoodsBaseListDto.getConditionId()));
+                }
+                searchGoodsBaseListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                        .doSelectPageInfo(() ->mapper.searchSecondCategoryGoodsBaseList(searchGoodsBaseListDto));
                 break;
         }
 
