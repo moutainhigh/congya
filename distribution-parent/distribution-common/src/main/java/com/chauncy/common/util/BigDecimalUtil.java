@@ -237,6 +237,37 @@ public class BigDecimalUtil {
 
     }
 
+    /**
+     * @Author chauncy
+     * @Date 2019-09-19 11:55
+     * @Description //BigDecimal的除法运算封装，如果除数或者被除数为0，返回默认值
+     *
+     * @Update chauncy
+     *
+     * @Param [b1, b2, defaultValue]
+     * @param num 保留位数
+     * @return java.math.BigDecimal
+     **/
+    public static <T extends Number> BigDecimal safeDivide(T b1, T b2,Integer num,BigDecimal defaultValue) {
+
+        if (null == b1 ||  null == b2) {
+
+            return defaultValue;
+
+        }
+
+        try {
+
+            return BigDecimal.valueOf(b1.doubleValue()).divide(BigDecimal.valueOf(b2.doubleValue()), num, BigDecimal.ROUND_HALF_UP);
+
+        } catch (Exception e) {
+
+            return defaultValue;
+
+        }
+
+    }
+
 
 
     /**
@@ -269,9 +300,9 @@ public class BigDecimalUtil {
 
      * BigDecimal的乘法运算封装
 
-     * @author : shijing
+     * @author : chauncy
 
-     * 2017年3月23日下午5:01:57
+     * 2019年9月19日 10:09
 
      * @param b1
 
@@ -289,7 +320,7 @@ public class BigDecimalUtil {
 
             return BigDecimal.ZERO;
         }
-        return BigDecimal.valueOf(b1.doubleValue()).multiply(BigDecimal.valueOf(b2.doubleValue())).setScale(num,BigDecimal.ROUND_CEILING);
+        return BigDecimal.valueOf(b1.doubleValue()).multiply(BigDecimal.valueOf(b2.doubleValue())).setScale(num,BigDecimal.ROUND_HALF_UP);
     }
 
 

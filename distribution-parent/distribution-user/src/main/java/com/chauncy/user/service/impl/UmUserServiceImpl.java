@@ -459,27 +459,27 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         BigDecimal max = datas.stream().max((u1, u2)->u1.compareTo(u2)).get();
 
         //消费比例
-        membersCenterVo.setTotalConsumeMoneyProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(totalConsumeMoney,max,new BigDecimal(0.00)),100));
+        membersCenterVo.setTotalConsumeMoneyProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(totalConsumeMoney,max,4,new BigDecimal(0.00)),100));
 
         //资产比例
-        membersCenterVo.setAssetsProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(assets,max,new BigDecimal(0.00)),100));
+        membersCenterVo.setAssetsProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(assets,max,4,new BigDecimal(0.00)),100));
 
         //发育比例
-        membersCenterVo.setDevelopmentProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(development,max,new BigDecimal(0.00)),100));
+        membersCenterVo.setDevelopmentProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(development,max,4,new BigDecimal(0.00)),100));
 
         //收益比例
-        membersCenterVo.setEarningsProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(earnings,max,new BigDecimal(0.00)),100));
+        membersCenterVo.setEarningsProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(earnings,max,4,new BigDecimal(0.00)),100));
 
         //贡献比例
-        membersCenterVo.setContributionProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(contributions1,max,new BigDecimal(0.00)),100));
+        membersCenterVo.setContributionProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(contributions1,max,4,new BigDecimal(0.00)),100));
 
         //综合比例
         membersCenterVo.setComprehensiveProportion(BigDecimalUtil.safeMultiply(100,
                 BigDecimalUtil.safeDivide(
                         BigDecimalUtil.safeDivide(
                                 BigDecimalUtil.safeAdd(totalConsumeMoney,assets,development,earnings,contributions1),
-                        max),
-                new BigDecimal(5))));
+                        max,4,new BigDecimal(0.00)),
+                new BigDecimal(5),4,new BigDecimal(0.00))));
 
 
 
