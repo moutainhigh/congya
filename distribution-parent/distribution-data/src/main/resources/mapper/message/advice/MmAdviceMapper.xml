@@ -195,7 +195,7 @@
     <select id="getShuffling" resultType="com.chauncy.data.vo.app.advice.home.ShufflingVo">
         select b.id as shuffling_id,b.cover_photo,b.advice_type,b.detail_id,b.html_detail
         from mm_advice a,mm_advice_rel_shuffling b
-        where a.del_flag = 0 and a.enabled = 1 and a.id = b.advice_id and a.location = #{location}
+        where a.del_flag = 0 and b.del_flag = 0 and a.enabled = 1 and a.id = b.advice_id and a.location = #{location}
         and b.start_time &lt;= now() and b.end_time &gt;= now()
 
     </select>

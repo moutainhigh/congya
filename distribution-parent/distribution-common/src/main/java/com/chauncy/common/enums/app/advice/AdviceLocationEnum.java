@@ -75,6 +75,10 @@ public enum AdviceLocationEnum implements BaseEnum {
 
     PERSONAL_CENTER(16,"个人中心"),
 
+    INTEGRALS_SHUFFLING(26,"积分内部轮播图"),
+
+    REDUCED_SHUFFLING(27,"满减内部轮播图"),
+
     //有关联轮播图位置
 //    YOUPIN_DETAIL(17, "品牌详情轮播图"),
 
@@ -88,7 +92,7 @@ public enum AdviceLocationEnum implements BaseEnum {
     //其它
     TOP_UP_ENTRY(21,"充值入口"),
 
-    SPELL_GROUP(22,"拼团"),
+    SPELL_GROUP_SHUFFLING(22,"拼团内部轮播图"),
 
     COUPON(23,"领券"),
 

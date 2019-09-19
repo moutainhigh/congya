@@ -405,7 +405,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 
                 /*******************充值入口+拼团鸭+优惠券+经验包+邀请包*********************/
                 case TOP_UP_ENTRY:
-                case SPELL_GROUP:
+                case SPELL_GROUP_SHUFFLING:
                 case COUPON:
                 case INVITATION:
                 case EXPERIENCE_PACKAGE:
@@ -526,7 +526,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 
                 /*******************充值入口+拼团鸭+优惠券+经验包+邀请包*********************/
                 case TOP_UP_ENTRY:
-                case SPELL_GROUP:
+                case SPELL_GROUP_SHUFFLING:
                 case COUPON:
                 case INVITATION:
                 case EXPERIENCE_PACKAGE:
