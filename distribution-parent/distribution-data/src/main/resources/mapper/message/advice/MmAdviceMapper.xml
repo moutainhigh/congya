@@ -327,6 +327,25 @@
         and d.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = b.id  and d2.del_flag =0 and d2.sell_price =
         (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = b.id  and d1.del_flag =0 LIMIT 1) limit 1)
 
+        <if test="lowestPrice !=null ">
+            and sell_price &gt;= #{lowestPrice}
+        </if>
+        <if test="highestPrice !=null ">
+            and sell_price &lt;= #{highestPrice}
+        </if>
+        <if test="sortFile.name() == 'PRICE_SORT' ">
+            order by sell_price ${sortWay.name}
+        </if>
+        <if test="sortFile.name() == 'COMPREHENSIVE_SORT'">
+            order by b.sales_volume ${sortWay.name}
+        </if>
+        <if test="sortFile.name() == 'SALES_SORT'">
+            order by b.sales_volume ${sortWay.name}
+        </if>
+        <if test="sortFile.name() == 'COLLECTION_NUM'">
+            order by b.collection_num ${sortWay.name}
+        </if>
+
     </select>
     <select id="searchCouponGoodsBaseList"
             resultType="com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo">
@@ -339,6 +358,25 @@
         and d.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = b.id  and d2.del_flag =0 and d2.sell_price =
         (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = b.id  and d1.del_flag =0 LIMIT 1) limit 1)
 
+        <if test="lowestPrice !=null ">
+            and sell_price &gt;= #{lowestPrice}
+        </if>
+        <if test="highestPrice !=null ">
+            and sell_price &lt;= #{highestPrice}
+        </if>
+        <if test="sortFile.name() == 'PRICE_SORT' ">
+            order by sell_price ${sortWay.name}
+        </if>
+        <if test="sortFile.name() == 'COMPREHENSIVE_SORT'">
+            order by b.sales_volume ${sortWay.name}
+        </if>
+        <if test="sortFile.name() == 'SALES_SORT'">
+            order by b.sales_volume ${sortWay.name}
+        </if>
+        <if test="sortFile.name() == 'COLLECTION_NUM'">
+            order by b.collection_num ${sortWay.name}
+        </if>
+
     </select>
     <select id="searchHomeGoodsBaseList"
             resultType="com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo">
@@ -348,7 +386,25 @@
         where b.publish_status = 1 and b.del_flag = 0 and d.del_flag =0 and d.goods_id=b.id
         and d.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = b.id  and d2.del_flag =0 and d2.sell_price =
         (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = b.id  and d1.del_flag =0 LIMIT 1) limit 1)
-        order by b.collection_num desc
+
+        <if test="lowestPrice !=null ">
+            and sell_price &gt;= #{lowestPrice}
+        </if>
+        <if test="highestPrice !=null ">
+            and sell_price &lt;= #{highestPrice}
+        </if>
+        <if test="sortFile.name() == 'PRICE_SORT' ">
+            order by sell_price ${sortWay.name}
+        </if>
+        <if test="sortFile.name() == 'COMPREHENSIVE_SORT'">
+            order by b.sales_volume ${sortWay.name}
+        </if>
+        <if test="sortFile.name() == 'SALES_SORT'">
+            order by b.sales_volume ${sortWay.name}
+        </if>
+        <if test="sortFile.name() == 'COLLECTION_NUM'">
+            order by b.collection_num ${sortWay.name}
+        </if>
 
     </select>
 </mapper>

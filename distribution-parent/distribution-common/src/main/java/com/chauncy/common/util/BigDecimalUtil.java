@@ -3,6 +3,7 @@ package com.chauncy.common.util;
 import com.google.common.base.Optional;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 
 /**
  * @Author zhangrt
@@ -11,6 +12,8 @@ import java.math.BigDecimal;
 public class BigDecimalUtil {
 
 
+    // 保留一位小数点
+    private static final DecimalFormat df = new DecimalFormat("0.00");//保留两位小数点
 
 
 
@@ -260,6 +263,33 @@ public class BigDecimalUtil {
             return BigDecimal.ZERO;
         }
         return BigDecimal.valueOf(b1.doubleValue()).multiply(BigDecimal.valueOf(b2.doubleValue())).setScale(2, BigDecimal.ROUND_HALF_UP);
+    }
+
+    /**x
+
+     * BigDecimal的乘法运算封装
+
+     * @author : shijing
+
+     * 2017年3月23日下午5:01:57
+
+     * @param b1
+
+     * @param b2
+
+     * @param num 保留位数
+
+     * @return
+
+     */
+
+    public static <T extends Number> BigDecimal safeMultiply(T b1, T b2,Integer num) {
+
+        if (null == b1 ||  null == b2) {
+
+            return BigDecimal.ZERO;
+        }
+        return BigDecimal.valueOf(b1.doubleValue()).multiply(BigDecimal.valueOf(b2.doubleValue())).setScale(num,BigDecimal.ROUND_CEILING);
     }
 
 
