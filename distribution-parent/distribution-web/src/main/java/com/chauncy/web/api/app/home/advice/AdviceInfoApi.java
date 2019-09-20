@@ -60,13 +60,16 @@ public class AdviceInfoApi extends BaseApi {
      * @return
      */
     @GetMapping("/getShuffling/{location}")
-    @ApiOperation(value = "获取首页有品内部、有店内部、特卖内部、优选内部、葱鸭百货内部轮播图",
+    @ApiOperation(value = "获取首页有品内部、有店内部、特卖内部、优选内部、葱鸭百货等内部轮播图",
                   notes = "YOUPIN_INSIDE_SHUFFLING--有品内部 \n" +
                           "YOUDIAN_INSIDE_SHUFFLING--有店内部 \n" +
                           "SALE_INSIDE_SHUFFLING--特卖内部 \n" +
                           "YOUXUAN_INSIDE_SHUFFLING--优选内部 \n" +
                           "BAIHUO_INSIDE_SHUFFLING--葱鸭百货内部轮播图 \n" +
-                          "COUPON--领券")
+                          "COUPON--领券 \n" +
+                          "REDUCED_SHUFFLING-- 满减内部轮播图\n" +
+                          "INTEGRALS_SHUFFLING--积分内部轮播图 \n" +
+                          " SPELL_GROUP_SHUFFLING--拼团内部轮播图 \n")
     public JsonViewData<List<ShufflingVo>> getShuffling(@ApiParam(required = true,name = "广告位置",value = "location")
                                                   @PathVariable String location){
 
@@ -79,7 +82,7 @@ public class AdviceInfoApi extends BaseApi {
      * @param adviceId
      * @return
      */
-    @ApiOperation(value="根据广告ID获取特卖、有品、主题、优选等广告选项卡",notes = "获取选项卡")
+    @ApiOperation(value="根据广告ID获取特卖、有品、主题、优选、积分、满减等广告选项卡/主题图片/活动分组图片",notes = "获取选项卡")
     @GetMapping("/getTab/{adviceId}")
     public JsonViewData<List<BaseVo>> getTab(@PathVariable Long adviceId){
 
@@ -122,7 +125,7 @@ public class AdviceInfoApi extends BaseApi {
      * @param searchGoodsBaseListDto
      * @return
      */
-    @ApiOperation("分页条件查询首页下面的商品列表/品牌id/选项卡id/商品分类id/葱鸭百货关联/优惠券关联下的商品列表")
+    @ApiOperation("分页条件查询首页下面的商品列表/品牌id/选项卡id/商品二级、三级分类id/葱鸭百货关联/优惠券关联下的商品列表")
     @PostMapping("/searchGoodsBaseList")
     public JsonViewData<PageInfo<SearchGoodsBaseListVo>> searchGoodsBaseList(@RequestBody @ApiParam(required = true,name = "searchGoodsBaseListDto",value = "分页查询品牌商品列表")
                                                                               @Validated SearchGoodsBaseListDto searchGoodsBaseListDto){

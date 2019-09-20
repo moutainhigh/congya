@@ -18,12 +18,14 @@
         <result column="attitude_start_level" property="attitudeStartLevel"/>
         <result column="content" property="content"/>
         <result column="picture" property="picture"/>
+        <result column="like_num" property="likedNum"/>
+        <result column="is_liked" property="isLiked"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, create_by, create_time, update_by, update_time, del_flag, order_id, sku_id,parent_id,description_start_level,
-        ship_start_level,attitude_start_level,content,picture
+        ship_start_level,attitude_start_level,content,picture,like_num,is_liked
     </sql>
 
     <select id="getGoodsEvaluate" resultType="com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo">

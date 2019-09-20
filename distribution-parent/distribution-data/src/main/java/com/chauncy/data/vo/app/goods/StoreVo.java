@@ -1,5 +1,6 @@
 package com.chauncy.data.vo.app.goods;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -28,13 +29,28 @@ public class StoreVo {
     @ApiModelProperty ("店铺缩略图")
     private String storeIcon;
 
-    @ApiModelProperty ("宝贝描述")
+    @ApiModelProperty (value = "宝贝描述")
+    @JSONField(serialize = false)
     private BigDecimal babyDescription;
 
     @ApiModelProperty ("卖家服务")
+    @JSONField(serialize = false)
     private BigDecimal sellerService;
 
     @ApiModelProperty ("物流服务")
+    @JSONField(serialize = false)
     private BigDecimal logisticsServices;
+
+    @ApiModelProperty (value = "商品描述")
+    @JSONField(serialize = false)
+    private String babyDescriptionLevel;
+
+    @ApiModelProperty ("卖家服务")
+    @JSONField(serialize = false)
+    private String sellerServiceLevel;
+
+    @ApiModelProperty ("发货速度")
+    @JSONField(serialize = false)
+    private String logisticsServicesLevel;
 
 }

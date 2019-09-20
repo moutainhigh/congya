@@ -45,6 +45,8 @@ public enum AdviceLocationEnum implements BaseEnum {
 
     STORE_DETAIL(2,"首页有店+店铺分类详情"),
 
+    ACTIVITY_GROUP_MIDDLE(29,"活动分组中部推销广告"),
+
     SHOUYE_ZHUTI(3,"首页主题"),
 
     SALE(4,"首页特卖"),
@@ -75,6 +77,12 @@ public enum AdviceLocationEnum implements BaseEnum {
 
     PERSONAL_CENTER(16,"个人中心"),
 
+    INTEGRALS_SINSIDE_HUFFLING(26,"积分内部轮播图"),
+
+    REDUCED_INSIDE_SHUFFLING(27,"满减内部轮播图"),
+
+    SPELL_INSIDE_SHUFFLING(28,"拼团内部轮播图"),
+
     //有关联轮播图位置
 //    YOUPIN_DETAIL(17, "品牌详情轮播图"),
 
@@ -88,7 +96,7 @@ public enum AdviceLocationEnum implements BaseEnum {
     //其它
     TOP_UP_ENTRY(21,"充值入口"),
 
-    SPELL_GROUP(22,"拼团"),
+    SPELL_GROUP_SHUFFLING(22,"拼团内部轮播图"),
 
     COUPON(23,"领券"),
 

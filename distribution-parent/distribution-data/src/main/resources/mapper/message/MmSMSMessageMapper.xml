@@ -20,5 +20,21 @@
     <sql id="Base_Column_List">
         id, create_by, create_time, update_by, update_time, del_flag, template_code, title, content, push_object
     </sql>
+    <select id="searchSmsPush" resultType="com.chauncy.data.vo.manage.message.interact.push.SmsPushVo">
+        select id,create_time,title,content,push_object pushObject,template_code
+        from mm_s_m_s_message
+        <where>
+            del_flag = false
+            <if test="title!=null and title!=''">
+                and title like concat('%', #{title}, '%')
+            </if>
+            <if test="pushTime!=null">
+                and DATE_FORMAT(create_time,'%Y-%m-%d') &gt;= #{pushTime}
+            </if>
+            <if test="endTime!=null">
+                and DATE_FORMAT(create_time,'%Y-%m-%d') &lt;= #{endTime}
+            </if>
+        </where>
 
+    </select>
 </mapper>

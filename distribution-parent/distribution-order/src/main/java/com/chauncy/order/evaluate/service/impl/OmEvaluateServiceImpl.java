@@ -214,6 +214,7 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
         return evaluateLevelNumVo;
     }
 
+
     /**
      * 获取回复
      *
@@ -232,5 +233,20 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
             });
         }
         return goodsEvaluateVo;
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-20 20:43
+     * @Description //对商品评价点赞/取消点赞
+     *
+     * @Update chauncy
+     *
+     * @Param [evaluateId]
+     * @return java.lang.Integer
+     **/
+    @Override
+    public Integer updateEvaluateLiked(Long evaluateId) {
+        return null;
     }
 }

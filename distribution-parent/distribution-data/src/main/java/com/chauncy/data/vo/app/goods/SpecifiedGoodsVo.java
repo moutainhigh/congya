@@ -52,33 +52,21 @@ import java.util.Map;
 @Accessors(chain = true)
 public class SpecifiedGoodsVo {
 
-    @ApiModelProperty("商品名称")
-    @JSONField(ordinal = 0)
-    private String goodsName;
-
     @ApiModelProperty("商品轮播图")
     @JSONField(ordinal = 1)
     private List<String> carouselImages;
 
-    @ApiModelProperty("发货地")
-    @JSONField(ordinal = 2)
-    private String originPlace;
+    @ApiModelProperty("商品ID")
+    @JSONField(ordinal = 9)
+    private Long goodsId;
 
-    @ApiModelProperty("商品标题")
-    @JSONField(ordinal = 3)
-    private String subtitle;
-
-    @ApiModelProperty("是否包邮")
-    @JSONField(ordinal = 4)
-    private Boolean isFreePostage;
+    @ApiModelProperty("商品名称")
+    @JSONField(ordinal = 0)
+    private String goodsName;
 
     @ApiModelProperty("显示的商品价格,只是显示作用")
     @JSONField(ordinal = 5)
     private String displayPrice;
-
-    @ApiModelProperty("销量")
-    @JSONField(ordinal = 6)
-    private Integer salesVolume;
 
     @ApiModelProperty("收藏数量")
     @JSONField(ordinal = 7)
@@ -88,49 +76,41 @@ public class SpecifiedGoodsVo {
     @JSONField(ordinal = 8)
     private Boolean isFavorites;
 
-    @ApiModelProperty("商品ID")
-    @JSONField(ordinal = 9)
-    private Long goodsId;
+    @ApiModelProperty("商品标题")
+    @JSONField(ordinal = 3)
+    private String subtitle;
 
-    @ApiModelProperty(value = "税率类型 1--平台税率 2--自定义税率 3—无税率")
-    @JSONField(ordinal = 10)
-    private Integer taxRateType;
+    @ApiModelProperty("是否包邮")
+    @JSONField(ordinal = 4)
+    private Boolean isFreePostage;
+
+    @ApiModelProperty("邮费")
+    @JSONField(ordinal = 4)
+    private BigDecimal shipFreight;
+
+    @ApiModelProperty("发货地")
+    @JSONField(ordinal = 2)
+    private String originPlace;
+
+    @ApiModelProperty("销量")
+    @JSONField(ordinal = 6)
+    private Integer salesVolume;
+
+    @ApiModelProperty(value = "最高返券值")
+    @JSONField(ordinal = 11)
+    private BigDecimal maxRewardShopTicket;
+
+    @ApiModelProperty(value = "类目ID")
+    @JSONField(ordinal = 14,serialize = false)
+    private Long categoryId;
 
     @ApiModelProperty(value = "税率")
     @JSONField(ordinal = 11)
     private BigDecimal taxRate;
 
-    @ApiModelProperty(value = "自定义税率")
-    @JSONField(serialize = false,ordinal = 12)
-    private BigDecimal customTaxRate;
-
     @ApiModelProperty(value = "税费")
     @JSONField(ordinal = 13)
     private BigDecimal taxCost;
-
-    @ApiModelProperty(value = "类目ID")
-    @JSONField(ordinal = 14)
-    private Long categoryId;
-
-    @ApiModelProperty(value = "店铺IM账号")
-    @JSONField(ordinal = 15)
-    private String storeImId;
-
-    @ApiModelProperty(value = "平台IM账号")
-    @JSONField(ordinal = 16)
-    private String platImId;
-
-    @ApiModelProperty("运费信息")
-    @JSONField(ordinal = 17)
-    private ShipFreightInfoVo shipFreightInfoVo;
-
-    @ApiModelProperty("店铺信息")
-    @JSONField(ordinal = 18)
-    private StoreVo storeVo;
-
-    @ApiModelProperty("活动")
-    @JSONField(ordinal = 19)
-    private List<AttributeVo> activityVoList;
 
     @ApiModelProperty("服务")
     @JSONField(ordinal = 20)
@@ -147,5 +127,48 @@ public class SpecifiedGoodsVo {
     @ApiModelProperty("每个sku的详情")
     @JSONField(ordinal = 23)
     private Map<String,SpecifiedSkuVo> skuDetail;
+
+    @ApiModelProperty("商品详情评价数据")
+    @JSONField(ordinal = 18)
+    private GoodsDetailEvaluateVo goodsDetailEvaluateVo;
+
+    @ApiModelProperty("店铺信息")
+    @JSONField(ordinal = 18)
+    private StoreVo storeVo;
+
+    @ApiModelProperty("商品图文详情")
+    @JSONField(ordinal = 24)
+    private String detailHtml;
+
+    @ApiModelProperty("购买须知")
+    @JSONField(ordinal = 25)
+    private List<AttributeVo> purchaseList;
+
+
+
+    @ApiModelProperty(value = "税率类型 1--平台税率 2--自定义税率 3—无税率")
+    @JSONField(ordinal = 10)
+    private Integer taxRateType;
+
+    @ApiModelProperty(value = "自定义税率")
+    @JSONField(serialize = false,ordinal = 12)
+    private BigDecimal customTaxRate;
+
+    @ApiModelProperty(value = "店铺IM账号")
+    @JSONField(ordinal = 15)
+    private String storeImId;
+
+    @ApiModelProperty(value = "平台IM账号")
+    @JSONField(ordinal = 16)
+    private String platImId;
+
+    @ApiModelProperty("运费信息")
+    @JSONField(ordinal = 17)
+    private ShipFreightInfoVo shipFreightInfoVo;
+
+    @ApiModelProperty("活动")
+    @JSONField(ordinal = 19)
+    private List<AttributeVo> activityVoList;
+
 
 }

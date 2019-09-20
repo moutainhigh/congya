@@ -57,7 +57,7 @@ public class SendSms {
         request.setVersion("2017-05-25");
         request.setAction("QuerySmsTemplate");
         request.putQueryParameter("RegionId", "default");
-        request.putQueryParameter("TemplateCode", "SMS_174029582");
+        request.putQueryParameter("TemplateCode", templateCode);
         try {
             CommonResponse response = client.getCommonResponse(request);
             String data=response.getData();
@@ -93,20 +93,27 @@ public class SendSms {
      * @param phones 手机号码 用字符串隔开
      */
     public static void sendContent(String phones,String templateCode) {
-        DefaultProfile profile = DefaultProfile.getProfile("default", "<accessKeyId>", "<accessSecret>");
+        LoggerUtil.info(phones);
+        DefaultProfile profile = DefaultProfile.getProfile("default", "LTAIrOQ5daZ6ArrP", "UkTtE9cNYIbThMA5QMdwZPCCIoSM3O");
         IAcsClient client = new DefaultAcsClient(profile);
 
         CommonRequest request = new CommonRequest();
         request.setMethod(MethodType.POST);
-        request.setDomain("dysmsapi.aliyuncs.com");
         request.setVersion("2017-05-25");
+        request.setDomain("dysmsapi.aliyuncs.com");
         request.setAction("SendSms");
         request.putQueryParameter("RegionId", "default");
         request.putQueryParameter("PhoneNumbers", phones);
         request.putQueryParameter("TemplateCode", templateCode);
-        request.putQueryParameter("SignName", "葱鸭百货");
+        request.putQueryParameter("SignName", "广州博荟电子科技有限公司");
         try {
             CommonResponse response = client.getCommonResponse(request);
+            String data=response.getData();
+            JSONObject jsonObject = (JSONObject) JSONObject.parse(data);
+            String code = jsonObject.getString("Code");
+            if (!"OK".equalsIgnoreCase(code)){
+                throw new ServiceException(ResultCode.THIRD_FAIL, jsonObject.getString("Message"));
+            }
         } catch (ClientException e) {
             LoggerUtil.error(e);
             throw new ServiceException(ResultCode.THIRD_FAIL, e.getLocalizedMessage());

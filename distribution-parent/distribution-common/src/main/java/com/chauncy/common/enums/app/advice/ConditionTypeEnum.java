@@ -16,7 +16,7 @@ public enum ConditionTypeEnum implements BaseEnum {
 
     TAB(1,"选项卡"),
 
-    BRAND(2,"商家"),
+    BRAND(2,"品牌"),
 
     THIRD_CATEGORY(3,"具体商品三级分类"),
 
@@ -24,7 +24,9 @@ public enum ConditionTypeEnum implements BaseEnum {
 
     COUPON(5,"优惠券关联的所有商品列表"),
 
-    HOME(6,"首页下面的商品列表");
+    HOME(6,"首页下面的商品列表"),
+
+    SECOND_CATEGORY(7,"具体商品二级分类");
 
     @EnumValue  //这个注解放在数据库存储的字段上
     private Integer id;

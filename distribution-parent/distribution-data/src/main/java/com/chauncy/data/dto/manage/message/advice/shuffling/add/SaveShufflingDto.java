@@ -28,7 +28,8 @@ public class SaveShufflingDto {
     @ApiModelProperty("广告ID，新增时传0")
     private Long adviceId;
 
-    @ApiModelProperty("广告位置(首页左上角/首页底部/首页中部1/首页中部2/首页中部3/首页跳转内容-有品/首页跳转内容-有店/特卖内部/优选内部/个人中心展示样式)")
+    @ApiModelProperty("广告位置(首页左上角/首页底部/首页中部1/首页中部2/首页中部3/首页跳转内容-有品/首页跳转内容-有店/特卖内部/优选内部" +
+            "/个人中心展示样式/满减内部轮播图/积分内部轮播图/拼团内部轮播图)")
     @EnumConstraint(target = AdviceLocationEnum.class)
     private String location;
 

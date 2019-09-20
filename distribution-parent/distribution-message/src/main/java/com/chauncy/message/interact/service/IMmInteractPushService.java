@@ -5,9 +5,11 @@ import com.chauncy.data.domain.po.message.interact.MmInteractPushPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.manage.message.interact.add.AddPushMessageDto;
 import com.chauncy.data.dto.manage.message.interact.select.SearchPushDto;
+import com.chauncy.data.dto.manage.message.interact.select.SearchSmsDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.manage.message.interact.push.InteractPushVo;
+import com.chauncy.data.vo.manage.message.interact.push.SmsPushVo;
 import com.chauncy.data.vo.manage.message.interact.push.UmUsersVo;
 import com.github.pagehelper.PageInfo;
 
@@ -46,6 +48,8 @@ public interface IMmInteractPushService extends Service<MmInteractPushPo> {
      */
     PageInfo<InteractPushVo> search(SearchPushDto searchPushDto);
 
+
+
     /**
      * 根据推送信息ID批量删除
      *
@@ -53,6 +57,7 @@ public interface IMmInteractPushService extends Service<MmInteractPushPo> {
      * @return
      */
     void delPushByIds(Long[] ids);
+
 
     /**
      * 查找所有会员等级id和名称

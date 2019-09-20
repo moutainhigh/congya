@@ -12,9 +12,11 @@ import com.chauncy.data.domain.po.store.category.SmStoreCategoryPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.manage.message.advice.tab.association.add.SaveStoreClassificationDto;
 import com.chauncy.data.dto.manage.message.advice.tab.association.add.StoreTabsDto;
+import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchActivityGroupDto;
 import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchClassificationStoreDto;
 import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchStoreClassificationDto;
 import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchStoresDto;
+import com.chauncy.data.mapper.activity.group.AmActivityGroupMapper;
 import com.chauncy.data.mapper.message.advice.*;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.store.category.SmStoreCategoryMapper;
@@ -69,6 +71,9 @@ public class MmAdviceRelTabAssociationServiceImpl extends AbstractService<MmAdvi
     private SmStoreMapper storeMapper;
 
     @Autowired
+    private AmActivityGroupMapper activityGroupMapper;
+
+    @Autowired
     private MmAdviceRelTabThingsMapper relTabThingsMapper;
 
     @Autowired
@@ -113,6 +118,7 @@ public class MmAdviceRelTabAssociationServiceImpl extends AbstractService<MmAdvi
 
         return storeClassificationVo;
     }
+
 
     /**
      * 分页查询店铺分类下店铺信息
@@ -641,5 +647,28 @@ public class MmAdviceRelTabAssociationServiceImpl extends AbstractService<MmAdvi
 
             });
         }
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-20 09:31
+     * @Description //条件分页查询活动分组信息
+     *
+     * @Update chauncy
+     *
+     * @Param [searchActivityGroupDto]
+     * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.BaseVo>
+     **/
+    @Override
+    public PageInfo<BaseVo> searchActivityGroup(SearchActivityGroupDto searchActivityGroupDto) {
+        //TODO 此条件分页查询全部信息,前端选择数据的时候需要将已经关联的打钩上
+
+        Integer pageNo = searchActivityGroupDto.getPageNo() == null ? defaultPageNo : searchActivityGroupDto.getPageNo();
+        Integer pageSize = searchActivityGroupDto.getPageSize() == null ? defaultPageSize : searchActivityGroupDto.getPageSize();
+
+        PageInfo<BaseVo> activityGroups = PageHelper.startPage(pageNo,pageSize)
+                .doSelectPageInfo(()->activityGroupMapper.searchActivityGroup(searchActivityGroupDto));
+
+        return activityGroups;
     }
 }

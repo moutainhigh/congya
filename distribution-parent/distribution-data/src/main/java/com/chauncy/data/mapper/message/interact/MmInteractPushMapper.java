@@ -2,8 +2,10 @@ package com.chauncy.data.mapper.message.interact;
 
 import com.chauncy.data.domain.po.message.interact.MmInteractPushPo;
 import com.chauncy.data.dto.manage.message.interact.select.SearchPushDto;
+import com.chauncy.data.dto.manage.message.interact.select.SearchSmsDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.manage.message.interact.push.InteractPushVo;
+import com.chauncy.data.vo.manage.message.interact.push.SmsPushVo;
 
 import java.util.List;
 
@@ -24,4 +26,6 @@ public interface MmInteractPushMapper extends IBaseMapper<MmInteractPushPo> {
      * @return
      */
     List<InteractPushVo> search(SearchPushDto searchPushDto);
+
+
 }

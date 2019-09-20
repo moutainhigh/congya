@@ -46,6 +46,8 @@ import com.chauncy.data.vo.manage.user.list.UmUserListVo;
 import com.chauncy.user.service.IUmUserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.catalina.security.SecurityUtil;
+import org.assertj.core.util.Lists;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +56,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -378,6 +381,20 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     /**
      * 会员中心
      *
+     * 综合
+     * 消费 累计消费额
+     * 资产 累计购物券+累计红包+累计积分*0.2
+     * 发育 经验/天（总的经验值/从注册到当前日期的天数）
+     * 收益 累计红包
+     * 贡献 好友累计消费总额（一级会员的消费金额）
+     *
+     * 订单数 累计已完成订单数 （现在是没有已完成的订单）
+     * 金额/单 累计消费额/累计计完成订单数
+     * 奖励/单 （累计返券+积分）/累计完成订单数
+     * 经验/天 累计经验/注册天数
+     * 好友 直推好友数量（第一代）
+     * 收入  累计佣金
+     *
      * @param userPo
      * @return
      */
@@ -385,26 +402,95 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     public GetMembersCenterVo getMembersCenter(UmUserPo userPo) {
 
         GetMembersCenterVo membersCenterVo = mapper.getMembersCenter(userPo.getId());
+
         //经验值百分比
         BigDecimal percentage = BigDecimalUtil.safeDivide(membersCenterVo.getCurrentExperience(),membersCenterVo.getSumExperience());
         membersCenterVo.setPercentage(percentage);
 
+        //订单数
+        membersCenterVo.setTotalOrder(userPo.getTotalOrder());
+
+        //金额/单 累计消费额/累计计完成订单数
+        membersCenterVo.setPricePerOrder(BigDecimalUtil.safeDivide(userPo.getTotalConsumeMoney(),userPo.getTotalOrder()));
+
+        //奖励/单  （累计返券+积分）/累计完成订单数
+        BigDecimal reward = BigDecimalUtil.safeDivide(BigDecimalUtil.safeAdd(userPo.getTotalShopTicket(),userPo.getTotalIntegral()),userPo.getTotalOrder());
+        membersCenterVo.setRewardPerOrder(reward);
+
+        // 经验/天 累计经验/注册天数
+        BigDecimal experience = BigDecimalUtil.safeDivide(membersCenterVo.getCurrentExperience(), (LocalDate.now().toEpochDay()-membersCenterVo.getCreateTime().toLocalDate().toEpochDay()));
+        membersCenterVo.setExperiencePerDay(experience);
+
+        //好友 直推好友数量（第一代）
+        Integer friend = mapper.selectList(new QueryWrapper<UmUserPo>().lambda().and(obj->obj
+                .eq(UmUserPo::getParentId,userPo.getId()).eq(UmUserPo::getDelFlag,0))).size();
+        membersCenterVo.setFriend(friend);
+
+        //收入  累计佣金
+        membersCenterVo.setIncome(userPo.getTotalRedEnvelops());
+
+        //贡献 好友累计消费总额（一级会员的消费金额）
+        List<UmUserPo> friends = mapper.selectList(new QueryWrapper<UmUserPo>().lambda().and(obj->obj
+                        .eq(UmUserPo::getParentId,userPo.getId())));
+        BigDecimal contributions = friends.stream().map(a->a.getTotalConsumeMoney()).reduce(BigDecimal.ZERO,BigDecimal::add);
+
+        //消费
+        BigDecimal totalConsumeMoney = userPo.getTotalConsumeMoney();
+        //资产
+        BigDecimal assets = BigDecimalUtil.safeAdd(userPo.getTotalShopTicket(),userPo.getTotalRedEnvelops(),BigDecimalUtil.safeMultiply(userPo.getTotalIntegral(),new BigDecimal(0.2)));
+        //发育
+        BigDecimal development = experience;
+        //收益
+        BigDecimal earnings = userPo.getTotalRedEnvelops();
+        //贡献
+        BigDecimal contributions1 = contributions;
+
+        List<BigDecimal> datas = Lists.newArrayList(
+                totalConsumeMoney,
+                assets,
+                development,
+                earnings,
+                contributions1
+        );
+        //获取最大值
+        BigDecimal max = datas.stream().max((u1, u2)->u1.compareTo(u2)).get();
+
+        //消费比例
+        membersCenterVo.setTotalConsumeMoneyProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(totalConsumeMoney,max,4,new BigDecimal(0.00)),100));
+
+        //资产比例
+        membersCenterVo.setAssetsProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(assets,max,4,new BigDecimal(0.00)),100));
+
+        //发育比例
+        membersCenterVo.setDevelopmentProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(development,max,4,new BigDecimal(0.00)),100));
+
+        //收益比例
+        membersCenterVo.setEarningsProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(earnings,max,4,new BigDecimal(0.00)),100));
+
+        //贡献比例
+        membersCenterVo.setContributionProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(contributions1,max,4,new BigDecimal(0.00)),100));
+
+        //综合比例
+        membersCenterVo.setComprehensiveProportion(BigDecimalUtil.safeMultiply(100,
+                BigDecimalUtil.safeDivide(
+                        BigDecimalUtil.safeDivide(
+                                BigDecimalUtil.safeAdd(totalConsumeMoney,assets,development,earnings,contributions1),
+                        max,4,new BigDecimal(0.00)),
+                new BigDecimal(5),4,new BigDecimal(0.00))));
+
+
+
+        /*
         //平均消费
         BigDecimal avgConsumer = BigDecimalUtil.safeDivide(membersCenterVo.getTotalConsumeMoney(),membersCenterVo.getTotalOrder());
-        membersCenterVo.setAvgConsumer(avgConsumer);
 
         //赞
         Integer praise1 = informationLikedMapper.selectCount(new QueryWrapper<MmInformationLikedPo>().lambda().and(obj->obj
                 .eq(MmInformationLikedPo::getUserId,userPo.getId()).eq(MmInformationLikedPo::getDelFlag,0)));
-//                .stream().mapToLong((a)->a.getId()).summaryStatistics().getCount();
         Integer praise2 = informationCommentMapper.selectCount(new QueryWrapper<MmInformationCommentPo>().lambda().and(obj->obj
                 .eq(MmInformationCommentPo::getUserId,userPo.getId()).eq(MmInformationCommentPo::getDelFlag,0)));
 //                .stream().mapToLong((a)->a.getId()).summaryStatistics().getCount();
         membersCenterVo.setPraise(praise1+praise2);
-
-        //经验/天
-        BigDecimal experience = BigDecimalUtil.safeDivide(membersCenterVo.getCurrentExperience(), (LocalDate.now().toEpochDay()-membersCenterVo.getCreateTime().toLocalDate().toEpochDay()));
-        membersCenterVo.setExperience(experience);
 
         //分享
         Integer share = mapper.selectCount(new QueryWrapper<UmUserPo>().lambda().and(obj->
@@ -414,34 +500,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         //评论
         Integer informationComments = informationCommentMapper.selectCount(new QueryWrapper<MmInformationCommentPo>().lambda().and(obj->obj
                 .eq(MmInformationCommentPo::getDelFlag,0).eq(MmInformationCommentPo::getUserId,userPo.getId())));
-        membersCenterVo.setComments(informationComments);
-
-        //好友
-        Integer friend = mapper.selectList(new QueryWrapper<UmUserPo>().lambda().and(obj->obj
-                .eq(UmUserPo::getParentId,userPo.getId()).eq(UmUserPo::getDelFlag,0))).size();
-        membersCenterVo.setFriend(friend);
-
-
-        //CRO
-        Integer cRO = 0;
-
-        //奖励/订单
-        Integer reward;
-
-        //资产
-        BigDecimal assets;
-
-        //综合
-        BigDecimal comprehensive;
-
-        //发育
-        BigDecimal development;
-
-        //贡献
-        BigDecimal contribution;
-
-        //活跃
-        BigDecimal active;
+        membersCenterVo.setComments(informationComments);*/
 
 
         return membersCenterVo;
