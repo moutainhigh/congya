@@ -331,14 +331,6 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         updateGoodsTemp.setId(queryAfterSaleOrder.getGoodsTempId()).setIsAfterSale(true).setUpdateBy(userId);
         goodsTempMapper.updateById(updateGoodsTemp);
 
-        //售后成功  购物券，红包退还 对应流水生成
-        AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
-        addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.ORDER_REFUND);
-        addAccountLogBo.setRelId(queryAfterSaleOrder.getId());
-        addAccountLogBo.setOperator(userId);
-        //listenerOrderLogQueue 消息队列
-        this.rabbitTemplate.convertAndSend(
-                RabbitConstants.ACCOUNT_LOG_EXCHANGE, RabbitConstants.ACCOUNT_LOG_ROUTING_KEY, addAccountLogBo);
         //退还使用的红包、购物券
         OmGoodsTempPo queryGoodsTemp = goodsTempMapper.selectById(queryAfterSaleOrder.getGoodsTempId());
         OmOrderPo queryOrder=omOrderMapper.selectById(queryGoodsTemp.getOrderId());
@@ -346,11 +338,25 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         BigDecimal ratio=BigDecimalUtil.safeDivide(BigDecimalUtil.safeMultiply(queryGoodsTemp.getNumber(),queryGoodsTemp.getSellPrice()),
                BigDecimalUtil.safeSubtract(queryOrder.getTotalMoney(),queryOrder.getShipMoney(),queryOrder.getTaxMoney()) );
         UmUserPo updateUser=new UmUserPo();
-        updateUser.setCurrentRedEnvelops(BigDecimalUtil.safeMultiply(ratio,queryOrder.getRedEnvelops()))
-                .setCurrentShopTicket(BigDecimalUtil.safeMultiply(ratio,queryOrder.getShopTicket()));
+        BigDecimal marginRedEnvelops = BigDecimalUtil.safeMultiply(ratio,queryOrder.getRedEnvelops());
+        BigDecimal marginShopTicket = BigDecimalUtil.safeMultiply(ratio,queryOrder.getShopTicket());
+        updateUser.setCurrentRedEnvelops(marginRedEnvelops)
+                .setCurrentShopTicket(marginShopTicket)
+                .setId(queryOrder.getUmUserId());
         userMapper.updateAdd(updateUser);
 
 
+        //售后成功  购物券，红包退还 对应流水生成
+        AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
+        addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.ORDER_REFUND);
+        addAccountLogBo.setRelId(queryAfterSaleOrder.getId());
+        addAccountLogBo.setOperator(userId);
+        addAccountLogBo.setMarginRedEnvelops(marginRedEnvelops);
+        addAccountLogBo.setMarginShopTicket(marginShopTicket);
+        addAccountLogBo.setUmUserId(queryOrder.getUmUserId());
+        //listenerOrderLogQueue 消息队列
+        this.rabbitTemplate.convertAndSend(
+                RabbitConstants.ACCOUNT_LOG_EXCHANGE, RabbitConstants.ACCOUNT_LOG_ROUTING_KEY, addAccountLogBo);
 
 
 

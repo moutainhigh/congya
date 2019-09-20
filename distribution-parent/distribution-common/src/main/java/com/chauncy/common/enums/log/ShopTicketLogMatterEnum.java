@@ -24,6 +24,7 @@ public enum ShopTicketLogMatterEnum implements BaseEnum {
     EXPERIENCE_PACK(33, "经验包"),
     PLATFORM_GIVE(34, "系统赠送"),
     NEW_GIFT(35, "新人礼包"),
+    AFTER_SALE_REFUND (36, "售后退还"),
     ;
 
     @EnumValue

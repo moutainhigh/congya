@@ -41,10 +41,19 @@ public enum PaymentWayEnum implements BaseEnum {
         return this.getName();
     }
 
-    //通过名称来获取结果
+    //通过id来获取结果
     public static PaymentWayEnum getById(Integer id) {
         for (PaymentWayEnum type : PaymentWayEnum.values()) {
             if (type.getId().equals(id))
+                return type;
+        }
+        return null;
+    }
+
+    //通过名称来获取结果
+    public static PaymentWayEnum getByName(String name) {
+        for (PaymentWayEnum type : PaymentWayEnum.values()) {
+            if (type.getName().equals(name))
                 return type;
         }
         return null;

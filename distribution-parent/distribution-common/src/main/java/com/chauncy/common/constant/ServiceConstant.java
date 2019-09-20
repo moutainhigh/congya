@@ -17,4 +17,8 @@ public interface ServiceConstant {
      */
     Integer VICE_COMMENT_NUM = 2;
 
+    /**
+     * APP店铺列表中店铺展示商品列表默认展示排序前三个
+     */
+    Integer DEFAULT_SHOW_GOODS_NUM = 3;
 }

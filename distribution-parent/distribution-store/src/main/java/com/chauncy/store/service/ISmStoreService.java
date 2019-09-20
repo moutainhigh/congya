@@ -12,7 +12,9 @@ import com.chauncy.data.dto.manage.store.select.StoreSearchByConditionDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.dto.supplier.store.update.StoreBusinessLicenseDto;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.app.advice.store.StoreCategoryDetailVo;
 import com.chauncy.data.vo.app.advice.store.StoreHomePageVo;
+import com.chauncy.data.vo.app.component.ScreenParamVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.app.store.StoreDetailVo;
 import com.chauncy.data.vo.app.store.StorePagingVo;
@@ -156,6 +158,18 @@ public interface ISmStoreService extends Service<SmStorePo> {
      */
     PageInfo<StorePagingVo> searchPaging(SearchStoreDto searchStoreDto);
 
+   /**
+    * @Author yeJH
+    * @Date 2019/9/20 16:43
+    * @Description 搜索界面-搜索店铺列表
+    *
+    * @Update yeJH
+    *
+    * @Param [searchStoreDto]
+    * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.store.StorePagingVo>
+    **/
+    PageInfo<StoreCategoryDetailVo> searchStoreBaseList(SearchStoreDto searchStoreDto);
+
     /**
      * app获取店铺信息
      * @param storeId
@@ -174,6 +188,18 @@ public interface ISmStoreService extends Service<SmStorePo> {
      * @return
      */
     StoreDetailVo findDetailById(Long storeId);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/19 23:38
+     * @Description 根据筛选店铺的条件获取店铺对应的标签，类目等参数
+     *
+     * @Update yeJH
+     *
+     * @Param [searchStoreDto]
+     * @return com.chauncy.data.vo.app.component.ScreenParamVo
+     **/
+    ScreenParamVo findScreenStoreParam(SearchStoreDto searchStoreDto);
 
     /**
      * 获取店铺首页-店铺详情信息
