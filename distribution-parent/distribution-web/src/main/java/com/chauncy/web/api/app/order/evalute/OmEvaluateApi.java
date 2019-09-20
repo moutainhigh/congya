@@ -30,7 +30,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/app/order/evaluate")
-@Api(tags = "app_用户_商品评价")
+@Api(tags = "app_用户_商品评价管理")
 public class OmEvaluateApi extends BaseApi {
 
     @Autowired
@@ -90,5 +90,22 @@ public class OmEvaluateApi extends BaseApi {
                                                               @Validated GetPersonalEvaluateDto getPersonalEvaluateDto){
 
         return new JsonViewData(service.getPersonalEvaluate(getPersonalEvaluateDto));
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-20 20:42
+     * @Description //对商品评价点赞/取消点赞
+     *
+     * @Update chauncy
+     *
+     * @Param [evaluateId]
+     * @return com.chauncy.data.vo.JsonViewData<java.lang.Integer>
+     **/
+    @PostMapping("/updateEvaluateLiked/{evaluateId}")
+    @ApiOperation("对商品评价点赞/取消点赞")
+    public JsonViewData<Integer> updateEvaluateLiked(@PathVariable Long evaluateId){
+
+        return setJsonViewData(service.updateEvaluateLiked(evaluateId));
     }
 }
