@@ -16,13 +16,16 @@ import com.chauncy.data.domain.po.message.interact.MmInteractRelMessageObjectPo;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.dto.manage.message.interact.add.AddPushMessageDto;
 import com.chauncy.data.dto.manage.message.interact.select.SearchPushDto;
+import com.chauncy.data.dto.manage.message.interact.select.SearchSmsDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
+import com.chauncy.data.mapper.message.MmSMSMessageMapper;
 import com.chauncy.data.mapper.message.interact.MmInteractPushMapper;
 import com.chauncy.data.mapper.message.interact.MmInteractRelMessageObjectMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.manage.message.interact.push.InteractPushVo;
+import com.chauncy.data.vo.manage.message.interact.push.SmsPushVo;
 import com.chauncy.data.vo.manage.message.interact.push.UmUsersVo;
 import com.chauncy.message.interact.service.IMmInteractPushService;
 import com.chauncy.security.util.SecurityUtil;
@@ -66,6 +69,9 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
 
     @Autowired
     private PmMemberLevelMapper memberLevelMapper;
+
+    @Autowired
+    private MmSMSMessageMapper smsMessageMapper;
 
     /**
      * 用户列表
@@ -155,7 +161,7 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
                         relMessageObjectPo.setCreateBy(securityUtil.getCurrUser().getUsername());
                         relMessageObjectMapper.insert(relMessageObjectPo);
 
-                        int loopSize=userMapper.countLtOrEqLevel(queryMemberLevel.getLevel());
+                        int loopSize=userMapper.countLtOrEqLevel(queryMemberLevel.getLevel())/1000+1;
                         for (int i=0;i<loopSize;i++){
                             PageInfo<String> pageUserId = PageHelper.startPage(i + 1, 1000).doSelectPageInfo(() -> userMapper.getIdsLtOrEqLevel(queryMemberLevel.getLevel()));
                             if (!ListUtil.isListNullAndEmpty(pageUserId.getList())){
@@ -248,6 +254,8 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
         return interactPushVoPageInfo;
     }
 
+
+
     /**
      * 根据推送信息ID批量删除
      *
@@ -272,6 +280,8 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
         });
 
     }
+
+
 
     /**
      * 查找所有会员等级id和名称

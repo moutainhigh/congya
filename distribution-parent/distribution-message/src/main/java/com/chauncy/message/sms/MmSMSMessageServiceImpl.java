@@ -10,13 +10,16 @@ import com.chauncy.common.util.ListUtil;
 import com.chauncy.common.util.third.JpushClientUtil;
 import com.chauncy.common.util.third.SendSms;
 import com.chauncy.data.domain.po.message.MmSMSMessagePo;
+import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.manage.message.interact.add.AddSmsMessageDto;
+import com.chauncy.data.dto.manage.message.interact.select.SearchSmsDto;
 import com.chauncy.data.mapper.message.MmSMSMessageMapper;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
+import com.chauncy.data.vo.manage.message.interact.push.SmsPushVo;
 import com.chauncy.message.sms.impl.IMmSMSMessageService;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.user.service.IPmMemberLevelService;
@@ -61,8 +64,8 @@ public class MmSMSMessageServiceImpl extends AbstractService<MmSMSMessageMapper,
         //保存发送短信信息到数据库
         MmSMSMessagePo saveSms = new MmSMSMessagePo();
         BeanUtils.copyProperties(addSmsMessageDto, saveSms);
-        UmUserPo appCurrUser = securityUtil.getAppCurrUser();
-        saveSms.setCreateBy(appCurrUser.getId() + "");
+        SysUserPo currUser = securityUtil.getCurrUser();
+        saveSms.setCreateBy(currUser.getId() + "");
         mapper.insert(saveSms);
 
         //获取用户手机号，逗号隔开
@@ -71,7 +74,7 @@ public class MmSMSMessageServiceImpl extends AbstractService<MmSMSMessageMapper,
         switch (pushObjectEnum) {
             case ALLUSER:
                 //阿里批量发送短信一次只能发送1000条
-                loopSize = userMapper.selectCount(Wrappers.emptyWrapper());
+                loopSize = userMapper.selectCount(Wrappers.emptyWrapper())/1000+1;
                 for (int i = 0; i < loopSize; i++) {
                     PageInfo<String> pageUserPhones = PageHelper.startPage(i + 1, 1000).doSelectPageInfo(() -> userMapper.getAllPhones());
                     if (!ListUtil.isListNullAndEmpty(pageUserPhones.getList())) {
@@ -104,7 +107,7 @@ public class MmSMSMessageServiceImpl extends AbstractService<MmSMSMessageMapper,
                     throw new ServiceException(ResultCode.NO_EXISTS, "数据库不存在该会员等级，请检查");
                 }
 
-                loopSize = userMapper.countLtOrEqLevel(queryMemberLevel.getLevel());
+                loopSize = userMapper.countLtOrEqLevel(queryMemberLevel.getLevel())/1000+1;
                 for (int i = 0; i < loopSize; i++) {
                     PageInfo<String> pageUserPhone = PageHelper.startPage(i + 1, 1000).doSelectPageInfo(() -> userMapper.getPhonesLtOrEqLevel(queryMemberLevel.getLevel()));
                     if (!ListUtil.isListNullAndEmpty(pageUserPhone.getList())) {
@@ -116,4 +119,17 @@ public class MmSMSMessageServiceImpl extends AbstractService<MmSMSMessageMapper,
         }
 
     }
+
+
+    @Override
+    public PageInfo<SmsPushVo> searchSmsPushVo(SearchSmsDto searchSmsDto) {
+
+        Integer pageNo = searchSmsDto.getPageNo() == null ? defaultPageNo : searchSmsDto.getPageNo();
+        Integer pageSize = searchSmsDto.getPageSize() == null ? defaultPageSize : searchSmsDto.getPageSize();
+        PageInfo<SmsPushVo> smsPushVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> mapper.searchSmsPush(searchSmsDto));
+        return smsPushVoPageInfo;
+    }
+
+
 }

@@ -38,7 +38,6 @@ public class AddSmsMessageDto {
 
     @ApiModelProperty(value = "推送对象类型,传数组 1、全部用户 2、指定用户 3、指定会员等级")
     @NotNull(message = "推送对象类型不能为空")
-    @EnumConstraint(target = PushObjectEnum.class)
     private Integer pushObject;
 
     @ApiModelProperty(value = "全部用户：该字段不用传；指定用户：如果是指定用户，需要传指定的用户的手机号码；" +

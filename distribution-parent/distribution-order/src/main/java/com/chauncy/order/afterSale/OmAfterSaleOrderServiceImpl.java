@@ -339,6 +339,7 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         //listenerOrderLogQueue 消息队列
         this.rabbitTemplate.convertAndSend(
                 RabbitConstants.ACCOUNT_LOG_EXCHANGE, RabbitConstants.ACCOUNT_LOG_ROUTING_KEY, addAccountLogBo);
+
         //退还使用的红包、购物券
         OmGoodsTempPo queryGoodsTemp = goodsTempMapper.selectById(queryAfterSaleOrder.getGoodsTempId());
         OmOrderPo queryOrder=omOrderMapper.selectById(queryGoodsTemp.getOrderId());
