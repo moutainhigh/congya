@@ -148,4 +148,8 @@ public class SpecifiedGoodsVo {
     @JSONField(ordinal = 23)
     private Map<String,SpecifiedSkuVo> skuDetail;
 
+    @ApiModelProperty("商品图文详情")
+    @JSONField(ordinal = 24)
+    private String detailHtml;
+
 }
