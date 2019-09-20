@@ -3,6 +3,7 @@ package com.chauncy.message.advice;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.message.advice.MmAdviceRelTabAssociationPo;
 import com.chauncy.data.dto.manage.message.advice.tab.association.add.SaveStoreClassificationDto;
+import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchActivityGroupDto;
 import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchClassificationStoreDto;
 import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchStoreClassificationDto;
 import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchStoresDto;
@@ -53,4 +54,16 @@ public interface IMmAdviceRelTabAssociationService extends Service<MmAdviceRelTa
      * @return
      */
     PageInfo<StoreVo> searchStores(SearchStoresDto searchStoresDto);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-20 09:29
+     * @Description //条件分页查询活动分组信息
+     *
+     * @Update chauncy
+     *
+     * @Param [searchActivityGroupDto]
+     * @return java.lang.Object
+     **/
+    PageInfo<BaseVo> searchActivityGroup(SearchActivityGroupDto searchActivityGroupDto);
 }
