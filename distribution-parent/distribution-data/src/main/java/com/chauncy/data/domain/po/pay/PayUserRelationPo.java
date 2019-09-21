@@ -1,14 +1,11 @@
 package com.chauncy.data.domain.po.pay;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.*;
 
 import java.time.LocalDateTime;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
-
 import java.io.Serializable;
+import java.util.List;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -64,14 +61,16 @@ public class PayUserRelationPo implements Serializable {
     @ApiModelProperty(value = "直接上级用户id")
     private Long lastOneUserId;
 
-    @ApiModelProperty(value = "下一级用户id")
-    private Long nextUserId;
 
     @ApiModelProperty(value = "返佣最高等级userid")
     private Long firstUserId;
 
     @ApiModelProperty(value = "返佣第二等级userid")
     private Long secondUserId;
+
+    @ApiModelProperty(value = "下一级用户id集合",hidden = true)
+    @TableField(exist = false)
+    private List<Long> nextUserIds;
 
 
 }

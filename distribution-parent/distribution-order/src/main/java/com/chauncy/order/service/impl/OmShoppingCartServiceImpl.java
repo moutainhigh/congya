@@ -17,6 +17,7 @@ import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.order.OmEvaluateQuartzPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.order.OmShoppingCartPo;
+import com.chauncy.data.domain.po.order.PayUserRelationNextLevelPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.domain.po.pay.PayUserRelationPo;
 import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
@@ -40,7 +41,6 @@ import com.chauncy.data.mapper.area.AreaRegionMapper;
 import com.chauncy.data.mapper.order.OmEvaluateQuartzMapper;
 import com.chauncy.data.mapper.order.OmShoppingCartMapper;
 import com.chauncy.data.mapper.pay.IPayOrderMapper;
-import com.chauncy.data.mapper.pay.PayUserRelationMapper;
 import com.chauncy.data.mapper.product.*;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.sys.BasicSettingMapper;
@@ -50,6 +50,7 @@ import com.chauncy.data.mapper.user.UmAreaShippingMapper;
 import com.chauncy.data.mapper.user.UmUserFavoritesMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.temp.order.service.IOmGoodsTempService;
+import com.chauncy.order.service.IPayUserRelationNextLevelService;
 import com.chauncy.data.vo.app.car.*;
 import com.chauncy.data.vo.app.goods.*;
 import com.chauncy.data.vo.app.order.cart.CartVo;
@@ -167,6 +168,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     @Autowired
     private IPayUserRelationService payUserRelationService;
 
+    @Autowired
+    private IPayUserRelationNextLevelService payUserRelationNextLevelService;
+
 
     //需要进行实行认证且计算税率的商品类型
     private final List<String> needRealGoodsType = Lists.newArrayList("保税仓", "海外直邮");
@@ -266,7 +270,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 //购物券比例
                 BigDecimal moneyToShopTicket = basicSettingMapper.selectList(null).get(0).getMoneyToShopTicket();
                 rewardShopTicketBo.setMoneyToShopTicket(moneyToShopTicket);
-                BigDecimal rewardShopTicket= rewardShopTicketBo.getRewardShopTicket();
+                BigDecimal rewardShopTicket = rewardShopTicketBo.getRewardShopTicket();
 
                 b.setRewardShopTicke(rewardShopTicket);
 
@@ -283,9 +287,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 storeGoodsVos.add(b);
             });
             //失效id
-            List<Long> disableIds = disableList.stream().map(g->g.getSkuId()).collect(Collectors.toList());
+            List<Long> disableIds = disableList.stream().map(g -> g.getSkuId()).collect(Collectors.toList());
             //获取除失效的商品
-            validGoodsVos = storeGoodsVos.stream().filter(d->!disableIds.contains(d.getSkuId())).collect(Collectors.toList());
+            validGoodsVos = storeGoodsVos.stream().filter(d -> !disableIds.contains(d.getSkuId())).collect(Collectors.toList());
 //            storeGoodsVos.removeAll(disableList);
 
             a.setStoreGoodsVoList(validGoodsVos);
@@ -330,29 +334,29 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         BeanUtils.copyProperties(updateCartDto, cartPo);
 
         Long skuId = mapper.selectById(updateCartDto.getId()).getSkuId();
-        if (!skuId.equals(updateCartDto.getNeedChangeId())){
-            throw new ServiceException(ResultCode.FAIL,String.format("需要修改的sku:【%s】不属于该购物车id:[%s],请检查",
-                    updateCartDto.getNeedChangeId(),updateCartDto.getId()));
+        if (!skuId.equals(updateCartDto.getNeedChangeId())) {
+            throw new ServiceException(ResultCode.FAIL, String.format("需要修改的sku:【%s】不属于该购物车id:[%s],请检查",
+                    updateCartDto.getNeedChangeId(), updateCartDto.getId()));
         }
 
         if (updateCartDto.getSelectId() != 0) {
 
             //获取该用户收藏的所有sku
             List<Long> skuIds = mapper.selectList(new QueryWrapper<OmShoppingCartPo>().lambda()
-                    .eq(OmShoppingCartPo::getUserId,user.getId())).stream().map(a->a.getSkuId()).collect(Collectors.toList());
+                    .eq(OmShoppingCartPo::getUserId, user.getId())).stream().map(a -> a.getSkuId()).collect(Collectors.toList());
 
             //是否针对相同的商品
             Long goodsId1 = skuMapper.selectById(updateCartDto.getNeedChangeId()).getGoodsId();
             Long goodsId2 = skuMapper.selectById(updateCartDto.getSelectId()).getGoodsId();
-            if (!goodsId1.equals(goodsId2)){
-                throw new ServiceException(ResultCode.FAIL,"更改的sku不属于需要被更改的商品");
+            if (!goodsId1.equals(goodsId2)) {
+                throw new ServiceException(ResultCode.FAIL, "更改的sku不属于需要被更改的商品");
             }
             //判断更改前的sku和更改后的sku是否一样
             if (updateCartDto.getSelectId().equals(updateCartDto.getNeedChangeId())) {
                 throw new ServiceException(ResultCode.FAIL, "您修改后的购买信息和修改前一致");
-            }else if (skuIds.contains(updateCartDto.getSelectId())) {
+            } else if (skuIds.contains(updateCartDto.getSelectId())) {
                 mapper.deleteById(updateCartDto.getId());
-            }else {
+            } else {
                 //更改后的sku保存到购物车的数量为1
                 cartPo.setNum(1);
                 cartPo.setSkuId(updateCartDto.getSelectId());
@@ -381,10 +385,10 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         if (!ListUtil.isListNullAndEmpty(needRealSkuList)) {
             totalCarVo.setNeedCertification(true);
         }
-       //获取系统基本设置
+        //获取系统基本设置
         BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
 
-         //设置会员等级比例和购物券比例
+        //设置会员等级比例和购物券比例
         setPurchasePresentAndMoneyToShopTicket(shopTicketSoWithCarGoodVos, currentUser, basicSettingPo);
         //拆单后的信息包括红包 购物券 金额 优惠 运费等
         List<StoreOrderVo> storeOrderVos = getBySkuIds(shopTicketSoWithCarGoodVos, currentUser, settleDto.getAreaShipId());
@@ -434,7 +438,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
      * @return
      */
     private List<StoreOrderVo> getBySkuIds(List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVo, UmUserPo currentUser,
-                                            Long areaShipId) {
+                                           Long areaShipId) {
 
         //加快sql查询，用代码对店铺和商品类型进行分组拆单
         Map<List, Map<String, List<ShopTicketSoWithCarGoodVo>>> map
@@ -466,7 +470,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 //判断商品是否保税仓或者海外直邮，且计算税率
                 if (needRealGoodsType.contains(entry1.getKey())) {
                     //商品的税率=数量*销售价*百分比/100
-                     taxMoney = shopTicketSoWithCarGoodVos.stream().map(x -> BigDecimalUtil.safeMultiply(x.getNumber(),
+                    taxMoney = shopTicketSoWithCarGoodVos.stream().map(x -> BigDecimalUtil.safeMultiply(x.getNumber(),
                             BigDecimalUtil.safeMultiply(x.getSellPrice(), transfromDecimal(x.getCustomTaxRate())))).
                             reduce(BigDecimal.ZERO, BigDecimal::add);
                     goodsTypeOrderVo.setTaxMoney(taxMoney);
@@ -483,7 +487,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 //商品总额=数量*单价
                 BigDecimal totalMoney = shopTicketSoWithCarGoodVos.stream().map(x -> BigDecimalUtil.safeMultiply(x.getNumber(), x.getSellPrice())).
                         reduce(BigDecimal.ZERO, BigDecimal::add);
-                totalMoney=BigDecimalUtil.safeAdd(totalMoney,shipMoney,taxMoney);
+                totalMoney = BigDecimalUtil.safeAdd(totalMoney, shipMoney, taxMoney);
                /* //奖励购物券
                 BigDecimal rewardShopTicket = shopTicketSoWithCarGoodVos.stream().map(x -> BigDecimalUtil.safeMultiply(x.getNumber(), x.getRewardShopTicket()))
                         .reduce(BigDecimal.ZERO, BigDecimal::add);*/
@@ -502,7 +506,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     }
 
-   /**
+    /**
      * 设置会员等级比例和购物券比例
      *
      * @param shopTicketSoWithCarGoodVoList
@@ -584,17 +588,16 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         //收货城市
         myCityId = umAreaShippingMapper.getCityId(areaShipId);
         //找出非免邮的sku
-        List<ShopTicketSoWithCarGoodVo> needShipMoneys=shopTicketSoWithCarGoodVos.stream().filter(x->!x.getIsFreePostage())
+        List<ShopTicketSoWithCarGoodVo> needShipMoneys = shopTicketSoWithCarGoodVos.stream().filter(x -> !x.getIsFreePostage())
                 .collect(Collectors.toList());
         //按照运费模板分组
         Map<Long, List<ShopTicketSoWithCarGoodVo>> map = needShipMoneys.stream().
                 collect(Collectors.groupingBy(ShopTicketSoWithCarGoodVo::getShippingTemplateId));
         //订单总运费
-        BigDecimal shipMoney=BigDecimal.ZERO;
-        for (Map.Entry<Long, List<ShopTicketSoWithCarGoodVo>> entry : map.entrySet())
-        {
-            Long shipTemplateId=entry.getKey();
-            List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVoList=entry.getValue();
+        BigDecimal shipMoney = BigDecimal.ZERO;
+        for (Map.Entry<Long, List<ShopTicketSoWithCarGoodVo>> entry : map.entrySet()) {
+            Long shipTemplateId = entry.getKey();
+            List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVoList = entry.getValue();
             //运费模板对应的运费信息
             List<MoneyShipBo> moneyShipBos = moneyShippingMapper.loadByTemplateId(shipTemplateId);
 
@@ -603,12 +606,12 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     findFirst().orElse(null);
             //采用默认运费
             if (moneyShipBo == null) {
-                shipMoney=BigDecimalUtil.safeAdd( getShipByMoney(shopTicketSoWithCarGoodVoList, moneyShipBos.get(0).getDefaultFullMoney()
-                        , moneyShipBos.get(0).getDefaultPostMoney(), moneyShipBos.get(0).getDefaultFreight()),shipMoney);
+                shipMoney = BigDecimalUtil.safeAdd(getShipByMoney(shopTicketSoWithCarGoodVoList, moneyShipBos.get(0).getDefaultFullMoney()
+                        , moneyShipBos.get(0).getDefaultPostMoney(), moneyShipBos.get(0).getDefaultFreight()), shipMoney);
             }
             //采用指定运费
             else {
-                shipMoney=BigDecimalUtil.safeAdd(shipMoney, getShipByMoney(shopTicketSoWithCarGoodVoList, moneyShipBo.getDestinationFullMoney()
+                shipMoney = BigDecimalUtil.safeAdd(shipMoney, getShipByMoney(shopTicketSoWithCarGoodVoList, moneyShipBo.getDestinationFullMoney()
                         , moneyShipBo.getDestinationPostMoney(), moneyShipBo.getDestinationBasisFreight())
                 );
             }
@@ -617,7 +620,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         return shipMoney;
     }
 
-  /*  *//**
+    /*  *//**
      * 算出运费
      *
      * @param shopTicketSoWithCarGoodVo
@@ -675,8 +678,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     private BigDecimal getShipByMoney(List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVos, BigDecimal fullMoney,
                                       BigDecimal postMoney, BigDecimal basisFreight) {
         //同个模板下所有商品的总价
-        BigDecimal price = shopTicketSoWithCarGoodVos.stream().map(x->BigDecimalUtil.safeMultiply(x.getNumber(),x.getSellPrice()))
-                .reduce(BigDecimal.ZERO,BigDecimal::add);
+        BigDecimal price = shopTicketSoWithCarGoodVos.stream().map(x -> BigDecimalUtil.safeMultiply(x.getNumber(), x.getSellPrice()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         //满足金额优惠条件
         if (price.compareTo(fullMoney) >= 0) {
             return postMoney;
@@ -708,8 +711,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     public SpecifiedGoodsVo selectSpecifiedGoods(Long goodsId) {
 
         UmUserPo userPo = securityUtil.getAppCurrUser();
-        if (userPo == null ){
-            throw new ServiceException(ResultCode.NO_EXISTS,"您不是APP用户！");
+        if (userPo == null) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "您不是APP用户！");
         }
 
         SpecifiedGoodsVo specifiedGoodsVo = new SpecifiedGoodsVo();
@@ -724,21 +727,21 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         specifiedGoodsVo = goodsMapper.findGoodsBase(goodsId);
         /** 获取用户是否已经收藏该商品*/
         UmUserFavoritesPo userFavoritesPo = userFavoritesMapper.selectOne(new QueryWrapper<UmUserFavoritesPo>().lambda()
-                .and(obj->obj.eq(UmUserFavoritesPo::getFavoritesId,goodsId)
-                        .eq(UmUserFavoritesPo::getUserId,userPo.getId())));
+                .and(obj -> obj.eq(UmUserFavoritesPo::getFavoritesId, goodsId)
+                        .eq(UmUserFavoritesPo::getUserId, userPo.getId())));
         Boolean isFavorites = false;
-        if (userFavoritesPo ==null){
+        if (userFavoritesPo == null) {
             isFavorites = false;
-        }else if (userFavoritesPo.getIsFavorites()){
+        } else if (userFavoritesPo.getIsFavorites()) {
             isFavorites = true;
-        }else if (!userFavoritesPo.getIsFavorites()){
+        } else if (!userFavoritesPo.getIsFavorites()) {
             isFavorites = false;
         }
         specifiedGoodsVo.setIsFavorites(isFavorites);
 
         String carouselImage = goodsMapper.selectById(goodsId).getCarouselImage();
         //string转list
-        List<String> carouselImages =Splitter.on(",").trimResults().splitToList(carouselImage);
+        List<String> carouselImages = Splitter.on(",").trimResults().splitToList(carouselImage);
         specifiedGoodsVo.setCarouselImages(carouselImages);
         /**获取商品详情显示的价格区间*/
         BigDecimal lowestSellPrice = skuMapper.getLowestPrice(goodsId);
@@ -752,13 +755,12 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         specifiedGoodsVo.setDisplayPrice(sellPrice);
         /**运费详情*/
         ShipFreightInfoVo shipFreightInfoVo = shippingTemplateMapper.findByGoodsId(goodsId);
-        if (shipFreightInfoVo.getCalculateWay() == 1){
+        if (shipFreightInfoVo.getCalculateWay() == 1) {
             //按金额计算的运费详情
             List<MoneyShippingVo> moneyShippingVos = moneyShippingMapper.findByTemplateId(shipFreightInfoVo.getTemplateId());
             shipFreightInfoVo.setMoneyShippingVos(moneyShippingVos);
 
-        }
-        else {
+        } else {
             //按件数计算运费详情
             List<NumberShippingVo> numberShippingVos = numberShippingMapper.findByTemplateId(shipFreightInfoVo.getTemplateId());
             shipFreightInfoVo.setNumberShippingVos(numberShippingVos);
@@ -766,15 +768,15 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         //获取税率
         BigDecimal taxRate = null;
         // 1--平台税率 2--自定义税率 3—无税率
-        if (specifiedGoodsVo.getTaxRateType() == 1){
+        if (specifiedGoodsVo.getTaxRateType() == 1) {
             taxRate = categoryMapper.selectById(specifiedGoodsVo.getCategoryId()).getTaxRate();
-        }else if (specifiedGoodsVo.getTaxRateType() == 2){
+        } else if (specifiedGoodsVo.getTaxRateType() == 2) {
             taxRate = specifiedGoodsVo.getCustomTaxRate();
-        }else {
+        } else {
             taxRate = new BigDecimal(0);
         }
         specifiedGoodsVo.setTaxRate(taxRate);
-        BigDecimal taxCost = BigDecimalUtil.safeMultiply(lowestSellPrice,taxRate);
+        BigDecimal taxCost = BigDecimalUtil.safeMultiply(lowestSellPrice, taxRate);
         specifiedGoodsVo.setShipFreightInfoVo(shipFreightInfoVo);
 
         /**活动列表*/
@@ -796,7 +798,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
         /**平台IM账号*/
         //TODO 暂时写死Admin账号
-        specifiedGoodsVo.setPlatImId(sysUserMapper.selectOne(new QueryWrapper<SysUserPo>().lambda().eq(SysUserPo::getUsername,"admin")).getId());
+        specifiedGoodsVo.setPlatImId(sysUserMapper.selectOne(new QueryWrapper<SysUserPo>().lambda().eq(SysUserPo::getUsername, "admin")).getId());
 
         //获取店铺详情
         SmStorePo storePo = storeMapper.selectById(storeId);
@@ -805,26 +807,24 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
         //获取定时任务刷新的表的数据
         OmEvaluateQuartzPo evaluateQuartzPo = evaluateQuartzMapper.selectOne(new QueryWrapper<OmEvaluateQuartzPo>()
-                .lambda().eq(OmEvaluateQuartzPo::getStoreId,storeId));
+                .lambda().eq(OmEvaluateQuartzPo::getStoreId, storeId));
 
-        if (evaluateQuartzPo == null){
+        if (evaluateQuartzPo == null) {
             storeVo.setBabyDescription(new BigDecimal(0))
                     .setLogisticsServices(new BigDecimal(0))
                     .setSellerService(new BigDecimal(0))
                     .setStoreId(storeId)
                     .setStoreIcon(storePo.getStoreImage())
                     .setStoreName(storePo.getName());
-        }else {
+        } else {
             storeVo.setBabyDescription(evaluateQuartzPo.getDescriptionStartLevel())
-                .setLogisticsServices(evaluateQuartzPo.getShipStartLevel())
-                .setSellerService(evaluateQuartzPo.getAttitudeStartLevel())
-                .setStoreId(storeId)
-                .setStoreIcon(storePo.getStoreImage())
-                .setStoreName(storePo.getName());
+                    .setLogisticsServices(evaluateQuartzPo.getShipStartLevel())
+                    .setSellerService(evaluateQuartzPo.getAttitudeStartLevel())
+                    .setStoreId(storeId)
+                    .setStoreIcon(storePo.getStoreImage())
+                    .setStoreName(storePo.getName());
         }
         specifiedGoodsVo.setStoreVo(storeVo);
-
-
 
 
         /**获取商品下的所有规格信息*/
@@ -878,9 +878,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             if (b.getStock() == 0) {
                 specifiedSkuVo.setOverSold(true);
             }
-            if (b.getLinePrice() == null || b.getLinePrice().compareTo(new BigDecimal(0))==0){
+            if (b.getLinePrice() == null || b.getLinePrice().compareTo(new BigDecimal(0)) == 0) {
                 specifiedSkuVo.setLinePrice(b.getSellPrice());
-            }else {
+            } else {
                 specifiedSkuVo.setLinePrice(b.getLinePrice());
             }
             QueryWrapper queryWrapper = new QueryWrapper();
@@ -912,8 +912,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         //判断商品是否保税仓或者海外直邮，是则需要进行实名认证
         List<ShopTicketSoWithCarGoodVo> needRealSkuList = shopTicketSoWithCarGoodVoList.stream().filter(x -> needRealGoodsType.contains(x.getGoodsType())).collect(Collectors.toList());
         if (!ListUtil.isListNullAndEmpty(needRealSkuList)) {
-            if (submitOrderDto.getRealUserId()==null){
-                throw new ServiceException(ResultCode.PARAM_ERROR,"请先进行实名认证！");
+            if (submitOrderDto.getRealUserId() == null) {
+                throw new ServiceException(ResultCode.PARAM_ERROR, "请先进行实名认证！");
             }
         }
         //获取系统基本参数
@@ -948,7 +948,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         savePayOrderPo.setShipName(umAreaShippingPo.getShipName()).setPhone(umAreaShippingPo.getMobile())
                 .setShipAddress(umAreaShippingPo.getDetailedAddress()).setTotalRedEnvelops(totalRedEnvelops)
                 .setTotalShopTicket(totalShopTicket).setUmUserId(currentUser.getId()).setAreaName(umAreaShippingPo.getAreaName())
-        .setTotalDiscount(BigDecimal.ZERO);
+                .setTotalDiscount(BigDecimal.ZERO);
         //生成支付单
         payOrderMapper.insert(savePayOrderPo);
 
@@ -967,12 +967,12 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             x.getGoodsTypeOrderVos().forEach(y -> {
                 //生成订单
                 OmOrderPo saveOrder = new OmOrderPo();
-                if (submitOrderDto.getRealUserId()!=null){
+                if (submitOrderDto.getRealUserId() != null) {
                     saveOrder.setRealUserId(submitOrderDto.getRealUserId());
                 }
                 BeanUtils.copyProperties(y, saveOrder);
                 saveOrder.setUmUserId(currentUser.getId()).setAreaShippingId(submitOrderDto.getUmAreaShipId())
-                        .setStoreId(storeId).setPayOrderId(savePayOrderPo.getId()).setCreateBy(currentUser.getId()+"")
+                        .setStoreId(storeId).setPayOrderId(savePayOrderPo.getId()).setCreateBy(currentUser.getId() + "")
                         .setId(SnowFlakeUtil.getFlowIdInstance().nextId());
                 //设置一些优惠信息：红包、购物券
                 setDiscountMessage(saveOrder, savePayOrderPo);
@@ -981,30 +981,30 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 saveOrders.add(saveOrder);
 
                 //订单商品总金额
-                BigDecimal goodsMoney=BigDecimalUtil.safeSubtract(saveOrder.getTotalMoney(),saveOrder.getTaxMoney(),
+                BigDecimal goodsMoney = BigDecimalUtil.safeSubtract(saveOrder.getTotalMoney(), saveOrder.getTaxMoney(),
                         saveOrder.getShipMoney());
 
                 //订单实付总金额
-                BigDecimal realPayMoney=BigDecimalUtil.safeSubtract(goodsMoney,saveOrder.getRedEnvelopsMoney(),saveOrder.getShopTicketMoney());
+                BigDecimal realPayMoney = BigDecimalUtil.safeSubtract(goodsMoney, saveOrder.getRedEnvelopsMoney(), saveOrder.getShopTicketMoney());
                 //生成商品快照
                 y.getShopTicketSoWithCarGoodVos().forEach(g -> {
                     PmGoodsSkuPo skuPo = skuMapper.selectById(g.getId());
                     com.chauncy.data.domain.po.order.OmGoodsTempPo saveGoodsTemp = new com.chauncy.data.domain.po.order.OmGoodsTempPo();
                     BeanUtils.copyProperties(g, saveGoodsTemp);
-                    saveGoodsTemp.setCreateBy(currentUser.getId()+"").setOrderId(saveOrder.getId()).setSkuId(g.getId());
+                    saveGoodsTemp.setCreateBy(currentUser.getId() + "").setOrderId(saveOrder.getId()).setSkuId(g.getId());
                     saveGoodsTemp.setId(null).setSupplierPrice(skuPo.getSupplierPrice()).setProfitRate(skuPo.getProfitRate())
                             .setGoodsId(skuPo.getGoodsId()).setArticleNumber(skuPo.getArticleNumber()).
                             //预计奖励购物券
-                            setRewardShopTicket(g.getRewardShopTicket())
+                                    setRewardShopTicket(g.getRewardShopTicket())
                             //预计奖励经验值
-                    .setRewardExperience(BigDecimalUtil.safeMultiply(basicSettingPo.getMoneyToExperience(),g.getSellPrice()))
+                            .setRewardExperience(BigDecimalUtil.safeMultiply(basicSettingPo.getMoneyToExperience(), g.getSellPrice()))
                             //预计奖励积分
-                    .setRewardIntegrate(BigDecimalUtil.safeMultiply(basicSettingPo.getMoneyToIntegrate(),g.getSellPrice()))
+                            .setRewardIntegrate(BigDecimalUtil.safeMultiply(basicSettingPo.getMoneyToIntegrate(), g.getSellPrice()))
                     ;
                     //商品价格占订单的比率
-                    BigDecimal ratio=BigDecimalUtil.safeDivide(BigDecimalUtil.safeMultiply(saveGoodsTemp.getSellPrice(),saveGoodsTemp.getNumber()),
+                    BigDecimal ratio = BigDecimalUtil.safeDivide(BigDecimalUtil.safeMultiply(saveGoodsTemp.getSellPrice(), saveGoodsTemp.getNumber()),
                             goodsMoney);
-                    saveGoodsTemp.setRealPayMoney(BigDecimalUtil.safeMultiply(ratio,realPayMoney));
+                    saveGoodsTemp.setRealPayMoney(BigDecimalUtil.safeMultiply(ratio, realPayMoney));
                     saveGoodsTemps.add(saveGoodsTemp);
 
                 });
@@ -1023,28 +1023,37 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 , currentUser.getId()
         );
         //减去购物车
-        delShopCatAfterOrder(shopTicketSoWithCarGoodVoList,currentUser.getId());
+        delShopCatAfterOrder(shopTicketSoWithCarGoodVoList, currentUser.getId());
         //保存返佣用户信息
         PayUserRelationPo queryPayUser = getPayUserMessage(currentUser.getId());
-        if (queryPayUser!=null){
-            List<PayUserRelationPo> savePayUsers=Lists.newArrayList();
-            saveOrders.forEach(x->{
-                PayUserRelationPo savePayUser=new PayUserRelationPo();
-                BeanUtils.copyProperties(queryPayUser,savePayUser);
-                savePayUser.setCreateBy(currentUser.getId()+"").setOrderId(x.getId());
-                savePayUsers.add(savePayUser);
+        if (queryPayUser != null) {
+            saveOrders.forEach(x -> {
+                PayUserRelationPo savePayUser = new PayUserRelationPo();
+                BeanUtils.copyProperties(queryPayUser, savePayUser);
+                savePayUser.setCreateBy(currentUser.getId() + "").setOrderId(x.getId());
+                payUserRelationService.save(savePayUser);
+                //保存下级用户集合
+                List<PayUserRelationNextLevelPo> savePayUserRelationNextLevels= com.google.common.collect.Lists.newArrayList();
+                PayUserRelationNextLevelPo savePayUserRelationNextLevel=new PayUserRelationNextLevelPo();
+                if (ListUtil.isListNullAndEmpty(queryPayUser.getNextUserIds())){
+                    queryPayUser.getNextUserIds().forEach(y->{
+                        savePayUserRelationNextLevel.setNextUserId(y).setPayUserRealtionId(savePayUser.getId());
+                        savePayUserRelationNextLevels.add(savePayUserRelationNextLevel);
+                    });
+                    payUserRelationNextLevelService.saveBatch(savePayUserRelationNextLevels);
+                }
+                //保存下级
             });
-            payUserRelationService.saveBatch(savePayUsers);
         }
 
         //过期时间
-        String expireTime=basicSettingPo.getAutoCloseOrderDay()*24*60*60*1000+"";
+        String expireTime = basicSettingPo.getAutoCloseOrderDay() * 24 * 60 * 60 * 1000 + "";
 
         // 添加延时队列
         this.rabbitTemplate.convertAndSend(RabbitConstants.ORDER_UNPAID_DELAY_EXCHANGE, RabbitConstants.DELAY_ROUTING_KEY, savePayOrderPo.getId(), message -> {
             // TODO 如果配置了 params.put("x-message-ttl", 5 * 1000); 那么这一句也可以省略,具体根据业务需要是声明 Queue 的时候就指定好延迟时间还是在发送自己控制时间
 
-           // message.getMessageProperties().setExpiration(basicSettingPo.getAutoCloseOrderDay()*24*60*60*1000 + "");
+            // message.getMessageProperties().setExpiration(basicSettingPo.getAutoCloseOrderDay()*24*60*60*1000 + "");
             message.getMessageProperties().setExpiration(expireTime);
             return message;
         });
@@ -1055,13 +1064,14 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     /**
      * 下单后减去购物车对应的sku
+     *
      * @param shopTicketSoWithCarGoodVos
      * @param userId
      */
-    private void delShopCatAfterOrder(List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVos,Long userId){
+    private void delShopCatAfterOrder(List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVos, Long userId) {
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.in("sku_id",shopTicketSoWithCarGoodVos.stream().map(x->x.getId()).collect(Collectors.toList()));
-        queryWrapper.eq("user_id",userId);
+        queryWrapper.in("sku_id", shopTicketSoWithCarGoodVos.stream().map(x -> x.getId()).collect(Collectors.toList()));
+        queryWrapper.eq("user_id", userId);
         mapper.delete(queryWrapper);
     }
 
@@ -1079,45 +1089,49 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         if (size == 1) {
             return null;
         }
-        //如果查出的第一行不是该用户信息，就表示存在子用户
-        if (!payUserMessages.get(0).getUserId().equals(userId)) {
-            savePayUser.setNextUserId(payUserMessages.get(0).getUserId());
+        //查出总共有多少个子级(与顺序有关。只能这样遍历)
+        List<Long> nextUserIds = Lists.newArrayList();
+        int childrenSize = 0;
+        for (int i = 0; i < size; i++) {
+            if (payUserMessages.get(i).getUserId().equals(userId)) {
+                break;
+            }
+            nextUserIds.add(payUserMessages.get(i).getUserId());
+            childrenSize++;
         }
-        else {
-            //如果不存在子用户，在集合第一位插入空的实体，保证无论有没有子级从第三个开始才是父级
-            payUserMessages.add(0, new PayUserMessage());
-        }
-        //如果长度小于3，则表示不存在子级和父级，就没有返佣返积分的流程
-        if (size == 3) {
-            savePayUser.setLastOneUserId(payUserMessages.get(2).getUserId());
-            savePayUser.setFirstUserId(payUserMessages.get(2).getUserId());
+        savePayUser.setNextUserIds(nextUserIds);
+
+        //除了子级就只有自己和上一级
+        if (size-childrenSize == 2) {
+            savePayUser.setLastOneUserId(payUserMessages.get(childrenSize+1).getUserId());
+            savePayUser.setFirstUserId(payUserMessages.get(childrenSize+1).getUserId());
         }
         //如果存在两个以上的父级
-        if (size>3) {
-            savePayUser.setLastOneUserId(payUserMessages.get(2).getUserId());
-            savePayUser.setLastTwoUserId(payUserMessages.get(3).getUserId());
+        if (size-childrenSize > 2) {
+            savePayUser.setLastOneUserId(payUserMessages.get(childrenSize+1).getUserId());
+            savePayUser.setLastTwoUserId(payUserMessages.get(childrenSize+2).getUserId());
 
             //找出最高等级的会员且最接近的用户
-            PayUserMessage firstLevel= (PayUserMessage) payUserMessages.get(2).clone();
+            PayUserMessage firstLevel = (PayUserMessage) payUserMessages.get(childrenSize+1).clone();
             //从第三个开始是父级，假设第3个为最大所以从第四个开始遍历
-            for (int i=3;i<payUserMessages.size();i++){
-                if (payUserMessages.get(i).getLevel()>firstLevel.getLevel()){
-                    firstLevel= (PayUserMessage) payUserMessages.get(i).clone();
+            for (int i = childrenSize+2; i < payUserMessages.size(); i++) {
+                if (payUserMessages.get(i).getLevel() > firstLevel.getLevel()) {
+                    firstLevel = (PayUserMessage) payUserMessages.get(i).clone();
                 }
             }
 
             //找出第二高等级且最接近的用户
-            PayUserMessage secondLevel= new PayUserMessage();
+            PayUserMessage secondLevel = new PayUserMessage();
             secondLevel.setLevel(0);
             //从第三个开始是父级
-            for (int i=2;i<payUserMessages.size();i++){
+            for (int i = childrenSize+1; i < payUserMessages.size(); i++) {
                 //第二等级的
-                if (payUserMessages.get(i).getLevel()>secondLevel.getLevel()&&payUserMessages.get(i).getLevel()<firstLevel.getLevel()){
-                    secondLevel= (PayUserMessage) payUserMessages.get(i).clone();
+                if (payUserMessages.get(i).getLevel() > secondLevel.getLevel() && payUserMessages.get(i).getLevel() < firstLevel.getLevel()) {
+                    secondLevel = (PayUserMessage) payUserMessages.get(i).clone();
                 }
             }
             savePayUser.setFirstUserId(firstLevel.getUserId());
-            if (!secondLevel.getLevel().equals(0)){
+            if (!secondLevel.getLevel().equals(0)) {
                 savePayUser.setSecondUserId(secondLevel.getUserId());
             }
         }
@@ -1180,9 +1194,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             throw new ServiceException(ResultCode.NSUFFICIENT_INVENTORY, "某些商品库存不足", outOfStockVos);
         }
         //查出sku的相关属性，然后算出预返购物券
-        shopTicketSoWithCarGoodVoList.forEach(x->{
+        shopTicketSoWithCarGoodVoList.forEach(x -> {
             ShopTicketSoWithCarGoodVo tempById = mapper.getTempById(x.getId());
-            BeanUtils.copyProperties(tempById,x,"number");
+            BeanUtils.copyProperties(tempById, x, "number");
         });
         return shopTicketSoWithCarGoodVoList;
     }
