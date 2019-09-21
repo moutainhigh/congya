@@ -329,7 +329,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         addAccountLogBo.setUmUserId(userPo.getId());
         //listenerPlatformGiveQueue 消息队列
         this.rabbitTemplate.convertAndSend(
-                RabbitConstants.PLATFORM_GIVE_EXCHANGE, RabbitConstants.PLATFORM_GIVE_ROUTING_KEY, addAccountLogBo);
+                RabbitConstants.ACCOUNT_LOG_EXCHANGE, RabbitConstants.ACCOUNT_LOG_ROUTING_KEY, addAccountLogBo);
 
         return true;
     }
