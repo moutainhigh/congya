@@ -42,15 +42,12 @@ public class StoreVo {
     private BigDecimal logisticsServices;
 
     @ApiModelProperty (value = "商品描述")
-    @JSONField(serialize = false)
     private String babyDescriptionLevel;
 
     @ApiModelProperty ("卖家服务")
-    @JSONField(serialize = false)
     private String sellerServiceLevel;
 
     @ApiModelProperty ("发货速度")
-    @JSONField(serialize = false)
     private String logisticsServicesLevel;
 
 }

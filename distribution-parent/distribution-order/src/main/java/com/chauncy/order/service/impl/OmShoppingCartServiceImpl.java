@@ -750,19 +750,51 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             sellPrice = lowestSellPrice.toString() + "~" + highestSellPrice;
         }
         specifiedGoodsVo.setDisplayPrice(sellPrice);
+
+        //默认运费
+        BigDecimal shipFreight = new BigDecimal(0.00);
         /**运费详情*/
         ShipFreightInfoVo shipFreightInfoVo = shippingTemplateMapper.findByGoodsId(goodsId);
-        if (shipFreightInfoVo.getCalculateWay() == 1){
-            //按金额计算的运费详情
-            List<MoneyShippingVo> moneyShippingVos = moneyShippingMapper.findByTemplateId(shipFreightInfoVo.getTemplateId());
-            shipFreightInfoVo.setMoneyShippingVos(moneyShippingVos);
+        if (shipFreightInfoVo != null) {
+            shipFreight = shipFreightInfoVo.getDefaultFreight();
 
+            if (shipFreightInfoVo.getCalculateWay() == 1) {
+                //按金额计算的运费详情
+                List<MoneyShippingVo> moneyShippingVos = moneyShippingMapper.findByTemplateId(shipFreightInfoVo.getTemplateId());
+                shipFreightInfoVo.setMoneyShippingVos(moneyShippingVos);
+
+            } else {
+                //按件数计算运费详情
+                List<NumberShippingVo> numberShippingVos = numberShippingMapper.findByTemplateId(shipFreightInfoVo.getTemplateId());
+                shipFreightInfoVo.setNumberShippingVos(numberShippingVos);
+            }
         }
-        else {
-            //按件数计算运费详情
-            List<NumberShippingVo> numberShippingVos = numberShippingMapper.findByTemplateId(shipFreightInfoVo.getTemplateId());
-            shipFreightInfoVo.setNumberShippingVos(numberShippingVos);
-        }
+        specifiedGoodsVo.setShipFreightInfoVo(shipFreightInfoVo);
+        specifiedGoodsVo.setShipFreight(shipFreight);
+
+
+        //获取最高返券值
+        List<Double> rewardShopTickes = com.google.common.collect.Lists.newArrayList();
+        List<RewardShopTicketBo> rewardShopTicketBos = skuMapper.findRewardShopTicketInfos(goodsId);
+        rewardShopTicketBos.forEach(b->{
+            //商品活动百分比
+            b.setActivityCostRate(goodsPo.getActivityCostRate());
+            //让利成本比例
+            b.setProfitsRate(goodsPo.getProfitsRate());
+            //会员等级比例
+            BigDecimal purchasePresent = levelMapper.selectById(userPo.getMemberLevelId()).getPurchasePresent();
+            b.setPurchasePresent(purchasePresent);
+            //购物券比例
+            BigDecimal moneyToShopTicket = basicSettingMapper.selectList(null).get(0).getMoneyToShopTicket();
+            b.setMoneyToShopTicket(moneyToShopTicket);
+            BigDecimal rewardShopTicket= b.getRewardShopTicket();
+            rewardShopTickes.add(rewardShopTicket.doubleValue());
+        });
+        //获取RewardShopTickes列表最大返券值
+        Double maxRewardShopTicket = rewardShopTickes.stream().mapToDouble((x)->x).summaryStatistics().getMax();
+        specifiedGoodsVo.setMaxRewardShopTicket(BigDecimal.valueOf(maxRewardShopTicket));
+
+
         //获取税率
         BigDecimal taxRate = null;
         // 1--平台税率 2--自定义税率 3—无税率
@@ -775,7 +807,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         }
         specifiedGoodsVo.setTaxRate(taxRate);
         BigDecimal taxCost = BigDecimalUtil.safeMultiply(lowestSellPrice,taxRate);
-        specifiedGoodsVo.setShipFreightInfoVo(shipFreightInfoVo);
+        specifiedGoodsVo.setTaxCost(taxCost);
 
         /**活动列表*/
         //待做
@@ -811,6 +843,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             storeVo.setBabyDescription(new BigDecimal(0))
                     .setLogisticsServices(new BigDecimal(0))
                     .setSellerService(new BigDecimal(0))
+                    .setBabyDescriptionLevel("无")
+                    .setLogisticsServicesLevel("无")
+                    .setSellerServiceLevel("无")
                     .setStoreId(storeId)
                     .setStoreIcon(storePo.getStoreImage())
                     .setStoreName(storePo.getName());
@@ -821,6 +856,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 .setStoreId(storeId)
                 .setStoreIcon(storePo.getStoreImage())
                 .setStoreName(storePo.getName());
+
+//            BigDecimal babyDescriptionLevel =
         }
         specifiedGoodsVo.setStoreVo(storeVo);
 
@@ -883,12 +920,12 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             }else {
                 specifiedSkuVo.setLinePrice(b.getLinePrice());
             }
-            QueryWrapper queryWrapper = new QueryWrapper();
-            queryWrapper.eq("del_flag", false);
-            queryWrapper.eq("goods_sku_id", b.getId());
-            List<PmGoodsRelAttributeValueSkuPo> relAttributeValueSkuPoList = relAttributeValueSkuMapper.selectList(queryWrapper);
+//            QueryWrapper queryWrapper = new QueryWrapper();
+//            queryWrapper.eq("del_flag", false);
+//            queryWrapper.eq("goods_sku_id", b.getId());
+            List<PmGoodsRelAttributeValueSkuPo> relAttributeValueSkuPoList = relAttributeValueSkuMapper.selectLists(b.getId());
             //拼接规格ID和规格值ID
-            StringBuffer relIds = new StringBuffer(";");
+            StringBuffer relIds = new StringBuffer();
             relAttributeValueSkuPoList.forEach(c -> {
                 PmGoodsAttributeValuePo attributeValuePo = attributeValueMapper.selectById(c.getGoodsAttributeValueId());
 
