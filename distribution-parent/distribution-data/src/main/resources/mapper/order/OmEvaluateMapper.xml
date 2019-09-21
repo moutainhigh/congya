@@ -19,13 +19,12 @@
         <result column="content" property="content"/>
         <result column="picture" property="picture"/>
         <result column="like_num" property="likedNum"/>
-        <result column="is_liked" property="isLiked"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, create_by, create_time, update_by, update_time, del_flag, order_id, sku_id,parent_id,description_start_level,
-        ship_start_level,attitude_start_level,content,picture,like_num,is_liked
+        ship_start_level,attitude_start_level,content,picture,like_num
     </sql>
 
     <select id="getGoodsEvaluate" resultType="com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo">
@@ -39,7 +38,7 @@
         </where>
         order by b.create_time-->
         select a.photo as icon,a.name as nick_name,b.content,b.picture,b.id,ROUND((b.attitude_start_level+b.description_start_level+b.ship_start_level)/3) as startLevel
-                ,GROUP_CONCAT(CONCAT(h.`name`,":",g.`value`)) as sku,b.create_time as evaluate_time
+                ,GROUP_CONCAT(CONCAT(h.`name`,":",g.`value`)) as sku,b.create_time as evaluate_time,b.liked_num
         from um_user a,om_evaluate b,om_order c,pm_goods d,pm_goods_sku e,pm_goods_rel_attribute_value_sku f,pm_goods_attribute_value g,pm_goods_attribute h
         where isNull(b.parent_id) and b.order_id = c.id and c.um_user_id=a.id and
               b.sku_id = e.id and d.id = e.goods_id and d.id = #{t.goodsId}
@@ -55,6 +54,7 @@
                   and (b.description_start_level = 1 OR b.description_start_level=2)
               </if>
               group by b.id
+              order by b.liked_num desc
     </select>
 
     <select id="getPersonalEvaluate" resultType="com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo">

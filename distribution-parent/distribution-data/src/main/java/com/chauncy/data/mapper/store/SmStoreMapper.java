@@ -179,6 +179,6 @@ public interface SmStoreMapper extends IBaseMapper<SmStorePo> {
      *
      * @param favoritesId
      */
-    @Update("update sm_store set collection_num = collection_num-1 where id = #{favoritesId}")
+    @Update("update sm_store set collection_num = collection_num-1 where id = #{favoritesId} and collection_num > 0")
     void delFavorites(Long favoritesId);
 }

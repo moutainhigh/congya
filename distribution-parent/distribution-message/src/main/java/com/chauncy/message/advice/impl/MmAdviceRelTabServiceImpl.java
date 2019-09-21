@@ -448,37 +448,71 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
             //获取前端传过来除了新增(即tabId=0)的数据
             List<Long> remainTabIds = saveRelTabDto.getTabInfos().stream().filter(a -> a.getTabId() != 0)
                     .map(b -> b.getTabId()).collect(Collectors.toList());
-            //获取需要删除的数据(去集合allTabIds和集合remainTabIds的交集)
-            List<Long> delIds = Lists.newArrayList(allTabIds);
-            delIds.removeAll(remainTabIds);
-            if (!ListUtil.isListNullAndEmpty(delIds)) {
-                delIds.forEach(a -> {
-                    if (saveRelTabDto.getLocation().equals(AdviceLocationEnum.SHOUYE_YOUPIN.getName())) {
-                        //获取该选项卡下绑定的品牌
-                        List<Long> tabBrandIdList = relTabThingsMapper.selectList(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
-                                .eq(MmAdviceRelTabThingsPo::getTabId, a)).stream().map(b -> b.getAssociationId()).collect(Collectors.toList());
 
-                        //获取该选项卡下的品牌下的关联id
-                        tabBrandIdList.forEach(b -> {
-                            Long brandRelId = relTabThingsMapper.selectOne(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
-                                    .eq(MmAdviceRelTabThingsPo::getAssociationId, b)
-                                    .eq(MmAdviceRelTabThingsPo::getTabId, a)).getId();
-                            //删除该选项卡下的品牌下的轮播图广告
-                            relShufflingMapper.delete(new QueryWrapper<MmAdviceRelShufflingPo>().lambda().and(obj -> obj
-                                    .eq(MmAdviceRelShufflingPo::getRelTabBrandId, brandRelId)));
+            if (!ListUtil.isListNullAndEmpty(allTabIds)) {
+                //获取需要删除的数据
+                List<Long> delIds = Lists.newArrayList();
+                if (ListUtil.isListNullAndEmpty(remainTabIds)) {
+                    delIds = allTabIds;
+                    delIds.forEach(a -> {
+                        if (saveRelTabDto.getLocation().equals(AdviceLocationEnum.SHOUYE_YOUPIN.getName())) {
+                            //获取该选项卡下绑定的品牌
+                            List<Long> tabBrandIdList = relTabThingsMapper.selectList(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                    .eq(MmAdviceRelTabThingsPo::getTabId, a)).stream().map(b -> b.getAssociationId()).collect(Collectors.toList());
+
+                            //获取该选项卡下的品牌下的关联id
+                            tabBrandIdList.forEach(b -> {
+                                Long brandRelId = relTabThingsMapper.selectOne(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                        .eq(MmAdviceRelTabThingsPo::getAssociationId, b)
+                                        .eq(MmAdviceRelTabThingsPo::getTabId, a)).getId();
+                                //删除该选项卡下的品牌下的轮播图广告
+                                relShufflingMapper.delete(new QueryWrapper<MmAdviceRelShufflingPo>().lambda().and(obj -> obj
+                                        .eq(MmAdviceRelShufflingPo::getRelTabBrandId, brandRelId)));
+                            });
+
+                        }
+
+                        //删除该选项卡关联的商品/品牌
+                        relTabThingsMapper.delete(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                .eq(MmAdviceRelTabThingsPo::getTabId, a));
+                        //删除广告与选项卡关联记录
+                        relTabMapper.delete(new QueryWrapper<MmAdviceRelTabPo>().lambda()
+                                .eq(MmAdviceRelTabPo::getTabId, a));
+                    });
+                    //删除选项卡
+                    adviceTabMapper.deleteBatchIds(delIds);
+                } else {
+                    delIds = allTabIds.stream().filter(del -> !remainTabIds.contains(del)).collect(Collectors.toList());
+                    if (!ListUtil.isListNullAndEmpty(delIds)) {
+                        delIds.forEach(a -> {
+                            if (saveRelTabDto.getLocation().equals(AdviceLocationEnum.SHOUYE_YOUPIN.getName())) {
+                                //获取该选项卡下绑定的品牌
+                                List<Long> tabBrandIdList = relTabThingsMapper.selectList(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                        .eq(MmAdviceRelTabThingsPo::getTabId, a)).stream().map(b -> b.getAssociationId()).collect(Collectors.toList());
+
+                                //获取该选项卡下的品牌下的关联id
+                                tabBrandIdList.forEach(b -> {
+                                    Long brandRelId = relTabThingsMapper.selectOne(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                            .eq(MmAdviceRelTabThingsPo::getAssociationId, b)
+                                            .eq(MmAdviceRelTabThingsPo::getTabId, a)).getId();
+                                    //删除该选项卡下的品牌下的轮播图广告
+                                    relShufflingMapper.delete(new QueryWrapper<MmAdviceRelShufflingPo>().lambda().and(obj -> obj
+                                            .eq(MmAdviceRelShufflingPo::getRelTabBrandId, brandRelId)));
+                                });
+
+                            }
+
+                            //删除该选项卡关联的商品/品牌
+                            relTabThingsMapper.delete(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                    .eq(MmAdviceRelTabThingsPo::getTabId, a));
+                            //删除广告与选项卡关联记录
+                            relTabMapper.delete(new QueryWrapper<MmAdviceRelTabPo>().lambda()
+                                    .eq(MmAdviceRelTabPo::getTabId, a));
                         });
-
+                        //删除选项卡
+                        adviceTabMapper.deleteBatchIds(delIds);
                     }
-
-                    //删除该选项卡关联的商品/品牌
-                    relTabThingsMapper.delete(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
-                            .eq(MmAdviceRelTabThingsPo::getTabId, a));
-                    //删除广告与选项卡关联记录
-                    relTabMapper.delete(new QueryWrapper<MmAdviceRelTabPo>().lambda()
-                            .eq(MmAdviceRelTabPo::getTabId, a));
-                });
-                //删除选项卡
-                adviceTabMapper.deleteBatchIds(delIds);
+                }
             }
             /*****************删除 end***************/
 
@@ -647,15 +681,18 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
                             //4、获取该选项卡下绑定的品牌
                             List<Long> tabBrandIdList = relTabThingsMapper.selectList(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
                                     .eq(MmAdviceRelTabThingsPo::getTabId, a.getTabId())).stream().map(b -> b.getAssociationId()).collect(Collectors.toList());
+                            //前端传的值
+                            List<Long> newBrandIds = new ArrayList<>(a.getTabRelAssociatedDtos().stream().map(r -> r.getAssociatedId()).collect(Collectors.toList()));
+
                             if (!ListUtil.isListNullAndEmpty(tabBrandIdList)) {
-                                List<Long> delBrandIds = new ArrayList<>(tabBrandIdList);
-                                //前端传的值
-                                List<Long> newBrandIds = new ArrayList<>(a.getTabRelAssociatedDtos().stream().map(r -> r.getAssociatedId()).collect(Collectors.toList()));
+                                List<Long> delBrandIds = new ArrayList<>();
                                 //获取需要删除的品牌并删除
-                                delBrandIds.removeAll(a.getTabRelAssociatedDtos().stream().map(r -> r.getAssociatedId()).collect(Collectors.toList()));
+//                                delBrandIds.removeAll(a.getTabRelAssociatedDtos().stream().map(r -> r.getAssociatedId()).collect(Collectors.toList()));
                                 //获取新增的品牌并保存到数据库中
-                                newBrandIds.removeAll(tabBrandIdList);
-                                if (!ListUtil.isListNullAndEmpty(delBrandIds)) {
+//                                newBrandIds.removeAll(tabBrandIdList);
+
+                                if (ListUtil.isListNullAndEmpty(newBrandIds)) {
+                                    delBrandIds = newBrandIds;
                                     delBrandIds.forEach(c -> {
                                         //获取该选项卡下的品牌下的关联id
                                         Long brandRelId = relTabThingsMapper.selectOne(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
@@ -671,8 +708,44 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
                                                 .eq(MmAdviceRelTabThingsPo::getAssociationId, c)
                                                 .eq(MmAdviceRelTabThingsPo::getTabId, a.getTabId()));
                                     });
-                                }
+                                } else {
+                                    //获取需要删除的品牌并删除
+                                    delBrandIds = tabBrandIdList.stream().filter(del -> !newBrandIds.contains(del)).collect(Collectors.toList());
+                                    if (!ListUtil.isListNullAndEmpty(delBrandIds)) {
+                                        delBrandIds.forEach(c -> {
+                                            //获取该选项卡下的品牌下的关联id
+                                            Long brandRelId = relTabThingsMapper.selectOne(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                                    .eq(MmAdviceRelTabThingsPo::getAssociationId, c)
+                                                    .eq(MmAdviceRelTabThingsPo::getTabId, a.getTabId())).getId();
 
+                                            //删除该选项卡下的品牌下的轮播图广告
+                                            relShufflingMapper.delete(new QueryWrapper<MmAdviceRelShufflingPo>().lambda().and(obj -> obj
+                                                    .eq(MmAdviceRelShufflingPo::getRelTabBrandId, brandRelId)));
+
+                                            //删除该选项卡下的品牌
+                                            relTabThingsMapper.delete(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                                    .eq(MmAdviceRelTabThingsPo::getAssociationId, c)
+                                                    .eq(MmAdviceRelTabThingsPo::getTabId, a.getTabId()));
+                                        });
+
+                                        //获取新增的品牌并保存到数据库中
+                                        List<Long> saveIds = newBrandIds.stream().filter(save -> !tabBrandIdList.contains(save)).collect(Collectors.toList());
+                                        if (!ListUtil.isListNullAndEmpty(saveIds)) {
+
+                                            //保存该选项卡下的品牌到mm_advice_rel_tab_things
+                                            saveIds.forEach(c -> {
+                                                MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
+                                                relTabThingsPo.setId(null)
+                                                        .setType(AssociationTypeEnum.BRAND.getId())
+                                                        .setCreateBy(sysUser.getUsername())
+                                                        .setTabId(a.getTabId())
+                                                        .setAssociationId(c);
+                                                relTabThingsMapper.insert(relTabThingsPo);
+                                            });
+                                        }
+                                    }
+                                }
+                            } else {
                                 if (!ListUtil.isListNullAndEmpty(newBrandIds)) {
                                     //保存该选项卡下的品牌到mm_advice_rel_tab_things
                                     newBrandIds.forEach(c -> {
@@ -701,12 +774,22 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
                                 //获取前端传来的(除新增shufflingId = 0)的轮播图数据
                                 List<Long> remainShufflingIds = b.getBrandShufflings().stream().filter(del -> del.getShufflingId() != 0)
                                         .map(v -> v.getShufflingId()).collect(Collectors.toList());
-                                //获取需要删除的轮播图
-                                List<Long> delShufflingIds = Lists.newArrayList(allShufflingIds);
-                                delShufflingIds.removeAll(remainShufflingIds);
-                                if (!ListUtil.isListNullAndEmpty(delShufflingIds)) {
-                                    //批量删除轮播图
-                                    relShufflingMapper.deleteBatchIds(delShufflingIds);
+
+                                if (!ListUtil.isListNullAndEmpty(allShufflingIds)) {
+                                    //获取需要删除的轮播图
+                                    List<Long> delShufflingIds = Lists.newArrayList();
+                                    if (ListUtil.isListNullAndEmpty(remainShufflingIds)) {
+                                        delShufflingIds = allShufflingIds;
+                                        //批量删除轮播图
+                                        relShufflingMapper.deleteBatchIds(delShufflingIds);
+                                    } else {
+                                        delShufflingIds = allShufflingIds.stream().filter(del -> !remainShufflingIds.contains(del)).collect(Collectors.toList());
+                                        if (!ListUtil.isListNullAndEmpty(delShufflingIds)) {
+                                            //批量删除轮播图
+                                            relShufflingMapper.deleteBatchIds(delShufflingIds);
+                                        }
+                                    }
+
                                 }
                                 /******************************************* 删除 轮播图 end******************************************/
 
@@ -931,22 +1014,48 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
                             //4、更新选项卡与商品关联表，获取该选项卡下绑定的商品
                             List<Long> tabGoodsIdList = relTabThingsMapper.selectList(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
                                     .eq(MmAdviceRelTabThingsPo::getTabId, a.getTabId())).stream().map(b -> b.getAssociationId()).collect(Collectors.toList());
+                            //前端传的值
+                            List<Long> newGoodsIds = new ArrayList<>(a.getTabRelAssociatedDtos().stream().map(r -> r.getAssociatedId()).collect(Collectors.toList()));
+
                             if (!ListUtil.isListNullAndEmpty(tabGoodsIdList)) {
                                 List<Long> delGoodsIds = new ArrayList<>(tabGoodsIdList);
-                                //前端传的值
-                                List<Long> newGoodsIds = new ArrayList<>(a.getTabRelAssociatedDtos().stream().map(r -> r.getAssociatedId()).collect(Collectors.toList()));
                                 //获取需要删除的商品并删除
-                                delGoodsIds.removeAll(a.getTabRelAssociatedDtos().stream().map(r -> r.getAssociatedId()).collect(Collectors.toList()));
+//                                delGoodsIds.removeAll(a.getTabRelAssociatedDtos().stream().map(r -> r.getAssociatedId()).collect(Collectors.toList()));
                                 //获取新增的商品并保存到数据库中
-                                newGoodsIds.removeAll(tabGoodsIdList);
-                                if (!ListUtil.isListNullAndEmpty(delGoodsIds)) {
+//                                newGoodsIds.removeAll(tabGoodsIdList);
+                                if (ListUtil.isListNullAndEmpty(newGoodsIds)) {
+                                    delGoodsIds = tabGoodsIdList;
                                     delGoodsIds.forEach(c -> {
                                         relTabThingsMapper.delete(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
                                                 .eq(MmAdviceRelTabThingsPo::getAssociationId, c)
                                                 .eq(MmAdviceRelTabThingsPo::getTabId, a.getTabId()));
                                     });
-                                }
+                                } else {
+                                    delGoodsIds = tabGoodsIdList.stream().filter(del -> !newGoodsIds.contains(del)).collect(Collectors.toList());
+                                    if (!ListUtil.isListNullAndEmpty(delGoodsIds)) {
+                                        delGoodsIds.forEach(c -> {
+                                            relTabThingsMapper.delete(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                                    .eq(MmAdviceRelTabThingsPo::getAssociationId, c)
+                                                    .eq(MmAdviceRelTabThingsPo::getTabId, a.getTabId()));
+                                        });
+                                    }
 
+                                    List<Long> saveIds = newGoodsIds.stream().filter(save -> !tabGoodsIdList.contains(save)).collect(Collectors.toList());
+                                    if (!ListUtil.isListNullAndEmpty(saveIds)){
+                                        //保存该选项卡下的商品到mm_advice_rel_tab_things
+                                        newGoodsIds.forEach(c -> {
+                                            MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
+                                            relTabThingsPo.setId(null)
+                                                    .setType(AssociationTypeEnum.BRAND.getId())
+                                                    .setCreateBy(sysUser.getUsername())
+                                                    .setTabId(a.getTabId())
+                                                    .setAssociationId(c);
+                                            relTabThingsMapper.insert(relTabThingsPo);
+                                        });
+                                    }
+
+                                }
+                            }else {
                                 if (!ListUtil.isListNullAndEmpty(newGoodsIds)) {
                                     //保存该选项卡下的商品到mm_advice_rel_tab_things
                                     newGoodsIds.forEach(c -> {
