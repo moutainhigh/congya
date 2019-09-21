@@ -222,10 +222,10 @@
                 AND obrs.`bill_id` = #{billId}
             </if>
             <if test="minTotalAmount != null and minTotalAmount != 0">
-                AND oob.`total_amount` <![CDATA[>= ]]>  #{minAmount}
+                AND oob.`total_amount` <![CDATA[>= ]]>  #{minTotalAmount}
             </if>
             <if test="maxTotalAmount != null and maxTotalAmount != 0">
-                AND oob.`total_amount` <![CDATA[<= ]]> #{maxAmount}
+                AND oob.`total_amount` <![CDATA[<= ]]> #{maxTotalAmount}
             </if>
         </where>
         ORDER BY obrs.create_time DESC

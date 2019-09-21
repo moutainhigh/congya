@@ -159,9 +159,12 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
                 this.platformGive(addAccountLogBo);
                 break;
             case ORDER_REFUND:
-                //售后退款，订单按比例退回红包，购物券，没有记录退还多少，直接在退款时候调用生成流水的方法
+                //售后退款，订单按比例退回红包，购物券，没有记录退还多少，直接在退款时候计算调用生成流水的方法
                 this.orderRefund(addAccountLogBo);
                 break;
+            case SHOPPING_REWARD:
+                //购物奖励  订单售后时间到，下单用户本身有购物券积分奖励，上两级，下一级有积分奖励
+                //this.shoppingReward
         }
     }
 
