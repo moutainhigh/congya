@@ -8,9 +8,9 @@ import java.util.List;
 public class Body179 {
 	private String orderNo;
 	private List<GoodsInfo> goodsInfo;
-	private String recpAccount;
-	private String recpCode;
-	private String recpName;
+	private String recpAccount="1530116071";
+	private String recpCode="91440104MA59E6Q7X8";
+	private String recpName="广州博荟电子科技有限公司";
 
 	public String getOrderNo() {
 		return orderNo;

@@ -65,17 +65,17 @@
     <select id="searchSmOrder" resultType="com.chauncy.data.vo.supplier.order.SmSearchOrderVo">
         SELECT
         o.id orderId,o.goods_type,o.`status`,o.total_number,o.total_money,p.ship_name,concat(p.area_name,p.ship_address)
-        detailed_address,p.phone,o.create_time
+        detailed_address,p.phone,o.create_time,o.update_time
         from om_order o,pay_order p,um_user u
         where o.store_id=#{storeId} and o.pay_order_id=p.id and u.id=o.um_user_id
         and o.del_flag=0 and u.del_flag=0
-        <if test="orderId!=null">
+        <if test="orderId!=null and orderId!=0" >
             and o.id=#{orderId}
         </if>
-        <if test="userId!=null">
+        <if test="userId!=null and orderId!=0">
             and o.um_user_id=#{userId}
         </if>
-        <if test="phone!=null">
+        <if test="phone!=null and phone!=''">
             and u.phone like concat('%', #{phone}, '%')
         </if>
         <if test="startCreateTime!=null">
@@ -92,6 +92,9 @@
         </if>
         <if test="orderStatus!=null">
             and o.`status`=#{orderStatus}
+        </if>
+        <if test="goodsType!=null">
+            and o.`goods_type`=#{goodsType}
         </if>
     </select>
     <select id="loadSmById" resultType="com.chauncy.data.vo.supplier.order.SmOrderDetailVo">
@@ -302,6 +305,14 @@
             AND u.del_flag = 0
             AND g.del_flag = 0
             and t.del_flag=0
+    </select>
+
+    <select id="getCustomsOrderBo" resultType="com.chauncy.data.haiguan.vo.bo.CustomsOrderBo">
+            SELECT p.pay_order_no payTransactionId,p.pay_amount totalAmount,p.pay_time tradingTime ,o.id orderNo
+            FROM
+            `om_order` o,pay_order p
+            where o.pay_order_id=p.id and o.del_flag=0 and p.enabled=1
+            and o.id=#{orderId}
     </select>
 
 </mapper>
