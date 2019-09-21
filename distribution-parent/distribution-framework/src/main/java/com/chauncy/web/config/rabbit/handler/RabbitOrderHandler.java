@@ -89,7 +89,7 @@ public class RabbitOrderHandler {
 
     @RabbitListener(queues = {RabbitConstants.ACCOUNT_LOG_QUEUE})
     @Transactional(rollbackFor = Exception.class)
-    public void listenerOrderLogQueue(AddAccountLogBo addAccountLogBo, Message message, Channel channel) {
+    public void listenerAccountLogQueue(AddAccountLogBo addAccountLogBo, Message message, Channel channel) {
         LoggerUtil.info(String.format("[saveAccountLog 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), addAccountLogBo));
 
         omAccountLogService.saveAccountLog(addAccountLogBo);

@@ -532,25 +532,85 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     }
 
     /**
+     * @Author yeJH
+     * @Date 2019/9/21 14:37
+     * @Description 售后时间关闭   订单添加购物奖励流水  积分购物券的流水
+     *
+     * @Update yeJH
+     *
+     * @Param   relId 关联订单id
+     * @Param   umUserId  获得流水用户
+     * @Param   integrate  获得积分
+     * @Param   shopTicket  获得购物券
+     * @return void
+     **/
+    private void addShoppingRewardLog(Long relId, Long umUserId, BigDecimal integrate, BigDecimal shopTicket) {
+        //返佣的流水分两种  红包的是好友助攻  积分购物券的是购物奖励 此处是购物奖励
+        AddAccountLogBo shoppingRewardLogBo = new AddAccountLogBo();
+        shoppingRewardLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.SHOPPING_REWARD);
+        shoppingRewardLogBo.setRelId(relId);
+        shoppingRewardLogBo.setOperator("auto");
+        shoppingRewardLogBo.setMarginIntegral(integrate);
+        shoppingRewardLogBo.setMarginShopTicket(shopTicket);
+        shoppingRewardLogBo.setUmUserId(umUserId);
+        //listenerAccountLogQueue 消息队列
+        this.rabbitTemplate.convertAndSend(
+                RabbitConstants.ACCOUNT_LOG_EXCHANGE, RabbitConstants.ACCOUNT_LOG_ROUTING_KEY, shoppingRewardLogBo);
+
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/21 14:37
+     * @Description 售后时间关闭   订单添加好友助攻流水 红包流水
+     *
+     * @Update yeJH
+     *
+     * @Param   relId 关联订单id
+     * @Param   umUserId  获得流水用户
+     * @Param   redEnvelops  红包
+     * @return void
+     **/
+    private void addfriendsAssistLog(Long relId, Long umUserId, BigDecimal redEnvelops) {
+        //返佣的流水分两种  红包的是好友助攻  积分购物券的是购物奖励 此处是好友助攻
+        AddAccountLogBo shoppingRewardLogBo = new AddAccountLogBo();
+        shoppingRewardLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.FRIENDS_ASSIST);
+        shoppingRewardLogBo.setRelId(relId);
+        shoppingRewardLogBo.setOperator("auto");
+        shoppingRewardLogBo.setMarginRedEnvelops(redEnvelops);
+        shoppingRewardLogBo.setUmUserId(umUserId);
+        //listenerAccountLogQueue 消息队列
+        this.rabbitTemplate.convertAndSend(
+                RabbitConstants.ACCOUNT_LOG_EXCHANGE, RabbitConstants.ACCOUNT_LOG_ROUTING_KEY, shoppingRewardLogBo);
+
+    }
+
+    /**
      * 根据商品快照返佣
      * @param goodsTempId 商品快照id
      */
     @Override
     public void rakeBack(Long goodsTempId) {
 
-        // TODO: 2019/9/10 俊浩流水
-
         OmGoodsTempPo queryGoodsTemp = goodsTempMapper.selectById(goodsTempId);
 
+        // TODO: 2019/9/10 俊浩流水
 
         //查出下单用户需要返的购物券、积分、经验值
         RewardBuyerBo rewardBuyerBo = mapper.getRewardBoByGoodsTempId(goodsTempId);
+
         //用户返购物券 积分 经验值 订单数  消费额
         UmUserPo addUser = new UmUserPo();
         addUser.setCurrentExperience(rewardBuyerBo.getRewardExperience()).setCurrentIntegral(rewardBuyerBo.getRewardIntegrate())
                 .setCurrentShopTicket(rewardBuyerBo.getRewardShopTicket()).setId(Long.parseLong(queryGoodsTemp.getCreateBy())).setTotalOrder(1).
                 setTotalConsumeMoney(rewardBuyerBo.getRealPayMoney());
         userMapper.updateAdd(addUser);
+
+        //购物奖励  下单用户本人有获得积分，购物券
+        addShoppingRewardLog(queryGoodsTemp.getOrderId(),
+                Long.parseLong(queryGoodsTemp.getCreateBy()),
+                rewardBuyerBo.getRewardIntegrate(),
+                rewardBuyerBo.getRewardShopTicket());
 
         //查出需要返佣的用户
         QueryWrapper<PayUserRelationPo> payUserWrapper = new QueryWrapper<>();
@@ -563,7 +623,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         BigDecimal realPayMoney = rewardBuyerBo.getRealPayMoney();
         if (queryPayUser != null) {
             //返红包
-            rewardRed(queryPayUser, queryBasicSetting,goodsTempId);
+            rewardRed(queryPayUser, queryBasicSetting,queryGoodsTemp);
             //上两级用户
             if (queryPayUser.getLastTwoUserId() != null) {
                 //得到积分
@@ -575,6 +635,10 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 updateLastTwo.setId(queryPayUser.getLastTwoUserId()).setCurrentExperience(lastTwoExperience).setCurrentIntegral(lastTwoIntegrate);
                 userMapper.updateAdd(updateLastTwo);
                 umUserService.updateLevel(queryPayUser.getLastTwoUserId());
+
+                //购物奖励  上两级用户获得积分
+                addShoppingRewardLog(queryGoodsTemp.getOrderId(), queryPayUser.getLastTwoUserId(), lastTwoIntegrate, BigDecimal.ZERO);
+
             }
             //上一级用户
             if (queryPayUser.getLastOneUserId() != null) {
@@ -587,6 +651,10 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 updateUser.setId(queryPayUser.getLastOneUserId()).setCurrentExperience(experience).setCurrentIntegral(integrate);
                 userMapper.updateAdd(updateUser);
                 umUserService.updateLevel(queryPayUser.getLastOneUserId());
+
+                //购物奖励  上一级用户获得积分
+                addShoppingRewardLog(queryGoodsTemp.getOrderId(), queryPayUser.getLastOneUserId(), integrate, BigDecimal.ZERO);
+
             }
             //下一级用户
             if (queryPayUser.getNextUserId() != null) {
@@ -611,9 +679,9 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
     public void orderDeadline(Long orderId) {
 
-        // TODO: 2019/9/10 俊浩流水
         OmOrderPo queryOrder = mapper.selectById(orderId);
 
+        // TODO: 2019/9/10 俊浩流水
 
         Long userId = Long.parseLong(queryOrder.getCreateBy());
 
@@ -625,6 +693,9 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 .setCurrentShopTicket(rewardBuyerBo.getRewardShopTicket()).setId(userId).setTotalOrder(1).
                 setTotalConsumeMoney(rewardBuyerBo.getRealPayMoney());
         userMapper.updateAdd(addUser);
+
+        //购物奖励  下单用户本人有获得积分，购物券
+        addShoppingRewardLog(queryOrder.getId(), userId, rewardBuyerBo.getRewardIntegrate(), rewardBuyerBo.getRewardShopTicket());
 
         //查出需要返佣的用户
         QueryWrapper<PayUserRelationPo> payUserWrapper = new QueryWrapper<>();
@@ -649,6 +720,10 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 updateLastTwo.setId(queryPayUser.getLastTwoUserId()).setCurrentExperience(lastTwoExperience).setCurrentIntegral(lastTwoIntegrate);
                 userMapper.updateAdd(updateLastTwo);
                 umUserService.updateLevel(queryPayUser.getLastTwoUserId());
+
+                //购物奖励  上两级用户获得积分
+                addShoppingRewardLog(queryOrder.getId(), queryPayUser.getLastTwoUserId(), lastTwoIntegrate, BigDecimal.ZERO);
+
             }
             //上一级用户
             if (queryPayUser.getLastOneUserId() != null) {
@@ -661,6 +736,10 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 updateUser.setId(queryPayUser.getLastOneUserId()).setCurrentExperience(experience).setCurrentIntegral(integrate);
                 userMapper.updateAdd(updateUser);
                 umUserService.updateLevel(queryPayUser.getLastOneUserId());
+
+                //购物奖励  上两级用户获得积分
+                addShoppingRewardLog(queryOrder.getId(), queryPayUser.getLastOneUserId(), integrate, BigDecimal.ZERO);
+
             }
             //下一级用户
             if (queryPayUser.getNextUserId() != null) {
@@ -748,6 +827,10 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             UmUserPo updateFirst = new UmUserPo();
             updateFirst.setId(queryPayUser.getFirstUserId()).setCurrentRedEnvelops(totalRed[0]);
             userMapper.updateAdd(updateFirst);
+
+            //好友助攻 返佣最高等级用户获得红包
+            addfriendsAssistLog(queryPayUser.getOrderId(), queryPayUser.getFirstUserId(), totalRed[0]);
+
         }
         //如果有两个上级需要返佣
         else if (queryPayUser.getSecondUserId() != null) {
@@ -768,6 +851,10 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
             //一级佣金判断资格
             if (queryFirstUser.getCommissionStatus()) {
+
+                //好友助攻 返佣最高等级用户获得红包
+                addfriendsAssistLog(queryPayUser.getOrderId(), queryPayUser.getFirstUserId(), firstRed);
+
                 UmUserPo updateFirst = new UmUserPo();
                 updateFirst.setId(queryPayUser.getFirstUserId()).setCurrentRedEnvelops(firstRed);
                 userMapper.updateAdd(updateFirst);
@@ -776,8 +863,12 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             //二级佣金判定资格
             if (querySecondUser.getCommissionStatus()) {
                 UmUserPo updateSecond = new UmUserPo();
-                updateSecond.setId(queryPayUser.getFirstUserId()).setCurrentRedEnvelops(secondRed);
+                updateSecond.setId(queryPayUser.getSecondUserId()).setCurrentRedEnvelops(secondRed);
                 userMapper.updateAdd(updateSecond);
+
+                //好友助攻 返佣最高等级用户获得红包
+                addfriendsAssistLog(queryPayUser.getOrderId(), queryPayUser.getSecondUserId(), secondRed);
+
             }
 
         }
@@ -788,13 +879,16 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
      *
      * @param queryPayUser
      */
-    private void rewardRed(PayUserRelationPo queryPayUser, BasicSettingPo basicSettingPo,Long goodsTempId) {
+    private void rewardRed(PayUserRelationPo queryPayUser, BasicSettingPo basicSettingPo, OmGoodsTempPo queryGoodsTemp) {
+
+
+
         UmUserPo userPo = userMapper.selectById(queryPayUser.getCreateBy());
         PmMemberLevelPo queryMember = memberLevelMapper.selectById(userPo.getMemberLevelId());
         if (queryPayUser.getFirstUserId() == null) {
             return;
         }
-        RewardRedBo rewardBuyer = mapper.getRewardBuyerByGoodsTempId(goodsTempId);
+        RewardRedBo rewardBuyer = mapper.getRewardBuyerByGoodsTempId(queryGoodsTemp.getId());
         //计算红包
         rewardBuyer.setPacketPresent(queryMember.getPacketPresent());
         rewardBuyer.setMoneyToRed(basicSettingPo.getMoneyToCurrentRedEnvelops());
@@ -806,6 +900,10 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             UmUserPo updateFirst = new UmUserPo();
             updateFirst.setId(queryPayUser.getFirstUserId()).setCurrentRedEnvelops(red);
             userMapper.updateAdd(updateFirst);
+
+            //好友助攻 返佣最高等级用户获得红包
+            addfriendsAssistLog(queryGoodsTemp.getOrderId(), queryPayUser.getFirstUserId(), red);
+
         }
         //如果有两个上级需要返佣
         else if (queryPayUser.getSecondUserId() != null) {
@@ -829,13 +927,21 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 UmUserPo updateFirst = new UmUserPo();
                 updateFirst.setId(queryPayUser.getFirstUserId()).setCurrentRedEnvelops(firstRed);
                 userMapper.updateAdd(updateFirst);
+
+                //好友助攻 返佣最高等级用户获得红包
+                addfriendsAssistLog(queryGoodsTemp.getOrderId(), queryPayUser.getFirstUserId(), firstRed);
+
             }
 
             //二级佣金判定资格
             if (querySecondUser.getCommissionStatus()) {
                 UmUserPo updateSecond = new UmUserPo();
-                updateSecond.setId(queryPayUser.getFirstUserId()).setCurrentRedEnvelops(secondRed);
+                updateSecond.setId(queryPayUser.getSecondUserId()).setCurrentRedEnvelops(secondRed);
                 userMapper.updateAdd(updateSecond);
+
+                //好友助攻 返佣最高等级用户获得红包
+                addfriendsAssistLog(queryGoodsTemp.getOrderId(), queryPayUser.getSecondUserId(), secondRed);
+
             }
 
         }
