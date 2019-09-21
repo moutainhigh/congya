@@ -6,6 +6,7 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.domain.po.message.information.category.MmInformationCategoryPo;
+import com.chauncy.data.domain.po.message.information.label.MmInformationLabelPo;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.information.add.InformationCategoryDto;
@@ -165,8 +166,16 @@ public class MmInformationCategoryServiceImpl extends AbstractService<MmInformat
                 throw new ServiceException(ResultCode.FAIL, "删除失败，包含正被资讯使用关联的分类");
             }
         }
+
+        List<Long> idList = Arrays.asList(ids);
+        //删除的资讯enabled置为false
+        UpdateWrapper<MmInformationCategoryPo> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.lambda().in(MmInformationCategoryPo::getId, idList)
+                .set(MmInformationCategoryPo::getEnabled, false);
+        this.update(updateWrapper);
+
         //批量删除分类
-        mmInformationCategoryMapper.deleteBatchIds(Arrays.asList(ids));
+        mmInformationCategoryMapper.deleteBatchIds(idList);
 
     }
 

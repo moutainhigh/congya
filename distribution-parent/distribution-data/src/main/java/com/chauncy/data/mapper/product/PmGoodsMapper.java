@@ -17,6 +17,7 @@ import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.advice.store.GoodsSecondCategoryListVo;
+import com.chauncy.data.vo.app.component.ScreenGoodsParamVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
 import com.chauncy.data.vo.manage.message.advice.tab.tab.SearchAdviceGoodsVo;
@@ -98,6 +99,18 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
      * @return
      */
     List<GoodsBaseInfoVo> searchInfoBasePaging(SearchStoreGoodsDto searchStoreGoodsDto);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/19 20:15
+     * @Description 根据筛选商品的条件获取商品对应的品牌，分类，类目的参数
+     *
+     * @Update yeJH
+     *
+     * @Param [searchStoreGoodsDto]
+     * @return com.chauncy.data.vo.app.component.ScreenGoodsParamVo
+     **/
+    ScreenGoodsParamVo findScreenGoodsParam(SearchStoreGoodsDto searchStoreGoodsDto);
 
     /**
      * 根据资讯id获取关联的商品

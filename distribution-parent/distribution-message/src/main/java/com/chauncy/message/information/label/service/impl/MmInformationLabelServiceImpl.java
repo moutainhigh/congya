@@ -158,14 +158,21 @@ public class MmInformationLabelServiceImpl extends AbstractService<MmInformation
     public void delInformationLabelByIds(Long[] ids) {
         for (Long id :ids) {
             QueryWrapper<MmInformationPo> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("info_label_id",id);
+            queryWrapper.lambda().eq(MmInformationPo::getInfoLabelId,id);
             Integer count = mmInformationMapper.selectCount(queryWrapper);
             if(count > 0 ) {
                 throw new ServiceException(ResultCode.FAIL, "删除失败，包含正被资讯使用关联的标签");
             }
         }
+        List<Long> idList = Arrays.asList(ids);
+        //删除的资讯enabled置为false
+        UpdateWrapper<MmInformationLabelPo> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.lambda().in(MmInformationLabelPo::getId, idList)
+                .set(MmInformationLabelPo::getEnabled, false);
+        this.update(updateWrapper);
+
         //批量删除标签
-        mmInformationLabelMapper.deleteBatchIds(Arrays.asList(ids));
+        mmInformationLabelMapper.deleteBatchIds(idList);
 
     }
 

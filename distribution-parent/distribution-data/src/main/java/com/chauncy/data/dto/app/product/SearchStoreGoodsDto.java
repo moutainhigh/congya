@@ -5,6 +5,7 @@ import com.chauncy.common.enums.app.sort.SortFileEnum;
 import com.chauncy.common.enums.app.sort.SortWayEnum;
 import com.chauncy.common.enums.goods.StoreGoodsListTypeEnum;
 import com.chauncy.common.enums.goods.StoreGoodsTypeEnum;
+import com.chauncy.data.dto.base.BasePageDto;
 import com.chauncy.data.valid.annotation.EnumConstraint;
 import com.chauncy.data.valid.annotation.NeedExistConstraint;
 import io.swagger.annotations.ApiModel;
@@ -15,6 +16,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @author yeJH
@@ -22,18 +24,13 @@ import java.math.BigDecimal;
  */
 @Data
 @ApiModel(value = "SearchStoreGoodsDto对象", description = "查询店铺下的商品列表")
-public class SearchStoreGoodsDto  implements Serializable {
+public class SearchStoreGoodsDto extends BasePageDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "店铺id")
-    @NotNull(message = "店铺id不能为空")
     @NeedExistConstraint(tableName = "sm_store",  concatWhereSql = "and enabled = 1", message = "店铺记录不存在")
     private Long storeId;
-
-    /*@ApiModelProperty(value = "分类id")
-    @NeedExistConstraint(tableName = "pm_goods_category")
-    private Long goodsCategoryId;*/
 
     @ApiModelProperty(value = "店铺商品列表类型")
     @NotNull(message = "店铺商品列表类型不能为空")
@@ -52,14 +49,6 @@ public class SearchStoreGoodsDto  implements Serializable {
     @ApiModelProperty(value = "排序字段 默认综合排序（COMPREHENSIVE_SORT）")
     private SortFileEnum sortFile;
 
-    @Min(1)
-    @ApiModelProperty(value = "页码 默认1")
-    private Integer pageNo;
-
-    @Min(1)
-    @ApiModelProperty(value = "分页大小 默认10")
-    private Integer pageSize;
-
     /**
      * 新品的评判标准  上架几天内为新品
      */
@@ -67,10 +56,20 @@ public class SearchStoreGoodsDto  implements Serializable {
     @JSONField(serialize = false)
     private Integer newGoodsDays;
 
-    @ApiModelProperty(value = "最低价")
+
+    @ApiModelProperty(value = "筛选条件 最低价")
     private BigDecimal lowestPrice;
 
-    @ApiModelProperty(value = "最高价")
+    @ApiModelProperty(value = "筛选条件 最高价")
     private BigDecimal highestPrice;
+
+    @ApiModelProperty(value = "筛选条件  品牌id")
+    private List<Long> brandIds;
+
+    @ApiModelProperty(value = "筛选条件  分类id")
+    private List<Long> categoryIds;
+
+    @ApiModelProperty(value = "筛选条件  标签id")
+    private List<Long> labelIds;
 
 }

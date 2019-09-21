@@ -5,6 +5,7 @@ import com.chauncy.data.dto.app.component.ShareDto;
 import com.chauncy.data.dto.app.message.information.select.SearchInfoByConditionDto;
 import com.chauncy.data.dto.base.BaseSearchByTimeDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.app.component.ScreenInfoParamVo;
 import com.chauncy.data.vo.app.message.information.InformationBaseVo;
 import com.chauncy.data.vo.app.message.information.InformationPagingVo;
 import com.chauncy.data.vo.manage.message.information.InformationPageInfoVo;
@@ -91,6 +92,18 @@ public interface MmInformationMapper extends IBaseMapper<MmInformationPo> {
      * @return
      */
     void shareInformation(ShareDto shareDto);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/19 23:53
+     * @Description /根据筛选资讯的条件获取资讯对应的资讯标签，内容分类等参数
+     *
+     * @Update yeJH
+     *
+     * @Param [searchInformationDto]
+     * @return com.chauncy.data.vo.app.component.ScreenInfoParamVo
+     **/
+    ScreenInfoParamVo findScreenInfoParam(SearchInfoByConditionDto searchInformationDto);
 
     /**
      * 获取关注的店铺更新的资讯数目

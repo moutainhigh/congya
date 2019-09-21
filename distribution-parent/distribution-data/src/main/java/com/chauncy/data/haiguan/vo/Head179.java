@@ -1,116 +1,29 @@
 package com.chauncy.data.haiguan.vo;
 
 import com.alibaba.fastjson.annotation.JSONType;
+import lombok.Data;
+
+import java.math.BigDecimal;
+import java.util.UUID;
 
 @JSONType(orders = { "guid", "initalRequest", "initalResponse", "ebpCode", "payCode", "payTransactionId", "totalAmount", "currency", "verDept", "payType", "tradingTime", "note" })
+@Data
 public class Head179 {
-	private String guid;
+	private String guid= UUID.randomUUID().toString().toUpperCase();
 	private String initalRequest;
 	private String initalResponse;
-	private String ebpCode;
-	private String payCode;
+	private String ebpCode="4401960A8F";
+	private String payCode="4403169D3W";
 	private String payTransactionId;
-	private Long totalAmount;
-	private String currency;
-	private String verDept;
-	private String payType;
+	private BigDecimal totalAmount;
+	//人民币
+	private String currency="142";
+	//1-银联 2-网联 3-其他
+	private String verDept="3";
+	//用户支付的类型。1-APP 2-PC 3-扫码 4-其他
+	private String payType="1";
 	private String tradingTime;
 	private String note;
 
-	public String getGuid() {
-		return guid;
-	}
-
-	public void setGuid(String guid) {
-		this.guid = guid;
-	}
-
-	public String getInitalRequest() {
-		return initalRequest;
-	}
-
-	public void setInitalRequest(String initalRequest) {
-		this.initalRequest = initalRequest;
-	}
-
-	public String getInitalResponse() {
-		return initalResponse;
-	}
-
-	public void setInitalResponse(String initalResponse) {
-		this.initalResponse = initalResponse;
-	}
-
-	public String getEbpCode() {
-		return ebpCode;
-	}
-
-	public void setEbpCode(String ebpCode) {
-		this.ebpCode = ebpCode;
-	}
-
-	public String getPayCode() {
-		return payCode;
-	}
-
-	public void setPayCode(String payCode) {
-		this.payCode = payCode;
-	}
-
-	public String getPayTransactionId() {
-		return payTransactionId;
-	}
-
-	public void setPayTransactionId(String payTransactionId) {
-		this.payTransactionId = payTransactionId;
-	}
-
-	public Long getTotalAmount() {
-		return totalAmount;
-	}
-
-	public void setTotalAmount(Long totalAmount) {
-		this.totalAmount = totalAmount;
-	}
-
-	public String getCurrency() {
-		return currency;
-	}
-
-	public void setCurrency(String currency) {
-		this.currency = currency;
-	}
-
-	public String getVerDept() {
-		return verDept;
-	}
-
-	public void setVerDept(String verDept) {
-		this.verDept = verDept;
-	}
-
-	public String getPayType() {
-		return payType;
-	}
-
-	public void setPayType(String payType) {
-		this.payType = payType;
-	}
-
-	public String getTradingTime() {
-		return tradingTime;
-	}
-
-	public void setTradingTime(String tradingTime) {
-		this.tradingTime = tradingTime;
-	}
-
-	public String getNote() {
-		return note;
-	}
-
-	public void setNote(String note) {
-		this.note = note;
-	}
 
 }

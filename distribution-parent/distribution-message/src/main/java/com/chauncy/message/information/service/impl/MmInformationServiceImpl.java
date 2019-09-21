@@ -37,6 +37,9 @@ import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.user.UmUserFavoritesMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
+import com.chauncy.data.vo.app.component.ScreenGoodsParamVo;
+import com.chauncy.data.vo.app.component.ScreenInfoParamVo;
+import com.chauncy.data.vo.app.component.ScreenParamVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.app.message.information.InformationBaseVo;
 import com.chauncy.data.vo.app.message.information.InformationPagingVo;
@@ -207,8 +210,15 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
     @Override
     public void delInformationByIds(Long[] ids) {
 
+        List<Long> idList = Arrays.asList(ids);
+        //删除的资讯enabled置为false
+        UpdateWrapper<MmInformationPo> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.lambda().in(MmInformationPo::getId, idList)
+                .set(MmInformationPo::getEnabled, false);
+        this.update(updateWrapper);
+
         //批量删除资讯
-        mmInformationMapper.deleteBatchIds(Arrays.asList(ids));
+        mmInformationMapper.deleteBatchIds(idList);
 
         //删除资讯商品关联表的记录
         QueryWrapper<MmRelInformationGoodsPo> queryWrapper = new QueryWrapper<>();
@@ -496,6 +506,42 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
         });
 
         return informationPageInfo;
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/19 23:49
+     * @Description 根据筛选资讯的条件获取资讯对应的资讯标签，内容分类等参数
+     *
+     * @Update yeJH
+     *
+     * @Param [searchInformationDto]
+     * @return com.chauncy.data.vo.app.component.ScreenParamVo
+     **/
+    @Override
+    public ScreenParamVo findScreenInfoParam(SearchInfoByConditionDto searchInformationDto) {
+        //获取当前app用户信息
+        UmUserPo umUserPo = securityUtil.getAppCurrUser();
+        if(null == umUserPo) {
+            throw new ServiceException(ResultCode.NO_LOGIN,"未登陆或登陆已超时");
+        } else {
+            searchInformationDto.setUserId(umUserPo.getId());
+        }
+
+
+        if(searchInformationDto.getInformationType().equals(InformationTypeEnum.CATEGORY_LIST.getId())
+                && null == searchInformationDto.getInfoCategoryId()) {
+            throw new ServiceException(ResultCode.PARAM_ERROR, "infoCategoryId参数不能为空");
+        }
+        if(searchInformationDto.getInformationType().equals(InformationTypeEnum.SEARCH_LIST.getId())
+                && null == searchInformationDto.getKeyword()) {
+            throw new ServiceException(ResultCode.PARAM_ERROR, "keyword参数不能为空");
+        }
+
+        ScreenParamVo screenParamVo = new ScreenParamVo();
+        ScreenInfoParamVo screenInfoParamVo = mmInformationMapper.findScreenInfoParam(searchInformationDto);
+        screenParamVo.setScreenInfoParamVo(screenInfoParamVo);
+        return screenParamVo;
     }
 
     /**

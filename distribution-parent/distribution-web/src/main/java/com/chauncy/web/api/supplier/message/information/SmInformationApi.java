@@ -107,7 +107,7 @@ public class SmInformationApi extends BaseApi {
 
 
     /**
-     * 根据关联ID删除资讯跟店铺的绑定关系
+     * 根据关联ID删除资讯跟商品的绑定关系
      *
      * @param id
      * @return

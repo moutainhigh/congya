@@ -81,7 +81,12 @@ public class OmOrderPo implements Serializable {
     @ApiModelProperty(value = "商品数量")
     private Integer totalNumber;
 
-    @ApiModelProperty(value = "订单商品类型  0-普通商品 1-自取 2-海外直邮 3-保税仓 4-服务类 5-虚拟商品 ")
+    @ApiModelProperty(value = "订单商品类型  1->普通商品\n" +
+            " * 2->保税仓\n" +
+            " * 3->海外直邮\n" +
+            " * 4->自取\n" +
+            " * 5->服务类\n" +
+            " * 6->虚拟商品 ")
     private String goodsType;
 
     @ApiModelProperty(value = "支付时间")

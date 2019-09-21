@@ -360,6 +360,96 @@
         select * from sm_store where id = #{id} and del_flag = 0 and enabled = 1
     </select>
 
+    <resultMap id="StoreCategoryDetailResult" type="com.chauncy.data.vo.app.advice.store.StoreCategoryDetailVo">
+        <id column="storeId" property="storeId"/>
+        <result column="logoImage" property="logoImage"/>
+        <result column="storeName" property="storeName"/>
+        <result column="storeDescribe" property="storeDescribe"/>
+        <result column="is_focus" property="isFocus"/>
+        <result column="storeLabels" property="storeLabels"/>
+        <!--collection定义关联集合类型的属性封装规则
+        延迟加载 传递两个参数
+　　　　{pMenuId=child_pid,userId=userId}
+　　　　 传递查询参数名称=字段名称-->
+        <collection property="goodsBaseInfoVoList" column="{storeId=storeId}"
+                    select="com.chauncy.data.mapper.product.PmGoodsMapper.findRecommandGoods">
+        </collection>
+    </resultMap>
+    <select id="searchStoreBaseList"   resultMap="StoreCategoryDetailResult">
+        SELECT
+            DISTINCT `ss`.id AS storeId,
+            `ss`.logo_image AS logoImage,
+            `ss`.name AS storeName,
+            `ss`.store_describe AS storeDescribe,
+            (EXISTS
+                (SELECT 1
+                    FROM um_user_favorites uuf
+                    WHERE uuf.favorites_id = ss.id
+                    AND uuf.`type` = '店铺'
+                    AND uuf.user_id = #{userId}
+                    AND uuf.del_flag = 0)
+                ) AS is_focus,
+            GROUP_CONCAT(`ssl`.name) AS storeLabels
+        FROM
+            sm_store `ss`
+            LEFT JOIN sm_store_category `ssc` ON ss.store_category_id = ssc.id AND `ssc`.del_flag = 0
+            LEFT JOIN sm_store_rel_label ssrl ON ss.id = ssrl.store_id AND `ssrl`.del_flag = 0
+            LEFT JOIN sm_store_label `ssl` ON ssrl.store_label_id = `ssl`.id AND `ssrl`.del_flag = 0
+        <where>
+            `ss`.enabled = 1
+            <if test="(null != labelIds and labelIds.size() > 0)">
+                AND `ssl`.id IN
+                <foreach item="item" collection="labelIds" separator="," open="(" close=")" index="">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="(null != categoryIds and categoryIds.size() > 0)">
+                AND ss.store_category_id IN
+                <foreach item="item" collection="categoryIds" separator="," open="(" close=")" index="">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="keyword != null and keyword !=''">
+                and name like concat('%', #{keyword}, '%')
+            </if>
+        </where>
+        GROUP BY `ss`.id
+        ORDER BY `ss`.sort DESC
+    </select>
+
+    <resultMap id="screenStoreParamResult" type="com.chauncy.data.vo.app.component.ScreenStoreParamVo">
+        <id column="id" property="id" />
+        <!-- collection定义关联集合类型的属性封装规则
+        offType:指定集合中的元素类型
+        -->
+        <collection property="categoryList" ofType="com.chauncy.data.vo.BaseVo">
+            <id column="categoryId" property="id"/>
+            <result column="categoryName" property="name"/>
+        </collection>
+        <collection property="labelList" ofType="com.chauncy.data.vo.BaseVo">
+            <id column="labelId" property="id"/>
+            <result column="labelName" property="name"/>
+        </collection>
+    </resultMap>
+    <select id="findScreenStoreParam" resultMap="screenStoreParamResult">
+        SELECT
+            '1'   AS id,
+            ssc.id AS categoryId,
+            ssc.name AS categoryName,
+            `ssl`.id AS labelId,
+            `ssl`.`name` AS labelName
+        FROM sm_store `ss`
+        LEFT JOIN sm_store_category `ssc` ON ss.store_category_id = ssc.id  AND `ssc`.del_flag = 0
+        LEFT JOIN sm_store_rel_label ssrl ON ss.id = ssrl.store_id  AND `ssrl`.del_flag = 0
+        LEFT JOIN sm_store_label `ssl` ON ssrl.store_label_id = `ssl`.id  AND `ssl`.`del_flag` = 0
+        <where>
+            `ss`.enabled = 1
+            <if test="keyword != null and keyword !=''">
+                and name like concat('%', #{keyword}, '%')
+            </if>
+        </where>
+    </select>
+
     <resultMap id="storeHomePageResult" type="com.chauncy.data.vo.app.advice.store.StoreHomePageVo">
         <id column="id" property="storeId" />
         <result column="logo_image" property="logoImage" />
@@ -414,7 +504,6 @@
         AND pg.publish_status = 1
         AND pg.star_status = 1
         WHERE  ss.id = #{storeId}
-
     </select>
 
 </mapper>

@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * @author yeJH
@@ -28,5 +29,18 @@ public class AddAccountLogBo  implements Serializable {
 
     @ApiModelProperty(value = "当前操作用户后台userName，app用户phone")
     private String operator;
+
+
+    @ApiModelProperty(value = "用户")
+    private Long umUserId;
+
+    @ApiModelProperty(value = "积分数")
+    private BigDecimal marginIntegral;
+
+    @ApiModelProperty(value = "红包数")
+    private BigDecimal marginRedEnvelops;
+
+    @ApiModelProperty(value = "购物券数")
+    private BigDecimal marginShopTicket;
 
 }

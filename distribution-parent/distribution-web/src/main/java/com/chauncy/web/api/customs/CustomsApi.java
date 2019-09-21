@@ -1,10 +1,15 @@
 //package com.chauncy.web.api.customs;
 //
 //import com.alibaba.fastjson.JSON;
+//import com.chauncy.common.enums.order.CustomsStatusEnum;
+//import com.chauncy.data.domain.po.order.CustomsDataPo;
 //import com.chauncy.data.haiguan.HaiGuanApi;
+//import com.chauncy.order.customs.ICustomsDataService;
+//import lombok.experimental.Accessors;
 //import net.sf.json.JSONObject;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
+//import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.web.bind.annotation.RequestMapping;
 //import org.springframework.web.bind.annotation.RequestMethod;
 //import org.springframework.web.bind.annotation.RequestParam;
@@ -31,6 +36,9 @@
 //
 //    Logger log = LoggerFactory.getLogger(CustomsApi.class);
 //
+//    @Autowired
+//    private ICustomsDataService customsDataService;
+//
 //    /**
 //     * 海关请求传递值
 //     *
@@ -45,6 +53,11 @@
 //        if (haiGuanApi.getOrderNo()==null||haiGuanApi.getServiceTime()==null||haiGuanApi.getSessionID()==null){
 //            return haiGuanApi.responseServiceError();
 //        }
+//        //保存海关数据
+//        CustomsDataPo saveCustoms=new CustomsDataPo();
+//        saveCustoms.setOrderId(haiGuanApi.getOrderNo()).setSessionId(haiGuanApi.getSessionID())
+//                .setStatus(CustomsStatusEnum.NEED_SEND);
+//        customsDataService.save(saveCustoms);
 //        haiGuanApi.putPostMsg(haiGuanApi.getOrderNo());
 //
 //        return haiGuanApi.responseServiceSuccess();

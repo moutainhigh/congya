@@ -2,6 +2,7 @@ package com.chauncy.web.api.app.home.advice;
 
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
+import com.chauncy.data.dto.app.store.SearchStoreDto;
 import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.advice.AdviceTabVo;
@@ -128,6 +129,29 @@ public class AdviceStoreInfoApi extends BaseApi {
 
         StoreHomePageVo storeHomePageVo = smStoreService.getStoreHomePage(storeId);
         return new JsonViewData(ResultCode.SUCCESS,"查找成功",storeHomePageVo);
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/20 16:10
+     * @Description 搜索界面-搜索店铺列表
+     *
+     * @Update yeJH
+     *
+     * @Param [searchStoreGoodsDto]
+     * @return com.chauncy.data.vo.JsonViewData<com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo>>
+     **/
+    @ApiOperation(value = "搜索界面-搜索店铺列表",
+            notes = "搜索界面-搜索店铺列表  \n" +
+                    "排序字段（sortFile ）：   \nCOMPREHENSIVE_SORT：综合排序    \nSALES_SORT：销量排序    \n" +
+                    "COLLECTION_NUM：人气    \n" +
+                    "排序方式（sortWay ）：   DESC：降序  ASC：升序  \n")
+    @PostMapping("/searchStoreList")
+    public JsonViewData<PageInfo<SearchGoodsBaseListVo>> searchStoreList(@RequestBody @ApiParam(required = true,
+            name = "searchStoreDto",value = "查询条件")  @Validated SearchStoreDto searchStoreDto){
+
+        return setJsonViewData(smStoreService.searchStoreBaseList(searchStoreDto));
+
     }
 
     /**

@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.constant.Constants;
 import com.chauncy.common.constant.SecurityConstant;
+import com.chauncy.common.constant.ServiceConstant;
+import com.chauncy.common.enums.app.sort.SortFileEnum;
+import com.chauncy.common.enums.app.sort.SortWayEnum;
 import com.chauncy.common.enums.goods.GoodsCategoryLevelEnum;
 import com.chauncy.common.enums.store.StoreRelationEnum;
 import com.chauncy.common.enums.system.ResultCode;
@@ -41,7 +44,11 @@ import com.chauncy.data.mapper.sys.SysRoleMapper;
 import com.chauncy.data.mapper.sys.SysRoleUserMapper;
 import com.chauncy.data.mapper.sys.SysUserMapper;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.app.advice.store.StoreCategoryDetailVo;
 import com.chauncy.data.vo.app.advice.store.StoreHomePageVo;
+import com.chauncy.data.vo.app.component.ScreenGoodsParamVo;
+import com.chauncy.data.vo.app.component.ScreenParamVo;
+import com.chauncy.data.vo.app.component.ScreenStoreParamVo;
 import com.chauncy.data.vo.app.store.StoreDetailVo;
 import com.chauncy.data.vo.app.store.StorePagingVo;
 import com.chauncy.data.vo.manage.product.SearchCategoryVo;
@@ -608,6 +615,45 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
     }
 
     /**
+     * @Author yeJH
+     * @Date 2019/9/20 16:43
+     * @Description 搜索界面-搜索店铺列表
+     *
+     * @Update yeJH
+     *
+     * @Param [searchStoreDto]
+     * 排序字段（sortFile ）：  COMPREHENSIVE_SORT：综合排序
+     *                          SALES_SORT：销量排序
+     *                          COLLECTION_NUM：人气
+     * 排序方式（sortWay ）：   DESC：降序  ASC：升序
+     * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.store.StorePagingVo>
+     **/
+    @Override
+    public PageInfo<StoreCategoryDetailVo> searchStoreBaseList(SearchStoreDto searchStoreDto) {
+
+        //获取当前app用户信息
+        UmUserPo umUserPo = securityUtil.getAppCurrUser();
+        searchStoreDto.setUserId(umUserPo.getId());
+
+        Integer pageNo = searchStoreDto.getPageNo()==null ? defaultPageNo : searchStoreDto.getPageNo();
+        Integer pageSize = searchStoreDto.getPageSize()==null ? defaultPageSize : searchStoreDto.getPageSize();
+
+        if(null == searchStoreDto.getSortFile()) {
+            //默认综合排序
+            searchStoreDto.setSortFile(SortFileEnum.COMPREHENSIVE_SORT);
+        }
+        if(null == searchStoreDto.getSortWay()) {
+            //默认降序
+            searchStoreDto.setSortWay(SortWayEnum.DESC);
+        }
+        searchStoreDto.setGoodsNum(ServiceConstant.TEAM_WORK_LEVEL);
+
+        PageInfo<StoreCategoryDetailVo> goodsBaseInfoVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> smStoreMapper.searchStoreBaseList(searchStoreDto));
+        return goodsBaseInfoVoPageInfo;
+    }
+
+    /**
      * app获取店铺信息
      *
      * @param storeId
@@ -680,6 +726,29 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
             storeDetailVo.setBusinessLicenseList(Arrays.asList(storeDetailVo.getBusinessLicense().split(",")));
         }
         return storeDetailVo;
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/20 19:43
+     * @Description 获取筛选店铺的参数  店铺分类  店铺标签
+      *
+     * @Update yeJH
+     *
+     * @Param [searchStoreDto]
+     * @return com.chauncy.data.vo.app.component.ScreenParamVo
+     **/
+    @Override
+    public ScreenParamVo findScreenStoreParam(SearchStoreDto searchStoreDto) {
+
+        //获取当前app用户信息
+        UmUserPo umUserPo = securityUtil.getAppCurrUser();
+        searchStoreDto.setUserId(umUserPo.getId());
+
+        ScreenParamVo screenParamVo = new ScreenParamVo();
+        ScreenStoreParamVo screenStoreParamVo = smStoreMapper.findScreenStoreParam(searchStoreDto);
+        screenParamVo.setScreenStoreParamVo(screenStoreParamVo);
+        return screenParamVo;
     }
 
 

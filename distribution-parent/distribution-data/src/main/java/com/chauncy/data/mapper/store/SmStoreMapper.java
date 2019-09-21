@@ -8,7 +8,9 @@ import com.chauncy.data.dto.manage.store.select.StoreSearchByConditionDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.app.advice.store.StoreCategoryDetailVo;
 import com.chauncy.data.vo.app.advice.store.StoreHomePageVo;
+import com.chauncy.data.vo.app.component.ScreenStoreParamVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.app.store.StoreDetailVo;
 import com.chauncy.data.vo.app.store.StorePagingVo;
@@ -135,6 +137,30 @@ public interface SmStoreMapper extends IBaseMapper<SmStorePo> {
      * @return
      */
     List<StorePagingVo> searchPaging(SearchStoreDto searchStoreDto);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/20 18:01
+     * @Description 搜索界面-搜索店铺列表
+     *
+     * @Update yeJH
+     *
+     * @Param [searchStoreDto]
+     * @return void
+     **/
+    List<StoreCategoryDetailVo> searchStoreBaseList(SearchStoreDto searchStoreDto);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/20 20:30
+     * @Description //TODO
+     *
+     * @Update yeJH
+     *
+     * @Param [searchStoreDto]
+     * @return com.chauncy.data.vo.app.component.ScreenStoreParamVo
+     **/
+    ScreenStoreParamVo findScreenStoreParam(SearchStoreDto searchStoreDto);
 
     /**
      * app获取店铺信息

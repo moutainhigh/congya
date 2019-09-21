@@ -19,6 +19,7 @@ import com.chauncy.data.dto.supplier.store.update.SelectStockTemplateGoodsDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.advice.store.GoodsSecondCategoryListVo;
+import com.chauncy.data.vo.app.component.ScreenParamVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.supplier.*;
 import com.chauncy.data.vo.supplier.good.AssociationGoodsVo;
@@ -62,6 +63,19 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @return
      */
     List<BaseVo> findAttByTypeAndCat(SelectAttributeDto selectAttributeDto);
+
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/19 18:42
+     * @Description 获取筛选商品的参数
+     *
+     * @Update yeJH
+     *
+     * @Param [searchStoreGoodsDto]
+     * @return com.chauncy.data.vo.app.component.ScreenParamVo
+     **/
+    ScreenParamVo findScreenGoodsParam(SearchStoreGoodsDto searchStoreGoodsDto);
 
     /**
      * 根据不同运费模版类型获取运费信息

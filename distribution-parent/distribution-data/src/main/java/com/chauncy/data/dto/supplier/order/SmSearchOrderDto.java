@@ -3,6 +3,8 @@ package com.chauncy.data.dto.supplier.order;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.chauncy.common.enums.app.activity.type.ActivityTypeEnum;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
+import com.chauncy.common.enums.goods.GoodsTypeEnum;
+import com.chauncy.data.valid.annotation.EnumConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -52,8 +54,13 @@ public class SmSearchOrderDto {
             "NEED_USE-待使用  ALREADY_CANCEL-已取消")
     private OrderStatusEnum orderStatus;
 
-    @ApiModelProperty("订单类型: NON-无活动,REDUCED-满减,INTEGRALS-积分,SECKILL-秒杀,SPRLL_GROUP-拼团")
-    private ActivityTypeEnum activityTypeEnum;
+    @ApiModelProperty("(传中文)订单类型: 1->普通商品\n" +
+            " * 2->保税仓\n" +
+            " * 3->海外直邮\n" +
+            " * 4->自取\n" +
+            " * 5->服务类\n" +
+            " * 6->虚拟商品")
+    private String goodsType;
 
     @Min(1)
     private Integer pageNo;

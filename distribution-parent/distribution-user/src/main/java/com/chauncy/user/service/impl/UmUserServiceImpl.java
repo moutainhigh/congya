@@ -13,7 +13,7 @@ import com.chauncy.common.third.easemob.RegistIM;
 import com.chauncy.common.third.easemob.comm.RegUserBo;
 import com.chauncy.common.util.*;
 import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
-import com.chauncy.data.bo.order.log.PlatformGiveBo;
+import com.chauncy.data.bo.order.log.AccountLogBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.information.comment.MmInformationCommentPo;
 import com.chauncy.data.domain.po.message.information.rel.MmInformationLikedPo;
@@ -39,7 +39,6 @@ import com.chauncy.data.vo.app.user.GetMembersCenterVo;
 import com.chauncy.data.vo.app.user.MyDataStatisticsVo;
 import com.chauncy.data.vo.app.user.SearchMyFriendVo;
 import com.chauncy.data.vo.app.user.UserDataVo;
-import com.chauncy.data.vo.manage.order.log.SearchUserLogVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserDetailVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserRelVo;
 import com.chauncy.data.vo.manage.user.idCard.SearchIdCardVo;
@@ -320,19 +319,17 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
             }
         }
         //系统赠送流水生成
-        PlatformGiveBo platformGiveBo = new PlatformGiveBo();
         AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
         addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.PLATFORM_GIVE);
         addAccountLogBo.setRelId(null);
         addAccountLogBo.setOperator(currentUserName);
-        platformGiveBo.setAddAccountLogBo(addAccountLogBo);
-        platformGiveBo.setMarginIntegral(marginIntegral);
-        platformGiveBo.setMarginRedEnvelops(marginRedEnvelops);
-        platformGiveBo.setMarginShopTicket(marginShopTicket);
-        platformGiveBo.setUmUserId(userPo.getId());
+        addAccountLogBo.setMarginIntegral(marginIntegral);
+        addAccountLogBo.setMarginRedEnvelops(marginRedEnvelops);
+        addAccountLogBo.setMarginShopTicket(marginShopTicket);
+        addAccountLogBo.setUmUserId(userPo.getId());
         //listenerPlatformGiveQueue 消息队列
         this.rabbitTemplate.convertAndSend(
-                RabbitConstants.PLATFORM_GIVE_EXCHANGE, RabbitConstants.PLATFORM_GIVE_ROUTING_KEY, platformGiveBo);
+                RabbitConstants.PLATFORM_GIVE_EXCHANGE, RabbitConstants.PLATFORM_GIVE_ROUTING_KEY, addAccountLogBo);
 
         return true;
     }
