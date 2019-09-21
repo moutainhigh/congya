@@ -9,6 +9,7 @@ import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchSendOrderDto;
+import com.chauncy.data.haiguan.vo.bo.CustomsOrderBo;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.app.order.my.AppSearchOrderVo;
 import com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailGoodsVo;
@@ -19,6 +20,7 @@ import com.chauncy.data.vo.manage.order.list.SearchOrderVo;
 import com.chauncy.data.vo.supplier.order.*;
 import org.apache.ibatis.annotations.Param;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -176,6 +178,19 @@ public interface OmOrderMapper extends IBaseMapper<OmOrderPo> {
      * @return
      */
     RewardRedBo getRewardBuyerByGoodsTempId(Long goodsTempId);
+
+    /**
+     * @Author zhangrt
+     * @Date 2019/9/20 16:44
+     * @Description 获取海关需要的一些信息
+     *
+     * @Update
+     *
+     * @Param [orderId]
+     * @return com.chauncy.data.haiguan.vo.bo.CustomsOrderBo
+     **/
+
+    CustomsOrderBo getCustomsOrderBo(Serializable orderId);
 
 
 

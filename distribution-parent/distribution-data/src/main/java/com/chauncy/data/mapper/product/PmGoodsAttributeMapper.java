@@ -156,6 +156,6 @@ public interface PmGoodsAttributeMapper extends IBaseMapper<PmGoodsAttributePo> 
      *
      * @param favoritesId
      */
-    @Update("update pm_goods_attribute set collection_num = collection_num-1 where id = #{favoritesId}")
+    @Update("update pm_goods_attribute set collection_num = collection_num-1 where id = #{favoritesId} and collection_num > 0")
     void delFavorites(Long favoritesId);
 }

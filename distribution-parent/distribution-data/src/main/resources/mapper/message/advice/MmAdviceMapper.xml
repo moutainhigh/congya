@@ -49,6 +49,7 @@
         <if test="location !=null and location!=''">
             and location = #{location}
         </if>
+        order by create_time desc
     </select>
 
     <select id="findStoreCategory" resultType="com.chauncy.data.vo.app.advice.store.StoreCategoryInfoVo">

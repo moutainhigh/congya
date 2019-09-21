@@ -1,17 +1,23 @@
 package com.chauncy.order.evaluate.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.app.activity.evaluate.EvaluateEnum;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
+import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.order.OmEvaluateLikedPo;
 import com.chauncy.data.domain.po.order.OmEvaluatePo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.domain.po.user.UmUserFavoritesPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.evaluate.add.AddValuateDto;
 import com.chauncy.data.dto.app.order.evaluate.add.SearchEvaluateDto;
 import com.chauncy.data.dto.app.order.evaluate.select.GetPersonalEvaluateDto;
 import com.chauncy.data.dto.supplier.evaluate.SaveStoreReplyDto;
 import com.chauncy.data.dto.supplier.good.select.SearchEvaluatesDto;
+import com.chauncy.data.mapper.order.OmEvaluateLikedMapper;
 import com.chauncy.data.mapper.order.OmEvaluateMapper;
 import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
@@ -46,6 +52,9 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
 
     @Autowired
     private OmEvaluateMapper mapper;
+
+    @Autowired
+    private OmEvaluateLikedMapper evaluateLikedMapper;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -113,6 +122,8 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
     @Override
     public PageInfo<GoodsEvaluateVo> getGoodsEvaluate(SearchEvaluateDto searchEvaluateDto) {
 
+        UmUserPo userPo = securityUtil.getAppCurrUser();
+
         Integer pageNo = searchEvaluateDto.getPageNo() == null ? defaultPageNo : searchEvaluateDto.getPageNo();
         Integer pageSize = searchEvaluateDto.getPageSize() == null ? defaultPageSize : searchEvaluateDto.getPageSize();
         PageInfo<GoodsEvaluateVo> goodsEvaluateVo = new PageInfo<>();
@@ -120,8 +131,17 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
         goodsEvaluateVo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> mapper.getGoodsEvaluate(searchEvaluateDto));
 
-        if (goodsEvaluateVo.getList().size() != 0 && goodsEvaluateVo.getList() != null) {
+        if (goodsEvaluateVo.getList().size() != 0 || goodsEvaluateVo.getList() != null) {
             goodsEvaluateVo.getList ().forEach (a -> {
+                OmEvaluateLikedPo evaluateLikedPo = evaluateLikedMapper.selectOne(new QueryWrapper<OmEvaluateLikedPo>().lambda()
+                        .eq(OmEvaluateLikedPo::getUserId,userPo.getId()).eq(OmEvaluateLikedPo::getEvaluateId,a.getId())
+                        .eq(OmEvaluateLikedPo::getIsLiked,true));
+                if (evaluateLikedPo == null){
+                    a.setIsLiked(false);
+                }else {
+                    a.setIsLiked(true);
+                }
+
                 Map<String, Object> map1 = new HashMap<> ();
                 map1.put ("parent_id", a.getId ());
                 List<OmEvaluatePo> evaluatePo = mapper.selectByMap (map1);
@@ -247,6 +267,43 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
      **/
     @Override
     public Integer updateEvaluateLiked(Long evaluateId) {
-        return null;
+
+        UmUserPo userPo = securityUtil.getAppCurrUser();
+        if (userPo == null ){
+            throw new ServiceException(ResultCode.FAIL, "您不是app用户！");
+        }
+        //查询是否点赞过,并发情况，锁住行
+        OmEvaluateLikedPo evaluateLikedPo = evaluateLikedMapper.selectOne(new QueryWrapper<OmEvaluateLikedPo>().lambda()
+                .eq(OmEvaluateLikedPo::getEvaluateId, evaluateId)
+                .eq(OmEvaluateLikedPo::getUserId, userPo.getId())
+                .last("for update"));
+        //从未点赞
+        if (evaluateLikedPo == null){
+            evaluateLikedPo = new OmEvaluateLikedPo();
+            evaluateLikedPo.setId(null).setCreateBy(userPo.getId()).setEvaluateId(evaluateId).setUserId(userPo.getId())
+                    .setIsLiked(true).setDelFlag(false);
+            evaluateLikedMapper.insert(evaluateLikedPo);
+
+            mapper.addLikedNum(evaluateId);
+
+        }else if (evaluateLikedPo.getIsLiked()) { //取消点赞
+
+            evaluateLikedPo.setIsLiked(false);
+            evaluateLikedMapper.updateById(evaluateLikedPo);
+
+            mapper.delLikedNum(evaluateId);
+        }else if (!evaluateLikedPo.getIsLiked()){ //点赞过且取消点赞再次点赞
+            evaluateLikedPo.setIsLiked(true);
+            evaluateLikedMapper.updateById(evaluateLikedPo);
+
+            mapper.addLikedNum(evaluateId);
+
+        }
+        Integer num = mapper.selectById(evaluateId).getLikedNum();
+        if (num < 0){
+            num = 0;
+        }
+
+        return num;
     }
 }

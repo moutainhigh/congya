@@ -20,10 +20,7 @@ import com.chauncy.data.bo.app.order.rabbit.RabbitOrderBo;
 import com.chauncy.data.bo.app.order.reward.RewardRedBo;
 import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
 import com.chauncy.data.core.AbstractService;
-import com.chauncy.data.domain.po.order.OmGoodsTempPo;
-import com.chauncy.data.domain.po.order.OmOrderLogisticsPo;
-import com.chauncy.data.domain.po.order.OmOrderPo;
-import com.chauncy.data.domain.po.order.OmRealUserPo;
+import com.chauncy.data.domain.po.order.*;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.domain.po.pay.PayUserRelationPo;
 import com.chauncy.data.domain.po.sys.BasicSettingPo;
@@ -139,6 +136,9 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
     @Autowired
     private OmRealUserMapper realUserMapper;
+
+    @Autowired
+    private PayUserRelationNextLevelMapper payUserRelationNextLevelMapper;
 
     @Value("${jasypt.encryptor.password}")
     private String password;
@@ -616,6 +616,12 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         QueryWrapper<PayUserRelationPo> payUserWrapper = new QueryWrapper<>();
         payUserWrapper.lambda().eq(PayUserRelationPo::getOrderId, queryGoodsTemp.getOrderId());
         PayUserRelationPo queryPayUser = payUserRelationMapper.selectOne(payUserWrapper);
+        //set下一级的用户集合
+        QueryWrapper<PayUserRelationNextLevelPo> nextUserWrapper = new QueryWrapper<>();
+        nextUserWrapper.lambda().eq(PayUserRelationNextLevelPo::getPayUserRealtionId,queryPayUser.getId());
+        List<PayUserRelationNextLevelPo> payUserRelationNextLevelPos = payUserRelationNextLevelMapper.selectList(nextUserWrapper);
+        queryPayUser.setNextUserIds(payUserRelationNextLevelPos.stream().map(x->x.getNextUserId()).collect(Collectors.toList()));
+
         //基本参数设置
         BasicSettingPo queryBasicSetting = basicSettingMapper.selectOne(new QueryWrapper<>());
 
@@ -656,17 +662,20 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 addShoppingRewardLog(queryGoodsTemp.getOrderId(), queryPayUser.getLastOneUserId(), integrate, BigDecimal.ZERO);
 
             }
-            //下一级用户
-            if (queryPayUser.getNextUserId() != null) {
+            //下一级用户集合
+            if (ListUtil.isListNullAndEmpty(queryPayUser.getNextUserIds())) {
                 //得到积分
                 BigDecimal integrate = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getNextLevelIntegrate(), 100));
                 //得到经验值
                 BigDecimal experience = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getNextLevelExperience(), 100));
                 //增加积分和经验值
-                UmUserPo updateUser=new UmUserPo();
-                updateUser.setId(queryPayUser.getNextUserId()).setCurrentExperience(experience).setCurrentIntegral(integrate);
-                userMapper.updateAdd(updateUser);
-                umUserService.updateLevel(queryPayUser.getNextUserId());
+                queryPayUser.getNextUserIds().forEach(x->{
+                    UmUserPo updateUser=new UmUserPo();
+                    updateUser.setId(x).setCurrentExperience(experience).setCurrentIntegral(integrate);
+                    userMapper.updateAdd(updateUser);
+                    umUserService.updateLevel(x);
+
+                });
             }
 
         }
@@ -741,17 +750,21 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 addShoppingRewardLog(queryOrder.getId(), queryPayUser.getLastOneUserId(), integrate, BigDecimal.ZERO);
 
             }
-            //下一级用户
-            if (queryPayUser.getNextUserId() != null) {
+
+            //下一级用户集合
+            if (ListUtil.isListNullAndEmpty(queryPayUser.getNextUserIds())) {
                 //得到经验值
                 BigDecimal experience = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getNextLevelExperience(), 100));
                 //得到积分
                 BigDecimal integrate = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getNextLevelIntegrate(), 100));
                 //增加积分和经验值
-                UmUserPo updateUser=new UmUserPo();
-                updateUser.setId(queryPayUser.getNextUserId()).setCurrentExperience(experience).setCurrentIntegral(integrate);
-                userMapper.updateAdd(updateUser);
-                umUserService.updateLevel(queryPayUser.getNextUserId());
+                queryPayUser.getNextUserIds().forEach(x->{
+                    UmUserPo updateUser=new UmUserPo();
+                    updateUser.setId(x).setCurrentExperience(experience).setCurrentIntegral(integrate);
+                    userMapper.updateAdd(updateUser);
+                    umUserService.updateLevel(x);
+
+                });
             }
 
         }

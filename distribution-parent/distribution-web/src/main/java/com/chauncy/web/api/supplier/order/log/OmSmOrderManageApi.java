@@ -5,6 +5,7 @@ import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchSendOrderDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.order.list.OrderDetailVo;
+import com.chauncy.data.vo.supplier.order.SmOrderDetailVo;
 import com.chauncy.data.vo.supplier.order.SmOrderLogisticsVo;
 import com.chauncy.data.vo.supplier.order.SmSearchOrderVo;
 import com.chauncy.data.vo.supplier.order.SmSendOrderVo;
@@ -52,7 +53,7 @@ public class OmSmOrderManageApi extends BaseApi {
 
     @ApiOperation(value = "商家查询订单详情")
     @PostMapping("/{id}")
-    public JsonViewData<OrderDetailVo> search(@PathVariable Long id) {
+    public JsonViewData<SmOrderDetailVo> search(@PathVariable Long id) {
 
         return setJsonViewData(orderService.getSmDetailById(id));
     }

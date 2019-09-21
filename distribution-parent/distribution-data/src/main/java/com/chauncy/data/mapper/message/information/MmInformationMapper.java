@@ -82,7 +82,7 @@ public interface MmInformationMapper extends IBaseMapper<MmInformationPo> {
      *
      * @param favoritesId
      */
-    @Update("update mm_information set collection_num = collection_num-1 where id = #{favoritesId}")
+    @Update("update mm_information set collection_num = collection_num-1 where id = #{favoritesId} and collection_num > 0")
     void delFavorites(Long favoritesId);
 
     /**
