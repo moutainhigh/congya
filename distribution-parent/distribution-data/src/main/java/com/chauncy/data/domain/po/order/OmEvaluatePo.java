@@ -76,7 +76,4 @@ public class OmEvaluatePo implements Serializable {
     @ApiModelProperty(value = "评论点赞数")
     private Integer likedNum;
 
-    @ApiModelProperty(value = "是否点赞")
-    private Boolean isLiked;
-
 }

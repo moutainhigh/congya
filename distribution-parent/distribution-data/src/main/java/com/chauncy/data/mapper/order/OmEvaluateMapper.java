@@ -10,6 +10,7 @@ import com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo;
 import com.chauncy.data.vo.supplier.evaluate.EvaluateVo;
 import com.chauncy.data.vo.supplier.evaluate.SearchEvaluateVo;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -62,5 +63,31 @@ public interface OmEvaluateMapper extends IBaseMapper<OmEvaluatePo> {
      * @return
      */
     EvaluateLevelNumVo findEvaluateLevelNum(Long goodsId);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-21 13:14
+     * @Description //点赞的评价数量加1
+     *
+     * @Update chauncy
+     *
+     * @Param [evaluateId]
+     * @return void
+     **/
+    @Update("update om_evaluate set liked_num = liked_num + 1 where id = #{evaluateId}")
+    void addLikedNum(Long evaluateId);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-21 13:31
+     * @Description //取消点赞，评价点赞数量-1
+     *
+     * @Update chauncy
+     *
+     * @Param [evaluateId]
+     * @return void
+     **/
+    @Update("update om_evaluate set liked_num = liked_num - 1 where id = #{evaluateId} and liked_num > 0")
+    void delLikedNum(Long evaluateId);
 }
 

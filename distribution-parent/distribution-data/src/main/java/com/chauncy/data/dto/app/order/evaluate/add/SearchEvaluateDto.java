@@ -21,7 +21,7 @@ import javax.validation.constraints.NotNull;
 @Accessors(chain = true)
 public class SearchEvaluateDto {
 
-    @ApiModelProperty(value = "sku Id")
+    @ApiModelProperty(value = "sku Id",hidden = true)
     private Long skuId;
 
     @ApiModelProperty(value = "goodsId")
