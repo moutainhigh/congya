@@ -47,4 +47,10 @@ public class GoodsEvaluateVo {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime evaluateTime;
 
+    @ApiModelProperty(value = "该条评论点赞数")
+    private Integer likedNum;
+
+    @ApiModelProperty(value = "是否点赞")
+    private Boolean isLiked;
+
 }

@@ -188,8 +188,9 @@
         b.advice_type,b.detail_id,b.html_detail
         from mm_advice a
         left join mm_advice_rel_shuffling b on a.id = b.advice_id and b.del_flag = 0 and b.rel_tab_brand_id is null and b.rel_category_id is null
-        where a.del_flag = 0 and a.enabled = 1 and a.location not in ("YOUPIN_INSIDE_SHUFFLING","YOUDIAN_INSIDE_SHUFFLING","SALE_INSIDE_SHUFFLING",
-	"YOUXUAN_INSIDE_SHUFFLING","BAIHUO_INSIDE_SHUFFLING","information_recommended","PERSONAL_CENTER","FIRST_CATEGORY_DETAIL");
+        where a.del_flag = 0 and a.enabled = 1 and (b.start_time &lt;= NOW() AND b.end_time &gt;= NOW() OR location = 'BOTTOM_SHUFFLING')
+        and a.location not in ("YOUPIN_INSIDE_SHUFFLING","YOUDIAN_INSIDE_SHUFFLING","SALE_INSIDE_SHUFFLING",
+	        "YOUXUAN_INSIDE_SHUFFLING","BAIHUO_INSIDE_SHUFFLING","information_recommended","PERSONAL_CENTER","FIRST_CATEGORY_DETAIL")
     </select>
 
     <select id="getShuffling" resultType="com.chauncy.data.vo.app.advice.home.ShufflingVo">

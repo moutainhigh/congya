@@ -23,6 +23,7 @@ public enum RedEnvelopsLogMatterEnum implements BaseEnum {
     WITHDRAWAL(22, "提现"),
     FRIENDS_ASSIST(23, "好友助攻"),
     PLATFORM_GIVE(24, "系统赠送"),
+    AFTER_SALE_REFUND (25, "售后退还"),
     ;
 
     @EnumValue

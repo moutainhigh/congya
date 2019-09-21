@@ -46,6 +46,8 @@ import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.advice.store.GoodsSecondCategoryListVo;
+import com.chauncy.data.vo.app.component.ScreenGoodsParamVo;
+import com.chauncy.data.vo.app.component.ScreenParamVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.supplier.*;
 import com.chauncy.data.vo.supplier.good.AssociationGoodsVo;
@@ -215,6 +217,44 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         List<BaseVo> attributes = goodsAttributeMapper.findAttByTypeAndCat(selectAttributeDto.getCategoryId(), selectAttributeDto.getType());
 
         return attributes;
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/19 18:44
+     * @Description 获取筛选商品的参数
+     *
+     * @Update yeJH
+     *
+     * @Param [searchStoreGoodsDto]
+     * @return com.chauncy.data.vo.app.component.ScreenParamVo
+     **/
+    @Override
+    public ScreenParamVo findScreenGoodsParam(SearchStoreGoodsDto searchStoreGoodsDto) {
+
+        if(searchStoreGoodsDto.getGoodsType().equals(StoreGoodsListTypeEnum.CATEGORY_LIST.getId())
+                && null == searchStoreGoodsDto.getGoodsCategoryId()) {
+            throw new ServiceException(ResultCode.PARAM_ERROR, "goodsCategoryId不能为空");
+        }
+        if(searchStoreGoodsDto.getGoodsType().equals(StoreGoodsListTypeEnum.SEARCH_LIST.getId())
+                && null == searchStoreGoodsDto.getGoodsName()) {
+            throw new ServiceException(ResultCode.PARAM_ERROR, "goodsName不能为空");
+        }
+        if(null == searchStoreGoodsDto.getGoodsType()) {
+            //默认全部商品列表
+            searchStoreGoodsDto.setGoodsType(StoreGoodsListTypeEnum.ALL_LIST.getId());
+        }
+        if(searchStoreGoodsDto.getGoodsType().equals(StoreGoodsListTypeEnum.NEW_LIST.getId())) {
+            //获取系统基本设置  新品的评判标准  上架几天内为新品
+            BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
+            searchStoreGoodsDto.setNewGoodsDays(basicSettingPo.getNewProductDay());
+        }
+
+        ScreenParamVo screenParamVo = new ScreenParamVo();
+        ScreenGoodsParamVo screenGoodsParamVo = mapper.findScreenGoodsParam(searchStoreGoodsDto);
+        screenParamVo.setScreenGoodsParamVo(screenGoodsParamVo);
+        return screenParamVo;
+
     }
 
     /**

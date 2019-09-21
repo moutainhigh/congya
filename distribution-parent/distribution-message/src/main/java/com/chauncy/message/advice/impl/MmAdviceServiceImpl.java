@@ -261,6 +261,9 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 .doSelectPageInfo(() -> mapper.searchAdvices(searchAdvicesDto));
         advicesVoPageInfo.getList().forEach(a -> {
             AdviceLocationEnum adviceLocationEnum = AdviceLocationEnum.fromEnumName(a.getLocation());
+            if (adviceLocationEnum == null){
+                throw new ServiceException(ResultCode.NO_EXISTS,"数据库存储的枚举值有错，请检查");
+            }
             switch (adviceLocationEnum) {
 
                 /******************* Tab start ****************/

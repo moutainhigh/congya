@@ -8,10 +8,11 @@ import com.chauncy.common.enums.user.UserTypeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
-import com.chauncy.data.bo.order.log.PlatformGiveBo;
+import com.chauncy.data.bo.order.log.AccountLogBo;
 import com.chauncy.data.domain.po.activity.gift.AmGiftOrderPo;
 import com.chauncy.data.domain.po.activity.gift.AmGiftPo;
 import com.chauncy.data.domain.po.afterSale.OmAfterSaleOrderPo;
+import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.order.OmUserWithdrawalPo;
 import com.chauncy.data.domain.po.order.bill.OmOrderBillPo;
 import com.chauncy.data.domain.po.order.log.OmAccountLogPo;
@@ -70,6 +71,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
     private BasicSettingMapper basicSettingMapper;
 
     @Autowired
+    private OmAfterSaleOrderMapper omAfterSaleOrderMapper;
+
+    @Autowired
     private OmOrderBillMapper omOrderBillMapper;
 
     @Autowired
@@ -83,6 +87,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
 
     @Autowired
     private IPayOrderMapper payOrderMapper;
+
+    @Autowired
+    private OmOrderMapper omOrderMapper;
 
     @Autowired
     private AmGiftOrderMapper amGiftOrderMapper;
@@ -149,10 +156,10 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
                 break;
             case PLATFORM_GIVE:
                 //系统赠送  没有赠送记录，直接在修改用户参数的时候调用生成流水的方法
-                //this.platformGive;
+                this.platformGive(addAccountLogBo);
                 break;
             case ORDER_REFUND:
-                //售后退款  退回抵扣的红包，购物券
+                //售后退款，订单按比例退回红包，购物券，没有记录退还多少，直接在退款时候调用生成流水的方法
                 this.orderRefund(addAccountLogBo);
                 break;
         }
@@ -252,37 +259,63 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
     }
 
     /**
+     * 流水触发事件：订单售后
+     * 过程：平台退款给APP用户
+     * 平台线上资金（退款金额）-
+     */
+    private void platformRefund(AddAccountLogBo addAccountLogBo) {
+        OmAfterSaleOrderPo omAfterSaleOrderPo = omAfterSaleOrderMapper.selectById(addAccountLogBo.getRelId());
+        if (null != omAfterSaleOrderPo) {
+            //平台 线上资金 支出流水
+            OmAccountLogPo fromOmAccountLogPo = getFromOmAccountLogPo(addAccountLogBo, UserTypeEnum.PLATFORM,
+                    AccountTypeEnum.ONLINE_FUNDS, LogTypeEnum.EXPENDITURE);
+            //todo  平台没有id
+            //fromOmAccountLogPo.setUserId();
+            OmOrderPo omOrderPo = omOrderMapper.selectById(omAfterSaleOrderPo.getOrderId());
+            PayOrderPo payOrderPo = payOrderMapper.selectById(omOrderPo.getPayOrderId());
+            //支付方式
+            fromOmAccountLogPo.setPaymentWay(PaymentWayEnum.getByName(payOrderPo.getPayTypeCode()).getId());
+            //流水发生金额
+            fromOmAccountLogPo.setAmount(BigDecimalUtil.safeMultiply(omAfterSaleOrderPo.getRefundMoney(), -1));
+            //流水事由
+            fromOmAccountLogPo.setLogMatter(PlatformLogMatterEnum.ORDER_REFUND.getId());
+            fromOmAccountLogPo.setOmRelId(omAfterSaleOrderPo.getId());
+            omAccountLogMapper.insert(fromOmAccountLogPo);
+        }
+    }
+
+    /**
      * 流水触发事件：系统赠送
      * 过程：用户积分，购物券，红包增加
      * 用户积分余额+  用户红包余额+  用户购物券余额+
-     * @param platformGiveBo
+     * @param addAccountLogBo
      */
     @Override
-    public void platformGive(PlatformGiveBo platformGiveBo) {
-        UmUserPo umUserPo = umUserMapper.selectById(platformGiveBo.getUmUserId());
+    public void platformGive(AddAccountLogBo addAccountLogBo) {
+        UmUserPo umUserPo = umUserMapper.selectById(addAccountLogBo.getUmUserId());
         //积分+系统赠送
-       if(null != platformGiveBo.getMarginIntegral()
-               && platformGiveBo.getMarginIntegral().compareTo(BigDecimal.ZERO) > 0) {
-            platformGive(platformGiveBo.getAddAccountLogBo(),
+       if(null != addAccountLogBo.getMarginIntegral()
+               && addAccountLogBo.getMarginIntegral().compareTo(BigDecimal.ZERO) > 0) {
+            platformGive(addAccountLogBo,
                     umUserPo,
                     AccountTypeEnum.INTEGRATE,
-                    platformGiveBo.getMarginIntegral());
+                    addAccountLogBo.getMarginIntegral());
         }
         //红包+系统赠送
-        if(null != platformGiveBo.getMarginRedEnvelops()
-                && platformGiveBo.getMarginRedEnvelops().compareTo(BigDecimal.ZERO) > 0) {
-            platformGive(platformGiveBo.getAddAccountLogBo(),
+        if(null != addAccountLogBo.getMarginRedEnvelops()
+                && addAccountLogBo.getMarginRedEnvelops().compareTo(BigDecimal.ZERO) > 0) {
+            platformGive(addAccountLogBo,
                     umUserPo,
                     AccountTypeEnum.RED_ENVELOPS,
-                    platformGiveBo.getMarginRedEnvelops());
+                    addAccountLogBo.getMarginRedEnvelops());
         }
         //购物券+系统赠送
-        if(null != platformGiveBo.getMarginShopTicket()
-                && platformGiveBo.getMarginShopTicket().compareTo(BigDecimal.ZERO) > 0) {
-            platformGive(platformGiveBo.getAddAccountLogBo(),
+        if(null != addAccountLogBo.getMarginShopTicket()
+                && addAccountLogBo.getMarginShopTicket().compareTo(BigDecimal.ZERO) > 0) {
+            platformGive(addAccountLogBo,
                     umUserPo,
                     AccountTypeEnum.SHOP_TICKET,
-                    platformGiveBo.getMarginShopTicket());
+                    addAccountLogBo.getMarginShopTicket());
         }
     }
 
@@ -330,48 +363,75 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
     }
 
     /**
-     * 流水触发事件：订单退款
-     * 过程：售后退还红包购物券  用户红包，购物券增加
-     * 用户红包余额+    用户购物券余额+
+     * 流水触发事件：订单售后
+     * 过程：
+     * 1.售后退还用APP户红包购物券  用户红包，购物券增加
+     * 2.平台退款给APP用户
+     *
+     * 用户红包余额+
+     * 用户购物券余额+
+     * 平台线上资金（退款金额）-
      */
     private void orderRefund(AddAccountLogBo addAccountLogBo) {
-        /*OmAfterSaleOrderPo omAfterSaleOrderPo = omAfterSaleOrderMapper.selectById(addAccountLogBo.getRelId());
-        //APP用户 购物券 收入流水 购物券+订单抵扣
-        OmAccountLogPo toShopTicketLog = getFromOmAccountLogPo(addAccountLogBo, UserTypeEnum.APP_USER,
-                AccountTypeEnum.SHOP_TICKET, LogTypeEnum.INCOME);
-        UmUserPo umUserPo = umUserMapper.selectById(omAfterSaleOrderPo.getCreateBy());
-        toShopTicketLog.setUserId(umUserPo.getId());
-        toShopTicketLog.setBalance(BigDecimalUtil.safeAdd(umUserPo.getCurrentShopTicket(), omAfterSaleOrderPo.));
-        toShopTicketLog.setLastBalance(umUserPo.getCurrentShopTicket());
-        //流水发生金额  礼包充值获得购物券
-        toShopTicketLog.setAmount(amGiftOrderPo.getVouchers());
-        //流水事由
-        toShopTicketLog.setLogMatter(ShopTicketLogMatterEnum.EXPERIENCE_PACK.getId());
-        //流水详情标题
-        toShopTicketLog.setLogDetailTitle(LogDetailTitleEnum.FROM_EXPERIENCE.getName());
-        //流水详情当前状态
-        toShopTicketLog.setLogDetailState(LogDetailStateEnum.DEPOSIT_WALLET.getId());
-        //流水详情说明
-        toShopTicketLog.setLogDetailExplain(LogDetailExplainEnum.EXPERIENCE_CONTENT.getId());
-        omAccountLogMapper.insert(toShopTicketLog);
-        //APP用户 积分 收入流水 积分+礼包充值
-        OmAccountLogPo toIntegralsLog = getFromOmAccountLogPo(addAccountLogBo, UserTypeEnum.APP_USER,
-                AccountTypeEnum.INTEGRATE, LogTypeEnum.INCOME);
-        toIntegralsLog.setUserId(umUserPo.getId());
-        toIntegralsLog.setBalance(BigDecimalUtil.safeSubtract(umUserPo.getCurrentIntegral(), amGiftOrderPo.getIntegrals()));
-        toIntegralsLog.setLastBalance(umUserPo.getCurrentIntegral());
-        //流水发生金额  礼包充值获得积分
-        toIntegralsLog.setAmount(amGiftOrderPo.getIntegrals());
-        //流水事由
-        toIntegralsLog.setLogMatter(IntegrateLogMatterEnum.EXPERIENCE_PACK.getId());
-        //流水详情标题
-        toIntegralsLog.setLogDetailTitle(LogDetailTitleEnum.FROM_EXPERIENCE.getName());
-        //流水详情当前状态
-        toIntegralsLog.setLogDetailState(LogDetailStateEnum.DEPOSIT_WALLET.getId());
-        //流水详情说明
-        toIntegralsLog.setLogDetailExplain(LogDetailExplainEnum.EXPERIENCE_CONTENT.getId());
-        omAccountLogMapper.insert(toIntegralsLog);*/
+        UmUserPo umUserPo = umUserMapper.selectById(addAccountLogBo.getUmUserId());
+        //红包+订单退还
+        if(null != addAccountLogBo.getMarginRedEnvelops()
+                && addAccountLogBo.getMarginRedEnvelops().compareTo(BigDecimal.ZERO) > 0) {
+            accountReturn(addAccountLogBo,
+                    umUserPo,
+                    AccountTypeEnum.RED_ENVELOPS,
+                    addAccountLogBo.getMarginRedEnvelops());
+        }
+        //购物券+订单退还
+        if(null != addAccountLogBo.getMarginShopTicket()
+                && addAccountLogBo.getMarginShopTicket().compareTo(BigDecimal.ZERO) > 0) {
+            accountReturn(addAccountLogBo,
+                    umUserPo,
+                    AccountTypeEnum.SHOP_TICKET,
+                    addAccountLogBo.getMarginShopTicket());
+        }
+        //平台退款
+        platformRefund(addAccountLogBo);
     }
+
+    /**
+     * 售后退还
+     * @param addAccountLogBo  保存流水参数
+     * @param umUserPo   退款用户
+     * @param accountTypeEnum   账目类型
+     */
+    private void accountReturn(AddAccountLogBo addAccountLogBo,
+                              UmUserPo umUserPo,
+                              AccountTypeEnum accountTypeEnum,
+                             BigDecimal margin) {
+        OmAccountLogPo toAccountLog = getFromOmAccountLogPo(addAccountLogBo, UserTypeEnum.APP_USER,
+                accountTypeEnum, LogTypeEnum.INCOME);
+        toAccountLog.setUserId(umUserPo.getId());
+        BigDecimal current = BigDecimal.ZERO;
+        if(accountTypeEnum.equals(AccountTypeEnum.RED_ENVELOPS)) {
+            current = umUserPo.getCurrentRedEnvelops();
+        } else if (accountTypeEnum.equals(AccountTypeEnum.SHOP_TICKET)) {
+            current = umUserPo.getCurrentShopTicket();
+        }
+        toAccountLog.setBalance(BigDecimalUtil.safeAdd(current, margin));
+        toAccountLog.setLastBalance(current);
+        //流水发生金额  售后退还
+        toAccountLog.setAmount(margin);
+        //流水事由
+        if(accountTypeEnum.equals(AccountTypeEnum.RED_ENVELOPS)) {
+            toAccountLog.setLogMatter(RedEnvelopsLogMatterEnum.AFTER_SALE_REFUND.getId());
+        } else if (accountTypeEnum.equals(AccountTypeEnum.SHOP_TICKET)) {
+            toAccountLog.setLogMatter(ShopTicketLogMatterEnum.AFTER_SALE_REFUND.getId());
+        }
+        //流水详情标题
+        toAccountLog.setLogDetailTitle(LogDetailTitleEnum.REFUND.getName());
+        //流水详情当前状态
+        toAccountLog.setLogDetailState(LogDetailStateEnum.DEPOSIT_WALLET.getId());
+        //流水详情说明
+        toAccountLog.setLogDetailExplain(LogDetailExplainEnum.STORE_REFUND.getId());
+        omAccountLogMapper.insert(toAccountLog);
+    }
+
 
     /**
      * 流水触发事件：新人领取礼包

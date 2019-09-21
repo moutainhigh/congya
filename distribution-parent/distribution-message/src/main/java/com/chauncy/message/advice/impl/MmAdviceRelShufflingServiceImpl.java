@@ -162,6 +162,10 @@ public class MmAdviceRelShufflingServiceImpl extends AbstractService<MmAdviceRel
                 MmAdviceRelShufflingPo relShufflingPo = new MmAdviceRelShufflingPo();
                 //获取广告类型
                 AdviceTypeEnum adviceTypeEnum = AdviceTypeEnum.getAdviceTypeEnum(a.getAdviceType());
+                if (adviceTypeEnum == null){
+                    throw new ServiceException(ResultCode.NO_EXISTS,"所传枚举值adviceType不存在");
+                }
+
                 switch (adviceTypeEnum) {
                     case HTML_DETAIL:
                         relShufflingPo.setId(null).setCreateBy(user.getUsername()).setAdviceId(advicePo.getId())

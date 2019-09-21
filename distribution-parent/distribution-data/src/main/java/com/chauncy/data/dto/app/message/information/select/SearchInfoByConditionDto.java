@@ -2,6 +2,7 @@ package com.chauncy.data.dto.app.message.information.select;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.chauncy.common.enums.message.InformationTypeEnum;
+import com.chauncy.data.dto.base.BasePageDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.valid.annotation.EnumConstraint;
 import com.chauncy.data.valid.annotation.NeedExistConstraint;
@@ -13,6 +14,7 @@ import lombok.Data;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author yeJH
@@ -20,7 +22,7 @@ import java.io.Serializable;
  */
 @Data
 @ApiModel(value = "SearchInfoByConditionDto", description = "条件查询资讯")
-public class SearchInfoByConditionDto implements Serializable {
+public class SearchInfoByConditionDto extends BasePageDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -51,11 +53,11 @@ public class SearchInfoByConditionDto implements Serializable {
     @ApiModelProperty(value = "模糊搜索关键字，informationType=5时传参")
     private String keyword;
 
-    @Min(1)
-    @ApiModelProperty(value = "页码")
-    private Integer pageNo;
+    @ApiModelProperty(value = "筛选条件   资讯标签id")
+    private List<Long> labelIds;
 
-    @Min(1)
-    @ApiModelProperty(value = "分页大小")
-    private Integer pageSize;
+    @ApiModelProperty(value = "筛选条件   内容分类id")
+    private List<Long> categoryIds;
+
+
 }

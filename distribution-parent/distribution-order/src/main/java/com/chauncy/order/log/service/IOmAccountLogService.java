@@ -1,7 +1,7 @@
 package com.chauncy.order.log.service;
 
 import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
-import com.chauncy.data.bo.order.log.PlatformGiveBo;
+import com.chauncy.data.bo.order.log.AccountLogBo;
 import com.chauncy.data.domain.po.order.log.OmAccountLogPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.order.log.SearchUserLogDto;
@@ -50,9 +50,9 @@ public interface IOmAccountLogService extends Service<OmAccountLogPo> {
      * 流水触发事件：系统赠送
      * 过程：用户积分，购物券，红包增加
      * 用户积分余额+  用户红包余额+  用户购物券余额+
-     * @param platformGiveBo
+     * @param addAccountLogBo
      */
-    void platformGive(PlatformGiveBo platformGiveBo);
+    void platformGive(AddAccountLogBo addAccountLogBo);
 
     /**
      * 用户红包提现

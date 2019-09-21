@@ -7,11 +7,13 @@ import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.store.label.SmStoreLabelPo;
+import com.chauncy.data.domain.po.store.rel.SmStoreRelLabelPo;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.add.StoreLabelDto;
 import com.chauncy.data.dto.manage.store.select.StoreLabelSearchDto;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.store.label.SmStoreLabelMapper;
+import com.chauncy.data.mapper.store.rel.SmStoreRelLabelMapper;
 import com.chauncy.data.vo.manage.store.label.SmStoreLabelVo;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.store.label.service.ISmStoreLabelService;
@@ -35,6 +37,9 @@ public class SmStoreLabelServiceImpl extends AbstractService<SmStoreLabelMapper,
 
     @Autowired
     private SmStoreLabelMapper smStoreLabelMapper;
+
+    @Autowired
+    private SmStoreRelLabelMapper smStoreRelLabelMapper;
 
     @Autowired
     private SmStoreMapper smStoreMapper;
@@ -149,16 +154,20 @@ public class SmStoreLabelServiceImpl extends AbstractService<SmStoreLabelMapper,
      */
     @Override
     public void delStoreLabelByIds(Long[] ids) {
-        for (Long id :ids) {
+        //标签可以被删除  删除的标签在店铺不显示
+        /*for (Long id :ids) {
             QueryWrapper<SmStorePo> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("store_label_id",id);
             Integer count = smStoreMapper.selectCount(queryWrapper);
             if(count > 0 ) {
                throw new ServiceException(ResultCode.FAIL, "删除失败，包含正被店铺使用关联的属性");
             }
-        }
+        }*/
         for (Long id :ids) {
             smStoreLabelMapper.deleteById(id);
+            QueryWrapper<SmStoreRelLabelPo> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda().eq(SmStoreRelLabelPo::getStoreLabelId, id);
+            smStoreRelLabelMapper.delete(queryWrapper);
         }
 
     }

@@ -1,18 +1,23 @@
 package com.chauncy.web.api.app.component;
 
 import com.chauncy.activity.gift.IAmGiftService;
+import com.chauncy.common.enums.message.KeyWordTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.dto.app.component.ScreenParamDto;
 import com.chauncy.data.dto.app.component.ShareDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.app.component.ScreenParamVo;
 import com.chauncy.data.vo.app.user.GetMembersCenterVo;
 import com.chauncy.data.vo.manage.message.content.app.FindArticleContentVo;
 import com.chauncy.message.content.service.IMmArticleService;
 import com.chauncy.message.content.service.IMmBootPageService;
 import com.chauncy.message.content.service.IMmKeywordsSearchService;
+import com.chauncy.message.information.service.IMmInformationService;
 import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.security.util.SecurityUtil;
+import com.chauncy.store.service.ISmStoreService;
 import com.chauncy.user.service.IUmUserService;
 import com.chauncy.web.base.BaseApi;
 import io.swagger.annotations.Api;
@@ -49,6 +54,12 @@ public class ComponentApi extends BaseApi {
     private IPmGoodsService goodsService;
 
     @Autowired
+    private ISmStoreService smStoreService;
+
+    @Autowired
+    private IMmInformationService mmInformationService;
+
+    @Autowired
     private IUmUserService userService;
 
     @Autowired
@@ -77,6 +88,35 @@ public class ComponentApi extends BaseApi {
     @GetMapping("/getKeyWordByType/{type}")
     public JsonViewData<List<String>> isReceive(@ApiParam(required = true, value = "1：商品；2：店铺；3：资讯") @PathVariable Integer type){
         return setJsonViewData(mmKeywordsSearchService.getKeyWordByType(type));
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/19 18:43
+     * @Description 获取筛选店铺/资讯/商品的参数
+     *
+     * @Update yeJH
+     *
+     * @Param [screenParamDto]
+     * @return com.chauncy.data.vo.JsonViewData<com.chauncy.data.vo.app.component.ScreenParamVo>
+     **/
+    @ApiOperation("获取筛选店铺/资讯/商品的参数")
+    @PostMapping("/findScreenParam")
+    public JsonViewData<ScreenParamVo> findScreenParam(
+            @RequestBody @ApiParam(required = true,name = "screenParamDto",value = "获取筛选店铺/资讯/商品的参数")
+            @Validated ScreenParamDto screenParamDto){
+        ScreenParamVo screenParamVo = new ScreenParamVo();
+        if(screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.GOODS.getId())) {
+            //商品
+            screenParamVo = goodsService.findScreenGoodsParam(screenParamDto.getSearchStoreGoodsDto());
+        } else if (screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.MERCHANT.getId())) {
+            //店铺
+            screenParamVo = smStoreService.findScreenStoreParam(screenParamDto.getSearchStoreDto());
+        } else if (screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.INFORMATION.getId())) {
+            //资讯
+            screenParamVo = mmInformationService.findScreenInfoParam(screenParamDto.getSearchInformationDto());
+        }
+        return setJsonViewData(screenParamVo);
     }
 
     /**

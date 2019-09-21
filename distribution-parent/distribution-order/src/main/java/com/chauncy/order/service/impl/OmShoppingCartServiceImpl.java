@@ -708,6 +708,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     public SpecifiedGoodsVo selectSpecifiedGoods(Long goodsId) {
 
         UmUserPo userPo = securityUtil.getAppCurrUser();
+        if (userPo == null ){
+            throw new ServiceException(ResultCode.NO_EXISTS,"您不是APP用户！");
+        }
 
         SpecifiedGoodsVo specifiedGoodsVo = new SpecifiedGoodsVo();
         List<GoodsStandardVo> goodsStandardVoList = Lists.newArrayList();

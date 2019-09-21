@@ -28,7 +28,11 @@ public enum AssociationTypeEnum implements BaseEnum {
 
     FIRST_CLASSIFICATION(6,"商品一级分类"),
 
-    INFORMATION_CLASSIFICATION(7,"资讯分类");
+    INFORMATION_CLASSIFICATION(7,"资讯分类"),
+
+    INTEGRALS_GROUP(8,"积分活动分组"),
+
+    REDUCED_GROUP(9,"满减活动分组");
 
     @EnumValue
     private Integer id;

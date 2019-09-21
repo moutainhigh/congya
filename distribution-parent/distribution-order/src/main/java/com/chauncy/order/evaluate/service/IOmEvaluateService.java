@@ -69,4 +69,16 @@ public interface IOmEvaluateService extends Service<OmEvaluatePo> {
      * @return
      */
     EvaluateLevelNumVo findEvaluateLevelNum(Long goodsId);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-20 20:42
+     * @Description //对商品评价点赞/取消点赞
+     *
+     * @Update chauncy
+     *
+     * @Param [evaluateId]
+     * @return java.lang.Integer
+     **/
+    Integer updateEvaluateLiked(Long evaluateId);
 }

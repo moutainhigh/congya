@@ -268,6 +268,18 @@
             <if test="infoCategoryId != null and infoCategoryId !=0">
                 and mi.info_category_id = #{infoCategoryId}
             </if>
+            <if test="(null != labelIds and labelIds.size() > 0)">
+                AND mi.info_label_id IN
+                <foreach item="item" collection="labelIds" separator="," open="(" close=")" index="">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="(null != categoryIds and categoryIds.size() > 0)">
+                AND mi.info_category_id IN
+                <foreach item="item" collection="categoryIds" separator="," open="(" close=")" index="">
+                    #{item}
+                </foreach>
+            </if>
             <if test="keyword != null and keyword !=''">
                 and (mi.title  like concat('%', #{keyword}, '%') or mi.pure_text  like concat('%', #{keyword}, '%'))
             </if>
@@ -323,6 +335,62 @@
         </where>
         order by mi.update_time desc
     </select>
+
+    <resultMap id="screenInfoParamResult" type="com.chauncy.data.vo.app.component.ScreenInfoParamVo">
+        <id column="id" property="id" />
+        <!-- collection定义关联集合类型的属性封装规则
+        offType:指定集合中的元素类型
+        -->
+        <collection property="categoryList" ofType="com.chauncy.data.vo.BaseVo">
+            <id column="categoryId" property="id"/>
+            <result column="categoryName" property="name"/>
+        </collection>
+        <collection property="labelList" ofType="com.chauncy.data.vo.BaseVo">
+            <id column="labelId" property="id"/>
+            <result column="labelName" property="name"/>
+        </collection>
+    </resultMap>
+    <select id="findScreenInfoParam" resultMap="screenInfoParamResult">
+        SELECT
+            '1' AS id,
+            mic.id AS categoryId,
+            mic.`name` AS categoryName,
+            mil.id AS labelId,
+            mil.name AS labelName
+        FROM
+            (
+                SELECT
+                    mi.id,
+                    mi.info_label_id,
+                    mi.info_category_id
+                FROM mm_information mi
+                <if test="informationType != null and informationType == 2">
+                    LEFT JOIN um_user_favorites uuf
+                    ON mi.store_id = uuf.favorites_id
+                </if>
+                <where>
+                    mi.del_flag = 0
+                    AND mi.enabled = 1
+                    <if test="informationType != null and informationType == 2">
+                        AND uuf.del_flag = 0
+                        AND uuf.user_id = #{userId}
+                    </if>
+                    <if test="infoCategoryId != null and infoCategoryId !=0">
+                        AND mi.info_category_id = #{infoCategoryId}
+                    </if>
+                    <if test="keyword != null and keyword !=''">
+                        AND (mi.title  LIKE concat('%', #{keyword}, '%') OR mi.pure_text LIKE concat('%', #{keyword}, '%'))
+                    </if>
+                </where>
+            ) temp
+            LEFT JOIN mm_information_label mil ON temp.info_label_id = mil.`id`
+            LEFT JOIN mm_information_category mic ON temp.info_category_id = mic.`id`
+            <!-- 根据前面的资讯获取 <where>
+                AND mil.enabled = 1
+                AND mil.`enabled` = 1
+            </where> -->
+    </select>
+
     <select id="getFocusInfoSum" resultType="java.lang.Integer">
         SELECT  COUNT(1)
         FROM mm_information mi
