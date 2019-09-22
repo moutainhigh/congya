@@ -7,6 +7,7 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
 import com.chauncy.data.domain.po.order.OmUserWithdrawalPo;
+import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.manage.order.bill.update.BatchAuditDto;
 import com.chauncy.data.mapper.order.OmUserWithdrawalMapper;
 import com.chauncy.data.core.AbstractService;
@@ -52,6 +53,8 @@ public class OmUserWithdrawalServiceImpl extends AbstractService<OmUserWithdrawa
      */
     @Override
     public void batchAudit(BatchAuditDto batchAuditDto) {
+        SysUserPo currUser = securityUtil.getCurrUser();
+
         List<Long> idList = Arrays.asList(batchAuditDto.getIds());
         idList.forEach(id -> {
             OmUserWithdrawalPo omUserWithdrawalPo = omUserWithdrawalMapper.selectById(id);
@@ -79,6 +82,16 @@ public class OmUserWithdrawalServiceImpl extends AbstractService<OmUserWithdrawa
             //驳回原因
             updateWrapper.set("reject_reason", batchAuditDto.getRejectReason());
             this.update(updateWrapper);
+
+            //APP用户提现红包 审核驳回  添加用户流水
+            idList.forEach(id -> {
+                //OmUserWithdrawalPo omUserWithdrawalPo = omUserWithdrawalMapper.selectById(id);
+                AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
+                addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.WITHDRAWAL_FAIL);
+                addAccountLogBo.setRelId(id);
+                addAccountLogBo.setOperator(currUser.getUsername());
+                omAccountLogService.saveAccountLog(addAccountLogBo);
+            });
         }
     }
 
@@ -98,7 +111,7 @@ public class OmUserWithdrawalServiceImpl extends AbstractService<OmUserWithdrawa
             if(null == omUserWithdrawalPo) {
                 throw new ServiceException(ResultCode.NO_EXISTS, "id为" + id + "的记录不存在");
             } else if(!omUserWithdrawalPo.getWithdrawalStatus().equals(WithdrawalStatusEnum.PROCESSING.getId())) {
-                throw new ServiceException(ResultCode.NO_EXISTS, "id为" + id + "账单不是待处理状态");
+                throw new ServiceException(ResultCode.NO_EXISTS, "id为" + id + "申请提现不是待处理状态");
             }
         });
         UpdateWrapper updateWrapper = new UpdateWrapper();
@@ -107,11 +120,11 @@ public class OmUserWithdrawalServiceImpl extends AbstractService<OmUserWithdrawa
         updateWrapper.set("withdrawal_status", WithdrawalStatusEnum.WITHDRAWAL_SUCCESS.getId());
         this.update(updateWrapper);
 
-        //APP用户提现红包  生成流水
+        //APP用户提现红包 审核通过 添加后台流水
         idList.forEach(id -> {
             //OmUserWithdrawalPo omUserWithdrawalPo = omUserWithdrawalMapper.selectById(id);
             AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
-            addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.APP_WITHDRAWAL);
+            addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.WITHDRAWAL_SUCCESS);
             addAccountLogBo.setRelId(id);
             addAccountLogBo.setOperator(userName);
             omAccountLogService.saveAccountLog(addAccountLogBo);

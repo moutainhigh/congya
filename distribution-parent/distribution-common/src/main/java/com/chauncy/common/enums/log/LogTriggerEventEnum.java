@@ -21,6 +21,8 @@ public enum  LogTriggerEventEnum  implements BaseEnum {
      * 7.新人礼包
      * 8.购物奖励  （订单完成  下单用户获得购物券 积分）
      * 9.好友助攻  （订单完成  下单用户获得红包）
+     * 10.App提现平台标记已处理
+     * 11.App提现平台审核驳回
      */
     STORE_WITHDRAWAL(1, "店铺利润、货款账单提现"),
     APP_WITHDRAWAL(2, "APP用户提现红包"),
@@ -31,6 +33,8 @@ public enum  LogTriggerEventEnum  implements BaseEnum {
     NEW_GIFT(7, "新人礼包"),
     SHOPPING_REWARD(8, "购物奖励"),
     FRIENDS_ASSIST(9, "好友助攻"),
+    WITHDRAWAL_SUCCESS(10, "App提现标记已处理"),
+    WITHDRAWAL_FAIL(11, "App提现平台审核驳回"),
     ;
 
 

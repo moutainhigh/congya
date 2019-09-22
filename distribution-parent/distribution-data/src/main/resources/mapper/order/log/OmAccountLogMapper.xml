@@ -111,7 +111,9 @@
         <where>
             oal.user_id = #{userId}
             AND account_type = #{accountType}
-            AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
+            <if test="null != logDate">
+                AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
+            </if>
         </where>
         ORDER BY oal.`create_time` DESC
     </select>
@@ -198,7 +200,9 @@
             FROM om_account_log oal
             where oal.user_id = #{userId}
             AND account_type = #{accountType}
-            AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
+            <if test="null != logDate">
+                AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
+            </if>
             AND oal.log_type = '收入'
             ) as income,
             (
@@ -206,7 +210,9 @@
             FROM om_account_log oal
             where oal.user_id = #{userId}
             AND account_type = #{accountType}
-            AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
+            <if test="null != logDate">
+                AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
+            </if>
             AND oal.log_type = '支出'
             ) as consume
     </select>

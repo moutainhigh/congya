@@ -18,12 +18,14 @@ public enum RedEnvelopsLogMatterEnum implements BaseEnum {
      * 22.提现  用户支出
      * 23.系统赠送  用户收入
      * 24.好友助攻  用户收入
+     * 24.审核不通过返款  用户收入
      */
     ORDER_PAYMENT(21, "消费抵扣"),
     WITHDRAWAL(22, "提现"),
     FRIENDS_ASSIST(23, "好友助攻"),
     PLATFORM_GIVE(24, "系统赠送"),
     AFTER_SALE_REFUND (25, "售后退还"),
+    AUDIT_FAIL_REFUND (26, "审核不通过返款"),
     ;
 
     @EnumValue
