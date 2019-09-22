@@ -52,7 +52,7 @@ public class OmSmOrderManageApi extends BaseApi {
     }
 
     @ApiOperation(value = "商家查询订单详情")
-    @PostMapping("/{id}")
+    @PostMapping("/store/{id}")
     public JsonViewData<SmOrderDetailVo> search(@PathVariable Long id) {
 
         return setJsonViewData(orderService.getSmDetailById(id));

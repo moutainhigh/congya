@@ -18,4 +18,16 @@ import java.util.List;
 public interface PmGoodsRelAttributeValueSkuMapper extends IBaseMapper<PmGoodsRelAttributeValueSkuPo> {
 
     List<PmGoodsRelAttributeValueSkuPo> findByAttributeValueId(@Param("goodsAttributeValueId") Long goodsAttributeValueId);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-21 22:22
+     * @Description //查询sku规格按照规格ID排序(APP解析需要)
+     *
+     * @Update chauncy
+     *
+     * @Param [id]
+     * @return java.util.List<com.chauncy.data.domain.po.product.PmGoodsRelAttributeValueSkuPo>
+     **/
+    List<PmGoodsRelAttributeValueSkuPo> selectLists(Long skuId);
 }

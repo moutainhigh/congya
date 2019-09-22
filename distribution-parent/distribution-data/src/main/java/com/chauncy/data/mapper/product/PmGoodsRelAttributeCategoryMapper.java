@@ -2,6 +2,7 @@ package com.chauncy.data.mapper.product;
 
 import com.chauncy.data.domain.po.product.PmGoodsRelAttributeCategoryPo;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.app.goods.AttributeVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -22,4 +23,16 @@ public interface PmGoodsRelAttributeCategoryMapper extends IBaseMapper<PmGoodsRe
      * @return
      */
     List<PmGoodsRelAttributeCategoryPo> findByAttributeId(@Param("goodsAttributeId") Long goodsAttributeId);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-22 11:19
+     * @Description //获取该商品对应的购买须知
+     *
+     * @Update chauncy
+     *
+     * @Param [goodsId]
+     * @return java.util.List<com.chauncy.data.vo.app.goods.AttributeVo>
+     **/
+    List<AttributeVo> findPurchase(Long goodsId);
 }
