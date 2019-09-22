@@ -10,7 +10,9 @@ import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
 import com.chauncy.data.dto.app.order.cart.update.UpdateCartSkuDto;
 import com.chauncy.data.dto.app.user.add.AddIdCardDto;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.car.TotalCarVo;
+import com.chauncy.data.vo.app.goods.AssociatedGoodsVo;
 import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
 import com.chauncy.data.vo.app.order.cart.CartVo;
 import com.chauncy.data.vo.app.order.cart.MyCartVo;
@@ -27,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -59,6 +62,40 @@ public class OmShoppingCartApi extends BaseApi {
     public JsonViewData<SpecifiedGoodsVo> selectSpecifiedGoods(@ApiParam(required = true, name = "goodsId", value = "商品ID")
                                                                @PathVariable Long goodsId) {
         return new JsonViewData<SpecifiedGoodsVo>(service.selectSpecifiedGoods(goodsId));
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-22 12:32
+     * @Description //获取该商品关联的商品--相关推荐
+     *
+     * @Update chauncy
+     *
+     * @Param [goodsId]
+     * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.app.goods.AssociatedGoodsVo>>
+     **/
+    @GetMapping("/getAssociatedGoods/{goodsId}")
+    @ApiOperation("获取该商品关联的商品--相关推荐")
+    public JsonViewData<List<AssociatedGoodsVo>> getAssociatedGoods(@PathVariable Long goodsId){
+
+        return setJsonViewData(service.getAssociatedGoods(goodsId));
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-22 17:59
+     * @Description //猜你喜欢
+     *
+     * @Update chauncy
+     *
+     * @Param [goodsId]
+     * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo>>
+     **/
+    @GetMapping("/guessYourLike/{goodsId}")
+    @ApiOperation("猜你喜欢")
+    public JsonViewData<List<SearchGoodsBaseListVo>> guessYourLike(@PathVariable Long goodsId){
+
+        return setJsonViewData(service.guessYourLike(goodsId));
     }
 
     /**

@@ -50,4 +50,13 @@ public class StoreVo {
     @ApiModelProperty ("发货速度")
     private String logisticsServicesLevel;
 
+    @ApiModelProperty ("综合体验星数")
+    private BigDecimal avgExperienceStar;
+
+    @ApiModelProperty ("粉丝量")
+    private Integer fansNum;
+
+    @ApiModelProperty ("是否关注")
+    private Boolean isAttention;
+
 }

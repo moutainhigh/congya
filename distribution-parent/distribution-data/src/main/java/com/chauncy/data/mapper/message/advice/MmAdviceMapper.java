@@ -191,4 +191,16 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
      * @return java.util.List<com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo>
      **/
     List<SearchGoodsBaseListVo> searchSecondCategoryGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-22 18:06
+     * @Description //猜你喜欢
+     *
+     * @Update chauncy
+     *
+     * @Param [name]
+     * @return java.util.List<com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo>
+     **/
+    List<SearchGoodsBaseListVo> guessYourLike(String name);
 }

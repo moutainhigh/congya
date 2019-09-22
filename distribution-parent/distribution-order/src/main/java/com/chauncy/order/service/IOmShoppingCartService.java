@@ -12,7 +12,9 @@ import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
 import com.chauncy.data.dto.app.order.cart.update.UpdateCartSkuDto;
 import com.chauncy.data.dto.app.order.evaluate.select.GetEvaluatesDto;
+import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo;
+import com.chauncy.data.vo.app.goods.AssociatedGoodsVo;
 import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
 import com.chauncy.data.vo.app.car.CarGoodsVo;
 import com.chauncy.data.vo.app.car.TotalCarVo;
@@ -85,9 +87,27 @@ public interface IOmShoppingCartService extends Service<OmShoppingCartPo> {
      */
     Long submitOrder(SubmitOrderDto submitOrderDto, UmUserPo currentUser);
 
+    /**
+     * @Author chauncy
+     * @Date 2019-09-22 12:32
+     * @Description //获取该商品关联的商品--相关推荐
+     *
+     * @Update chauncy
+     *
+     * @Param [goodsId]
+     * @return com.chauncy.common.enums.system.ResultCode
+     **/
+    List<AssociatedGoodsVo> getAssociatedGoods(Long goodsId);
 
-
-
-
-
+    /**
+     * @Author chauncy
+     * @Date 2019-09-22 18:00
+     * @Description //猜你喜欢
+     *
+     * @Update chauncy
+     *
+     * @Param [goodsId]
+     * @return com.chauncy.common.enums.system.ResultCode
+     **/
+    List<SearchGoodsBaseListVo> guessYourLike(Long goodsId);
 }

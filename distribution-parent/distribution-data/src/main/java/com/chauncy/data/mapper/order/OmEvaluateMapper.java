@@ -89,5 +89,17 @@ public interface OmEvaluateMapper extends IBaseMapper<OmEvaluatePo> {
      **/
     @Update("update om_evaluate set liked_num = liked_num - 1 where id = #{evaluateId} and liked_num > 0")
     void delLikedNum(Long evaluateId);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-22 00:31
+     * @Description //获取最新的五星好评的一条记录
+     *
+     * @Update chauncy
+     *
+     * @Param [goodsId]
+     * @return com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo
+     **/
+    GoodsEvaluateVo getGoodsEvaluateOne(Long goodsId);
 }
 

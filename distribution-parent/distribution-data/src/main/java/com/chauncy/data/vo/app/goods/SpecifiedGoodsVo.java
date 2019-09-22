@@ -100,11 +100,11 @@ public class SpecifiedGoodsVo {
     @JSONField(ordinal = 12)
     private BigDecimal maxRewardShopTicket;
 
-    @ApiModelProperty(value = "类目ID")
+    @ApiModelProperty(value = "类目ID",hidden = true)
     @JSONField(ordinal = 13,serialize = false)
     private Long categoryId;
 
-    @ApiModelProperty(value = "税率")
+    @ApiModelProperty(value = "税率",hidden = true)
     @JSONField(ordinal = 14,serialize = false)
     private BigDecimal taxRate;
 
@@ -146,11 +146,11 @@ public class SpecifiedGoodsVo {
 
 
 
-    @ApiModelProperty(value = "税率类型 1--平台税率 2--自定义税率 3—无税率")
+    @ApiModelProperty(value = "税率类型 1--平台税率 2--自定义税率 3—无税率",hidden = true)
     @JSONField(ordinal = 24,serialize = false)
     private Integer taxRateType;
 
-    @ApiModelProperty(value = "自定义税率")
+    @ApiModelProperty(value = "自定义税率",hidden = true)
     @JSONField(serialize = false,ordinal = 25)
     private BigDecimal customTaxRate;
 
@@ -162,12 +162,12 @@ public class SpecifiedGoodsVo {
     @JSONField(ordinal = 27)
     private String platImId;
 
-    @ApiModelProperty("运费信息")
+    @ApiModelProperty(value = "运费信息",hidden = true)
     @JSONField(ordinal = 28,serialize = false)
     private ShipFreightInfoVo shipFreightInfoVo;
 
-    @ApiModelProperty("活动")
-    @JSONField(ordinal = 29)
+    @ApiModelProperty(value = "活动",hidden = true)
+    @JSONField(ordinal = 29,serialize = false)
     private List<AttributeVo> activityVoList;
 
 
