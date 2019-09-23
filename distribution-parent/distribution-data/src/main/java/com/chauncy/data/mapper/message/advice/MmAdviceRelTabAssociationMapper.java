@@ -3,6 +3,7 @@ package com.chauncy.data.mapper.message.advice;
 import com.chauncy.data.domain.po.message.advice.MmAdviceRelTabAssociationPo;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.manage.message.advice.tab.association.TabInfosVo;
+import com.chauncy.data.vo.manage.message.advice.tab.association.acticity.ActivitySellHotTabInfosVo;
 
 import java.util.List;
 
@@ -18,4 +19,16 @@ public interface MmAdviceRelTabAssociationMapper extends IBaseMapper<MmAdviceRel
 
     //获取该广告的该店铺下的选项卡
     List<TabInfosVo> findTabInfos(Long adviceAssociationId);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-23 13:39
+     * @Description //获取热销广告选项卡信息
+     *
+     * @Update chauncy
+     *
+     * @Param [relAdviceActivityGroupId]
+     * @return java.util.List<com.chauncy.data.vo.manage.message.advice.tab.association.acticity.ActivitySellHotTabInfosVo>
+     **/
+    List<ActivitySellHotTabInfosVo> findActivitySellHotTabInfos(Long relAdviceActivityGroupId);
 }

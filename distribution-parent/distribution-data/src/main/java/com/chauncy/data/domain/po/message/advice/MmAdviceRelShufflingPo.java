@@ -96,5 +96,9 @@ public class MmAdviceRelShufflingPo implements Serializable {
     @ApiModelProperty(value = "品牌ID")
     private Long brandId;
 
+    @ApiModelProperty(value = "选项卡ID或者热销广告ID")
+    private Long tabId;
 
+    @ApiModelProperty(value = "活动分组与广告关联ID")
+    private Long relActivityGroupId;
 }
