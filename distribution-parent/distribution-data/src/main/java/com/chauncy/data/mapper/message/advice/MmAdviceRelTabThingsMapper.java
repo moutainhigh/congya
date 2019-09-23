@@ -4,6 +4,7 @@ import com.chauncy.data.domain.po.message.advice.MmAdviceRelTabThingsPo;
 import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchStoresDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.manage.message.advice.tab.association.StoreVo;
+import com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SellHotRelGoodsVo;
 import com.chauncy.data.vo.manage.message.advice.tab.tab.BrandVo;
 import com.chauncy.data.vo.manage.message.advice.tab.tab.GoodsVo;
 
@@ -43,4 +44,16 @@ public interface MmAdviceRelTabThingsMapper extends IBaseMapper<MmAdviceRelTabTh
      * @param tabId
      */
     List<GoodsVo> findGoodsList(Long tabId);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-23 13:52
+     * @Description //查找热销选项卡关联的商品列表
+     *
+     * @Update chauncy
+     *
+     * @Param [sellHotTabId]
+     * @return java.util.List<com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SellHotRelGoodsVo>
+     **/
+    List<SellHotRelGoodsVo> findSellHotGoodsList(Long sellHotTabId);
 }

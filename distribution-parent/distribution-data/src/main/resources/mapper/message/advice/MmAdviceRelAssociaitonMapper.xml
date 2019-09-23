@@ -43,5 +43,12 @@
             and name like concat('%',#{name},'%')
         </if>
     </select>
+    <select id="findAdviceActivityGroupVos"
+            resultType="com.chauncy.data.vo.manage.message.advice.tab.association.acticity.AdviceActivityGroupVo">
+        select a.id as rel_advice_activity_group_id,a.association_id as activity_group_id,b.name as activity_group_name,
+               b.picture as activity_group_picture
+        from mm_advice_rel_associaiton a,am_activity_group b
+        where a.del_flag = 0 and b.del_flag = 0 and a.association_id = b.id and a.advice_id = #{adviceId}
+    </select>
 
 </mapper>

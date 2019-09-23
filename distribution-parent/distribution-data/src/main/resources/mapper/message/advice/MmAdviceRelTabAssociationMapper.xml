@@ -24,5 +24,11 @@
         from mm_advice_rel_tab_association a,mm_advice_tab b
         where a.del_flag = 0 and b.del_flag = 0 and a.tab_id = b.id and a.rel_id = #{adviceAssociationId}
     </select>
+    <select id="findActivitySellHotTabInfos"
+            resultType="com.chauncy.data.vo.manage.message.advice.tab.association.acticity.ActivitySellHotTabInfosVo">
+        select tab_id as sell_hot_tab_id,b.name as sell_hot_tab_name
+        from mm_advice_rel_tab_association a,mm_advice_tab b
+        where a.del_flag = 0 and b.del_flag = 0 and a.tab_id = b.id and a.rel_id = #{relAdviceActivityGroupId}
+    </select>
 
 </mapper>

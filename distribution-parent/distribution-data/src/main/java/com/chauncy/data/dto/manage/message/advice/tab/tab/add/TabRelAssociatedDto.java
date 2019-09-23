@@ -20,7 +20,7 @@ import java.util.List;
 @Accessors(chain = true)
 public class TabRelAssociatedDto {
 
-    @ApiModelProperty("关联的ID")
+    @ApiModelProperty("关联的ID,品牌或者商品ID")
     @NotNull(message = "关联的Id不能为空")
     private Long associatedId;
 

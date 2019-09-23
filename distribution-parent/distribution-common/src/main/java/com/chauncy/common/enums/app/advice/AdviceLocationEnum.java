@@ -45,7 +45,9 @@ public enum AdviceLocationEnum implements BaseEnum {
 
     STORE_DETAIL(2,"首页有店+店铺分类详情"),
 
-    ACTIVITY_GROUP_MIDDLE(29,"活动分组中部推销广告"),
+    INTEGRALS_ACTIVITY(29,"积分活动广告"),
+
+    REDUCED_ACTIVITY(30,"满减活动广告"),
 
     SHOUYE_ZHUTI(3,"首页主题"),
 
@@ -77,7 +79,7 @@ public enum AdviceLocationEnum implements BaseEnum {
 
     PERSONAL_CENTER(16,"个人中心"),
 
-    INTEGRALS_SINSIDE_HUFFLING(26,"积分内部轮播图"),
+    INTEGRALS_INSIDE_HUFFLING(26,"积分内部轮播图"),
 
     REDUCED_INSIDE_SHUFFLING(27,"满减内部轮播图"),
 

@@ -6,6 +6,7 @@ import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.app.advice.home.ShufflingVo;
 import com.chauncy.data.vo.manage.message.advice.shuffling.FindShufflingVo;
 import com.chauncy.data.vo.manage.message.advice.shuffling.SearchShufflingAssociatedDetailVo;
+import com.chauncy.data.vo.manage.message.advice.tab.association.acticity.ActivityGroupShufflingVo;
 import com.chauncy.data.vo.manage.message.advice.tab.tab.BrandShufflingVo;
 
 import java.util.List;
@@ -66,4 +67,16 @@ public interface MmAdviceRelShufflingMapper extends IBaseMapper<MmAdviceRelShuff
      * @return
      */
     List<ShufflingVo> findBrandShuffling(Long relTabBrandId);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-23 15:15
+     * @Description //活动分组对应的轮播图
+     *
+     * @Update chauncy
+     *
+     * @Param [relAdviceActivityGroupId]
+     * @return java.util.List<com.chauncy.data.vo.manage.message.advice.tab.association.acticity.ActivityGroupShufflingVo>
+     **/
+    List<ActivityGroupShufflingVo> findActivityGroupShuffling(Long relAdviceActivityGroupId);
 }

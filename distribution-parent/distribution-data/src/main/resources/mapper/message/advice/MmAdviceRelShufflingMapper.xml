@@ -24,12 +24,14 @@
         <result column="rel_tab_brand_id" property="relTabBrandId" />
         <result column="brand_id" property="brandId" />
         <result column="advice_id" property="adviceId" />
+        <result column="tab_id" property="tabId" />
+        <result column="rel_activity_group_id" property="relActivityGroupId" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, create_by, create_time, update_by, update_time, del_flag, start_time, end_time, advice_type, html_detail, detail_id, information_id, store_id, goods_id, cover_photo, advice_id,
-        rel_category_id,first_category_id,brand_id,rel_tab_brand_id
+        rel_category_id,first_category_id,brand_id,rel_tab_brand_id,tab_id,rel_activity_group_id
     </sql>
     <select id="findShufflingList"
             resultType="com.chauncy.data.vo.manage.message.advice.tab.tab.BrandShufflingVo">
@@ -82,6 +84,14 @@
         select b.id as shuffling_id,b.cover_photo,b.advice_type,b.detail_id,b.html_detail
         from mm_advice_rel_shuffling b
         where b.del_flag = 0 and b.start_time &lt;= now() and b.end_time &gt;= now() and b.rel_tab_brand_id = #{relTabBrandId}
+
+    </select>
+    <select id="findActivityGroupShuffling"
+            resultType="com.chauncy.data.vo.manage.message.advice.tab.association.acticity.ActivityGroupShufflingVo">
+
+        select id as shuffling_id,start_time, advice_type, end_time,html_detail, detail_id, cover_photo, advice_id,rel_category_id,first_category_id,brand_id,rel_tab_brand_id
+        from mm_advice_rel_shuffling
+        where del_flag =0 and rel_activity_group_id = #{relAdviceActivityGroupId}
 
     </select>
 

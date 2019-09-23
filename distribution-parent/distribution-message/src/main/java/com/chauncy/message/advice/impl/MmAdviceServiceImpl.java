@@ -55,6 +55,10 @@ import com.chauncy.data.vo.manage.message.advice.shuffling.FindShufflingVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.StoreTabsVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.StoreVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.TabInfosVo;
+import com.chauncy.data.vo.manage.message.advice.tab.association.acticity.ActivityGroupShufflingVo;
+import com.chauncy.data.vo.manage.message.advice.tab.association.acticity.ActivitySellHotTabInfosVo;
+import com.chauncy.data.vo.manage.message.advice.tab.association.acticity.AdviceActivityGroupVo;
+import com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SellHotRelGoodsVo;
 import com.chauncy.data.vo.manage.message.advice.tab.tab.*;
 import com.chauncy.message.advice.IMmAdviceService;
 import com.chauncy.security.util.SecurityUtil;
@@ -262,14 +266,14 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
         advicesVoPageInfo.getList().forEach(a -> {
             AdviceLocationEnum adviceLocationEnum = AdviceLocationEnum.fromEnumName(a.getLocation());
             if (adviceLocationEnum == null){
-                throw new ServiceException(ResultCode.NO_EXISTS,"数据库存储的枚举值有错，请检查");
+                throw new ServiceException(ResultCode.NO_EXISTS,String.format("数据库存储的枚举值：%s有错，请检查",a.getLocation()));
             }
             switch (adviceLocationEnum) {
 
                 /******************* Tab start ****************/
                 //首页有店+店铺分类详情
                 case STORE_DETAIL:
-                    //获取该广告分类下的店铺分类信息以及该广告与店铺分类关联的ID
+                    //获取该广告下的店铺分类信息以及该广告与店铺分类关联的ID
                     List<StoreTabsVo> storeClassificationList = relAssociaitonMapper.findStoreClassificationList(a.getAdviceId());
                     storeClassificationList.forEach(b -> {
                         //获取该广告的该店铺下的选项卡
@@ -284,6 +288,44 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                         b.setTabInfos(tabInfosVoList);
                     });
                     a.setDetail(storeClassificationList);
+                    break;
+
+                 //积分满减活动广告
+                case INTEGRALS_ACTIVITY:
+                case REDUCED_ACTIVITY:
+                    //获取该广告下的活动分组
+                    List<AdviceActivityGroupVo> adviceActivityGroupVos = relAssociaitonMapper.findAdviceActivityGroupVos(a.getAdviceId());
+                    //热销广告选项卡以及选项卡关联的商品
+                    adviceActivityGroupVos.forEach(b->{
+                        List<ActivitySellHotTabInfosVo> activitySellHotTabInfosVos = relTabAssociationMapper.findActivitySellHotTabInfos(b.getRelAdviceActivityGroupId());
+                        activitySellHotTabInfosVos.forEach(c->{
+                            PageInfo<SellHotRelGoodsVo> goodsList =  PageHelper.startPage(defaultPageNo,defaultPageSize)
+                                    .doSelectPageInfo(() -> relTabThingsMapper.findSellHotGoodsList(c.getSellHotTabId()));
+                            c.setSellHotRelGoods(goodsList);
+                        });
+                        b.setActivitySellHotTabInfosVos(activitySellHotTabInfosVos);
+                        //活动分组对应的轮播图
+                       List<ActivityGroupShufflingVo> activityGroupShufflingVos = relShufflingMapper.findActivityGroupShuffling(b.getRelAdviceActivityGroupId());
+                       activityGroupShufflingVos.forEach(d->{
+                           AdviceTypeEnum adviceTypeEnum = d.getAdviceType();
+                           switch (adviceTypeEnum) {
+                               case HTML_DETAIL:
+                                   break;
+                               case INFORMATION:
+                                   d.setDetailName(informationMapper.selectById(d.getDetailId()).getTitle());
+                                   break;
+                               case STROE:
+                                   d.setDetailName(storeMapper.selectById(d.getDetailId()).getName());
+                                   break;
+                               case GOODS:
+                                   d.setDetailName(goodsMapper.selectById(d.getDetailId()).getName());
+                                   break;
+                           }
+                       });
+                       b.setActivityGroupShufflingVos(activityGroupShufflingVos);
+                    });
+                    a.setDetail(adviceActivityGroupVos);
+
                     break;
 
                 //首页有品------》》》品牌+详情
