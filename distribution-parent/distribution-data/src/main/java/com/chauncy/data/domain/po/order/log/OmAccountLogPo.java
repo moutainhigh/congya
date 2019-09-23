@@ -57,8 +57,14 @@ public class OmAccountLogPo implements Serializable {
     @ApiModelProperty(value = "发生额")
     private BigDecimal amount;
 
-    @ApiModelProperty(value = "关联订单/账单等id")
+    @ApiModelProperty(value = "关联id(支付单，充值订单，用户提现，售后订单，利润账单，货款账单)")
     private Long omRelId;
+
+    @ApiModelProperty(value = "关联用户id（下单用户，提现用户，售后用户，礼包充值用户，货款利润账单商家id）)")
+    private Long relUserId;
+
+    @ApiModelProperty(value = "关联用户手机号码")
+    private Long relUserPhone;
 
     @ApiModelProperty(value = "流水类型  1.支出 2.收入")
     private String logType;
