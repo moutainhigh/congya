@@ -34,9 +34,10 @@
     <select id="searchPlatformLogPaging" resultType="com.chauncy.data.vo.manage.order.log.SearchPlatformLogVo">
         SELECT
             oal.id,
-            po.pay_order_no,
-            oal.om_rel_id,
-            uu.`id` AS umUserId,
+            oob.id as payOrderNo,
+            oob.`store_id` as storeId,
+            po.id as omRelId,
+            po.`um_user_id` as umUserId,
             uu.phone,
             oal.`log_type`,
             oal.`log_matter`,
@@ -44,29 +45,28 @@
             oal.payment_way,
             oal.arrival_way,
             oal.`create_time`
-        from om_account_log oal
-        left join pay_order po
-        on oal.pay_order_id = po.id
-        left join um_user uu
-        on uu.id = po.um_user_id
+        FROM om_account_log oal
+        LEFT JOIN om_order_bill oob ON oob.id = oal.om_rel_id
+        LEFT JOIN pay_order po ON po.id = oal.om_rel_id
+        LEFT JOIN um_user uu ON uu.id = po.`um_user_id`
         <where>
             oal.user_type = #{userType}
-            <if test="omRelId != null">
+            <if test="omRelId != null and omRelId != 0">
                 and oal.om_rel_id = #{omRelId}
             </if>
-            <if test="payOrderNo != null">
+            <if test="payOrderNo != null and payOrderNo != ''">
                 and po.pay_order_no = #{payOrderNo}
             </if>
-            <if test="logId != null">
+            <if test="logId != null and logId != 0">
                 and oal.id = #{logId}
             </if>
-            <if test="umUserId != null">
+            <if test="umUserId != null and umUserId != 0">
                 and po.um_user_id = #{umUserId}
             </if>
-            <if test="logType != null and logType != ''">
+            <if test="logType != null and logType != '' and logType != '0'">
                 and oal.log_type = #{logType}
             </if>
-            <if test="logMatter != null">
+            <if test="logMatter != null and logMatter != 0">
                 and oal.log_matter = #{logMatter}
             </if>
             <if test="phone != null and phone != ''">
@@ -78,10 +78,10 @@
             <if test="endTime != null">
                 and date(oal.create_time) <![CDATA[<= ]]> #{endTime}
             </if>
-            <if test="minAmount != null">
+            <if test="minAmount != null and minAmount != 0">
                 and ABS(oal.amount) <![CDATA[>= ]]>  #{minAmount}
             </if>
-            <if test="maxAmount != null">
+            <if test="maxAmount != null and maxAmount != 0">
                 and ABS(oal.amount) <![CDATA[<= ]]> #{maxAmount}
             </if>
         </where>
@@ -111,7 +111,9 @@
         <where>
             oal.user_id = #{userId}
             AND account_type = #{accountType}
-            AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
+            <if test="null != logDate">
+                AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
+            </if>
         </where>
         ORDER BY oal.`create_time` DESC
     </select>
@@ -198,7 +200,9 @@
             FROM om_account_log oal
             where oal.user_id = #{userId}
             AND account_type = #{accountType}
-            AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
+            <if test="null != logDate">
+                AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
+            </if>
             AND oal.log_type = '收入'
             ) as income,
             (
@@ -206,7 +210,9 @@
             FROM om_account_log oal
             where oal.user_id = #{userId}
             AND account_type = #{accountType}
-            AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
+            <if test="null != logDate">
+                AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
+            </if>
             AND oal.log_type = '支出'
             ) as consume
     </select>

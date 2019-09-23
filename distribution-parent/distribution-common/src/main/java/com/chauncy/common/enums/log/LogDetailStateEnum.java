@@ -15,7 +15,7 @@ public enum LogDetailStateEnum   implements BaseEnum {
      */
     DEPOSIT_WALLET(1, "已存入钱包"),
     PAYMENT_SUCCESS(2, "支付成功"),
-    WITHDRAWAL_SUCCESS(3, "提现成功"),
+    WITHDRAWN_APPLY(3, "提现申请"),
     WITHDRAWAL_FAIL(4, "提现失败"),
     ;
 

@@ -41,7 +41,6 @@ public class SearchStoreLogDto extends BaseSearchPagingDto implements Serializab
     private Long logId;
 
     @ApiModelProperty(value = "流水事由")
-    @EnumConstraint(target = StoreLogMatterEnum.class)
     private Integer logMatter;
 
     @ApiModelProperty(value = "流水类型 收入  支出")
