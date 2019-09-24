@@ -41,7 +41,7 @@ public class OmAfterSaleOrderPo implements Serializable {
     @TableId(value = "id", type = IdType.ID_WORKER)
     private Long id;
 
-    @ApiModelProperty(value = "创建者")
+    @ApiModelProperty(value = "创建者  售后订单用户id")
     private String createBy;
 
     @ApiModelProperty(value = "创建时间")

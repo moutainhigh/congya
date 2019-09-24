@@ -55,7 +55,7 @@ public class CustomsDataPo implements Serializable {
     private String sessionId;
 
 
-    private CustomsStatusEnum status;
+    private CustomsStatusEnum customsStatus;
 
 
 }

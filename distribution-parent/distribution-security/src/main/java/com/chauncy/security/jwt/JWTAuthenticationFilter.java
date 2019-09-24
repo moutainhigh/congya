@@ -2,7 +2,10 @@ package com.chauncy.security.jwt;
 
 import cn.hutool.core.util.StrUtil;
 import com.chauncy.common.constant.SecurityConstant;
+import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.LoggerUtil;
+import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.sys.TokenUser;
 import com.chauncy.security.util.ResponseUtil;
 import com.chauncy.security.util.SecurityUtil;
@@ -19,6 +22,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
@@ -71,6 +75,11 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
         String header = request.getHeader(SecurityConstant.HEADER);
         if(StrUtil.isBlank(header)){
             header = request.getParameter(SecurityConstant.HEADER);
+        }
+        String v = redisTemplate.opsForValue().get(SecurityConstant.TOKEN_PRE + header);
+        if(StrUtil.isNotBlank(header) && StrUtil.isBlank(v)){
+            ResponseUtil.out(response, new JsonViewData<Object>(ResultCode.NO_LOGIN,"未登陆或登陆已超时！"));
+            return;
         }
         Boolean notValid = StrUtil.isBlank(header) || (!tokenRedis && !header.startsWith(SecurityConstant.TOKEN_SPLIT));
         if (notValid) {

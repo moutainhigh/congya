@@ -2,12 +2,14 @@ package com.chauncy.data.haiguan.vo;
 
 import com.alibaba.fastjson.annotation.JSONType;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
 @JSONType(orders = { "guid", "initalRequest", "initalResponse", "ebpCode", "payCode", "payTransactionId", "totalAmount", "currency", "verDept", "payType", "tradingTime", "note" })
 @Data
+@Accessors(chain = true)
 public class Head179 {
 	private String guid= UUID.randomUUID().toString().toUpperCase();
 	private String initalRequest;

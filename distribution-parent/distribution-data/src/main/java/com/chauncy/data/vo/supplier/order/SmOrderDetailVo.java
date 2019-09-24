@@ -66,10 +66,10 @@ public class SmOrderDetailVo {
 
     /*@ApiModelProperty(value = "支付金额，精确到分")
     private BigDecimal payAmount;*/
-    @ApiModelProperty(value = "红包抵扣金额")
+    @ApiModelProperty(value = "购物券抵扣金额")
     private BigDecimal shopTicketMoney;
 
-    @ApiModelProperty(value = "购物券抵扣金额")
+    @ApiModelProperty(value = "红包抵扣金额")
     private BigDecimal redEnvelopsMoney;
 
     @ApiModelProperty(value = "优惠券抵扣金额")
