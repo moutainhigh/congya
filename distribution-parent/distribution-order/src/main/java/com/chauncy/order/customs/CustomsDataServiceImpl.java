@@ -50,7 +50,7 @@ public class CustomsDataServiceImpl extends AbstractService<CustomsDataMapper, C
         //查出orderid和sessionid
         QueryWrapper<CustomsDataPo> customsDataPoQueryWrapper = new QueryWrapper<>();
         if (customsDataId==null){
-            customsDataPoQueryWrapper.lambda().eq(CustomsDataPo::getStatus, CustomsStatusEnum.NEED_SEND).last("limit 1");
+            customsDataPoQueryWrapper.lambda().eq(CustomsDataPo::getCustomsStatus, CustomsStatusEnum.NEED_SEND).last("limit 1");
         }
         else {
             customsDataPoQueryWrapper.lambda().eq(CustomsDataPo::getId, customsDataId);

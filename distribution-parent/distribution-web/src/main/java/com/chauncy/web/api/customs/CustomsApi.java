@@ -9,6 +9,8 @@ import com.chauncy.data.haiguan.vo.CustomsDataWithMyId;
 import com.chauncy.data.haiguan.vo.HgCheckVO;
 import com.chauncy.order.customs.ICustomsDataService;
 import com.google.common.collect.Maps;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,12 +19,10 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,7 +36,8 @@ import java.util.Map;
  *
  * @version 1.0
  **/
-@RestController("/custom")
+@Controller
+@RequestMapping("/custom")
 public class CustomsApi {
 
     Logger log = LoggerFactory.getLogger(CustomsApi.class);
@@ -52,7 +53,9 @@ public class CustomsApi {
      *
      * @return
      */
-    @RequestMapping(method = RequestMethod.POST, value = "/platDataOpen", headers = "content-type=application/x-www-form-urlencoded")
+    @RequestMapping(method = RequestMethod.POST, value = "/platDataOpen")
+    @ResponseBody
+    @ApiOperation("海关请求")
     public Map<String, Object> platDataOpen(@RequestParam(value = "openReq") String openReq) {
 
         openReq = openReq.replaceAll("&quot;", "\"");
@@ -64,7 +67,7 @@ public class CustomsApi {
         //保存海关数据
         CustomsDataPo saveCustoms = new CustomsDataPo();
         saveCustoms.setOrderId(haiGuanApi.getOrderNo()).setSessionId(haiGuanApi.getSessionID())
-                .setStatus(CustomsStatusEnum.NEED_SEND);
+                .setCustomsStatus(CustomsStatusEnum.NEED_SEND);
         customsDataService.save(saveCustoms);
         //haiGuanApi.putPostMsg(haiGuanApi.getOrderNo());
 
@@ -77,7 +80,7 @@ public class CustomsApi {
      * @param request
      * @return
      */
-    @RequestMapping(value = "custom/lunxun")
+    @RequestMapping(value = "/lunxun")
     synchronized protected void lunxun(HttpServletRequest request, HttpServletResponse response) {
         PrintWriter writer = null;
         HaiGuanApi api = new HaiGuanApi();
@@ -97,7 +100,7 @@ public class CustomsApi {
                 LoggerUtil.info("海关加签参数：" + hgCheckVO.apptenBufferUtils());
                 //设置已轮询过
                 CustomsDataPo updateCustomsData=new CustomsDataPo();
-                updateCustomsData.setId(Long.parseLong(customsDataWithMyId.getCustomsDataId())).setStatus(CustomsStatusEnum.SUCCESS);
+                updateCustomsData.setId(Long.parseLong(customsDataWithMyId.getCustomsDataId())).setCustomsStatus(CustomsStatusEnum.SUCCESS);
                 customsDataService.updateById(updateCustomsData);
                 writer.write(JSONObject.fromObject(map1).toString());
 
@@ -125,7 +128,7 @@ public class CustomsApi {
      * @param request
      * @return
      */
-    @RequestMapping(value = "custom/callback")
+    @RequestMapping(value = "/callback")
     synchronized protected void callbacks(HttpServletRequest request, HttpServletResponse response) {
         PrintWriter writer = null;
         HaiGuanApi api = new HaiGuanApi();
