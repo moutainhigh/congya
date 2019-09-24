@@ -12,6 +12,8 @@
         <result column="account_type" property="accountType" />
         <result column="amount" property="amount" />
         <result column="om_rel_id" property="omRelId" />
+        <result column="rel_user_id" property="relUserId" />
+        <result column="rel_user_phone" property="relUserPhone" />
         <result column="log_type" property="logType" />
         <result column="user_type" property="userType" />
         <result column="payment_way" property="paymentWay" />
@@ -34,43 +36,41 @@
     <select id="searchPlatformLogPaging" resultType="com.chauncy.data.vo.manage.order.log.SearchPlatformLogVo">
         SELECT
             oal.id,
-            po.pay_order_no,
-            oal.om_rel_id,
-            uu.`id` AS umUserId,
-            uu.phone,
+            oal.rel_user_id as umUserId,
+            oal.rel_user_phone as phone,
+            oob.id as payOrderNo,
+            oob.`store_id` as storeId,
+            oal.om_rel_id as omRelId,
             oal.`log_type`,
             oal.`log_matter`,
             ABS(oal.amount) AS totalAmount,
             oal.payment_way,
             oal.arrival_way,
             oal.`create_time`
-        from om_account_log oal
-        left join pay_order po
-        on oal.pay_order_id = po.id
-        left join um_user uu
-        on uu.id = po.um_user_id
+        FROM om_account_log oal
+        LEFT JOIN om_order_bill oob ON oob.id = oal.om_rel_id
         <where>
             oal.user_type = #{userType}
-            <if test="omRelId != null">
+            <if test="omRelId != null and omRelId != 0">
                 and oal.om_rel_id = #{omRelId}
             </if>
-            <if test="payOrderNo != null">
-                and po.pay_order_no = #{payOrderNo}
+            <if test="payOrderNo != null and payOrderNo != ''">
+                and oob.id = #{payOrderNo}
             </if>
-            <if test="logId != null">
+            <if test="logId != null and logId != 0">
                 and oal.id = #{logId}
             </if>
-            <if test="umUserId != null">
-                and po.um_user_id = #{umUserId}
+            <if test="umUserId != null and umUserId != 0">
+                and oal.rel_user_id = #{umUserId}
             </if>
-            <if test="logType != null and logType != ''">
+            <if test="logType != null and logType != '' and logType != '0' ">
                 and oal.log_type = #{logType}
             </if>
-            <if test="logMatter != null">
+            <if test="logMatter != null and logMatter != 0">
                 and oal.log_matter = #{logMatter}
             </if>
             <if test="phone != null and phone != ''">
-                and uu.phone = #{phone}
+                and oal.rel_user_phone  = #{phone}
             </if>
             <if test="startTime != null">
                 and date(oal.create_time) <![CDATA[>= ]]>  #{startTime}
@@ -78,10 +78,10 @@
             <if test="endTime != null">
                 and date(oal.create_time) <![CDATA[<= ]]> #{endTime}
             </if>
-            <if test="minAmount != null">
+            <if test="minAmount != null and minAmount != 0">
                 and ABS(oal.amount) <![CDATA[>= ]]>  #{minAmount}
             </if>
-            <if test="maxAmount != null">
+            <if test="maxAmount != null and maxAmount != 0">
                 and ABS(oal.amount) <![CDATA[<= ]]> #{maxAmount}
             </if>
         </where>
@@ -111,7 +111,9 @@
         <where>
             oal.user_id = #{userId}
             AND account_type = #{accountType}
-            AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
+            <if test="null != logDate">
+                AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
+            </if>
         </where>
         ORDER BY oal.`create_time` DESC
     </select>
@@ -165,28 +167,28 @@
         <where>
             oal.user_type = #{userType}
             and user_id = #{storeId}
-            <if test="omRelId != null">
+            <if test="omRelId != null and omRelId != 0">
                 and oal.om_rel_id = #{omRelId}
             </if>
-            <if test="logId != null">
+            <if test="logId != null and logId != 0">
                 and oal.id = #{logId}
             </if>
-            <if test="logMatter != null">
+            <if test="logMatter != null and logMatter != 0">
                 and oal.log_matter = #{logMatter}
             </if>
-            <if test="logType != null and logType != ''">
+            <if test="logType != null and logType != '' and logType != '0'">
                 and oal.log_type = #{logType}
             </if>
-            <if test="startTime != null">
+            <if test="startTime != null and startTime != ''">
                 and date(oal.create_time) <![CDATA[>= ]]>  #{startTime}
             </if>
-            <if test="endTime != null">
+            <if test="endTime != null and endTime != ''">
                 and date(oal.create_time) <![CDATA[<= ]]> #{endTime}
             </if>
-            <if test="minAmount != null">
+            <if test="minAmount != null and minAmount != 0">
                 and ABS(oal.amount) <![CDATA[>= ]]>  #{minAmount}
             </if>
-            <if test="maxAmount != null">
+            <if test="maxAmount != null and maxAmount != 0">
                 and ABS(oal.amount) <![CDATA[<= ]]> #{maxAmount}
             </if>
         </where>
@@ -198,7 +200,9 @@
             FROM om_account_log oal
             where oal.user_id = #{userId}
             AND account_type = #{accountType}
-            AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
+            <if test="null != logDate">
+                AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
+            </if>
             AND oal.log_type = '收入'
             ) as income,
             (
@@ -206,7 +210,9 @@
             FROM om_account_log oal
             where oal.user_id = #{userId}
             AND account_type = #{accountType}
-            AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
+            <if test="null != logDate">
+                AND DATE_FORMAT(create_time, '%Y-%m')  = #{logDate}
+            </if>
             AND oal.log_type = '支出'
             ) as consume
     </select>

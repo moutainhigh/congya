@@ -1,5 +1,7 @@
 package com.chauncy.web.api.manage.message.advice;
 
+import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.dto.manage.message.advice.tab.association.add.SaveActivityGroupAdviceDto;
 import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchActivityGroupDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
@@ -18,14 +20,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @Author cheng
- * @create 2019-09-20 09:03
+ * @create 2019-09-22 21:10
  *
- * 活动广告配置
+ * 广告之满减、积分活动管理
  */
 @RestController
-@Api(tags = "平台_广告运营管理_活动管理")
+@Api(tags = "平台_广告运营管理_满减、积分活动管理")
 @RequestMapping("/manage/message/advice/activity")
-public class MmAdviceRelActivityApi extends BaseApi {
+public class MmAdviceActivityGroupApi extends BaseApi {
 
     @Autowired
     private IMmAdviceRelTabAssociationService service;
@@ -42,10 +44,29 @@ public class MmAdviceRelActivityApi extends BaseApi {
      **/
     @PostMapping("/searchActivityGroup")
     @ApiOperation("条件分页查询活动分组信息")
-    private JsonViewData<PageInfo<BaseVo>> searchActivityGroup(@RequestBody @ApiParam(required = true,value = "searchActivityGroupDto",name = "分页查询活动分组条件")
-                                                                @Validated SearchActivityGroupDto searchActivityGroupDto){
+    public JsonViewData<PageInfo<BaseVo>> searchActivityGroup(@RequestBody @ApiParam(required = true,value = "searchActivityGroupDto",name = "分页查询活动分组条件")
+                                                               @Validated SearchActivityGroupDto searchActivityGroupDto){
 
         return setJsonViewData(service.searchActivityGroup(searchActivityGroupDto));
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-22 21:26
+     * @Description //保存积分、满减活动广告
+     *
+     * @Update chauncy
+     *
+     * @Param [saveActivityGroupAdviceDto]
+     * @return com.chauncy.data.vo.JsonViewData
+     **/
+    @PostMapping("/saveActivityGroupAdvice")
+    @ApiOperation("保存积分、满减活动广告")
+    public JsonViewData saveActivityGroupAdvice(@RequestBody @ApiParam(required = true,value = "saveActivityGroupAdviceDto",name = "保存积分、满减活动广告")
+                                                @Validated SaveActivityGroupAdviceDto saveActivityGroupAdviceDto){
+        service.saveActivityGroupAdvice(saveActivityGroupAdviceDto);
+
+        return setJsonViewData(ResultCode.SUCCESS);
     }
 
 

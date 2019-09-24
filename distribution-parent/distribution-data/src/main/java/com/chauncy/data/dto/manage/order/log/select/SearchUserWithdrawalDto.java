@@ -44,7 +44,6 @@ public class SearchUserWithdrawalDto  implements Serializable {
     private LocalDate endTime;
 
     @ApiModelProperty(value = "状态 1.待审核 2.处理中 3.提现成功 4.驳回")
-    @EnumConstraint(target = WithdrawalStatusEnum.class)
     private Integer withdrawalStatus;
 
     @Min(1)

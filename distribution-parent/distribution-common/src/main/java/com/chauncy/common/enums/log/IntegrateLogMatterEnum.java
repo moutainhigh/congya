@@ -28,6 +28,8 @@ public enum IntegrateLogMatterEnum  implements BaseEnum {
     NEW_GIFT(45, "新人礼包"),
     LOGIN(46, "登录"),
     SHARE(47, "分享"),
+    MEMBER_AWARD(48, "会员奖励"),
+    FRIENDS_ASSIST(49, "好友助攻"),
     ;
 
     @EnumValue

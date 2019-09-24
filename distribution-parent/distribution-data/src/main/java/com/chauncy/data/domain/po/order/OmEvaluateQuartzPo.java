@@ -61,5 +61,14 @@ public class OmEvaluateQuartzPo implements Serializable {
     @ApiModelProperty(value = "服务态度平均星级")
     private BigDecimal attitudeStartLevel;
 
+    @ApiModelProperty (value = "商品描述")
+    private String babyDescriptionLevel;
+
+    @ApiModelProperty ("卖家服务")
+    private String sellerServiceLevel;
+
+    @ApiModelProperty ("发货速度")
+    private String logisticsServicesLevel;
+
 
 }

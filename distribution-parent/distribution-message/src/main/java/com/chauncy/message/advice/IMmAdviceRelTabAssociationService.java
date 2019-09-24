@@ -2,6 +2,7 @@ package com.chauncy.message.advice;
 
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.message.advice.MmAdviceRelTabAssociationPo;
+import com.chauncy.data.dto.manage.message.advice.tab.association.add.SaveActivityGroupAdviceDto;
 import com.chauncy.data.dto.manage.message.advice.tab.association.add.SaveStoreClassificationDto;
 import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchActivityGroupDto;
 import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchClassificationStoreDto;
@@ -66,4 +67,16 @@ public interface IMmAdviceRelTabAssociationService extends Service<MmAdviceRelTa
      * @return java.lang.Object
      **/
     PageInfo<BaseVo> searchActivityGroup(SearchActivityGroupDto searchActivityGroupDto);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-22 22:13
+     * @Description //保存积分、满减活动广告
+     *
+     * @Update chauncy
+     *
+     * @Param [saveActivityGroupAdviceDto]
+     * @return void
+     **/
+    void saveActivityGroupAdvice(SaveActivityGroupAdviceDto saveActivityGroupAdviceDto);
 }

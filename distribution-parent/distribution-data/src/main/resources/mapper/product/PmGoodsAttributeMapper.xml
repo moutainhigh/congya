@@ -82,6 +82,7 @@
         from pm_goods_rel_attribute_category a ,pm_goods_attribute b
         where a.goods_category_id = #{categoryId} and a.goods_attribute_id = b.id and b.type =7 and b.enabled = 1 and a.del_flag = 0
         GROUP BY b.id,b.name
+        order by  b.id
     </select>
     <select id="loadAttributeIdNameTypeVos"
             resultType="com.chauncy.data.vo.manage.product.AttributeIdNameTypeVo">

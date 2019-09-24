@@ -31,7 +31,7 @@ public enum PlatformLogMatterEnum implements BaseEnum {
      */
     ORDER_INCOME(1, "订单收入"),
     ORDER_REFUND(2, "售后退款"),
-    ORDER_CANCEL(3, "订单取消"),
+    USER_RECHARGE(3, "用户充值"),
     USER_WITHDRAWAL(4, "用户提现"),
     PAYMENT_WITHDRAWAL(5, "商家货款提现"),
     PROFIT_WITHDRAWAL(6, "商家利润提现"),

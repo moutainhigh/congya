@@ -543,7 +543,7 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
             Map<String, Object> map = Maps.newHashMap();
             map.put("goods_id", b.getGoodsId());
             if (skuMapper.selectByMap(map)!=null && skuMapper.selectByMap(map).size()!=0) {
-                GoodsVo goodsVo = skuMapper.getPrice(b.getGoodsId()).get(0);
+                SellHotRelGoodsVo goodsVo = skuMapper.getPrice(b.getGoodsId()).get(0);
                 b.setSalePrice(goodsVo.getSalePrice());
                 b.setLinePrice(goodsVo.getLinePrice());
                 int saleVolume = skuMapper.selectByMap(map).stream().map(PmGoodsSkuPo::getSalesVolume).mapToInt(c -> c).sum();

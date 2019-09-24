@@ -534,7 +534,9 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     /**
      * @Author yeJH
      * @Date 2019/9/21 14:37
-     * @Description 售后时间关闭   订单添加购物奖励流水  积分购物券的流水
+     * @Description 售后时间关闭   订单返佣
+     * 返佣的流水分两种  分配给下单用户本人的是购物奖励  分配给下单用户之外的人是好友助攻 此处是购物奖励
+     * 只有积分，购物券有购物奖励
      *
      * @Update yeJH
      *
@@ -545,7 +547,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
      * @return void
      **/
     private void addShoppingRewardLog(Long relId, Long umUserId, BigDecimal integrate, BigDecimal shopTicket) {
-        //返佣的流水分两种  红包的是好友助攻  积分购物券的是购物奖励 此处是购物奖励
+        //返佣的流水分两种  分配给下单用户本人的是购物奖励  分配给下单用户之外的人是好友助攻 此处是购物奖励
         AddAccountLogBo shoppingRewardLogBo = new AddAccountLogBo();
         shoppingRewardLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.SHOPPING_REWARD);
         shoppingRewardLogBo.setRelId(relId);
@@ -562,22 +564,26 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     /**
      * @Author yeJH
      * @Date 2019/9/21 14:37
-     * @Description 售后时间关闭   订单添加好友助攻流水 红包流水
+     * @Description 售后时间关闭   订单返佣
+     * 返佣的流水分两种  分配给下单用户本人的是购物奖励  分配给下单用户之外的人是好友助攻 此处是购物奖励
+     * 只有积分，红包有好友助攻
      *
      * @Update yeJH
      *
      * @Param   relId 关联订单id
      * @Param   umUserId  获得流水用户
      * @Param   redEnvelops  红包
+     * @Param   integrate  积分
      * @return void
      **/
-    private void addfriendsAssistLog(Long relId, Long umUserId, BigDecimal redEnvelops) {
+    private void addFriendsAssistLog(Long relId, Long umUserId, BigDecimal integrate, BigDecimal redEnvelops) {
         //返佣的流水分两种  红包的是好友助攻  积分购物券的是购物奖励 此处是好友助攻
         AddAccountLogBo shoppingRewardLogBo = new AddAccountLogBo();
         shoppingRewardLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.FRIENDS_ASSIST);
         shoppingRewardLogBo.setRelId(relId);
         shoppingRewardLogBo.setOperator("auto");
         shoppingRewardLogBo.setMarginRedEnvelops(redEnvelops);
+        shoppingRewardLogBo.setMarginIntegral(integrate);
         shoppingRewardLogBo.setUmUserId(umUserId);
         //listenerAccountLogQueue 消息队列
         this.rabbitTemplate.convertAndSend(
@@ -594,7 +600,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
         OmGoodsTempPo queryGoodsTemp = goodsTempMapper.selectById(goodsTempId);
 
-        // TODO: 2019/9/10 俊浩流水
+        // TODO: 2019/9/10 俊浩流水(完成)
 
         //查出下单用户需要返的购物券、积分、经验值
         RewardBuyerBo rewardBuyerBo = mapper.getRewardBoByGoodsTempId(goodsTempId);
@@ -642,8 +648,8 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 userMapper.updateAdd(updateLastTwo);
                 umUserService.updateLevel(queryPayUser.getLastTwoUserId());
 
-                //购物奖励  上两级用户获得积分
-                addShoppingRewardLog(queryGoodsTemp.getOrderId(), queryPayUser.getLastTwoUserId(), lastTwoIntegrate, BigDecimal.ZERO);
+                //好友助攻 上两级用户获得积分
+                addFriendsAssistLog(queryGoodsTemp.getOrderId(), queryPayUser.getLastTwoUserId(), lastTwoIntegrate, BigDecimal.ZERO);
 
             }
             //上一级用户
@@ -658,8 +664,8 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 userMapper.updateAdd(updateUser);
                 umUserService.updateLevel(queryPayUser.getLastOneUserId());
 
-                //购物奖励  上一级用户获得积分
-                addShoppingRewardLog(queryGoodsTemp.getOrderId(), queryPayUser.getLastOneUserId(), integrate, BigDecimal.ZERO);
+                //好友助攻  上一级用户获得积分
+                addFriendsAssistLog(queryGoodsTemp.getOrderId(), queryPayUser.getLastOneUserId(), integrate, BigDecimal.ZERO);
 
             }
             //下一级用户集合
@@ -680,7 +686,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
         }
 
-        // TODO: 2019/9/17 叶俊浩
+        // TODO: 2019/9/17 叶俊浩(完成)
 
         //商品销售报表
         //omOrderReportService.orderClosure(orderId);
@@ -690,7 +696,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
         OmOrderPo queryOrder = mapper.selectById(orderId);
 
-        // TODO: 2019/9/10 俊浩流水
+        // TODO: 2019/9/10 俊浩流水(完成)
 
         Long userId = Long.parseLong(queryOrder.getCreateBy());
 
@@ -730,8 +736,8 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 userMapper.updateAdd(updateLastTwo);
                 umUserService.updateLevel(queryPayUser.getLastTwoUserId());
 
-                //购物奖励  上两级用户获得积分
-                addShoppingRewardLog(queryOrder.getId(), queryPayUser.getLastTwoUserId(), lastTwoIntegrate, BigDecimal.ZERO);
+                //好友助攻  上两级用户获得积分
+                addFriendsAssistLog(queryOrder.getId(), queryPayUser.getLastTwoUserId(), lastTwoIntegrate, BigDecimal.ZERO);
 
             }
             //上一级用户
@@ -746,8 +752,8 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 userMapper.updateAdd(updateUser);
                 umUserService.updateLevel(queryPayUser.getLastOneUserId());
 
-                //购物奖励  上两级用户获得积分
-                addShoppingRewardLog(queryOrder.getId(), queryPayUser.getLastOneUserId(), integrate, BigDecimal.ZERO);
+                //好友助攻  上一级用户获得积分
+                addFriendsAssistLog(queryOrder.getId(), queryPayUser.getLastOneUserId(), integrate, BigDecimal.ZERO);
 
             }
 
@@ -842,7 +848,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             userMapper.updateAdd(updateFirst);
 
             //好友助攻 返佣最高等级用户获得红包
-            addfriendsAssistLog(queryPayUser.getOrderId(), queryPayUser.getFirstUserId(), totalRed[0]);
+            addFriendsAssistLog(queryPayUser.getOrderId(), queryPayUser.getFirstUserId(), BigDecimal.ZERO, totalRed[0]);
 
         }
         //如果有两个上级需要返佣
@@ -866,7 +872,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             if (queryFirstUser.getCommissionStatus()) {
 
                 //好友助攻 返佣最高等级用户获得红包
-                addfriendsAssistLog(queryPayUser.getOrderId(), queryPayUser.getFirstUserId(), firstRed);
+                addFriendsAssistLog(queryPayUser.getOrderId(), queryPayUser.getFirstUserId(), BigDecimal.ZERO, firstRed);
 
                 UmUserPo updateFirst = new UmUserPo();
                 updateFirst.setId(queryPayUser.getFirstUserId()).setCurrentRedEnvelops(firstRed);
@@ -880,7 +886,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 userMapper.updateAdd(updateSecond);
 
                 //好友助攻 返佣最高等级用户获得红包
-                addfriendsAssistLog(queryPayUser.getOrderId(), queryPayUser.getSecondUserId(), secondRed);
+                addFriendsAssistLog(queryPayUser.getOrderId(), queryPayUser.getSecondUserId(), BigDecimal.ZERO, secondRed);
 
             }
 
@@ -915,7 +921,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             userMapper.updateAdd(updateFirst);
 
             //好友助攻 返佣最高等级用户获得红包
-            addfriendsAssistLog(queryGoodsTemp.getOrderId(), queryPayUser.getFirstUserId(), red);
+            addFriendsAssistLog(queryGoodsTemp.getOrderId(), queryPayUser.getFirstUserId(), BigDecimal.ZERO,  red);
 
         }
         //如果有两个上级需要返佣
@@ -942,7 +948,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 userMapper.updateAdd(updateFirst);
 
                 //好友助攻 返佣最高等级用户获得红包
-                addfriendsAssistLog(queryGoodsTemp.getOrderId(), queryPayUser.getFirstUserId(), firstRed);
+                addFriendsAssistLog(queryGoodsTemp.getOrderId(), queryPayUser.getFirstUserId(), BigDecimal.ZERO,  firstRed);
 
             }
 
@@ -953,7 +959,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 userMapper.updateAdd(updateSecond);
 
                 //好友助攻 返佣最高等级用户获得红包
-                addfriendsAssistLog(queryGoodsTemp.getOrderId(), queryPayUser.getSecondUserId(), secondRed);
+                addFriendsAssistLog(queryGoodsTemp.getOrderId(), queryPayUser.getSecondUserId(), BigDecimal.ZERO, secondRed);
 
             }
 

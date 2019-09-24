@@ -6,6 +6,7 @@ import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.manage.message.advice.ClassificationVo;
 import com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.StoreTabsVo;
+import com.chauncy.data.vo.manage.message.advice.tab.association.acticity.AdviceActivityGroupVo;
 
 import java.util.List;
 
@@ -37,4 +38,16 @@ public interface MmAdviceRelAssociaitonMapper extends IBaseMapper<MmAdviceRelAss
      * @return
      */
     List<ClassificationVo> searchAssociatedClassification(SearchAssociatedClassificationDto searchAssociatedClassificationDto);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-23 13:17
+     * @Description //获取该广告下的活动分组信息
+     *
+     * @Update chauncy
+     *
+     * @Param [adviceId]
+     * @return java.util.List<com.chauncy.data.vo.manage.message.advice.tab.association.acticity.AdviceActivityGroupVo>
+     **/
+    List<AdviceActivityGroupVo> findAdviceActivityGroupVos(Long adviceId);
 }
