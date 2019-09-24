@@ -63,7 +63,7 @@
             <if test="umUserId != null and umUserId != 0">
                 and oal.rel_user_id = #{umUserId}
             </if>
-            <if test="logType != null and logType != '' ">
+            <if test="logType != null and logType != '' and logType != '0' ">
                 and oal.log_type = #{logType}
             </if>
             <if test="logMatter != null and logMatter != 0">

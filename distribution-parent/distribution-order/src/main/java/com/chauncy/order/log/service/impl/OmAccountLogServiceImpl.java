@@ -127,6 +127,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         Integer pageNo = searchPlatformLogDto.getPageNo()==null ? defaultPageNo : searchPlatformLogDto.getPageNo();
         Integer pageSize = searchPlatformLogDto.getPageSize()==null ? defaultPageSize : searchPlatformLogDto.getPageSize();
 
+        if("0".equals(searchPlatformLogDto.getLogType())) {
+            searchPlatformLogDto.setLogType(null);
+        }
         PageInfo<SearchPlatformLogVo> searchPlatformLogVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> omAccountLogMapper.searchPlatformLogPaging(searchPlatformLogDto));
 
@@ -306,6 +309,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
     private void storeWithdrawal (AddAccountLogBo addAccountLogBo) {
         OmOrderBillPo omOrderBillPo = omOrderBillMapper.selectById(addAccountLogBo.getRelId());
         if (null != omOrderBillPo) {
+            SmStorePo smStorePo = smStoreMapper.selectById(omOrderBillPo.getStoreId());
             //平台 线上资金 支出流水
             OmAccountLogPo fromOmAccountLogPo = getFromOmAccountLogPo(addAccountLogBo, UserTypeEnum.PLATFORM,
                     AccountTypeEnum.ONLINE_FUNDS, LogTypeEnum.EXPENDITURE);
@@ -323,11 +327,13 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
                 fromOmAccountLogPo.setLogMatter(PlatformLogMatterEnum.PROFIT_WITHDRAWAL.getId());
             }
             fromOmAccountLogPo.setOmRelId(omOrderBillPo.getId());
+            //记录提现账单的店铺id+手机号码
+            fromOmAccountLogPo.setRelUserId(omOrderBillPo.getStoreId());
+            fromOmAccountLogPo.setRelUserPhone(smStorePo.getOwnerMobile());
             omAccountLogMapper.insert(fromOmAccountLogPo);
             //店铺 线上资金 收入流水
             OmAccountLogPo toOmAccountLogPo = getToOmAccountLogPo(fromOmAccountLogPo, UserTypeEnum.STORE,
                     AccountTypeEnum.ONLINE_FUNDS, LogTypeEnum.INCOME);
-            SmStorePo smStorePo = smStoreMapper.selectById(omOrderBillPo.getStoreId());
             toOmAccountLogPo.setUserId(smStorePo.getId());
             //到账方式
             toOmAccountLogPo.setArrivalWay(PaymentWayEnum.OFF_LINE.getId());
@@ -359,6 +365,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
             PayOrderPo payOrderPo = payOrderMapper.selectById(omOrderPo.getPayOrderId());
             //到账方式
             fromOmAccountLogPo.setArrivalWay(PaymentWayEnum.getByName(payOrderPo.getPayTypeCode()).getId());
+            //记录售后订单用户+手机号码
+            fromOmAccountLogPo.setRelUserId(Long.valueOf(omAfterSaleOrderPo.getCreateBy()));
+            fromOmAccountLogPo.setRelUserPhone(umUserMapper.selectById(fromOmAccountLogPo.getRelUserId()).getPhone());
             //流水发生金额
             fromOmAccountLogPo.setAmount(BigDecimalUtil.safeMultiply(omAfterSaleOrderPo.getRefundMoney(), -1));
             //流水事由
@@ -695,7 +704,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         //APP用户 购物券 收入流水 购物券+新人礼包
         OmAccountLogPo toShopTicketLog = getFromOmAccountLogPo(addAccountLogBo, UserTypeEnum.APP_USER,
                 AccountTypeEnum.SHOP_TICKET, LogTypeEnum.INCOME);
-        UmUserPo umUserPo = umUserMapper.selectById(addAccountLogBo.getRelId());
+        UmUserPo umUserPo = umUserMapper.selectById(addAccountLogBo.getUmUserId());
         toShopTicketLog.setUserId(umUserPo.getId());
         toShopTicketLog.setBalance(BigDecimalUtil.safeAdd(umUserPo.getCurrentShopTicket(), amGiftPo.getVouchers()));
         toShopTicketLog.setLastBalance(umUserPo.getCurrentShopTicket());
@@ -794,6 +803,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
                 AccountTypeEnum.ONLINE_FUNDS, LogTypeEnum.INCOME);
         //流水发生金额  充值礼包金额
         toOmAccountLogPo.setAmount(amGiftOrderPo.getPurchasePrice());
+        //记录充值礼包订单用户+手机号码
+        toOmAccountLogPo.setRelUserId(amGiftOrderPo.getUserId());
+        toOmAccountLogPo.setRelUserPhone(umUserPo.getPhone());
         //支付方式
         toOmAccountLogPo.setPaymentWay(PaymentWayEnum.getByName(amGiftOrderPo.getPayTypeCode()).getId());
         //流水事由
@@ -890,6 +902,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
             } else if(omUserWithdrawalPo.getWithdrawalWay().equals(WithdrawalWayEnum.ALIPAY.getId())) {
                 fromOmAccountLogPo.setArrivalWay(PaymentWayEnum.ALIPAY.getId());
             }
+            //记录红包提现用户+手机号码
+            fromOmAccountLogPo.setRelUserId(omUserWithdrawalPo.getUmUserId());
+            fromOmAccountLogPo.setRelUserPhone(umUserMapper.selectById(omUserWithdrawalPo.getUmUserId()).getPhone());
             //流水事由
             fromOmAccountLogPo.setLogMatter(PlatformLogMatterEnum.USER_WITHDRAWAL.getId());
             omAccountLogMapper.insert(fromOmAccountLogPo);
@@ -976,6 +991,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
                 AccountTypeEnum.ONLINE_FUNDS, LogTypeEnum.INCOME);
         //流水发生金额  订单实收金额
         toOmAccountLogPo.setAmount(payOrderPo.getTotalRealPayMoney());
+        //记录下单用户+手机号码
+        toOmAccountLogPo.setRelUserId(payOrderPo.getUmUserId());
+        toOmAccountLogPo.setRelUserPhone(umUserMapper.selectById(payOrderPo.getUmUserId()).getPhone());
         //支付方式
         toOmAccountLogPo.setPaymentWay(PaymentWayEnum.getByName(payOrderPo.getPayTypeCode()).getId());
         //流水事由

@@ -64,7 +64,7 @@ public class OmAccountLogPo implements Serializable {
     private Long relUserId;
 
     @ApiModelProperty(value = "关联用户手机号码")
-    private Long relUserPhone;
+    private String relUserPhone;
 
     @ApiModelProperty(value = "流水类型  1.支出 2.收入")
     private String logType;
