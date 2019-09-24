@@ -661,6 +661,10 @@
         where a.shipping_template_id = b.id and a.id = #{goodsId}
 
     </select>
+    <select id="searchActivityGoods"
+            resultType="com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGoodsVo">
+
+    </select>
 
 
 </mapper>
