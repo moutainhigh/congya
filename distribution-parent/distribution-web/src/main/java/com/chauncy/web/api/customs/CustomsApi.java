@@ -1,170 +1,195 @@
-//package com.chauncy.web.api.customs;
-//
-//import com.alibaba.fastjson.JSON;
-//import com.chauncy.common.enums.order.CustomsStatusEnum;
-//import com.chauncy.data.domain.po.order.CustomsDataPo;
-//import com.chauncy.data.haiguan.HaiGuanApi;
-//import com.chauncy.order.customs.ICustomsDataService;
-//import lombok.experimental.Accessors;
-//import net.sf.json.JSONObject;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.web.bind.annotation.RequestMapping;
-//import org.springframework.web.bind.annotation.RequestMethod;
-//import org.springframework.web.bind.annotation.RequestParam;
-//import org.springframework.web.bind.annotation.RestController;
-//import test.haiguan.payExchangeInfoHead;
-//import test.haiguan.payExchangeInfoLists;
-//import test.http.HttpsPostUtil;
-//
-//import javax.servlet.http.HttpServletRequest;
-//import javax.servlet.http.HttpServletResponse;
-//import java.io.IOException;
-//import java.io.PrintWriter;
-//import java.util.ArrayList;
-//import java.util.List;
-//import java.util.Map;
-//
-///**
-// * 海关验证
-// *
-// * @version 1.0
-// **/
-//@RestController("/custom")
-//public class CustomsApi {
-//
-//    Logger log = LoggerFactory.getLogger(CustomsApi.class);
-//
-//    @Autowired
-//    private ICustomsDataService customsDataService;
-//
-//    /**
-//     * 海关请求传递值
-//     *
-//     * @return
-//     */
-//    @RequestMapping(method = RequestMethod.POST, value = "/platDataOpen", headers = "content-type=application/x-www-form-urlencoded")
-//    public Map<String, Object> platDataOpen(@RequestParam(value = "openReq") String openReq) {
-//
-//        openReq = openReq.replaceAll("&quot;", "\"");
-//
-//        HaiGuanApi haiGuanApi = JSON.parseObject(openReq, HaiGuanApi.class);
-//        if (haiGuanApi.getOrderNo()==null||haiGuanApi.getServiceTime()==null||haiGuanApi.getSessionID()==null){
-//            return haiGuanApi.responseServiceError();
-//        }
-//        //保存海关数据
-//        CustomsDataPo saveCustoms=new CustomsDataPo();
-//        saveCustoms.setOrderId(haiGuanApi.getOrderNo()).setSessionId(haiGuanApi.getSessionID())
-//                .setStatus(CustomsStatusEnum.NEED_SEND);
-//        customsDataService.save(saveCustoms);
-//        haiGuanApi.putPostMsg(haiGuanApi.getOrderNo());
-//
-//        return haiGuanApi.responseServiceSuccess();
-//    }
-//
-//    /**
-//     * 海关请求传递值
-//     *
-//     * @param request
-//     * @param filter
-//     * @param map
-//     * @return
-//     */
-//    @RequestMapping(value = "custom/lunxun")
-//    synchronized protected void lunxun(HttpServletRequest request, HttpServletResponse response, OrderFilter filter, ModelMap map) {
-//        PrintWriter writer = null;
-//        HaiGuanApi api = new HaiGuanApi();
-//        JSONObject json = new JSONObject();
-//        response.setContentType("text/html;charset=utf-8");
-//
-//        response.setHeader("Access-Control-Allow-Origin", "*");
-//        response.setHeader("Cache-Control", "no-cache");
-//        try {
-//
-//            writer = response.getWriter();
-//            if (null != api.MAP_HAI && api.MAP_HAI.size() > 0) {
-//                System.out.println(api.MAP_HAI.size());
-//                writer.write(JSONObject.fromObject(api.MAP_HAI).toString());
-//
-//            } else {
-//                writer.write("{\"error\":20000}");
-//
-//            }
-//
-//
-//        } catch (IOException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//            writer.print(api.responseServiceError());
-//        } finally {
-//
-//            writer.close();
-//        }
-//
-//    }
-//
-//    /**
-//     * 海关请求传递值
-//     *
-//     * @param request
-//     * @param filter
-//     * @param map
-//     * @return
-//     */
-//    @RequestMapping(value = "custom/callback")
-//    synchronized protected void callbacks(HttpServletRequest request, HttpServletResponse response, OrderFilter filter, ModelMap map) {
-//        PrintWriter writer = null;
-//        HaiGuanApi api = new HaiGuanApi();
-//        String asin = request.getParameter("asin");
-//        String orderNo = request.getParameter("orderNo");
-//        System.out.println("orderNo" + orderNo);
-//        System.out.println("asin:" + asin);
-//
-//        response.setContentType("text/html;charset=utf-8");
-//
-//        response.setHeader("Access-Control-Allow-Origin", "*");
-//        response.setHeader("Cache-Control", "no-cache");
-//        HttpsPostUtil post = new HttpsPostUtil();
-//        HaiGuanApi.MAP_VALUE.get(orderNo).put("signValue", asin);
-//
-//        try {
-//
-//            if (null != api.MAP_HAI.get(orderNo)) {
-//                String sendDate = post.sendDate(HaiGuanApi.MAP_VALUE.get(orderNo));
-//                response.setContentType("text/html;charset=utf-8");
-//
-//                writer = response.getWriter();
-//                writer.print(sendDate);
-//
-//
-//                System.out.println("发送海关处理结果：" + sendDate);
-//                writer.write(sendDate);
-//            } else {
-//                writer.write("{\"state\":20000}");
-//            }
-//
-//
-//        } catch (Exception e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//            writer.print(api.responseServiceError());
-//        } finally {
-//            api.removeMapOrderNo(orderNo);
-//            writer.close();
-//        }
-//
-//    }
-//
-//
-//    /**
-//     * 订单查询
-//     *
-//     * @param request demo
-//     * @param filter
-//     * @param map
-//     * @return
-//     */
+package com.chauncy.web.api.customs;
+
+import com.alibaba.fastjson.JSON;
+import com.chauncy.common.enums.order.CustomsStatusEnum;
+import com.chauncy.common.util.LoggerUtil;
+import com.chauncy.data.domain.po.order.CustomsDataPo;
+import com.chauncy.data.haiguan.HaiGuanApi;
+import com.chauncy.data.haiguan.vo.CustomsDataWithMyId;
+import com.chauncy.data.haiguan.vo.HgCheckVO;
+import com.chauncy.order.customs.ICustomsDataService;
+import com.google.common.collect.Maps;
+import net.sf.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Map;
+
+/**
+ * 海关验证
+ *
+ * @version 1.0
+ **/
+@RestController("/custom")
+public class CustomsApi {
+
+    Logger log = LoggerFactory.getLogger(CustomsApi.class);
+
+    @Autowired
+    private ICustomsDataService customsDataService;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    /**
+     * 海关请求传递值
+     *
+     * @return
+     */
+    @RequestMapping(method = RequestMethod.POST, value = "/platDataOpen", headers = "content-type=application/x-www-form-urlencoded")
+    public Map<String, Object> platDataOpen(@RequestParam(value = "openReq") String openReq) {
+
+        openReq = openReq.replaceAll("&quot;", "\"");
+
+        HaiGuanApi haiGuanApi = JSON.parseObject(openReq, HaiGuanApi.class);
+        if (haiGuanApi.getOrderNo() == null || haiGuanApi.getServiceTime() == null || haiGuanApi.getSessionID() == null) {
+            return haiGuanApi.responseServiceError();
+        }
+        //保存海关数据
+        CustomsDataPo saveCustoms = new CustomsDataPo();
+        saveCustoms.setOrderId(haiGuanApi.getOrderNo()).setSessionId(haiGuanApi.getSessionID())
+                .setStatus(CustomsStatusEnum.NEED_SEND);
+        customsDataService.save(saveCustoms);
+        //haiGuanApi.putPostMsg(haiGuanApi.getOrderNo());
+
+        return haiGuanApi.responseServiceSuccess();
+    }
+
+    /**
+     * 海关请求传递值
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "custom/lunxun")
+    synchronized protected void lunxun(HttpServletRequest request, HttpServletResponse response) {
+        PrintWriter writer = null;
+        HaiGuanApi api = new HaiGuanApi();
+        response.setContentType("text/html;charset=utf-8");
+
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Cache-Control", "no-cache");
+        CustomsDataWithMyId customsDataWithMyId = customsDataService.getHgCheckVo(null);
+
+        try {
+
+            writer = response.getWriter();
+            if (customsDataWithMyId == null) {
+                HgCheckVO hgCheckVO = customsDataWithMyId.getHgCheckVO();
+                Map<String, String> map1 = Maps.newHashMap();
+                map1.put(customsDataWithMyId.getCustomsDataId(), hgCheckVO.apptenBufferUtils());
+                LoggerUtil.info("海关加签参数：" + hgCheckVO.apptenBufferUtils());
+                //设置已轮询过
+                CustomsDataPo updateCustomsData=new CustomsDataPo();
+                updateCustomsData.setId(Long.parseLong(customsDataWithMyId.getCustomsDataId())).setStatus(CustomsStatusEnum.SUCCESS);
+                customsDataService.updateById(updateCustomsData);
+                writer.write(JSONObject.fromObject(map1).toString());
+
+            } else {
+                writer.write("{\"error\":20000}");
+
+            }
+
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            writer.print(api.responseServiceError());
+        } finally {
+
+            writer.close();
+        }
+
+
+    }
+
+    /**
+     * 海关请求传递值
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "custom/callback")
+    synchronized protected void callbacks(HttpServletRequest request, HttpServletResponse response) {
+        PrintWriter writer = null;
+        HaiGuanApi api = new HaiGuanApi();
+        String asin = request.getParameter("asin");
+        String orderNo = request.getParameter("orderNo");
+        System.out.println("orderNo" + orderNo);
+        System.out.println("asin:" + asin);
+
+        response.setContentType("text/html;charset=utf-8");
+
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Cache-Control", "no-cache");
+        CustomsDataWithMyId customsDataWithMyId = customsDataService.getHgCheckVo(orderNo);
+        HgCheckVO hgCheckVO = customsDataWithMyId.getHgCheckVO();
+
+        String url = "https://swapptest.singlewindow.cn/ceb2grab/grab/realTimeDataUpload";
+
+        try {
+
+            if (null != hgCheckVO) {
+                hgCheckVO.setSignValue(asin);
+                HttpHeaders headers = new HttpHeaders();
+                //  请勿轻易改变此提交方式，大部分的情况下，提交方式都是表单提交
+                headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+                //  封装参数，千万不要替换为Map与HashMap，否则参数无法传递
+                MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
+                //  也支持中文
+                params.add("payExInfoStr", JSON.toJSONString(hgCheckVO));
+                HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<MultiValueMap<String, String>>(params, headers);
+                ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, requestEntity , String.class );
+
+                response.setContentType("text/html;charset=utf-8");
+
+                writer = response.getWriter();
+                writer.print(responseEntity.getBody());
+
+
+                System.out.println("发送海关处理结果：" + responseEntity.getBody());
+                writer.write(responseEntity.getBody());
+            } else {
+                writer.write("{\"state\":20000}");
+            }
+
+
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            writer.print(api.responseServiceError());
+        } finally {
+            api.removeMapOrderNo(orderNo);
+            writer.close();
+        }
+
+    }
+
+
+    /**
+     * 订单查询
+     *
+     * @param request demo
+     * @param filter
+     * @param map
+     * @return
+     */
 //    @RequestMapping(value = "/test")
 //    public void realTimeDataUpload(HttpServletRequest request, HttpServletResponse response, OrderFilter filter, ModelMap map) {
 //
@@ -232,4 +257,4 @@
 //
 //
 //    }
-//}
+}
