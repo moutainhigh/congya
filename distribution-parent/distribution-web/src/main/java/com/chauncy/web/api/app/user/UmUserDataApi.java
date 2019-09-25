@@ -71,9 +71,8 @@ public class UmUserDataApi extends BaseApi {
                                 @Validated AddAreaDto addAreaDto){
 
         UmUserPo userPo = securityUtil.getAppCurrUser();
-        shipService.addArea(addAreaDto,userPo);
 
-        return new JsonViewData(ResultCode.SUCCESS);
+        return new JsonViewData(shipService.addArea(addAreaDto,userPo));
     }
 
     /**

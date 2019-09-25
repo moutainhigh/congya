@@ -23,6 +23,7 @@ import com.chauncy.data.dto.app.advice.brand.select.FindBrandShufflingDto;
 import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
+import com.chauncy.data.dto.app.product.SearchActivityGoodsListDto;
 import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.advice.add.SaveClassificationAdviceDto;
@@ -54,6 +55,7 @@ import com.chauncy.data.vo.app.advice.home.GetAdviceInfoVo;
 import com.chauncy.data.vo.app.advice.home.ShufflingVo;
 import com.chauncy.data.vo.app.advice.store.StoreCategoryDetailVo;
 import com.chauncy.data.vo.app.advice.store.StoreCategoryInfoVo;
+import com.chauncy.data.vo.app.goods.ActivityGoodsVo;
 import com.chauncy.data.vo.manage.message.advice.ClassificationVo;
 import com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo;
 import com.chauncy.data.vo.manage.message.advice.shuffling.FindShufflingVo;
@@ -226,6 +228,21 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
         activityGroupDetailVo.setShufflingVoList(shufflingVoList);
 
         return activityGroupDetailVo;
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/25 16:14
+     * @Description  获取活动商品列表
+     *
+     * @Update yeJH
+     *
+     * @param  searchActivityGoodsListDto  查询积分/满减活动商品列表参数
+     * @return com.chauncy.data.vo.JsonViewData<com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.goods.ActivityGoodsVo>>
+     **/
+    @Override
+    public PageInfo<ActivityGoodsVo> findTabGoodsList(SearchActivityGoodsListDto searchActivityGoodsListDto) {
+        return null;
     }
 
     /**

@@ -27,11 +27,7 @@ public class ActivityGroupTabVo implements Serializable {
     @ApiModelProperty(value = "选项卡图片")
     private String tabPicture;
 
-    @ApiModelProperty(value = "店铺推荐商品列表")
+    @ApiModelProperty(value = "（满减：热销精选；积分：精选商品）")
     private List<ActivityGoodsVo> activityGoodsVoList;
-
-    @ApiModelProperty(value = "轮播图信息")
-    private List<ShufflingVo> shufflingVoList;
-
 
 }

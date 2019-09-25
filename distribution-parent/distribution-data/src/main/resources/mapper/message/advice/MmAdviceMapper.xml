@@ -175,7 +175,16 @@
     </select>
 
     <select id="getShufflingByRelId" resultType="com.chauncy.data.vo.app.advice.home.ShufflingVo">
-
+        SELECT mars.id AS shuffling_id,
+            mars.`cover_photo`,
+            mars.advice_type,
+            mars.detail_id,
+            mars.html_detail
+        FROM mm_advice_rel_shuffling mars
+        WHERE rel_activity_group_id = #{relId}
+        AND mars.del_flag = 0
+        AND mars.start_time <![CDATA[< ]]> NOW()
+        AND mars.end_time <![CDATA[> ]]> NOW()
     </select>
 
     <select id="searchAdvices" resultType="com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo">
