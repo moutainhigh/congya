@@ -9,7 +9,6 @@ import com.chauncy.data.haiguan.vo.CustomsDataWithMyId;
 import com.chauncy.data.haiguan.vo.HgCheckVO;
 import com.chauncy.order.customs.ICustomsDataService;
 import com.google.common.collect.Maps;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
@@ -22,7 +21,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
@@ -93,7 +95,7 @@ public class CustomsApi {
         try {
 
             writer = response.getWriter();
-            if (customsDataWithMyId == null) {
+            if (customsDataWithMyId != null) {
                 HgCheckVO hgCheckVO = customsDataWithMyId.getHgCheckVO();
                 Map<String, String> map1 = Maps.newHashMap();
                 map1.put(customsDataWithMyId.getCustomsDataId(), hgCheckVO.apptenBufferUtils());
@@ -134,7 +136,7 @@ public class CustomsApi {
         HaiGuanApi api = new HaiGuanApi();
         String asin = request.getParameter("asin");
         String orderNo = request.getParameter("orderNo");
-        System.out.println("orderNo" + orderNo);
+        System.out.println("orderNo:" + orderNo);
         System.out.println("asin:" + asin);
 
         response.setContentType("text/html;charset=utf-8");
@@ -150,6 +152,7 @@ public class CustomsApi {
 
             if (null != hgCheckVO) {
                 hgCheckVO.setSignValue(asin);
+                LoggerUtil.info("发送海关请求参数："+JSON.toJSONString(hgCheckVO));
                 HttpHeaders headers = new HttpHeaders();
                 //  请勿轻易改变此提交方式，大部分的情况下，提交方式都是表单提交
                 headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -163,7 +166,6 @@ public class CustomsApi {
                 response.setContentType("text/html;charset=utf-8");
 
                 writer = response.getWriter();
-                writer.print(responseEntity.getBody());
 
 
                 System.out.println("发送海关处理结果：" + responseEntity.getBody());
@@ -178,7 +180,6 @@ public class CustomsApi {
             e.printStackTrace();
             writer.print(api.responseServiceError());
         } finally {
-            api.removeMapOrderNo(orderNo);
             writer.close();
         }
 

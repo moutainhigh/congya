@@ -11,7 +11,7 @@ import java.util.UUID;
 @Data
 @Accessors(chain = true)
 public class Head179 {
-	private String guid= UUID.randomUUID().toString().toUpperCase();
+	private String guid;
 	private String initalRequest;
 	private String initalResponse;
 	private String ebpCode="4401960A8F";
@@ -25,7 +25,7 @@ public class Head179 {
 	//用户支付的类型。1-APP 2-PC 3-扫码 4-其他
 	private String payType="1";
 	private String tradingTime;
-	private String note;
+	private String note="";
 
 
 }

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 
@@ -72,7 +73,7 @@ public class CustomsDataServiceImpl extends AbstractService<CustomsDataMapper, C
         OmOrderPo queryOrder=orderMapper.selectById(queryCustom.getOrderId());
 
         //查出支付单信息
-        PayOrderPo queryPayOrder = payOrderMapper.selectById(queryOrder.getId());
+        PayOrderPo queryPayOrder = payOrderMapper.selectById(queryOrder.getPayOrderId());
 
 
         HgCheckVO hgCheckVO = new HgCheckVO();
@@ -88,7 +89,8 @@ public class CustomsDataServiceImpl extends AbstractService<CustomsDataMapper, C
         });
         //todo 微信请求和响应
         payExchangeInfoHead.setInitalRequest("ini").setInitalResponse("re").setPayTransactionId(queryPayOrder.getPayOrderNo())
-                .setTradingTime(queryPayOrder.getPayTime().toString()).setTotalAmount(queryOrder.getRealMoney());
+                .setTradingTime(queryPayOrder.getPayTime().toEpochSecond(ZoneOffset.of("+8"))+"")
+                .setTotalAmount(queryOrder.getRealMoney()).setGuid(queryCustom.getId()+"");
 
 
         Body179 body179=new Body179();

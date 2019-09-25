@@ -53,6 +53,7 @@ import com.chauncy.data.temp.order.service.IOmGoodsTempService;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.evaluate.EvaluateLevelNumVo;
 import com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo;
+import com.chauncy.data.vo.app.order.cart.SubmitOrderVo;
 import com.chauncy.order.service.IPayUserRelationNextLevelService;
 import com.chauncy.data.vo.app.car.*;
 import com.chauncy.data.vo.app.goods.*;
@@ -1005,7 +1006,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Long submitOrder(SubmitOrderDto submitOrderDto, UmUserPo currentUser) {
+    public SubmitOrderVo submitOrder(SubmitOrderDto submitOrderDto, UmUserPo currentUser) {
         //检查库存,设置一些需要计算购物券的值，并把所有商品抽出来
         List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVoList = checkStock(submitOrderDto);
         //判断商品是否保税仓或者海外直邮，是则需要进行实名认证
@@ -1150,7 +1151,6 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
         // 添加延时队列
         this.rabbitTemplate.convertAndSend(RabbitConstants.ORDER_UNPAID_DELAY_EXCHANGE, RabbitConstants.DELAY_ROUTING_KEY, savePayOrderPo.getId(), message -> {
-            // TODO 如果配置了 params.put("x-message-ttl", 5 * 1000); 那么这一句也可以省略,具体根据业务需要是声明 Queue 的时候就指定好延迟时间还是在发送自己控制时间
 
             // message.getMessageProperties().setExpiration(basicSettingPo.getAutoCloseOrderDay()*24*60*60*1000 + "");
             message.getMessageProperties().setExpiration(expireTime);
@@ -1158,7 +1158,12 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         });
         LoggerUtil.info("【下单等待取消订单发送时间】:" + LocalDateTime.now());
 
-        return savePayOrderPo.getId();
+        // TODO: 2019/9/25 积分暂时固定为0
+        SubmitOrderVo submitOrderVo=new SubmitOrderVo();
+        submitOrderVo.setPayOrderId(savePayOrderPo.getId()).setTotalMoney(savePayOrderPo.getPayAmount())
+                .setTotalRedEnvelops(totalRedEnvelops).setTotalShopTicket(totalShopTicket).setTotalIntegral(BigDecimal.ZERO);
+
+        return submitOrderVo;
     }
 
     /**
