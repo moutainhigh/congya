@@ -166,7 +166,10 @@ public class CustomsApi {
                 response.setContentType("text/html;charset=utf-8");
 
                 writer = response.getWriter();
-
+                //保存上传结果
+                CustomsDataPo updateCustom=new CustomsDataPo();
+                updateCustom.setId(Long.parseLong(orderNo)).setResponseBody(responseEntity.getBody());
+                customsDataService.updateById(updateCustom);
 
                 System.out.println("发送海关处理结果：" + responseEntity.getBody());
                 writer.write(responseEntity.getBody());

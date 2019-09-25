@@ -97,7 +97,7 @@ public class CustomsDataServiceImpl extends AbstractService<CustomsDataMapper, C
         body179.setOrderNo(queryCustom.getOrderId()).setGoodsInfo(goodsInfos);
         payExchangeInfoLists.add(body179);
 
-        hgCheckVO.setServiceTime(System.currentTimeMillis()+"").setSessionID(queryCustom.getSessionId())
+        hgCheckVO.setServiceTime(queryCustom.getCreateTime().toEpochSecond(ZoneOffset.of("+8"))+"").setSessionID(queryCustom.getSessionId())
         .setPayExchangeInfoHead(payExchangeInfoHead).setPayExchangeInfoLists(payExchangeInfoLists);
 
         return new CustomsDataWithMyId(queryCustom.getId()+"",hgCheckVO);
