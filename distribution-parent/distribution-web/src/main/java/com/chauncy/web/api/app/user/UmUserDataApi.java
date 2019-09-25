@@ -135,7 +135,7 @@ public class UmUserDataApi extends BaseApi {
     @GetMapping("/findShipArea")
     @ApiOperation("查找用户收货地址")
     public JsonViewData<List<ShipAreaVo>> findShipArea(){
-        Long userId = Long.valueOf(securityUtil.getCurrUser().getId());
+        Long userId = Long.valueOf(securityUtil.getAppCurrUser().getId());
         return new JsonViewData(shipService.findShipArea(userId));
     }
 

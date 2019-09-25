@@ -1,117 +1,117 @@
-//package com.chauncy.data.haiguan;
-//
-//
-//import com.google.common.collect.Maps;
-//import net.sf.json.JSONArray;
-//import net.sf.json.JSONObject;
-//
-//import java.math.BigDecimal;
-//import java.text.SimpleDateFormat;
-//import java.util.ArrayList;
-//import java.util.List;
-//import java.util.Map;
-//import java.util.concurrent.ConcurrentHashMap;
-//
-//
-///**
-// * 接收海关发来的消息
-// *
-// * @author 你的爷爷 bug
-// */
-//public class HaiGuanApi {
-//    private String orderNo;
-//    private String sessionID;
-//    private String serviceTime;
-//
-//    public static Map<String, String> MAP_HAI = new ConcurrentHashMap();
-//
-//    public static Map<String, JSONObject> MAP_VALUE = new ConcurrentHashMap();
-//
-//    public synchronized void removeMapOrderNo(String orderNo) {
-//        MAP_HAI.remove(orderNo);
-//        MAP_VALUE.remove(orderNo);
-//    }
-//
-//    public synchronized void setMapOrderNo(String key, String haiValue, JSONObject asin) {
-//        MAP_HAI.put(key, haiValue);
-//        MAP_VALUE.put(key, asin);
-//    }
-//
-//    public HaiGuanApi() {
-//
-//
-//    }
-//
-//    public Map<String, Object> responseServiceSuccess() {
-//
-//        Map<String, Object> map = Maps.newHashMap();
-//        map.put("code", "10000");
-//        map.put("message", "");
-//        map.put("serviceTime", System.currentTimeMillis());
-//
-//        return map;
-//
-//    }
-//
-//    public Map<String, Object> responseServiceError() {
-//        Map<String, Object> map = Maps.newHashMap();
-//        map.put("code", "20000");
-//        map.put("message", "parms is null.");
-//        map.put("serviceTime", System.currentTimeMillis());
-//
-//        return map;
-//    }
-//
-//
-//    /**
-//     * 海关加签方法
-//     * <p>
-//     * sessionID，
-//     * payExchangeInfoHead，
-//     * payExchangeInfoLists，
-//     * serviceTime
-//     *
-//     * @return
-//     */
-//    public String apptenBufferUtils(JSONObject parmar) {
-//
-//        StringBuffer buffer = new StringBuffer();
-//        buffer.append("\"sessionID\":\"" + parmar.get("sessionID") + "\"");
-//        buffer.append("||");
-//        buffer.append("\"payExchangeInfoHead\":\"" + parmar.get("payExchangeInfoHead") + "\"");
-//        buffer.append("||");
-//        buffer.append("\"payExchangeInfoLists\":\"" + parmar.get("payExchangeInfoLists") + "\"");
-//        buffer.append("||");
-//        buffer.append("\"serviceTime\":\"" + parmar.get("serviceTime") + "\"");
-//
-//        return buffer.toString();
-//    }
-//
-//
-//    public String getOrderNo() {
-//        return orderNo;
-//    }
-//
-//    public void setOrderNo(String orderNo) {
-//        this.orderNo = orderNo;
-//    }
-//
-//    public String getSessionID() {
-//        return sessionID;
-//    }
-//
-//    public void setSessionID(String sessionID) {
-//        this.sessionID = sessionID;
-//    }
-//
-//    public String getServiceTime() {
-//        return serviceTime;
-//    }
-//
-//    public void setServiceTime(String serviceTime) {
-//        this.serviceTime = serviceTime;
-//    }
-//
+package com.chauncy.data.haiguan;
+
+
+import com.google.common.collect.Maps;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+
+/**
+ * 接收海关发来的消息
+ *
+ * @author 你的爷爷 bug
+ */
+public class HaiGuanApi {
+    private String orderNo;
+    private String sessionID;
+    private String serviceTime;
+
+    public static Map<String, String> MAP_HAI = new ConcurrentHashMap();
+
+    public static Map<String, JSONObject> MAP_VALUE = new ConcurrentHashMap();
+
+    public synchronized void removeMapOrderNo(String orderNo) {
+        MAP_HAI.remove(orderNo);
+        MAP_VALUE.remove(orderNo);
+    }
+
+    public synchronized void setMapOrderNo(String key, String haiValue, JSONObject asin) {
+        MAP_HAI.put(key, haiValue);
+        MAP_VALUE.put(key, asin);
+    }
+
+    public HaiGuanApi() {
+
+
+    }
+
+    public Map<String, Object> responseServiceSuccess() {
+
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("code", "10000");
+        map.put("message", "");
+        map.put("serviceTime", System.currentTimeMillis());
+
+        return map;
+
+    }
+
+    public Map<String, Object> responseServiceError() {
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("code", "20000");
+        map.put("message", "parms is null.");
+        map.put("serviceTime", System.currentTimeMillis());
+
+        return map;
+    }
+
+
+    /**
+     * 海关加签方法
+     * <p>
+     * sessionID，
+     * payExchangeInfoHead，
+     * payExchangeInfoLists，
+     * serviceTime
+     *
+     * @return
+     */
+    public String apptenBufferUtils(JSONObject parmar) {
+
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("\"sessionID\":\"" + parmar.get("sessionID") + "\"");
+        buffer.append("||");
+        buffer.append("\"payExchangeInfoHead\":\"" + parmar.get("payExchangeInfoHead") + "\"");
+        buffer.append("||");
+        buffer.append("\"payExchangeInfoLists\":\"" + parmar.get("payExchangeInfoLists") + "\"");
+        buffer.append("||");
+        buffer.append("\"serviceTime\":\"" + parmar.get("serviceTime") + "\"");
+
+        return buffer.toString();
+    }
+
+
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
+    }
+
+    public String getSessionID() {
+        return sessionID;
+    }
+
+    public void setSessionID(String sessionID) {
+        this.sessionID = sessionID;
+    }
+
+    public String getServiceTime() {
+        return serviceTime;
+    }
+
+    public void setServiceTime(String serviceTime) {
+        this.serviceTime = serviceTime;
+    }
+
 //    //推荐传个 对象 order 方便一点  直接处理
 //    public boolean putPostMsg(String orderNo) {
 //        try {
@@ -184,15 +184,15 @@
 //        }
 //
 //    }
-//
-//    public static void main(String[] args) {
-//        String no = "SC123564DEPT1021";
-//
-//        String dept = no.substring(no.indexOf("DEPT"));
-//        String orderCode = no.substring(0, no.indexOf("DEPT"));
-//        Long id = Long.parseLong(dept.replaceAll("DEPT", ""));
-//        System.out.println(orderCode);
-//        System.out.println(dept);
-//        System.out.println(id);
-//    }
-//}
+
+    public static void main(String[] args) {
+        String no = "SC123564DEPT1021";
+
+        String dept = no.substring(no.indexOf("DEPT"));
+        String orderCode = no.substring(0, no.indexOf("DEPT"));
+        Long id = Long.parseLong(dept.replaceAll("DEPT", ""));
+        System.out.println(orderCode);
+        System.out.println(dept);
+        System.out.println(id);
+    }
+}

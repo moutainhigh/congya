@@ -1,6 +1,10 @@
 package com.chauncy.data.haiguan.vo;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONType;
+import lombok.Data;
+import lombok.experimental.Accessors;
+import net.sf.json.JSONObject;
 
 /**
  * 海关抽样数据格式对象.<br>
@@ -11,24 +15,36 @@ import com.alibaba.fastjson.annotation.JSONType;
  *
  */
 @JSONType(orders = { "sessionID", "payExchangeInfoHead", "payExchangeInfoLists", "serviceTime", "certNo", "signValue" })
+@Data
+@Accessors(chain = true)
 public class HgCheckVO extends HgSignVO{
-	private String certNo;
+	private String certNo="013b5b11";
 	private String signValue;
 
-	public String getCertNo() {
-		return certNo;
+
+	/**
+	 * 海关加签方法
+	 * <p>
+	 * sessionID，
+	 * payExchangeInfoHead，
+	 * payExchangeInfoLists，
+	 * serviceTime
+	 *
+	 * @return
+	 */
+	public String apptenBufferUtils() {
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("\"sessionID\":\"" + this.getSessionID() + "\"");
+		buffer.append("||");
+		buffer.append("\"payExchangeInfoHead\":\"" + JSON.toJSONString(this.getPayExchangeInfoHead()) + "\"");
+		buffer.append("||");
+		buffer.append("\"payExchangeInfoLists\":\"" + JSON.toJSONString(this.getPayExchangeInfoLists()) + "\"");
+		buffer.append("||");
+		buffer.append("\"serviceTime\":\"" + this.getServiceTime() + "\"");
+
+		return buffer.toString();
 	}
 
-	public void setCertNo(String certNo) {
-		this.certNo = certNo;
-	}
-
-	public String getSignValue() {
-		return signValue;
-	}
-
-	public void setSignValue(String signValue) {
-		this.signValue = signValue;
-	}
 
 }

@@ -1,5 +1,6 @@
 package com.chauncy.data.vo.app.evaluate;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -39,6 +40,10 @@ public class GoodsEvaluateVo {
     @ApiModelProperty(value = "评价 Id")
     private Long id;
 
+    @ApiModelProperty(value = "店铺 Id",hidden = true)
+    @JSONField(serialize = false)
+    private Long storeId;
+
     @ApiModelProperty(value = "评价星级")
     private Integer startLevel;
 
@@ -52,5 +57,16 @@ public class GoodsEvaluateVo {
 
     @ApiModelProperty(value = "是否点赞")
     private Boolean isLiked;
+
+    @ApiModelProperty("商家头像")
+    private String merchantIcon;
+
+    @ApiModelProperty("商家昵称")
+    private String merchantNickName;
+
+    @ApiModelProperty(value = "评价回复时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime replyTime;
 
 }

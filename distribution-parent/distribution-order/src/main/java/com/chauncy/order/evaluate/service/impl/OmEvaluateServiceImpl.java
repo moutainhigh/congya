@@ -1,7 +1,7 @@
 package com.chauncy.order.evaluate.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.chauncy.common.enums.app.activity.evaluate.EvaluateEnum;
+import com.chauncy.common.constant.SecurityConstant;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
@@ -10,7 +10,6 @@ import com.chauncy.data.domain.po.order.OmEvaluateLikedPo;
 import com.chauncy.data.domain.po.order.OmEvaluatePo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
-import com.chauncy.data.domain.po.user.UmUserFavoritesPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.evaluate.add.AddValuateDto;
 import com.chauncy.data.dto.app.order.evaluate.add.SearchEvaluateDto;
@@ -21,6 +20,8 @@ import com.chauncy.data.mapper.order.OmEvaluateLikedMapper;
 import com.chauncy.data.mapper.order.OmEvaluateMapper;
 import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
+import com.chauncy.data.mapper.sys.SysUserMapper;
+import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.app.evaluate.EvaluateLevelNumVo;
 import com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo;
 import com.chauncy.data.vo.supplier.evaluate.EvaluateVo;
@@ -61,6 +62,9 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
 
     @Autowired
     private SmStoreMapper storeMapper;
+
+    @Autowired
+    private SysUserMapper userMapper;
 
     @Autowired
     private OmOrderMapper orderMapper;
@@ -133,6 +137,16 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
 
         if (goodsEvaluateVo.getList().size() != 0 || goodsEvaluateVo.getList() != null) {
             goodsEvaluateVo.getList ().forEach (a -> {
+
+                //商家头像、商家昵称
+                SysUserPo sysUserPo = userMapper.selectOne(new QueryWrapper<SysUserPo>().lambda().and(obj->obj
+                        .eq(SysUserPo::getStoreId,a.getStoreId()).eq(SysUserPo::getType, SecurityConstant.USER_TYPE_ADMIN)
+                        .eq(SysUserPo::getSystemType,SecurityConstant.SYS_TYPE_SUPPLIER)));
+
+                if (sysUserPo != null){
+                    a.setMerchantIcon(sysUserPo.getAvatar());
+                    a.setMerchantNickName(sysUserPo.getNickName());
+                }
                 OmEvaluateLikedPo evaluateLikedPo = evaluateLikedMapper.selectOne(new QueryWrapper<OmEvaluateLikedPo>().lambda()
                         .eq(OmEvaluateLikedPo::getUserId,userPo.getId()).eq(OmEvaluateLikedPo::getEvaluateId,a.getId())
                         .eq(OmEvaluateLikedPo::getIsLiked,true));
@@ -147,6 +161,7 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
                 List<OmEvaluatePo> evaluatePo = mapper.selectByMap (map1);
                 if (evaluatePo != null && evaluatePo.size () != 0) {
                     a.setReply (evaluatePo.get (0).getContent ());
+                    a.setReplyTime(evaluatePo.get (0).getCreateTime());
                 }
             });
         }
