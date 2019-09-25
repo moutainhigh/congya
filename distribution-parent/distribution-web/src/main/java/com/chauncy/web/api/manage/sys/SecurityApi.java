@@ -45,7 +45,7 @@ public class SecurityApi {
 
         log.error("您还未登录");
 
-        return new JsonViewData (ResultCode.FAIL,"您还未登录！");
+        return new JsonViewData (ResultCode.NO_LOGIN,"您还未登录！");
     }
 
     @GetMapping("/logout")

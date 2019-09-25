@@ -1,6 +1,7 @@
 package com.chauncy.message.advice.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.chauncy.common.enums.app.activity.group.GroupTypeEnum;
 import com.chauncy.common.enums.app.advice.AdviceLocationEnum;
 import com.chauncy.common.enums.app.advice.AdviceTypeEnum;
 import com.chauncy.common.enums.app.advice.AssociationTypeEnum;
@@ -9,6 +10,7 @@ import com.chauncy.common.enums.app.sort.SortFileEnum;
 import com.chauncy.common.enums.app.sort.SortWayEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.bo.app.order.reward.RewardShopTicketBo;
 import com.chauncy.data.core.AbstractService;
@@ -41,6 +43,9 @@ import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.advice.AdviceTabVo;
+import com.chauncy.data.vo.app.advice.activity.ActivityGroupDetailVo;
+import com.chauncy.data.vo.app.advice.activity.ActivityGroupListVo;
+import com.chauncy.data.vo.app.advice.activity.ActivityGroupTabVo;
 import com.chauncy.data.vo.app.advice.goods.BrandGoodsVo;
 import com.chauncy.data.vo.app.advice.goods.SearchBrandAndSkuBaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
@@ -60,6 +65,7 @@ import com.chauncy.data.vo.manage.message.advice.tab.association.acticity.Activi
 import com.chauncy.data.vo.manage.message.advice.tab.association.acticity.AdviceActivityGroupVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SellHotRelGoodsVo;
 import com.chauncy.data.vo.manage.message.advice.tab.tab.*;
+import com.chauncy.data.vo.supplier.StandardValueAndStatusVo;
 import com.chauncy.message.advice.IMmAdviceService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
@@ -144,6 +150,83 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
     @Autowired
     private SecurityUtil securityUtil;
 
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/24 16:28
+     * @Description 点击积分专区，满减专区获取活动分组信息
+     *
+     * @Update yeJH
+     *
+     * @param  groupType 活动分组类型 1：满减  2：积分
+     * @return java.util.List<com.chauncy.data.vo.app.advice.activity.ActivityGroupListVo>
+     **/
+    @Override
+    public List<ActivityGroupListVo> findActivityGroup(Integer groupType) {
+
+        List<ActivityGroupListVo> activityGroupListVoList ;
+        if (groupType.equals(GroupTypeEnum.REDUCED.getId())) {
+            //满减活动
+            activityGroupListVoList = mapper.findActivityGroup(AdviceLocationEnum.REDUCED_ACTIVITY.name(), groupType);
+        } else if(groupType.equals(GroupTypeEnum.INTEGRALS.getId())) {
+            //积分活动
+            activityGroupListVoList = mapper.findActivityGroup(AdviceLocationEnum.INTEGRALS_ACTIVITY.name(), groupType);
+        } else {
+            throw new ServiceException(ResultCode.PARAM_ERROR, "groupType参数错误");
+        }
+
+        return activityGroupListVoList;
+
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/24 18:01
+     * @Description 根据活动分组关联表id获取活动分组详情
+     *              获取选项卡信息（满减：热销精选；积分：精选商品）
+     *              获取轮播图信息
+     *
+     * @Update yeJH
+     *
+     * @param  relId  广告与活动分组关联表id
+     * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.app.advice.activity.ActivityGroupTabVo>>
+     **/
+    @Override
+    public ActivityGroupDetailVo findActivityGroupDetail(Long relId) {
+        MmAdviceRelAssociaitonPo adviceRelAssociaitonPo = relAssociaitonMapper.selectById(relId);
+        if(null == adviceRelAssociaitonPo) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "活动分组记录不存在");
+        }
+        List<ActivityGroupTabVo> activityGroupTabVoList;
+        if(adviceRelAssociaitonPo.getType().equals(AssociationTypeEnum.INTEGRALS_GROUP.getId())) {
+            //积分活动
+            activityGroupTabVoList = mapper.findIntegralsGroupTab(relId);
+            activityGroupTabVoList.forEach(activityGroupTabVo -> {
+                if(null != activityGroupTabVo.getActivityGoodsVoList()
+                        && activityGroupTabVo.getActivityGoodsVoList().size() > 0) {
+                    activityGroupTabVo.getActivityGoodsVoList().forEach(goodsVo -> {
+                        //积分堤口苦金额 = 商品售价 * （积分抵扣比例 / 100）
+                        BigDecimal deductibleAmount = BigDecimalUtil.safeMultiply(goodsVo.getSellPrice(),
+                                BigDecimalUtil.safeDivide(goodsVo.getDiscountPriceRatio(), new BigDecimal("100")));
+                        goodsVo.setDeductibleAmount(deductibleAmount);
+                    });
+                }
+            });
+        } else if(adviceRelAssociaitonPo.getType().equals(AssociationTypeEnum.REDUCED_GROUP.getId())) {
+            //满减活动
+            activityGroupTabVoList = mapper.findReducedGroupTab(relId);
+        } else {
+            throw new ServiceException(ResultCode.FAIL, "活动分组关联类型出错");
+        }
+
+        List<ShufflingVo> shufflingVoList = mapper.getShufflingByRelId(relId);
+
+        ActivityGroupDetailVo activityGroupDetailVo = new ActivityGroupDetailVo();
+        activityGroupDetailVo.setActivityGroupTabVoList(activityGroupTabVoList);
+        activityGroupDetailVo.setShufflingVoList(shufflingVoList);
+
+        return activityGroupDetailVo;
+    }
 
     /**
      * 获取广告位置

@@ -15,6 +15,9 @@ import com.chauncy.data.dto.manage.message.advice.select.SearchAssociatedClassif
 import com.chauncy.data.dto.manage.message.advice.select.SearchInformationCategoryDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.advice.AdviceTabVo;
+import com.chauncy.data.vo.app.advice.activity.ActivityGroupDetailVo;
+import com.chauncy.data.vo.app.advice.activity.ActivityGroupListVo;
+import com.chauncy.data.vo.app.advice.activity.ActivityGroupTabVo;
 import com.chauncy.data.vo.app.advice.goods.SearchBrandAndSkuBaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseVo;
@@ -37,6 +40,32 @@ import java.util.List;
  * @since 2019-08-14
  */
 public interface IMmAdviceService extends Service<MmAdvicePo> {
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/24 16:27
+     * @Description 点击积分专区，满减专区获取活动分组信息
+     *
+     * @Update yeJH
+     *
+     * @param  groupType  活动分组类型 1：满减  2：积分
+     * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.app.advice.activity.ActivityGroupListVo>>
+     **/
+    List<ActivityGroupListVo> findActivityGroup(Integer groupType);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/24 18:01
+     * @Description 根据活动分组关联表id获取活动分组详情
+     *              获取选项卡信息（满减：热销精选；积分：精选商品）
+     *              获取轮播图信息
+     *
+     * @Update yeJH
+     *
+     * @param  relId  广告与活动分组关联表id
+     * @return com.chauncy.data.vo.app.advice.activity.ActivityGroupDetailVo
+     **/
+    ActivityGroupDetailVo findActivityGroupDetail(Long relId);
 
     /**
      * 获取广告位置
