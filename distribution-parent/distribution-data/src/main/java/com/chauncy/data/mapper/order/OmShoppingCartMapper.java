@@ -6,6 +6,7 @@ import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.app.car.CarGoodsVo;
 import com.chauncy.data.vo.app.car.ShopTicketSoWithCarGoodVo;
 import com.chauncy.data.vo.app.order.cart.CartVo;
+import com.chauncy.data.vo.app.order.cart.StoreGoodsVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
@@ -51,4 +52,16 @@ public interface OmShoppingCartMapper extends IBaseMapper<OmShoppingCartPo> {
     int updateDiscount(@Param("redEnvelops") BigDecimal redEnvelops,@Param("shopTicket") BigDecimal shopTicket,
     @Param("id") Long id
     );
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-25 20:24
+     * @Description //获取失效商品
+     *
+     * @Update chauncy
+     *
+     * @Param [id]
+     * @return java.util.List<com.chauncy.data.vo.app.order.cart.StoreGoodsVo>
+     **/
+    List<StoreGoodsVo> searchDisableList(Long id);
 }
