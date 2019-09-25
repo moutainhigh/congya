@@ -6,6 +6,7 @@ import com.chauncy.data.dto.app.advice.brand.select.FindBrandShufflingDto;
 import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
+import com.chauncy.data.dto.app.product.SearchActivityGoodsListDto;
 import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.advice.add.SaveClassificationAdviceDto;
@@ -15,6 +16,9 @@ import com.chauncy.data.dto.manage.message.advice.select.SearchAssociatedClassif
 import com.chauncy.data.dto.manage.message.advice.select.SearchInformationCategoryDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.advice.AdviceTabVo;
+import com.chauncy.data.vo.app.advice.activity.ActivityGroupDetailVo;
+import com.chauncy.data.vo.app.advice.activity.ActivityGroupListVo;
+import com.chauncy.data.vo.app.advice.activity.ActivityGroupTabVo;
 import com.chauncy.data.vo.app.advice.goods.SearchBrandAndSkuBaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseVo;
@@ -22,6 +26,7 @@ import com.chauncy.data.vo.app.advice.home.GetAdviceInfoVo;
 import com.chauncy.data.vo.app.advice.home.ShufflingVo;
 import com.chauncy.data.vo.app.advice.store.StoreCategoryDetailVo;
 import com.chauncy.data.vo.app.advice.store.StoreCategoryInfoVo;
+import com.chauncy.data.vo.app.goods.ActivityGoodsVo;
 import com.chauncy.data.vo.manage.message.advice.ClassificationVo;
 import com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo;
 import com.github.pagehelper.PageInfo;
@@ -37,6 +42,44 @@ import java.util.List;
  * @since 2019-08-14
  */
 public interface IMmAdviceService extends Service<MmAdvicePo> {
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/24 16:27
+     * @Description 点击积分专区，满减专区获取活动分组信息
+     *
+     * @Update yeJH
+     *
+     * @param  groupType  活动分组类型 1：满减  2：积分
+     * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.app.advice.activity.ActivityGroupListVo>>
+     **/
+    List<ActivityGroupListVo> findActivityGroup(Integer groupType);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/24 18:01
+     * @Description 根据活动分组关联表id获取活动分组详情
+     *              获取选项卡信息（满减：热销精选；积分：精选商品）
+     *              获取轮播图信息
+     *
+     * @Update yeJH
+     *
+     * @param  relId  广告与活动分组关联表id
+     * @return com.chauncy.data.vo.app.advice.activity.ActivityGroupDetailVo
+     **/
+    ActivityGroupDetailVo findActivityGroupDetail(Long relId);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/25 16:14
+     * @Description  获取活动商品列表
+     *
+     * @Update yeJH
+     *
+     * @param  searchActivityGoodsListDto  查询积分/满减活动商品列表参数
+     * @return com.chauncy.data.vo.JsonViewData<com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.goods.ActivityGoodsVo>>
+     **/
+    PageInfo<ActivityGoodsVo> findTabGoodsList(SearchActivityGoodsListDto searchActivityGoodsListDto);
 
     /**
      * 获取广告位置

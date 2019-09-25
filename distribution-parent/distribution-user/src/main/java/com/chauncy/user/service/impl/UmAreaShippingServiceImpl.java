@@ -44,7 +44,7 @@ public class UmAreaShippingServiceImpl extends AbstractService<UmAreaShippingMap
      * @return
      */
     @Override
-    public void addArea(AddAreaDto addAreaDto, UmUserPo userPo) {
+    public Long addArea(AddAreaDto addAreaDto, UmUserPo userPo) {
 
         UmAreaShippingPo areaShippingPo = updateDefault(addAreaDto,userPo);
         //获取当前登陆的用户ID
@@ -52,6 +52,7 @@ public class UmAreaShippingServiceImpl extends AbstractService<UmAreaShippingMap
         areaShippingPo.setCreateBy(userPo.getName());
         areaShippingPo.setId(null);
         mapper.insert(areaShippingPo);
+        return areaShippingPo.getId();
     }
 
     /**

@@ -24,7 +24,7 @@ public interface IUmAreaShippingService extends Service<UmAreaShippingPo> {
      * @param addAreaDto
      * @return
      */
-    void addArea(AddAreaDto addAreaDto, UmUserPo userPo);
+    Long addArea(AddAreaDto addAreaDto, UmUserPo userPo);
 
     /**
      * 用户修改收货地址

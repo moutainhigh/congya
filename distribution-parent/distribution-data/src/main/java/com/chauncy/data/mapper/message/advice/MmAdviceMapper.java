@@ -8,6 +8,8 @@ import com.chauncy.data.dto.manage.message.advice.select.SearchAdvicesDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.advice.AdviceTabVo;
+import com.chauncy.data.vo.app.advice.activity.ActivityGroupListVo;
+import com.chauncy.data.vo.app.advice.activity.ActivityGroupTabVo;
 import com.chauncy.data.vo.app.advice.goods.SearchBrandAndSkuBaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseVo;
@@ -15,6 +17,7 @@ import com.chauncy.data.vo.app.advice.home.GetAdviceInfoVo;
 import com.chauncy.data.vo.app.advice.home.ShufflingVo;
 import com.chauncy.data.vo.app.advice.store.StoreCategoryDetailVo;
 import com.chauncy.data.vo.app.advice.store.StoreCategoryInfoVo;
+import com.chauncy.data.vo.app.goods.ActivityGoodsVo;
 import com.chauncy.data.vo.manage.message.advice.FindBaiHuoAdviceVo;
 import com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo;
 import com.github.pagehelper.PageInfo;
@@ -31,6 +34,81 @@ import java.util.List;
  * @since 2019-08-14
  */
 public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/24 16:38
+     * @Description 点击积分专区，满减专区获取活动分组信息
+     *
+     * @Update yeJH
+     *
+     * @param  location  广告位置  REDUCED_ACTIVITY 满减  INTEGRALS_ACTIVITY  积分
+     * @param  groupType 活动分组类型 1：满减  2：积分
+     * @return java.util.List<com.chauncy.data.vo.app.advice.activity.ActivityGroupListVo>
+     **/
+    List<ActivityGroupListVo> findActivityGroup(@Param("location") String location, @Param("groupType")Integer groupType);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/24 18:01
+     * @Description 根据活动分组获取积分选项卡信息
+     *
+     * @Update yeJH
+     *
+     * @param  relId  广告与活动分组关联表id
+     * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.app.advice.activity.ActivityGroupTabVo>>
+     **/
+    List<ActivityGroupTabVo> findIntegralsGroupTab(@Param("relId") Long relId);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/24 18:01
+     * @Description 根据活动分组获取满减选项卡信息
+     *
+     * @Update yeJH
+     *
+     * @param  relId  广告与活动分组关联表id
+     * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.app.advice.activity.ActivityGroupTabVo>>
+     **/
+    List<ActivityGroupTabVo> findReducedGroupTab(@Param("relId") Long relId);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/24 18:01
+     * @Description 根据积分活动分组获取选项卡信息 积分：精选商品
+     *
+     * @Update yeJH
+     *
+     * @param  tabId  活动分组选项卡id
+     * @param  isPaging  是否分页  活动分组选项卡详情中商品只展示3个
+     * @return java.util.List<com.chauncy.data.vo.app.goods.ActivityGoodsVo>
+     **/
+    List<ActivityGoodsVo> findIntegralsGroupTabDetail(@Param("tabId") Long tabId, @Param("isPaging") Boolean isPaging);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/24 18:01
+     * @Description 根据满减活动分组选项卡信息获取满减：热销精选
+     *
+     * @Update yeJH
+     *
+     * @param  tabId  活动分组选项卡id
+     * @param  isPaging  是否分页  活动分组选项卡详情中商品只展示3个
+     * @return java.util.List<com.chauncy.data.vo.app.goods.ActivityGoodsVo>
+     **/
+    List<ActivityGoodsVo> findReducedGroupTabDetail(@Param("tabId") Long tabId, @Param("isPaging") Boolean isPaging);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/25 13:18
+     * @Description  分组活动关联的轮播图
+     *
+     * @Update yeJH
+     *
+     * @param  relId
+     * @return java.util.List<com.chauncy.data.vo.app.advice.home.ShufflingVo>
+     **/
+    List<ShufflingVo> getShufflingByRelId(Long relId);
 
     /**
      * 条件分页查询广告基本信息

@@ -56,12 +56,12 @@
             `pgs`.sell_price,
             `pgs`.line_price
         FROM
-            pm_goods `pg` ,
-            pm_goods_sku `pgs`
+            pm_goods `pg`
+            left join pm_goods_sku `pgs` on `pg`.id = `pgs`.goods_id
         WHERE
-            `pg`.id = `pgs`.goods_id
-            AND `pg`.store_id = #{storeId}
+            `pg`.store_id = #{storeId}
             AND `pg`.publish_status = 1
+            AND pgs.del_flag = 0
             AND recommand_status = 1
             AND `pgs`.id = (
                     SELECT temp.id
