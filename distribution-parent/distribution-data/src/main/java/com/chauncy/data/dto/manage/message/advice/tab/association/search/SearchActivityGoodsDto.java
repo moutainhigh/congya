@@ -15,10 +15,10 @@ import javax.validation.constraints.NotNull;
  * @Author cheng
  * @create 2019-08-14 16:07
  *
- * 分页查询需要被关联的商品
+ * 分页查询需要被关联参与活动的商品
  */
 @Data
-@ApiModel(description = "分页查询需要被关联的商品")
+@ApiModel(description = "分页查询需要被关联参与活动的商品")
 @Accessors(chain = true)
 public class SearchActivityGoodsDto {
 
@@ -31,7 +31,7 @@ public class SearchActivityGoodsDto {
     private Integer pageSize;
 
     @ApiModelProperty(value = "商品名称")
-    private String name;
+    private String goodsName;
 
     @ApiModelProperty(value = "活动名称")
     private String activityName;
@@ -39,8 +39,10 @@ public class SearchActivityGoodsDto {
     @ApiModelProperty(value = "三级分类ID")
     private Long categoryId;
 
+    @ApiModelProperty(value = "活动分组Id，当广告位置为积分活动广告和满减活动广告时，该值必须传")
+    private Long activityGroupId;
+
     @ApiModelProperty("活动类型 1-满减；2-积分；3-秒杀；4-拼团")
-    @EnumConstraint(target = ActivityTypeEnum.class)
     @NotNull(message = "活动类型不能为空")
     private Integer activityType;
 

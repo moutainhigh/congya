@@ -1,5 +1,6 @@
 package com.chauncy.data.vo.manage.message.advice.tab.tab;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -22,7 +23,8 @@ public class SearchAdviceGoodsVo {
     @ApiModelProperty("商品名称")
     private String name;
 
-    @ApiModelProperty("第三级分类ID")
+    @ApiModelProperty(value = "第三级分类ID",hidden = true)
+    @JSONField(serialize = false)
     private Long goodsCategoryId;
 
     @ApiModelProperty("所属类目")

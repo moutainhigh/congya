@@ -20,7 +20,7 @@ import javax.validation.constraints.NotNull;
 @Accessors(chain = true)
 public class AddAreaDto {
 
-    @ApiModelProperty(value = "收货地址Id")
+    @ApiModelProperty(value = "收货地址Id，新增时不传")
     @NeedExistConstraint(tableName ="um_area_shipping",groups = IUpdateGroup.class,message = "收货地址【id】不存在！")
     private Long id;
 

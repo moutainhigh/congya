@@ -480,7 +480,10 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 /******************* Tab start ****************/
 
                 //有店+店铺分类详情
+                //积分、满减活动广告
                 case STORE_DETAIL:
+                case INTEGRALS_ACTIVITY:
+                case REDUCED_ACTIVITY:
                     List<Long> relId = relAssociaitonMapper.selectList(new QueryWrapper<MmAdviceRelAssociaitonPo>().lambda()
                             .eq(MmAdviceRelAssociaitonPo::getAdviceId, a)).stream().map(b -> b.getId()).collect(Collectors.toList());
                     relId.forEach(c -> {
@@ -493,6 +496,12 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                         });
                         relTabAssociationMapper.delete(new QueryWrapper<MmAdviceRelTabAssociationPo>().lambda()
                                 .eq(MmAdviceRelTabAssociationPo::getRelId, c));
+                        if (adviceLocationEnum.getId() == AdviceLocationEnum.INTEGRALS_ACTIVITY.getId() ||
+                            adviceLocationEnum.getId() == AdviceLocationEnum.REDUCED_ACTIVITY.getId()){
+                            //删除该广告下的活动分组的轮播图广告
+                            relShufflingMapper.delete(new QueryWrapper<MmAdviceRelShufflingPo>().lambda().and(obj -> obj
+                                    .eq(MmAdviceRelShufflingPo::getRelActivityGroupId, c)));
+                        }
                     });
                     relAssociaitonMapper.delete(new QueryWrapper<MmAdviceRelAssociaitonPo>().lambda().and(obj -> obj
                             .eq(MmAdviceRelAssociaitonPo::getAdviceId, a)));

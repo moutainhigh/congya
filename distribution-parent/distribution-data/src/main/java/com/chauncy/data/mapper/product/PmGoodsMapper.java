@@ -220,12 +220,60 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
     /**
      * @Author chauncy
      * @Date 2019-09-24 10:39
-     * @Description //条件分页查询参与对应活动的商品信息
+     * @Description //条件分页查询参与对应积分活动分组的商品信息
      *
      * @Update chauncy
      *
      * @Param [searchActivityGoodsDto]
      * @return java.util.List<com.chauncy.data.vo.manage.message.advice.tab.tab.SearchAdviceGoodsVo>
      **/
-    List<SearchActivityGoodsVo> searchActivityGoods(SearchActivityGoodsDto searchActivityGoodsDto);
+    List<SearchActivityGoodsVo> searchIntegralsGoods(SearchActivityGoodsDto searchActivityGoodsDto);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-24 16:28
+     * @Description //查找已经上架的商品
+     *
+     * @Update chauncy
+     *
+     * @Param [searchActivityGoodsDto]
+     * @return java.util.List<com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGoodsVo>
+     **/
+    List<SearchActivityGoodsVo> searchGoods(SearchActivityGoodsDto searchActivityGoodsDto);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-24 17:00
+     * @Description //条件分页查询参与对应满减活动分组的商品信息
+     *
+     * @Update chauncy
+     *
+     * @Param [searchActivityGoodsDto]
+     * @return java.util.List<com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGoodsVo>
+     **/
+    List<SearchActivityGoodsVo> searchReducedGoods(SearchActivityGoodsDto searchActivityGoodsDto);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-24 17:33
+     * @Description //条件分页查询参与对应满减活动分组的商品信息
+     *
+     * @Update chauncy
+     *
+     * @Param [searchActivityGoodsDto]
+     * @return java.util.List<com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGoodsVo>
+     **/
+    List<SearchActivityGoodsVo> searchSeckillGoods(SearchActivityGoodsDto searchActivityGoodsDto);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-24 18:38
+     * @Description //条件分页查询参与对应满减活动分组的商品信息
+     *
+     * @Update chauncy
+     *
+     * @Param [searchActivityGoodsDto]
+     * @return void
+     **/
+    List<SearchActivityGoodsVo> searchSpellGroupGoods(SearchActivityGoodsDto searchActivityGoodsDto);
 }

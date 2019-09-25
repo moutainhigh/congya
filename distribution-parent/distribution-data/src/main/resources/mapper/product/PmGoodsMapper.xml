@@ -644,7 +644,7 @@
     <select id="searchTabNeedGoods" resultType="com.chauncy.data.vo.manage.message.advice.tab.tab.SearchAdviceGoodsVo">
         select id,name,goods_category_id
         from pm_goods
-        where del_flag = 0
+        where del_flag = 0 and publish_status = 1
         <if test="name!=null and name!=''">
             and name like concat('%', #{name}, '%')
         </if>
@@ -661,9 +661,72 @@
         where a.shipping_template_id = b.id and a.id = #{goodsId}
 
     </select>
-    <select id="searchActivityGoods"
+    <select id="searchIntegralsGoods"
             resultType="com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGoodsVo">
+        select a.id as goods_id,a.goods_category_id,a.name as goods_name,b.name as activity_name,b.activity_start_time,
+                b.activity_end_time,d.name as activity_group_name
+        from pm_goods a,am_integrals b,am_activity_rel_activity_goods c,am_activity_group d
+        where a.del_flag = 0 and b.del_flag	=0 and c.del_flag =0 and d.del_flag = 0 and
+                c.activity_id = b.id and c.goods_id = a.id and d.id = b.group_id and c.activity_type = 2 and
+                b.group_id = #{activityGroupId} and a.publish_status =1 and c.verify_status = 3
+                and b.activity_start_time &lt;= NOW() and b.activity_end_time &gt;= NOW()
+        <if test="goodsName!=null and goodsName!=''">
+            and a.name like concat('%', #{goodsName}, '%')
+        </if>
+        <if test="categoryId!=null and categoryId!=''">
+            and a.goods_category_id = #{categoryId}
+        </if>
+        <if test="activityName!=null and activityName!=''">
+            and b.name like concat('%', #{activityName}, '%')
+        </if>
 
+    </select>
+    <select id="searchGoods"
+            resultType="com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGoodsVo">
+        select id as goods_id,goods_category_id,name as goods_name
+        from pm_goods
+        where del_flag = 0 and publish_status = 1
+        <if test="name!=null and name!=''">
+            and name like concat('%', #{name}, '%')
+        </if>
+        <if test="categoryId!=null and categoryId!=''">
+            and goods_category_id = #{categoryId}
+        </if>
+    </select>
+    <select id="searchReducedGoods"
+            resultType="com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGoodsVo">
+        select a.id as goods_id,a.goods_category_id,a.name as goods_name,b.name as activity_name,b.activity_start_time,
+            b.activity_end_time,d.name as activity_group_name
+        from pm_goods a,am_reduced b,am_activity_rel_activity_goods c,am_activity_group d
+        where a.del_flag = 0 and b.del_flag	=0 and c.del_flag =0 and d.del_flag = 0 and
+            c.activity_id = b.id and c.goods_id = a.id and d.id = b.group_id and c.activity_type = 1 and
+            b.group_id = #{activityGroupId} and a.publish_status =1 and c.verify_status = 3
+            and b.activity_start_time &lt;= NOW() and b.activity_end_time &gt;= NOW()
+        <if test="goodsName!=null and goodsName!=''">
+            and a.name like concat('%', #{goodsName}, '%')
+        </if>
+        <if test="categoryId!=null and categoryId!=''">
+            and a.goods_category_id = #{categoryId}
+        </if>
+        <if test="activityName!=null and activityName!=''">
+            and b.name like concat('%', #{activityName}, '%')
+        </if>
+    </select>
+    <select id="searchSeckillGoods"
+            resultType="com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGoodsVo">
+        select a.id as goods_id,a.goods_category_id,a.name as goods_name,b.name as activity_name,b.activity_start_time,b.activity_end_time
+        from pm_goods a,am_reduced b,am_activity_rel_activity_goods c
+        where a.del_flag = 0 and b.del_flag	=0 and c.del_flag =0 and
+        c.activity_id = b.id and c.goods_id = a.id and c.activity_type = 3
+        and a.publish_status =1 and c.verify_status = 3 and b.activity_start_time &lt;= NOW() and b.activity_end_time &gt;= NOW();
+    </select>
+    <select id="searchSpellGroupGoods"
+            resultType="com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGoodsVo">
+        select a.id as goods_id,a.goods_category_id,a.name as goods_name,b.name as activity_name,b.activity_start_time,b.activity_end_time
+        from pm_goods a,am_spell_group b,am_activity_rel_activity_goods c
+        where a.del_flag = 0 and b.del_flag	=0 and c.del_flag =0 and
+        c.activity_id = b.id and c.goods_id = a.id and c.activity_type = 4
+        and a.publish_status =1 and c.verify_status = 3 and b.activity_start_time &lt;= NOW() and b.activity_end_time &gt;= NOW();
     </select>
 
 
