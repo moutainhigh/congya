@@ -46,7 +46,7 @@ public class UmAreaShippingServiceImpl extends AbstractService<UmAreaShippingMap
     @Override
     public void addArea(AddAreaDto addAreaDto, UmUserPo userPo) {
 
-        UmAreaShippingPo areaShippingPo = updateDefault(addAreaDto);
+        UmAreaShippingPo areaShippingPo = updateDefault(addAreaDto,userPo);
         //获取当前登陆的用户ID
         areaShippingPo.setUmUserId(userPo.getId());
         areaShippingPo.setCreateBy(userPo.getName());
@@ -63,7 +63,7 @@ public class UmAreaShippingServiceImpl extends AbstractService<UmAreaShippingMap
     @Override
     public void updateArea(AddAreaDto updateAreaDto,UmUserPo userPo) {
 
-        UmAreaShippingPo areaShippingPo = updateDefault(updateAreaDto);
+        UmAreaShippingPo areaShippingPo = updateDefault(updateAreaDto,userPo);
         areaShippingPo.setUpdateBy(userPo.getName());
         mapper.updateById(areaShippingPo);
     }
@@ -113,12 +113,13 @@ public class UmAreaShippingServiceImpl extends AbstractService<UmAreaShippingMap
         return shipAreaVo;
     }
 
-    private UmAreaShippingPo updateDefault(AddAreaDto updateAreaDto) {
+    private UmAreaShippingPo updateDefault(AddAreaDto updateAreaDto,UmUserPo userPo) {
         if (updateAreaDto.getIsDefault()) {
             //判断当前用户是否已有默认收货地址，若有则把之前的置为0
             Map<String, Object> map = new HashMap<>();
             map.put("is_default", true);
-            if (mapper.selectByMap(map) != null && mapper.selectByMap(map).size() != 0) {
+            map.put("um_user_id",userPo.getId());
+            if (mapper.selectByMap(map) != null || mapper.selectByMap(map).size() != 0) {
                 UmAreaShippingPo po = mapper.selectByMap(map).get(0);
                 po.setIsDefault(false);
                 mapper.updateById(po);
