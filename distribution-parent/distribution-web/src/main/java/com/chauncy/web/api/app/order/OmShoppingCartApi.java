@@ -16,6 +16,7 @@ import com.chauncy.data.vo.app.goods.AssociatedGoodsVo;
 import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
 import com.chauncy.data.vo.app.order.cart.CartVo;
 import com.chauncy.data.vo.app.order.cart.MyCartVo;
+import com.chauncy.data.vo.app.order.cart.SubmitOrderVo;
 import com.chauncy.order.service.IOmRealUserService;
 import com.chauncy.order.service.IOmShoppingCartService;
 import com.chauncy.web.base.BaseApi;
@@ -161,7 +162,7 @@ public class OmShoppingCartApi extends BaseApi {
 
     @PostMapping("/submitOrder")
     @ApiOperation("购物车提交订单")
-    public JsonViewData submitOrder(@RequestBody @Validated SubmitOrderDto submitOrderDto) {
+    public JsonViewData<SubmitOrderVo> submitOrder(@RequestBody @Validated SubmitOrderDto submitOrderDto) {
 
         return setJsonViewData(service.submitOrder(submitOrderDto, getAppCurrUser()));
 
