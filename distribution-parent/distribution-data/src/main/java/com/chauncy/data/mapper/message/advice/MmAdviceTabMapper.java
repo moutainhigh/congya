@@ -2,6 +2,7 @@ package com.chauncy.data.mapper.message.advice;
 
 import com.chauncy.data.domain.po.message.advice.MmAdviceTabPo;
 import com.chauncy.data.mapper.IBaseMapper;
+import org.apache.ibatis.annotations.Select;
 
 /**
  * <p>
@@ -13,4 +14,6 @@ import com.chauncy.data.mapper.IBaseMapper;
  */
 public interface MmAdviceTabMapper extends IBaseMapper<MmAdviceTabPo> {
 
+    @Select("select * from am")
+    MmAdviceTabPo selectByTabId(Long tabId);
 }

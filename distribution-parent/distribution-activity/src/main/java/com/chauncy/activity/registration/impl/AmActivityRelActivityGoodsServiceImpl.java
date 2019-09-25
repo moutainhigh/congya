@@ -745,6 +745,29 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
      */
     @Override
     public void saveRegistration(SaveRegistrationDto saveRegistrationDto) {
+
+        //获取活动的开始时间和结束时间
+        ActivityTypeEnum activityTypeEnum = ActivityTypeEnum.fromName(saveRegistrationDto.getActivityType());
+        LocalDateTime activityStartTime = null;
+        LocalDateTime activityEndTime = null;
+        switch (activityTypeEnum) {
+            case NON:
+                break;
+            case REDUCED:
+                AmReducedPo amReducedPo = reducedMapper.selectById(saveRegistrationDto.getActivityId());
+                break;
+            case INTEGRALS:
+                AmIntegralsPo amIntegralsPo = integralsMapper.selectById(saveRegistrationDto.getActivityId());
+                break;
+            case SECKILL:
+                AmSeckillPo amSeckillPo = seckillMapper.selectById(saveRegistrationDto.getActivityId());
+                break;
+            case SPELL_GROUP:
+                AmSpellGroupPo amSpellGroupPo = spellGroupMapper.selectById(saveRegistrationDto.getActivityId());
+                break;
+        }
+
+
         SysUserPo sysUserPo = securityUtil.getCurrUser();
         if (sysUserPo.getStoreId() == null){
             throw new ServiceException(ResultCode.FAIL,String.format("用户:[%s]不是商家用户,不能执行此操作!",sysUserPo.getUsername()));

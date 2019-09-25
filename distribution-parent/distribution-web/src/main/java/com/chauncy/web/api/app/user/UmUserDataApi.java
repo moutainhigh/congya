@@ -71,9 +71,8 @@ public class UmUserDataApi extends BaseApi {
                                 @Validated AddAreaDto addAreaDto){
 
         UmUserPo userPo = securityUtil.getAppCurrUser();
-        shipService.addArea(addAreaDto,userPo);
 
-        return new JsonViewData(ResultCode.SUCCESS);
+        return new JsonViewData(shipService.addArea(addAreaDto,userPo));
     }
 
     /**
@@ -135,7 +134,7 @@ public class UmUserDataApi extends BaseApi {
     @GetMapping("/findShipArea")
     @ApiOperation("查找用户收货地址")
     public JsonViewData<List<ShipAreaVo>> findShipArea(){
-        Long userId = Long.valueOf(securityUtil.getCurrUser().getId());
+        Long userId = Long.valueOf(securityUtil.getAppCurrUser().getId());
         return new JsonViewData(shipService.findShipArea(userId));
     }
 

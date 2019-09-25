@@ -22,9 +22,9 @@ import java.util.List;
 @Accessors(chain = true)
 public class ActivityGroupDto {
 
-    @ApiModelProperty("广告和活动分组关联ID,新增时传0")
+    @ApiModelProperty("广告和活动分组关联ID,新增活动分组时传0")
     @JSONField(ordinal = 5)
-    private Long adviceRelActivityGroupId;
+    private Long relAdviceActivityGroupId;
 
     @ApiModelProperty("推荐的活动分组ID")
     @NeedExistConstraint(tableName = "am_activity_group")

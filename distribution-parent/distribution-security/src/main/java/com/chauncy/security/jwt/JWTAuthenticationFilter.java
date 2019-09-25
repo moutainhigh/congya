@@ -76,11 +76,6 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
         if(StrUtil.isBlank(header)){
             header = request.getParameter(SecurityConstant.HEADER);
         }
-        String v = redisTemplate.opsForValue().get(SecurityConstant.TOKEN_PRE + header);
-        if(StrUtil.isNotBlank(header) && StrUtil.isBlank(v)){
-            ResponseUtil.out(response, new JsonViewData<Object>(ResultCode.NO_LOGIN,"未登陆或登陆已超时！"));
-            return;
-        }
         Boolean notValid = StrUtil.isBlank(header) || (!tokenRedis && !header.startsWith(SecurityConstant.TOKEN_SPLIT));
         if (notValid) {
             chain.doFilter(request, response);
@@ -107,7 +102,7 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
             // redis
             String v = redisTemplate.opsForValue().get(SecurityConstant.TOKEN_PRE + header);
             if(StrUtil.isBlank(v)){
-                ResponseUtil.out(response, ResponseUtil.resultMap(false,401,"登录已失效，请重新登录"));
+                ResponseUtil.out(response, new JsonViewData<Object>(ResultCode.NO_LOGIN,"未登陆或登陆已超时！"));
                 return null;
             }
             TokenUser user = new Gson().fromJson(v, TokenUser.class);
@@ -152,10 +147,10 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
                     authorities = securityUtil.getCurrUserPerms(username);
                 }
             } catch (ExpiredJwtException e) {
-                ResponseUtil.out(response, ResponseUtil.resultMap(false,401,"登录已失效，请重新登录"));
+                ResponseUtil.out(response, new JsonViewData<Object>(ResultCode.NO_LOGIN,"未登陆或登陆已超时！"));
             } catch (Exception e){
                 log.error(e.toString());
-                ResponseUtil.out(response, ResponseUtil.resultMap(false,500,"解析token错误"));
+                ResponseUtil.out(response, new JsonViewData<Object>(ResultCode.FAIL,"解析token错误"));
             }
         }
 

@@ -2,9 +2,11 @@ package com.chauncy.web.api.manage.message.advice;
 
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.manage.message.advice.tab.association.add.SaveActivityGroupAdviceDto;
+import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchActivityGoodsDto;
 import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchActivityGroupDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGoodsVo;
 import com.chauncy.message.advice.IMmAdviceRelTabAssociationService;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
@@ -48,6 +50,24 @@ public class MmAdviceActivityGroupApi extends BaseApi {
                                                                @Validated SearchActivityGroupDto searchActivityGroupDto){
 
         return setJsonViewData(service.searchActivityGroup(searchActivityGroupDto));
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-24 10:33
+     * @Description //条件分页查询参与对应活动的商品信息
+     *
+     * @Update chauncy
+     *
+     * @Param [searchActivityGoodsDto]
+     * @return com.chauncy.data.vo.JsonViewData<com.github.pagehelper.PageInfo<com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGoodsVo>>
+     **/
+    @PostMapping("/searchActivityGoods")
+    @ApiOperation("条件分页查询参与对应活动的商品信息")
+    public JsonViewData<PageInfo<SearchActivityGoodsVo>> searchActivityGoods(@RequestBody @ApiParam(required = true,value = "searchActivityGoodsDto",name="分页获取对应的活动商品信息")
+                                                                             @Validated SearchActivityGoodsDto searchActivityGoodsDto){
+
+        return setJsonViewData(service.searchActivityGoods(searchActivityGoodsDto));
     }
 
     /**

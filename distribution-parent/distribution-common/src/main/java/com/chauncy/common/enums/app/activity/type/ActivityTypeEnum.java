@@ -11,6 +11,8 @@ import java.util.Objects;
  * @create 2019-07-23 17:46
  *
  * 活动类型
+ *
+ * 1-满减；2-积分；3-秒杀；4-拼团
  */
 @Getter
 public enum ActivityTypeEnum implements BaseEnum {

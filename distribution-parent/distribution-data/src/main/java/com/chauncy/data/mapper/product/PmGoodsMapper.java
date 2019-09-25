@@ -7,6 +7,7 @@ import com.chauncy.data.dto.app.component.ShareDto;
 import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
+import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchActivityGoodsDto;
 import com.chauncy.data.dto.manage.message.advice.tab.tab.search.SearchAdviceGoodsDto;
 import com.chauncy.data.dto.supplier.activity.select.SearchAssociatedGoodsDto;
 import com.chauncy.data.dto.supplier.good.select.SearchExcelDto;
@@ -20,6 +21,7 @@ import com.chauncy.data.vo.app.advice.store.GoodsSecondCategoryListVo;
 import com.chauncy.data.vo.app.component.ScreenGoodsParamVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
+import com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGoodsVo;
 import com.chauncy.data.vo.manage.message.advice.tab.tab.SearchAdviceGoodsVo;
 import com.chauncy.data.vo.supplier.activity.SearchAssociatedGoodsVo;
 import com.chauncy.data.vo.supplier.good.InformationRelGoodsVo;
@@ -215,4 +217,63 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
      */
     void shareGoods(ShareDto shareDto);
 
+    /**
+     * @Author chauncy
+     * @Date 2019-09-24 10:39
+     * @Description //条件分页查询参与对应积分活动分组的商品信息
+     *
+     * @Update chauncy
+     *
+     * @Param [searchActivityGoodsDto]
+     * @return java.util.List<com.chauncy.data.vo.manage.message.advice.tab.tab.SearchAdviceGoodsVo>
+     **/
+    List<SearchActivityGoodsVo> searchIntegralsGoods(SearchActivityGoodsDto searchActivityGoodsDto);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-24 16:28
+     * @Description //查找已经上架的商品
+     *
+     * @Update chauncy
+     *
+     * @Param [searchActivityGoodsDto]
+     * @return java.util.List<com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGoodsVo>
+     **/
+    List<SearchActivityGoodsVo> searchGoods(SearchActivityGoodsDto searchActivityGoodsDto);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-24 17:00
+     * @Description //条件分页查询参与对应满减活动分组的商品信息
+     *
+     * @Update chauncy
+     *
+     * @Param [searchActivityGoodsDto]
+     * @return java.util.List<com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGoodsVo>
+     **/
+    List<SearchActivityGoodsVo> searchReducedGoods(SearchActivityGoodsDto searchActivityGoodsDto);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-24 17:33
+     * @Description //条件分页查询参与对应满减活动分组的商品信息
+     *
+     * @Update chauncy
+     *
+     * @Param [searchActivityGoodsDto]
+     * @return java.util.List<com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGoodsVo>
+     **/
+    List<SearchActivityGoodsVo> searchSeckillGoods(SearchActivityGoodsDto searchActivityGoodsDto);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-24 18:38
+     * @Description //条件分页查询参与对应满减活动分组的商品信息
+     *
+     * @Update chauncy
+     *
+     * @Param [searchActivityGoodsDto]
+     * @return void
+     **/
+    List<SearchActivityGoodsVo> searchSpellGroupGoods(SearchActivityGoodsDto searchActivityGoodsDto);
 }

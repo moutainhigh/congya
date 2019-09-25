@@ -37,6 +37,12 @@ public class AmActivityRelActivityGoodsPo implements Serializable {
     @TableId(value = "id", type = IdType.ID_WORKER)
     private Long id;
 
+    @ApiModelProperty(value = "活动开始时间")
+    private LocalDateTime activityStartTime;
+
+    @ApiModelProperty(value = "活动结束时间")
+    private LocalDateTime activityEndTime;
+
     @ApiModelProperty(value = "创建者")
     private String createBy;
 

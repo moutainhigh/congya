@@ -6,6 +6,8 @@
     <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.activity.registration.AmActivityRelActivityGoodsPo">
         <id column="id" property="id" />
         <result column="create_by" property="createBy" />
+        <result column="activity_start_time" property="activityStartTime" />
+        <result column="activity_end_time" property="activityEndTime" />
         <result column="create_time" property="createTime" />
         <result column="update_by" property="updateBy" />
         <result column="update_time" property="updateTime" />

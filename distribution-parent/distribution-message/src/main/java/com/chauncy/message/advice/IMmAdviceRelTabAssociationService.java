@@ -1,15 +1,14 @@
 package com.chauncy.message.advice;
 
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.message.advice.MmAdviceRelTabAssociationPo;
 import com.chauncy.data.dto.manage.message.advice.tab.association.add.SaveActivityGroupAdviceDto;
 import com.chauncy.data.dto.manage.message.advice.tab.association.add.SaveStoreClassificationDto;
-import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchActivityGroupDto;
-import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchClassificationStoreDto;
-import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchStoreClassificationDto;
-import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchStoresDto;
+import com.chauncy.data.dto.manage.message.advice.tab.association.search.*;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.StoreVo;
+import com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGoodsVo;
 import com.github.pagehelper.PageInfo;
 
 /**
@@ -79,4 +78,16 @@ public interface IMmAdviceRelTabAssociationService extends Service<MmAdviceRelTa
      * @return void
      **/
     void saveActivityGroupAdvice(SaveActivityGroupAdviceDto saveActivityGroupAdviceDto);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-24 10:34
+     * @Description //条件分页查询参与对应活动的商品信息
+     *
+     * @Update chauncy
+     *
+     * @Param [searchActivityGoodsDto]
+     * @return com.chauncy.common.enums.system.ResultCode
+     **/
+    PageInfo<SearchActivityGoodsVo> searchActivityGoods(SearchActivityGoodsDto searchActivityGoodsDto);
 }

@@ -36,6 +36,157 @@
         id, create_by, create_time, update_by, update_time, del_flag, location, name, picture, enabled
     </sql>
 
+    <select id="findActivityGroup" resultType="com.chauncy.data.vo.app.advice.activity.ActivityGroupListVo">
+        SELECT
+            `mara`.id AS relId,
+            `aag`.id AS groupId,
+            `aag`.name AS groupName,
+            `aag`.picture AS groupPicture
+        FROM
+            mm_advice `ma`
+            LEFT JOIN mm_advice_rel_associaiton `mara` ON `mara`.`advice_id` = `ma`.id
+            LEFT JOIN am_activity_group `aag` ON `aag`.id = `mara`.`association_id`
+        <where>
+            AND `ma`.location = #{location}
+            AND `ma`.`enabled` = 1
+            AND `mara`.del_flag = 0
+            AND `aag`.`enable` = 1
+            AND `aag`.`del_flag`= 0
+            AND `aag`.`type` = #{groupType}
+        </where>
+        ORDER BY `aag`.create_time DESC
+    </select>
+
+    <resultMap id="reducedGroupTabResult" type="com.chauncy.data.vo.app.advice.activity.ActivityGroupTabVo">
+        <id column="tabId" property="tabId"/>
+        <result column="tabPicture" property="tabPicture"/>
+        <!--collection定义关联集合类型的属性封装规则
+        延迟加载 传递两个参数
+　　　　{pMenuId=child_pid,userId=userId}
+　　　　 传递查询参数名称=字段名称-->
+        <collection property="activityGoodsVoList" column="{tabId = tabId, isPaging = isPaging}"
+                    select="com.chauncy.data.mapper.message.advice.MmAdviceMapper.findReducedGroupTabDetail">
+        </collection>
+    </resultMap>
+    <select id="findReducedGroupTab" resultMap="reducedGroupTabResult">
+        SELECT
+            `mat`.id AS tabId,
+            `mat`.`name` AS tabPicture,
+            '0' as isPaging
+        FROM mm_advice_rel_tab_association `marta`
+        LEFT JOIN mm_advice_tab `mat` ON `marta`.tab_id = `mat`.`id`
+        <where>
+            `marta`.`rel_id` = #{relId}
+            AND `marta`.del_flag = 0
+            AND `mat`.del_flag = 0
+        </where>
+    </select>
+
+    <resultMap id="integralsGroupTabResult" type="com.chauncy.data.vo.app.advice.activity.ActivityGroupTabVo">
+        <id column="tabId" property="tabId"/>
+        <result column="tabPicture" property="tabPicture"/>
+        <!--collection定义关联集合类型的属性封装规则
+        延迟加载 传递两个参数
+　　　　{pMenuId=child_pid,userId=userId}
+　　　　 传递查询参数名称=字段名称-->
+        <collection property="activityGoodsVoList" column="{tabId = tabId, isPaging = isPaging}"
+                    select="com.chauncy.data.mapper.message.advice.MmAdviceMapper.findIntegralsGroupTabDetail">
+        </collection>
+    </resultMap>
+    <select id="findIntegralsGroupTab" resultMap="integralsGroupTabResult">
+        SELECT
+            `mat`.id AS tabId,
+            `mat`.`name` AS tabPicture,
+            '0' as isPaging
+        FROM mm_advice_rel_tab_association `marta`
+        LEFT JOIN mm_advice_tab `mat` ON `marta`.tab_id = `mat`.`id`
+        <where>
+            `marta`.`rel_id` = #{relId}
+            AND `marta`.del_flag = 0
+            AND `mat`.del_flag = 0
+        </where>
+    </select>
+
+    <select id="findReducedGroupTabDetail" resultType="com.chauncy.data.vo.app.goods.ActivityGoodsVo">
+        SELECT `pg`.id AS goodsId,
+            `pg`.name AS goodsName,
+            `pg`.icon,
+            `pgs`.sell_price,
+            `pgs`.line_price,
+            ar.reduction_full_money,
+            ar.reduction_post_money
+        FROM mm_advice_rel_tab_things `martt`
+        LEFT JOIN pm_goods pg ON pg.id = `martt`.`association_id` AND `martt`.`tab_id` = #{tabId}
+        LEFT JOIN am_activity_rel_activity_goods `aarag` ON `aarag`.goods_id = pg.`id`
+        LEFT JOIN am_reduced ar ON ar.id = `aarag`.`activity_id`
+        LEFT JOIN pm_goods_sku `pgs` ON `pg`.id = `pgs`.goods_id
+        <where>
+            `martt`.`tab_id` = #{tabId}
+            AND `martt`.del_flag = 0
+            AND  pg.`publish_status` = 1
+            AND `aarag`.`verify_status` = 3
+            AND `aarag`.`del_flag` = 0
+            AND  ar.`del_flag` = 0
+            AND  ar.enable = 1
+            AND  ar.activity_end_time > NOW()
+            AND `pgs`.del_flag = 0
+            AND `pgs`.id = (
+                SELECT temp.id
+                FROM pm_goods_sku temp
+                WHERE temp.goods_id = pg.id
+                AND temp.del_flag = 0
+                ORDER BY sell_price
+                LIMIT 1
+            )
+        </where>
+        <if test="isPaging == true">
+            limit 3
+        </if>
+    </select>
+
+    <select id="findIntegralsGroupTabDetail" resultType="com.chauncy.data.vo.app.goods.ActivityGoodsVo">
+        SELECT `pg`.id AS goodsId,
+            `pg`.name AS goodsName,
+            `pg`.icon,
+            (
+                SELECT MIN(sell_price)
+                FROM pm_goods_sku pgs
+                WHERE pgs.`goods_id` = pg.`id`
+                AND pgs.`del_flag` = 0
+            ) AS sell_price,
+            `ai`.discount_price_ratio
+        FROM mm_advice_rel_tab_things `martt`
+        LEFT JOIN pm_goods pg ON pg.id = `martt`.`association_id` AND `martt`.`tab_id` = #{tabId}
+        LEFT JOIN am_activity_rel_activity_goods `aarag` ON `aarag`.goods_id = pg.`id`
+        LEFT JOIN am_integrals ai ON ai.id = `aarag`.`activity_id`
+        <where>
+            `martt`.`tab_id` = #{tabId}
+            AND `martt`.del_flag = 0
+            AND  pg.`publish_status` = 1
+            AND `aarag`.`verify_status` = 3
+            AND `aarag`.`del_flag` = 0
+            AND  ai.`del_flag` = 0
+            AND  ai.enable = 1
+            AND  ai.activity_end_time > NOW()
+        </where>
+        <if test="isPaging == true">
+            limit 3
+        </if>
+    </select>
+
+    <select id="getShufflingByRelId" resultType="com.chauncy.data.vo.app.advice.home.ShufflingVo">
+        SELECT mars.id AS shuffling_id,
+            mars.`cover_photo`,
+            mars.advice_type,
+            mars.detail_id,
+            mars.html_detail
+        FROM mm_advice_rel_shuffling mars
+        WHERE rel_activity_group_id = #{relId}
+        AND mars.del_flag = 0
+        AND mars.start_time <![CDATA[< ]]> NOW()
+        AND mars.end_time <![CDATA[> ]]> NOW()
+    </select>
+
     <select id="searchAdvices" resultType="com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo">
         select id as advice_id,name,location,enabled,picture
         from mm_advice

@@ -37,7 +37,7 @@
             </if>
         </where>
         order by b.create_time-->
-        select a.photo as icon,a.name as nick_name,b.content,b.picture,b.id,ROUND((b.attitude_start_level+b.description_start_level+b.ship_start_level)/3) as startLevel
+        select d.store_id,a.photo as icon,a.name as nick_name,b.content,b.picture,b.id,ROUND((b.attitude_start_level+b.description_start_level+b.ship_start_level)/3) as startLevel
                 ,GROUP_CONCAT(CONCAT(h.`name`,":",g.`value`)) as sku,b.create_time as evaluate_time,b.liked_num
         from um_user a,om_evaluate b,om_order c,pm_goods d,pm_goods_sku e,pm_goods_rel_attribute_value_sku f,pm_goods_attribute_value g,pm_goods_attribute h
         where isNull(b.parent_id) and b.order_id = c.id and c.um_user_id=a.id and
