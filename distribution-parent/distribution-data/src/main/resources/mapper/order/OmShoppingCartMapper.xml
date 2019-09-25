@@ -43,7 +43,7 @@
     <select id="searchCart" resultMap="CartVo">
         select f.sku_id,b.picture,b.sell_price,b.line_price,f.num,a.subtitle,a.id as goods_id,a.name as goods_name,c.id as store_id,c.name as store_name,c.logo_image,GROUP_CONCAT(e.value) as value
         from om_shopping_cart f,pm_goods_sku b,pm_goods a,pm_goods_rel_attribute_value_sku d ,pm_goods_attribute_value e,sm_store c
-        where f.user_id =#{userId} and f.sku_id = b.id and b.goods_id = a.id and d.goods_sku_id = f.sku_id
+        where b.del_flag = 0 and a.del_flag = 0 and f.del_flag = 0 and c.del_flag = 0 and d.del_flag = 0 and e.del_flag = 0 and f.user_id =#{userId} and f.sku_id = b.id and b.goods_id = a.id and d.goods_sku_id = f.sku_id
 		    and d.goods_attribute_value_id = e.id and a.store_id = c.id
         group by f.id
         order by f.create_time desc
