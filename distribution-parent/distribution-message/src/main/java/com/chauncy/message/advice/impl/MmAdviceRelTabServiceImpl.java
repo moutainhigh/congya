@@ -727,22 +727,21 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
                                                     .eq(MmAdviceRelTabThingsPo::getAssociationId, c)
                                                     .eq(MmAdviceRelTabThingsPo::getTabId, a.getTabId()));
                                         });
+                                    }
+                                    //获取新增的品牌并保存到数据库中
+                                    List<Long> saveIds = newBrandIds.stream().filter(save -> !tabBrandIdList.contains(save)).collect(Collectors.toList());
+                                    if (!ListUtil.isListNullAndEmpty(saveIds)) {
 
-                                        //获取新增的品牌并保存到数据库中
-                                        List<Long> saveIds = newBrandIds.stream().filter(save -> !tabBrandIdList.contains(save)).collect(Collectors.toList());
-                                        if (!ListUtil.isListNullAndEmpty(saveIds)) {
-
-                                            //保存该选项卡下的品牌到mm_advice_rel_tab_things
-                                            saveIds.forEach(c -> {
-                                                MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
-                                                relTabThingsPo.setId(null)
-                                                        .setType(AssociationTypeEnum.BRAND.getId())
-                                                        .setCreateBy(sysUser.getUsername())
-                                                        .setTabId(a.getTabId())
-                                                        .setAssociationId(c);
-                                                relTabThingsMapper.insert(relTabThingsPo);
-                                            });
-                                        }
+                                        //保存该选项卡下的品牌到mm_advice_rel_tab_things
+                                        saveIds.forEach(c -> {
+                                            MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
+                                            relTabThingsPo.setId(null)
+                                                    .setType(AssociationTypeEnum.BRAND.getId())
+                                                    .setCreateBy(sysUser.getUsername())
+                                                    .setTabId(a.getTabId())
+                                                    .setAssociationId(c);
+                                            relTabThingsMapper.insert(relTabThingsPo);
+                                        });
                                     }
                                 }
                             } else {

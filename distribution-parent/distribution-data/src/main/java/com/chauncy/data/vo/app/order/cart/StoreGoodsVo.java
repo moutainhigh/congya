@@ -17,6 +17,9 @@ import java.util.List;
 @Data
 public class StoreGoodsVo {
 
+    @ApiModelProperty("购物车Id")
+    private Long cartId;
+
     @ApiModelProperty("商品ID")
     private Long goodsId;
 

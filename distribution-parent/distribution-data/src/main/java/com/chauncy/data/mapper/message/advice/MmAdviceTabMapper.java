@@ -14,6 +14,6 @@ import org.apache.ibatis.annotations.Select;
  */
 public interface MmAdviceTabMapper extends IBaseMapper<MmAdviceTabPo> {
 
-    @Select("select * from am")
+    @Select("select * from mm_advice_tab where del_flag = 0 and id = #{tabId}")
     MmAdviceTabPo selectByTabId(Long tabId);
 }

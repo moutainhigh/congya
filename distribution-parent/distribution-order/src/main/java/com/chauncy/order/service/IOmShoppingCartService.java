@@ -20,6 +20,7 @@ import com.chauncy.data.vo.app.car.CarGoodsVo;
 import com.chauncy.data.vo.app.car.TotalCarVo;
 import com.chauncy.data.vo.app.order.cart.CartVo;
 import com.chauncy.data.vo.app.order.cart.MyCartVo;
+import com.chauncy.data.vo.app.order.cart.SubmitOrderVo;
 import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 
@@ -85,7 +86,7 @@ public interface IOmShoppingCartService extends Service<OmShoppingCartPo> {
      * 提交订单
      * @param submitOrderDto
      */
-    Long submitOrder(SubmitOrderDto submitOrderDto, UmUserPo currentUser);
+    SubmitOrderVo submitOrder(SubmitOrderDto submitOrderDto, UmUserPo currentUser);
 
     /**
      * @Author chauncy

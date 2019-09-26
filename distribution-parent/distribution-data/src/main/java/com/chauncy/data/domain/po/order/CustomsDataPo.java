@@ -57,5 +57,7 @@ public class CustomsDataPo implements Serializable {
 
     private CustomsStatusEnum customsStatus;
 
+    private String responseBody;
+
 
 }

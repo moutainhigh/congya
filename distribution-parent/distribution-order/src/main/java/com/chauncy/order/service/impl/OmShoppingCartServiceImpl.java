@@ -53,6 +53,7 @@ import com.chauncy.data.temp.order.service.IOmGoodsTempService;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.evaluate.EvaluateLevelNumVo;
 import com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo;
+import com.chauncy.data.vo.app.order.cart.SubmitOrderVo;
 import com.chauncy.order.service.IPayUserRelationNextLevelService;
 import com.chauncy.data.vo.app.car.*;
 import com.chauncy.data.vo.app.goods.*;
@@ -258,7 +259,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         PageInfo<CartVo> cartVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> mapper.searchCart(userPo.getId()));
         //记录已经失效的商品
-        List<StoreGoodsVo> disableList = Lists.newArrayList();
+//        List<StoreGoodsVo> disableList = Lists.newArrayList();
 
         final Integer[] num = {0};
         //对购物车库存处理
@@ -297,27 +298,33 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
 
                 //下架处理,宝贝失效处理
-                if (goodsMapper.selectById(skuMapper.selectById(b.getSkuId()).getGoodsId()).getPublishStatus() != null) {
+                /*if (goodsMapper.selectById(skuMapper.selectById(b.getSkuId()).getGoodsId()).getPublishStatus() != null) {
                     boolean publish = goodsMapper.selectById(skuMapper.selectById(b.getSkuId()).getGoodsId()).getPublishStatus();
                     if (!publish) {
                         b.setIsObtained(true);
                         disableList.add(b);
                     }
-                }
+                }*/
 
                 storeGoodsVos.add(b);
             });
             //失效id
-            List<Long> disableIds = disableList.stream().map(g -> g.getSkuId()).collect(Collectors.toList());
+//            List<Long> disableIds = disableList.stream().map(g -> g.getSkuId()).collect(Collectors.toList());
             //获取除失效的商品
-            validGoodsVos = storeGoodsVos.stream().filter(d -> !disableIds.contains(d.getSkuId())).collect(Collectors.toList());
+//            validGoodsVos = storeGoodsVos.stream().filter(d -> !disableIds.contains(d.getSkuId())).collect(Collectors.toList());
 //            storeGoodsVos.removeAll(disableList);
 
-            a.setStoreGoodsVoList(validGoodsVos);
+//            a.setStoreGoodsVoList(validGoodsVos);
             num[0] += a.getStoreGoodsVoList().size();
         });
 
-        myCartVo.setNum(num[0]);
+        List<StoreGoodsVo> disableList = mapper.searchDisableList(userPo.getId());
+        Integer disableNum = 0;
+        if (!ListUtil.isListNullAndEmpty(disableList)){
+            disableNum = disableList.size();
+        }
+
+        myCartVo.setNum(num[0]+disableNum);
         myCartVo.setCartVo(cartVoPageInfo);
         myCartVo.setDisableList(disableList);
 
@@ -1005,7 +1012,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Long submitOrder(SubmitOrderDto submitOrderDto, UmUserPo currentUser) {
+    public SubmitOrderVo submitOrder(SubmitOrderDto submitOrderDto, UmUserPo currentUser) {
         //检查库存,设置一些需要计算购物券的值，并把所有商品抽出来
         List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVoList = checkStock(submitOrderDto);
         //判断商品是否保税仓或者海外直邮，是则需要进行实名认证
@@ -1150,7 +1157,6 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
         // 添加延时队列
         this.rabbitTemplate.convertAndSend(RabbitConstants.ORDER_UNPAID_DELAY_EXCHANGE, RabbitConstants.DELAY_ROUTING_KEY, savePayOrderPo.getId(), message -> {
-            // TODO 如果配置了 params.put("x-message-ttl", 5 * 1000); 那么这一句也可以省略,具体根据业务需要是声明 Queue 的时候就指定好延迟时间还是在发送自己控制时间
 
             // message.getMessageProperties().setExpiration(basicSettingPo.getAutoCloseOrderDay()*24*60*60*1000 + "");
             message.getMessageProperties().setExpiration(expireTime);
@@ -1158,7 +1164,12 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         });
         LoggerUtil.info("【下单等待取消订单发送时间】:" + LocalDateTime.now());
 
-        return savePayOrderPo.getId();
+        // TODO: 2019/9/25 积分暂时固定为0
+        SubmitOrderVo submitOrderVo=new SubmitOrderVo();
+        submitOrderVo.setPayOrderId(savePayOrderPo.getId()).setTotalMoney(savePayOrderPo.getPayAmount())
+                .setTotalRedEnvelops(totalRedEnvelops).setTotalShopTicket(totalShopTicket).setTotalIntegral(BigDecimal.ZERO);
+
+        return submitOrderVo;
     }
 
     /**

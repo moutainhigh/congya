@@ -39,7 +39,7 @@ public class SaveActivityGroupAdviceDto {
     private String picture;
 
     @ApiModelProperty("活动分组及其相关的热销活动广告")
-    @NotNull(message = "活动分组及其相关的热销活动广告不能为空")
+//    @NotNull(message = "活动分组及其相关的热销活动广告不能为空")
     @Valid
     @JSONField(ordinal = 4)
     private List<ActivityGroupDto> activityGroupDtoList;
