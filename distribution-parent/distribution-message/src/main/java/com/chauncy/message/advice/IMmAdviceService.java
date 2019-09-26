@@ -79,7 +79,31 @@ public interface IMmAdviceService extends Service<MmAdvicePo> {
      * @param  searchActivityGoodsListDto  查询积分/满减活动商品列表参数
      * @return com.chauncy.data.vo.JsonViewData<com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.goods.ActivityGoodsVo>>
      **/
-    PageInfo<ActivityGoodsVo> findTabGoodsList(SearchActivityGoodsListDto searchActivityGoodsListDto);
+    PageInfo<ActivityGoodsVo> searchActivityGoodsList(SearchActivityGoodsListDto searchActivityGoodsListDto);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/26 10:52
+     * @Description 获取活动分组下的活动商品分类
+     *
+     * @Update yeJH
+     *
+     * @param  groupId  活动分组id
+     * @return java.util.List<com.chauncy.data.vo.BaseVo>
+     **/
+    List<BaseVo> findGoodsCategory(Long groupId);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/26 12:50
+     * @Description 点击选项卡获取3个热销/推荐商品
+     *
+     * @Update yeJH
+     *
+     * @param  tabId  选项卡id
+     * @return java.util.List<com.chauncy.data.vo.app.goods.ActivityGoodsVo>
+     **/
+    List<ActivityGoodsVo> findTabGoodsList(Long tabId);
 
     /**
      * 获取广告位置

@@ -15,9 +15,9 @@ import java.util.Objects;
 @Getter
 public enum SortWayEnum implements BaseEnum {
 
-    @ApiModelProperty("降序")
+    @ApiModelProperty("降序   \n")
     DESC(1,"desc"),
-    @ApiModelProperty("升序")
+    @ApiModelProperty("升序   \n")
     ASC(2,"asc");
 
     private Integer id;
