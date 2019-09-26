@@ -744,9 +744,8 @@ public class MmAdviceRelTabAssociationServiceImpl extends AbstractService<MmAdvi
         }
 
         /********************公共判断 Start*************/
-
-        /******************** 公共判断1：同个广告下的活动分组不能重复 ****************************/
         if (!ListUtil.isListNullAndEmpty(saveActivityGroupAdviceDto.getActivityGroupDtoList())) {
+            /******************** 公共判断1：同个广告下的活动分组不能重复 ****************************/
             List<Long> activityGroupIds = saveActivityGroupAdviceDto.getActivityGroupDtoList().stream().map(group -> group.getActivityGroupId()).collect(Collectors.toList());
             // 通过去重之后的HashSet长度来判断原list是否包含重复元素
             boolean isRepeat = activityGroupIds.size() != new HashSet<Long>(activityGroupIds).size();
@@ -806,22 +805,22 @@ public class MmAdviceRelTabAssociationServiceImpl extends AbstractService<MmAdvi
             });
             /******************** 公共判断3：同个广告下同个活动分组下轮播图关联的商品、资讯、店铺不能重复 ****************************/
             saveActivityGroupAdviceDto.getActivityGroupDtoList().forEach(d -> {
-                List<Long> associatedList = Lists.newArrayList();
-                d.getActivityGroupShufflingDtoList().forEach(e -> {
-                    if (e.getAdviceType() != AdviceTypeEnum.HTML_DETAIL.getId()) {
-                        associatedList.add(e.getDetailId());
+                if (!ListUtil.isListNullAndEmpty(d.getActivityGroupShufflingDtoList())) {
+                    List<Long> associatedList = Lists.newArrayList();
+                    d.getActivityGroupShufflingDtoList().forEach(e -> {
+                        if (e.getAdviceType() != AdviceTypeEnum.HTML_DETAIL.getId()) {
+                            associatedList.add(e.getDetailId());
+                        }
+                    });
+
+                    boolean goodIsRepeat = associatedList.size() != new HashSet<Long>(associatedList).size();
+                    if (goodIsRepeat) {
+                        throw new ServiceException(ResultCode.DUPLICATION, String.format("轮播图存在重复的关联,请检查!"));
                     }
-                });
-
-                boolean goodIsRepeat = associatedList.size() != new HashSet<Long>(associatedList).size();
-                if (goodIsRepeat) {
-                    throw new ServiceException(ResultCode.DUPLICATION, String.format("轮播图存在重复的关联,请检查!"));
                 }
-
             });
-        }
 
-        /******************** 公共判断4：商品是否是该活动分组下且活动生效的商品 ****************************/
+            /******************** 公共判断4：商品是否是该活动分组下且活动生效的商品 ****************************/
 //        saveActivityGroupAdviceDto.getActivityGroupDtoList().forEach(a->{
 //            a.getActivitySellHotTabInfosDtoList().forEach(c->{
 //                AmActivityRelActivityGoodsPo relActivityGoodsPo = relActivityGoodsMapper.selectOne(new QueryWrapper<AmActivityRelActivityGoodsPo>().lambda().and(obj->obj
@@ -829,7 +828,8 @@ public class MmAdviceRelTabAssociationServiceImpl extends AbstractService<MmAdvi
 //            });
 //        });
 
-        /*****************公共判断 End****************/
+            /*****************公共判断 End****************/
+        }
 
         //添加操作
         if (saveActivityGroupAdviceDto.getAdviceId() == 0) {
@@ -876,7 +876,7 @@ public class MmAdviceRelTabAssociationServiceImpl extends AbstractService<MmAdvi
                                 .setId(null)
                                 .setTabId(adviceTabPo.getId())
                                 .setAssociationId(c)
-                                .setType(finalRelAssociationType1);
+                                .setType(AssociationTypeEnum.Goods.getId());
                         relTabThingsMapper.insert(relTabThingsPo);
                     });
                 });
@@ -934,20 +934,29 @@ public class MmAdviceRelTabAssociationServiceImpl extends AbstractService<MmAdvi
         }
         //修改操作
         else {
-            /*****************一：删除活动分组 start***************/
-            //获取该广告下全部的活动分组信息
-            List<Long> allActivityGroupIds = relAssociaitonMapper.selectList(new QueryWrapper<MmAdviceRelAssociaitonPo>().lambda().
-                    eq(MmAdviceRelAssociaitonPo::getAdviceId, saveActivityGroupAdviceDto.getAdviceId())).stream()
-                    .map(e -> e.getId()).collect(Collectors.toList());
-            //获取前端传的值
-            List<Long> remainIds = saveActivityGroupAdviceDto.getActivityGroupDtoList().stream().filter(y -> y.getRelAdviceActivityGroupId() != 0)
-                    .map(remains -> remains.getRelAdviceActivityGroupId()).collect(Collectors.toList());
+            if (ListUtil.isListNullAndEmpty(saveActivityGroupAdviceDto.getActivityGroupDtoList())) {
+                /*****************五：广告名称不能相同 start***************/
+                //获取该广告名称
+                String adviceName = adviceMapper.selectById(saveActivityGroupAdviceDto.getAdviceId()).getName();
+                //获取除该广告名称之外的所有广告名称
+                List<String> nameList = adviceMapper.selectList(null).stream().filter(name -> !name.getName().equals(adviceName)).map(a -> a.getName()).collect(Collectors.toList());
+                if (!ListUtil.isListNullAndEmpty(nameList) && nameList.contains(saveActivityGroupAdviceDto.getName())) {
+                    throw new ServiceException(ResultCode.FAIL, String.format("广告名称【%s】已经存在,请检查！", saveActivityGroupAdviceDto.getName()));
+                }
+                /*****************五：广告名称不能相同 end***************/
 
-            if (!ListUtil.isListNullAndEmpty(allActivityGroupIds)) {
-                List<Long> delIds = new ArrayList<>();
-                if (ListUtil.isListNullAndEmpty(remainIds)) {
-                    delIds = allActivityGroupIds;
-                    delIds.forEach(a -> {
+                //1、更改广告信息到广告表——mm_advice
+                MmAdvicePo mmAdvicePo = adviceMapper.selectById(saveActivityGroupAdviceDto.getAdviceId());
+                BeanUtils.copyProperties(saveActivityGroupAdviceDto, mmAdvicePo);
+                mmAdvicePo.setUpdateBy(sysUser.getUsername());
+                adviceMapper.updateById(mmAdvicePo);
+
+                //获取该广告下全部的活动分组信息
+                List<Long> allActivityGroupIds = relAssociaitonMapper.selectList(new QueryWrapper<MmAdviceRelAssociaitonPo>().lambda().
+                        eq(MmAdviceRelAssociaitonPo::getAdviceId, saveActivityGroupAdviceDto.getAdviceId())).stream()
+                        .map(e -> e.getId()).collect(Collectors.toList());
+                if (!ListUtil.isListNullAndEmpty(allActivityGroupIds)) {
+                    allActivityGroupIds.forEach(a -> {
                         if (relAssociaitonMapper.selectById(a) == null) {
                             throw new ServiceException(ResultCode.NO_EXISTS, String.format("不存在该广告【%s】关联的活动分类【%s】",
                                     saveActivityGroupAdviceDto.getName(), a));
@@ -969,10 +978,23 @@ public class MmAdviceRelTabAssociationServiceImpl extends AbstractService<MmAdvi
                                 .eq(MmAdviceRelShufflingPo::getRelActivityGroupId, a)));
                     });
                     //删除该广告关联该活动分组的记录
-                    relAssociaitonMapper.deleteBatchIds(delIds);
-                } else {
-                    delIds = allActivityGroupIds.stream().filter(a -> !remainIds.contains(a)).collect(Collectors.toList());
-                    if (!ListUtil.isListNullAndEmpty(delIds)) {
+                    relAssociaitonMapper.deleteBatchIds(allActivityGroupIds);
+                }
+
+            } else {
+                /*****************一：删除活动分组 start***************/
+                //获取该广告下全部的活动分组信息
+                List<Long> allActivityGroupIds = relAssociaitonMapper.selectList(new QueryWrapper<MmAdviceRelAssociaitonPo>().lambda().
+                        eq(MmAdviceRelAssociaitonPo::getAdviceId, saveActivityGroupAdviceDto.getAdviceId())).stream()
+                        .map(e -> e.getId()).collect(Collectors.toList());
+                //获取前端传的值
+                List<Long> remainIds = saveActivityGroupAdviceDto.getActivityGroupDtoList().stream().filter(y -> y.getRelAdviceActivityGroupId() != 0)
+                        .map(remains -> remains.getRelAdviceActivityGroupId()).collect(Collectors.toList());
+
+                if (!ListUtil.isListNullAndEmpty(allActivityGroupIds)) {
+                    List<Long> delIds = new ArrayList<>();
+                    if (ListUtil.isListNullAndEmpty(remainIds)) {
+                        delIds = allActivityGroupIds;
                         delIds.forEach(a -> {
                             if (relAssociaitonMapper.selectById(a) == null) {
                                 throw new ServiceException(ResultCode.NO_EXISTS, String.format("不存在该广告【%s】关联的活动分类【%s】",
@@ -996,293 +1018,168 @@ public class MmAdviceRelTabAssociationServiceImpl extends AbstractService<MmAdvi
                         });
                         //删除该广告关联该活动分组的记录
                         relAssociaitonMapper.deleteBatchIds(delIds);
+                    } else {
+                        delIds = allActivityGroupIds.stream().filter(a -> !remainIds.contains(a)).collect(Collectors.toList());
+                        if (!ListUtil.isListNullAndEmpty(delIds)) {
+                            delIds.forEach(a -> {
+                                if (relAssociaitonMapper.selectById(a) == null) {
+                                    throw new ServiceException(ResultCode.NO_EXISTS, String.format("不存在该广告【%s】关联的活动分类【%s】",
+                                            saveActivityGroupAdviceDto.getName(), a));
+                                }
+                                //删除该广告关联活动分组记录对应的所有选项卡关联的商品记录
+                                List<Long> tabIdList = relTabAssociationMapper.selectList(new QueryWrapper<MmAdviceRelTabAssociationPo>().lambda().
+                                        eq(MmAdviceRelTabAssociationPo::getRelId, a)).stream().map(d -> d.getTabId()).collect(Collectors.toList());
+                                tabIdList.forEach(e -> {
+                                    relTabThingsMapper.delete(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                            .eq(MmAdviceRelTabThingsPo::getTabId, e));
+                                    //删除该活动分类下的所有选项卡
+                                    adviceTabMapper.deleteById(e);
+                                });
+                                //删除该广告关联活动分组记录对应的与选项卡关联的记录
+                                relTabAssociationMapper.delete(new QueryWrapper<MmAdviceRelTabAssociationPo>().lambda().
+                                        eq(MmAdviceRelTabAssociationPo::getRelId, a));
+                                //删除该广告下的活动分组的轮播图广告
+                                relShufflingMapper.delete(new QueryWrapper<MmAdviceRelShufflingPo>().lambda().and(obj -> obj
+                                        .eq(MmAdviceRelShufflingPo::getRelActivityGroupId, a)));
+                            });
+                            //删除该广告关联该活动分组的记录
+                            relAssociaitonMapper.deleteBatchIds(delIds);
+                        }
                     }
                 }
-            }
-            /*****************一：删除活动分组 end***************/
+                /*****************一：删除活动分组 end***************/
 
-            /*****************二：删除活动分组下的选项卡 start***************/
-            saveActivityGroupAdviceDto.getActivityGroupDtoList().forEach(a -> {
-                //获取该广告下对应的活动分组下的所有热销广告选项卡
-                List<Long> allSelHotTabIds = relTabAssociationMapper.selectList(new QueryWrapper<MmAdviceRelTabAssociationPo>().lambda().
-                        eq(MmAdviceRelTabAssociationPo::getRelId, a.getRelAdviceActivityGroupId())).stream().map(ass -> ass.getTabId()).collect(Collectors.toList());
-                //获取前端传过来的除了tabId=0的数据
-                List<Long> remainTabIds = a.getActivitySellHotTabInfosDtoList().stream().filter(z -> z.getTabId() != 0).map(tabId -> tabId.getTabId()).collect(Collectors.toList());
-                if (!ListUtil.isListNullAndEmpty(allSelHotTabIds)) {
-                    List<Long> delTabIds = Lists.newArrayList();
-                    if (ListUtil.isListNullAndEmpty(remainTabIds)) {
-                        delTabIds = allSelHotTabIds;
-                        delTabIds.forEach(b -> {
-                            relTabThingsMapper.delete(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
-                                    .eq(MmAdviceRelTabThingsPo::getTabId, b));
-                        });
-                        //删除该活动分组下的所有选项卡
-                        adviceTabMapper.deleteBatchIds(delTabIds);
-                        //删除该广告关联活动分组记录对应的与选项卡关联的记录
-                        relTabAssociationMapper.delete(new QueryWrapper<MmAdviceRelTabAssociationPo>().lambda().
-                                eq(MmAdviceRelTabAssociationPo::getRelId, a.getRelAdviceActivityGroupId()));
-                    } else {
-                        delTabIds = allSelHotTabIds.stream().filter(delId -> !remainTabIds.contains(delId)).collect(Collectors.toList());
-                        if (!ListUtil.isListNullAndEmpty(delTabIds)) {
+                /*****************二：删除活动分组下的选项卡 start***************/
+                saveActivityGroupAdviceDto.getActivityGroupDtoList().forEach(a -> {
+                    //获取该广告下对应的活动分组下的所有热销广告选项卡
+                    List<Long> allSelHotTabIds = relTabAssociationMapper.selectList(new QueryWrapper<MmAdviceRelTabAssociationPo>().lambda().
+                            eq(MmAdviceRelTabAssociationPo::getRelId, a.getRelAdviceActivityGroupId())).stream().map(ass -> ass.getTabId()).collect(Collectors.toList());
+                    //获取前端传过来的除了tabId=0的数据
+                    List<Long> remainTabIds = a.getActivitySellHotTabInfosDtoList().stream().filter(z -> z.getTabId() != 0).map(tabId -> tabId.getTabId()).collect(Collectors.toList());
+                    if (!ListUtil.isListNullAndEmpty(allSelHotTabIds)) {
+                        List<Long> delTabIds = Lists.newArrayList();
+                        if (ListUtil.isListNullAndEmpty(remainTabIds)) {
+                            delTabIds = allSelHotTabIds;
                             delTabIds.forEach(b -> {
+                                //删除选项卡关联的商品记录
                                 relTabThingsMapper.delete(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
                                         .eq(MmAdviceRelTabThingsPo::getTabId, b));
+                                //删除该广告关联活动分组记录对应的与选项卡关联的记录
+                                relTabAssociationMapper.delete(new QueryWrapper<MmAdviceRelTabAssociationPo>().lambda().and(obj->obj.
+                                        eq(MmAdviceRelTabAssociationPo::getRelId, a.getRelAdviceActivityGroupId())
+                                        .eq(MmAdviceRelTabAssociationPo::getTabId,b)));
                             });
-                            //删除该活动分组下的所有选项卡
+                            //删除选项卡
                             adviceTabMapper.deleteBatchIds(delTabIds);
-                            //删除该广告关联活动分组记录对应的与选项卡关联的记录
-                            relTabAssociationMapper.delete(new QueryWrapper<MmAdviceRelTabAssociationPo>().lambda().
-                                    eq(MmAdviceRelTabAssociationPo::getRelId, a.getRelAdviceActivityGroupId()));
+                        } else {
+                            delTabIds = allSelHotTabIds.stream().filter(delId -> !remainTabIds.contains(delId)).collect(Collectors.toList());
+                            if (!ListUtil.isListNullAndEmpty(delTabIds)) {
+                                delTabIds.forEach(b -> {
+                                    relTabThingsMapper.delete(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                            .eq(MmAdviceRelTabThingsPo::getTabId, b));
+                                    //删除该广告关联活动分组记录对应的与选项卡关联的记录
+                                    relTabAssociationMapper.delete(new QueryWrapper<MmAdviceRelTabAssociationPo>().lambda().and(obj->obj.
+                                            eq(MmAdviceRelTabAssociationPo::getRelId, a.getRelAdviceActivityGroupId())
+                                            .eq(MmAdviceRelTabAssociationPo::getTabId,b)));
+                                });
+                                //删除该活动分组下的所有选项卡
+                                adviceTabMapper.deleteBatchIds(delTabIds);
+                                //删除该广告关联活动分组记录对应的与选项卡关联的记录
+//                                relTabAssociationMapper.delete(new QueryWrapper<MmAdviceRelTabAssociationPo>().lambda().
+//                                        eq(MmAdviceRelTabAssociationPo::getRelId, a.getRelAdviceActivityGroupId()));
+                            }
                         }
                     }
-                }
-            });
-            /*****************二：删除活动分组下的选项卡 end***************/
+                });
+                /*****************二：删除活动分组下的选项卡 end***************/
 
-            /*****************四：删除活动分组下的轮播图 start***************/
-            saveActivityGroupAdviceDto.getActivityGroupDtoList().forEach(a -> {
-                //获取该广告下对应的活动分组下的所有轮播图
-                List<Long> allShufflingIds = relShufflingMapper.selectList(new QueryWrapper<MmAdviceRelShufflingPo>()
-                        .lambda().eq(MmAdviceRelShufflingPo::getRelActivityGroupId, a.getRelAdviceActivityGroupId()))
-                        .stream().map(all -> all.getId()).collect(Collectors.toList());
-                //获取前端传的轮播图信息
-                List<Long> remainShufflingIds = a.getActivityGroupShufflingDtoList().stream().filter(z -> z.getShufflingId() != 0).map(shuffling -> shuffling.getShufflingId()).collect(Collectors.toList());
+                /*****************四：删除活动分组下的轮播图 start***************/
+                saveActivityGroupAdviceDto.getActivityGroupDtoList().forEach(a -> {
+                    //获取该广告下对应的活动分组下的所有轮播图
+                    List<Long> allShufflingIds = relShufflingMapper.selectList(new QueryWrapper<MmAdviceRelShufflingPo>()
+                            .lambda().eq(MmAdviceRelShufflingPo::getRelActivityGroupId, a.getRelAdviceActivityGroupId()))
+                            .stream().map(all -> all.getId()).collect(Collectors.toList());
 
-                if (!ListUtil.isListNullAndEmpty(allShufflingIds)) {
-                    List<Long> delShufflingIds = Lists.newArrayList();
-                    if (ListUtil.isListNullAndEmpty(remainShufflingIds)) {
-                        delShufflingIds = allShufflingIds;
-                        relShufflingMapper.deleteBatchIds(delShufflingIds);
-                    } else {
-                        delShufflingIds = allShufflingIds.stream().filter(t -> !remainShufflingIds.contains(t)).collect(Collectors.toList());
-                        if (!ListUtil.isListNullAndEmpty(delShufflingIds)) {
+                    if (!ListUtil.isListNullAndEmpty(allShufflingIds)) {
+                        List<Long> delShufflingIds = Lists.newArrayList();
+                        if (ListUtil.isListNullAndEmpty(a.getActivityGroupShufflingDtoList())) {
+                            delShufflingIds = allShufflingIds;
                             relShufflingMapper.deleteBatchIds(delShufflingIds);
+                        } else {
+                            //获取前端传的轮播图信息
+                            List<Long> remainShufflingIds = a.getActivityGroupShufflingDtoList().stream().filter(z -> z.getShufflingId() != 0).map(shuffling -> shuffling.getShufflingId()).collect(Collectors.toList());
+                            if (ListUtil.isListNullAndEmpty(remainShufflingIds)) {
+                                delShufflingIds = allShufflingIds;
+                                relShufflingMapper.deleteBatchIds(delShufflingIds);
+                            } else {
+                                delShufflingIds = allShufflingIds.stream().filter(t -> !remainShufflingIds.contains(t)).collect(Collectors.toList());
+                                if (!ListUtil.isListNullAndEmpty(delShufflingIds)) {
+                                    relShufflingMapper.deleteBatchIds(delShufflingIds);
+                                }
+                            }
                         }
                     }
+
+                });
+                /*****************四：删除活动分组下的轮播图 end***************/
+
+                /*****************五：广告名称不能相同 start***************/
+                //获取该广告名称
+                String adviceName = adviceMapper.selectById(saveActivityGroupAdviceDto.getAdviceId()).getName();
+                //获取除该广告名称之外的所有广告名称
+                List<String> nameList = adviceMapper.selectList(null).stream().filter(name -> !name.getName().equals(adviceName)).map(a -> a.getName()).collect(Collectors.toList());
+                if (!ListUtil.isListNullAndEmpty(nameList) && nameList.contains(saveActivityGroupAdviceDto.getName())) {
+                    throw new ServiceException(ResultCode.FAIL, String.format("广告名称【%s】已经存在,请检查！", saveActivityGroupAdviceDto.getName()));
                 }
+                /*****************五：广告名称不能相同 end***************/
 
-            });
-            /*****************四：删除活动分组下的轮播图 end***************/
+                //1、更改广告信息到广告表——mm_advice
+                MmAdvicePo mmAdvicePo = adviceMapper.selectById(saveActivityGroupAdviceDto.getAdviceId());
+                BeanUtils.copyProperties(saveActivityGroupAdviceDto, mmAdvicePo);
+                mmAdvicePo.setUpdateBy(sysUser.getUsername());
+                adviceMapper.updateById(mmAdvicePo);
 
-            /*****************五：广告名称不能相同 start***************/
-            //获取该广告名称
-            String adviceName = adviceMapper.selectById(saveActivityGroupAdviceDto.getAdviceId()).getName();
-            //获取除该广告名称之外的所有广告名称
-            List<String> nameList = adviceMapper.selectList(null).stream().filter(name -> !name.getName().equals(adviceName)).map(a -> a.getName()).collect(Collectors.toList());
-            if (!ListUtil.isListNullAndEmpty(nameList) && nameList.contains(saveActivityGroupAdviceDto.getName())) {
-                throw new ServiceException(ResultCode.FAIL, String.format("广告名称【%s】已经存在,请检查！", saveActivityGroupAdviceDto.getName()));
-            }
-            /*****************五：广告名称不能相同 end***************/
-
-            //1、更改广告信息到广告表——mm_advice
-            MmAdvicePo mmAdvicePo = adviceMapper.selectById(saveActivityGroupAdviceDto.getAdviceId());
-            BeanUtils.copyProperties(saveActivityGroupAdviceDto, mmAdvicePo);
-            mmAdvicePo.setUpdateBy(sysUser.getUsername());
-            adviceMapper.updateById(mmAdvicePo);
-
-            //识别出哪些活动分组是需要更改、哪些活动分组是需要添加,执行对应的操作
-            Integer finalRelAssociationType2 = relAssociationType;
-            Integer finalRelAssociationType3 = relAssociationType;
-            saveActivityGroupAdviceDto.getActivityGroupDtoList().forEach(a -> {
-                //活动分组新增操作，热销广告、关联轮播图都是新增操作
-                if (a.getRelAdviceActivityGroupId() == 0) {
-                    /**########################## 2、保存活动分组到广告关联表——mm_advice_rel_Association ################################## */
-                    MmAdviceRelAssociaitonPo relAssociaitonPo = new MmAdviceRelAssociaitonPo();
-                    relAssociaitonPo.setAdviceId(saveActivityGroupAdviceDto.getAdviceId())
-                            .setAssociationId(a.getActivityGroupId())
-                            .setCreateBy(sysUser.getUsername())
-                            .setId(null)
-                            .setType(finalRelAssociationType2);
-                    relAssociaitonMapper.insert(relAssociaitonPo);
-                    a.getActivitySellHotTabInfosDtoList().forEach(b -> {
-                        /**########################## 3、活动中部热销广告选项卡到选项卡表——mm_advice_tab ################*/
-                        MmAdviceTabPo adviceTabPo = new MmAdviceTabPo();
-                        adviceTabPo.setName(b.getTabName());
-                        adviceTabPo.setId(null);
-                        adviceTabPo.setCreateBy(sysUser.getUsername());
-                        adviceTabMapper.insert(adviceTabPo);
-                        /**########################## 4、保存活动中部热销广告选项卡下和活动分组的信息到选项卡和广告下绑定的活动分组关联表到——mm_advice_rel_tab_association表 ################*/
-                        MmAdviceRelTabAssociationPo relTabAssociationPo = new MmAdviceRelTabAssociationPo();
-                        relTabAssociationPo.setCreateBy(sysUser.getUsername())
+                //识别出哪些活动分组是需要更改、哪些活动分组是需要添加,执行对应的操作
+                Integer finalRelAssociationType2 = relAssociationType;
+                Integer finalRelAssociationType3 = relAssociationType;
+                saveActivityGroupAdviceDto.getActivityGroupDtoList().forEach(a -> {
+                    //活动分组新增操作，热销广告、关联轮播图都是新增操作
+                    if (a.getRelAdviceActivityGroupId() == 0) {
+                        /**########################## 2、保存活动分组到广告关联表——mm_advice_rel_Association ################################## */
+                        MmAdviceRelAssociaitonPo relAssociaitonPo = new MmAdviceRelAssociaitonPo();
+                        relAssociaitonPo.setAdviceId(saveActivityGroupAdviceDto.getAdviceId())
+                                .setAssociationId(a.getActivityGroupId())
+                                .setCreateBy(sysUser.getUsername())
                                 .setId(null)
-                                .setRelId(relAssociaitonPo.getId())
-                                .setTabId(adviceTabPo.getId());
-                        relTabAssociationMapper.insert(relTabAssociationPo);
-                        /**########################## 5、保存每个选项卡关联的商品ID到mm_advice_rel_tab_things ################*/
-                        MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
-                        b.getGoodsIds().stream().forEach(c -> {
-                            relTabThingsPo.setCreateBy(sysUser.getUsername())
-                                    .setId(null)
-                                    .setTabId(adviceTabPo.getId())
-                                    .setAssociationId(c)
-                                    .setType(finalRelAssociationType2);
-                            relTabThingsMapper.insert(relTabThingsPo);
-                        });
-                    });
-                    /**########################## 6、保存该广告下不同活动分组的轮播图信息——mm_advice_rel_shuffling ################################## */
-                    a.getActivityGroupShufflingDtoList().forEach(d -> {
-                        //判断开始时间和结束时间都不能小于当前时间，开始时间不能大于结束时间
-                        if (d.getEndTime().isBefore(d.getStartTime()) || d.getEndTime().equals(d.getStartTime())) {
-                            throw new ServiceException(ResultCode.FAIL, String.format("开始时间不能大于等于结束时间"));
-                        }
-                        if (d.getStartTime().isBefore(LocalDateTime.now())) {
-                            throw new ServiceException(ResultCode.FAIL, String.format("开始时间需要在当前时间之后"));
-                        }
-                        if (d.getEndTime().isBefore(LocalDateTime.now())) {
-                            throw new ServiceException(ResultCode.FAIL, String.format("结束时间需要在当前时间之后"));
-                        }
-
-                        MmAdviceRelShufflingPo relShufflingPo = new MmAdviceRelShufflingPo();
-                        //获取广告类型
-                        AdviceTypeEnum adviceTypeEnum = AdviceTypeEnum.getAdviceTypeEnum(d.getAdviceType());
-                        switch (adviceTypeEnum) {
-                            case HTML_DETAIL:
-                                relShufflingPo.setId(null).setCreateBy(sysUser.getUsername()).setAdviceId(saveActivityGroupAdviceDto.getAdviceId())
-                                        .setAdviceType(adviceTypeEnum).setHtmlDetail(d.getHtmlDetail()).setRelTabBrandId(null)
-                                        .setBrandId(null).setStartTime(d.getStartTime()).setEndTime(d.getEndTime())
-                                        .setCoverPhoto(d.getCoverPhoto()).setDetailId(null).setRelCategoryId(null)
-                                        .setFirstCategoryId(null).setRelActivityGroupId(relAssociaitonPo.getId());
-                                relShufflingMapper.insert(relShufflingPo);
-                                break;
-                            case INFORMATION:
-                            case STROE:
-                            case GOODS:
-                                if (adviceTypeEnum.equals(AdviceTypeEnum.GOODS)) {
-                                    if (goodsMapper.selectById(d.getDetailId()) == null) {
-                                        throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在ID为[%s]的商品不存在，请检查", d.getDetailId()));
-                                    }
-                                } else if (adviceTypeEnum.equals(AdviceTypeEnum.INFORMATION)) {
-                                    if (informationMapper.selectById(d.getDetailId()) == null) {
-                                        throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在ID为[%s]的资讯不存在，请检查", d.getDetailId()));
-                                    }
-                                } else if (adviceTypeEnum.equals(AdviceTypeEnum.STROE)) {
-                                    if (storeMapper.selectById(d.getDetailId()) == null) {
-                                        throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在ID为[%s]的店铺不存在，请检查", d.getDetailId()));
-                                    }
-                                }
-                                relShufflingPo.setId(null).setCreateBy(sysUser.getUsername()).setAdviceId(saveActivityGroupAdviceDto.getAdviceId())
-                                        .setAdviceType(adviceTypeEnum).setDetailId(d.getDetailId()).setRelTabBrandId(null)
-                                        .setBrandId(null).setStartTime(d.getStartTime()).setEndTime(d.getEndTime())
-                                        .setCoverPhoto(d.getCoverPhoto()).setHtmlDetail(null).setRelCategoryId(null)
-                                        .setFirstCategoryId(null).setRelActivityGroupId(relAssociaitonPo.getId());
-                                relShufflingMapper.insert(relShufflingPo);
-                                break;
-                        }
-                    });
-                }
-                //活动分组编辑操作
-                else {
-                    //热销选项卡操作
-                    a.getActivitySellHotTabInfosDtoList().forEach(b -> {
-                        //新增热销选项卡
-                        if (b.getTabId() == 0) {
-                            /**########################## 1、活动中部热销广告选项卡到选项卡表——mm_advice_tab ################*/
+                                .setType(finalRelAssociationType2);
+                        relAssociaitonMapper.insert(relAssociaitonPo);
+                        a.getActivitySellHotTabInfosDtoList().forEach(b -> {
+                            /**########################## 3、活动中部热销广告选项卡到选项卡表——mm_advice_tab ################*/
                             MmAdviceTabPo adviceTabPo = new MmAdviceTabPo();
                             adviceTabPo.setName(b.getTabName());
                             adviceTabPo.setId(null);
                             adviceTabPo.setCreateBy(sysUser.getUsername());
                             adviceTabMapper.insert(adviceTabPo);
-                            /**########################## 2、保存活动中部热销广告选项卡下和活动分组的信息到选项卡和广告下绑定的活动分组关联表到——mm_advice_rel_tab_association表 ################*/
+                            /**########################## 4、保存活动中部热销广告选项卡下和活动分组的信息到选项卡和广告下绑定的活动分组关联表到——mm_advice_rel_tab_association表 ################*/
                             MmAdviceRelTabAssociationPo relTabAssociationPo = new MmAdviceRelTabAssociationPo();
                             relTabAssociationPo.setCreateBy(sysUser.getUsername())
                                     .setId(null)
-                                    .setRelId(a.getRelAdviceActivityGroupId())
+                                    .setRelId(relAssociaitonPo.getId())
                                     .setTabId(adviceTabPo.getId());
                             relTabAssociationMapper.insert(relTabAssociationPo);
-                            /**########################## 3、保存每个选项卡关联的商品ID到mm_advice_rel_tab_things ################*/
+                            /**########################## 5、保存每个选项卡关联的商品ID到mm_advice_rel_tab_things ################*/
                             MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
                             b.getGoodsIds().stream().forEach(c -> {
                                 relTabThingsPo.setCreateBy(sysUser.getUsername())
                                         .setId(null)
                                         .setTabId(adviceTabPo.getId())
                                         .setAssociationId(c)
-                                        .setType(finalRelAssociationType2);
+                                        .setType(AssociationTypeEnum.Goods.getId());
                                 relTabThingsMapper.insert(relTabThingsPo);
                             });
-                        }
-                        //编辑热销选项卡
-                        else {
-                            /**########################## 1、更新活动中部热销广告选项卡到选项卡表——mm_advice_tab ################*/
-                            MmAdviceTabPo adviceTab = adviceTabMapper.selectByTabId(b.getTabId());
-                            adviceTab.setName(b.getTabName());
-                            adviceTab.setCreateBy(sysUser.getUsername());
-                            adviceTabMapper.updateById(adviceTab);
-                            //5、更新选项卡与商品关联表
-                            /*****************三：活动分组下的选项卡下的商品处理 start***************/
-                            //获取该热销选项卡下所有的商品
-                            List<Long> allGoodsIds = relTabThingsMapper.selectList(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda().and(obj -> obj
-                                    .eq(MmAdviceRelTabThingsPo::getTabId, b.getTabId()))).stream().map(c -> c.getAssociationId()).collect(Collectors.toList());
-                            //获取前端传的商品
-                            List<Long> remainGoodsIds = b.getGoodsIds();
-
-                            if (!ListUtil.isListNullAndEmpty(allGoodsIds)) {
-                                List<Long> delGoodsIds = Lists.newArrayList();
-                                if (ListUtil.isListNullAndEmpty(remainGoodsIds)) {
-                                    delGoodsIds = allGoodsIds;
-                                    delGoodsIds.forEach(c -> {
-                                        relTabThingsMapper.delete(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
-                                                .eq(MmAdviceRelTabThingsPo::getAssociationId, c)
-                                                .eq(MmAdviceRelTabThingsPo::getTabId, b.getTabId()));
-                                    });
-                                } else {
-                                    delGoodsIds = allGoodsIds.stream().filter(del->!remainGoodsIds.contains(del)).collect(Collectors.toList());
-                                    if (!ListUtil.isListNullAndEmpty(delGoodsIds)){
-                                        delGoodsIds.forEach(c -> {
-                                            relTabThingsMapper.delete(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
-                                                    .eq(MmAdviceRelTabThingsPo::getAssociationId, c)
-                                                    .eq(MmAdviceRelTabThingsPo::getTabId, b.getTabId()));
-                                        });
-                                    }
-                                    //获取新增的商品并保存到数据库中
-                                    List<Long> saveIds = remainGoodsIds.stream().filter(save->!allGoodsIds.contains(save)).collect(Collectors.toList());
-                                    if (!ListUtil.isListNullAndEmpty(saveIds)){
-                                        //保存该选项卡下的商品到mm_advice_rel_tab_things
-                                        saveIds.forEach(c -> {
-                                            MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
-                                            relTabThingsPo.setId(null)
-                                                    .setType(finalRelAssociationType3)
-                                                    .setCreateBy(sysUser.getUsername())
-                                                    .setTabId(b.getTabId())
-                                                    .setAssociationId(c);
-                                            relTabThingsMapper.insert(relTabThingsPo);
-                                        });
-                                    }
-                                }
-                            }else {
-                                if (!ListUtil.isListNullAndEmpty(remainGoodsIds)) {
-                                    //保存该选项卡下的品牌到mm_advice_rel_tab_things
-                                    remainGoodsIds.forEach(c -> {
-                                        MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
-                                        relTabThingsPo.setId(null)
-                                                .setType(finalRelAssociationType3)
-                                                .setCreateBy(sysUser.getUsername())
-                                                .setTabId(b.getTabId())
-                                                .setAssociationId(c);
-                                        relTabThingsMapper.insert(relTabThingsPo);
-                                    });
-                                }
-                            }
-                            /*****************三：活动分组下的选项卡下的商品处理 end***************/
-
-                            /*Map<String, Object> map = Maps.newHashMap();
-                            map.put("tab_id", b.getTabId());
-                            relTabThingsMapper.deleteByMap(map);
-                            b.getGoodsIds().stream().forEach(c -> {
-                                //保存每个选项卡关联的店商品ID
-                                MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
-                                relTabThingsPo.setCreateBy(sysUser.getUsername())
-                                        .setId(null)
-                                        .setTabId(b.getTabId())
-                                        .setAssociationId(c)
-                                        .setType(finalRelAssociationType2);
-                                relTabThingsMapper.insert(relTabThingsPo);
-                            });*/
-                        }
-                    });
-                    //轮播图操作
-                    a.getActivityGroupShufflingDtoList().forEach(d -> {
-                        //新增轮播图
-                        if (d.getShufflingId() == 0) {
+                        });
+                        /**########################## 6、保存该广告下不同活动分组的轮播图信息——mm_advice_rel_shuffling ################################## */
+                        a.getActivityGroupShufflingDtoList().forEach(d -> {
                             //判断开始时间和结束时间都不能小于当前时间，开始时间不能大于结束时间
                             if (d.getEndTime().isBefore(d.getStartTime()) || d.getEndTime().equals(d.getStartTime())) {
                                 throw new ServiceException(ResultCode.FAIL, String.format("开始时间不能大于等于结束时间"));
@@ -1303,7 +1200,7 @@ public class MmAdviceRelTabAssociationServiceImpl extends AbstractService<MmAdvi
                                             .setAdviceType(adviceTypeEnum).setHtmlDetail(d.getHtmlDetail()).setRelTabBrandId(null)
                                             .setBrandId(null).setStartTime(d.getStartTime()).setEndTime(d.getEndTime())
                                             .setCoverPhoto(d.getCoverPhoto()).setDetailId(null).setRelCategoryId(null)
-                                            .setFirstCategoryId(null).setRelActivityGroupId(a.getRelAdviceActivityGroupId());
+                                            .setFirstCategoryId(null).setRelActivityGroupId(relAssociaitonPo.getId());
                                     relShufflingMapper.insert(relShufflingPo);
                                     break;
                                 case INFORMATION:
@@ -1326,77 +1223,241 @@ public class MmAdviceRelTabAssociationServiceImpl extends AbstractService<MmAdvi
                                             .setAdviceType(adviceTypeEnum).setDetailId(d.getDetailId()).setRelTabBrandId(null)
                                             .setBrandId(null).setStartTime(d.getStartTime()).setEndTime(d.getEndTime())
                                             .setCoverPhoto(d.getCoverPhoto()).setHtmlDetail(null).setRelCategoryId(null)
-                                            .setFirstCategoryId(null).setRelActivityGroupId(a.getRelAdviceActivityGroupId());
+                                            .setFirstCategoryId(null).setRelActivityGroupId(relAssociaitonPo.getId());
                                     relShufflingMapper.insert(relShufflingPo);
                                     break;
+                            }
+                        });
+                    }
+                    //活动分组编辑操作
+                    else {
+                        //热销选项卡操作
+                        a.getActivitySellHotTabInfosDtoList().forEach(b -> {
+                            //新增热销选项卡
+                            if (b.getTabId() == 0) {
+                                /**########################## 1、活动中部热销广告选项卡到选项卡表——mm_advice_tab ################*/
+                                MmAdviceTabPo adviceTabPo = new MmAdviceTabPo();
+                                adviceTabPo.setName(b.getTabName());
+                                adviceTabPo.setId(null);
+                                adviceTabPo.setCreateBy(sysUser.getUsername());
+                                adviceTabMapper.insert(adviceTabPo);
+                                /**########################## 2、保存活动中部热销广告选项卡下和活动分组的信息到选项卡和广告下绑定的活动分组关联表到——mm_advice_rel_tab_association表 ################*/
+                                MmAdviceRelTabAssociationPo relTabAssociationPo = new MmAdviceRelTabAssociationPo();
+                                relTabAssociationPo.setCreateBy(sysUser.getUsername())
+                                        .setId(null)
+                                        .setRelId(a.getRelAdviceActivityGroupId())
+                                        .setTabId(adviceTabPo.getId());
+                                relTabAssociationMapper.insert(relTabAssociationPo);
+                                /**########################## 3、保存每个选项卡关联的商品ID到mm_advice_rel_tab_things ################*/
+                                MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
+                                b.getGoodsIds().stream().forEach(c -> {
+                                    relTabThingsPo.setCreateBy(sysUser.getUsername())
+                                            .setId(null)
+                                            .setTabId(adviceTabPo.getId())
+                                            .setAssociationId(c)
+                                            .setType(AssociationTypeEnum.Goods.getId());
+                                    relTabThingsMapper.insert(relTabThingsPo);
+                                });
+                            }
+                            //编辑热销选项卡
+                            else {
+                                /**########################## 1、更新活动中部热销广告选项卡到选项卡表——mm_advice_tab ################*/
+                                MmAdviceTabPo adviceTab = adviceTabMapper.selectByTabId(b.getTabId());
+                                adviceTab.setName(b.getTabName());
+                                adviceTab.setCreateBy(sysUser.getUsername());
+                                adviceTabMapper.updateById(adviceTab);
+                                //5、更新选项卡与商品关联表
+                                /*****************三：活动分组下的选项卡下的商品处理 start***************/
+                                //获取该热销选项卡下所有的商品
+                                List<Long> allGoodsIds = relTabThingsMapper.selectList(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda().and(obj -> obj
+                                        .eq(MmAdviceRelTabThingsPo::getTabId, b.getTabId()))).stream().map(c -> c.getAssociationId()).collect(Collectors.toList());
+                                //获取前端传的商品
+                                List<Long> remainGoodsIds = b.getGoodsIds();
 
-                            }
-                        }
-                        //编辑轮播图操作
-                        else {
-                            //判断开始时间和结束时间都不能小于当前时间，开始时间不能大于结束时间
-                            if (d.getEndTime().isBefore(d.getStartTime()) || d.getEndTime().equals(d.getStartTime())) {
-                                throw new ServiceException(ResultCode.FAIL, String.format("开始时间不能大于等于结束时间"));
-                            }
-                            //判断是否修改开始时间和结束时间
-                            LocalDateTime startTime = relShufflingMapper.selectById(d.getShufflingId()).getStartTime();
-                            LocalDateTime endTime = relShufflingMapper.selectById(d.getShufflingId()).getEndTime();
-                            if (!startTime.equals(d.getStartTime())) {
-                                //已经开始但还没结束，不能修改开始时间
-                                if (startTime.isBefore(LocalDateTime.now()) && endTime.isAfter(LocalDateTime.now())) {
-                                    throw new ServiceException(ResultCode.FAIL, String.format("存在轮播图广告已经开始,不能修改开始时间,请检查"));
-                                }
-                                if (d.getStartTime().isBefore(LocalDateTime.now())) {
-                                    throw new ServiceException(ResultCode.FAIL, String.format("开始时间需要在当前时间之后"));
-                                }
-                            }
-                            if (!endTime.equals(d.getEndTime())) {
-                                if (d.getEndTime().isBefore(LocalDateTime.now())) {
-                                    throw new ServiceException(ResultCode.FAIL, String.format("结束时间需要在当前时间之后"));
-                                }
-                            }
-
-                            MmAdviceRelShufflingPo relShufflingPo = relShufflingMapper.selectById(d.getShufflingId());
-                            //获取广告类型
-                            AdviceTypeEnum adviceTypeEnum = AdviceTypeEnum.getAdviceTypeEnum(d.getAdviceType());
-                            switch (adviceTypeEnum) {
-                                case HTML_DETAIL:
-                                    relShufflingPo.setId(null).setCreateBy(sysUser.getUsername()).setAdviceId(saveActivityGroupAdviceDto.getAdviceId())
-                                            .setAdviceType(adviceTypeEnum).setHtmlDetail(d.getHtmlDetail()).setRelTabBrandId(null)
-                                            .setBrandId(null).setStartTime(d.getStartTime()).setEndTime(d.getEndTime())
-                                            .setCoverPhoto(d.getCoverPhoto()).setDetailId(null).setRelCategoryId(null)
-                                            .setFirstCategoryId(null).setRelActivityGroupId(a.getRelAdviceActivityGroupId());
-                                    relShufflingMapper.insert(relShufflingPo);
-                                    break;
-                                case INFORMATION:
-                                case STROE:
-                                case GOODS:
-                                    if (adviceTypeEnum.equals(AdviceTypeEnum.GOODS)) {
-                                        if (goodsMapper.selectById(d.getDetailId()) == null) {
-                                            throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在ID为[%s]的商品不存在，请检查", d.getDetailId()));
+                                if (!ListUtil.isListNullAndEmpty(allGoodsIds)) {
+                                    List<Long> delGoodsIds = Lists.newArrayList();
+                                    if (ListUtil.isListNullAndEmpty(remainGoodsIds)) {
+                                        delGoodsIds = allGoodsIds;
+                                        delGoodsIds.forEach(c -> {
+                                            relTabThingsMapper.delete(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                                    .eq(MmAdviceRelTabThingsPo::getAssociationId, c)
+                                                    .eq(MmAdviceRelTabThingsPo::getTabId, b.getTabId()));
+                                        });
+                                    } else {
+                                        delGoodsIds = allGoodsIds.stream().filter(del -> !remainGoodsIds.contains(del)).collect(Collectors.toList());
+                                        if (!ListUtil.isListNullAndEmpty(delGoodsIds)) {
+                                            delGoodsIds.forEach(c -> {
+                                                relTabThingsMapper.delete(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()
+                                                        .eq(MmAdviceRelTabThingsPo::getAssociationId, c)
+                                                        .eq(MmAdviceRelTabThingsPo::getTabId, b.getTabId()));
+                                            });
                                         }
-                                    } else if (adviceTypeEnum.equals(AdviceTypeEnum.INFORMATION)) {
-                                        if (informationMapper.selectById(d.getDetailId()) == null) {
-                                            throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在ID为[%s]的资讯不存在，请检查", d.getDetailId()));
-                                        }
-                                    } else if (adviceTypeEnum.equals(AdviceTypeEnum.STROE)) {
-                                        if (storeMapper.selectById(d.getDetailId()) == null) {
-                                            throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在ID为[%s]的店铺不存在，请检查", d.getDetailId()));
+                                        //获取新增的商品并保存到数据库中
+                                        List<Long> saveIds = remainGoodsIds.stream().filter(save -> !allGoodsIds.contains(save)).collect(Collectors.toList());
+                                        if (!ListUtil.isListNullAndEmpty(saveIds)) {
+                                            //保存该选项卡下的商品到mm_advice_rel_tab_things
+                                            saveIds.forEach(c -> {
+                                                MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
+                                                relTabThingsPo.setId(null)
+                                                        .setType(AssociationTypeEnum.Goods.getId())
+                                                        .setCreateBy(sysUser.getUsername())
+                                                        .setTabId(b.getTabId())
+                                                        .setAssociationId(c);
+                                                relTabThingsMapper.insert(relTabThingsPo);
+                                            });
                                         }
                                     }
-                                    relShufflingPo.setId(null).setCreateBy(sysUser.getUsername()).setAdviceId(saveActivityGroupAdviceDto.getAdviceId())
-                                            .setAdviceType(adviceTypeEnum).setDetailId(d.getDetailId()).setRelTabBrandId(null)
-                                            .setBrandId(null).setStartTime(d.getStartTime()).setEndTime(d.getEndTime())
-                                            .setCoverPhoto(d.getCoverPhoto()).setHtmlDetail(null).setRelCategoryId(null)
-                                            .setFirstCategoryId(null).setRelActivityGroupId(a.getRelAdviceActivityGroupId());
-                                    relShufflingMapper.insert(relShufflingPo);
-                                    break;
-                            }
-                        }
-                    });
+                                } else {
+                                    if (!ListUtil.isListNullAndEmpty(remainGoodsIds)) {
+                                        //保存该选项卡下的品牌到mm_advice_rel_tab_things
+                                        remainGoodsIds.forEach(c -> {
+                                            MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
+                                            relTabThingsPo.setId(null)
+                                                    .setType(AssociationTypeEnum.Goods.getId())
+                                                    .setCreateBy(sysUser.getUsername())
+                                                    .setTabId(b.getTabId())
+                                                    .setAssociationId(c);
+                                            relTabThingsMapper.insert(relTabThingsPo);
+                                        });
+                                    }
+                                }
+                                /*****************三：活动分组下的选项卡下的商品处理 end***************/
 
-                }
-            });
+                            /*Map<String, Object> map = Maps.newHashMap();
+                            map.put("tab_id", b.getTabId());
+                            relTabThingsMapper.deleteByMap(map);
+                            b.getGoodsIds().stream().forEach(c -> {
+                                //保存每个选项卡关联的店商品ID
+                                MmAdviceRelTabThingsPo relTabThingsPo = new MmAdviceRelTabThingsPo();
+                                relTabThingsPo.setCreateBy(sysUser.getUsername())
+                                        .setId(null)
+                                        .setTabId(b.getTabId())
+                                        .setAssociationId(c)
+                                        .setType(finalRelAssociationType2);
+                                relTabThingsMapper.insert(relTabThingsPo);
+                            });*/
+                            }
+                        });
+                        //轮播图操作
+                        if (!ListUtil.isListNullAndEmpty(a.getActivityGroupShufflingDtoList())) {
+                            a.getActivityGroupShufflingDtoList().forEach(d -> {
+                                //新增轮播图
+                                if (d.getShufflingId() == 0) {
+                                    //判断开始时间和结束时间都不能小于当前时间，开始时间不能大于结束时间
+                                    if (d.getEndTime().isBefore(d.getStartTime()) || d.getEndTime().equals(d.getStartTime())) {
+                                        throw new ServiceException(ResultCode.FAIL, String.format("开始时间不能大于等于结束时间"));
+                                    }
+                                    if (d.getStartTime().isBefore(LocalDateTime.now())) {
+                                        throw new ServiceException(ResultCode.FAIL, String.format("开始时间需要在当前时间之后"));
+                                    }
+                                    if (d.getEndTime().isBefore(LocalDateTime.now())) {
+                                        throw new ServiceException(ResultCode.FAIL, String.format("结束时间需要在当前时间之后"));
+                                    }
+
+                                    MmAdviceRelShufflingPo relShufflingPo = new MmAdviceRelShufflingPo();
+                                    //获取广告类型
+                                    AdviceTypeEnum adviceTypeEnum = AdviceTypeEnum.getAdviceTypeEnum(d.getAdviceType());
+                                    switch (adviceTypeEnum) {
+                                        case HTML_DETAIL:
+                                            relShufflingPo.setId(null).setCreateBy(sysUser.getUsername()).setAdviceId(saveActivityGroupAdviceDto.getAdviceId())
+                                                    .setAdviceType(adviceTypeEnum).setHtmlDetail(d.getHtmlDetail()).setRelTabBrandId(null)
+                                                    .setBrandId(null).setStartTime(d.getStartTime()).setEndTime(d.getEndTime())
+                                                    .setCoverPhoto(d.getCoverPhoto()).setDetailId(null).setRelCategoryId(null)
+                                                    .setFirstCategoryId(null).setRelActivityGroupId(a.getRelAdviceActivityGroupId());
+                                            relShufflingMapper.insert(relShufflingPo);
+                                            break;
+                                        case INFORMATION:
+                                        case STROE:
+                                        case GOODS:
+                                            if (adviceTypeEnum.equals(AdviceTypeEnum.GOODS)) {
+                                                if (goodsMapper.selectById(d.getDetailId()) == null) {
+                                                    throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在ID为[%s]的商品不存在，请检查", d.getDetailId()));
+                                                }
+                                            } else if (adviceTypeEnum.equals(AdviceTypeEnum.INFORMATION)) {
+                                                if (informationMapper.selectById(d.getDetailId()) == null) {
+                                                    throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在ID为[%s]的资讯不存在，请检查", d.getDetailId()));
+                                                }
+                                            } else if (adviceTypeEnum.equals(AdviceTypeEnum.STROE)) {
+                                                if (storeMapper.selectById(d.getDetailId()) == null) {
+                                                    throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在ID为[%s]的店铺不存在，请检查", d.getDetailId()));
+                                                }
+                                            }
+                                            relShufflingPo.setId(null).setCreateBy(sysUser.getUsername()).setAdviceId(saveActivityGroupAdviceDto.getAdviceId())
+                                                    .setAdviceType(adviceTypeEnum).setDetailId(d.getDetailId()).setRelTabBrandId(null)
+                                                    .setBrandId(null).setStartTime(d.getStartTime()).setEndTime(d.getEndTime())
+                                                    .setCoverPhoto(d.getCoverPhoto()).setHtmlDetail(null).setRelCategoryId(null)
+                                                    .setFirstCategoryId(null).setRelActivityGroupId(a.getRelAdviceActivityGroupId());
+                                            relShufflingMapper.insert(relShufflingPo);
+                                            break;
+
+                                    }
+                                }
+                                //编辑轮播图操作
+                                else {
+                                    //判断开始时间和结束时间都不能小于当前时间，开始时间不能大于结束时间
+                                    if (d.getEndTime().isBefore(d.getStartTime()) || d.getEndTime().equals(d.getStartTime())) {
+                                        throw new ServiceException(ResultCode.FAIL, String.format("开始时间不能大于等于结束时间"));
+                                    }
+                                    //判断是否修改开始时间和结束时间
+                                    LocalDateTime startTime = relShufflingMapper.selectById(d.getShufflingId()).getStartTime();
+                                    LocalDateTime endTime = relShufflingMapper.selectById(d.getShufflingId()).getEndTime();
+                                    if (!startTime.equals(d.getStartTime())) {
+                                        //已经开始但还没结束，不能修改开始时间
+                                        if (startTime.isBefore(LocalDateTime.now()) && endTime.isAfter(LocalDateTime.now())) {
+                                            throw new ServiceException(ResultCode.FAIL, String.format("存在轮播图广告已经开始,不能修改开始时间,请检查"));
+                                        }
+                                        if (d.getStartTime().isBefore(LocalDateTime.now())) {
+                                            throw new ServiceException(ResultCode.FAIL, String.format("开始时间需要在当前时间之后"));
+                                        }
+                                    }
+                                    if (!endTime.equals(d.getEndTime())) {
+                                        if (d.getEndTime().isBefore(LocalDateTime.now())) {
+                                            throw new ServiceException(ResultCode.FAIL, String.format("结束时间需要在当前时间之后"));
+                                        }
+                                    }
+
+                                    MmAdviceRelShufflingPo relShufflingPo = relShufflingMapper.selectById(d.getShufflingId());
+                                    //获取广告类型
+                                    AdviceTypeEnum adviceTypeEnum = AdviceTypeEnum.getAdviceTypeEnum(d.getAdviceType());
+                                    switch (adviceTypeEnum) {
+                                        case HTML_DETAIL:
+                                            relShufflingPo.setCreateBy(sysUser.getUsername()).setAdviceId(saveActivityGroupAdviceDto.getAdviceId())
+                                                    .setAdviceType(adviceTypeEnum).setHtmlDetail(d.getHtmlDetail()).setRelTabBrandId(null)
+                                                    .setBrandId(null).setStartTime(d.getStartTime()).setEndTime(d.getEndTime())
+                                                    .setCoverPhoto(d.getCoverPhoto()).setDetailId(null).setRelCategoryId(null)
+                                                    .setFirstCategoryId(null).setRelActivityGroupId(a.getRelAdviceActivityGroupId());
+                                            relShufflingMapper.updateById(relShufflingPo);
+                                            break;
+                                        case INFORMATION:
+                                        case STROE:
+                                        case GOODS:
+                                            if (adviceTypeEnum.equals(AdviceTypeEnum.GOODS)) {
+                                                if (goodsMapper.selectById(d.getDetailId()) == null) {
+                                                    throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在ID为[%s]的商品不存在，请检查", d.getDetailId()));
+                                                }
+                                            } else if (adviceTypeEnum.equals(AdviceTypeEnum.INFORMATION)) {
+                                                if (informationMapper.selectById(d.getDetailId()) == null) {
+                                                    throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在ID为[%s]的资讯不存在，请检查", d.getDetailId()));
+                                                }
+                                            } else if (adviceTypeEnum.equals(AdviceTypeEnum.STROE)) {
+                                                if (storeMapper.selectById(d.getDetailId()) == null) {
+                                                    throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在ID为[%s]的店铺不存在，请检查", d.getDetailId()));
+                                                }
+                                            }
+                                            relShufflingPo.setCreateBy(sysUser.getUsername()).setAdviceId(saveActivityGroupAdviceDto.getAdviceId())
+                                                    .setAdviceType(adviceTypeEnum).setDetailId(d.getDetailId()).setRelTabBrandId(null)
+                                                    .setBrandId(null).setStartTime(d.getStartTime()).setEndTime(d.getEndTime())
+                                                    .setCoverPhoto(d.getCoverPhoto()).setHtmlDetail(null).setRelCategoryId(null)
+                                                    .setFirstCategoryId(null).setRelActivityGroupId(a.getRelAdviceActivityGroupId());
+                                            relShufflingMapper.updateById(relShufflingPo);
+                                            break;
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            }
         }
     }
 
