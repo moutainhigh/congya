@@ -735,12 +735,18 @@ public class MmAdviceRelTabAssociationServiceImpl extends AbstractService<MmAdvi
         MmAdvicePo advicePo = new MmAdvicePo();
 
         Integer relAssociationType = null;
+        Integer activityType = null;
+        String name1= "";
 
         AdviceLocationEnum adviceLocationEnum = AdviceLocationEnum.fromEnumName(saveActivityGroupAdviceDto.getLocation());
         if (adviceLocationEnum.equals(AdviceLocationEnum.INTEGRALS_ACTIVITY)) {
             relAssociationType = AssociationTypeEnum.INTEGRALS_GROUP.getId();
+            activityType = ActivityTypeEnum.INTEGRALS.getId();
+            name1="积分活动";
         } else {
             relAssociationType = AssociationTypeEnum.REDUCED_GROUP.getId();
+            activityType = ActivityTypeEnum.REDUCED.getId();
+            name1 = "满减活动";
         }
 
         /********************公共判断 Start*************/
@@ -821,12 +827,28 @@ public class MmAdviceRelTabAssociationServiceImpl extends AbstractService<MmAdvi
             });
 
             /******************** 公共判断4：商品是否是该活动分组下且活动生效的商品 ****************************/
-//        saveActivityGroupAdviceDto.getActivityGroupDtoList().forEach(a->{
-//            a.getActivitySellHotTabInfosDtoList().forEach(c->{
-//                AmActivityRelActivityGoodsPo relActivityGoodsPo = relActivityGoodsMapper.selectOne(new QueryWrapper<AmActivityRelActivityGoodsPo>().lambda().and(obj->obj
-//                        .eq(AmActivityRelActivityGoodsPo::)))
-//            });
-//        });
+            Integer finalActivityType = activityType;
+            String finalName = name1;
+            saveActivityGroupAdviceDto.getActivityGroupDtoList().forEach(a->{
+            a.getActivitySellHotTabInfosDtoList().forEach(c->{
+                c.getGoodsIds().forEach(d->{
+                    AmActivityRelActivityGoodsPo relActivityGoodsPo = relActivityGoodsMapper.selectOne(new QueryWrapper<AmActivityRelActivityGoodsPo>().lambda().and(obj -> obj
+                            .eq(AmActivityRelActivityGoodsPo::getGoodsId, d)
+                            .eq(AmActivityRelActivityGoodsPo::getActivityType, finalActivityType)
+                            .lt(AmActivityRelActivityGoodsPo::getActivityStartTime,LocalDateTime.now())
+                            .gt(AmActivityRelActivityGoodsPo::getActivityEndTime,LocalDateTime.now())));
+                    List<AmActivityRelActivityGoodsPo> relActivityGoodsPoList = relActivityGoodsMapper.selectList(new QueryWrapper<AmActivityRelActivityGoodsPo>().lambda().and(obj -> obj
+                            .eq(AmActivityRelActivityGoodsPo::getGoodsId, d).eq(AmActivityRelActivityGoodsPo::getActivityType, finalActivityType)));
+                    if (ListUtil.isListNullAndEmpty(relActivityGoodsPoList)){
+                        throw new ServiceException(ResultCode.NO_EXISTS,String.format("商品:[%s]不参加【%s】,请检查",goodsMapper.selectById(d).getName(), finalName));
+                    }else{
+                        if (relActivityGoodsPo == null){
+                            throw new ServiceException(ResultCode.FAIL,String.format("商品:[%s]参加的【%s】还没生效或已经失效，请重新选择",goodsMapper.selectById(d).getName(),finalName));
+                        }
+                    }
+                });
+            });
+        });
 
             /*****************公共判断 End****************/
         }
