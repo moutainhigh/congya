@@ -14,6 +14,7 @@ import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.bo.app.order.reward.RewardShopTicketBo;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.activity.group.AmActivityGroupPo;
 import com.chauncy.data.domain.po.message.advice.*;
 import com.chauncy.data.domain.po.message.information.category.MmInformationCategoryPo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
@@ -32,6 +33,7 @@ import com.chauncy.data.dto.manage.message.advice.select.SearchAdvicesDto;
 import com.chauncy.data.dto.manage.message.advice.select.SearchAssociatedClassificationDto;
 import com.chauncy.data.dto.manage.message.advice.select.SearchInformationCategoryDto;
 import com.chauncy.data.mapper.activity.coupon.AmCouponMapper;
+import com.chauncy.data.mapper.activity.group.AmActivityGroupMapper;
 import com.chauncy.data.mapper.message.advice.*;
 import com.chauncy.data.mapper.message.information.MmInformationMapper;
 import com.chauncy.data.mapper.message.information.category.MmInformationCategoryMapper;
@@ -100,6 +102,9 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 
     @Autowired
     private MmAdviceMapper mapper;
+
+    @Autowired
+    private AmActivityGroupMapper amActivityGroupMapper;
 
     @Autowired
     private MmAdviceRelAssociaitonMapper relAssociaitonMapper;
@@ -207,7 +212,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 if(null != activityGroupTabVo.getActivityGoodsVoList()
                         && activityGroupTabVo.getActivityGoodsVoList().size() > 0) {
                     activityGroupTabVo.getActivityGoodsVoList().forEach(goodsVo -> {
-                        //积分堤口苦金额 = 商品售价 * （积分抵扣比例 / 100）
+                        //积分抵扣金额 = 商品售价 * （积分抵扣比例 / 100）
                         BigDecimal deductibleAmount = BigDecimalUtil.safeMultiply(goodsVo.getSellPrice(),
                                 BigDecimalUtil.safeDivide(goodsVo.getDiscountPriceRatio(), new BigDecimal("100")));
                         goodsVo.setDeductibleAmount(deductibleAmount);
@@ -233,7 +238,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
     /**
      * @Author yeJH
      * @Date 2019/9/25 16:14
-     * @Description  获取活动商品列表
+     * @Description  获取积分/满减活动商品列表
      *
      * @Update yeJH
      *
@@ -241,7 +246,101 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
      * @return com.chauncy.data.vo.JsonViewData<com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.goods.ActivityGoodsVo>>
      **/
     @Override
-    public PageInfo<ActivityGoodsVo> findTabGoodsList(SearchActivityGoodsListDto searchActivityGoodsListDto) {
+    public PageInfo<ActivityGoodsVo> searchActivityGoodsList(SearchActivityGoodsListDto searchActivityGoodsListDto) {
+
+        PageInfo<ActivityGoodsVo> activityGoodsVoPageInfo;
+
+        Integer pageNo = searchActivityGoodsListDto.getPageNo()==null ? defaultPageNo : searchActivityGoodsListDto.getPageNo();
+        Integer pageSize = searchActivityGoodsListDto.getPageSize()==null ? defaultPageSize : searchActivityGoodsListDto.getPageSize();
+
+        if(null == searchActivityGoodsListDto.getSortFile()) {
+            //默认综合排序
+            searchActivityGoodsListDto.setSortFile(SortFileEnum.COMPREHENSIVE_SORT);
+        }
+        if(null == searchActivityGoodsListDto.getSortWay()) {
+            //默认降序
+            searchActivityGoodsListDto.setSortWay(SortWayEnum.DESC);
+        }
+        if(GroupTypeEnum.REDUCED.getId().equals(searchActivityGoodsListDto.getGroupType())) {
+            //满减
+            if(null != searchActivityGoodsListDto.getTabId()) {
+                //根据选项卡id获取商品列表
+                activityGoodsVoPageInfo = PageHelper.startPage(pageNo, pageSize).doSelectPageInfo(() ->
+                        mapper.findReducedGroupTabDetail(searchActivityGoodsListDto));
+            } else if(null != searchActivityGoodsListDto.getGroupId()) {
+                //根据活动分组id获取商品列表
+                activityGoodsVoPageInfo = PageHelper.startPage(pageNo, pageSize).doSelectPageInfo(() ->
+                        mapper.findReducedGroupGoods(searchActivityGoodsListDto));
+            } else {
+                throw new ServiceException(ResultCode.PARAM_ERROR);
+            }
+        } else {
+            //积分
+            if(null != searchActivityGoodsListDto.getTabId()) {
+                //根据选项卡id获取商品列表
+                activityGoodsVoPageInfo = PageHelper.startPage(pageNo, pageSize).doSelectPageInfo(() ->
+                        mapper.findIntegralsGroupTabDetail(searchActivityGoodsListDto));
+            } else if(null != searchActivityGoodsListDto.getGroupId()) {
+                //根据活动分组id获取商品列表
+                activityGoodsVoPageInfo = PageHelper.startPage(pageNo, pageSize).doSelectPageInfo(() ->
+                        mapper.findIntegralsGroupGoods(searchActivityGoodsListDto));
+            } else {
+                throw new ServiceException(ResultCode.PARAM_ERROR);
+            }
+           activityGoodsVoPageInfo.getList().forEach(activityGoodsVo -> {
+                //积分抵扣金额 = 商品售价 * （积分抵扣比例 / 100）
+                BigDecimal deductibleAmount = BigDecimalUtil.safeMultiply(activityGoodsVo.getSellPrice(),
+                        BigDecimalUtil.safeDivide(activityGoodsVo.getDiscountPriceRatio(), new BigDecimal("100")));
+                activityGoodsVo.setDeductibleAmount(deductibleAmount);
+            });
+        }
+        return activityGoodsVoPageInfo;
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/26 11:24
+     * @Description 获取活动分组下的活动商品分类
+     *
+     * @Update yeJH
+     *
+     * @param  groupId  活动分组id
+     * @return java.util.List<com.chauncy.data.vo.BaseVo>
+     **/
+    @Override
+    public List<BaseVo> findGoodsCategory(Long groupId) {
+        AmActivityGroupPo amActivityGroupPo = amActivityGroupMapper.selectById(groupId);
+        if(null == amActivityGroupPo) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "活动分组记录不存在");
+        }
+
+        List<BaseVo> baseVoList;
+
+        if(GroupTypeEnum.REDUCED.getId().equals(amActivityGroupPo.getType())) {
+            //满减活动
+            baseVoList = mapper.findReducedGoodsCategory(groupId);
+        } else if(GroupTypeEnum.INTEGRALS.getId().equals(amActivityGroupPo.getType())) {
+            //积分活动
+            baseVoList = mapper.findIntegralsGoodsCategory(groupId);
+        } else {
+            throw new ServiceException(ResultCode.FAIL, "活动分组关联类型出错");
+        }
+
+        return baseVoList;
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/26 12:50
+     * @Description 点击选项卡获取3个热销/推荐商品
+     *
+     * @Update yeJH
+     *
+     * @param  tabId  选项卡id
+     * @return java.util.List<com.chauncy.data.vo.app.goods.ActivityGoodsVo>
+     **/
+    @Override
+    public List<ActivityGoodsVo> findTabGoodsList(Long tabId) {
         return null;
     }
 

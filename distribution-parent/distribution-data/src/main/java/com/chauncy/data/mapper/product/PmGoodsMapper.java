@@ -4,6 +4,7 @@ import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
 import com.chauncy.data.dto.app.component.ShareDto;
+import com.chauncy.data.dto.app.product.SearchActivityGoodsListDto;
 import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
@@ -19,6 +20,7 @@ import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.advice.store.GoodsSecondCategoryListVo;
 import com.chauncy.data.vo.app.component.ScreenGoodsParamVo;
+import com.chauncy.data.vo.app.goods.ActivityGoodsVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGoodsVo;
@@ -113,6 +115,18 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
      * @return com.chauncy.data.vo.app.component.ScreenGoodsParamVo
      **/
     ScreenGoodsParamVo findScreenGoodsParam(SearchStoreGoodsDto searchStoreGoodsDto);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/25 17:35
+     * @Description  获取积分/满减活动商品列表
+     *
+     * @Update yeJH
+     *
+     * @param  searchActivityGoodsListDto  查询积分/满减活动商品列表参数
+     * @return java.util.List<com.chauncy.data.vo.app.goods.ActivityGoodsVo>
+     **/
+    List<ActivityGoodsVo> findActivityGoodsList(SearchActivityGoodsListDto searchActivityGoodsListDto);
 
     /**
      * 根据资讯id获取关联的商品

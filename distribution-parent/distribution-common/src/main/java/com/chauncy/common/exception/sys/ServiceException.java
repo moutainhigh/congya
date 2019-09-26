@@ -18,6 +18,11 @@ public class ServiceException extends RuntimeException {
 
     private Object data;
 
+    public ServiceException(ResultCode resultCode) {
+        this(resultCode.getDescription());
+        this.resultCode = resultCode;
+    }
+
     public ServiceException(ResultCode resultCode, String errorMessage) {
         this(errorMessage);
         this.resultCode = resultCode;
