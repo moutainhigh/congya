@@ -755,15 +755,23 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
                 break;
             case REDUCED:
                 AmReducedPo amReducedPo = reducedMapper.selectById(saveRegistrationDto.getActivityId());
+                activityStartTime = amReducedPo.getActivityStartTime();
+                activityEndTime = amReducedPo.getActivityEndTime();
                 break;
             case INTEGRALS:
                 AmIntegralsPo amIntegralsPo = integralsMapper.selectById(saveRegistrationDto.getActivityId());
+                activityStartTime = amIntegralsPo.getActivityStartTime();
+                activityEndTime = amIntegralsPo.getActivityEndTime();
                 break;
             case SECKILL:
                 AmSeckillPo amSeckillPo = seckillMapper.selectById(saveRegistrationDto.getActivityId());
+                activityStartTime = amSeckillPo.getActivityStartTime();
+                activityEndTime = amSeckillPo.getActivityEndTime();
                 break;
             case SPELL_GROUP:
                 AmSpellGroupPo amSpellGroupPo = spellGroupMapper.selectById(saveRegistrationDto.getActivityId());
+                activityStartTime = amSpellGroupPo.getActivityStartTime();
+                activityEndTime = amSpellGroupPo.getActivityEndTime();
                 break;
         }
 
@@ -781,6 +789,8 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
             relActivityGoodsPo.setCreateBy(sysUserPo.getUsername());
             relActivityGoodsPo.setId(null);
             relActivityGoodsPo.setActivityType(ActivityTypeEnum.fromName(saveRegistrationDto.getActivityType()).getId());
+            relActivityGoodsPo.setActivityStartTime(activityStartTime);
+            relActivityGoodsPo.setActivityEndTime(activityEndTime);
             activityRelActivityGoodsMapper.insert(relActivityGoodsPo);
             //再保存参与活动的商品与sku关联表
             saveRegistrationDto.getActivitySkuDtoList().forEach(a->{
