@@ -11,6 +11,7 @@ import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.advice.AdviceTabVo;
 import com.chauncy.data.vo.app.advice.activity.ActivityGroupListVo;
 import com.chauncy.data.vo.app.advice.activity.ActivityGroupTabVo;
+import com.chauncy.data.vo.app.advice.activity.HomePageActivityGoodsVo;
 import com.chauncy.data.vo.app.advice.goods.SearchBrandAndSkuBaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseVo;
@@ -140,7 +141,7 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
     /**
      * @Author yeJH
      * @Date 2019/9/26 11:24
-     * @Description 积分活动根据活动分组获取商品列表下对应的商品分类
+     * @Description 满减活动根据活动分组获取商品列表下对应的商品分类
      *
      * @Update yeJH
      *
@@ -160,6 +161,18 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
      * @return java.util.List<com.chauncy.data.vo.BaseVo>
      **/
     List<BaseVo> findIntegralsGoodsCategory(Long groupId);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/26 21:18
+     * @Description 获取APP首页限时秒杀，积分抵现，囤货鸭，拼团鸭
+     *
+     * @Update yeJH
+     *
+     * @param
+     * @return java.util.List<com.chauncy.data.vo.app.advice.activity.HomePageActivityGoodsVo>
+     **/
+    List<HomePageActivityGoodsVo> findHomePageActivity();
 
     /**
      * 条件分页查询广告基本信息

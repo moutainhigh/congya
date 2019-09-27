@@ -1,11 +1,13 @@
 package com.chauncy.web.api.app.activity.integral;
 
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.dto.app.product.FindTabGoodsListDto;
 import com.chauncy.data.dto.app.product.SearchActivityGoodsListDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.advice.activity.ActivityGroupDetailVo;
 import com.chauncy.data.vo.app.advice.activity.ActivityGroupListVo;
+import com.chauncy.data.vo.app.advice.activity.HomePageActivityVo;
 import com.chauncy.data.vo.app.goods.ActivityGoodsVo;
 import com.chauncy.message.advice.IMmAdviceService;
 import com.chauncy.web.base.BaseApi;
@@ -33,6 +35,23 @@ public class AmIntegralMainApi extends BaseApi {
 
     @Autowired
     private IMmAdviceService adviceService;
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/24 16:27
+     * @Description 获取APP首页限时秒杀，积分抵现，囤货鸭，拼团鸭
+     *
+     * @Update yeJH
+     *
+     * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.app.advice.activity.ActivityGroupListVo>>
+     **/
+    @GetMapping("/findHomePageActivity")
+    @ApiOperation(value = "获取APP首页限时秒杀，积分抵现，囤货鸭，拼团鸭")
+    public JsonViewData<HomePageActivityVo> findHomePageActivity(){
+
+        HomePageActivityVo homePageActivityVo = adviceService.findHomePageActivity();
+        return new JsonViewData(ResultCode.SUCCESS,"查找成功", homePageActivityVo);
+    }
 
     /**
      * @Author yeJH
@@ -101,16 +120,17 @@ public class AmIntegralMainApi extends BaseApi {
      *
      * @Update yeJH
      *
-     * @param  tabId  选项卡id
+     * @param  findTabGoodsListDto
      * @return com.chauncy.data.vo.JsonViewData<com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.goods.ActivityGoodsVo>>
      **/
     @GetMapping("/findTabGoodsList/{tabId}")
     @ApiOperation(value = "点击选项卡获取3个热销/推荐商品")
-    public JsonViewData<List<ActivityGoodsVo>> findTabGoodsList(@Valid @ApiParam(required = true,
-            value = "选项卡id", name = "tabId") @PathVariable Long tabId){
+    public JsonViewData<List<ActivityGoodsVo>> findTabGoodsList(@Valid @RequestBody @ApiParam(required = true,
+            name = "searchActivityGoodsListDto", value = "查询积分/满减活动商品列表参数")
+            FindTabGoodsListDto findTabGoodsListDto){
 
         return new JsonViewData(ResultCode.SUCCESS,"查找成功",
-                adviceService.findTabGoodsList(tabId));
+                adviceService.findTabGoodsList(findTabGoodsListDto));
     }
 
     /**
