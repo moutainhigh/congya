@@ -83,7 +83,7 @@ public enum AdviceLocationEnum implements BaseEnum {
 
     REDUCED_INSIDE_SHUFFLING(27,"满减内部轮播图"),
 
-//    SPELL_INSIDE_SHUFFLING(28,"拼团内部轮播图"),
+    SPELL_GROUP(28,"拼团广告"),
 
     //有关联轮播图位置
 //    YOUPIN_DETAIL(17, "品牌详情轮播图"),

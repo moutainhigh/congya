@@ -1,6 +1,7 @@
 package com.chauncy.data.vo.app.goods;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.chauncy.data.vo.app.advice.coupon.FindCouponListVo;
 import com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo;
 import com.chauncy.data.vo.supplier.GoodsStandardVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -100,6 +101,10 @@ public class SpecifiedGoodsVo {
     @JSONField(ordinal = 12)
     private BigDecimal maxRewardShopTicket;
 
+    @ApiModelProperty(value = "返券规则")
+    @JSONField(ordinal = 12)
+    private String returnTicketRules;
+
     @ApiModelProperty(value = "类目ID",hidden = true)
     @JSONField(ordinal = 13,serialize = false)
     private Long categoryId;
@@ -170,5 +175,8 @@ public class SpecifiedGoodsVo {
     @JSONField(ordinal = 29,serialize = false)
     private List<AttributeVo> activityVoList;
 
+    @ApiModelProperty(value = "优惠券列表")
+    @JSONField(ordinal = 30)
+    private List<FindCouponListVo> findCouponList;
 
 }
