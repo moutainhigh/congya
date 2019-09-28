@@ -128,7 +128,7 @@
             AND `aarag`.`del_flag` = 0
             AND  ar.`del_flag` = 0
             AND  ar.enable = 1
-            AND  ar.activity_end_time > NOW()
+            AND  ar.activity_end_time <![CDATA[>]]> NOW()
             AND `pgs`.del_flag = 0
             AND `pgs`.id = (
                 SELECT temp.id
@@ -139,8 +139,101 @@
                 LIMIT 1
             )
         </where>
-        <if test="isPaging == true">
+        <if test="null != sortFile and sortFile.name() == 'PRICE_SORT' ">
+            ORDER BY pgs.sell_price ${sortWay.name}
+        </if>
+        <if test="null != sortFile and sortFile.name() == 'SALES_SORT'">
+            ORDER BY pg.sales_volume ${sortWay.name}
+        </if>
+        <if test="null != sortFile and sortFile.name() == 'COMPREHENSIVE_SORT'">
+            ORDER BY pg.comprehensive_score DESC
+        </if>
+        <if test="isPaging == 0">
             limit 3
+        </if>
+    </select>
+
+    <select id="findReducedGroupGoods" resultType="com.chauncy.data.vo.app.goods.ActivityGoodsVo">
+        SELECT `pg`.id AS goodsId,
+            `pg`.name AS goodsName,
+            `pg`.icon,
+            `pgs`.sell_price,
+            `pgs`.line_price,
+            ar.reduction_full_money,
+            ar.reduction_post_money
+        FROM am_reduced ar
+        LEFT JOIN am_activity_rel_activity_goods aarag ON ar.id = aarag.`activity_id` AND ar.group_id = #{groupId}
+        LEFT JOIN pm_goods pg ON pg.id = aarag.`goods_id`
+        LEFT JOIN pm_goods_sku `pgs` ON `pg`.id = `pgs`.goods_id
+        <where>
+            ar.group_id = #{groupId}
+            AND ar.`del_flag` = 0
+            AND ar.enable = 1
+            AND ar.`activity_end_time` <![CDATA[> ]]> NOW()
+            AND ar.`activity_start_time` <![CDATA[< ]]> NOW()
+            AND aarag.`verify_status` = 3
+            AND aarag.`del_flag` = 0
+            AND pg.`publish_status` = 1
+            <if test="null != categoryId and categoryId != 0">
+                AND pg.goods_category_id = #{categoryId}
+            </if>
+            AND `pgs`.del_flag = 0
+            AND `pgs`.id = (
+                SELECT temp.id
+                FROM pm_goods_sku temp
+                WHERE temp.goods_id = pg.id
+                AND temp.del_flag = 0
+                ORDER BY sell_price
+                LIMIT 1
+            )
+        </where>
+        <if test="null != sortFile and sortFile.name() == 'PRICE_SORT' ">
+            ORDER BY pgs.sell_price ${sortWay.name}
+        </if>
+        <if test="null != sortFile and sortFile.name() == 'SALES_SORT'">
+            ORDER BY pg.sales_volume ${sortWay.name}
+        </if>
+        <if test="null != sortFile and sortFile.name() == 'COMPREHENSIVE_SORT'">
+            ORDER BY pg.comprehensive_score DESC
+        </if>
+    </select>
+
+    <select id="findIntegralsGroupGoods" resultType="com.chauncy.data.vo.app.goods.ActivityGoodsVo">
+        SELECT
+        FROM am_integrals ai
+        LEFT JOIN am_activity_rel_activity_goods aarag ON ai.id = aarag.`activity_id` AND ai.group_id = #{groupId}
+        LEFT JOIN pm_goods pg ON pg.id = aarag.`goods_id`
+        LEFT JOIN pm_goods_sku `pgs` ON `pg`.id = `pgs`.goods_id
+        <where>
+            ai.group_id = #{groupId}
+            AND ai.`del_flag` = 0
+            AND ai.enable = 1
+            AND ai.`activity_end_time` <![CDATA[> ]]> NOW()
+            AND ai.`activity_start_time` <![CDATA[< ]]> NOW()
+            AND aarag.`verify_status` = 3
+            AND aarag.`del_flag` = 0
+            AND pg.`publish_status` = 1
+            <if test="null != categoryId and categoryId != 0">
+                AND pg.goods_category_id = #{categoryId}
+            </if>
+            AND `pgs`.del_flag = 0
+            AND `pgs`.id = (
+                SELECT temp.id
+                FROM pm_goods_sku temp
+                WHERE temp.goods_id = pg.id
+                AND temp.del_flag = 0
+                ORDER BY sell_price
+                LIMIT 1
+            )
+        </where>
+        <if test="null != sortFile and sortFile.name() == 'PRICE_SORT' ">
+            ORDER BY pgs.sell_price ${sortWay.name}
+        </if>
+        <if test="null != sortFile and sortFile.name() == 'SALES_SORT'">
+            ORDER BY pg.sales_volume ${sortWay.name}
+        </if>
+        <if test="null != sortFile and sortFile.name() == 'COMPREHENSIVE_SORT'">
+            ORDER BY pg.comprehensive_score DESC
         </if>
     </select>
 
@@ -148,17 +241,14 @@
         SELECT `pg`.id AS goodsId,
             `pg`.name AS goodsName,
             `pg`.icon,
-            (
-                SELECT MIN(sell_price)
-                FROM pm_goods_sku pgs
-                WHERE pgs.`goods_id` = pg.`id`
-                AND pgs.`del_flag` = 0
-            ) AS sell_price,
+            `pgs`.sell_price,
+            `pgs`.line_price,
             `ai`.discount_price_ratio
         FROM mm_advice_rel_tab_things `martt`
         LEFT JOIN pm_goods pg ON pg.id = `martt`.`association_id` AND `martt`.`tab_id` = #{tabId}
         LEFT JOIN am_activity_rel_activity_goods `aarag` ON `aarag`.goods_id = pg.`id`
         LEFT JOIN am_integrals ai ON ai.id = `aarag`.`activity_id`
+        LEFT JOIN pm_goods_sku `pgs` ON `pg`.id = `pgs`.goods_id
         <where>
             `martt`.`tab_id` = #{tabId}
             AND `martt`.del_flag = 0
@@ -167,9 +257,30 @@
             AND `aarag`.`del_flag` = 0
             AND  ai.`del_flag` = 0
             AND  ai.enable = 1
-            AND  ai.activity_end_time > NOW()
+            AND  ai.activity_end_time <![CDATA[>]]> NOW()
+            AND `pgs`.del_flag = 0
+            AND `pgs`.id = (
+                SELECT temp.id
+                FROM pm_goods_sku temp
+                WHERE temp.goods_id = pg.id
+                AND temp.del_flag = 0
+                ORDER BY sell_price
+                LIMIT 1
+            )
         </where>
-        <if test="isPaging == true">
+        <if test="null != sortFile and sortFile.name() == 'PRICE_SORT' ">
+            ORDER BY pgs.sell_price ${sortWay.name}
+        </if>
+        <if test="null != sortFile and sortFile.name() == 'SALES_SORT'">
+            ORDER BY pg.sales_volume ${sortWay.name}
+        </if>
+        <if test="null != sortFile and sortFile.name() == 'COMPREHENSIVE_SORT'">
+            ORDER BY pg.comprehensive_score DESC
+        </if>
+        <if test="isPaging == 0">
+            ORDER BY pg.sales_volume DESC
+        </if>
+        <if test="isPaging == 0">
             limit 3
         </if>
     </select>
@@ -185,6 +296,42 @@
         AND mars.del_flag = 0
         AND mars.start_time <![CDATA[< ]]> NOW()
         AND mars.end_time <![CDATA[> ]]> NOW()
+    </select>
+
+    <select id="findReducedGoodsCategory" resultType="com.chauncy.data.vo.BaseVo">
+        SELECT DISTINCT pgc.`id`, pgc.name
+        FROM am_reduced ar
+        LEFT JOIN am_activity_rel_activity_goods aarag ON ar.id = aarag.`activity_id` AND ar.group_id = #{groupId}
+        LEFT JOIN pm_goods pg ON pg.id = aarag.`goods_id`
+        LEFT JOIN pm_goods_category pgc ON pg.goods_category_id = pgc.id
+        <where>
+            ar.group_id = #{groupId}
+            AND ar.`del_flag` = 0
+            AND ar.enable = 1
+            AND ar.`activity_end_time` <![CDATA[> ]]> NOW()
+            AND ar.`activity_start_time` <![CDATA[< ]]> NOW()
+            AND aarag.`verify_status` = 3
+            AND aarag.`del_flag` = 0
+            AND pg.`publish_status` = 1
+        </where>
+    </select>
+
+    <select id="findIntegralsGoodsCategory" resultType="com.chauncy.data.vo.BaseVo">
+        SELECT DISTINCT pgc.`id`, pgc.name
+        FROM am_integrals ai
+        LEFT JOIN am_activity_rel_activity_goods aarag ON ai.id = aarag.`activity_id` AND ai.group_id = #{groupId}
+        LEFT JOIN pm_goods pg ON pg.id = aarag.`goods_id`
+        LEFT JOIN pm_goods_category pgc ON pg.goods_category_id = pgc.id
+        <where>
+            ai.group_id = #{groupId}
+            AND ai.`del_flag` = 0
+            AND ar.enable = 1
+            AND ar.`activity_end_time` <![CDATA[> ]]> NOW()
+            AND ar.`activity_start_time` <![CDATA[< ]]> NOW()
+            AND aarag.`verify_status` = 3
+            AND aarag.`del_flag` = 0
+            AND pg.`publish_status` = 1
+        </where>
     </select>
 
     <select id="searchAdvices" resultType="com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo">
@@ -221,6 +368,111 @@
             AND `mara`.del_flag = 0
             AND `ssc`.`enabled` = 1
             AND `ssc`.`del_flag`= 0
+    </select>
+
+    <select id="findHomePageActivity" resultType="com.chauncy.data.vo.app.advice.activity.HomePageActivityGoodsVo">
+        SELECT * FROM (
+            SELECT pg.`icon` AS picture,
+                aarag.`activity_end_time`,
+                aargs.activity_price,
+                pgs.sell_price,
+                '' AS discount_price_ratio,
+                '' AS reduction_full_money,
+                '' AS reduction_post_money,
+                '' AS groupNum,
+                '3' AS `groupType`
+            FROM am_activity_rel_activity_goods aarag
+            LEFT JOIN pm_goods pg ON pg.id = aarag.`goods_id`
+            LEFT JOIN am_activity_rel_goods_sku aargs ON aargs.rel_id = aarag.`id`
+            LEFT JOIN pm_goods_sku pgs ON pgs.id = aargs.sku_id
+            WHERE aarag.`activity_type` = 3
+                AND aarag.verify_status = 3
+                AND aarag.`del_flag` = 0
+                AND aarag.`activity_end_time` <![CDATA[> ]]> NOW()
+                AND aarag.`activity_start_time` <![CDATA[< ]]> NOW()
+                AND pg.`publish_status` = 1
+                AND pg.`del_flag` = 0
+                AND aargs.del_flag = 0
+                AND pgs.del_flag = 0
+            ORDER BY pgs.sell_price - aargs.activity_price DESC
+            LIMIT 2
+        ) AS seckill
+        UNION ALL
+        SELECT * FROM (
+            SELECT pg.`icon` AS picture,
+                '' AS `activity_end_time`,
+                '' AS sellPrice,
+                '' AS line_price,
+                ai.discount_price_ratio,
+                '' AS reduction_full_money,
+                '' AS reduction_post_money,
+                '' AS groupNum,
+                '2' AS `groupType`
+            FROM am_integrals ai
+            LEFT JOIN am_activity_rel_activity_goods aarag ON ai.id = aarag.`activity_id`
+            LEFT JOIN pm_goods pg ON pg.id = aarag.`goods_id`
+            WHERE ai.del_flag = 0
+                AND ai.enable = 1
+                AND ai.`activity_end_time` <![CDATA[> ]]> NOW()
+                AND ai.`activity_start_time` <![CDATA[< ]]> NOW()
+                AND aarag.verify_status = 3
+                AND aarag.`del_flag` = 0
+                AND pg.`publish_status` = 1
+                AND pg.`del_flag` = 0
+            ORDER BY ai.discount_price_ratio,pg.sort DESC
+            LIMIT 2
+        ) AS integrals
+        UNION ALL
+        SELECT * FROM (
+            SELECT pg.`icon` AS picture,
+                '' AS `activity_end_time`,
+                '' AS sellPrice,
+                '' AS line_price,
+                '' AS discount_price_ratio,
+                ar.reduction_full_money,
+                ar.reduction_post_money,
+                '' AS groupNum,
+                '1' AS groupType
+            FROM am_reduced ar
+            LEFT JOIN am_activity_rel_activity_goods aarag ON ar.id = aarag.`activity_id`
+            LEFT JOIN pm_goods pg ON pg.id = aarag.`goods_id`
+            WHERE ar.del_flag = 0
+                AND ar.enable = 1
+                AND ar.`activity_end_time` <![CDATA[> ]]> NOW()
+                AND ar.`activity_start_time` <![CDATA[< ]]> NOW()
+                AND aarag.verify_status = 3
+                AND aarag.`del_flag` = 0
+                AND pg.`publish_status` = 1
+                AND pg.`del_flag` = 0
+            ORDER BY (ar.reduction_full_money - ar.reduction_post_money),pg.sort ASC
+            LIMIT 2
+        ) AS reduced
+        UNION ALL
+        SELECT * FROM (
+            SELECT pg.`icon` AS picture,
+                aarag.`activity_end_time`,
+                '' AS sellPrice,
+                '' AS line_price,
+                '' AS discount_price_ratio,
+                '' AS reduction_full_money,
+                '' AS reduction_post_money,
+                SUM(condition_num) AS groupNum,
+                '4' AS `groupType`
+            FROM am_activity_rel_activity_goods aarag
+            LEFT JOIN pm_goods pg ON pg.id = aarag.`goods_id`
+            LEFT JOIN am_spell_group_main asgm ON aarag.id = asgm.rel_id
+            WHERE aarag.`activity_type` = 4
+                AND aarag.verify_status = 3
+                AND aarag.`del_flag` = 0
+                AND aarag.`activity_end_time` <![CDATA[> ]]> NOW()
+                AND aarag.`activity_start_time` <![CDATA[< ]]> NOW()
+                AND pg.`publish_status` = 1
+                AND pg.`del_flag` = 0
+                AND asgm.status = 3
+            GROUP BY aarag.id
+            ORDER BY groupNum DESC
+            LIMIT 1
+        ) AS spellGroup
     </select>
 
     <select id="findInfoCategory" resultType="com.chauncy.data.vo.BaseVo">

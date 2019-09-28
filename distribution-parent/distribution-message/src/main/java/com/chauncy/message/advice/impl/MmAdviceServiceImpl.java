@@ -2,6 +2,7 @@ package com.chauncy.message.advice.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.app.activity.group.GroupTypeEnum;
+import com.chauncy.common.enums.app.activity.type.ActivityTypeEnum;
 import com.chauncy.common.enums.app.advice.AdviceLocationEnum;
 import com.chauncy.common.enums.app.advice.AdviceTypeEnum;
 import com.chauncy.common.enums.app.advice.AssociationTypeEnum;
@@ -14,6 +15,7 @@ import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.bo.app.order.reward.RewardShopTicketBo;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.activity.group.AmActivityGroupPo;
 import com.chauncy.data.domain.po.message.advice.*;
 import com.chauncy.data.domain.po.message.information.category.MmInformationCategoryPo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
@@ -23,6 +25,7 @@ import com.chauncy.data.dto.app.advice.brand.select.FindBrandShufflingDto;
 import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
+import com.chauncy.data.dto.app.product.FindTabGoodsListDto;
 import com.chauncy.data.dto.app.product.SearchActivityGoodsListDto;
 import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
@@ -32,6 +35,7 @@ import com.chauncy.data.dto.manage.message.advice.select.SearchAdvicesDto;
 import com.chauncy.data.dto.manage.message.advice.select.SearchAssociatedClassificationDto;
 import com.chauncy.data.dto.manage.message.advice.select.SearchInformationCategoryDto;
 import com.chauncy.data.mapper.activity.coupon.AmCouponMapper;
+import com.chauncy.data.mapper.activity.group.AmActivityGroupMapper;
 import com.chauncy.data.mapper.message.advice.*;
 import com.chauncy.data.mapper.message.information.MmInformationMapper;
 import com.chauncy.data.mapper.message.information.category.MmInformationCategoryMapper;
@@ -44,9 +48,7 @@ import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.advice.AdviceTabVo;
-import com.chauncy.data.vo.app.advice.activity.ActivityGroupDetailVo;
-import com.chauncy.data.vo.app.advice.activity.ActivityGroupListVo;
-import com.chauncy.data.vo.app.advice.activity.ActivityGroupTabVo;
+import com.chauncy.data.vo.app.advice.activity.*;
 import com.chauncy.data.vo.app.advice.goods.BrandGoodsVo;
 import com.chauncy.data.vo.app.advice.goods.SearchBrandAndSkuBaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
@@ -100,6 +102,9 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 
     @Autowired
     private MmAdviceMapper mapper;
+
+    @Autowired
+    private AmActivityGroupMapper amActivityGroupMapper;
 
     @Autowired
     private MmAdviceRelAssociaitonMapper relAssociaitonMapper;
@@ -207,7 +212,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 if(null != activityGroupTabVo.getActivityGoodsVoList()
                         && activityGroupTabVo.getActivityGoodsVoList().size() > 0) {
                     activityGroupTabVo.getActivityGoodsVoList().forEach(goodsVo -> {
-                        //积分堤口苦金额 = 商品售价 * （积分抵扣比例 / 100）
+                        //积分抵扣金额 = 商品售价 * （积分抵扣比例 / 100）
                         BigDecimal deductibleAmount = BigDecimalUtil.safeMultiply(goodsVo.getSellPrice(),
                                 BigDecimalUtil.safeDivide(goodsVo.getDiscountPriceRatio(), new BigDecimal("100")));
                         goodsVo.setDeductibleAmount(deductibleAmount);
@@ -233,7 +238,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
     /**
      * @Author yeJH
      * @Date 2019/9/25 16:14
-     * @Description  获取活动商品列表
+     * @Description  获取积分/满减活动商品列表
      *
      * @Update yeJH
      *
@@ -241,8 +246,159 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
      * @return com.chauncy.data.vo.JsonViewData<com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.goods.ActivityGoodsVo>>
      **/
     @Override
-    public PageInfo<ActivityGoodsVo> findTabGoodsList(SearchActivityGoodsListDto searchActivityGoodsListDto) {
-        return null;
+    public PageInfo<ActivityGoodsVo> searchActivityGoodsList(SearchActivityGoodsListDto searchActivityGoodsListDto) {
+
+        PageInfo<ActivityGoodsVo> activityGoodsVoPageInfo;
+
+        //分页
+        searchActivityGoodsListDto.setIsPaging(1);
+
+        Integer pageNo = searchActivityGoodsListDto.getPageNo()==null ? defaultPageNo : searchActivityGoodsListDto.getPageNo();
+        Integer pageSize = searchActivityGoodsListDto.getPageSize()==null ? defaultPageSize : searchActivityGoodsListDto.getPageSize();
+
+        if(null == searchActivityGoodsListDto.getSortFile()) {
+            //默认综合排序
+            searchActivityGoodsListDto.setSortFile(SortFileEnum.COMPREHENSIVE_SORT);
+        }
+        if(null == searchActivityGoodsListDto.getSortWay()) {
+            //默认降序
+            searchActivityGoodsListDto.setSortWay(SortWayEnum.DESC);
+        }
+        if(GroupTypeEnum.REDUCED.getId().equals(searchActivityGoodsListDto.getGroupType())) {
+            //满减
+            if(null != searchActivityGoodsListDto.getTabId()) {
+                //根据选项卡id获取商品列表
+                activityGoodsVoPageInfo = PageHelper.startPage(pageNo, pageSize).doSelectPageInfo(() ->
+                        mapper.findReducedGroupTabDetail(searchActivityGoodsListDto));
+            } else if(null != searchActivityGoodsListDto.getGroupId()) {
+                //根据活动分组id获取商品列表
+                activityGoodsVoPageInfo = PageHelper.startPage(pageNo, pageSize).doSelectPageInfo(() ->
+                        mapper.findReducedGroupGoods(searchActivityGoodsListDto));
+            } else {
+                throw new ServiceException(ResultCode.PARAM_ERROR);
+            }
+        } else {
+            //积分
+            if(null != searchActivityGoodsListDto.getTabId()) {
+                //根据选项卡id获取商品列表
+                activityGoodsVoPageInfo = PageHelper.startPage(pageNo, pageSize).doSelectPageInfo(() ->
+                        mapper.findIntegralsGroupTabDetail(searchActivityGoodsListDto));
+            } else if(null != searchActivityGoodsListDto.getGroupId()) {
+                //根据活动分组id获取商品列表
+                activityGoodsVoPageInfo = PageHelper.startPage(pageNo, pageSize).doSelectPageInfo(() ->
+                        mapper.findIntegralsGroupGoods(searchActivityGoodsListDto));
+            } else {
+                throw new ServiceException(ResultCode.PARAM_ERROR);
+            }
+           activityGoodsVoPageInfo.getList().forEach(activityGoodsVo -> {
+                //积分抵扣金额 = 商品售价 * （积分抵扣比例 / 100）
+                BigDecimal deductibleAmount = BigDecimalUtil.safeMultiply(activityGoodsVo.getSellPrice(),
+                        BigDecimalUtil.safeDivide(activityGoodsVo.getDiscountPriceRatio(), new BigDecimal("100")));
+                activityGoodsVo.setDeductibleAmount(deductibleAmount);
+            });
+        }
+        return activityGoodsVoPageInfo;
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/26 11:24
+     * @Description 获取活动分组下的活动商品分类
+     *
+     * @Update yeJH
+     *
+     * @param  groupId  活动分组id
+     * @return java.util.List<com.chauncy.data.vo.BaseVo>
+     **/
+    @Override
+    public List<BaseVo> findGoodsCategory(Long groupId) {
+        AmActivityGroupPo amActivityGroupPo = amActivityGroupMapper.selectById(groupId);
+        if(null == amActivityGroupPo) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "活动分组记录不存在");
+        }
+
+        List<BaseVo> baseVoList;
+
+        if(GroupTypeEnum.REDUCED.getId().equals(amActivityGroupPo.getType())) {
+            //满减活动
+            baseVoList = mapper.findReducedGoodsCategory(groupId);
+        } else if(GroupTypeEnum.INTEGRALS.getId().equals(amActivityGroupPo.getType())) {
+            //积分活动
+            baseVoList = mapper.findIntegralsGoodsCategory(groupId);
+        } else {
+            throw new ServiceException(ResultCode.FAIL, "活动分组关联类型出错");
+        }
+
+        return baseVoList;
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/26 13:55
+     * @Description 点击选项卡获取3个热销/推荐商品
+     *
+     * @Update yeJH
+     *
+     * @param  findTabGoodsListDto
+     * @return java.util.List<com.chauncy.data.vo.app.goods.ActivityGoodsVo>
+     **/
+    @Override
+    public List<ActivityGoodsVo> findTabGoodsList(FindTabGoodsListDto findTabGoodsListDto) {
+
+        MmAdviceTabPo mmAdviceTabPo = tabMapper.selectById(findTabGoodsListDto.getTabId());
+        if(null == mmAdviceTabPo) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "记录不存在");
+        }
+
+        SearchActivityGoodsListDto searchActivityGoodsListDto = new SearchActivityGoodsListDto();
+        BeanUtils.copyProperties(findTabGoodsListDto, searchActivityGoodsListDto);
+        searchActivityGoodsListDto.setIsPaging(0);
+
+        List<ActivityGoodsVo> activityGoodsVoList = new ArrayList<>();
+
+        if(GroupTypeEnum.REDUCED.getId().equals(findTabGoodsListDto.getGroupType())) {
+            activityGoodsVoList = mapper.findReducedGroupTabDetail(searchActivityGoodsListDto);
+        } else if (GroupTypeEnum.REDUCED.getId().equals(findTabGoodsListDto.getGroupType())){
+            activityGoodsVoList = mapper.findIntegralsGroupTabDetail(searchActivityGoodsListDto);
+        } else {
+            throw new ServiceException(ResultCode.PARAM_ERROR);
+        }
+
+        return activityGoodsVoList;
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/26 20:53
+     * @Description 获取APP首页限时秒杀，积分抵现，囤货鸭，拼团鸭
+     *
+     * @Update yeJH
+     *
+     * @param
+     * @return com.chauncy.data.vo.app.advice.activity.HomePageActivityVo
+     **/
+    @Override
+    public HomePageActivityVo findHomePageActivity() {
+
+        List<HomePageActivityGoodsVo> goodsVoList = mapper.findHomePageActivity();
+
+        HomePageActivityVo homePageActivityVo = new HomePageActivityVo();
+        goodsVoList.stream().forEach(homePageActivityGoodsVo -> {
+            //ActivityTypeEnum
+            switch (homePageActivityGoodsVo.getGroupType()) {
+                case 1:
+                    homePageActivityVo.getReducedGoods().add(homePageActivityGoodsVo);
+                case 2:
+                    homePageActivityVo.getIntegralsGoods().add(homePageActivityGoodsVo);
+                case 3:
+                    homePageActivityVo.getSecKillGoods().add(homePageActivityGoodsVo);
+                case 4:
+                    homePageActivityVo.getSecKillGoods().add(homePageActivityGoodsVo);
+            }
+        });
+
+        return homePageActivityVo;
+
     }
 
     /**
@@ -493,6 +649,12 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 case YOUXUAN_INSIDE_SHUFFLING:
                 case BAIHUO_INSIDE_SHUFFLING:
                 case PERSONAL_CENTER:
+                case TOP_UP_ENTRY:
+                case SPELL_GROUP_SHUFFLING:
+                case REDUCED_INSIDE_SHUFFLING:
+                case INTEGRALS_INSIDE_HUFFLING:
+                case COUPON:
+                case EXPERIENCE_PACKAGE:
                     List<FindShufflingVo> shufflingVoList = relShufflingMapper.findShuffling(a.getAdviceId());
                     shufflingVoList.forEach(b -> {
                         AdviceTypeEnum adviceTypeEnum = b.getAdviceType();
@@ -549,11 +711,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 /*******************推荐分类 葱鸭百货分类推荐/资讯分类推荐*********************/
 
                 /*******************充值入口+拼团鸭+优惠券+经验包+邀请包*********************/
-                case TOP_UP_ENTRY:
-                case SPELL_GROUP_SHUFFLING:
-                case COUPON:
                 case INVITATION:
-                case EXPERIENCE_PACKAGE:
                     break;
                 /*******************充值入口+拼团鸭+优惠券+经验包+邀请包*********************/
             }
@@ -659,6 +817,12 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 case YOUXUAN_INSIDE_SHUFFLING:
                 case BAIHUO_INSIDE_SHUFFLING:
                 case PERSONAL_CENTER:
+                case SPELL_GROUP_SHUFFLING:
+                case INTEGRALS_INSIDE_HUFFLING:
+                case REDUCED_INSIDE_SHUFFLING:
+                case TOP_UP_ENTRY:
+                case COUPON:
+                case EXPERIENCE_PACKAGE:
                     //删除该广告对应的轮播图
                     relShufflingMapper.delete(new QueryWrapper<MmAdviceRelShufflingPo>().lambda()
                             .eq(MmAdviceRelShufflingPo::getAdviceId, a));
@@ -679,11 +843,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 /*******************推荐分类 葱鸭百货分类推荐/资讯分类推荐*********************/
 
                 /*******************充值入口+拼团鸭+优惠券+经验包+邀请包*********************/
-                case TOP_UP_ENTRY:
-                case SPELL_GROUP_SHUFFLING:
-                case COUPON:
                 case INVITATION:
-                case EXPERIENCE_PACKAGE:
                     break;
             }
 

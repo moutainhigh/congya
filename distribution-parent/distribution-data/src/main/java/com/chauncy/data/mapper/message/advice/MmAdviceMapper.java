@@ -4,12 +4,14 @@ import com.chauncy.data.domain.po.message.advice.MmAdvicePo;
 import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
+import com.chauncy.data.dto.app.product.SearchActivityGoodsListDto;
 import com.chauncy.data.dto.manage.message.advice.select.SearchAdvicesDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.advice.AdviceTabVo;
 import com.chauncy.data.vo.app.advice.activity.ActivityGroupListVo;
 import com.chauncy.data.vo.app.advice.activity.ActivityGroupTabVo;
+import com.chauncy.data.vo.app.advice.activity.HomePageActivityGoodsVo;
 import com.chauncy.data.vo.app.advice.goods.SearchBrandAndSkuBaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseVo;
@@ -79,11 +81,12 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
      *
      * @Update yeJH
      *
-     * @param  tabId  活动分组选项卡id
-     * @param  isPaging  是否分页  活动分组选项卡详情中商品只展示3个
+     * @param  searchActivityGoodsListDto
+     *   tabId  活动分组选项卡id
+     *   isPaging  是否分页  活动分组选项卡详情中商品只展示3个
      * @return java.util.List<com.chauncy.data.vo.app.goods.ActivityGoodsVo>
      **/
-    List<ActivityGoodsVo> findIntegralsGroupTabDetail(@Param("tabId") Long tabId, @Param("isPaging") Boolean isPaging);
+    List<ActivityGoodsVo> findIntegralsGroupTabDetail(SearchActivityGoodsListDto searchActivityGoodsListDto);
 
     /**
      * @Author yeJH
@@ -92,13 +95,14 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
      *
      * @Update yeJH
      *
-     * @param  tabId  活动分组选项卡id
-     * @param  isPaging  是否分页  活动分组选项卡详情中商品只展示3个
+     * @param  searchActivityGoodsListDto
+     *   tabId  活动分组选项卡id
+     *   isPaging  是否分页  活动分组选项卡详情中商品只展示3个
      * @return java.util.List<com.chauncy.data.vo.app.goods.ActivityGoodsVo>
      **/
-    List<ActivityGoodsVo> findReducedGroupTabDetail(@Param("tabId") Long tabId, @Param("isPaging") Boolean isPaging);
+    List<ActivityGoodsVo> findReducedGroupTabDetail(SearchActivityGoodsListDto searchActivityGoodsListDto);
 
-    /**
+     /**
      * @Author yeJH
      * @Date 2019/9/25 13:18
      * @Description  分组活动关联的轮播图
@@ -109,6 +113,66 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
      * @return java.util.List<com.chauncy.data.vo.app.advice.home.ShufflingVo>
      **/
     List<ShufflingVo> getShufflingByRelId(Long relId);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/24 18:01
+     * @Description 根据满减活动分组id获取满减商品列表
+     *
+     * @Update yeJH
+     *
+     * @param  searchActivityGoodsListDto
+     * @return java.util.List<com.chauncy.data.vo.app.goods.ActivityGoodsVo>
+     **/
+    List<ActivityGoodsVo> findReducedGroupGoods(SearchActivityGoodsListDto searchActivityGoodsListDto);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/25 22:46
+     * @Description 根据积分活动分组id获取积分商品列表
+     *
+     * @Update yeJH
+     *
+     * @param  searchActivityGoodsListDto
+     * @return void
+     **/
+    List<ActivityGoodsVo> findIntegralsGroupGoods(SearchActivityGoodsListDto searchActivityGoodsListDto);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/26 11:24
+     * @Description 满减活动根据活动分组获取商品列表下对应的商品分类
+     *
+     * @Update yeJH
+     *
+     * @param  groupId  活动分组id
+     * @return java.util.List<com.chauncy.data.vo.BaseVo>
+     **/
+    List<BaseVo> findReducedGoodsCategory(Long groupId);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/26 11:24
+     * @Description 积分活动根据活动分组获取商品列表下对应的商品分类
+     *
+     * @Update yeJH
+     *
+     * @param  groupId 活动分组id
+     * @return java.util.List<com.chauncy.data.vo.BaseVo>
+     **/
+    List<BaseVo> findIntegralsGoodsCategory(Long groupId);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/26 21:18
+     * @Description 获取APP首页限时秒杀，积分抵现，囤货鸭，拼团鸭
+     *
+     * @Update yeJH
+     *
+     * @param
+     * @return java.util.List<com.chauncy.data.vo.app.advice.activity.HomePageActivityGoodsVo>
+     **/
+    List<HomePageActivityGoodsVo> findHomePageActivity();
 
     /**
      * 条件分页查询广告基本信息

@@ -4,6 +4,7 @@ package com.chauncy.web.api.manage.activity.coupon;
 import com.chauncy.activity.coupon.IAmCouponService;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.manage.activity.EditEnableDto;
 import com.chauncy.data.dto.manage.activity.coupon.add.SaveCouponDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchCouponListDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchDetailAssociationsDto;
@@ -130,8 +131,8 @@ public class AmCouponApi extends BaseApi {
     @PostMapping("/editEnable")
     @ApiOperation("批量启用或禁用")
     public JsonViewData editEnable(@Validated @RequestBody  @ApiParam(required = true, name = "baseUpdateStatusDto", value = "资讯id、修改的状态值")
-                                           BaseUpdateStatusDto baseUpdateStatusDto){
-        service.editEnabledBatch(baseUpdateStatusDto);
+                                               EditEnableDto baseUpdateStatusDto){
+        service.editEnable(baseUpdateStatusDto);
         return new JsonViewData(ResultCode.SUCCESS,"操作成功");
     }
 

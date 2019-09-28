@@ -49,6 +49,11 @@
         where id=#{id}
     </insert>
 
+
+    <select id="findActivityGoodsList" resultType="com.chauncy.data.vo.app.goods.ActivityGoodsVo">
+
+    </select>
+
     <select id="findRecommandGoods" resultType="com.chauncy.data.vo.app.goods.GoodsBaseInfoVo">
         SELECT
             `pg`.id AS goodsId,

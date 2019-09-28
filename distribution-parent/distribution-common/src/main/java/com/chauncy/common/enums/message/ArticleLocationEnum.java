@@ -25,7 +25,9 @@ public enum ArticleLocationEnum implements BaseEnum {
     APPLICATION_FOR(10,"合作申请"),
     ABOUT_US(11,"关于我们"),
     PLACE_THE_ORDER_AND_POLITE(12,"下单有礼"),
-    HELP_CENTER(13,"帮助中心");
+    HELP_CENTER(13,"帮助中心"),
+    INTEGRALS_DESCRIPTION(14,"抵扣说明"),
+    RETURN_TICKET_RULES(15,"返券规则");
 
     private Integer id;
     private String name;

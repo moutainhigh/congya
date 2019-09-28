@@ -46,5 +46,4 @@ public class ActivityGroupDto {
     @NotNull(message = "活动中部热销广告选项卡信息不能为空")
     @JSONField(ordinal = 9)
     private List<ActivitySellHotTabInfosDto> activitySellHotTabInfosDtoList;
-
 }

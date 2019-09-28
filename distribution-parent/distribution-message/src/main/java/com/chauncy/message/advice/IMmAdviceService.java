@@ -6,6 +6,7 @@ import com.chauncy.data.dto.app.advice.brand.select.FindBrandShufflingDto;
 import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
+import com.chauncy.data.dto.app.product.FindTabGoodsListDto;
 import com.chauncy.data.dto.app.product.SearchActivityGoodsListDto;
 import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
@@ -19,6 +20,7 @@ import com.chauncy.data.vo.app.advice.AdviceTabVo;
 import com.chauncy.data.vo.app.advice.activity.ActivityGroupDetailVo;
 import com.chauncy.data.vo.app.advice.activity.ActivityGroupListVo;
 import com.chauncy.data.vo.app.advice.activity.ActivityGroupTabVo;
+import com.chauncy.data.vo.app.advice.activity.HomePageActivityVo;
 import com.chauncy.data.vo.app.advice.goods.SearchBrandAndSkuBaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseVo;
@@ -79,7 +81,43 @@ public interface IMmAdviceService extends Service<MmAdvicePo> {
      * @param  searchActivityGoodsListDto  查询积分/满减活动商品列表参数
      * @return com.chauncy.data.vo.JsonViewData<com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.goods.ActivityGoodsVo>>
      **/
-    PageInfo<ActivityGoodsVo> findTabGoodsList(SearchActivityGoodsListDto searchActivityGoodsListDto);
+    PageInfo<ActivityGoodsVo> searchActivityGoodsList(SearchActivityGoodsListDto searchActivityGoodsListDto);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/26 10:52
+     * @Description 获取活动分组下的活动商品分类
+     *
+     * @Update yeJH
+     *
+     * @param  groupId  活动分组id
+     * @return java.util.List<com.chauncy.data.vo.BaseVo>
+     **/
+    List<BaseVo> findGoodsCategory(Long groupId);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/26 12:50
+     * @Description 点击选项卡获取3个热销/推荐商品
+     *
+     * @Update yeJH
+     *
+     * @param  findTabGoodsListDto
+     * @return java.util.List<com.chauncy.data.vo.app.goods.ActivityGoodsVo>
+     **/
+    List<ActivityGoodsVo> findTabGoodsList(FindTabGoodsListDto findTabGoodsListDto);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/26 20:53
+     * @Description 获取APP首页限时秒杀，积分抵现，囤货鸭，拼团鸭
+     *
+     * @Update yeJH
+     *
+     * @param
+     * @return com.chauncy.data.vo.app.advice.activity.HomePageActivityVo
+     **/
+    HomePageActivityVo findHomePageActivity();
 
     /**
      * 获取广告位置

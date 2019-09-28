@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  * @since 2019/7/30 11:28
  */
 @Data
-@ApiModel(value = "SearchPlatformLogVo对象", description  = "平台流水信息")
+@ApiModel(value = "SearchUserWithdrawalVo对象", description  = "用户提现列表")
 public class SearchUserWithdrawalVo  implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -48,6 +48,9 @@ public class SearchUserWithdrawalVo  implements Serializable {
 
     @ApiModelProperty(value = "创建时间")
     private LocalDateTime createTime;
+
+    @ApiModelProperty(value = "状态 1.待审核 2.处理中 3.提现成功 4.驳回")
+    private Integer withdrawalStatus;
 
 
 
