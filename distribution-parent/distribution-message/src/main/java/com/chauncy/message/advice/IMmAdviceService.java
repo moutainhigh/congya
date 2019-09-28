@@ -6,6 +6,7 @@ import com.chauncy.data.dto.app.advice.brand.select.FindBrandShufflingDto;
 import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
+import com.chauncy.data.dto.app.product.FindTabGoodsListDto;
 import com.chauncy.data.dto.app.product.SearchActivityGoodsListDto;
 import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
@@ -19,6 +20,7 @@ import com.chauncy.data.vo.app.advice.AdviceTabVo;
 import com.chauncy.data.vo.app.advice.activity.ActivityGroupDetailVo;
 import com.chauncy.data.vo.app.advice.activity.ActivityGroupListVo;
 import com.chauncy.data.vo.app.advice.activity.ActivityGroupTabVo;
+import com.chauncy.data.vo.app.advice.activity.HomePageActivityVo;
 import com.chauncy.data.vo.app.advice.goods.SearchBrandAndSkuBaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseVo;
@@ -100,10 +102,22 @@ public interface IMmAdviceService extends Service<MmAdvicePo> {
      *
      * @Update yeJH
      *
-     * @param  tabId  选项卡id
+     * @param  findTabGoodsListDto
      * @return java.util.List<com.chauncy.data.vo.app.goods.ActivityGoodsVo>
      **/
-    List<ActivityGoodsVo> findTabGoodsList(Long tabId);
+    List<ActivityGoodsVo> findTabGoodsList(FindTabGoodsListDto findTabGoodsListDto);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/26 20:53
+     * @Description 获取APP首页限时秒杀，积分抵现，囤货鸭，拼团鸭
+     *
+     * @Update yeJH
+     *
+     * @param
+     * @return com.chauncy.data.vo.app.advice.activity.HomePageActivityVo
+     **/
+    HomePageActivityVo findHomePageActivity();
 
     /**
      * 获取广告位置

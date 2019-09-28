@@ -2,6 +2,7 @@ package com.chauncy.message.advice.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.app.activity.group.GroupTypeEnum;
+import com.chauncy.common.enums.app.activity.type.ActivityTypeEnum;
 import com.chauncy.common.enums.app.advice.AdviceLocationEnum;
 import com.chauncy.common.enums.app.advice.AdviceTypeEnum;
 import com.chauncy.common.enums.app.advice.AssociationTypeEnum;
@@ -24,6 +25,7 @@ import com.chauncy.data.dto.app.advice.brand.select.FindBrandShufflingDto;
 import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
+import com.chauncy.data.dto.app.product.FindTabGoodsListDto;
 import com.chauncy.data.dto.app.product.SearchActivityGoodsListDto;
 import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
@@ -46,9 +48,7 @@ import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.advice.AdviceTabVo;
-import com.chauncy.data.vo.app.advice.activity.ActivityGroupDetailVo;
-import com.chauncy.data.vo.app.advice.activity.ActivityGroupListVo;
-import com.chauncy.data.vo.app.advice.activity.ActivityGroupTabVo;
+import com.chauncy.data.vo.app.advice.activity.*;
 import com.chauncy.data.vo.app.advice.goods.BrandGoodsVo;
 import com.chauncy.data.vo.app.advice.goods.SearchBrandAndSkuBaseVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
@@ -250,6 +250,9 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 
         PageInfo<ActivityGoodsVo> activityGoodsVoPageInfo;
 
+        //分页
+        searchActivityGoodsListDto.setIsPaging(1);
+
         Integer pageNo = searchActivityGoodsListDto.getPageNo()==null ? defaultPageNo : searchActivityGoodsListDto.getPageNo();
         Integer pageSize = searchActivityGoodsListDto.getPageSize()==null ? defaultPageSize : searchActivityGoodsListDto.getPageSize();
 
@@ -331,17 +334,71 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 
     /**
      * @Author yeJH
-     * @Date 2019/9/26 12:50
+     * @Date 2019/9/26 13:55
      * @Description 点击选项卡获取3个热销/推荐商品
      *
      * @Update yeJH
      *
-     * @param  tabId  选项卡id
+     * @param  findTabGoodsListDto
      * @return java.util.List<com.chauncy.data.vo.app.goods.ActivityGoodsVo>
      **/
     @Override
-    public List<ActivityGoodsVo> findTabGoodsList(Long tabId) {
-        return null;
+    public List<ActivityGoodsVo> findTabGoodsList(FindTabGoodsListDto findTabGoodsListDto) {
+
+        MmAdviceTabPo mmAdviceTabPo = tabMapper.selectById(findTabGoodsListDto.getTabId());
+        if(null == mmAdviceTabPo) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "记录不存在");
+        }
+
+        SearchActivityGoodsListDto searchActivityGoodsListDto = new SearchActivityGoodsListDto();
+        BeanUtils.copyProperties(findTabGoodsListDto, searchActivityGoodsListDto);
+        searchActivityGoodsListDto.setIsPaging(0);
+
+        List<ActivityGoodsVo> activityGoodsVoList = new ArrayList<>();
+
+        if(GroupTypeEnum.REDUCED.getId().equals(findTabGoodsListDto.getGroupType())) {
+            activityGoodsVoList = mapper.findReducedGroupTabDetail(searchActivityGoodsListDto);
+        } else if (GroupTypeEnum.REDUCED.getId().equals(findTabGoodsListDto.getGroupType())){
+            activityGoodsVoList = mapper.findIntegralsGroupTabDetail(searchActivityGoodsListDto);
+        } else {
+            throw new ServiceException(ResultCode.PARAM_ERROR);
+        }
+
+        return activityGoodsVoList;
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/26 20:53
+     * @Description 获取APP首页限时秒杀，积分抵现，囤货鸭，拼团鸭
+     *
+     * @Update yeJH
+     *
+     * @param
+     * @return com.chauncy.data.vo.app.advice.activity.HomePageActivityVo
+     **/
+    @Override
+    public HomePageActivityVo findHomePageActivity() {
+
+        List<HomePageActivityGoodsVo> goodsVoList = mapper.findHomePageActivity();
+
+        HomePageActivityVo homePageActivityVo = new HomePageActivityVo();
+        goodsVoList.stream().forEach(homePageActivityGoodsVo -> {
+            //ActivityTypeEnum
+            switch (homePageActivityGoodsVo.getGroupType()) {
+                case 1:
+                    homePageActivityVo.getReducedGoods().add(homePageActivityGoodsVo);
+                case 2:
+                    homePageActivityVo.getIntegralsGoods().add(homePageActivityGoodsVo);
+                case 3:
+                    homePageActivityVo.getSecKillGoods().add(homePageActivityGoodsVo);
+                case 4:
+                    homePageActivityVo.getSecKillGoods().add(homePageActivityGoodsVo);
+            }
+        });
+
+        return homePageActivityVo;
+
     }
 
     /**

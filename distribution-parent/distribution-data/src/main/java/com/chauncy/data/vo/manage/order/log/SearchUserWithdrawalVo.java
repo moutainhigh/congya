@@ -49,6 +49,9 @@ public class SearchUserWithdrawalVo  implements Serializable {
     @ApiModelProperty(value = "创建时间")
     private LocalDateTime createTime;
 
+    @ApiModelProperty(value = "状态 1.待审核 2.处理中 3.提现成功 4.驳回")
+    private Integer withdrawalStatus;
+
 
 
 }
