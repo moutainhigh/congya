@@ -25,7 +25,7 @@
         id, create_by, create_time, update_by, update_time, del_flag, name, total_num, every_limit_num, level_id, effective_day, type, scope, stock
     </sql>
     <select id="searchCouponList" resultType="com.chauncy.data.vo.manage.activity.coupon.SearchCouponListVo">
-        select a.id as coupon_id,a.name,a.enable,a.total_num,count(b.id) as receive_num,(a.total_num-count(b.id))as enable_num
+        select SUM(b.use_status = 1) AS use_num,SUM(b.use_status = 2) AS not_use_num, a.id as coupon_id,a.name,a.enable,a.total_num,count(b.id) as receive_num,(a.total_num-count(b.id))as enable_num
         from am_coupon as a
         LEFT JOIN am_coupon_rel_coupon_user as b on a.id = b.coupon_id
         where a.del_flag = 0
@@ -47,10 +47,10 @@
             and use_num &lt;= #{highestUseNum}
         </if>
         <if test="lowestNotUseNum !=null">
-            and not_use_num &gt;= #{lowestUseNum}
+            and not_use_num &gt;= #{lowestNotUseNum}
         </if>
         <if test="highestNotUseNum !=null">
-            and not_use_num &lt;= #{highestUseNum}
+            and not_use_num &lt;= #{highestNotUseNum}
         </if>
     </select>
     <select id="searchReceiveRecord"

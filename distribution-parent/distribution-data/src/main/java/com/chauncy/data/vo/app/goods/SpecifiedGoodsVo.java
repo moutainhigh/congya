@@ -1,6 +1,7 @@
 package com.chauncy.data.vo.app.goods;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.chauncy.data.vo.app.advice.activity.GoodsActivityVo;
 import com.chauncy.data.vo.app.advice.coupon.FindCouponListVo;
 import com.chauncy.data.vo.app.evaluate.GoodsEvaluateVo;
 import com.chauncy.data.vo.supplier.GoodsStandardVo;
@@ -178,5 +179,9 @@ public class SpecifiedGoodsVo {
     @ApiModelProperty(value = "优惠券列表")
     @JSONField(ordinal = 30)
     private List<FindCouponListVo> findCouponList;
+
+    @ApiModelProperty(value = "商品参与的活动")
+    @JSONField(ordinal = 31)
+    private GoodsActivityVo goodsActivityVo;
 
 }

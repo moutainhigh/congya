@@ -2,6 +2,7 @@ package com.chauncy.order.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.constant.RabbitConstants;
+import com.chauncy.common.enums.app.activity.type.ActivityTypeEnum;
 import com.chauncy.common.enums.message.ArticleLocationEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
@@ -896,7 +897,22 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         specifiedGoodsVo.setFindCouponList(findCouponListVos);
 
         /** 商品参加的活动 **/
-//        AmActivityRelActivityGoodsPo relActivityGoodsPo = relActivityGoodsMapper.selectOne(new );
+        AmActivityRelActivityGoodsPo relActivityGoodsPo = relActivityGoodsMapper.findGoodsActivity(goodsId);
+        if (relActivityGoodsPo != null){
+            ActivityTypeEnum activityTypeEnum = ActivityTypeEnum.getActivityTypeEnumById(relActivityGoodsPo.getActivityType());
+            switch (activityTypeEnum) {
+                case REDUCED:
+
+                    break;
+                case INTEGRALS:
+                    break;
+                case SECKILL:
+                    break;
+                case SPELL_GROUP:
+                    break;
+            }
+        }
+
 
         /**服务列表*/
         List<AttributeVo> services = relAttributeGoodMapper.findServices(goodsId);
