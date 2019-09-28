@@ -138,17 +138,13 @@ public class UmUserDataApi extends BaseApi {
         return new JsonViewData(shipService.findShipArea(userId));
     }
 
-    /**
-     * 查找用户收货地址
-     *
-     * @return
-     */
-    @GetMapping("/findShipAreas")
+    @GetMapping("/findShipArea/{userId}")
     @ApiOperation("查找用户收货地址")
-    public JsonViewData<List<ShipAreaVo>> findShipAreas(){
-        Long userId = Long.valueOf(securityUtil.getCurrUser().getId());
-        return new JsonViewData(shipService.findShipArea(userId));
-    }
+    public JsonViewData<List<ShipAreaVo>> findShipArea(@ApiParam(required = true,name = "userId",value = "用户ID")
+                                                       @PathVariable Long userId){
+
+            return new JsonViewData(shipService.findShipArea(userId));
+        }
 
     @GetMapping("/findDefaultShipArea")
     @ApiOperation("查找用户默认收货地址")
