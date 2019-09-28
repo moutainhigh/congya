@@ -3,6 +3,7 @@ package com.chauncy.web.api.app.order;
 
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.order.OmRealUserPo;
+import com.chauncy.data.dto.app.car.OrderSubmitDto;
 import com.chauncy.data.dto.app.car.SettleDto;
 import com.chauncy.data.dto.app.car.SubmitOrderDto;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
@@ -162,9 +163,9 @@ public class OmShoppingCartApi extends BaseApi {
 
     @PostMapping("/submitOrder")
     @ApiOperation("购物车提交订单")
-    public JsonViewData<SubmitOrderVo> submitOrder(@RequestBody @Validated SubmitOrderDto submitOrderDto) {
+    public JsonViewData<SubmitOrderVo> submitOrder(@RequestBody @Validated OrderSubmitDto orderSubmitDto) {
 
-        return setJsonViewData(service.submitOrder(submitOrderDto, getAppCurrUser()));
+        return setJsonViewData(service.submitOrder(orderSubmitDto, getAppCurrUser()));
 
     }
 

@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -22,7 +23,7 @@ import java.util.List;
 @AllArgsConstructor
 public class SettleDto {
 
-    @ApiModelProperty(value = "收货地址id，第一次请求时为空，采用默认地址，之后修改收货地址触发")
+    @ApiModelProperty(value = "收货地址id，第一次请求时为空，采用默认地址，之后修改收货地址触发;提交订单时必传")
     private Long areaShipId;
 
     @ApiModelProperty(value = "结算详情")
