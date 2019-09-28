@@ -91,12 +91,18 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
 
         SysUserPo userPo = securityUtil.getCurrUser();
         AmCouponPo couponPo = new AmCouponPo();
+
+        CouponFormEnum couponFormEnum = CouponFormEnum.getCouponFormEnumById(saveCouponDto.getType());
+        CouponScopeEnum couponScopeEnum = CouponScopeEnum.getCouponScopeEnumById(saveCouponDto.getScope());
+        SaveCouponResultVo saveCouponResultVo = new SaveCouponResultVo();
+
         //添加操作
         if (saveCouponDto.getId() == 0) {
             BeanUtils.copyProperties(saveCouponDto, couponPo);
             couponPo.setCreateBy(userPo.getUsername());
             couponPo.setStock(saveCouponDto.getTotalNum());//初始化库存信息
             couponPo.setId(null);
+            saveCouponAssociation(couponFormEnum,couponScopeEnum,saveCouponDto,couponPo,saveCouponResultVo);
         }
         //修改操作
         else {
@@ -106,11 +112,16 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
             }
             BeanUtils.copyProperties(saveCouponDto, couponPo);
             couponPo.setUpdateBy(userPo.getUsername());
+            //删除优惠券与商品/分类的关联表
+            relCouponGoodsMapper.delete(new QueryWrapper<AmCouponRelCouponGoodsPo>().lambda().eq(AmCouponRelCouponGoodsPo::getCouponId,saveCouponDto.getId()));
+            saveCouponAssociation(couponFormEnum,couponScopeEnum,saveCouponDto,couponPo,saveCouponResultVo);
         }
-        CouponFormEnum couponFormEnum = CouponFormEnum.getCouponFormEnumById(saveCouponDto.getType());
-        CouponScopeEnum couponScopeEnum = CouponScopeEnum.getCouponScopeEnumById(saveCouponDto.getScope());
-        SaveCouponResultVo saveCouponResultVo = new SaveCouponResultVo();
+        return null;
+    }
 
+    public SaveCouponResultVo saveCouponAssociation(CouponFormEnum couponFormEnum,CouponScopeEnum couponScopeEnum,
+                                                    SaveCouponDto saveCouponDto,AmCouponPo couponPo,
+                                                    SaveCouponResultVo saveCouponResultVo){
         switch (couponFormEnum) {
 
             //满减
@@ -365,7 +376,8 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
                 }
                 break;
         }
-        return null;
+
+        return saveCouponResultVo;
     }
 
     /**
