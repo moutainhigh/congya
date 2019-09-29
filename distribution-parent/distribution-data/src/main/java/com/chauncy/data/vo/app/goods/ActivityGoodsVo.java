@@ -8,6 +8,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @author yeJ
@@ -19,6 +20,9 @@ public class ActivityGoodsVo extends GoodsBaseInfoVo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @ApiModelProperty(value = "商品副标题")
+    private String subtitle;
+
     @ApiModelProperty(value = "积分抵扣金额")
     private BigDecimal deductibleAmount ;
 
@@ -27,6 +31,14 @@ public class ActivityGoodsVo extends GoodsBaseInfoVo implements Serializable {
 
     @ApiModelProperty(value = "满减活动优惠金额")
     private BigDecimal reductionPostMoney ;
+
+    @JsonIgnore
+    @JSONField(serialize=false)
+    @ApiModelProperty(value = "商品标签")
+    private String labels;
+
+    @ApiModelProperty(value = "商品标签")
+    private List<String> labelList;
 
     @JsonIgnore
     @JSONField(serialize=false)

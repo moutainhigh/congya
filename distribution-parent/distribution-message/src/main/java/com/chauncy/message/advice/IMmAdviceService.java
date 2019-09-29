@@ -6,6 +6,7 @@ import com.chauncy.data.dto.app.advice.brand.select.FindBrandShufflingDto;
 import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
+import com.chauncy.data.dto.app.product.FindActivityGoodsCategoryDto;
 import com.chauncy.data.dto.app.product.FindTabGoodsListDto;
 import com.chauncy.data.dto.app.product.SearchActivityGoodsListDto;
 import com.chauncy.data.dto.base.BaseSearchPagingDto;
@@ -90,10 +91,10 @@ public interface IMmAdviceService extends Service<MmAdvicePo> {
      *
      * @Update yeJH
      *
-     * @param  groupId  活动分组id
+     * @param  findActivityGoodsCategoryDto
      * @return java.util.List<com.chauncy.data.vo.BaseVo>
      **/
-    List<BaseVo> findGoodsCategory(Long groupId);
+    List<BaseVo> findGoodsCategory(FindActivityGoodsCategoryDto findActivityGoodsCategoryDto);
 
     /**
      * @Author yeJH

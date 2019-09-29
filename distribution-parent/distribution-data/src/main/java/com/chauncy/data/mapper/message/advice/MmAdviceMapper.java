@@ -141,7 +141,7 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
     /**
      * @Author yeJH
      * @Date 2019/9/26 11:24
-     * @Description 满减活动根据活动分组获取商品列表下对应的商品分类
+     * @Description 满减活动根据活动分组获取商品列表下对应的商品一级分类
      *
      * @Update yeJH
      *
@@ -153,7 +153,7 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
     /**
      * @Author yeJH
      * @Date 2019/9/26 11:24
-     * @Description 积分活动根据活动分组获取商品列表下对应的商品分类
+     * @Description 积分活动根据活动分组获取商品列表下对应的商品一级分类
      *
      * @Update yeJH
      *

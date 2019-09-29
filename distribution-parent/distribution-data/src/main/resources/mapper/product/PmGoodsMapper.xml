@@ -385,11 +385,11 @@
             pm_goods pg
             <!-- 店铺 -->
             <if test="null != storeId">
-                left join sm_store ss on pg.store_id = ss.id
+                inner join sm_store ss on pg.store_id = ss.id AND ss.id = #{storeId}
             </if>
             <!-- 分类 -->
             <if test="(null != goodsType and goodsType == 6) or (null != categoryIds and categoryIds.size() > 0) ">
-                left join pm_goods_category pgc on pgc.id = pg.goods_category_id
+                inner join pm_goods_category pgc on pgc.id = pg.goods_category_id
             </if>
             <!-- 标签 -->
             <if test="(null != labelIds and labelIds.size() > 0) ">
@@ -398,10 +398,10 @@
             </if>
             <!-- 品牌 -->
             <if test="(null != brandIds and brandIds.size() > 0) ">
-                LEFT JOIN pm_goods_rel_attribute_good pgrag2 ON pg.id = pgrag2.`goods_good_id`
-                LEFT JOIN pm_goods_attribute pga2 ON pgrag2.goods_attribute_id = pga2.`id`
+                inner JOIN pm_goods_rel_attribute_good pgrag2 ON pg.id = pgrag2.`goods_good_id`
+                inner JOIN pm_goods_attribute pga2 ON pgrag2.goods_attribute_id = pga2.`id`
             </if>
-            left join pm_goods_sku pgs on pgs.goods_id = pg.id
+            inner join pm_goods_sku pgs on pgs.goods_id = pg.id
         <where>
             <if test="null != storeId">
                 ss.id = #{storeId}

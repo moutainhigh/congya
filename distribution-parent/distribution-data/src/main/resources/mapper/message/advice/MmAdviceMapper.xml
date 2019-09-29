@@ -111,15 +111,20 @@
         SELECT `pg`.id AS goodsId,
             `pg`.name AS goodsName,
             `pg`.icon,
+            `pg`.subtitle,
+            `pg`.sales_volume,
             `pgs`.sell_price,
             `pgs`.line_price,
             ar.reduction_full_money,
-            ar.reduction_post_money
+            ar.reduction_post_money,
+            GROUP_CONCAT(`pga`.name) as labels
         FROM mm_advice_rel_tab_things `martt`
         LEFT JOIN pm_goods pg ON pg.id = `martt`.`association_id` AND `martt`.`tab_id` = #{tabId}
         LEFT JOIN am_activity_rel_activity_goods `aarag` ON `aarag`.goods_id = pg.`id`
         LEFT JOIN am_reduced ar ON ar.id = `aarag`.`activity_id`
         LEFT JOIN pm_goods_sku `pgs` ON `pg`.id = `pgs`.goods_id
+        LEFT JOIN pm_goods_rel_attribute_good pgrag  ON pg.id = pgrag.`goods_good_id`
+        LEFT JOIN pm_goods_attribute pga ON pgrag.goods_attribute_id = pga.`id`
         <where>
             `martt`.`tab_id` = #{tabId}
             AND `martt`.del_flag = 0
@@ -138,7 +143,12 @@
                 ORDER BY sell_price
                 LIMIT 1
             )
+            AND pgrag.`del_flag` = 0
+            AND pga.`del_flag` = 0
+            AND pga.`enabled` = 1
+            AND pga.`type` = 5
         </where>
+        GROUP BY pg.id,pgs.id,ar.id
         <if test="null != sortFile and sortFile.name() == 'PRICE_SORT' ">
             ORDER BY pgs.sell_price ${sortWay.name}
         </if>
@@ -157,14 +167,22 @@
         SELECT `pg`.id AS goodsId,
             `pg`.name AS goodsName,
             `pg`.icon,
+            `pg`.sales_volume,
             `pgs`.sell_price,
             `pgs`.line_price,
             ar.reduction_full_money,
-            ar.reduction_post_money
+            ar.reduction_post_money,
+            GROUP_CONCAT(`pga`.name) as labels
         FROM am_reduced ar
         LEFT JOIN am_activity_rel_activity_goods aarag ON ar.id = aarag.`activity_id` AND ar.group_id = #{groupId}
         LEFT JOIN pm_goods pg ON pg.id = aarag.`goods_id`
         LEFT JOIN pm_goods_sku `pgs` ON `pg`.id = `pgs`.goods_id
+        <if test="null != categoryId and categoryId != 0">
+            LEFT JOIN pm_goods_category pgc ON pgc.id = pg.goods_category_id
+            LEFT JOIN pm_goods_category pgc1 ON pgc1.id = pgc.parent_id
+        </if>
+        LEFT JOIN pm_goods_rel_attribute_good pgrag  ON pg.id = pgrag.`goods_good_id`
+        LEFT JOIN pm_goods_attribute pga ON pgrag.goods_attribute_id = pga.`id`
         <where>
             ar.group_id = #{groupId}
             AND ar.`del_flag` = 0
@@ -175,7 +193,7 @@
             AND aarag.`del_flag` = 0
             AND pg.`publish_status` = 1
             <if test="null != categoryId and categoryId != 0">
-                AND pg.goods_category_id = #{categoryId}
+                AND pgc1.parent_id = #{categoryId}
             </if>
             AND `pgs`.del_flag = 0
             AND `pgs`.id = (
@@ -186,7 +204,12 @@
                 ORDER BY sell_price
                 LIMIT 1
             )
+            AND pgrag.`del_flag` = 0
+            AND pga.`del_flag` = 0
+            AND pga.`enabled` = 1
+            AND pga.`type` = 5
         </where>
+        GROUP BY pg.id,pgs.id,ar.id
         <if test="null != sortFile and sortFile.name() == 'PRICE_SORT' ">
             ORDER BY pgs.sell_price ${sortWay.name}
         </if>
@@ -199,11 +222,21 @@
     </select>
 
     <select id="findIntegralsGroupGoods" resultType="com.chauncy.data.vo.app.goods.ActivityGoodsVo">
-        SELECT
+        SELECT `pg`.id AS goodsId,
+            `pg`.name AS goodsName,
+            `pg`.icon,
+            `pg`.sales_volume,
+            `pgs`.sell_price,
+            `pgs`.line_price,
+            `ai`.discount_price_ratio
         FROM am_integrals ai
         LEFT JOIN am_activity_rel_activity_goods aarag ON ai.id = aarag.`activity_id` AND ai.group_id = #{groupId}
         LEFT JOIN pm_goods pg ON pg.id = aarag.`goods_id`
         LEFT JOIN pm_goods_sku `pgs` ON `pg`.id = `pgs`.goods_id
+        <if test="null != categoryId and categoryId != 0">
+            LEFT JOIN pm_goods_category pgc ON pgc.id = pg.goods_category_id
+            LEFT JOIN pm_goods_category pgc1 ON pgc1.id = pgc.parent_id
+        </if>
         <where>
             ai.group_id = #{groupId}
             AND ai.`del_flag` = 0
@@ -214,7 +247,7 @@
             AND aarag.`del_flag` = 0
             AND pg.`publish_status` = 1
             <if test="null != categoryId and categoryId != 0">
-                AND pg.goods_category_id = #{categoryId}
+                AND pgc1.parent_id = #{categoryId}
             </if>
             AND `pgs`.del_flag = 0
             AND `pgs`.id = (
@@ -241,6 +274,8 @@
         SELECT `pg`.id AS goodsId,
             `pg`.name AS goodsName,
             `pg`.icon,
+            `pg`.subtitle,
+            `pg`.sales_volume,
             `pgs`.sell_price,
             `pgs`.line_price,
             `ai`.discount_price_ratio
@@ -299,39 +334,59 @@
     </select>
 
     <select id="findReducedGoodsCategory" resultType="com.chauncy.data.vo.BaseVo">
-        SELECT DISTINCT pgc.`id`, pgc.name
-        FROM am_reduced ar
-        LEFT JOIN am_activity_rel_activity_goods aarag ON ar.id = aarag.`activity_id` AND ar.group_id = #{groupId}
-        LEFT JOIN pm_goods pg ON pg.id = aarag.`goods_id`
-        LEFT JOIN pm_goods_category pgc ON pg.goods_category_id = pgc.id
-        <where>
-            ar.group_id = #{groupId}
-            AND ar.`del_flag` = 0
-            AND ar.enable = 1
-            AND ar.`activity_end_time` <![CDATA[> ]]> NOW()
-            AND ar.`activity_start_time` <![CDATA[< ]]> NOW()
-            AND aarag.`verify_status` = 3
-            AND aarag.`del_flag` = 0
-            AND pg.`publish_status` = 1
-        </where>
+        WITH RECURSIVE parentIds (id,parent_id, `name`, `level`) AS
+        (
+            SELECT DISTINCT pgc.`id`, pgc.parent_id, pgc.name, pgc.level
+            FROM am_reduced ar
+            LEFT JOIN am_activity_rel_activity_goods aarag ON ar.id = aarag.`activity_id` AND ar.group_id = #{groupId}
+            LEFT JOIN pm_goods pg ON pg.id = aarag.`goods_id`
+            LEFT JOIN pm_goods_category pgc ON pg.goods_category_id = pgc.id
+            <where>
+                ar.group_id = #{groupId}
+                AND ar.`del_flag` = 0
+                AND ar.enable = 1
+                AND ar.`activity_end_time` <![CDATA[> ]]> NOW()
+                AND ar.`activity_start_time` <![CDATA[< ]]> NOW()
+                AND aarag.`verify_status` = 3
+                AND aarag.`del_flag` = 0
+                AND pg.`publish_status` = 1
+            </where>
+            UNION ALL
+            SELECT pgc.id, pgc.parent_id, pgc.name, pgc.level
+            FROM parentIds AS temp
+            LEFT JOIN  pm_goods_category  AS pgc
+            ON temp.parent_id = pgc.id
+            WHERE pgc.del_flag=0
+        )
+        SELECT id,`name` FROM parentIds WHERE `level` = 1
     </select>
 
     <select id="findIntegralsGoodsCategory" resultType="com.chauncy.data.vo.BaseVo">
-        SELECT DISTINCT pgc.`id`, pgc.name
-        FROM am_integrals ai
-        LEFT JOIN am_activity_rel_activity_goods aarag ON ai.id = aarag.`activity_id` AND ai.group_id = #{groupId}
-        LEFT JOIN pm_goods pg ON pg.id = aarag.`goods_id`
-        LEFT JOIN pm_goods_category pgc ON pg.goods_category_id = pgc.id
-        <where>
-            ai.group_id = #{groupId}
-            AND ai.`del_flag` = 0
-            AND ar.enable = 1
-            AND ar.`activity_end_time` <![CDATA[> ]]> NOW()
-            AND ar.`activity_start_time` <![CDATA[< ]]> NOW()
-            AND aarag.`verify_status` = 3
-            AND aarag.`del_flag` = 0
-            AND pg.`publish_status` = 1
-        </where>
+        WITH RECURSIVE parentIds (id,parent_id, `name`, `level`) AS
+        (
+            SELECT DISTINCT pgc.`id`, pgc.parent_id, pgc.name, pgc.`level`
+            FROM am_integrals ai
+            LEFT JOIN am_activity_rel_activity_goods aarag ON ai.id = aarag.`activity_id` AND ai.group_id = #{groupId}
+            LEFT JOIN pm_goods pg ON pg.id = aarag.`goods_id`
+            LEFT JOIN pm_goods_category pgc ON pg.goods_category_id = pgc.id
+            <where>
+                ai.group_id = #{groupId}
+                AND ai.`del_flag` = 0
+                AND ai.enable = 1
+                AND ai.`activity_end_time` <![CDATA[> ]]> NOW()
+                AND ai.`activity_start_time` <![CDATA[< ]]> NOW()
+                AND aarag.`verify_status` = 3
+                AND aarag.`del_flag` = 0
+                AND pg.`publish_status` = 1
+            </where>
+            UNION ALL
+            SELECT pgc.id,pgc.parent_id,pgc.name, pgc.level
+            FROM parentIds AS temp
+            LEFT JOIN  pm_goods_category  AS pgc
+            ON temp.parent_id = pgc.id
+            WHERE pgc.del_flag=0
+        )
+        SELECT id,`name` FROM parentIds WHERE `level` = 1
     </select>
 
     <select id="searchAdvices" resultType="com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo">

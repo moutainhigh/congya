@@ -1,8 +1,11 @@
 package com.chauncy.web.api.app.activity.integral;
 
+import com.chauncy.activity.reduced.IAmReducedService;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.dto.app.product.FindActivityGoodsCategoryDto;
 import com.chauncy.data.dto.app.product.FindTabGoodsListDto;
 import com.chauncy.data.dto.app.product.SearchActivityGoodsListDto;
+import com.chauncy.data.dto.app.product.SearchReducedGoodsDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.advice.activity.ActivityGroupDetailVo;
@@ -35,6 +38,9 @@ public class AmIntegralMainApi extends BaseApi {
 
     @Autowired
     private IMmAdviceService adviceService;
+
+    @Autowired
+    private IAmReducedService amReducedService;
 
     /**
      * @Author yeJH
@@ -96,6 +102,26 @@ public class AmIntegralMainApi extends BaseApi {
     /**
      * @Author yeJH
      * @Date 2019/9/25 16:14
+     * @Description 点击选项卡获取3个热销/推荐商品
+     *
+     * @Update yeJH
+     *
+     * @param  findTabGoodsListDto
+     * @return com.chauncy.data.vo.JsonViewData<com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.goods.ActivityGoodsVo>>
+     **/
+    @PostMapping("/findTabGoodsList")
+    @ApiOperation(value = "点击选项卡获取3个热销/推荐商品")
+    public JsonViewData<List<ActivityGoodsVo>> findTabGoodsList(@Valid @RequestBody @ApiParam(required = true,
+            name = "searchActivityGoodsListDto", value = "查询积分/满减活动商品列表参数")
+                                                                        FindTabGoodsListDto findTabGoodsListDto){
+
+        return new JsonViewData(ResultCode.SUCCESS,"查找成功",
+                adviceService.findTabGoodsList(findTabGoodsListDto));
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/25 16:14
      * @Description 获取积分/满减活动商品列表
      *
      * @Update yeJH
@@ -103,7 +129,7 @@ public class AmIntegralMainApi extends BaseApi {
      * @param  searchActivityGoodsListDto  查询积分/满减活动商品列表参数
      * @return com.chauncy.data.vo.JsonViewData<com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.goods.ActivityGoodsVo>>
      **/
-    @GetMapping("/searchActivityGoodsList")
+    @PostMapping("/searchActivityGoodsList")
     @ApiOperation(value = "获取积分/满减活动商品列表")
     public JsonViewData<PageInfo<ActivityGoodsVo>> searchActivityGoodsList(@Valid @RequestBody @ApiParam(required = true,
             name = "searchActivityGoodsListDto", value = "查询积分/满减活动商品列表参数")
@@ -116,40 +142,41 @@ public class AmIntegralMainApi extends BaseApi {
     /**
      * @Author yeJH
      * @Date 2019/9/25 16:14
-     * @Description 点击选项卡获取3个热销/推荐商品
+     * @Description 获取 活动分组下 或者 满减去凑单 的活动商品一级分类
      *
      * @Update yeJH
      *
-     * @param  findTabGoodsListDto
-     * @return com.chauncy.data.vo.JsonViewData<com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.goods.ActivityGoodsVo>>
+     * @param  findActivityGoodsCategoryDto
+     * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.BaseVo>>
      **/
-    @GetMapping("/findTabGoodsList/{tabId}")
-    @ApiOperation(value = "点击选项卡获取3个热销/推荐商品")
-    public JsonViewData<List<ActivityGoodsVo>> findTabGoodsList(@Valid @RequestBody @ApiParam(required = true,
+    @PostMapping("/findGoodsCategory")
+    @ApiOperation(value = "获取 活动分组下 或者 满减去凑单 的活动商品一级分类")
+    public JsonViewData<List<BaseVo>> findGoodsCategory(@Valid @RequestBody @ApiParam(required = true,
             name = "searchActivityGoodsListDto", value = "查询积分/满减活动商品列表参数")
-            FindTabGoodsListDto findTabGoodsListDto){
+            FindActivityGoodsCategoryDto findActivityGoodsCategoryDto) {
 
         return new JsonViewData(ResultCode.SUCCESS,"查找成功",
-                adviceService.findTabGoodsList(findTabGoodsListDto));
+                adviceService.findGoodsCategory(findActivityGoodsCategoryDto));
     }
 
     /**
      * @Author yeJH
      * @Date 2019/9/25 16:14
-     * @Description 获取活动分组下的活动商品分类
+     * @Description 商品详情页，购物车页面点击去凑单获取满减商品列表
      *
      * @Update yeJH
      *
-     * @param  groupId  活动分组id
+     * @param  searchReducedGoodsDto
      * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.BaseVo>>
      **/
-    @GetMapping("/findGoodsCategory/{groupId}")
-    @ApiOperation(value = "获取活动分组下的活动商品分类")
-    public JsonViewData<List<BaseVo>> findGoodsCategory(@ApiParam(required = true,
-            value = "广告与活动分组关联表id", name = "groupId") @PathVariable Long groupId) {
+    @PostMapping("/searchReducedGoods")
+    @ApiOperation(value = "点击去凑单获取满减商品列表")
+    public JsonViewData<PageInfo<ActivityGoodsVo>> searchReducedGoods(@Valid @RequestBody @ApiParam(required = true,
+            name = "searchActivityGoodsListDto", value = "查询积分/满减活动商品列表参数")
+            SearchReducedGoodsDto searchReducedGoodsDto) {
 
         return new JsonViewData(ResultCode.SUCCESS,"查找成功",
-                adviceService.findGoodsCategory(groupId));
+                amReducedService.searchReducedGoods(searchReducedGoodsDto));
     }
 
 }

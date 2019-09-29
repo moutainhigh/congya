@@ -32,6 +32,85 @@
     <sql id="Base_Column_List">
         id, create_by, create_time, update_by, update_time, del_flag, name, sort, picture, member_level_id, registration_start_time, registration_end_time, activity_start_time, activity_end_time, activity_description, activity_introduction, activity_title, activity_subtitle, reduction_full_money, reduction_post_money, enable, group_id
     </sql>
+
+    <select id="findReducedGoodsCategory" resultType="com.chauncy.data.vo.BaseVo">
+        WITH RECURSIVE parentIds (id,parent_id, `name`, `level`) AS
+        (
+            SELECT DISTINCT pgc.`id`, pgc.parent_id, pgc.name, pgc.`level`
+            FROM am_activity_rel_activity_goods aarag
+            LEFT JOIN pm_goods pg ON pg.id = aarag.`goods_id` AND aarag.activity_id = #{activityId}
+            LEFT JOIN pm_goods_category pgc ON pg.goods_category_id = pgc.id
+            <where>
+                aarag.activity_id = #{activityId}
+                AND aarag.`activity_end_time` <![CDATA[> ]]> NOW()
+                AND aarag.`activity_start_time` <![CDATA[< ]]> NOW()
+                AND aarag.`verify_status` = 3
+                AND aarag.`del_flag` = 0
+                AND pg.`publish_status` = 1
+            </where>
+            UNION ALL
+            SELECT pgc.id,pgc.parent_id,pgc.name, pgc.level
+            FROM parentIds AS temp
+            LEFT JOIN  pm_goods_category  AS pgc
+            ON temp.parent_id = pgc.id
+            WHERE pgc.del_flag=0
+        )
+        SELECT id,`name` FROM parentIds WHERE `level` = 1
+    </select>
+
+    <select id="searchReducedGoods" resultType="com.chauncy.data.vo.app.goods.ActivityGoodsVo">
+        SELECT `pg`.id AS goodsId,
+            `pg`.name AS goodsName,
+            `pg`.icon,
+            `pg`.sales_volume,
+            `pgs`.sell_price,
+            `pgs`.line_price,
+            GROUP_CONCAT(`pga`.name) AS labels
+        FROM am_activity_rel_activity_goods aarag
+        LEFT JOIN pm_goods pg ON pg.id = aarag.`goods_id` AND aarag.activity_id = #{activityId}
+        LEFT JOIN pm_goods_sku `pgs` ON `pg`.id = `pgs`.goods_id
+        <if test="null != categoryId and categoryId != 0">
+            LEFT JOIN pm_goods_category pgc ON pgc.id = pg.goods_category_id
+            LEFT JOIN pm_goods_category pgc1 ON pgc1.id = pgc.parent_id
+        </if>
+        LEFT JOIN pm_goods_rel_attribute_good pgrag  ON pg.id = pgrag.`goods_good_id`
+        LEFT JOIN pm_goods_attribute pga ON pgrag.goods_attribute_id = pga.`id`
+        <where>
+            aarag.activity_id = #{activityId}
+            AND aarag.`activity_end_time` <![CDATA[> ]]> NOW()
+            AND aarag.`activity_start_time` <![CDATA[< ]]> NOW()
+            AND aarag.`verify_status` = 3
+            AND aarag.`del_flag` = 0
+            AND pg.`publish_status` = 1
+            <if test="null != categoryId and categoryId != 0">
+                AND pgc1.parent_id = #{categoryId}
+            </if>
+            AND `pgs`.del_flag = 0
+            AND `pgs`.id = (
+                SELECT temp.id
+                FROM pm_goods_sku temp
+                WHERE temp.goods_id = pg.id
+                AND temp.del_flag = 0
+                ORDER BY sell_price
+                LIMIT 1
+            )
+            AND pgrag.`del_flag` = 0
+            AND pga.`del_flag` = 0
+            AND pga.`enabled` = 1
+            AND pga.`type` = 5
+        </where>
+        GROUP BY pg.id, pgs.id
+        <if test="null != sortFile and sortFile.name() == 'PRICE_SORT' ">
+            ORDER BY pgs.sell_price ${sortWay.name}
+        </if>
+        <if test="null != sortFile and sortFile.name() == 'SALES_SORT'">
+            ORDER BY pg.sales_volume ${sortWay.name}
+        </if>
+        <if test="null != sortFile and sortFile.name() == 'COMPREHENSIVE_SORT'">
+            ORDER BY pg.comprehensive_score DESC
+        </if>
+    </select>
+
     <select id="searchReduceList" resultType="com.chauncy.data.vo.manage.activity.SearchActivityListVo">
         select a.*,c.level_name as member_name
         from am_reduced a,pm_member_level c
