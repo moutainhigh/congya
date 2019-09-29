@@ -5,6 +5,7 @@ import com.chauncy.data.domain.po.order.OmShoppingCartPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.dto.app.car.OrderSubmitDto;
 import com.chauncy.data.dto.app.car.SettleAccountsDto;
 import com.chauncy.data.dto.app.car.SettleDto;
 import com.chauncy.data.dto.app.car.SubmitOrderDto;
@@ -84,9 +85,9 @@ public interface IOmShoppingCartService extends Service<OmShoppingCartPo> {
 
     /**
      * 提交订单
-     * @param submitOrderDto
+     * @param orderSubmitDto
      */
-    SubmitOrderVo submitOrder(SubmitOrderDto submitOrderDto, UmUserPo currentUser);
+    SubmitOrderVo submitOrder(OrderSubmitDto orderSubmitDto, UmUserPo umUserPo);
 
     /**
      * @Author chauncy

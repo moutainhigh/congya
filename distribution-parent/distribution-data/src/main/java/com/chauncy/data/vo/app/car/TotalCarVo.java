@@ -63,7 +63,7 @@ public class TotalCarVo {
     private List<StoreOrderVo> storeOrderVos;
 
     @ApiModelProperty(value = "是否需要实名认证")
-    private Boolean needCertification=false;
+    private Boolean needCertification;
 
 
 

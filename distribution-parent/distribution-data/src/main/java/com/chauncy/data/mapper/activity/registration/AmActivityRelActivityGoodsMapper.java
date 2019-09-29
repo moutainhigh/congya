@@ -35,4 +35,16 @@ public interface AmActivityRelActivityGoodsMapper extends IBaseMapper<AmActivity
      * @return
      */
     List<SearchSupplierActivityVo> searchSupplierActivity(@Param("t") SearchSupplierActivityDto searchSupplierActivityDto,@Param("tableName") String tableName,@Param("storeId") Long storeId);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-28 15:46
+     * @Description //获取商品参与的活动
+     *
+     * @Update chauncy
+     *
+     * @param  goodsId
+     * @return com.chauncy.data.domain.po.activity.registration.AmActivityRelActivityGoodsPo
+     **/
+    AmActivityRelActivityGoodsPo findGoodsActivity(Long goodsId);
 }

@@ -17,5 +17,25 @@
     <sql id="Base_Column_List">
         id, create_by, create_time, update_by, update_time, goods_id, coupon_id
     </sql>
+    <select id="findCouponList" resultType="com.chauncy.data.vo.app.advice.coupon.FindCouponListVo">
+
+        select a.association_id as goods_id,a.coupon_id,b.name,b.type,b.discount,b.discount_full_money,b.reduction_full_money,b.reduction_post_money
+        from am_coupon_rel_coupon_goods a,am_coupon b
+        where b.del_flag = 0 and a.coupon_id  = b.id and a.association_id = #{goodsId}
+
+    </select>
+    <select id="findCouponList1" resultType="com.chauncy.data.vo.app.advice.coupon.FindCouponListVo">
+
+        select a.association_id as goods_id,a.coupon_id,b.name,b.type,b.discount,b.discount_full_money,b.reduction_full_money,b.reduction_post_money
+        from am_coupon_rel_coupon_goods a,am_coupon b
+        where b.del_flag = 0 and b.scope = 1
+
+    </select>
+    <select id="findCouponList2" resultType="com.chauncy.data.vo.app.advice.coupon.FindCouponListVo">
+        select a.association_id as goods_id,a.coupon_id,b.name,b.type,b.discount,b.discount_full_money,b.reduction_full_money,b.reduction_post_money
+        from am_coupon_rel_coupon_goods a,am_coupon b,pm_goods c
+        where b.del_flag = 0 and c.del_flag = 0 and b.scope = 2 and a.coupon_id = b.id
+        and c.goods_category_id = a.association_id and c.id = #{goodsCategoryId}
+    </select>
 
 </mapper>

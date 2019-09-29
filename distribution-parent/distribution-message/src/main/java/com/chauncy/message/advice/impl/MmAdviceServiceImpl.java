@@ -707,6 +707,12 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 case YOUXUAN_INSIDE_SHUFFLING:
                 case BAIHUO_INSIDE_SHUFFLING:
                 case PERSONAL_CENTER:
+                case TOP_UP_ENTRY:
+                case SPELL_GROUP_SHUFFLING:
+                case REDUCED_INSIDE_SHUFFLING:
+                case INTEGRALS_INSIDE_HUFFLING:
+                case COUPON:
+                case EXPERIENCE_PACKAGE:
                     List<FindShufflingVo> shufflingVoList = relShufflingMapper.findShuffling(a.getAdviceId());
                     shufflingVoList.forEach(b -> {
                         AdviceTypeEnum adviceTypeEnum = b.getAdviceType();
@@ -763,11 +769,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 /*******************推荐分类 葱鸭百货分类推荐/资讯分类推荐*********************/
 
                 /*******************充值入口+拼团鸭+优惠券+经验包+邀请包*********************/
-                case TOP_UP_ENTRY:
-                case SPELL_GROUP_SHUFFLING:
-                case COUPON:
                 case INVITATION:
-                case EXPERIENCE_PACKAGE:
                     break;
                 /*******************充值入口+拼团鸭+优惠券+经验包+邀请包*********************/
             }
@@ -873,6 +875,12 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 case YOUXUAN_INSIDE_SHUFFLING:
                 case BAIHUO_INSIDE_SHUFFLING:
                 case PERSONAL_CENTER:
+                case SPELL_GROUP_SHUFFLING:
+                case INTEGRALS_INSIDE_HUFFLING:
+                case REDUCED_INSIDE_SHUFFLING:
+                case TOP_UP_ENTRY:
+                case COUPON:
+                case EXPERIENCE_PACKAGE:
                     //删除该广告对应的轮播图
                     relShufflingMapper.delete(new QueryWrapper<MmAdviceRelShufflingPo>().lambda()
                             .eq(MmAdviceRelShufflingPo::getAdviceId, a));
@@ -893,11 +901,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 /*******************推荐分类 葱鸭百货分类推荐/资讯分类推荐*********************/
 
                 /*******************充值入口+拼团鸭+优惠券+经验包+邀请包*********************/
-                case TOP_UP_ENTRY:
-                case SPELL_GROUP_SHUFFLING:
-                case COUPON:
                 case INVITATION:
-                case EXPERIENCE_PACKAGE:
                     break;
             }
 

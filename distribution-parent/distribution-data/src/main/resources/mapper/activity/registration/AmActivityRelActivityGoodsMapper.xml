@@ -40,5 +40,13 @@
 		  and b.store_id= #{storeId}
         </if>
     </select>
+    <select id="findGoodsActivity"
+            resultType="com.chauncy.data.domain.po.activity.registration.AmActivityRelActivityGoodsPo">
+        select a.*
+        from am_activity_rel_activity_goods a,pm_goods b
+        where a.del_flag = 0 and b.del_flag = 0 and a.activity_end_time &lt;= NOW() and a.activity_start_time &gt;= NOW()
+        and b.id = a.goods_id and b.publish_status = 1 and a.verify_status = 3 and b.id = #{goodsId};
+
+    </select>
 
 </mapper>
