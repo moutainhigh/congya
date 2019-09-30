@@ -361,6 +361,7 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
         AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
         addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.NEW_GIFT);
         addAccountLogBo.setRelId(giftId);
+        addAccountLogBo.setUmUserId(userPo.getId());
         addAccountLogBo.setOperator(String.valueOf(userPo.getId()));
         //listenerOrderLogQueue 消息队列
         this.rabbitTemplate.convertAndSend(
