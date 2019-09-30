@@ -9,6 +9,7 @@ import com.chauncy.common.enums.app.advice.AssociationTypeEnum;
 import com.chauncy.common.enums.app.advice.ConditionTypeEnum;
 import com.chauncy.common.enums.app.sort.SortFileEnum;
 import com.chauncy.common.enums.app.sort.SortWayEnum;
+import com.chauncy.common.enums.common.VerifyStatusEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
@@ -16,6 +17,7 @@ import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.bo.app.order.reward.RewardShopTicketBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.activity.group.AmActivityGroupPo;
+import com.chauncy.data.domain.po.activity.registration.AmActivityRelActivityGoodsPo;
 import com.chauncy.data.domain.po.message.advice.*;
 import com.chauncy.data.domain.po.message.information.category.MmInformationCategoryPo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
@@ -25,6 +27,7 @@ import com.chauncy.data.dto.app.advice.brand.select.FindBrandShufflingDto;
 import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
+import com.chauncy.data.dto.app.product.FindActivityGoodsCategoryDto;
 import com.chauncy.data.dto.app.product.FindTabGoodsListDto;
 import com.chauncy.data.dto.app.product.SearchActivityGoodsListDto;
 import com.chauncy.data.dto.base.BaseSearchPagingDto;
@@ -36,6 +39,8 @@ import com.chauncy.data.dto.manage.message.advice.select.SearchAssociatedClassif
 import com.chauncy.data.dto.manage.message.advice.select.SearchInformationCategoryDto;
 import com.chauncy.data.mapper.activity.coupon.AmCouponMapper;
 import com.chauncy.data.mapper.activity.group.AmActivityGroupMapper;
+import com.chauncy.data.mapper.activity.reduced.AmReducedMapper;
+import com.chauncy.data.mapper.activity.registration.AmActivityRelActivityGoodsMapper;
 import com.chauncy.data.mapper.message.advice.*;
 import com.chauncy.data.mapper.message.information.MmInformationMapper;
 import com.chauncy.data.mapper.message.information.category.MmInformationCategoryMapper;
@@ -84,6 +89,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -102,6 +108,12 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 
     @Autowired
     private MmAdviceMapper mapper;
+
+    @Autowired
+    private AmReducedMapper amReducedMapper;
+
+    @Autowired
+    private AmActivityRelActivityGoodsMapper amActivityRelActivityGoodsMapper;
 
     @Autowired
     private AmActivityGroupMapper amActivityGroupMapper;
@@ -222,10 +234,19 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
         } else if(adviceRelAssociaitonPo.getType().equals(AssociationTypeEnum.REDUCED_GROUP.getId())) {
             //满减活动
             activityGroupTabVoList = mapper.findReducedGroupTab(relId);
+            activityGroupTabVoList.forEach(activityGroupTabVo -> {
+                if(null != activityGroupTabVo.getActivityGoodsVoList()
+                        && activityGroupTabVo.getActivityGoodsVoList().size() > 0) {
+                    //获取商品标签
+                    activityGroupTabVo.getActivityGoodsVoList().forEach(goodsVo ->
+                            goodsVo.setLabelList(Splitter.on(",").omitEmptyStrings().splitToList(goodsVo.getLabels())));
+                }
+            });
         } else {
             throw new ServiceException(ResultCode.FAIL, "活动分组关联类型出错");
         }
 
+        //活动分组详情--轮播图
         List<ShufflingVo> shufflingVoList = mapper.getShufflingByRelId(relId);
 
         ActivityGroupDetailVo activityGroupDetailVo = new ActivityGroupDetailVo();
@@ -277,6 +298,10 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
             } else {
                 throw new ServiceException(ResultCode.PARAM_ERROR);
             }
+            //获取商品标签
+            activityGoodsVoPageInfo.getList().forEach(activityGoodsVo -> {
+                activityGoodsVo.setLabelList(Splitter.on(",").omitEmptyStrings().splitToList(activityGoodsVo.getLabels()));
+            });
         } else {
             //积分
             if(null != searchActivityGoodsListDto.getTabId()) {
@@ -303,31 +328,53 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
     /**
      * @Author yeJH
      * @Date 2019/9/26 11:24
-     * @Description 获取活动分组下的活动商品分类
+     * @Description 获取活动分组下的活动商品一级分类
      *
      * @Update yeJH
      *
-     * @param  groupId  活动分组id
+     * @param  findActivityGoodsCategoryDto
      * @return java.util.List<com.chauncy.data.vo.BaseVo>
      **/
     @Override
-    public List<BaseVo> findGoodsCategory(Long groupId) {
-        AmActivityGroupPo amActivityGroupPo = amActivityGroupMapper.selectById(groupId);
-        if(null == amActivityGroupPo) {
-            throw new ServiceException(ResultCode.NO_EXISTS, "活动分组记录不存在");
-        }
-
+    public List<BaseVo> findGoodsCategory(FindActivityGoodsCategoryDto findActivityGoodsCategoryDto) {
         List<BaseVo> baseVoList;
 
-        if(GroupTypeEnum.REDUCED.getId().equals(amActivityGroupPo.getType())) {
-            //满减活动
-            baseVoList = mapper.findReducedGoodsCategory(groupId);
-        } else if(GroupTypeEnum.INTEGRALS.getId().equals(amActivityGroupPo.getType())) {
-            //积分活动
-            baseVoList = mapper.findIntegralsGoodsCategory(groupId);
+        if (null != findActivityGoodsCategoryDto.getGroupId()) {
+            Long groupId = findActivityGoodsCategoryDto.getGroupId();
+            //活动分组下的满减、积分活动对应的商品一级分类
+            AmActivityGroupPo amActivityGroupPo = amActivityGroupMapper.selectById(groupId);
+            if(null == amActivityGroupPo) {
+                throw new ServiceException(ResultCode.NO_EXISTS, "活动分组记录不存在");
+            }
+            if(GroupTypeEnum.REDUCED.getId().equals(amActivityGroupPo.getType())) {
+                //满减活动
+                baseVoList = mapper.findReducedGoodsCategory(groupId);
+            } else if(GroupTypeEnum.INTEGRALS.getId().equals(amActivityGroupPo.getType())) {
+                //积分活动
+                baseVoList = mapper.findIntegralsGoodsCategory(groupId);
+            } else {
+                throw new ServiceException(ResultCode.FAIL, "活动分组关联类型出错");
+            }
+        } else if (null != findActivityGoodsCategoryDto.getGoodsId()) {
+            //查询商品正在参加的活动
+            QueryWrapper<AmActivityRelActivityGoodsPo> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda()
+                    .eq(AmActivityRelActivityGoodsPo::getGoodsId, findActivityGoodsCategoryDto.getGoodsId())
+                    .lt(AmActivityRelActivityGoodsPo::getActivityStartTime, LocalDateTime.now())
+                    .gt(AmActivityRelActivityGoodsPo::getActivityEndTime, LocalDateTime.now())
+                    .eq(AmActivityRelActivityGoodsPo::getVerifyStatus, VerifyStatusEnum.CHECKED.getId());
+            AmActivityRelActivityGoodsPo amActivityRelActivityGoodsPo = amActivityRelActivityGoodsMapper.selectOne(queryWrapper);
+            if(null != amActivityRelActivityGoodsPo) {
+                //满减活动去凑单商品列表对应的商品一级分类
+                baseVoList = amReducedMapper.findReducedGoodsCategory(amActivityRelActivityGoodsPo.getActivityId());
+            } else {
+                throw new ServiceException(ResultCode.FAIL, "该商品没有参加满减活动");
+            }
         } else {
-            throw new ServiceException(ResultCode.FAIL, "活动分组关联类型出错");
+            throw new ServiceException(ResultCode.PARAM_ERROR, "goodsId跟groupId参数不能都为空");
         }
+
+
 
         return baseVoList;
     }
@@ -358,7 +405,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 
         if(GroupTypeEnum.REDUCED.getId().equals(findTabGoodsListDto.getGroupType())) {
             activityGoodsVoList = mapper.findReducedGroupTabDetail(searchActivityGoodsListDto);
-        } else if (GroupTypeEnum.REDUCED.getId().equals(findTabGoodsListDto.getGroupType())){
+        } else if (GroupTypeEnum.INTEGRALS.getId().equals(findTabGoodsListDto.getGroupType())){
             activityGoodsVoList = mapper.findIntegralsGroupTabDetail(searchActivityGoodsListDto);
         } else {
             throw new ServiceException(ResultCode.PARAM_ERROR);
@@ -383,20 +430,31 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
         List<HomePageActivityGoodsVo> goodsVoList = mapper.findHomePageActivity();
 
         HomePageActivityVo homePageActivityVo = new HomePageActivityVo();
+        List<HomePageActivityGoodsVo> secKillGoods = new ArrayList<>();
+        List<HomePageActivityGoodsVo> integralsGoods = new ArrayList<>();
+        List<HomePageActivityGoodsVo> reducedGoods = new ArrayList<>();
+        List<HomePageActivityGoodsVo> spellGroupGoods = new ArrayList<>();
         goodsVoList.stream().forEach(homePageActivityGoodsVo -> {
             //ActivityTypeEnum
             switch (homePageActivityGoodsVo.getGroupType()) {
                 case 1:
-                    homePageActivityVo.getReducedGoods().add(homePageActivityGoodsVo);
+                    reducedGoods.add(homePageActivityGoodsVo);
+                    break;
                 case 2:
-                    homePageActivityVo.getIntegralsGoods().add(homePageActivityGoodsVo);
+                    integralsGoods.add(homePageActivityGoodsVo);
+                    break;
                 case 3:
-                    homePageActivityVo.getSecKillGoods().add(homePageActivityGoodsVo);
+                    secKillGoods.add(homePageActivityGoodsVo);
+                    break;
                 case 4:
-                    homePageActivityVo.getSecKillGoods().add(homePageActivityGoodsVo);
+                    spellGroupGoods.add(homePageActivityGoodsVo);
+                    break;
             }
         });
-
+        homePageActivityVo.setReducedGoods(reducedGoods)
+                .setIntegralsGoods(integralsGoods)
+                .setSecKillGoods(secKillGoods)
+                .setSpellGroupGoods(spellGroupGoods);
         return homePageActivityVo;
 
     }

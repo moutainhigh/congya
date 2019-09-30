@@ -297,7 +297,9 @@ public class WxServiceImpl implements IWxService {
         data.put("attach", orderPayTypeEnum.name());
         //商户订单号
         data.put("out_trade_no", String.valueOf(payOrderId));
-        data.put("total_fee", String.valueOf(totalFee));
+        //data.put("total_fee", String.valueOf(totalFee));
+        //测试 默认1分钱
+        data.put("total_fee", "1");
         //调用微信支付API的机器IP
         data.put("spbill_create_ip", ipAddr);
         //异步通知地址
