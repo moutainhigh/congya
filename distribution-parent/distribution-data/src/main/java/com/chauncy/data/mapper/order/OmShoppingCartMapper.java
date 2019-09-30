@@ -2,6 +2,7 @@ package com.chauncy.data.mapper.order;
 
 import com.chauncy.data.domain.po.order.OmShoppingCartPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.dto.app.car.ShopTicketSoWithCarGoodDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.app.car.CarGoodsVo;
 import com.chauncy.data.vo.app.car.ShopTicketSoWithCarGoodVo;
@@ -42,7 +43,7 @@ public interface OmShoppingCartMapper extends IBaseMapper<OmShoppingCartPo> {
      * @param id
      * @return
      */
-    ShopTicketSoWithCarGoodVo getTempById(Long id);
+    ShopTicketSoWithCarGoodDto getTempById(Long id);
 
     /**
      * 减去红包和购物券
