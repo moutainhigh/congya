@@ -20,7 +20,7 @@ public class SubmitOrderVo {
     private Long payOrderId;
 
     @ApiModelProperty(value = "需支付多少钱")
-    private BigDecimal totalMoney;
+    private BigDecimal totalRealPayMoney;
 
     @ApiModelProperty(value = "需支付多少红包")
     private BigDecimal totalRedEnvelops;

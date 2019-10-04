@@ -183,7 +183,9 @@ public class CustomsApi {
             e.printStackTrace();
             writer.print(api.responseServiceError());
         } finally {
-            writer.close();
+            if (writer!=null){
+                writer.close();
+            }
         }
 
     }

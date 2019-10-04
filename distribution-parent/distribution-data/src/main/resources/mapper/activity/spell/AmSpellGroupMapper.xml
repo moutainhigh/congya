@@ -28,6 +28,11 @@
     <sql id="Base_Column_List">
         id, create_by, create_time, update_by, update_time, del_flag, name, sort, picture, member_level_id, registration_start_time, registration_end_time, activity_start_time, activity_end_time, activity_description, group_num, discount_price_ratio, enable
     </sql>
+
+    <select id="searchActivityGoodsList" resultType="com.chauncy.data.vo.app.goods.SpellGroupGoodsVo">
+
+    </select>
+
     <select id="searchSpellList" resultType="com.chauncy.data.vo.manage.activity.SearchActivityListVo">
         select a.*,c.level_name as member_name
         from am_seckill a,pm_member_level c

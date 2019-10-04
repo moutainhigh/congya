@@ -1,4 +1,4 @@
-package com.chauncy.data.vo.app.car;
+package com.chauncy.data.dto.app.car;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.chauncy.common.util.BigDecimalUtil;
@@ -16,10 +16,18 @@ import java.util.List;
  **/
 @Data
 @Accessors(chain = true)
-public class ShopTicketSoWithCarGoodVo {
+public class ShopTicketSoWithCarGoodDto {
+
+    @ApiModelProperty("skuid")
+    private Long id;
+
+
+    @ApiModelProperty("数量")
+    private Integer number;
 
     //销售价
-    @ApiModelProperty("销售价")
+    @ApiModelProperty(value = "销售价",hidden = true)
+    @JSONField(serialize = false)
     private BigDecimal sellPrice;
 
     //商品活动百分比
@@ -52,26 +60,24 @@ public class ShopTicketSoWithCarGoodVo {
     @JSONField(serialize = false)
     private BigDecimal customTaxRate;
 
-    @ApiModelProperty("skuid")
-    private Long id;
 
-    @ApiModelProperty("商品缩略图")
+    @ApiModelProperty(value = "商品缩略图",hidden = true)
+    @JSONField(serialize = false)
     private String icon;
 
-    @ApiModelProperty("商品名称")
+    @ApiModelProperty(value = "商品名称",hidden = true)
+    @JSONField(serialize = false)
     private String name;
 
-    @ApiModelProperty("商品规格")
+    @ApiModelProperty(value = "规格",hidden = true)
+    @JSONField(serialize = false)
     private String standardStr;
 
-    @ApiModelProperty("数量")
-    private Integer number;
-
-    @ApiModelProperty("商品当前参与的活动类型，没有则为空字符串")
-    private String activityType;
-
-    @ApiModelProperty("该支付单所参与的优惠活动")
-    private List<String> activityList;
+//    @ApiModelProperty("商品当前参与的活动类型，没有则为空字符串")
+//    private String activityType;
+//
+//    @ApiModelProperty("该支付单所参与的优惠活动")
+//    private List<String> activityList;
 
     @ApiModelProperty(hidden = true)
     @JSONField(serialize = false)
@@ -108,7 +114,7 @@ public class ShopTicketSoWithCarGoodVo {
 
 
 
-   /**
+    /**
      * 根据公式算出返回预计购物券
      * 没有活动和优惠券  付现价=销售价
      * @return
@@ -143,4 +149,6 @@ public class ShopTicketSoWithCarGoodVo {
     private BigDecimal transfromDecimal(BigDecimal bigDecimal){
         return BigDecimalUtil.safeDivide(bigDecimal,100);
     }
+
+
 }

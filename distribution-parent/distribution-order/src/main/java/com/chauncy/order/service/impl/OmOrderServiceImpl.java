@@ -686,17 +686,13 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
         }
 
-        // TODO: 2019/9/17 叶俊浩(完成)
 
-        //商品销售报表
-        //omOrderReportService.orderClosure(orderId);
     }
 
     public void orderDeadline(Long orderId) {
 
         OmOrderPo queryOrder = mapper.selectById(orderId);
 
-        // TODO: 2019/9/10 俊浩流水(完成)
 
         Long userId = Long.parseLong(queryOrder.getCreateBy());
 

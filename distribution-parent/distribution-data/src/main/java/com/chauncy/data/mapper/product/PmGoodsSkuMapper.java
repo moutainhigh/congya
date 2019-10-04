@@ -2,6 +2,7 @@ package com.chauncy.data.mapper.product;
 
 import com.chauncy.data.bo.app.order.reward.RewardShopTicketBo;
 import com.chauncy.data.domain.po.product.PmGoodsSkuPo;
+import com.chauncy.data.dto.app.car.ShopTicketSoWithCarGoodDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.app.advice.goods.BrandGoodsVo;
 import com.chauncy.data.vo.app.brand.GoodsVo;
@@ -49,6 +50,8 @@ public interface PmGoodsSkuMapper extends IBaseMapper<PmGoodsSkuPo> {
     List<GoodsVo> getPrice(Long goodsId);
 
     int updateStock(@Param("list") List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVos);
+
+    int updateStock2(@Param("list") List<ShopTicketSoWithCarGoodDto> shopTicketSoWithCarGoodDtos);
 
     /**
      * 获取具体的sku信息

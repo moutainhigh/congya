@@ -1016,11 +1016,15 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         }
         searchUserLogDto.setUserId(umUserPo.getId());
         SearchUserLogVo searchUserLogVo = new SearchUserLogVo();
+        //获取用户账目余额
         if(searchUserLogDto.getAccountType().equals(AccountTypeEnum.RED_ENVELOPS.getId())) {
+            //红包
             searchUserLogVo.setAmount(umUserPo.getCurrentRedEnvelops());
         } else if(searchUserLogDto.getAccountType().equals(AccountTypeEnum.SHOP_TICKET.getId())) {
+            //购物券
             searchUserLogVo.setAmount(umUserPo.getCurrentShopTicket());
         } else if(searchUserLogDto.getAccountType().equals(AccountTypeEnum.INTEGRATE.getId())) {
+            //积分
             searchUserLogVo.setAmount(umUserPo.getCurrentIntegral());
         } else {
             throw  new ServiceException(ResultCode.PARAM_ERROR, "accountType参数错误");

@@ -4,25 +4,33 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.activity.reduced.IAmReducedService;
 import com.chauncy.common.enums.app.activity.ActivityStatusEnum;
 import com.chauncy.common.enums.app.activity.type.ActivityTypeEnum;
+import com.chauncy.common.enums.app.sort.SortFileEnum;
+import com.chauncy.common.enums.app.sort.SortWayEnum;
+import com.chauncy.common.enums.common.VerifyStatusEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.activity.AmActivityRelActivityCategoryPo;
 import com.chauncy.data.domain.po.activity.reduced.AmReducedPo;
+import com.chauncy.data.domain.po.activity.registration.AmActivityRelActivityGoodsPo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.dto.app.product.SearchReducedGoodsDto;
 import com.chauncy.data.dto.manage.activity.SearchActivityListDto;
 import com.chauncy.data.dto.manage.activity.reduced.add.SaveReducedDto;
 import com.chauncy.data.mapper.activity.AmActivityRelActivityCategoryMapper;
 import com.chauncy.data.mapper.activity.group.AmActivityGroupMapper;
 import com.chauncy.data.mapper.activity.reduced.AmReducedMapper;
+import com.chauncy.data.mapper.activity.registration.AmActivityRelActivityGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
+import com.chauncy.data.vo.app.goods.ActivityGoodsVo;
 import com.chauncy.data.vo.manage.activity.SearchActivityListVo;
 import com.chauncy.data.vo.manage.activity.SearchGoodsCategoryVo;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +57,9 @@ public class AmReducedServiceImpl extends AbstractService<AmReducedMapper, AmRed
     private AmReducedMapper mapper;
 
     @Autowired
+    private AmActivityRelActivityGoodsMapper amActivityRelActivityGoodsMapper;
+
+    @Autowired
     private SecurityUtil securityUtil;
 
     @Autowired
@@ -59,6 +70,51 @@ public class AmReducedServiceImpl extends AbstractService<AmReducedMapper, AmRed
 
     @Autowired
     private AmActivityRelActivityCategoryMapper relActivityCategoryMapper;
+
+    /**
+     * @Author yeJH
+     * @Date 2019/9/28 15:27
+     * @Description 商品详情页，购物车页面点击去凑单获取满减商品列表
+     *
+     * @Update yeJH
+     *
+     * @param  searchReducedGoodsDto
+     * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.goods.ActivityGoodsVo>
+     **/
+    @Override
+    public PageInfo<ActivityGoodsVo> searchReducedGoods(SearchReducedGoodsDto searchReducedGoodsDto) {
+
+        if(null == searchReducedGoodsDto.getSortFile()) {
+            //默认综合排序
+            searchReducedGoodsDto.setSortFile(SortFileEnum.COMPREHENSIVE_SORT);
+        }
+        if(null == searchReducedGoodsDto.getSortWay()) {
+            //默认降序
+            searchReducedGoodsDto.setSortWay(SortWayEnum.DESC);
+        }
+
+        //查询商品正在参加的活动
+        QueryWrapper<AmActivityRelActivityGoodsPo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda()
+                .eq(AmActivityRelActivityGoodsPo::getGoodsId, searchReducedGoodsDto.getGoodsId())
+                .lt(AmActivityRelActivityGoodsPo::getActivityStartTime, LocalDateTime.now())
+                .gt(AmActivityRelActivityGoodsPo::getActivityEndTime, LocalDateTime.now())
+                .eq(AmActivityRelActivityGoodsPo::getVerifyStatus, VerifyStatusEnum.CHECKED.getId());
+        AmActivityRelActivityGoodsPo amActivityRelActivityGoodsPo = amActivityRelActivityGoodsMapper.selectOne(queryWrapper);
+        searchReducedGoodsDto.setActivityId(amActivityRelActivityGoodsPo.getActivityId());
+
+        Integer pageNo = searchReducedGoodsDto.getPageNo()==null ? defaultPageNo : searchReducedGoodsDto.getPageNo();
+        Integer pageSize = searchReducedGoodsDto.getPageSize()==null ? defaultPageSize : searchReducedGoodsDto.getPageSize();
+
+        PageInfo<ActivityGoodsVo> activityGoodsVoPageInfo = PageHelper.startPage(pageNo, pageSize).doSelectPageInfo(() ->
+                mapper.searchReducedGoods(searchReducedGoodsDto));
+        //获取商品标签
+        activityGoodsVoPageInfo.getList().forEach(activityGoodsVo -> {
+            activityGoodsVo.setLabelList(Splitter.on(",").omitEmptyStrings().splitToList(activityGoodsVo.getLabels()));
+        });
+
+        return activityGoodsVoPageInfo;
+    }
 
     /**
      * 保存满减活动信息
