@@ -1,12 +1,15 @@
 package com.chauncy.data.dto.app.car;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.chauncy.data.valid.annotation.NeedExistConstraint;
+import com.chauncy.data.vo.app.car.GoodsTypeOrderVo;
 import com.chauncy.data.vo.app.car.StoreOrderVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.List;
@@ -29,43 +32,41 @@ public class SubmitOrderDto {
     private Boolean isUseWallet;
 
 
-    @ApiModelProperty(value = "购物券抵扣了多少钱")
-    private BigDecimal totalShopTicketMoney;
+    @ApiModelProperty("拆单后每个订单的订单商品详情")
+    @NotEmpty
+    private List<GoodsTypeOrderDto> goodsTypeOrderDtos;
 
-
-    @ApiModelProperty(value = "红包抵扣了多少钱")
-    private BigDecimal totalRedEnvelopsMoney;
-
-    @ApiModelProperty(value = "积分抵扣了多少钱")
-    private BigDecimal totalIntegralMoney;
-
-   /* @ApiModelProperty(value = "可抵扣金额")
-    private BigDecimal deductionMoney;*/
-
-    @ApiModelProperty(value = "同一支付单所有订单总额，包括商品、税费、运费")
-    private BigDecimal totalMoney;
-
-    /*@ApiModelProperty(value = "预计奖励购物券")
-    private BigDecimal rewardShopTicket;*/
-
-
-
-    @ApiModelProperty(value = "运费")
-    private BigDecimal totalShipMoney;
-
-    @ApiModelProperty(value = "税费")
-    private BigDecimal totalTaxMoney;
-
-    @ApiModelProperty("根据店铺与商品类型拆单列表")
-    private List<StoreOrderVo> storeOrderVos;
-
-    @ApiModelProperty(value = "总数量")
-    private int totalNumber;
-
-
-    @ApiModelProperty(value = "应付总额")
-    private BigDecimal totalRealPayMoney;
 
     @ApiModelProperty(value = "用户实名认证id,若无须实名认证，该字段为空")
     private Long realUserId;
+
+
+    @ApiModelProperty(value = "同一支付单所有订单总额，包括商品、税费、运费",hidden = true)
+    @JSONField(deserialize = false)
+    private BigDecimal totalMoney;
+
+    @ApiModelProperty(value = "购物券抵扣了多少钱",hidden = true)
+    @JSONField(deserialize = false)
+    private BigDecimal totalShopTicketMoney;
+
+    @ApiModelProperty(value = "红包抵扣了多少钱",hidden = true)
+    @JSONField(deserialize = false)
+    private BigDecimal totalRedEnvelopsMoney;
+
+    @ApiModelProperty(value = "（第二版本）积分抵扣了多少钱",hidden = true)
+    @JSONField(deserialize = false)
+    private BigDecimal totalIntegralMoney=BigDecimal.ZERO;
+
+    @ApiModelProperty(value = "总订单应付总额",hidden = true)
+    @JSONField(deserialize = false)
+    private BigDecimal totalRealPayMoney;
+
+
+    @ApiModelProperty(value = "总订单运费",hidden = true)
+    @JSONField(deserialize = false)
+    private BigDecimal totalShipMoney;
+
+    @ApiModelProperty(value = "总订单税费",hidden = true)
+    @JSONField(deserialize = false)
+    private BigDecimal totalTaxMoney;
 }

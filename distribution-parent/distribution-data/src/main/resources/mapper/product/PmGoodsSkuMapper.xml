@@ -37,6 +37,17 @@
             where id = #{item.id}
         </foreach>
     </update>
+
+    <update id="updateStock2">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update pm_goods_sku
+            <set>
+                stock=stock-#{item.number},
+            </set>
+            where id = #{item.id}
+        </foreach>
+    </update>
+
     <select id="findBrandGoodsVos" resultType="com.chauncy.data.vo.app.advice.goods.BrandGoodsVo">
         select a.id as goods_id,a.name as goods_name,b.sales_volume,b.id as sku_id,b.picture,b.line_price,b.sell_price
         from pm_goods a,pm_goods_sku b,pm_goods_rel_attribute_good c

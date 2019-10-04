@@ -61,7 +61,7 @@
         </foreach>
         GROUP BY u.id
     </select>
-    <select id="getTempById" resultType="com.chauncy.data.vo.app.car.ShopTicketSoWithCarGoodVo">
+    <select id="getTempById" resultType="com.chauncy.data.dto.app.car.ShopTicketSoWithCarGoodDto">
          SELECT g.custom_tax_rate,s.id storeId,s.name storeName,g.name,g.icon,u.sell_price,g.goods_type,u.id,GROUP_CONCAT(av.`value`) standardStr,
         g.activity_cost_rate,g.profits_rate,u.profit_rate,u.supplier_price,u.operation_cost,g.shipping_template_id,g.is_free_postage
         FROM pm_goods_sku u,pm_goods g,sm_store s,pm_goods_rel_attribute_value_sku sa,pm_goods_attribute_value av
