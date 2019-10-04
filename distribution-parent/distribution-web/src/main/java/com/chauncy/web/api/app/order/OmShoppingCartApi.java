@@ -68,6 +68,23 @@ public class OmShoppingCartApi extends BaseApi {
 
     /**
      * @Author chauncy
+     * @Date 2019-09-29 20:14
+     * @Description //移动购物车商品至收藏夹
+     *
+     * @Update chauncy
+     *
+     * @param  goodsIds
+     * @return void
+     **/
+    @GetMapping("/removeToFavorites/{goodsIds}")
+    @ApiOperation("移动购物车商品至收藏夹")
+    public JsonViewData removeToFavorites(Long[] goodsIds){
+        service.removeToFavorites(goodsIds);
+        return setJsonViewData(ResultCode.SUCCESS);
+    }
+
+    /**
+     * @Author chauncy
      * @Date 2019-09-22 12:32
      * @Description //获取该商品关联的商品--相关推荐
      *

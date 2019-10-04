@@ -112,8 +112,12 @@ public class UmAreaShippingServiceImpl extends AbstractService<UmAreaShippingMap
         queryWrapper.eq("is_default", true);
         UmAreaShippingPo areaShippingPo = mapper.selectOne(queryWrapper);
         ShipAreaVo shipAreaVo = new ShipAreaVo();
-        BeanUtils.copyProperties(areaShippingPo, shipAreaVo);
-        return shipAreaVo;
+        if (areaShippingPo != null) {
+            BeanUtils.copyProperties(areaShippingPo, shipAreaVo);
+            return shipAreaVo;
+        }else {
+            return null;
+        }
     }
 
     private UmAreaShippingPo updateDefault(AddAreaDto updateAreaDto,UmUserPo userPo) {
