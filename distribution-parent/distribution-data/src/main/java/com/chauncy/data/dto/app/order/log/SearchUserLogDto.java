@@ -35,10 +35,10 @@ public class SearchUserLogDto implements Serializable {
     @ApiModelProperty(value = "查询时间")
     private String logDate;
 
-    @ApiModelProperty(value = "查询年")
+    @ApiModelProperty(value = "查询年  如：2018/2019")
     private String year;
 
-    @ApiModelProperty(value = "查询月")
+    @ApiModelProperty(value = "查询月  如：01/02/11/12")
     private String month;
 
     @Min(1)

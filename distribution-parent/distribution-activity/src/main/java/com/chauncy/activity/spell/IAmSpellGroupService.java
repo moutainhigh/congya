@@ -3,8 +3,10 @@ package com.chauncy.activity.spell;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.activity.spell.AmSpellGroupPo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.dto.app.product.SearchSpellGroupGoodsDto;
 import com.chauncy.data.dto.manage.activity.SearchActivityListDto;
 import com.chauncy.data.dto.manage.activity.spell.SaveSpellDto;
+import com.chauncy.data.vo.app.goods.SpellGroupGoodsVo;
 import com.chauncy.data.vo.manage.activity.SearchActivityListVo;
 import com.github.pagehelper.PageInfo;
 
@@ -19,6 +21,18 @@ import java.util.List;
  * @since 2019-07-23
  */
 public interface IAmSpellGroupService extends Service<AmSpellGroupPo> {
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/3 18:37
+     * @Description 获取拼团动商品列表
+     *
+     * @Update yeJH
+     *
+     * @param  searchSpellGroupGoodsDto
+     * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.goods.SpellGroupGoodsVo>
+     **/
+    PageInfo<SpellGroupGoodsVo> searchActivityGoodsList(SearchSpellGroupGoodsDto searchSpellGroupGoodsDto);
 
     /**
      * 保存秒杀活动信息

@@ -33,7 +33,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/app/activity/integral")
 @Slf4j
-public class AmIntegralMainApi extends BaseApi {
+public class IntegralReducedApi extends BaseApi {
 
 
     @Autowired
