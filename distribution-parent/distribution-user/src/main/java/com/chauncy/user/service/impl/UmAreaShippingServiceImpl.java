@@ -1,6 +1,7 @@
 package com.chauncy.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.domain.po.area.AreaRegionPo;
 import com.chauncy.data.domain.po.user.UmAreaShippingPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.management.Query;
+import javax.swing.plaf.ListUI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,13 +119,11 @@ public class UmAreaShippingServiceImpl extends AbstractService<UmAreaShippingMap
     private UmAreaShippingPo updateDefault(AddAreaDto updateAreaDto,UmUserPo userPo) {
         if (updateAreaDto.getIsDefault()) {
             //判断当前用户是否已有默认收货地址，若有则把之前的置为0
-            Map<String, Object> map = new HashMap<>();
-            map.put("is_default", true);
-            map.put("um_user_id",userPo.getId());
-            if (mapper.selectByMap(map) != null || mapper.selectByMap(map).size() != 0) {
-                UmAreaShippingPo po = mapper.selectByMap(map).get(0);
-                po.setIsDefault(false);
-                mapper.updateById(po);
+            UmAreaShippingPo umAreaShippingPo = mapper.selectOne(new QueryWrapper<UmAreaShippingPo>().lambda()
+                    .eq(UmAreaShippingPo::getIsDefault,true).eq(UmAreaShippingPo::getUmUserId,userPo.getId()));
+            if (umAreaShippingPo != null) {
+                umAreaShippingPo.setIsDefault(false);
+                mapper.updateById(umAreaShippingPo);
             }
         }
         AreaRegionPo queryAreaRegion = areaRegionMapper.selectById(updateAreaDto.getAreaId());
