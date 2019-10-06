@@ -621,7 +621,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                         //活动分组对应的轮播图
                        List<ActivityGroupShufflingVo> activityGroupShufflingVos = relShufflingMapper.findActivityGroupShuffling(b.getRelAdviceActivityGroupId());
                        activityGroupShufflingVos.forEach(d->{
-                           AdviceTypeEnum adviceTypeEnum = d.getAdviceType();
+                           AdviceTypeEnum adviceTypeEnum = AdviceTypeEnum.getAdviceTypeEnum(d.getAdviceType());
                            switch (adviceTypeEnum) {
                                case HTML_DETAIL:
                                    break;
@@ -657,7 +657,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                                     .eq(MmAdviceRelTabThingsPo::getAssociationId, c.getBrandId())).getId();
                             List<BrandShufflingVo> brandShufflingVos = relShufflingMapper.findShufflingList(relTabBrandId);
                             brandShufflingVos.forEach(d -> {
-                                AdviceTypeEnum adviceTypeEnum = d.getAdviceType();
+                                AdviceTypeEnum adviceTypeEnum = AdviceTypeEnum.getAdviceTypeEnum(d.getAdviceType());
                                 switch (adviceTypeEnum) {
                                     case HTML_DETAIL:
                                         break;
@@ -713,7 +713,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 case EXPERIENCE_PACKAGE:
                     List<FindShufflingVo> shufflingVoList = relShufflingMapper.findShuffling(a.getAdviceId());
                     shufflingVoList.forEach(b -> {
-                        AdviceTypeEnum adviceTypeEnum = b.getAdviceType();
+                        AdviceTypeEnum adviceTypeEnum = AdviceTypeEnum.getAdviceTypeEnum(b.getAdviceType());
                         switch (adviceTypeEnum) {
                             case HTML_DETAIL:
                                 break;
