@@ -90,6 +90,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -444,6 +445,10 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                     integralsGoods.add(homePageActivityGoodsVo);
                     break;
                 case 3:
+                    if(null != homePageActivityGoodsVo.getActivityEndTime()) {
+                        homePageActivityGoodsVo.setEndTime(
+                                homePageActivityGoodsVo.getActivityEndTime().toEpochSecond(ZoneOffset.of("+8")));
+                    }
                     secKillGoods.add(homePageActivityGoodsVo);
                     break;
                 case 4:

@@ -9,6 +9,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * @author yeJH
@@ -24,9 +25,13 @@ public class HomePageActivityGoodsVo  implements Serializable {
     @JSONField(ordinal = 1)
     private String picture;
 
-    @ApiModelProperty(value = "限时秒杀结束时间时间戳")
+    @ApiModelProperty(value = "限时秒杀结束时间秒级时间戳")
     @JSONField(ordinal = 2)
     private Long endTime;
+
+    @ApiModelProperty(value = "限时秒杀结束时间")
+    @JSONField(serialize=false)
+    private LocalDateTime activityEndTime;
 
     @ApiModelProperty(value = "销售价格")
     @JSONField(ordinal = 3)
