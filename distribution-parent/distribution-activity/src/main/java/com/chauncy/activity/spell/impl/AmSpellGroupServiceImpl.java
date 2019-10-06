@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.activity.spell.IAmSpellGroupService;
 import com.chauncy.common.enums.app.activity.ActivityStatusEnum;
 import com.chauncy.common.enums.app.activity.type.ActivityTypeEnum;
+import com.chauncy.common.enums.app.sort.SortFileEnum;
+import com.chauncy.common.enums.app.sort.SortWayEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.ListUtil;
@@ -12,12 +14,14 @@ import com.chauncy.data.domain.po.activity.seckill.AmSeckillPo;
 import com.chauncy.data.domain.po.activity.spell.AmSpellGroupPo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.dto.app.product.SearchSpellGroupGoodsDto;
 import com.chauncy.data.dto.manage.activity.SearchActivityListDto;
 import com.chauncy.data.dto.manage.activity.spell.SaveSpellDto;
 import com.chauncy.data.mapper.activity.AmActivityRelActivityCategoryMapper;
 import com.chauncy.data.mapper.activity.spell.AmSpellGroupMapper;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
+import com.chauncy.data.vo.app.goods.SpellGroupGoodsVo;
 import com.chauncy.data.vo.manage.activity.SearchActivityListVo;
 import com.chauncy.data.vo.manage.activity.SearchGoodsCategoryVo;
 import com.chauncy.security.util.SecurityUtil;
@@ -56,6 +60,35 @@ public class AmSpellGroupServiceImpl extends AbstractService<AmSpellGroupMapper,
 
     @Autowired
     private AmActivityRelActivityCategoryMapper relActivityCategoryMapper;
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/3 18:37
+     * @Description 获取拼团动商品列表
+     *
+     * @Update yeJH
+     *
+     * @param  searchSpellGroupGoodsDto
+     * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.goods.SpellGroupGoodsVo>
+     **/
+    @Override
+    public PageInfo<SpellGroupGoodsVo> searchActivityGoodsList(SearchSpellGroupGoodsDto searchSpellGroupGoodsDto) {
+
+        Integer pageNo = searchSpellGroupGoodsDto.getPageNo()==null ? defaultPageNo : searchSpellGroupGoodsDto.getPageNo();
+        Integer pageSize = searchSpellGroupGoodsDto.getPageSize()==null ? defaultPageSize : searchSpellGroupGoodsDto.getPageSize();
+
+        if(null == searchSpellGroupGoodsDto.getSortFile()) {
+            //默认综合排序
+            searchSpellGroupGoodsDto.setSortFile(SortFileEnum.COMPREHENSIVE_SORT);
+        }
+        if(null == searchSpellGroupGoodsDto.getSortWay()) {
+            //默认降序
+            searchSpellGroupGoodsDto.setSortWay(SortWayEnum.DESC);
+        }
+        PageInfo<SpellGroupGoodsVo> spellGroupGoodsVoPageInfo = PageHelper.startPage(pageNo, pageSize).doSelectPageInfo(() ->
+                        mapper.searchActivityGoodsList(searchSpellGroupGoodsDto));
+        return spellGroupGoodsVoPageInfo;
+    }
 
     /**
      * 保存秒杀活动信息

@@ -29,6 +29,9 @@
         from am_coupon as a
         LEFT JOIN am_coupon_rel_coupon_user as b on a.id = b.coupon_id
         where a.del_flag = 0
+        <if test="id !=null">
+            and a.id = #{id}
+        </if>
         <if test="enable !=null">
             and a.enable = #{enable}
         </if>

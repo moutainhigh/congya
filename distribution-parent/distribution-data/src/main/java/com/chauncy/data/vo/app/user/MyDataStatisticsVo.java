@@ -51,7 +51,7 @@ public class MyDataStatisticsVo {
     @JSONField(ordinal = 7)
     private Integer needPayNum;
 
-    @ApiModelProperty(value = "待付款")
+    @ApiModelProperty(value = "待发货")
     @JSONField(ordinal = 8)
     private Integer needSendGoodsNum;
 
@@ -82,4 +82,12 @@ public class MyDataStatisticsVo {
     @ApiModelProperty(value = "红包数量")
     @JSONField(ordinal = 15)
     private Integer redEnvelopeNum;
+
+    @ApiModelProperty(value = "个人中心顶部背景图")
+    @JSONField(ordinal = 16)
+    private PersonalCenterPictureVo topPicture;
+
+    @ApiModelProperty(value = "个人中心充值入口图片")
+    @JSONField(ordinal = 16)
+    private PersonalCenterPictureVo topUpPicture;
 }

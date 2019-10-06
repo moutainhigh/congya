@@ -77,7 +77,9 @@ public enum AdviceLocationEnum implements BaseEnum {
 
     BAIHUO_INSIDE_SHUFFLING(15,"葱鸭百货内部轮播图"),
 
-    PERSONAL_CENTER(16,"个人中心"),
+    PERSONAL_CENTER(16,"个人中心顶部"),
+
+    PERSONAL_CENTER_MIDDLE_SHUFFLING(31,"个人中心中部轮播图"),
 
     INTEGRALS_INSIDE_HUFFLING(26,"积分内部轮播图"),
 
