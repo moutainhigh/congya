@@ -25,8 +25,10 @@ public enum ValidCodeEnum implements BaseEnum {
     BIND_PHONE_CODE(4,"SMS_169637862","redis:app:user:bind:phone:%s"),
     @ApiModelProperty("更改绑定手机")
     OLD_BIND_PHONE_CODE(5,"SMS_169900842","redis:app:user:oldBind:phone:%s"),
-    @ApiModelProperty("更改绑定手机")
-    NEW_BIND_PHONE_CODE(6,"SMS_169895822","redis:app:user:newBind:phone:%s");
+    @ApiModelProperty("新绑定手机")
+    NEW_BIND_PHONE_CODE(6,"SMS_169895822","redis:app:user:newBind:phone:%s"),
+    @ApiModelProperty("修改支付密码验证码")
+    UPDATE_PAY_PASSWORD_CODE(7,"SMS_169895822","redis:app:user:pay:password:phone:%s");
 
 
 
