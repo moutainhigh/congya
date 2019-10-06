@@ -12,7 +12,9 @@ import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.car.TotalCarVo;
 import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
 import com.chauncy.data.vo.app.order.cart.CartVo;
+import com.chauncy.data.vo.app.order.cart.SubmitOrderVo;
 import com.chauncy.data.vo.app.order.my.AppSearchOrderVo;
+import com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailVo;
 import com.chauncy.order.service.IOmOrderService;
 import com.chauncy.order.service.IOmShoppingCartService;
 import com.chauncy.web.base.BaseApi;
@@ -50,7 +52,7 @@ public class MyOrderApi extends BaseApi {
 
     @PostMapping("/pay/{orderId}")
     @ApiOperation("马上支付,生成新的支付单，返回支付单id")
-    public JsonViewData pay(@PathVariable Long orderId) {
+    public JsonViewData<SubmitOrderVo> pay(@PathVariable Long orderId) {
         return setJsonViewData(service.payOrder(orderId));
     }
 
@@ -62,7 +64,7 @@ public class MyOrderApi extends BaseApi {
 
     @PostMapping("/view/{orderId}")
     @ApiOperation("查看订单详情")
-    public JsonViewData view(@PathVariable Long orderId) {
+    public JsonViewData<AppMyOrderDetailVo> view(@PathVariable Long orderId) {
         return setJsonViewData(service.getAppMyOrderDetailVoByOrderId(orderId));
     }
 

@@ -3,7 +3,6 @@ package com.chauncy.web.api.app.order;
 
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.order.OmRealUserPo;
-import com.chauncy.data.dto.app.car.OrderSubmitDto;
 import com.chauncy.data.dto.app.car.SettleDto;
 import com.chauncy.data.dto.app.car.SubmitOrderDto;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
@@ -15,14 +14,13 @@ import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.car.TotalCarVo;
 import com.chauncy.data.vo.app.goods.AssociatedGoodsVo;
 import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
-import com.chauncy.data.vo.app.order.cart.CartVo;
 import com.chauncy.data.vo.app.order.cart.MyCartVo;
+import com.chauncy.data.vo.app.order.cart.RealUserStatusVo;
+import com.chauncy.data.vo.app.order.cart.RealUserVo;
 import com.chauncy.data.vo.app.order.cart.SubmitOrderVo;
 import com.chauncy.order.service.IOmRealUserService;
 import com.chauncy.order.service.IOmShoppingCartService;
 import com.chauncy.web.base.BaseApi;
-import com.github.pagehelper.PageInfo;
-import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -32,7 +30,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>
@@ -188,15 +185,27 @@ public class OmShoppingCartApi extends BaseApi {
 
     @PostMapping("/certification")
     @ApiOperation("实名认证")
-    public JsonViewData certification(@RequestBody @Validated AddIdCardDto addIdCardDto) {
+    public JsonViewData<RealUserStatusVo> certification(@RequestBody @Validated AddIdCardDto addIdCardDto) {
 
         OmRealUserPo saveRealUserPo=new OmRealUserPo();
         BeanUtils.copyProperties(addIdCardDto,saveRealUserPo);
         saveRealUserPo.setCreateBy(getAppCurrUser().getPhone());
         realUserService.save(saveRealUserPo);
-        Map<String,Long> map= Maps.newHashMap();
-        map.put("realUserId",saveRealUserPo.getId());
-        return setJsonViewData(map);
+        RealUserStatusVo realUserStatusVo =new RealUserStatusVo();
+        realUserStatusVo.setRealUserId(saveRealUserPo.getId()).setStatus(1);
+
+        return setJsonViewData(realUserStatusVo);
+
+    }
+
+
+    @PostMapping("/getRealUser/{realUserId}")
+    @ApiOperation("获取实名认证信息")
+    public JsonViewData<RealUserVo> certification(@PathVariable Long realUserId) {
+
+
+
+        return setJsonViewData(realUserService.getVoById(realUserId));
 
     }
 }

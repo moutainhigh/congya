@@ -41,6 +41,7 @@ import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.app.car.ShopTicketSoWithCarGoodVo;
+import com.chauncy.data.vo.app.order.cart.SubmitOrderVo;
 import com.chauncy.data.vo.app.order.my.AppSearchOrderVo;
 import com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailGoodsVo;
 import com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailStoreVo;
@@ -388,7 +389,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Long payOrder(Long orderId) {
+    public SubmitOrderVo payOrder(Long orderId) {
         //找出原先的支付单
         PayOrderPo queryPayOrder = mapper.getPayOrderByOrderId(orderId);
         //把原先的支付单禁用掉
@@ -417,7 +418,11 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         updateOrder.setId(queryOrder.getId());
         mapper.updateById(updateOrder);
 
-        return savePayOrderPo.getId();
+        SubmitOrderVo submitOrderVo=new SubmitOrderVo();
+        submitOrderVo.setPayOrderId(savePayOrderPo.getId()).setTotalRealPayMoney(queryOrder.getRealMoney())
+                .setTotalIntegral(BigDecimal.ZERO).setTotalShopTicket(queryOrder.getShopTicket()).setTotalRedEnvelops(queryOrder.getRedEnvelops());
+
+        return submitOrderVo;
     }
 
     @Override

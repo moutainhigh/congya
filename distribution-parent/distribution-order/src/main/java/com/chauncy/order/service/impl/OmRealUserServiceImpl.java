@@ -2,6 +2,7 @@ package com.chauncy.order.service.impl;
 
 import com.chauncy.data.domain.po.order.OmRealUserPo;
 import com.chauncy.data.mapper.order.OmRealUserMapper;
+import com.chauncy.data.vo.app.order.cart.RealUserVo;
 import com.chauncy.order.service.IOmRealUserService;
 import com.chauncy.data.core.AbstractService;
 import org.springframework.stereotype.Service;
@@ -18,9 +19,15 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class OmRealUserServiceImpl extends AbstractService<OmRealUserMapper,OmRealUserPo> implements IOmRealUserService {
+public class OmRealUserServiceImpl extends AbstractService<OmRealUserMapper, OmRealUserPo> implements IOmRealUserService {
 
- @Autowired
- private OmRealUserMapper mapper;
+    @Autowired
+    private OmRealUserMapper mapper;
+
+
+    public RealUserVo getVoById(Long id){
+        RealUserVo realUserVo = mapper.getVoById(id);
+        return realUserVo;
+    }
 
 }
