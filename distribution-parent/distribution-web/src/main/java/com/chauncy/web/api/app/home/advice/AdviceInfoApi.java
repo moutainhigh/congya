@@ -73,9 +73,10 @@ public class AdviceInfoApi extends BaseApi {
                           "MIDDLE_ONE_SHUFFLING--首页中部1轮播图 \n" +
                           "MIDDLE_TWO_SHUFFLING--首页中部2轮播图 \n" +
                           "MIDDLE_THREE_SHUFFLING--首页中部3轮播图 \n" +
-                          "PERSONAL_CENTER--个人中心中部轮播图 \n" +
+                          "PERSONAL_CENTER_MIDDLE_SHUFFLING--个人中心中部轮播图 \n" +
                           "REDUCED_INSIDE_SHUFFLING-- 满减内部轮播图\n" +
                           "INTEGRALS_INSIDE_HUFFLING--积分内部轮播图 \n" +
+                          "YOUPIN_INSIDE_SHUFFLING--有品内部 \n" +
                           "SPELL_GROUP_SHUFFLING--拼团内部轮播图 \n")
     public JsonViewData<List<ShufflingVo>> getShuffling(@ApiParam(required = true,name = "location",value = "广告位置")
                                                   @PathVariable String location){

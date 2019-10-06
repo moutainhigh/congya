@@ -28,6 +28,7 @@ import com.chauncy.data.dto.app.user.select.SearchMyFriendDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserIdCardDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
 import com.chauncy.data.dto.manage.user.update.UpdateUserDto;
+import com.chauncy.data.mapper.message.advice.MmAdviceMapper;
 import com.chauncy.data.mapper.message.information.comment.MmInformationCommentMapper;
 import com.chauncy.data.mapper.message.information.rel.MmInformationLikedMapper;
 import com.chauncy.data.mapper.message.interact.MmFeedBackMapper;
@@ -35,10 +36,7 @@ import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.mapper.user.UmRelUserLabelMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
-import com.chauncy.data.vo.app.user.GetMembersCenterVo;
-import com.chauncy.data.vo.app.user.MyDataStatisticsVo;
-import com.chauncy.data.vo.app.user.SearchMyFriendVo;
-import com.chauncy.data.vo.app.user.UserDataVo;
+import com.chauncy.data.vo.app.user.*;
 import com.chauncy.data.vo.manage.user.detail.UmUserDetailVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserRelVo;
 import com.chauncy.data.vo.manage.user.idCard.SearchIdCardVo;
@@ -94,6 +92,9 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
 
     @Autowired
     private MmInformationCommentMapper informationCommentMapper;
+
+    @Autowired
+    private MmAdviceMapper adviceMapper;
 
     @Autowired
     private PmMemberLevelMapper memberLevelMapper;
@@ -520,7 +521,14 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     @Override
     public MyDataStatisticsVo getMyDataStatistics(UmUserPo userPo) {
 
-        return mapper.getMyDataStatistics(userPo.getId());
+        MyDataStatisticsVo myDataStatisticsVo = mapper.getMyDataStatistics(userPo.getId());
+
+        PersonalCenterPictureVo topPicture = adviceMapper.getTopPicture();
+        PersonalCenterPictureVo topUpPicture =adviceMapper.getTopUpPicture();
+        myDataStatisticsVo.setTopPicture(topPicture);
+        myDataStatisticsVo.setTopUpPicture(topUpPicture);
+
+        return myDataStatisticsVo;
     }
 
     /**
