@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.constant.RabbitConstants;
 import com.chauncy.common.enums.app.activity.type.ActivityTypeEnum;
 import com.chauncy.common.enums.message.ArticleLocationEnum;
+import com.chauncy.common.enums.message.KeyWordTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
@@ -17,6 +18,8 @@ import com.chauncy.data.bo.manage.pay.PayUserMessage;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.activity.coupon.AmCouponRelCouponUserPo;
+import com.chauncy.data.domain.po.activity.integrals.AmIntegralsPo;
+import com.chauncy.data.domain.po.activity.reduced.AmReducedPo;
 import com.chauncy.data.domain.po.activity.registration.AmActivityRelActivityGoodsPo;
 import com.chauncy.data.domain.po.message.content.MmArticlePo;
 import com.chauncy.data.domain.po.order.*;
@@ -40,7 +43,11 @@ import com.chauncy.data.dto.app.order.cart.update.UpdateCartSkuDto;
 import com.chauncy.data.mapper.activity.coupon.AmCouponMapper;
 import com.chauncy.data.mapper.activity.coupon.AmCouponRelCouponGoodsMapper;
 import com.chauncy.data.mapper.activity.coupon.AmCouponRelCouponUserMapper;
+import com.chauncy.data.mapper.activity.integrals.AmIntegralsMapper;
+import com.chauncy.data.mapper.activity.reduced.AmReducedMapper;
 import com.chauncy.data.mapper.activity.registration.AmActivityRelActivityGoodsMapper;
+import com.chauncy.data.mapper.activity.seckill.AmSeckillMapper;
+import com.chauncy.data.mapper.activity.spell.AmSpellGroupMapper;
 import com.chauncy.data.mapper.area.AreaRegionMapper;
 import com.chauncy.data.mapper.message.advice.MmAdviceMapper;
 import com.chauncy.data.mapper.message.content.MmArticleMapper;
@@ -125,6 +132,18 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     private AmActivityRelActivityGoodsMapper relActivityGoodsMapper;
 
     @Autowired
+    private AmReducedMapper reducedMapper;
+
+    @Autowired
+    private AmIntegralsMapper integralsMapper;
+
+    @Autowired
+    private AmSeckillMapper seckillMapper;
+
+    @Autowired
+    private AmSpellGroupMapper spellGroupMapper;
+
+    @Autowired
     private AmCouponMapper couponMapper;
 
     @Autowired
@@ -132,6 +151,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     @Autowired
     private MmAdviceMapper adviceMapper;
+
+    @Autowired
+    private UmUserFavoritesMapper userFavoritesMapper;
 
     @Autowired
     private PmAssociationGoodsMapper associationGoodsMapper;
@@ -207,9 +229,6 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     @Autowired
     private MmArticleMapper articleMapper;
-
-    @Autowired
-    private UmUserFavoritesMapper userFavoritesMapper;
 
     @Autowired
     private IPayUserRelationService payUserRelationService;
@@ -954,6 +973,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             ActivityTypeEnum activityTypeEnum = ActivityTypeEnum.getActivityTypeEnumById(relActivityGoodsPo.getActivityType());
             switch (activityTypeEnum) {
                 case REDUCED:
+                    AmReducedPo reducedPo = reducedMapper.selectById(relActivityGoodsPo.getActivityType());
 
                     break;
                 case INTEGRALS:
@@ -1429,6 +1449,59 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         });
 
         return searchGoodsBaseListVos;
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-09-29 20:17
+     * @Description //移动购物车商品至收藏夹
+     *
+     * @Update chauncy
+     *
+     * @param  goodsIds
+     * @return void
+     **/
+    @Override
+    public void removeToFavorites(Long... goodsIds) {
+
+        UmUserPo userPo = securityUtil.getAppCurrUser();
+        if (userPo == null) {
+            throw new ServiceException(ResultCode.FAIL, "您不是app用户！");
+        }
+
+        List<Long> goodsIdList = Arrays.asList(goodsIds);
+        if (!ListUtil.isListNullAndEmpty(goodsIdList)){
+            goodsIdList.forEach(a->{
+                //判断商品是否存在
+                if (goodsMapper.selectById(a) == null) {
+                    throw new ServiceException(ResultCode.NO_EXISTS, "数据库不存在该商品，请检查");
+                }
+                //查询是否收藏过,并发情况，锁住行
+                UmUserFavoritesPo userFavoritesPo = userFavoritesMapper.selectOne(new QueryWrapper<UmUserFavoritesPo>().lambda()
+                        .eq(UmUserFavoritesPo::getUserId, userPo.getId())
+                        .eq(UmUserFavoritesPo::getFavoritesId, a)
+                        .last("for update"));
+                if (userFavoritesPo == null) { //未收藏过
+
+                    userFavoritesPo = new UmUserFavoritesPo();
+                    userFavoritesPo.setCreateBy(userPo.getTrueName()).setUserId(userPo.getId())
+                            .setId(null).setFavoritesId(a)
+                            .setType(KeyWordTypeEnum.GOODS.getName()).setIsFavorites(true);
+                    userFavoritesMapper.insert(userFavoritesPo);
+                    //不用updateById  update a=a+1
+                    goodsMapper.addFavorites(a);
+
+                }else if (!userFavoritesPo.getIsFavorites()) { //收藏过且取消收藏再次收藏
+                    userFavoritesPo.setIsFavorites(true);
+                    userFavoritesMapper.updateById(userFavoritesPo);
+                    //不用updateById  update a=a+1
+                    goodsMapper.addFavorites(a);
+
+                }
+                //删除对应的购物车数据
+                mapper.deleteById(a);
+            });
+        }
     }
 
     /**

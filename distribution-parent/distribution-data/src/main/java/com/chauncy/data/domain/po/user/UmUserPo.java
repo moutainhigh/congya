@@ -150,6 +150,9 @@ public class UmUserPo implements Serializable {
     @ApiModelProperty(value = "会员等级")
     private Integer level;
 
+    @ApiModelProperty(value = "支付密码")
+    private String payPassword;
+
 
 
 

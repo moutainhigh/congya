@@ -21,5 +21,11 @@
     <sql id="Base_Column_List">
         id, create_by, create_time, update_by, update_time, del_flag, order_id, id_card, true_name, front_photo, back_photo
     </sql>
+    <select id="getVoById" resultType="com.chauncy.data.vo.app.order.cart.RealUserVo">
+             select `id` realUserId,1 status, `id_card`, `true_name`, `front_photo`, `back_photo`
+             from om_real_user
+             where id=#{id}
+
+    </select>
 
 </mapper>

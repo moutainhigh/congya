@@ -20,10 +20,12 @@ import com.chauncy.data.vo.app.advice.home.ShufflingVo;
 import com.chauncy.data.vo.app.advice.store.StoreCategoryDetailVo;
 import com.chauncy.data.vo.app.advice.store.StoreCategoryInfoVo;
 import com.chauncy.data.vo.app.goods.ActivityGoodsVo;
+import com.chauncy.data.vo.app.user.PersonalCenterPictureVo;
 import com.chauncy.data.vo.manage.message.advice.FindBaiHuoAdviceVo;
 import com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo;
 import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -345,4 +347,34 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
      * @return java.util.List<com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo>
      **/
     List<SearchGoodsBaseListVo> guessYourLike(String name);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-05 21:39
+     * @Description //获取个人中心顶部背景图
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return com.chauncy.data.vo.app.user.PersonalCenterPictureVo
+     **/
+    @Select("select a.id as advice_id,a.name as advice_name,a.picture as advice_picture,a.location " +
+            "from mm_advice a " +
+            "where a.location = 'PERSONAL_CENTER' and a.del_flag = 0 and a.enabled = 1")
+    PersonalCenterPictureVo getTopPicture();
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-05 21:39
+     * @Description //获取充值入口图片
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return com.chauncy.data.vo.app.user.PersonalCenterPictureVo
+     **/
+    @Select("select a.id as advice_id,a.name as advice_name,a.picture as advice_picture,a.location " +
+            "from mm_advice a " +
+            "where a.location = 'TOP_UP_ENTRY' and a.del_flag = 0 and a.enabled = 1")
+    PersonalCenterPictureVo getTopUpPicture();
 }

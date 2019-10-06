@@ -1,25 +1,20 @@
 package com.chauncy.web.api.app.user;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.log.AccountTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.enums.user.ValidCodeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.domain.po.user.UmUserPo;
-import com.chauncy.data.dto.app.user.add.AddAreaDto;
-import com.chauncy.data.dto.app.user.add.AddIdCardDto;
-import com.chauncy.data.dto.app.user.add.AddUserDto;
-import com.chauncy.data.dto.app.user.add.BindUserDto;
+import com.chauncy.data.dto.app.user.add.*;
 import com.chauncy.data.dto.app.user.select.SearchMyFriendDto;
 import com.chauncy.data.dto.app.user.update.UpdatePhoneDto;
 import com.chauncy.data.dto.app.user.update.UpdateUserDataDto;
 import com.chauncy.data.valid.group.ISaveGroup;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
-import com.chauncy.data.vo.app.user.MyDataStatisticsVo;
-import com.chauncy.data.vo.app.user.SearchMyFriendVo;
-import com.chauncy.data.vo.app.user.ShipAreaVo;
-import com.chauncy.data.vo.app.user.UserDataVo;
+import com.chauncy.data.vo.app.user.*;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.user.service.IUmAreaShippingService;
 import com.chauncy.user.service.IUmUserService;
@@ -229,6 +224,21 @@ public class UmUserDataApi extends BaseApi {
         return isTrue?setJsonViewData(ResultCode.SUCCESS):setJsonViewData(ResultCode.SUCCESS);
     }
 
+    @PostMapping("/updatePayPass")
+    @ApiOperation("设置与修改支付密码")
+    public JsonViewData updatePayPass( @RequestBody PayPasswordDto payPasswordDto){
+        UmUserPo appCurrUser = securityUtil.getAppCurrUser();
+        boolean isTrue = umUserService.validVerifyCode(payPasswordDto.getVerifyCode(), appCurrUser.getPhone()
+                , ValidCodeEnum.UPDATE_PAY_PASSWORD_CODE);
+        if (!isTrue){
+            return setJsonViewData(ResultCode.PARAM_ERROR,"验证码错误！");
+        }
+        UmUserPo updateUser=new UmUserPo();
+        updateUser.setId(appCurrUser.getId()).setPayPassword(payPasswordDto.getPassword());
+        umUserService.updateById(updateUser);
+        return setJsonViewData(ResultCode.SUCCESS);
+    }
+
     @PostMapping("/new_phone_check")
     @ApiOperation("新手机号码验证")
     public JsonViewData newphone(@Validated(IUpdateGroup.class) @RequestBody UpdatePhoneDto updatePhoneDto){
@@ -258,6 +268,21 @@ public class UmUserDataApi extends BaseApi {
             umUserService.updateById(updateUser);
         }
         return setJsonViewData(ResultCode.SUCCESS);
+    }
+
+    @PostMapping("/getNameByCode/{inviteCode}")
+    @ApiOperation("根据邀请码获取用户昵称 inviteCode:邀请码")
+    public JsonViewData<UserNickNameVo> getNameByCode(@PathVariable Long inviteCode){
+        QueryWrapper<UmUserPo> queryWrapper=new QueryWrapper<>();
+        queryWrapper.lambda().eq(UmUserPo::getInviteCode,inviteCode).select(UmUserPo::getName);
+        UmUserPo queryUser=umUserService.getOne(queryWrapper);
+        UserNickNameVo userNickNameVo=new UserNickNameVo();
+        if (queryUser==null){
+            return setJsonViewData(ResultCode.NO_EXISTS);
+        }
+        userNickNameVo.setName(queryUser.getName());
+        return setJsonViewData(userNickNameVo);
+
     }
 
 

@@ -626,7 +626,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                         //活动分组对应的轮播图
                        List<ActivityGroupShufflingVo> activityGroupShufflingVos = relShufflingMapper.findActivityGroupShuffling(b.getRelAdviceActivityGroupId());
                        activityGroupShufflingVos.forEach(d->{
-                           AdviceTypeEnum adviceTypeEnum = d.getAdviceType();
+                           AdviceTypeEnum adviceTypeEnum = AdviceTypeEnum.getAdviceTypeEnum(d.getAdviceType());
                            switch (adviceTypeEnum) {
                                case HTML_DETAIL:
                                    break;
@@ -662,7 +662,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                                     .eq(MmAdviceRelTabThingsPo::getAssociationId, c.getBrandId())).getId();
                             List<BrandShufflingVo> brandShufflingVos = relShufflingMapper.findShufflingList(relTabBrandId);
                             brandShufflingVos.forEach(d -> {
-                                AdviceTypeEnum adviceTypeEnum = d.getAdviceType();
+                                AdviceTypeEnum adviceTypeEnum = AdviceTypeEnum.getAdviceTypeEnum(d.getAdviceType());
                                 switch (adviceTypeEnum) {
                                     case HTML_DETAIL:
                                         break;
@@ -711,8 +711,6 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 case SALE_INSIDE_SHUFFLING:
                 case YOUXUAN_INSIDE_SHUFFLING:
                 case BAIHUO_INSIDE_SHUFFLING:
-                case PERSONAL_CENTER:
-                case TOP_UP_ENTRY:
                 case SPELL_GROUP_SHUFFLING:
                 case REDUCED_INSIDE_SHUFFLING:
                 case INTEGRALS_INSIDE_HUFFLING:
@@ -720,7 +718,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 case EXPERIENCE_PACKAGE:
                     List<FindShufflingVo> shufflingVoList = relShufflingMapper.findShuffling(a.getAdviceId());
                     shufflingVoList.forEach(b -> {
-                        AdviceTypeEnum adviceTypeEnum = b.getAdviceType();
+                        AdviceTypeEnum adviceTypeEnum = AdviceTypeEnum.getAdviceTypeEnum(b.getAdviceType());
                         switch (adviceTypeEnum) {
                             case HTML_DETAIL:
                                 break;
@@ -773,8 +771,10 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                     break;
                 /*******************推荐分类 葱鸭百货分类推荐/资讯分类推荐*********************/
 
-                /*******************充值入口+拼团鸭+优惠券+经验包+邀请包*********************/
+                /*******************充值入口+拼团鸭+优惠券+个人中心顶部*********************/
+                case TOP_UP_ENTRY:
                 case INVITATION:
+                case PERSONAL_CENTER:
                     break;
                 /*******************充值入口+拼团鸭+优惠券+经验包+邀请包*********************/
             }
@@ -879,11 +879,9 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 case SALE_INSIDE_SHUFFLING:
                 case YOUXUAN_INSIDE_SHUFFLING:
                 case BAIHUO_INSIDE_SHUFFLING:
-                case PERSONAL_CENTER:
                 case SPELL_GROUP_SHUFFLING:
                 case INTEGRALS_INSIDE_HUFFLING:
                 case REDUCED_INSIDE_SHUFFLING:
-                case TOP_UP_ENTRY:
                 case COUPON:
                 case EXPERIENCE_PACKAGE:
                     //删除该广告对应的轮播图
@@ -907,6 +905,8 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 
                 /*******************充值入口+拼团鸭+优惠券+经验包+邀请包*********************/
                 case INVITATION:
+                case PERSONAL_CENTER:
+                case TOP_UP_ENTRY:
                     break;
             }
 
@@ -917,7 +917,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
     }
 
     /**
-     * 保存充值入口+拼团鸭+优惠券+经验包+邀请包
+     * 保存充值入口+拼团鸭+拼团鸭广告+个人中心顶部背景图+邀请有礼
      *
      * @param saveOtherAdviceDto
      * @return

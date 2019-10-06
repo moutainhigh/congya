@@ -45,7 +45,7 @@ public class ActivityGroupShufflingVo {
 
     @ApiModelProperty(value = "广告类型：1-'图文详情',2-'资讯',3-'店铺',4-'商品'")
     @JSONField(ordinal = 14)
-    private AdviceTypeEnum adviceType;
+    private Integer adviceType;
 
     @ApiModelProperty(value = "广告类型为图文详情时的信息")
     @JSONField(ordinal = 15)
