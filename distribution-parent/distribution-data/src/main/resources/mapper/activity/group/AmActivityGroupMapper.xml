@@ -29,7 +29,7 @@
             and id = #{id}
         </if>
         <if test="name != null and name != ''">
-            and name concat like('%', #{id} ,'%')
+            and name like concat('%', #{name} ,'%')
         </if>
         <if test="enable != null">
             and enable = #{enable}
@@ -37,6 +37,7 @@
         <if test="type != null">
             and type = #{type}
         </if>
+        order by create_time desc
     </select>
 
 </mapper>
