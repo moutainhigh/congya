@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import javax.validation.constraints.Future;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -65,6 +66,7 @@ public class SaveSpellDto {
 
     @ApiModelProperty(value = "设置成团人数")
     @NotNull(message = "成团人数不能为空")
+    @Min(2)
     private Integer groupNum;
 
     @ApiModelProperty(value = "拼团优惠价格比例")
