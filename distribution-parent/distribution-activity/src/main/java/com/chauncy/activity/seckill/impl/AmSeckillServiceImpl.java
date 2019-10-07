@@ -98,7 +98,7 @@ public class AmSeckillServiceImpl extends AbstractService<AmSeckillMapper, AmSec
         if (activityStartTime.isBefore(registrationEndTime) || registrationEndTime.equals(activityStartTime)) {
             throw new ServiceException(ResultCode.FAIL, "活动开始时间不能小于报名结束时间");
         }
-        if (activityStartTime.toEpochSecond(ZoneOffset.of("+8"))-activityEndTime.toEpochSecond(ZoneOffset.of("+8"))>86400){
+        if (activityEndTime.toEpochSecond(ZoneOffset.of("+8"))-activityStartTime.toEpochSecond(ZoneOffset.of("+8"))>86400){
             throw new ServiceException(ResultCode.FAIL, "秒杀活动时间最长可设置24小时!");
         }
 
