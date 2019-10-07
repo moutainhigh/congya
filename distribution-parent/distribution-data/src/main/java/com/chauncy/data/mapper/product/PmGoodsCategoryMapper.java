@@ -8,12 +8,14 @@ import com.chauncy.data.dto.app.store.FindStoreCategoryDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.activity.SearchCategoryByActivityIdDto;
 import com.chauncy.data.dto.manage.good.select.SearchAttributeByNamePageDto;
+import com.chauncy.data.dto.manage.good.select.SearchThirdCategoryDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.manage.activity.SearchCategoryByActivityIdVo;
 import com.chauncy.data.vo.manage.product.GoodsCategoryTreeVo;
 import com.chauncy.data.vo.manage.product.SearchAttributeVo;
 import com.chauncy.data.vo.manage.product.SearchCategoryVo;
+import com.chauncy.data.vo.manage.product.SearchThirdCategoryVo;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
@@ -155,4 +157,28 @@ public interface PmGoodsCategoryMapper extends IBaseMapper<PmGoodsCategoryPo> {
      * @return
      */
     List<GoodsCategoryVo> findGoodsCategoryTree(Long adviceId);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-07 15:46
+     * @Description //联动查询所有二级以上的分类
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return java.util.List<com.chauncy.data.vo.manage.product.GoodsCategoryTreeVo>
+     **/
+    List<GoodsCategoryTreeVo> FindAllSecondCategory();
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-07 16:50
+     * @Description //条件分页查询所有第三级分类信息
+     *
+     * @Update chauncy
+     *
+     * @param  searchThirdCategoryDto
+     * @return java.util.List<com.chauncy.data.vo.manage.product.SearchThirdCategoryVo>
+     **/
+    List<SearchThirdCategoryVo> searchThirdCategory(SearchThirdCategoryDto searchThirdCategoryDto);
 }
