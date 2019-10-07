@@ -80,7 +80,7 @@ public class AmSpellGroupApi extends BaseApi {
      * @param saveSpellDto
      * @return
      */
-    @PostMapping("/saveSeckill")
+    @PostMapping("/saveSpell")
     @ApiOperation("保存拼团活动信息")
     public JsonViewData saveSpell(@RequestBody @ApiParam(required = true,name="saveSpellDto",value="保存拼团活动信息")
                                     @Validated SaveSpellDto saveSpellDto){
