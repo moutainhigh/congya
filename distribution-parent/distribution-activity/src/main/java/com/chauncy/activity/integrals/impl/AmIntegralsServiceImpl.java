@@ -13,6 +13,7 @@ import com.chauncy.data.domain.po.activity.AmActivityRelActivityCategoryPo;
 import com.chauncy.data.domain.po.activity.integrals.AmIntegralsPo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.dto.manage.activity.SearchActivityListDto;
 import com.chauncy.data.dto.manage.activity.SearchCategoryByActivityIdDto;
 import com.chauncy.data.dto.manage.activity.integrals.add.SaveIntegralsDto;
@@ -20,6 +21,7 @@ import com.chauncy.data.mapper.activity.AmActivityRelActivityCategoryMapper;
 import com.chauncy.data.mapper.activity.group.AmActivityGroupMapper;
 import com.chauncy.data.mapper.activity.integrals.AmIntegralsMapper;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
+import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.vo.manage.activity.SearchActivityListVo;
 import com.chauncy.data.vo.manage.activity.SearchCategoryByActivityIdVo;
 import com.chauncy.data.vo.manage.activity.SearchGoodsCategoryVo;
@@ -62,6 +64,9 @@ public class AmIntegralsServiceImpl extends AbstractService<AmIntegralsMapper, A
 
     @Autowired
     private AmActivityGroupMapper activityGroupMapper;
+
+    @Autowired
+    private PmMemberLevelMapper memberLevelMapper;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -137,12 +142,24 @@ public class AmIntegralsServiceImpl extends AbstractService<AmIntegralsMapper, A
         if (activityStartTime.isBefore(registrationEndTime) || registrationEndTime.equals(activityStartTime)){
             throw new ServiceException(ResultCode.FAIL,"活动开始时间不能小于报名结束时间");
         }
+        //可领取会员为全部会员操作
+        Long memberLevelId = 0L;
+        if (saveIntegralsDto.getMemberLevelId() == 0){
+            PmMemberLevelPo memberLevelPo = memberLevelMapper.selectOne(new QueryWrapper<PmMemberLevelPo>().lambda()
+                    .eq(PmMemberLevelPo::getLevel,1));
+            if (memberLevelPo != null){
+                memberLevelId = memberLevelPo.getId();
+            }
+        }else {
+            memberLevelId = saveIntegralsDto.getMemberLevelId();
+        }
         //新增操作
         if (saveIntegralsDto.getId() == 0){
             AmIntegralsPo integralsPo = new AmIntegralsPo();
             BeanUtils.copyProperties(saveIntegralsDto,integralsPo);
             integralsPo.setId(null);
             integralsPo.setCreateBy(userPo.getUsername());
+            integralsPo.setMemberLevelId(memberLevelId);
             mapper.insert(integralsPo);
             //保存积分活动与分类的信息
             if (!ListUtil.isListNullAndEmpty(categoryIds)){
@@ -161,6 +178,7 @@ public class AmIntegralsServiceImpl extends AbstractService<AmIntegralsMapper, A
             AmIntegralsPo integralsPo = mapper.selectById(saveIntegralsDto.getId());
             BeanUtils.copyProperties(saveIntegralsDto,integralsPo);
             integralsPo.setUpdateBy(userPo.getUsername());
+            integralsPo.setMemberLevelId(memberLevelId);
             mapper.updateById(integralsPo);
             List<AmActivityRelActivityCategoryPo> relActivityCategoryPos = relActivityCategoryMapper.selectList(new QueryWrapper<AmActivityRelActivityCategoryPo>().eq("activity_id",saveIntegralsDto.getId()));
             //删除关联

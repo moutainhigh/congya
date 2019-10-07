@@ -39,7 +39,7 @@ public class SaveIntegralsDto {
     @NotNull(message = "活动图片不能为空")
     private String picture;
 
-    @ApiModelProperty(value = "会员ID")
+    @ApiModelProperty(value = "会员ID,全部会员传0")
     @NotNull(message = "会员ID不能为空")
     private Long memberLevelId;
 
