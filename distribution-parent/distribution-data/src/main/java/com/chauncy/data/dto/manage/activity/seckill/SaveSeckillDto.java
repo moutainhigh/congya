@@ -83,12 +83,12 @@ public class SaveSeckillDto {
 
     @ApiModelProperty(value = "活动简介(用户端查看)")
     @JSONField(ordinal = 13)
-    @NotNull(message = "活动简介不能为空")
+//    @NotNull(message = "活动简介不能为空")
     private String activityIntroduction;
 
     @ApiModelProperty(value = "活动标题")
     @JSONField(ordinal = 11)
-    @NotNull(message = "活动标题不能为空")
+//    @NotNull(message = "活动标题不能为空")
     private String activityTitle;
 
     @ApiModelProperty(value = "促销规则,积分抵扣比例 ")

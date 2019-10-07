@@ -92,12 +92,12 @@ public class SaveReducedDto {
 
     @ApiModelProperty(value = "活动简介(用户端查看)")
     @JSONField(ordinal = 13)
-    @NotNull(message = "活动简介不能为空")
+//    @NotNull(message = "活动简介不能为空")
     private String activityIntroduction;
 
     @ApiModelProperty(value = "活动标题")
     @JSONField(ordinal = 11)
-    @NotNull(message = "活动标题不能为空")
+//    @NotNull(message = "活动标题不能为空")
     private String activityTitle;
 
     @ApiModelProperty(value = "活动副标题")
@@ -107,10 +107,10 @@ public class SaveReducedDto {
     @ApiModelProperty(value = "满减活动满金额条件")
     @JSONField(ordinal = 9)
     @NotNull(message = "满减活动满金额条件不能为空")
-    private String reductionFullMoney;
+    private BigDecimal reductionFullMoney;
 
     @ApiModelProperty(value = "满减活动减金额")
     @JSONField(ordinal = 10)
     @NotNull(message = "满减活动减金额不能为空")
-    private String reductionPostMoney;
+    private BigDecimal reductionPostMoney;
 }
