@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -96,6 +97,9 @@ public class AmSeckillServiceImpl extends AbstractService<AmSeckillMapper, AmSec
         }
         if (activityStartTime.isBefore(registrationEndTime) || registrationEndTime.equals(activityStartTime)) {
             throw new ServiceException(ResultCode.FAIL, "活动开始时间不能小于报名结束时间");
+        }
+        if (activityStartTime.toEpochSecond(ZoneOffset.of("+8"))-activityEndTime.toEpochSecond(ZoneOffset.of("+8"))>86400){
+            throw new ServiceException(ResultCode.FAIL, "秒杀活动时间最长可设置24小时!");
         }
 
         //可领取会员为全部会员操作

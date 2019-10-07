@@ -77,4 +77,8 @@ public class SaveSpellDto {
     @ApiModelProperty("绑定分类")
     @NotNull(message = "绑定分类不能为空")
     private List<Long> categoryIds;
+
+    @ApiModelProperty(value = "活动图片")
+    @NotNull(message = "活动图片不能为空")
+    private String picture;
 }

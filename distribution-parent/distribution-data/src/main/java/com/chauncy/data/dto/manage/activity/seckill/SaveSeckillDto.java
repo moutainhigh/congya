@@ -95,4 +95,8 @@ public class SaveSeckillDto {
     @NotNull(message = "积分抵扣比例不能为空")
     private BigDecimal discountPriceRatio;
 
+    @ApiModelProperty(value = "活动图片")
+    @NotNull(message = "活动图片不能为空")
+    private String picture;
+
 }
