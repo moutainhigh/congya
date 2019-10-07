@@ -213,6 +213,17 @@ public class AmIntegralsServiceImpl extends AbstractService<AmIntegralsMapper, A
         PageInfo<SearchActivityListVo> searchActivityListVoPageInfo = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
                 .doSelectPageInfo(() -> mapper.searchIntegralsList(searchActivityListDto));
         searchActivityListVoPageInfo.getList().forEach(a->{
+
+            //当可领取会员为全部会员时，memberLevelId返回0给前端
+            PmMemberLevelPo memberLevelPo = memberLevelMapper.selectById(a.getMemberLevelId());
+            Long memberLevelId = 0L;
+            if (memberLevelPo != null){
+                if (memberLevelPo.getLevel() != 1){
+                    memberLevelId = a.getMemberLevelId();
+                }
+            }
+            a.setMemberLevelId(memberLevelId);
+
             //分组名称
             String groupName = activityGroupMapper.selectById(a.getGroupId()).getName();
             a.setGroupName(groupName);
