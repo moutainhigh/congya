@@ -153,6 +153,7 @@ public class AmIntegralsServiceImpl extends AbstractService<AmIntegralsMapper, A
         }else {
             memberLevelId = saveIntegralsDto.getMemberLevelId();
         }
+
         //新增操作
         if (saveIntegralsDto.getId() == 0){
             AmIntegralsPo integralsPo = new AmIntegralsPo();

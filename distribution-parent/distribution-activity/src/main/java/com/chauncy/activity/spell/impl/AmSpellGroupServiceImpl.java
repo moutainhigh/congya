@@ -17,6 +17,7 @@ import com.chauncy.data.domain.po.activity.seckill.AmSeckillPo;
 import com.chauncy.data.domain.po.activity.spell.AmSpellGroupPo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.activity.SearchMySpellGroupDto;
 import com.chauncy.data.dto.app.activity.SearchSpellGroupInfoDto;
@@ -28,6 +29,7 @@ import com.chauncy.data.mapper.activity.registration.AmActivityRelActivityGoodsM
 import com.chauncy.data.mapper.activity.spell.AmSpellGroupMapper;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
+import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.activity.MySpellGroupVo;
 import com.chauncy.data.vo.app.activity.SpellGroupInfoVo;
@@ -73,6 +75,9 @@ public class AmSpellGroupServiceImpl extends AbstractService<AmSpellGroupMapper,
 
     @Autowired
     private PmGoodsCategoryMapper categoryMapper;
+
+    @Autowired
+    private PmMemberLevelMapper memberLevelMapper;
 
     @Autowired
     private AmActivityRelActivityCategoryMapper relActivityCategoryMapper;
@@ -251,12 +256,26 @@ public class AmSpellGroupServiceImpl extends AbstractService<AmSpellGroupMapper,
         if (activityStartTime.isBefore(registrationEndTime) || registrationEndTime.equals(activityStartTime)) {
             throw new ServiceException(ResultCode.FAIL, "活动开始时间不能小于报名结束时间");
         }
+
+        //可领取会员为全部会员操作
+        Long memberLevelId = 0L;
+        if (saveSpellDto.getMemberLevelId() == 0){
+            PmMemberLevelPo memberLevelPo = memberLevelMapper.selectOne(new QueryWrapper<PmMemberLevelPo>().lambda()
+                    .eq(PmMemberLevelPo::getLevel,1));
+            if (memberLevelPo != null){
+                memberLevelId = memberLevelPo.getId();
+            }
+        }else {
+            memberLevelId = saveSpellDto.getMemberLevelId();
+        }
+
         //新增操作
         if (saveSpellDto.getId() == 0) {
             AmSpellGroupPo spellGroupPo = new AmSpellGroupPo();
             BeanUtils.copyProperties(saveSpellDto, spellGroupPo);
             spellGroupPo.setId(null);
             spellGroupPo.setCreateBy(userPo.getUsername());
+            spellGroupPo.setMemberLevelId(memberLevelId);
             mapper.insert(spellGroupPo);
             //保存积分活动与分类的信息
             if (!ListUtil.isListNullAndEmpty(categoryIds)) {
@@ -275,6 +294,7 @@ public class AmSpellGroupServiceImpl extends AbstractService<AmSpellGroupMapper,
             AmSpellGroupPo spellGroupPo = mapper.selectById(saveSpellDto.getId());
             BeanUtils.copyProperties(saveSpellDto, spellGroupPo);
             spellGroupPo.setUpdateBy(userPo.getUsername());
+            spellGroupPo.setMemberLevelId(memberLevelId);
             mapper.updateById(spellGroupPo);
             List<AmActivityRelActivityCategoryPo> relActivityCategoryPos = relActivityCategoryMapper.selectList(new QueryWrapper<AmActivityRelActivityCategoryPo>().eq("activity_id", saveSpellDto.getId()));
             //删除关联
@@ -309,6 +329,16 @@ public class AmSpellGroupServiceImpl extends AbstractService<AmSpellGroupMapper,
         PageInfo<SearchActivityListVo> searchActivityListVoPageInfo = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
                 .doSelectPageInfo(() -> mapper.searchSpellList(searchActivityListDto));
         searchActivityListVoPageInfo.getList().forEach(a -> {
+            //当可领取会员为全部会员时，memberLevelId返回0给前端
+            PmMemberLevelPo memberLevelPo = memberLevelMapper.selectById(a.getMemberLevelId());
+            Long memberLevelId = 0L;
+            if (memberLevelPo != null){
+                if (memberLevelPo.getLevel() != 1){
+                    memberLevelId = a.getMemberLevelId();
+                }
+            }
+            a.setMemberLevelId(memberLevelId);
+
             //处理报名状态、活动状态
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime registrationStartTime = a.getRegistrationStartTime();

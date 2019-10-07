@@ -95,7 +95,7 @@ public class AmSpellGroupApi extends BaseApi {
      * @param searchActivityListDto
      * @return
      */
-    @ApiOperation("条件查询秒杀活动信息")
+    @ApiOperation("条件查询拼团活动信息")
     @PostMapping("/searchSpellList")
     public JsonViewData<PageInfo<SearchActivityListVo>> searchSpellList(@RequestBody @ApiParam(required = true,name="searchActivityListDto",value = "条件查询拼团活动信息")
                                                                           @Validated SearchActivityListDto searchActivityListDto){

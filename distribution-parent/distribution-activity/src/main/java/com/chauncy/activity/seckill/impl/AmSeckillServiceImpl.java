@@ -12,6 +12,7 @@ import com.chauncy.data.domain.po.activity.reduced.AmReducedPo;
 import com.chauncy.data.domain.po.activity.seckill.AmSeckillPo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.dto.manage.activity.SearchActivityListDto;
 import com.chauncy.data.dto.manage.activity.seckill.SaveSeckillDto;
 import com.chauncy.data.mapper.activity.AmActivityRelActivityCategoryMapper;
@@ -19,6 +20,7 @@ import com.chauncy.data.mapper.activity.group.AmActivityGroupMapper;
 import com.chauncy.data.mapper.activity.seckill.AmSeckillMapper;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
+import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.vo.manage.activity.SearchActivityListVo;
 import com.chauncy.data.vo.manage.activity.SearchGoodsCategoryVo;
 import com.chauncy.security.util.SecurityUtil;
@@ -54,6 +56,9 @@ public class AmSeckillServiceImpl extends AbstractService<AmSeckillMapper, AmSec
 
     @Autowired
     private PmGoodsCategoryMapper categoryMapper;
+
+    @Autowired
+    private PmMemberLevelMapper memberLevelMapper;
 
     @Autowired
     private AmActivityRelActivityCategoryMapper relActivityCategoryMapper;
@@ -92,12 +97,26 @@ public class AmSeckillServiceImpl extends AbstractService<AmSeckillMapper, AmSec
         if (activityStartTime.isBefore(registrationEndTime) || registrationEndTime.equals(activityStartTime)) {
             throw new ServiceException(ResultCode.FAIL, "活动开始时间不能小于报名结束时间");
         }
+
+        //可领取会员为全部会员操作
+        Long memberLevelId = 0L;
+        if (saveSeckillDto.getMemberLevelId() == 0){
+            PmMemberLevelPo memberLevelPo = memberLevelMapper.selectOne(new QueryWrapper<PmMemberLevelPo>().lambda()
+                    .eq(PmMemberLevelPo::getLevel,1));
+            if (memberLevelPo != null){
+                memberLevelId = memberLevelPo.getId();
+            }
+        }else {
+            memberLevelId = saveSeckillDto.getMemberLevelId();
+        }
+
         //新增操作
         if (saveSeckillDto.getId() == 0) {
             AmSeckillPo seckillPo = new AmSeckillPo();
             BeanUtils.copyProperties(saveSeckillDto, seckillPo);
             seckillPo.setId(null);
             seckillPo.setCreateBy(userPo.getUsername());
+            seckillPo.setMemberLevelId(memberLevelId);
             mapper.insert(seckillPo);
             //保存积分活动与分类的信息
             if (!ListUtil.isListNullAndEmpty(categoryIds)) {
@@ -116,6 +135,7 @@ public class AmSeckillServiceImpl extends AbstractService<AmSeckillMapper, AmSec
             AmSeckillPo seckillPo = mapper.selectById(saveSeckillDto.getId());
             BeanUtils.copyProperties(saveSeckillDto, seckillPo);
             seckillPo.setUpdateBy(userPo.getUsername());
+            seckillPo.setMemberLevelId(memberLevelId);
             mapper.updateById(seckillPo);
             List<AmActivityRelActivityCategoryPo> relActivityCategoryPos = relActivityCategoryMapper.selectList(new QueryWrapper<AmActivityRelActivityCategoryPo>().eq("activity_id", saveSeckillDto.getId()));
             //删除关联
@@ -150,6 +170,17 @@ public class AmSeckillServiceImpl extends AbstractService<AmSeckillMapper, AmSec
         PageInfo<SearchActivityListVo> searchActivityListVoPageInfo = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
                 .doSelectPageInfo(() -> mapper.searchSeckillList(searchActivityListDto));
         searchActivityListVoPageInfo.getList().forEach(a->{
+
+            //当可领取会员为全部会员时，memberLevelId返回0给前端
+            PmMemberLevelPo memberLevelPo = memberLevelMapper.selectById(a.getMemberLevelId());
+            Long memberLevelId = 0L;
+            if (memberLevelPo != null){
+                if (memberLevelPo.getLevel() != 1){
+                    memberLevelId = a.getMemberLevelId();
+                }
+            }
+            a.setMemberLevelId(memberLevelId);
+
             //处理报名状态、活动状态
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime registrationStartTime = a.getRegistrationStartTime();
