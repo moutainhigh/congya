@@ -3,6 +3,7 @@ package com.chauncy.activity.group.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.activity.group.IAmActivityGroupService;
+import com.chauncy.common.enums.app.activity.group.GroupTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.ListUtil;
@@ -87,6 +88,13 @@ public class AmActivityGroupServiceImpl extends AbstractService<AmActivityGroupM
 
         Integer pageNo = searchGroupDto.getPageNo()==null ? defaultPageNo : searchGroupDto.getPageNo();
         Integer pageSize = searchGroupDto.getPageSize()==null ? defaultPageSize : searchGroupDto.getPageSize();
+
+        if (searchGroupDto.getType() != null) {
+            GroupTypeEnum groupTypeEnum = GroupTypeEnum.getGroupTypeEnumById(searchGroupDto.getType());
+            if (groupTypeEnum == null){
+                throw new ServiceException(ResultCode.NO_EXISTS,String.format("GroupTypeEnum枚举类中不存在【type】为%s的枚举值,请检查",searchGroupDto.getType()));
+            }
+        }
 
         PageInfo<SearchActivityGroupVo> searchActivityGroupVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() ->mapper.search(searchGroupDto));

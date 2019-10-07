@@ -28,7 +28,7 @@
         <if test="id != null">
             and id = #{id}
         </if>
-        <if test="name != null name != ''">
+        <if test="name != null and name != ''">
             and name concat like('%', #{id} ,'%')
         </if>
         <if test="enable != null">

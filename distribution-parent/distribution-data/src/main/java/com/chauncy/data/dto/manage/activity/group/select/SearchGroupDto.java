@@ -30,7 +30,7 @@ public class SearchGroupDto {
     private Boolean enable;
 
     @ApiModelProperty("类型：1-满减 2-积分")
-    @EnumConstraint(target = GroupTypeEnum.class)
+//    @EnumConstraint(target = GroupTypeEnum.class)
     private Integer type;
 
     @Min(1)
