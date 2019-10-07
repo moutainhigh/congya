@@ -146,7 +146,7 @@ public class PmGoodsCategoryServiceImpl extends AbstractService<PmGoodsCategoryM
             String level2 = goodsCategoryPo2.getName();
             String level1 = categoryMapper.selectById(goodsCategoryPo2.getParentId()).getName();
 
-            String categoryName = level1 + "/" + level2 /*+ "/" + level3*/;
+            String categoryName = level1 + "/" + level2 + "/" + level3;
             a.setCategoryName(categoryName);
         });
 

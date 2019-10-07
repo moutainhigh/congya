@@ -22,6 +22,6 @@ public class SearchThirdCategoryDto extends BaseSearchPagingDto {
     private Long secondCategoryId;
 
     @ApiModelProperty(value = "分类名称")
-    private String categoryName;
+    private String name;
 
 }
