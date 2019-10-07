@@ -1,6 +1,5 @@
 package com.chauncy.message.advice;
 
-import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.message.advice.MmAdviceRelTabAssociationPo;
 import com.chauncy.data.dto.manage.message.advice.tab.association.add.SaveActivityGroupAdviceDto;
@@ -9,6 +8,7 @@ import com.chauncy.data.dto.manage.message.advice.tab.association.search.*;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.StoreVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGoodsVo;
+import com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGroupsVo;
 import com.github.pagehelper.PageInfo;
 
 /**
@@ -65,7 +65,7 @@ public interface IMmAdviceRelTabAssociationService extends Service<MmAdviceRelTa
      * @Param [searchActivityGroupDto]
      * @return java.lang.Object
      **/
-    PageInfo<BaseVo> searchActivityGroup(SearchActivityGroupDto searchActivityGroupDto);
+    PageInfo<SearchActivityGroupsVo> searchActivityGroup(SearchActivityGroupDto searchActivityGroupDto);
 
     /**
      * @Author chauncy

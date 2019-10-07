@@ -4,8 +4,8 @@ import com.chauncy.data.domain.po.activity.group.AmActivityGroupPo;
 import com.chauncy.data.dto.manage.activity.group.select.SearchGroupDto;
 import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchActivityGroupDto;
 import com.chauncy.data.mapper.IBaseMapper;
-import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.manage.activity.group.SearchActivityGroupVo;
+import com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGroupsVo;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -37,6 +37,6 @@ public interface AmActivityGroupMapper extends IBaseMapper<AmActivityGroupPo> {
      * @Param []
      * @return void
      **/
-    @Select("select id,picture as name from am_activity_group where del_flag = 0 and enable = 1 and type = #{groupType}")
-    List<BaseVo> searchActivityGroup(SearchActivityGroupDto searchActivityGroupDto);
+    @Select("select id,picture,name from am_activity_group where del_flag = 0 and enable = 1 and type = #{groupType}")
+    List<SearchActivityGroupsVo> searchActivityGroup(SearchActivityGroupDto searchActivityGroupDto);
 }

@@ -31,7 +31,7 @@ import com.chauncy.data.mapper.store.category.SmStoreCategoryMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.StoreVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGoodsVo;
-import com.chauncy.data.vo.manage.message.advice.tab.tab.SearchAdviceGoodsVo;
+import com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGroupsVo;
 import com.chauncy.message.advice.IMmAdviceRelTabAssociationService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
@@ -1579,13 +1579,13 @@ public class MmAdviceRelTabAssociationServiceImpl extends AbstractService<MmAdvi
      * @Param [searchActivityGroupDto]
      **/
     @Override
-    public PageInfo<BaseVo> searchActivityGroup(SearchActivityGroupDto searchActivityGroupDto) {
+    public PageInfo<SearchActivityGroupsVo> searchActivityGroup(SearchActivityGroupDto searchActivityGroupDto) {
         //TODO 此条件分页查询全部信息,前端选择数据的时候需要将已经关联的打钩上
 
         Integer pageNo = searchActivityGroupDto.getPageNo() == null ? defaultPageNo : searchActivityGroupDto.getPageNo();
         Integer pageSize = searchActivityGroupDto.getPageSize() == null ? defaultPageSize : searchActivityGroupDto.getPageSize();
 
-        PageInfo<BaseVo> activityGroups = PageHelper.startPage(pageNo, pageSize)
+        PageInfo<SearchActivityGroupsVo> activityGroups = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> activityGroupMapper.searchActivityGroup(searchActivityGroupDto));
 
         return activityGroups;
