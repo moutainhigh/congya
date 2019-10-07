@@ -37,6 +37,5 @@ public interface AmActivityGroupMapper extends IBaseMapper<AmActivityGroupPo> {
      * @Param []
      * @return void
      **/
-    @Select("select id,picture,name from am_activity_group where del_flag = 0 and enable = 1 and type = #{groupType}")
     List<SearchActivityGroupsVo> searchActivityGroup(SearchActivityGroupDto searchActivityGroupDto);
 }
