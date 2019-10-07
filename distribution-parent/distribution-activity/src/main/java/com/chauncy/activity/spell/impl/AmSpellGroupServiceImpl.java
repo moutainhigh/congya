@@ -271,6 +271,13 @@ public class AmSpellGroupServiceImpl extends AbstractService<AmSpellGroupMapper,
 
         //新增操作
         if (saveSpellDto.getId() == 0) {
+
+            if (saveSpellDto.getRegistrationStartTime().isBefore(LocalDateTime.now())) {
+                throw new ServiceException(ResultCode.FAIL, String.format("活动报名开始时间需要在当前时间之后"));
+            }
+            if (saveSpellDto.getActivityStartTime().isBefore(LocalDateTime.now())) {
+                throw new ServiceException(ResultCode.FAIL, String.format("活动开始时间需要在当前时间之后"));
+            }
             AmSpellGroupPo spellGroupPo = new AmSpellGroupPo();
             BeanUtils.copyProperties(saveSpellDto, spellGroupPo);
             spellGroupPo.setId(null);
@@ -292,6 +299,29 @@ public class AmSpellGroupServiceImpl extends AbstractService<AmSpellGroupMapper,
         //修改操作
         else {
             AmSpellGroupPo spellGroupPo = mapper.selectById(saveSpellDto.getId());
+
+            //判断是否修改开始时间和结束时间
+            LocalDateTime registrationStartTime1 =spellGroupPo.getRegistrationStartTime();
+            LocalDateTime registrationEndTime1 = spellGroupPo.getRegistrationEndTime();
+            LocalDateTime activityStartTime1 = spellGroupPo.getActivityStartTime();
+            LocalDateTime activityEndTime1 = spellGroupPo.getActivityEndTime();
+
+            if (!registrationStartTime.equals(registrationStartTime1)){
+                if (registrationStartTime.isBefore(LocalDateTime.now())) {
+                    throw new ServiceException(ResultCode.FAIL, String.format("活动报名开始时间需要在当前时间之后"));
+                }
+            }
+            if (!activityStartTime.equals(activityStartTime1)) {
+                if (activityStartTime.isBefore(LocalDateTime.now())) {
+                    throw new ServiceException(ResultCode.FAIL, String.format("活动开始时间需要在当前时间之后"));
+                }
+            }
+
+            //活动报名已开始则不能修改
+            if (spellGroupPo.getRegistrationStartTime().isBefore(LocalDateTime.now())){
+                throw new ServiceException(ResultCode.FAIL,"该活动报名已经开始，不能修改！");
+            }
+
             BeanUtils.copyProperties(saveSpellDto, spellGroupPo);
             spellGroupPo.setUpdateBy(userPo.getUsername());
             spellGroupPo.setMemberLevelId(memberLevelId);

@@ -40,25 +40,25 @@ public class SaveSpellDto {
     private Long memberLevelId;
 
     @ApiModelProperty(value = "报名开始时间")
-    @Future(message = "报名开始时间需要在当前时间之后")
+//    @Future(message = "报名开始时间需要在当前时间之后")
     @JSONField(ordinal = 5)
     @NotNull(message = "报名开始时间不能为空")
     private LocalDateTime registrationStartTime;
 
     @ApiModelProperty(value = "报名结束时间")
-    @Future(message = "报名结束时间需要在当前时间之后")
+//    @Future(message = "报名结束时间需要在当前时间之后")
     @JSONField(ordinal = 6)
     @NotNull(message = "报名结束时间不能为空")
     private LocalDateTime registrationEndTime;
 
     @ApiModelProperty(value = "活动开始时间")
-    @Future(message = "活动开始时间需要在当前时间之后")
+//    @Future(message = "活动开始时间需要在当前时间之后")
     @JSONField(ordinal = 7)
     @NotNull(message = "活动开始时间不能为空")
     private LocalDateTime activityStartTime;
 
     @ApiModelProperty(value = "活动结束时间")
-    @Future(message = "活动结束时间需要在当前时间之后")
+//    @Future(message = "活动结束时间需要在当前时间之后")
     @JSONField(ordinal = 8)
     @NotNull(message = "活动结束时间不能为空")
     private LocalDateTime activityEndTime;

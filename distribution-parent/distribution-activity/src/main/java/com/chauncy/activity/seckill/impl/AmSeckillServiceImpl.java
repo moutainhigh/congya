@@ -112,6 +112,14 @@ public class AmSeckillServiceImpl extends AbstractService<AmSeckillMapper, AmSec
 
         //新增操作
         if (saveSeckillDto.getId() == 0) {
+
+            if (saveSeckillDto.getRegistrationStartTime().isBefore(LocalDateTime.now())) {
+                throw new ServiceException(ResultCode.FAIL, String.format("活动报名开始时间需要在当前时间之后"));
+            }
+            if (saveSeckillDto.getActivityStartTime().isBefore(LocalDateTime.now())) {
+                throw new ServiceException(ResultCode.FAIL, String.format("活动开始时间需要在当前时间之后"));
+            }
+
             AmSeckillPo seckillPo = new AmSeckillPo();
             BeanUtils.copyProperties(saveSeckillDto, seckillPo);
             seckillPo.setId(null);
@@ -133,6 +141,29 @@ public class AmSeckillServiceImpl extends AbstractService<AmSeckillMapper, AmSec
         //修改操作
         else {
             AmSeckillPo seckillPo = mapper.selectById(saveSeckillDto.getId());
+
+            //判断是否修改开始时间和结束时间
+            LocalDateTime registrationStartTime1 =seckillPo.getRegistrationStartTime();
+            LocalDateTime registrationEndTime1 = seckillPo.getRegistrationEndTime();
+            LocalDateTime activityStartTime1 = seckillPo.getActivityStartTime();
+            LocalDateTime activityEndTime1 = seckillPo.getActivityEndTime();
+
+            if (!registrationStartTime.equals(registrationStartTime1)){
+                if (registrationStartTime.isBefore(LocalDateTime.now())) {
+                    throw new ServiceException(ResultCode.FAIL, String.format("活动报名开始时间需要在当前时间之后"));
+                }
+            }
+            if (!activityStartTime.equals(activityStartTime1)) {
+                if (activityStartTime.isBefore(LocalDateTime.now())) {
+                    throw new ServiceException(ResultCode.FAIL, String.format("活动开始时间需要在当前时间之后"));
+                }
+            }
+
+            //活动报名已开始则不能修改
+            if (seckillPo.getRegistrationStartTime().isBefore(LocalDateTime.now())){
+                throw new ServiceException(ResultCode.FAIL,"该活动报名已经开始，不能修改！");
+            }
+
             BeanUtils.copyProperties(saveSeckillDto, seckillPo);
             seckillPo.setUpdateBy(userPo.getUsername());
             seckillPo.setMemberLevelId(memberLevelId);

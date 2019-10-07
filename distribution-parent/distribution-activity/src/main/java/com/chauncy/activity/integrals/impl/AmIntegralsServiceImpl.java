@@ -129,6 +129,7 @@ public class AmIntegralsServiceImpl extends AbstractService<AmIntegralsMapper, A
             }
         });
         //时间判断
+
         LocalDateTime registrationStartTime = saveIntegralsDto.getRegistrationStartTime();
         LocalDateTime registrationEndTime = saveIntegralsDto.getRegistrationEndTime();
         LocalDateTime activityStartTime = saveIntegralsDto.getActivityStartTime();
@@ -156,6 +157,14 @@ public class AmIntegralsServiceImpl extends AbstractService<AmIntegralsMapper, A
 
         //新增操作
         if (saveIntegralsDto.getId() == 0){
+
+            if (saveIntegralsDto.getRegistrationStartTime().isBefore(LocalDateTime.now())) {
+                throw new ServiceException(ResultCode.FAIL, String.format("活动报名开始时间需要在当前时间之后"));
+            }
+            if (saveIntegralsDto.getActivityStartTime().isBefore(LocalDateTime.now())) {
+                throw new ServiceException(ResultCode.FAIL, String.format("活动开始时间需要在当前时间之后"));
+            }
+
             AmIntegralsPo integralsPo = new AmIntegralsPo();
             BeanUtils.copyProperties(saveIntegralsDto,integralsPo);
             integralsPo.setId(null);
@@ -177,6 +186,28 @@ public class AmIntegralsServiceImpl extends AbstractService<AmIntegralsMapper, A
         //修改操作
         else{
             AmIntegralsPo integralsPo = mapper.selectById(saveIntegralsDto.getId());
+
+            //判断是否修改开始时间和结束时间
+            LocalDateTime registrationStartTime1 =integralsPo.getRegistrationStartTime();
+            LocalDateTime registrationEndTime1 = integralsPo.getRegistrationEndTime();
+            LocalDateTime activityStartTime1 = integralsPo.getActivityStartTime();
+            LocalDateTime activityEndTime1 = integralsPo.getActivityEndTime();
+
+            if (!registrationStartTime.equals(registrationStartTime1)){
+                if (registrationStartTime.isBefore(LocalDateTime.now())) {
+                    throw new ServiceException(ResultCode.FAIL, String.format("活动报名开始时间需要在当前时间之后"));
+                }
+            }
+            if (!activityStartTime.equals(activityStartTime1)) {
+                if (activityStartTime.isBefore(LocalDateTime.now())) {
+                    throw new ServiceException(ResultCode.FAIL, String.format("活动开始时间需要在当前时间之后"));
+                }
+            }
+
+            //活动报名已开始则不能修改
+            if (integralsPo.getRegistrationStartTime().isBefore(LocalDateTime.now())){
+                throw new ServiceException(ResultCode.FAIL,"该活动报名已经开始，不能修改！");
+            }
             BeanUtils.copyProperties(saveIntegralsDto,integralsPo);
             integralsPo.setUpdateBy(userPo.getUsername());
             integralsPo.setMemberLevelId(memberLevelId);

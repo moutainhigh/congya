@@ -172,6 +172,13 @@ public class AmReducedServiceImpl extends AbstractService<AmReducedMapper, AmRed
 
         //新增操作
         if (saveReducedDto.getId() == 0) {
+
+            if (saveReducedDto.getRegistrationStartTime().isBefore(LocalDateTime.now())) {
+                throw new ServiceException(ResultCode.FAIL, String.format("活动报名开始时间需要在当前时间之后"));
+            }
+            if (saveReducedDto.getActivityStartTime().isBefore(LocalDateTime.now())) {
+                throw new ServiceException(ResultCode.FAIL, String.format("活动开始时间需要在当前时间之后"));
+            }
             AmReducedPo reducedPo = new AmReducedPo();
             BeanUtils.copyProperties(saveReducedDto, reducedPo);
             reducedPo.setId(null);
@@ -193,6 +200,29 @@ public class AmReducedServiceImpl extends AbstractService<AmReducedMapper, AmRed
         //修改操作
         else {
             AmReducedPo reducedPo = mapper.selectById(saveReducedDto.getId());
+
+            //判断是否修改开始时间和结束时间
+            LocalDateTime registrationStartTime1 =reducedPo.getRegistrationStartTime();
+            LocalDateTime registrationEndTime1 = reducedPo.getRegistrationEndTime();
+            LocalDateTime activityStartTime1 = reducedPo.getActivityStartTime();
+            LocalDateTime activityEndTime1 = reducedPo.getActivityEndTime();
+
+            if (!registrationStartTime.equals(registrationStartTime1)){
+                if (registrationStartTime.isBefore(LocalDateTime.now())) {
+                    throw new ServiceException(ResultCode.FAIL, String.format("活动报名开始时间需要在当前时间之后"));
+                }
+            }
+            if (!activityStartTime.equals(activityStartTime1)) {
+                if (activityStartTime.isBefore(LocalDateTime.now())) {
+                    throw new ServiceException(ResultCode.FAIL, String.format("活动开始时间需要在当前时间之后"));
+                }
+            }
+
+            //活动报名已开始则不能修改
+            if (reducedPo.getRegistrationStartTime().isBefore(LocalDateTime.now())){
+                throw new ServiceException(ResultCode.FAIL,"该活动报名已经开始，不能修改！");
+            }
+
             BeanUtils.copyProperties(saveReducedDto, reducedPo);
             reducedPo.setUpdateBy(userPo.getUsername());
             reducedPo.setMemberLevelId(memberLevelId);
