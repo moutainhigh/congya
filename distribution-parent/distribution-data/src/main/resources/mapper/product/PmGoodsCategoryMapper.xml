@@ -252,7 +252,7 @@ FROM
         (
         SELECT b.id,b.parent_id, b.`name`, b.icon,b.level
         FROM  mm_advice_rel_associaiton a,pm_goods_category b
-        WHERE a.del_flag =0 AND b.del_flag = 0 AND a.association_id = b.id AND a.advice_id = 1163808937901502466
+        WHERE a.del_flag =0 AND b.del_flag = 0 AND a.association_id = b.id AND a.advice_id = #{adviceId}
         UNION ALL
         SELECT c.id,c.parent_id, c.`name`, c.icon , c.`level`
         FROM parentIds AS p LEFT JOIN  pm_goods_category  AS c
