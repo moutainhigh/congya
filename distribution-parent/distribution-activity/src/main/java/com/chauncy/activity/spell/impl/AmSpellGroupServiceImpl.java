@@ -225,7 +225,7 @@ public class AmSpellGroupServiceImpl extends AbstractService<AmSpellGroupMapper,
     }
 
     /**
-     * 保存秒杀活动信息
+     * 保存拼团活动信息
      *
      * @param saveSpellDto
      * @return
@@ -394,7 +394,7 @@ public class AmSpellGroupServiceImpl extends AbstractService<AmSpellGroupMapper,
             }
             //活动中
             else if (activityStartTime.isBefore(now) && activityEndTime.isAfter(now)) {
-                a.setActivityStatus(ActivityStatusEnum.REGISTRATION.getName());
+                a.setActivityStatus(ActivityStatusEnum.ONGOING.getName());
             }
             //活动已结束
             else if (activityEndTime.isBefore(now)) {

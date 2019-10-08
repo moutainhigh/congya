@@ -83,4 +83,7 @@ public class SaveSpellDto {
     @ApiModelProperty(value = "活动图片")
     @NotNull(message = "活动图片不能为空")
     private String picture;
+
+    @ApiModelProperty(value = "活动说明(商家端查看)")
+    private String activityDescription;
 }

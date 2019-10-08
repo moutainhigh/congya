@@ -298,7 +298,7 @@ public class AmReducedServiceImpl extends AbstractService<AmReducedMapper, AmRed
             }
             //活动中
             else if (activityStartTime.isBefore(now) && activityEndTime.isAfter(now)){
-                a.setActivityStatus(ActivityStatusEnum.REGISTRATION.getName());
+                a.setActivityStatus(ActivityStatusEnum.ONGOING.getName());
             }
             //活动已结束
             else if(activityEndTime.isBefore(now)){

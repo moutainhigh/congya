@@ -102,6 +102,14 @@ public class AmSeckillServiceImpl extends AbstractService<AmSeckillMapper, AmSec
             throw new ServiceException(ResultCode.FAIL, "秒杀活动时间最长可设置24小时!");
         }
 
+        //判断活动开始时间和结束时间是否为整点
+        if (!(activityStartTime.getMinute() == 0 && activityStartTime.getSecond() == 0)){
+            throw new ServiceException(ResultCode.FAIL,"活动开始时间必须为整点!");
+        }
+        if (!(activityEndTime.getMinute() == 0 && activityEndTime.getSecond() == 0)){
+            throw new ServiceException(ResultCode.FAIL,"活动结束时间必须为整点!");
+        }
+
         //可领取会员为全部会员操作
         Long memberLevelId = 0L;
         if (saveSeckillDto.getMemberLevelId() == 0){
@@ -241,7 +249,7 @@ public class AmSeckillServiceImpl extends AbstractService<AmSeckillMapper, AmSec
             }
             //活动中
             else if (activityStartTime.isBefore(now) && activityEndTime.isAfter(now)){
-                a.setActivityStatus(ActivityStatusEnum.REGISTRATION.getName());
+                a.setActivityStatus(ActivityStatusEnum.ONGOING.getName());
             }
             //活动已结束
             else if(activityEndTime.isBefore(now)){
