@@ -106,6 +106,7 @@ public class RedisProperties {
         jedisPoolConfig.setTestWhileIdle(testWhileIdle);
         //是否进行有效性检查
         jedisPoolConfig.setTestOnReturn(true);
+        jedisPoolConfig.setMaxTotal(maxTotal);
 
         return jedisPoolConfig;
     }
