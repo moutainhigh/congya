@@ -165,7 +165,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
             if (RegistIM.getUser(saveUser.getId().toString()) == null) {
                 regUserBo.setPassword(Constants.PASSWORD);
                 regUserBo.setUsername(saveUser.getId().toString());
-                regUserBo.setNickname(saveUser.getName());
+                regUserBo.setNickname(saveUser.getPhone());
                 RegistIM.reg(regUserBo);
             }
         }

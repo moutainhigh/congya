@@ -209,6 +209,23 @@ public class SysUserApi {
         //手动删除缓存
         redisTemplate.delete("userRole::" + u.getId());
         redisTemplate.delete("userRole::depIds:" + u.getId());
+
+        //当用户修改昵称时修改环信账号昵称
+        SysUserPo sysUserPo = userService.getById(u.getId());
+        if (!sysUserPo.getNickName().equals(u.getNickName()) && u.getNickName() != null) {
+            //判断该用户是否已经注册过IM账号
+            if (RegistIM.getUser(u.getId()) != null) {
+                RegistIM.modifyIMUserNickName(u.getId(),u.getNickName());
+            }
+        }
+        if (RegistIM.getUser(u.getId()) == null) {
+            RegUserBo regUserBo = new RegUserBo();
+            regUserBo.setPassword(Constants.PASSWORD);
+            regUserBo.setUsername(sysUserPo.getId());
+            regUserBo.setNickname(sysUserPo.getNickName());
+            RegistIM.reg(regUserBo);
+        }
+
         return new JsonViewData(ResultCode.SUCCESS, "修改成功");
     }
 

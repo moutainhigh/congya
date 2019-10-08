@@ -58,15 +58,37 @@ public class RegistIM {
     public static Object reg(RegUserBo regUser){
         RegisterUsers registerUsers = new RegisterUsers();
         User p = new User().username(regUser.getUsername()).password(regUser.getPassword());
-        Nickname nickname = new Nickname().nickname(regUser.getNickname());
+        Nickname nickName = new Nickname().nickname(regUser.getNickname());
 
         registerUsers.add(p);
         Object result = easemobIMUsers.createNewIMUserSingle(registerUsers);
 
+        Object nickNameResult = easemobIMUsers.modifyIMUserNickNameWithAdminToken(regUser.getUsername(),nickName);
+
         System.out.println(JSONUtils.toJSONObject(result));
+        System.out.println(JSONUtils.toJSONObject(nickNameResult));
 
         return result;
     }
 
+    /**
+     * @Author chauncy
+     * @Date 2019-10-08 14:03
+     * @Description //更新用户昵称
+     *
+     * @Update chauncy
+     *
+     * @param  nickName 昵称
+     * @param  IMAccount IM账号
+     * @return
+     **/
+    public static Object modifyIMUserNickName(String IMAccount,String nickName){
 
+        Nickname alias = new Nickname().nickname(nickName);
+        Object nickNameResult = easemobIMUsers.modifyIMUserNickNameWithAdminToken(IMAccount,nickName);
+
+        System.out.println(JSONUtils.toJSONObject(nickNameResult));
+
+        return nickNameResult;
+    }
 }
