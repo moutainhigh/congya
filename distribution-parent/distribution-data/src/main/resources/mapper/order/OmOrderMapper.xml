@@ -3,6 +3,17 @@
 <mapper namespace="com.chauncy.data.mapper.order.OmOrderMapper">
 
 
+    <select id="getShipAreaByOrderId" resultType="com.chauncy.data.vo.app.activity.spell.SpellGroupAreaVo">
+        SELECT po.ship_name,
+            po.`phone`,
+            po.`ship_address`,
+            po.`area_name`
+        FROM om_order oo
+        INNER JOIN pay_order po
+        ON po.id = oo.`pay_order_id`
+        WHERE oo.id = #{orderId}
+    </select>
+
     <select id="search" resultType="com.chauncy.data.vo.manage.order.list.SearchOrderVo">
         SELECT
         o.id orderId,s.id storeId,s.`name` storeName,u.`name`,u.phone,o.total_number,o.total_money,o.total_money

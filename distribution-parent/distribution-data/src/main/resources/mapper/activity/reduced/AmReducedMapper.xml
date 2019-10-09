@@ -55,7 +55,7 @@
             ON temp.parent_id = pgc.id
             WHERE pgc.del_flag=0
         )
-        SELECT id,`name` FROM parentIds WHERE `level` = 1
+        SELECT DISTINCT id,`name` FROM parentIds WHERE `level` = 1
     </select>
 
     <select id="searchReducedGoods" resultType="com.chauncy.data.vo.app.goods.ActivityGoodsVo">

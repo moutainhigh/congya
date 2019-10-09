@@ -24,7 +24,7 @@ public class SearchSpellGroupGoodsDto   extends BasePageDto implements Serializa
     private static final long serialVersionUID = 1L;
 
     @Min(value = 1, message = "categoryId参数错误，不能为0")
-    @ApiModelProperty(value = "商品分类id   \n")
+    @ApiModelProperty(value = "商品分类id，选择全部不传参数    \n")
     private Long categoryId;
 
     @JsonIgnore
