@@ -89,6 +89,22 @@ public class WxServiceImpl implements IWxService {
     private IOmAfterSaleOrderService omAfterSaleOrderService;
 
     /**
+     * @Author yeJH
+     * @Date 2019/10/9 20:40
+     * @Description 海外直邮的商品下单之后 微信自助清关 将订单附加信息提交到海关
+     * https://pay.weixin.qq.com/wiki/doc/api/external/declarecustom.php?chapter=18_1
+     *
+     * @Update yeJH
+     *
+     * @param  orderId
+     * @return void
+     **/
+    @Override
+    public void customDeclareOrder(Long orderId) {
+
+    }
+
+    /**
      * 调用官方SDK统一下单 获取前端调起支付接口的参数
      * @return
      * @throws Exception
