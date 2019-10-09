@@ -480,89 +480,93 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
         Integer pageSize = searchDetailAssociationsDto.getPageSize() == null ? defaultPageSize : searchDetailAssociationsDto.getPageSize();
 
         AmCouponPo couponPo = mapper.selectById(searchDetailAssociationsDto.getId());
-        CouponFormEnum couponFormEnum = CouponFormEnum.getCouponFormEnumById(couponPo.getType());
-        CouponScopeEnum couponScopeEnum = CouponScopeEnum.getCouponScopeEnumById(couponPo.getScope());
-        PageInfo<SearchDetailAssociationsVo> searchDetailAssociationsVoPageInfo = new PageInfo<>();
-        //获取优惠形式 type 1-满减 2-固定折扣 3-包邮
-        switch (couponFormEnum) {
-            case WITH_PREFERENTIAL_REDUCTION://满减
-            case FIXED_DISCOUNT://固定折扣
-                switch (couponScopeEnum) {
-                    case ALL_GOODS:
-                        break;
-                    case SPECIFIED_CATEGORY:
-                        break;
-                    //指定商品
-                    case SPECIFIED_GOODS:
-                        searchDetailAssociationsVoPageInfo = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
-                                .doSelectPageInfo(() -> mapper.searchDetailGoods(searchDetailAssociationsDto));
-                        if (ListUtil.isListNullAndEmpty(searchDetailAssociationsVoPageInfo.getList())) {
-                            return new PageInfo<>();
-                        }
-                        searchDetailAssociationsVoPageInfo.getList().forEach(b -> {
-                            PmGoodsCategoryPo goodsCategoryPo = categoryMapper.selectById(b.getGoodsCategoryId());
-                            String level3 = goodsCategoryPo.getName();
-                            PmGoodsCategoryPo goodsCategoryPo2 = categoryMapper.selectById(goodsCategoryPo.getParentId());
-                            String level2 = goodsCategoryPo2.getName();
-                            String level1 = categoryMapper.selectById(goodsCategoryPo2.getParentId()).getName();
-                            String categoryName = level1 + "/" + level2 + "/" + level3;
-                            b.setCategoryName(categoryName);
-                        });
-                        return searchDetailAssociationsVoPageInfo;
-                }
-                break;
-            //包邮
-            case PACKAGE_MAIL:
-                switch (couponScopeEnum) {
-                    //所有商品
-                    case ALL_GOODS:
-                        break;
-                    //指定分类
-                    case SPECIFIED_CATEGORY:
-                        searchDetailAssociationsVoPageInfo = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
-                                .doSelectPageInfo(() -> mapper.searchDetailCategory(searchDetailAssociationsDto));
-                        if (ListUtil.isListNullAndEmpty(searchDetailAssociationsVoPageInfo.getList())) {
-                            return new PageInfo<>();
-                        }
-                        searchDetailAssociationsVoPageInfo.getList().forEach(a -> {
-                            PmGoodsCategoryPo goodsCategoryPo = categoryMapper.selectById(a.getId());
-                            if (a.getLevel() == 1) {
-                                a.setCategoryName(goodsCategoryPo.getName().toString());
-                            } else if (a.getLevel() == 2) {
-                                String level2 = goodsCategoryPo.getName();
-                                String level1 = categoryMapper.selectById(goodsCategoryPo.getParentId()).getName();
-                                String categoryName = level1 + "/" + level2;
-                                a.setCategoryName(categoryName);
-                            } else if (a.getLevel() == 3) {
+        if (couponPo == null){
+            return new PageInfo<>();
+        }else {
+            CouponFormEnum couponFormEnum = CouponFormEnum.getCouponFormEnumById(couponPo.getType());
+            CouponScopeEnum couponScopeEnum = CouponScopeEnum.getCouponScopeEnumById(couponPo.getScope());
+            PageInfo<SearchDetailAssociationsVo> searchDetailAssociationsVoPageInfo = new PageInfo<>();
+            //获取优惠形式 type 1-满减 2-固定折扣 3-包邮
+            switch (couponFormEnum) {
+                case WITH_PREFERENTIAL_REDUCTION://满减
+                case FIXED_DISCOUNT://固定折扣
+                    switch (couponScopeEnum) {
+                        case ALL_GOODS:
+                            break;
+                        case SPECIFIED_CATEGORY:
+                            break;
+                        //指定商品
+                        case SPECIFIED_GOODS:
+                            searchDetailAssociationsVoPageInfo = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
+                                    .doSelectPageInfo(() -> mapper.searchDetailGoods(searchDetailAssociationsDto));
+                            if (ListUtil.isListNullAndEmpty(searchDetailAssociationsVoPageInfo.getList())) {
+                                return new PageInfo<>();
+                            }
+                            searchDetailAssociationsVoPageInfo.getList().forEach(b -> {
+                                PmGoodsCategoryPo goodsCategoryPo = categoryMapper.selectById(b.getGoodsCategoryId());
                                 String level3 = goodsCategoryPo.getName();
                                 PmGoodsCategoryPo goodsCategoryPo2 = categoryMapper.selectById(goodsCategoryPo.getParentId());
                                 String level2 = goodsCategoryPo2.getName();
                                 String level1 = categoryMapper.selectById(goodsCategoryPo2.getParentId()).getName();
                                 String categoryName = level1 + "/" + level2 + "/" + level3;
-                                a.setCategoryName(categoryName);
+                                b.setCategoryName(categoryName);
+                            });
+                            return searchDetailAssociationsVoPageInfo;
+                    }
+                    break;
+                //包邮
+                case PACKAGE_MAIL:
+                    switch (couponScopeEnum) {
+                        //所有商品
+                        case ALL_GOODS:
+                            break;
+                        //指定分类
+                        case SPECIFIED_CATEGORY:
+                            searchDetailAssociationsVoPageInfo = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
+                                    .doSelectPageInfo(() -> mapper.searchDetailCategory(searchDetailAssociationsDto));
+                            if (ListUtil.isListNullAndEmpty(searchDetailAssociationsVoPageInfo.getList())) {
+                                return new PageInfo<>();
                             }
-                        });
-                        return searchDetailAssociationsVoPageInfo;
+                            searchDetailAssociationsVoPageInfo.getList().forEach(a -> {
+                                PmGoodsCategoryPo goodsCategoryPo = categoryMapper.selectById(a.getId());
+                                if (a.getLevel() == 1) {
+                                    a.setCategoryName(goodsCategoryPo.getName().toString());
+                                } else if (a.getLevel() == 2) {
+                                    String level2 = goodsCategoryPo.getName();
+                                    String level1 = categoryMapper.selectById(goodsCategoryPo.getParentId()).getName();
+                                    String categoryName = level1 + "/" + level2;
+                                    a.setCategoryName(categoryName);
+                                } else if (a.getLevel() == 3) {
+                                    String level3 = goodsCategoryPo.getName();
+                                    PmGoodsCategoryPo goodsCategoryPo2 = categoryMapper.selectById(goodsCategoryPo.getParentId());
+                                    String level2 = goodsCategoryPo2.getName();
+                                    String level1 = categoryMapper.selectById(goodsCategoryPo2.getParentId()).getName();
+                                    String categoryName = level1 + "/" + level2 + "/" + level3;
+                                    a.setCategoryName(categoryName);
+                                }
+                            });
+                            return searchDetailAssociationsVoPageInfo;
 
-                    //指定商品
-                    case SPECIFIED_GOODS:
-                        searchDetailAssociationsVoPageInfo = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
-                                .doSelectPageInfo(() -> mapper.searchDetailGoods(searchDetailAssociationsDto));
-                        if (ListUtil.isListNullAndEmpty(searchDetailAssociationsVoPageInfo.getList())) {
-                            return new PageInfo<>();
-                        }
-                        searchDetailAssociationsVoPageInfo.getList().forEach(b -> {
-                            PmGoodsCategoryPo goodsCategoryPo = categoryMapper.selectById(b.getGoodsCategoryId());
-                            String level3 = goodsCategoryPo.getName();
-                            PmGoodsCategoryPo goodsCategoryPo2 = categoryMapper.selectById(goodsCategoryPo.getParentId());
-                            String level2 = goodsCategoryPo2.getName();
-                            String level1 = categoryMapper.selectById(goodsCategoryPo2.getParentId()).getName();
-                            String categoryName = level1 + "/" + level2 + "/" + level3;
-                            b.setCategoryName(categoryName);
-                        });
-                        return searchDetailAssociationsVoPageInfo;
-                }
-                break;
+                        //指定商品
+                        case SPECIFIED_GOODS:
+                            searchDetailAssociationsVoPageInfo = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
+                                    .doSelectPageInfo(() -> mapper.searchDetailGoods(searchDetailAssociationsDto));
+                            if (ListUtil.isListNullAndEmpty(searchDetailAssociationsVoPageInfo.getList())) {
+                                return new PageInfo<>();
+                            }
+                            searchDetailAssociationsVoPageInfo.getList().forEach(b -> {
+                                PmGoodsCategoryPo goodsCategoryPo = categoryMapper.selectById(b.getGoodsCategoryId());
+                                String level3 = goodsCategoryPo.getName();
+                                PmGoodsCategoryPo goodsCategoryPo2 = categoryMapper.selectById(goodsCategoryPo.getParentId());
+                                String level2 = goodsCategoryPo2.getName();
+                                String level1 = categoryMapper.selectById(goodsCategoryPo2.getParentId()).getName();
+                                String categoryName = level1 + "/" + level2 + "/" + level3;
+                                b.setCategoryName(categoryName);
+                            });
+                            return searchDetailAssociationsVoPageInfo;
+                    }
+                    break;
+            }
         }
         //获取优惠券添加商品指定范围 scope 1-所有商品 2-指定分类 3-指定商品
 
@@ -580,11 +584,11 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
 
         List<Long> goodsIds = Lists.newArrayList();
         AmCouponPo amCouponPo = mapper.selectById(findGoodsBaseByConditionDto.getCouponId());
-        if (amCouponPo.getScope() == CouponScopeEnum.SPECIFIED_GOODS.getId()) {
-            List<AmCouponRelCouponGoodsPo> relCouponGoodsPos = relCouponGoodsMapper.selectList(new QueryWrapper<AmCouponRelCouponGoodsPo>().eq("coupon_id", findGoodsBaseByConditionDto.getCouponId()));
-            goodsIds = relCouponGoodsPos.stream().map(b -> b.getAssociationId()).collect(Collectors.toList());
-        } else {
-            goodsIds = Lists.newArrayList();
+        if (amCouponPo != null) {
+            if (amCouponPo.getScope() == CouponScopeEnum.SPECIFIED_GOODS.getId()) {
+                List<AmCouponRelCouponGoodsPo> relCouponGoodsPos = relCouponGoodsMapper.selectList(new QueryWrapper<AmCouponRelCouponGoodsPo>().eq("coupon_id", findGoodsBaseByConditionDto.getCouponId()));
+                goodsIds = relCouponGoodsPos.stream().map(b -> b.getAssociationId()).collect(Collectors.toList());
+            }
         }
         List<Long> finalGoodsIds = goodsIds;
         Integer pageNo = findGoodsBaseByConditionDto.getPageNo() == null ? defaultPageNo : findGoodsBaseByConditionDto.getPageNo();

@@ -77,7 +77,7 @@ public enum AdviceLocationEnum implements BaseEnum {
 
     BAIHUO_INSIDE_SHUFFLING(15,"葱鸭百货内部轮播图"),
 
-    PERSONAL_CENTER(16,"个人中心顶部"),
+    PERSONAL_CENTER(16,"个人中心顶部背景图"),
 
     PERSONAL_CENTER_MIDDLE_SHUFFLING(31,"个人中心中部轮播图"),
 
@@ -106,7 +106,9 @@ public enum AdviceLocationEnum implements BaseEnum {
 
     EXPERIENCE_PACKAGE(24,"经验包"),
 
-    INVITATION(25,"邀请有礼");
+    INVITATION(25,"邀请有礼"),
+
+    BAIHUO_MIDDLE(32,"百货中部广告");
 
     private Integer id;
 

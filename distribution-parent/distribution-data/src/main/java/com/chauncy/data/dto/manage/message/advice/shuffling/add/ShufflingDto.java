@@ -26,14 +26,14 @@ public class ShufflingDto {
     private Long shufflingId;
 
     @ApiModelProperty(value = "开始时间")
-    @Future(message = "开始时间需要在当前时间之后")
+//    @Future(message = "开始时间需要在当前时间之后")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @NotNull(message = "开始时间不能为空")
     private LocalDateTime startTime;
 
     @ApiModelProperty(value = "结束时间")
-    @Future(message = "结束时间需要在当前时间之后")
+//    @Future(message = "结束时间需要在当前时间之后")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 //    @JSONField(format = "yyyy-MM-dd HH:mm:ss")

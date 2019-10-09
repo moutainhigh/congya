@@ -1,5 +1,7 @@
 package com.chauncy.product.service.impl;
 
+import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.TreeUtil;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.BaseTree;
@@ -7,11 +9,15 @@ import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.dto.app.advice.category.select.GoodsCategoryVo;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.SearchAttributeByNamePageDto;
+import com.chauncy.data.dto.manage.good.select.SearchThirdCategoryDto;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.vo.manage.product.GoodsCategoryTreeVo;
 import com.chauncy.data.vo.manage.product.SearchAttributeVo;
 import com.chauncy.data.vo.manage.product.SearchCategoryVo;
+import com.chauncy.data.vo.manage.product.SearchThirdCategoryVo;
 import com.chauncy.product.service.IPmGoodsCategoryService;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,5 +100,56 @@ public class PmGoodsCategoryServiceImpl extends AbstractService<PmGoodsCategoryM
             log.error(e.getLocalizedMessage());
         }
         return goodsCategoryVoList;
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-07 15:46
+     * @Description //联动查询所有二级分类
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return java.util.List<com.chauncy.data.vo.manage.product.GoodsCategoryTreeVo>
+     **/
+    @Override
+    public List<GoodsCategoryTreeVo> FindAllSecondCategory() {
+        return categoryMapper.FindAllSecondCategory();
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-07 16:39
+     * @Description //条件分页查询所有第三级分类信息
+     *
+     * @Update chauncy
+     *
+     * @param  searchThirdCategoryDto
+     * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.manage.product.SearchThirdCategoryVo>
+     **/
+    @Override
+    public PageInfo<SearchThirdCategoryVo> searchThirdCategory(SearchThirdCategoryDto searchThirdCategoryDto) {
+
+        Integer pageNo=searchThirdCategoryDto.getPageNo()==null?defaultPageNo:searchThirdCategoryDto.getPageNo();
+        Integer pageSize=searchThirdCategoryDto.getPageSize()==null?defaultPageSize:searchThirdCategoryDto.getPageSize();
+
+        PageInfo<SearchThirdCategoryVo> pageInfo = PageHelper.startPage(pageNo,pageSize)
+                .doSelectPageInfo(()->categoryMapper.searchThirdCategory(searchThirdCategoryDto));
+
+        pageInfo.getList().stream().forEach(a->{
+            PmGoodsCategoryPo goodsCategoryPo = categoryMapper.selectById(a.getId());
+            if (goodsCategoryPo == null){
+                throw new ServiceException(ResultCode.NO_EXISTS,String.format("数据库不存在该分类ID:[%s]",a.getId()));
+            }
+            String level3 = goodsCategoryPo.getName();
+            PmGoodsCategoryPo goodsCategoryPo2 = categoryMapper.selectById(goodsCategoryPo.getParentId());
+            String level2 = goodsCategoryPo2.getName();
+            String level1 = categoryMapper.selectById(goodsCategoryPo2.getParentId()).getName();
+
+            String categoryName = level1 + "/" + level2 + "/" + level3;
+            a.setCategoryName(categoryName);
+        });
+
+        return pageInfo;
     }
 }

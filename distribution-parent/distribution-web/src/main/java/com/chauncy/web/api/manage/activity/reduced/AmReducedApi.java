@@ -51,7 +51,7 @@ public class AmReducedApi extends BaseApi {
      * @param searchCategoryByActivityIdDto
      * @return
      */
-    @PostMapping("/searchCategory")
+//    @PostMapping("/searchCategory")
     @ApiOperation("获取分类信息")
     public JsonViewData<SearchCategoryByActivityIdVo> searchCategory(@RequestBody @ApiParam(required = true, name = "searchCategoryByActivityIdDto", value = "分类列表查询条件")
                                                                      @Validated SearchCategoryByActivityIdDto searchCategoryByActivityIdDto) {
@@ -69,7 +69,7 @@ public class AmReducedApi extends BaseApi {
      * 获取全部会员ID和名称
      * @return
      */
-    @ApiOperation("获取全部会员ID和名称")
+//    @ApiOperation("获取全部会员ID和名称")
     @GetMapping("/findAllMemberLevel")
     public JsonViewData<List<MemberLevelInfos>> findAllMemberLevel(){
 
@@ -80,7 +80,7 @@ public class AmReducedApi extends BaseApi {
      * 获取全部可用的分组
      * @return
      */
-    @ApiOperation("获取全部可用的分组")
+//    @ApiOperation("获取全部可用的分组")
     @GetMapping("/findAllActivityGroup")
     public JsonViewData<List<FindActivityGroupsVo>> findAllActivityGroup(){
 

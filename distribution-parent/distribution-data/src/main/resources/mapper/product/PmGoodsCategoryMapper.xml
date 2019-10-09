@@ -252,7 +252,7 @@ FROM
         (
         SELECT b.id,b.parent_id, b.`name`, b.icon,b.level
         FROM  mm_advice_rel_associaiton a,pm_goods_category b
-        WHERE a.del_flag =0 AND b.del_flag = 0 AND a.association_id = b.id AND a.advice_id = 1163808937901502466
+        WHERE a.del_flag =0 AND b.del_flag = 0 AND a.association_id = b.id AND a.advice_id = #{adviceId}
         UNION ALL
         SELECT c.id,c.parent_id, c.`name`, c.icon , c.`level`
         FROM parentIds AS p LEFT JOIN  pm_goods_category  AS c
@@ -260,5 +260,21 @@ FROM
         WHERE c.del_flag=0
         )
         SELECT id,parent_id, `name`, icon, `level` FROM parentIds) AS temp
+	</select>
+	<select id="FindAllSecondCategory" resultType="com.chauncy.data.vo.manage.product.GoodsCategoryTreeVo">
+		select id as value,parent_id,name label
+		from pm_goods_category
+		where del_flag=0 and enabled=1 and level = 2
+	</select>
+	<select id="searchThirdCategory" resultType="com.chauncy.data.vo.manage.product.SearchThirdCategoryVo">
+		select id,name
+		from pm_goods_category
+		where del_flag = 0 and enabled = 1 and level = 3
+		<if test="name != null and name != ''">
+			and name like concat('%',#{name},'%')
+		</if>
+		<if test="secondCategoryId != null">
+			and parent_id = #{secondCategoryId}
+		</if>
 	</select>
 </mapper>

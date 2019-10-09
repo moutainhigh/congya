@@ -107,7 +107,7 @@
         select a.id as goods_id,a.name as goods_name,b.id as category_id
         from pm_goods as a,pm_goods_category b
         <where>
-            a.del_flag = 0 and b.del_flag=0 and a.goods_category_id = b.id and b.`level`=3
+            a.del_flag = 0 and b.del_flag=0 and a.publish_status = 1 and a.goods_category_id = b.id and b.`level`=3
             <if test="ids !=null">
             and a.id not in
             <foreach collection="ids" close=")" open="(" separator="," item="id">

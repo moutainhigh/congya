@@ -171,7 +171,7 @@
 
     <select id="searchSpellList" resultType="com.chauncy.data.vo.manage.activity.SearchActivityListVo">
         select a.*,c.level_name as member_name
-        from am_seckill a,pm_member_level c
+        from am_spell_group a,pm_member_level c
         where a.del_flag = 0 and a.member_level_id = c.id
         <if test="id != null">
             and a.id = #{id}

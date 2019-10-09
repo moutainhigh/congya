@@ -104,8 +104,9 @@ public class RedisProperties {
         jedisPoolConfig.setTestOnBorrow(testOnBorrow);
         // 在空闲时检查有效性, 默认false
         jedisPoolConfig.setTestWhileIdle(testWhileIdle);
-
+        //是否进行有效性检查
         jedisPoolConfig.setTestOnReturn(true);
+        jedisPoolConfig.setMaxTotal(maxTotal);
 
         return jedisPoolConfig;
     }

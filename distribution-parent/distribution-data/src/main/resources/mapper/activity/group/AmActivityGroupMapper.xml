@@ -28,14 +28,24 @@
         <if test="id != null">
             and id = #{id}
         </if>
-        <if test="name != null name != ''">
-            and name concat like('%', #{id} ,'%')
+        <if test="name != null and name != ''">
+            and name like concat('%', #{name} ,'%')
         </if>
         <if test="enable != null">
             and enable = #{enable}
         </if>
         <if test="type != null">
             and type = #{type}
+        </if>
+        order by create_time desc
+    </select>
+    <select id="searchActivityGroup"
+            resultType="com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGroupsVo">
+        select id,picture,name
+        from am_activity_group
+        where del_flag = 0 and enable = 1 and type = #{groupType}
+        <if test="name != null and name !=''">
+            and name like concat('%', #{name} ,'%')
         </if>
     </select>
 

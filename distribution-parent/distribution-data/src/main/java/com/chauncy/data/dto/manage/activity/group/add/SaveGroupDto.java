@@ -39,4 +39,6 @@ public class SaveGroupDto {
     @ApiModelProperty(value = "分组说明")
     private String description;
 
+    @ApiModelProperty(value = "是否启用 1-是 0-否 默认为1")
+    private Boolean enable;
 }

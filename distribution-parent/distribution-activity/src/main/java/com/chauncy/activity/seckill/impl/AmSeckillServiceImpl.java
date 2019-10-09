@@ -15,6 +15,7 @@ import com.chauncy.data.domain.po.activity.seckill.AmSeckillPo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.app.product.SearchSeckillGoodsDto;
+import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.dto.manage.activity.SearchActivityListDto;
 import com.chauncy.data.dto.manage.activity.seckill.SaveSeckillDto;
 import com.chauncy.data.mapper.activity.AmActivityRelActivityCategoryMapper;
@@ -25,6 +26,7 @@ import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.activity.seckill.SeckillTimeQuantumVo;
 import com.chauncy.data.vo.app.goods.SeckillGoodsVo;
+import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.vo.manage.activity.SearchActivityListVo;
 import com.chauncy.data.vo.manage.activity.SearchGoodsCategoryVo;
 import com.chauncy.security.util.SecurityUtil;
@@ -69,6 +71,9 @@ public class AmSeckillServiceImpl extends AbstractService<AmSeckillMapper, AmSec
 
     @Autowired
     private PmGoodsCategoryMapper categoryMapper;
+
+    @Autowired
+    private PmMemberLevelMapper memberLevelMapper;
 
     @Autowired
     private AmActivityRelActivityCategoryMapper relActivityCategoryMapper;
@@ -236,12 +241,45 @@ public class AmSeckillServiceImpl extends AbstractService<AmSeckillMapper, AmSec
         if (activityStartTime.isBefore(registrationEndTime) || registrationEndTime.equals(activityStartTime)) {
             throw new ServiceException(ResultCode.FAIL, "活动开始时间不能小于报名结束时间");
         }
+        if (activityEndTime.toEpochSecond(ZoneOffset.of("+8"))-activityStartTime.toEpochSecond(ZoneOffset.of("+8"))>86400){
+            throw new ServiceException(ResultCode.FAIL, "秒杀活动时间最长可设置24小时!");
+        }
+
+        //判断活动开始时间和结束时间是否为整点
+        if (!(activityStartTime.getMinute() == 0 && activityStartTime.getSecond() == 0)){
+            throw new ServiceException(ResultCode.FAIL,"活动开始时间必须为整点!");
+        }
+        if (!(activityEndTime.getMinute() == 0 && activityEndTime.getSecond() == 0)){
+            throw new ServiceException(ResultCode.FAIL,"活动结束时间必须为整点!");
+        }
+
+        //可领取会员为全部会员操作
+        Long memberLevelId = 0L;
+        if (saveSeckillDto.getMemberLevelId() == 0){
+            PmMemberLevelPo memberLevelPo = memberLevelMapper.selectOne(new QueryWrapper<PmMemberLevelPo>().lambda()
+                    .eq(PmMemberLevelPo::getLevel,1));
+            if (memberLevelPo != null){
+                memberLevelId = memberLevelPo.getId();
+            }
+        }else {
+            memberLevelId = saveSeckillDto.getMemberLevelId();
+        }
+
         //新增操作
         if (saveSeckillDto.getId() == 0) {
+
+            if (saveSeckillDto.getRegistrationStartTime().isBefore(LocalDateTime.now())) {
+                throw new ServiceException(ResultCode.FAIL, String.format("活动报名开始时间需要在当前时间之后"));
+            }
+            if (saveSeckillDto.getActivityStartTime().isBefore(LocalDateTime.now())) {
+                throw new ServiceException(ResultCode.FAIL, String.format("活动开始时间需要在当前时间之后"));
+            }
+
             AmSeckillPo seckillPo = new AmSeckillPo();
             BeanUtils.copyProperties(saveSeckillDto, seckillPo);
             seckillPo.setId(null);
             seckillPo.setCreateBy(userPo.getUsername());
+            seckillPo.setMemberLevelId(memberLevelId);
             mapper.insert(seckillPo);
             //保存积分活动与分类的信息
             if (!ListUtil.isListNullAndEmpty(categoryIds)) {
@@ -258,8 +296,32 @@ public class AmSeckillServiceImpl extends AbstractService<AmSeckillMapper, AmSec
         //修改操作
         else {
             AmSeckillPo seckillPo = mapper.selectById(saveSeckillDto.getId());
+
+            //判断是否修改开始时间和结束时间
+            LocalDateTime registrationStartTime1 =seckillPo.getRegistrationStartTime();
+            LocalDateTime registrationEndTime1 = seckillPo.getRegistrationEndTime();
+            LocalDateTime activityStartTime1 = seckillPo.getActivityStartTime();
+            LocalDateTime activityEndTime1 = seckillPo.getActivityEndTime();
+
+            if (!registrationStartTime.equals(registrationStartTime1)){
+                if (registrationStartTime.isBefore(LocalDateTime.now())) {
+                    throw new ServiceException(ResultCode.FAIL, String.format("活动报名开始时间需要在当前时间之后"));
+                }
+            }
+            if (!activityStartTime.equals(activityStartTime1)) {
+                if (activityStartTime.isBefore(LocalDateTime.now())) {
+                    throw new ServiceException(ResultCode.FAIL, String.format("活动开始时间需要在当前时间之后"));
+                }
+            }
+
+            //活动报名已开始则不能修改
+            if (seckillPo.getRegistrationStartTime().isBefore(LocalDateTime.now())){
+                throw new ServiceException(ResultCode.FAIL,"该活动报名已经开始，不能修改！");
+            }
+
             BeanUtils.copyProperties(saveSeckillDto, seckillPo);
             seckillPo.setUpdateBy(userPo.getUsername());
+            seckillPo.setMemberLevelId(memberLevelId);
             mapper.updateById(seckillPo);
             List<AmActivityRelActivityCategoryPo> relActivityCategoryPos = relActivityCategoryMapper.selectList(new QueryWrapper<AmActivityRelActivityCategoryPo>().eq("activity_id", saveSeckillDto.getId()));
             //删除关联
@@ -294,6 +356,17 @@ public class AmSeckillServiceImpl extends AbstractService<AmSeckillMapper, AmSec
         PageInfo<SearchActivityListVo> searchActivityListVoPageInfo = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
                 .doSelectPageInfo(() -> mapper.searchSeckillList(searchActivityListDto));
         searchActivityListVoPageInfo.getList().forEach(a->{
+
+            //当可领取会员为全部会员时，memberLevelId返回0给前端
+            PmMemberLevelPo memberLevelPo = memberLevelMapper.selectById(a.getMemberLevelId());
+            Long memberLevelId = 0L;
+            if (memberLevelPo != null){
+                if (memberLevelPo.getLevel() != 1){
+                    memberLevelId = a.getMemberLevelId();
+                }
+            }
+            a.setMemberLevelId(memberLevelId);
+
             //处理报名状态、活动状态
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime registrationStartTime = a.getRegistrationStartTime();
@@ -319,7 +392,7 @@ public class AmSeckillServiceImpl extends AbstractService<AmSeckillMapper, AmSec
             }
             //活动中
             else if (activityStartTime.isBefore(now) && activityEndTime.isAfter(now)){
-                a.setActivityStatus(ActivityStatusEnum.REGISTRATION.getName());
+                a.setActivityStatus(ActivityStatusEnum.ONGOING.getName());
             }
             //活动已结束
             else if(activityEndTime.isBefore(now)){

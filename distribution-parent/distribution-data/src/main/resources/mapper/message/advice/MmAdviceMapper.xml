@@ -782,10 +782,10 @@
     <select id="searchAssociatedGoodsBaseList"
             resultType="com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo">
 
-        select b.id as goods_id,b.name as goods_name,b.icon as picture,b.activity_cost_rate,
-        b.profits_rate,b.sales_volume,d.sell_price as sell_price,d.line_price,b.forward_num,b.collection_num
+        select distinct b.id as goods_id,b.name as goods_name,b.icon as picture,b.activity_cost_rate,
+        b.profits_rate,b.sales_volume,d.sell_price as sell_price,d.line_price,b.forward_num,b.collection_num,b.comprehensive_score
         from pm_goods b,pm_goods_sku d,pm_goods_category c,mm_advice_rel_associaiton a
-        where b.publish_status = 1 and b.del_flag = 0 and d.del_flag =0 and c.del_flag = 0 and a.association_id = c.id and d.goods_id=b.id
+        where a.del_flag = 0 and b.publish_status = 1 and b.del_flag = 0 and d.del_flag =0 and c.del_flag = 0 and a.association_id = c.id and d.goods_id=b.id
         and a.advice_id = #{adviceId}
         and d.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = b.id  and d2.del_flag =0 and d2.sell_price =
         (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = b.id  and d1.del_flag =0 LIMIT 1) limit 1)
@@ -907,5 +907,31 @@
         and d.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = b.id  and d2.del_flag =0 and d2.sell_price =
         (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = b.id  and d1.del_flag =0 LIMIT 1) limit 1)
         limit 30;
+    </select>
+    <select id="findBaiHuoMiddleAdvice"
+            resultType="com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo">
+
+        select c.name as condition_name,b.id as goods_id,b.name as goods_name,b.icon as picture,b.subtitle,b.activity_cost_rate,
+        b.profits_rate,b.sales_volume,d.sell_price as sell_price,d.line_price,b.forward_num,b.collection_num
+        from mm_advice_rel_tab_things a,pm_goods b,pm_goods_sku	d,mm_advice_tab c
+        where b.publish_status = 1 and a.del_flag = 0 and b.del_flag = 0 and c.del_flag =0 and d.del_flag =0 and a.tab_id = #{conditionId}
+        and a.association_id = b.id and d.goods_id=b.id and c.id = a.tab_id
+        and d.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = b.id  and d2.del_flag =0 and d2.sell_price =
+        (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = b.id  and d1.del_flag =0 LIMIT 1) limit 1)
+        order by b.sales_volume desc
+        limit 6;
+
+    </select>
+    <select id="guessLike" resultType="com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo">
+
+        select b.id as goods_id,b.name as goods_name,b.icon as picture,b.activity_cost_rate,
+        b.profits_rate,b.sales_volume,d.sell_price as sell_price,d.line_price,b.forward_num,b.collection_num
+        from pm_goods b,pm_goods_sku d
+        where b.publish_status = 1 and b.del_flag = 0 and d.del_flag =0 and d.goods_id=b.id
+        and d.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = b.id  and d2.del_flag =0 and d2.sell_price =
+        (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = b.id  and d1.del_flag =0 LIMIT 1) limit 1)
+        order by b.comprehensive_score desc
+        limit 30;
+
     </select>
 </mapper>

@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -145,7 +146,7 @@ public class MmAdviceRelShufflingServiceImpl extends AbstractService<MmAdviceRel
             /******************** 1、保存广告 ********************/
             MmAdvicePo advicePo = new MmAdvicePo();
             advicePo.setId(null).setCreateBy(user.getUsername()).setLocation(saveShufflingDto.getLocation())
-                    .setName(saveShufflingDto.getName());
+                    .setName(saveShufflingDto.getName()).setPicture(saveShufflingDto.getPicture());
             adviceMapper.insert(advicePo);
             /******************** 2、保存广告对饮的轮播图信息 ********************/
             saveShufflingDto.getShufflingDtos().forEach(a->{
@@ -225,13 +226,25 @@ public class MmAdviceRelShufflingServiceImpl extends AbstractService<MmAdviceRel
             //获取前端传来的除了shufflingId为0的数据
             List<Long> remainIds = saveShufflingDto.getShufflingDtos().stream().filter(a->a.getShufflingId()!=0).map(b->b.getShufflingId()).collect(Collectors.toList());
             if (!ListUtil.isListNullAndEmpty(allIds)) {
+                List<Long> delIds = new ArrayList<>();
+                if (ListUtil.isListNullAndEmpty(remainIds)){
+                    delIds = allIds;
+                    relShufflingMapper.deleteBatchIds(delIds);
+                }else {
+                    delIds = allIds.stream().filter(y->!remainIds.contains(y)).collect(Collectors.toList());
+                    if (!ListUtil.isListNullAndEmpty(delIds)){
+                        relShufflingMapper.deleteBatchIds(delIds);
+                    }
+                }
+            }
+            /*if (!ListUtil.isListNullAndEmpty(allIds)) {
                 //获取需要删除的数据
                 List<Long> delIds = Lists.newArrayList(allIds);
                 delIds.removeAll(remainIds);
                 if (!ListUtil.isListNullAndEmpty(delIds)){
                     relShufflingMapper.deleteBatchIds(delIds);
                 }
-            }
+            }*/
             /******************************************* 删除轮播图 end *********************************************/
 
             saveShufflingDto.getShufflingDtos().forEach(a->{

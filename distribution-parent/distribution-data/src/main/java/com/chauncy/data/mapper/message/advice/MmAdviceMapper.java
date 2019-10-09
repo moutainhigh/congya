@@ -2,6 +2,7 @@ package com.chauncy.data.mapper.message.advice;
 
 import com.chauncy.data.domain.po.message.advice.MmAdvicePo;
 import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
+import com.chauncy.data.dto.app.advice.category.select.BaiHuoMiddleAdviceVo;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
 import com.chauncy.data.dto.app.product.SearchActivityGoodsListDto;
@@ -377,4 +378,28 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
             "from mm_advice a " +
             "where a.location = 'TOP_UP_ENTRY' and a.del_flag = 0 and a.enabled = 1")
     PersonalCenterPictureVo getTopUpPicture();
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-08 23:09
+     * @Description //查找百货中部广告信息
+     *
+     * @Update chauncy
+     *
+     * @param  tabId
+     * @return java.util.List<com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo>
+     **/
+    List<SearchGoodsBaseListVo> findBaiHuoMiddleAdvice(Long tabId);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-09 13:29
+     * @Description //购物车空车猜你喜欢
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return java.util.List<com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo>
+     **/
+    List<SearchGoodsBaseListVo> guessLike();
 }

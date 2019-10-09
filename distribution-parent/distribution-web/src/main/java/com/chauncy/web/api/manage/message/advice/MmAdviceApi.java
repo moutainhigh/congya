@@ -5,6 +5,7 @@ import com.chauncy.common.enums.app.advice.AdviceLocationEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.MyBaseTree;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
+import com.chauncy.data.dto.manage.message.advice.add.SaveBaiHuoMiddleAdviceDto;
 import com.chauncy.data.dto.manage.message.advice.add.SaveClassificationAdviceDto;
 import com.chauncy.data.dto.manage.message.advice.add.SaveOtherAdviceDto;
 import com.chauncy.data.dto.manage.message.advice.select.SearchAdvicesDto;
@@ -170,6 +171,25 @@ public class MmAdviceApi extends BaseApi {
 
         return setJsonViewData(service.searchAssociatedClassification(searchAssociatedClassificationDto));
     }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-08 21:41
+     * @Description //保存百货中部广告
+     *
+     * @Update chauncy
+     *
+     * @param  saveBaiHuoMiddleAdviceDto
+     * @return com.chauncy.data.vo.JsonViewData
+     **/
+//    public JsonViewData saveBaiHuoMiddleAdvice(@RequestBody @ApiParam(required = true,name = "saveBaiHuoMiddleAdviceDto",value = "保存百货中部广告")
+//                                               @Validated SaveBaiHuoMiddleAdviceDto saveBaiHuoMiddleAdviceDto){
+//
+//        service.saveBaiHuoMiddleAdvice(saveBaiHuoMiddleAdviceDto);
+//        return setJsonViewData(ResultCode.SUCCESS,"保存成功");
+//    }
+
+
 
     /**
      * 查找广告位为葱鸭百货的所有广告

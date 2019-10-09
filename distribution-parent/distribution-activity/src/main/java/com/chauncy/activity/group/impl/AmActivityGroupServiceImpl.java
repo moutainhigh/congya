@@ -3,6 +3,7 @@ package com.chauncy.activity.group.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.activity.group.IAmActivityGroupService;
+import com.chauncy.common.enums.app.activity.group.GroupTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.ListUtil;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -63,13 +65,27 @@ public class AmActivityGroupServiceImpl extends AbstractService<AmActivityGroupM
 
         SysUserPo userPo = securityUtil.getCurrUser();
         AmActivityGroupPo activityGroupPo = new AmActivityGroupPo();
+
         //新增
         if (saveGroupDto.getId()==0){
+            //获取活动分组类型对应的所有活动分组信息
+            List<String> nameList = mapper.selectList(new QueryWrapper<AmActivityGroupPo>().lambda()
+                    .eq(AmActivityGroupPo::getType,saveGroupDto.getType())).stream().map(a->a.getName()).collect(Collectors.toList());
+            if (nameList.contains(saveGroupDto.getName())) {
+                throw new ServiceException(ResultCode.FAIL, String.format("活动分组名称【%s】已经存在,请检查！", saveGroupDto.getName()));
+            }
             BeanUtils.copyProperties(saveGroupDto,activityGroupPo);
             activityGroupPo.setId(null);
             activityGroupPo.setCreateBy(userPo.getUsername());
             mapper.insert(activityGroupPo);
         }else{
+            String name = mapper.selectById(saveGroupDto.getId()).getName();
+            //获取除该分组名称之外的所有分组名称
+            List<String> nameList = mapper.selectList(new QueryWrapper<AmActivityGroupPo>().lambda()
+                    .eq(AmActivityGroupPo::getType,saveGroupDto.getType())).stream().filter(b -> !b.getName().equals(name)).map(a -> a.getName()).collect(Collectors.toList());
+            if (!ListUtil.isListNullAndEmpty(nameList) && nameList.contains(saveGroupDto.getName())) {
+                throw new ServiceException(ResultCode.FAIL, String.format("广告名称【%s】已经存在,请检查！", saveGroupDto.getName()));
+            }
             activityGroupPo = mapper.selectById(saveGroupDto.getId());
             BeanUtils.copyProperties(saveGroupDto,activityGroupPo);
             activityGroupPo.setUpdateBy(userPo.getUsername());
@@ -87,6 +103,13 @@ public class AmActivityGroupServiceImpl extends AbstractService<AmActivityGroupM
 
         Integer pageNo = searchGroupDto.getPageNo()==null ? defaultPageNo : searchGroupDto.getPageNo();
         Integer pageSize = searchGroupDto.getPageSize()==null ? defaultPageSize : searchGroupDto.getPageSize();
+
+        if (searchGroupDto.getType() != null) {
+            GroupTypeEnum groupTypeEnum = GroupTypeEnum.getGroupTypeEnumById(searchGroupDto.getType());
+            if (groupTypeEnum == null){
+                throw new ServiceException(ResultCode.NO_EXISTS,String.format("GroupTypeEnum枚举类中不存在【type】为%s的枚举值,请检查",searchGroupDto.getType()));
+            }
+        }
 
         PageInfo<SearchActivityGroupVo> searchActivityGroupVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() ->mapper.search(searchGroupDto));

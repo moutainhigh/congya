@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import javax.validation.constraints.Future;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -40,31 +41,32 @@ public class SaveSpellDto {
     private Long memberLevelId;
 
     @ApiModelProperty(value = "报名开始时间")
-    @Future(message = "报名开始时间需要在当前时间之后")
+//    @Future(message = "报名开始时间需要在当前时间之后")
     @JSONField(ordinal = 5)
     @NotNull(message = "报名开始时间不能为空")
     private LocalDateTime registrationStartTime;
 
     @ApiModelProperty(value = "报名结束时间")
-    @Future(message = "报名结束时间需要在当前时间之后")
+//    @Future(message = "报名结束时间需要在当前时间之后")
     @JSONField(ordinal = 6)
     @NotNull(message = "报名结束时间不能为空")
     private LocalDateTime registrationEndTime;
 
     @ApiModelProperty(value = "活动开始时间")
-    @Future(message = "活动开始时间需要在当前时间之后")
+//    @Future(message = "活动开始时间需要在当前时间之后")
     @JSONField(ordinal = 7)
     @NotNull(message = "活动开始时间不能为空")
     private LocalDateTime activityStartTime;
 
     @ApiModelProperty(value = "活动结束时间")
-    @Future(message = "活动结束时间需要在当前时间之后")
+//    @Future(message = "活动结束时间需要在当前时间之后")
     @JSONField(ordinal = 8)
     @NotNull(message = "活动结束时间不能为空")
     private LocalDateTime activityEndTime;
 
     @ApiModelProperty(value = "设置成团人数")
     @NotNull(message = "成团人数不能为空")
+    @Min(2)
     private Integer groupNum;
 
     @ApiModelProperty(value = "拼团优惠价格比例")
@@ -77,4 +79,11 @@ public class SaveSpellDto {
     @ApiModelProperty("绑定分类")
     @NotNull(message = "绑定分类不能为空")
     private List<Long> categoryIds;
+
+    @ApiModelProperty(value = "活动图片")
+    @NotNull(message = "活动图片不能为空")
+    private String picture;
+
+    @ApiModelProperty(value = "活动说明(商家端查看)")
+    private String activityDescription;
 }

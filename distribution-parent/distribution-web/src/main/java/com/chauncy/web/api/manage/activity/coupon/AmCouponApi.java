@@ -3,6 +3,7 @@ package com.chauncy.web.api.manage.activity.coupon;
 
 import com.chauncy.activity.coupon.IAmCouponService;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.domain.MyBaseTree;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.activity.EditEnableDto;
 import com.chauncy.data.dto.manage.activity.coupon.add.SaveCouponDto;
@@ -11,10 +12,13 @@ import com.chauncy.data.dto.manage.activity.coupon.select.SearchDetailAssociatio
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchReceiveRecordDto;
 import com.chauncy.data.dto.manage.common.FindGoodsBaseByConditionDto;
 import com.chauncy.data.dto.manage.good.select.SearchGoodCategoryDto;
+import com.chauncy.data.dto.manage.good.select.SearchThirdCategoryDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.activity.coupon.*;
 import com.chauncy.data.vo.manage.common.goods.GoodsBaseVo;
+import com.chauncy.data.vo.manage.product.GoodsCategoryTreeVo;
 import com.chauncy.data.vo.manage.product.SearchCategoryVo;
+import com.chauncy.data.vo.manage.product.SearchThirdCategoryVo;
 import com.chauncy.data.vo.supplier.MemberLevelInfos;
 import com.chauncy.product.service.IPmGoodsCategoryService;
 import com.chauncy.web.base.BaseApi;
@@ -73,19 +77,35 @@ public class AmCouponApi extends BaseApi {
     }
 
     /**
-     * 联动查询所有分类
+     * 联动查询所有二级分类
      * @return
      */
-//    @PostMapping("/find_all_category")
-//    @ApiOperation(value = "联动查询所有分类")
-//    public JsonViewData findGoodsCategoryTreeVo(){
-//        List<GoodsCategoryTreeVo> goodsCategoryTreeVo = goodsCategoryService.findGoodsCategoryTreeVo();
-//        return new JsonViewData(MyBaseTree.build(goodsCategoryTreeVo));
-//    }
+    @PostMapping("/find_all_second_category")
+    @ApiOperation(value = "联动查询所有二级分类")
+    public JsonViewData findGoodsCategoryTreeVo(){
+        List<GoodsCategoryTreeVo> goodsCategoryTreeVo = goodsCategoryService.findGoodsCategoryTreeVo();
+        return new JsonViewData(MyBaseTree.build(goodsCategoryTreeVo));
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-07 15:50
+     * @Description //条件分页查询所有第三级分类信息
+     *
+     * @Update chauncy
+     *
+     * @param  searchThirdCategoryDto
+     * @return com.chauncy.data.vo.JsonViewData<SearchThirdCategoryVo>
+     **/
+    @PostMapping("/searchThirdCategory")
+    @ApiOperation(value = "条件分页查询所有第三级分类信息")
+    public JsonViewData<PageInfo<SearchThirdCategoryVo>> searchThirdCategory(@RequestBody @ApiParam(required = true,name="",value = "")
+                                                                   @Validated SearchThirdCategoryDto searchThirdCategoryDto){
+        return setJsonViewData(goodsCategoryService.searchThirdCategory(searchThirdCategoryDto));
+    }
 
     @PostMapping("/searchCategory")
     @ApiOperation(value = "查看商品分类列表")
-
     public JsonViewData<SearchCategoryVo> searchCategory(@RequestBody @Valid @ApiParam(required = true, name = "baseSearchDto", value = "分类列表查询条件")
                                                          SearchGoodCategoryDto categoryDto) {
         Integer pageNo=categoryDto.getPageNo()==null?defaultPageNo:categoryDto.getPageNo();

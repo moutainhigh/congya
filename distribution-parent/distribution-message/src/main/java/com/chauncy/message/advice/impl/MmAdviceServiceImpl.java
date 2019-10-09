@@ -689,6 +689,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 case SHOUYE_ZHUTI:
                 case SALE:
                 case YOUXUAN:
+                case BAIHUO_MIDDLE:
                     //获取该选项卡信息
                     List<GoodsTabInfosVo> goodsTabInfosVos = relTabMapper.findGoodsTabInfosVos(a.getAdviceId());
                     goodsTabInfosVos.forEach(b -> {
@@ -1217,22 +1218,21 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 
         SysUserPo user = securityUtil.getCurrUser();
         Long id = Arrays.asList(baseUpdateStatusDto.getId()).get(0);
-        if (baseUpdateStatusDto.getEnabled()){
+        if (baseUpdateStatusDto.getEnabled()) {
             //判断该广告对应的广告位置是否已有启用广告，若有则置为0
             String location = mapper.selectById(id).getLocation();
             //获取该广告位置下所有启用的广告
             List<MmAdvicePo> advicePos = mapper.selectList(new QueryWrapper<MmAdvicePo>().lambda()
-                    .eq(MmAdvicePo::getLocation,location)).stream().filter(a->a.getEnabled().equals(true)).collect(Collectors.toList());
-            advicePos.forEach(b->{
+                    .eq(MmAdvicePo::getLocation, location)).stream().filter(a -> a.getEnabled().equals(true)).collect(Collectors.toList());
+            advicePos.forEach(b -> {
                 b.setEnabled(false);
                 mapper.updateById(b);
             });
-
+        }
             MmAdvicePo advicePo = mapper.selectById(id);
             advicePo.setEnabled(baseUpdateStatusDto.getEnabled()).setUpdateBy(user.getUsername());
             mapper.updateById(advicePo);
         }
-    }
 
     /**
      * 查找广告位为葱鸭百货的所有广告
@@ -1285,7 +1285,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
     }
 
     /**
-     * 根据选项卡分页获取特卖、主题、优选等选项卡关联的商品基本信息
+     * 根据选项卡分页获取特卖、主题、优选、百货中部广告等选项卡关联的商品基本信息
      *
      * @param searchGoodsBaseDto
      * @return

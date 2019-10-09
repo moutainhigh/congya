@@ -37,6 +37,9 @@ public class SaveShufflingDto {
     @NotNull(message = "广告名称不能为空")
     private String name;
 
+    @ApiModelProperty("广告图片")
+    private String picture;
+
     @ApiModelProperty("轮播图信息")
     @NotNull(message = "轮播图信息不能为空")
     @Valid

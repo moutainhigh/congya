@@ -43,25 +43,25 @@ public class SaveSeckillDto {
     private Long memberLevelId;
 
     @ApiModelProperty(value = "报名开始时间")
-    @Future(message = "报名开始时间需要在当前时间之后")
+//    @Future(message = "报名开始时间需要在当前时间之后")
     @JSONField(ordinal = 5)
     @NotNull(message = "报名开始时间不能为空")
     private LocalDateTime registrationStartTime;
 
     @ApiModelProperty(value = "报名结束时间")
-    @Future(message = "报名结束时间需要在当前时间之后")
+//    @Future(message = "报名结束时间需要在当前时间之后")
     @JSONField(ordinal = 6)
     @NotNull(message = "报名结束时间不能为空")
     private LocalDateTime registrationEndTime;
 
     @ApiModelProperty(value = "活动开始时间")
-    @Future(message = "活动开始时间需要在当前时间之后")
+//    @Future(message = "活动开始时间需要在当前时间之后")
     @JSONField(ordinal = 7)
     @NotNull(message = "活动开始时间不能为空")
     private LocalDateTime activityStartTime;
 
     @ApiModelProperty(value = "活动结束时间")
-    @Future(message = "活动结束时间需要在当前时间之后")
+//    @Future(message = "活动结束时间需要在当前时间之后")
     @JSONField(ordinal = 8)
     @NotNull(message = "活动结束时间不能为空")
     private LocalDateTime activityEndTime;
@@ -83,16 +83,20 @@ public class SaveSeckillDto {
 
     @ApiModelProperty(value = "活动简介(用户端查看)")
     @JSONField(ordinal = 13)
-    @NotNull(message = "活动简介不能为空")
+//    @NotNull(message = "活动简介不能为空")
     private String activityIntroduction;
 
     @ApiModelProperty(value = "活动标题")
     @JSONField(ordinal = 11)
-    @NotNull(message = "活动标题不能为空")
+//    @NotNull(message = "活动标题不能为空")
     private String activityTitle;
 
     @ApiModelProperty(value = "促销规则,积分抵扣比例 ")
     @NotNull(message = "积分抵扣比例不能为空")
     private BigDecimal discountPriceRatio;
+
+    @ApiModelProperty(value = "活动图片")
+    @NotNull(message = "活动图片不能为空")
+    private String picture;
 
 }

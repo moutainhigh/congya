@@ -73,14 +73,14 @@ public class MmAdviceRelTabApi extends BaseApi {
     }
 
     /**
-     * 保存特卖、有品、主题、优选等广告信息
+     * 保存特卖、有品、主题、优选、百货中部等广告信息
      *
      * @param saveRelTabDto
      * @return
      */
     @PostMapping("/saveRelTab")
-    @ApiOperation("保存特卖、有品、主题、优选等广告信息")
-    public JsonViewData saveRelTab(@RequestBody @ApiParam(required = true,name = "saveRelTabDto",value = "保存特卖、有品、主题、优选等广告信息")
+    @ApiOperation("保存特卖、有品、主题、优选、百货中部等广告信息")
+    public JsonViewData saveRelTab(@RequestBody @ApiParam(required = true,name = "saveRelTabDto",value = "保存特卖、有品、主题、优选、百货中部等广告信息")
                                    @Validated SaveRelTabDto saveRelTabDto){
         service.saveRelTab(saveRelTabDto);
         return setJsonViewData(ResultCode.SUCCESS,"保存成功！");
