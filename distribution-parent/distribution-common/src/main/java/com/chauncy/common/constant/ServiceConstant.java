@@ -23,6 +23,11 @@ public interface ServiceConstant {
     Integer SPELL_HEAD_PORTRAIT = 5;
 
     /**
+     * 秒杀活动销售百分比超过70%展示即将售罄
+     */
+    Integer SALE_PERCENTAGE = 70;
+
+    /**
      * APP店铺列表中店铺展示商品列表默认展示排序前三个
      */
     Integer DEFAULT_SHOW_GOODS_NUM = 3;

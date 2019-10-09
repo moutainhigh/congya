@@ -1,6 +1,5 @@
 package com.chauncy.activity.spell;
 
-import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.activity.spell.AmSpellGroupPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.activity.SearchMySpellGroupDto;
@@ -9,8 +8,9 @@ import com.chauncy.data.dto.app.product.SearchSpellGroupGoodsDto;
 import com.chauncy.data.dto.manage.activity.SearchActivityListDto;
 import com.chauncy.data.dto.manage.activity.spell.SaveSpellDto;
 import com.chauncy.data.vo.BaseVo;
-import com.chauncy.data.vo.app.activity.MySpellGroupVo;
-import com.chauncy.data.vo.app.activity.SpellGroupInfoVo;
+import com.chauncy.data.vo.app.activity.spell.MySpellGroupVo;
+import com.chauncy.data.vo.app.activity.spell.SpellGroupDetailVo;
+import com.chauncy.data.vo.app.activity.spell.SpellGroupInfoVo;
 import com.chauncy.data.vo.app.goods.SpellGroupGoodsVo;
 import com.chauncy.data.vo.manage.activity.SearchActivityListVo;
 import com.github.pagehelper.PageInfo;
@@ -27,6 +27,19 @@ import java.util.List;
  */
 public interface IAmSpellGroupService extends Service<AmSpellGroupPo> {
 
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/7 21:33
+     * @Description 获取拼团详情
+     *
+     * @Update yeJH
+     *
+     * @param relId 用户拼团id
+     * @return com.chauncy.data.vo.app.activity.spell.SpellGroupDetailVo
+     **/
+    SpellGroupDetailVo getSpellGroupDetail(Long relId);
+
     /**
      * @Author yeJH
      * @Date 2019/10/6 23:47
@@ -35,7 +48,7 @@ public interface IAmSpellGroupService extends Service<AmSpellGroupPo> {
      * @Update yeJH
      *
      * @param  searchMySpellGroupDto
-     * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.activity.MySpellGroupVo>
+     * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.activity.spell.MySpellGroupVo>
      **/
     PageInfo<MySpellGroupVo> searchMySpellGroup(SearchMySpellGroupDto searchMySpellGroupDto);
 

@@ -2,17 +2,16 @@ package com.chauncy.data.mapper.activity.spell;
 
 import com.chauncy.data.domain.po.activity.spell.AmSpellGroupPo;
 import com.chauncy.data.dto.app.activity.SearchMySpellGroupDto;
-import com.chauncy.data.dto.app.activity.SearchSpellGroupInfoDto;
 import com.chauncy.data.dto.app.product.SearchSpellGroupGoodsDto;
 import com.chauncy.data.dto.manage.activity.SearchActivityListDto;
-import com.chauncy.data.dto.manage.activity.spell.select.SearchSpellRecordDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
-import com.chauncy.data.vo.app.activity.MySpellGroupVo;
-import com.chauncy.data.vo.app.activity.SpellGroupInfoVo;
+import com.chauncy.data.vo.app.activity.spell.MySpellGroupVo;
+import com.chauncy.data.vo.app.activity.spell.SpellGroupDetailVo;
+import com.chauncy.data.vo.app.activity.spell.SpellGroupInfoVo;
 import com.chauncy.data.vo.app.goods.SpellGroupGoodsVo;
 import com.chauncy.data.vo.manage.activity.SearchActivityListVo;
-import com.chauncy.data.vo.supplier.activity.SearchSpellRecordVo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -26,6 +25,19 @@ import java.util.List;
  */
 public interface AmSpellGroupMapper extends IBaseMapper<AmSpellGroupPo> {
 
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/7 22:04
+     * @Description 拼团详情
+     *
+     * @Update yeJH
+     *
+     * @param  relId  用户拼团id
+     * @param  mainId  团id
+     * @return com.chauncy.data.vo.app.activity.spell.SpellGroupDetailVo
+     **/
+    SpellGroupDetailVo getSpellGroupDetail(@Param("relId") Long relId, @Param("mainId") Long mainId);
 
     /**
      * @Author yeJH
@@ -47,7 +59,7 @@ public interface AmSpellGroupMapper extends IBaseMapper<AmSpellGroupPo> {
      * @Update yeJH
      *
      * @param  relId
-     * @return java.util.List<com.chauncy.data.vo.app.activity.SpellGroupInfoVo>
+     * @return java.util.List<com.chauncy.data.vo.app.activity.spell.SpellGroupInfoVo>
      **/
     List<SpellGroupInfoVo> searchSpellGroupInfo(Long relId);
 
@@ -61,7 +73,7 @@ public interface AmSpellGroupMapper extends IBaseMapper<AmSpellGroupPo> {
      * @param  mainId
      * @return java.util.List<java.lang.String>
      **/
-    List<String> getMemberHeadPortrait(Long mainId);
+    List<String> getMemberHeadPortrait(@Param("mainId") Long mainId, @Param("spellHeadPortrait") Integer spellHeadPortrait);
 
     /**
      * @Author yeJH

@@ -13,6 +13,7 @@
         <result column="user_id" property="userId" />
         <result column="order_id" property="orderId" />
         <result column="is_head" property="isHead" />
+        <result column="pay_status" property="payStatus" />
     </resultMap>
 
     <!-- 通用查询结果列 -->

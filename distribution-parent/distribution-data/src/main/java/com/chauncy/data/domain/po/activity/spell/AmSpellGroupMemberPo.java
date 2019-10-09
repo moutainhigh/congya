@@ -62,4 +62,7 @@ public class AmSpellGroupMemberPo implements Serializable {
     @ApiModelProperty(value = "是否时团长 1-是 0-否")
     private Boolean isHead;
 
+    @ApiModelProperty(value = "是否支付 1-是 0-否")
+    private Boolean payStatus;
+
 }

@@ -11,6 +11,7 @@ import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchSendOrderDto;
 import com.chauncy.data.haiguan.vo.bo.CustomsOrderBo;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.app.activity.spell.SpellGroupAreaVo;
 import com.chauncy.data.vo.app.order.my.AppSearchOrderVo;
 import com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailGoodsVo;
 import com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailVo;
@@ -33,6 +34,18 @@ import java.util.List;
  * @since 2019-07-09
  */
 public interface OmOrderMapper extends IBaseMapper<OmOrderPo> {
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/8 0:18
+     * @Description 通过订单id获取用户订单发货地址
+     *
+     * @Update yeJH
+     *
+     * @param  orderId
+     * @return com.chauncy.data.vo.app.activity.spell.SpellGroupAreaVo
+     **/
+    SpellGroupAreaVo getShipAreaByOrderId(Long orderId);
 
     /**
      * 总后台订单列表
