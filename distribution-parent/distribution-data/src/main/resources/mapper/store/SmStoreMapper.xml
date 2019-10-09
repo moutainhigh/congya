@@ -198,7 +198,7 @@
         select DISTINCT pga.id
         from pm_goods pg, pm_goods_rel_attribute_good pgrag,pm_goods_attribute pga
         where pg.id = pgrag.goods_good_id and pga.id = pgrag.goods_attribute_id
-        and pga.`type` = 8 and pg.store_id = #{id} and pg.del_flag = pgrag.del_flag = pga.del_flag = 0
+        and pga.`type` = 8 and pg.store_id = #{id} and pg.del_flag = 0 and pgrag.del_flag = 0 and pga.del_flag = 0
     </select>
 
     <select id="selectRelAttributeIds" resultType="Long">
