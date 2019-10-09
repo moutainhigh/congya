@@ -117,6 +117,23 @@ public class OmShoppingCartApi extends BaseApi {
     }
 
     /**
+     * @Author chauncy
+     * @Date 2019-10-09 13:20
+     * @Description //购物车空车猜你喜欢
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo>>
+     **/
+    @GetMapping("/guessLike")
+    @ApiOperation("购物车空车猜你喜欢")
+    public JsonViewData<List<SearchGoodsBaseListVo>> guessLike(){
+
+        return setJsonViewData(service.guessLike());
+    }
+
+    /**
      * 添加商品到购物车
      *
      * @param addCartDto

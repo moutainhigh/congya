@@ -1513,6 +1513,56 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     }
 
     /**
+     * @Author chauncy
+     * @Date 2019-10-09 13:22
+     * @Description //购物车空车猜你喜欢
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return java.util.List<com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo>
+     **/
+    @Override
+    public List<SearchGoodsBaseListVo> guessLike() {
+        UmUserPo user = securityUtil.getAppCurrUser();
+        if (user == null) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "您不是APP用户");
+        }
+
+        List<SearchGoodsBaseListVo> searchGoodsBaseListVos = adviceMapper.guessLike();
+
+        searchGoodsBaseListVos.forEach(a -> {
+
+            //获取商品的标签
+            List<String> labelNames = adviceMapper.getLabelNames(a.getGoodsId());
+            a.setLabelNames(labelNames);
+
+            //获取最高返券值
+            List<Double> rewardShopTickes = com.google.common.collect.Lists.newArrayList();
+            List<RewardShopTicketBo> rewardShopTicketBos = skuMapper.findRewardShopTicketInfos(a.getGoodsId());
+            rewardShopTicketBos.forEach(b -> {
+                //商品活动百分比
+                b.setActivityCostRate(a.getActivityCostRate());
+                //让利成本比例
+                b.setProfitsRate(a.getProfitsRate());
+                //会员等级比例
+                BigDecimal purchasePresent = memberLevelMapper.selectById(user.getMemberLevelId()).getPurchasePresent();
+                b.setPurchasePresent(purchasePresent);
+                //购物券比例
+                BigDecimal moneyToShopTicket = basicSettingMapper.selectList(null).get(0).getMoneyToShopTicket();
+                b.setMoneyToShopTicket(moneyToShopTicket);
+                BigDecimal rewardShopTicket = b.getRewardShopTicket();
+                rewardShopTickes.add(rewardShopTicket.doubleValue());
+            });
+            //获取RewardShopTickes列表最大返券值
+            Double maxRewardShopTicket = rewardShopTickes.stream().mapToDouble((x) -> x).summaryStatistics().getMax();
+            a.setMaxRewardShopTicket(BigDecimal.valueOf(maxRewardShopTicket));
+        });
+
+        return searchGoodsBaseListVos;
+    }
+
+    /**
      * 下单后减去购物车对应的sku
      *
      * @param shopTicketSoWithCarGoodVos

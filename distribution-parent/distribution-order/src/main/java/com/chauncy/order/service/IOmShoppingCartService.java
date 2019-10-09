@@ -125,4 +125,16 @@ public interface IOmShoppingCartService extends Service<OmShoppingCartPo> {
      * @return void
      **/
     void removeToFavorites(RemoveToFavoritesDto removeToFavoritesDto);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-09 13:22
+     * @Description //购物车空车猜你喜欢
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return java.util.List<com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo>
+     **/
+    List<SearchGoodsBaseListVo> guessLike();
 }

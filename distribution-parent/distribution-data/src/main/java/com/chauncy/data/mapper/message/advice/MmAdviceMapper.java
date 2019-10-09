@@ -391,4 +391,15 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
      **/
     List<SearchGoodsBaseListVo> findBaiHuoMiddleAdvice(Long tabId);
 
+    /**
+     * @Author chauncy
+     * @Date 2019-10-09 13:29
+     * @Description //购物车空车猜你喜欢
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return java.util.List<com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo>
+     **/
+    List<SearchGoodsBaseListVo> guessLike();
 }
