@@ -36,6 +36,7 @@ import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.car.*;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
+import com.chauncy.data.dto.app.order.cart.update.RemoveToFavoritesDto;
 import com.chauncy.data.dto.app.order.cart.update.UpdateCartSkuDto;
 import com.chauncy.data.mapper.activity.coupon.AmCouponMapper;
 import com.chauncy.data.mapper.activity.coupon.AmCouponRelCouponGoodsMapper;
@@ -1457,18 +1458,18 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
      *
      * @Update chauncy
      *
-     * @param  goodsIds
+     * @param  removeToFavoritesDto
      * @return void
      **/
     @Override
-    public void removeToFavorites(Long... goodsIds) {
+    public void removeToFavorites(RemoveToFavoritesDto removeToFavoritesDto) {
 
         UmUserPo userPo = securityUtil.getAppCurrUser();
         if (userPo == null) {
             throw new ServiceException(ResultCode.FAIL, "您不是app用户！");
         }
 
-        List<Long> goodsIdList = Arrays.asList(goodsIds);
+        List<Long> goodsIdList = Arrays.asList(removeToFavoritesDto.getGoodsIds());
         if (!ListUtil.isListNullAndEmpty(goodsIdList)){
             goodsIdList.forEach(a->{
                 //判断商品是否存在
@@ -1497,9 +1498,17 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     goodsMapper.addFavorites(a);
 
                 }
-                //删除对应的购物车数据
-                mapper.deleteById(a);
             });
+
+            List<Long> cartIds = Arrays.asList(removeToFavoritesDto.getCartIds());
+            if (!ListUtil.isListNullAndEmpty(cartIds)){
+                cartIds.forEach(b->{
+                    if (mapper.selectById(b) == null){
+                        throw new ServiceException(ResultCode.NO_EXISTS, "购物车数据库不存在该商品，请检查");
+                    }
+                });
+                mapper.deleteBatchIds(cartIds);
+            }
         }
     }
 
