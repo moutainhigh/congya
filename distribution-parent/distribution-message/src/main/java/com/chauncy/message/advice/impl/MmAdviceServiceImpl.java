@@ -689,6 +689,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 case SHOUYE_ZHUTI:
                 case SALE:
                 case YOUXUAN:
+                case BAIHUO_MIDDLE:
                     //获取该选项卡信息
                     List<GoodsTabInfosVo> goodsTabInfosVos = relTabMapper.findGoodsTabInfosVos(a.getAdviceId());
                     goodsTabInfosVos.forEach(b -> {
@@ -1284,7 +1285,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
     }
 
     /**
-     * 根据选项卡分页获取特卖、主题、优选等选项卡关联的商品基本信息
+     * 根据选项卡分页获取特卖、主题、优选、百货中部广告等选项卡关联的商品基本信息
      *
      * @param searchGoodsBaseDto
      * @return

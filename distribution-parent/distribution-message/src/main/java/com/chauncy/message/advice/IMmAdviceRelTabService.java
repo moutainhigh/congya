@@ -3,6 +3,7 @@ package com.chauncy.message.advice;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.message.advice.MmAdviceRelTabPo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.dto.app.advice.category.select.BaiHuoMiddleAdviceVo;
 import com.chauncy.data.dto.manage.message.advice.tab.tab.add.SaveRelTabDto;
 import com.chauncy.data.dto.manage.message.advice.tab.tab.search.SearchAdviceGoodsDto;
 import com.chauncy.data.dto.manage.message.advice.tab.tab.search.SearchBrandsDto;
@@ -13,6 +14,8 @@ import com.chauncy.data.vo.manage.message.advice.tab.tab.BrandVo;
 import com.chauncy.data.vo.manage.message.advice.tab.tab.GoodsVo;
 import com.chauncy.data.vo.manage.message.advice.tab.tab.SearchAdviceGoodsVo;
 import com.github.pagehelper.PageInfo;
+
+import java.util.List;
 
 /**
  * <p>
@@ -64,5 +67,15 @@ public interface IMmAdviceRelTabService extends Service<MmAdviceRelTabPo> {
      */
     PageInfo<BrandVo> searchTabAssociatedBrands(SearchTabAssociatedBrandsDto searchTabAssociatedBrandsDto);
 
-
+    /**
+     * @Author chauncy
+     * @Date 2019-10-08 22:37
+     * @Description //查找百货中部广告信息
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return java.util.List<com.chauncy.data.dto.app.advice.category.select.BaiHuoMiddleAdviceVo>
+     **/
+    List<BaiHuoMiddleAdviceVo> findBaiHuoMiddleAdvice();
 }

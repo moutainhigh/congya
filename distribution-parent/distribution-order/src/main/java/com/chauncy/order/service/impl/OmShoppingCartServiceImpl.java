@@ -7,10 +7,7 @@ import com.chauncy.common.enums.message.ArticleLocationEnum;
 import com.chauncy.common.enums.message.KeyWordTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
-import com.chauncy.common.util.BigDecimalUtil;
-import com.chauncy.common.util.ListUtil;
-import com.chauncy.common.util.LoggerUtil;
-import com.chauncy.common.util.SnowFlakeUtil;
+import com.chauncy.common.util.*;
 import com.chauncy.data.bo.app.car.MoneyShipBo;
 import com.chauncy.data.bo.app.order.reward.RewardShopTicketBo;
 import com.chauncy.data.bo.base.BaseBo;
@@ -867,6 +864,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         String carouselImage = goodsMapper.selectById(goodsId).getCarouselImage();
         //string转list
         List<String> carouselImages = Splitter.on(",").trimResults().splitToList(carouselImage);
+//        List<String> carouselImages1 = GuavaUtil.StringToList(carouselImage,String.class,",");
+//        System.out.println(carouselImages1);
         specifiedGoodsVo.setCarouselImages(carouselImages);
         /**获取商品详情显示的价格区间*/
         BigDecimal lowestSellPrice = skuMapper.getLowestPrice(goodsId);

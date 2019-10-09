@@ -12,6 +12,8 @@ import com.chauncy.data.domain.po.message.advice.*;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.dto.app.advice.category.select.BaiHuoMiddleAdviceVo;
+import com.chauncy.data.dto.app.advice.category.select.TabAdviceVo;
 import com.chauncy.data.dto.manage.message.advice.tab.tab.add.SaveRelTabDto;
 import com.chauncy.data.dto.manage.message.advice.tab.tab.search.SearchAdviceGoodsDto;
 import com.chauncy.data.dto.manage.message.advice.tab.tab.search.SearchBrandsDto;
@@ -25,6 +27,7 @@ import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.manage.message.advice.tab.tab.BrandVo;
 import com.chauncy.data.vo.manage.message.advice.tab.tab.GoodsVo;
 import com.chauncy.data.vo.manage.message.advice.tab.tab.SearchAdviceGoodsVo;
@@ -188,7 +191,7 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
     }
 
     /**
-     * 保存特卖、有品、主题、优选等广告信息
+     * 保存特卖、有品、主题、优选、百货中部等广告信息
      *
      * @param saveRelTabDto
      * @return
@@ -377,6 +380,7 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
                 case SHOUYE_ZHUTI:
                 case SALE:
                 case YOUXUAN:
+                case BAIHUO_MIDDLE:
                     //判断三:同一个广告关联的商品不能重复
                     saveRelTabDto.getTabInfos().forEach(a -> {
                         a.getTabRelAssociatedDtos().forEach(b -> {
@@ -938,6 +942,7 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
                 case SHOUYE_ZHUTI:
                 case SALE:
                 case YOUXUAN:
+                case BAIHUO_MIDDLE:
                     //判断三:同一个广告关联的商品不能重复
                     saveRelTabDto.getTabInfos().forEach(a -> {
                         a.getTabRelAssociatedDtos().forEach(b -> {
@@ -1127,5 +1132,43 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
                 .doSelectPageInfo(() -> relTabMapper.searchTabAssociatedBrands(searchTabAssociatedBrandsDto));
 
         return brandVoPageInfo;
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-08 22:37
+     * @Description //查找百货中部广告信息
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return java.util.List<com.chauncy.data.dto.app.advice.category.select.BaiHuoMiddleAdviceVo>
+     **/
+    @Override
+    public List<BaiHuoMiddleAdviceVo> findBaiHuoMiddleAdvice() {
+
+        List<BaiHuoMiddleAdviceVo> baiHuoMiddleAdviceVos = new ArrayList<>();
+
+        //百货中部广告是否存在并启用
+        MmAdvicePo advicePo = adviceMapper.selectOne(new QueryWrapper<MmAdvicePo>().lambda().and(obj->obj
+                .eq(MmAdvicePo::getLocation,AdviceLocationEnum.BAIHUO_MIDDLE.name())
+                .eq(MmAdvicePo::getEnabled,true)));
+        if (advicePo != null){
+            List<TabAdviceVo> tabAdviceVos = relTabMapper.findBaiHuoMiddleAdvice(advicePo.getId());
+            if (!ListUtil.isListNullAndEmpty(tabAdviceVos)){
+                tabAdviceVos.stream().forEach(a->{
+                    BaiHuoMiddleAdviceVo baiHuoMiddleAdviceVo = new BaiHuoMiddleAdviceVo();
+
+                    List<SearchGoodsBaseListVo> goodsBaseListVos = adviceMapper.findBaiHuoMiddleAdvice(a.getId());
+                    if (!ListUtil.isListNullAndEmpty(goodsBaseListVos)){
+                        baiHuoMiddleAdviceVo.setTabAdviceVo(a);
+                        baiHuoMiddleAdviceVo.setGoodsBaseListVos(goodsBaseListVos);
+                        baiHuoMiddleAdviceVos.add(baiHuoMiddleAdviceVo);
+                    }
+                });
+            }
+        }
+
+        return baiHuoMiddleAdviceVos;
     }
 }

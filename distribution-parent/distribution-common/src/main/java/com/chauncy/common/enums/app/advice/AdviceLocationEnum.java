@@ -106,7 +106,9 @@ public enum AdviceLocationEnum implements BaseEnum {
 
     EXPERIENCE_PACKAGE(24,"经验包"),
 
-    INVITATION(25,"邀请有礼");
+    INVITATION(25,"邀请有礼"),
+
+    BAIHUO_MIDDLE(32,"百货中部广告");
 
     private Integer id;
 
