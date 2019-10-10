@@ -30,7 +30,7 @@ public class SearchSpellGroupGoodsDto   extends BasePageDto implements Serializa
     @JsonIgnore
     @JSONField(serialize = false)
     @ApiModelProperty(value = "活动id   \n")
-    private Long activityId;
+    private Long adviceId;
 
     @ApiModelProperty(value = "排序方式 默认降序（desc）   \n")
     private SortWayEnum sortWay;

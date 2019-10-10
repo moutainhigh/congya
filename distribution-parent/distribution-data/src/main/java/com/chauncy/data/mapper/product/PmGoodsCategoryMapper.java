@@ -193,7 +193,7 @@ public interface PmGoodsCategoryMapper extends IBaseMapper<PmGoodsCategoryPo> {
      * @param  a
      * @return com.chauncy.data.domain.po.message.advice.MmAdviceRelSpellGoodsPo
      **/
-    @Select("select a.id as first_category_id,a.parent_id as second_category_id,b.parent_id as third_category_id \n" +
+    @Select("select a.id as third_category_id,a.parent_id as second_category_id,b.parent_id as first_category_id \n" +
             "from pm_goods_category a,pm_goods_category b,pm_goods c \n" +
             "where c.del_flag = 0 and c.publish_status = 1 and c.id = #{a} and c.goods_category_id = a.id and " +
             "a.del_flag = 0 and a.enabled =1 and b.del_flag = 0 and b.enabled =1 and a.parent_id = b.id")

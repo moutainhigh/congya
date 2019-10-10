@@ -12,6 +12,7 @@ import com.chauncy.data.vo.app.activity.spell.SpellGroupInfoVo;
 import com.chauncy.data.vo.app.goods.SpellGroupGoodsVo;
 import com.chauncy.data.vo.manage.activity.SearchActivityListVo;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -125,4 +126,44 @@ public interface AmSpellGroupMapper extends IBaseMapper<AmSpellGroupPo> {
      * @return
      */
     SearchActivityListVo findSpellGroupById(Long id);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-10 15:32
+     * @Description //获取拼团主页面中的今日必拼的三个商品
+     *
+     * @Update chauncy
+     *
+     * @param  adviceId
+     * @return java.util.List<com.chauncy.data.vo.app.goods.SpellGroupGoodsVo>
+     **/
+    List<SpellGroupGoodsVo> findTodaySpell(Long adviceId);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-10 15:52
+     * @Description //获取今日必拼商品相关的类目
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return java.util.List<com.chauncy.data.vo.BaseVo>
+     **/
+    @Select("select a.id,a.name " +
+            "from pm_goods_category a,mm_advice_rel_spell_goods b,mm_advice c " +
+            "where b.del_flag = 0 and a.del_flag = 0 and a.enabled = 1 and c.del_flag = 0 and c.enabled = 1 " +
+            "and b.first_category_id = a.id and c.id = b.advice_id")
+    List<BaseVo> findTodaySpellCategory();
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-10 16:02
+     * @Description //查询今日必拼商品列表参数
+     *
+     * @Update chauncy
+     *
+     * @param  searchTodaySpellGoods
+     * @return void
+     **/
+    List<SpellGroupGoodsVo> searchTodaySpellGoods(SearchSpellGroupGoodsDto searchTodaySpellGoods);
 }

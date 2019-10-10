@@ -110,7 +110,7 @@ public enum AdviceLocationEnum implements BaseEnum {
 
     BAIHUO_MIDDLE(32,"百货中部广告"),
 
-    TODAY_SPELL(32,"今日必拼");
+    TODAY_SPELL(33,"今日必拼");
 
     private Integer id;
 

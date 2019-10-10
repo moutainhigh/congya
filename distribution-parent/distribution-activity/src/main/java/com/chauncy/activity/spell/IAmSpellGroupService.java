@@ -1,5 +1,6 @@
 package com.chauncy.activity.spell;
 
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.activity.spell.AmSpellGroupPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.activity.SearchMySpellGroupDto;
@@ -110,4 +111,40 @@ public interface IAmSpellGroupService extends Service<AmSpellGroupPo> {
      * @return
      */
     void delByIds(List<Long> ids);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-10 13:42
+     * @Description //获取拼团主页面中的今日必拼的三个商品
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return java.util.List<com.chauncy.data.vo.app.goods.SpellGroupGoodsVo>
+     **/
+    List<SpellGroupGoodsVo> findTodaySpell();
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-10 15:51
+     * @Description //获取今日必拼商品相关的类目
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return java.util.List<com.chauncy.data.vo.BaseVo>
+     **/
+    List<BaseVo> findTodaySpellCategory();
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-10 16:01
+     * @Description //查询今日必拼商品列表参数
+     *
+     * @Update chauncy
+     *
+     * @param  searchTodaySpellGoods
+     * @return java.lang.Object
+     **/
+    PageInfo<SpellGroupGoodsVo> searchTodaySpellGoods(SearchSpellGroupGoodsDto searchTodaySpellGoods);
 }
