@@ -235,7 +235,7 @@ public class PmGoodsCategoryApi extends BaseApi {
     @PostMapping("/find_all_category")
     @ApiOperation(value = "联动查询所有分类")
     public JsonViewData findGoodsCategoryTreeVo(){
-        List<GoodsCategoryTreeVo> goodsCategoryTreeVo = goodsCategoryService.FindAllSecondCategory();
+        List<GoodsCategoryTreeVo> goodsCategoryTreeVo = goodsCategoryService.findGoodsCategoryTreeVo();
         return setJsonViewData(MyBaseTree.build(goodsCategoryTreeVo));
     }
 

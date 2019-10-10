@@ -1,5 +1,6 @@
 package com.chauncy.data.mapper.product;
 
+import com.chauncy.data.domain.po.message.advice.MmAdviceRelSpellGoodsPo;
 import com.chauncy.data.domain.po.product.PmGoodsAttributePo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -181,4 +182,20 @@ public interface PmGoodsCategoryMapper extends IBaseMapper<PmGoodsCategoryPo> {
      * @return java.util.List<com.chauncy.data.vo.manage.product.SearchThirdCategoryVo>
      **/
     List<SearchThirdCategoryVo> searchThirdCategory(SearchThirdCategoryDto searchThirdCategoryDto);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-10 10:44
+     * @Description //获取商品对应的一二三级类目ID
+     *
+     * @Update chauncy
+     *
+     * @param  a
+     * @return com.chauncy.data.domain.po.message.advice.MmAdviceRelSpellGoodsPo
+     **/
+    @Select("select a.id as first_category_id,a.parent_id as second_category_id,b.parent_id as third_category_id \n" +
+            "from pm_goods_category a,pm_goods_category b,pm_goods c \n" +
+            "where c.del_flag = 0 and c.publish_status = 1 and c.id = #{a} and c.goods_category_id = a.id and " +
+            "a.del_flag = 0 and a.enabled =1 and b.del_flag = 0 and b.enabled =1 and a.parent_id = b.id")
+    MmAdviceRelSpellGoodsPo getCategoryByGoodsId(Long a);
 }
