@@ -22,8 +22,8 @@ public enum WithdrawalWayEnum implements BaseEnum {
     ;
 
 
-    @EnumValue
     private Integer id;
+    @EnumValue
     private String name;
     WithdrawalWayEnum(Integer id, String name){
         this.id = id;

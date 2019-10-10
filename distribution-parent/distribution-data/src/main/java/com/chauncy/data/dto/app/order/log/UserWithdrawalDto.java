@@ -34,8 +34,7 @@ public class UserWithdrawalDto  implements Serializable {
     private String account;
 
     @ApiModelProperty(value = "提现方式")
-    @EnumConstraint(target = WithdrawalWayEnum.class)
-    private WithdrawalWayEnum withdrawalWayEnum;
+    private String withdrawalWayEnum;
 
 
 }
