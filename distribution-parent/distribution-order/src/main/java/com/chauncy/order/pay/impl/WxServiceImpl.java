@@ -20,11 +20,13 @@ import com.chauncy.data.bo.manage.order.OrderRefundInfoBo;
 import com.chauncy.data.domain.po.activity.gift.AmGiftOrderPo;
 import com.chauncy.data.domain.po.afterSale.OmAfterSaleOrderPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
+import com.chauncy.data.domain.po.order.OmRealUserPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.app.order.pay.PayParamDto;
 import com.chauncy.data.mapper.activity.gift.AmGiftOrderMapper;
 import com.chauncy.data.mapper.afterSale.OmAfterSaleOrderMapper;
+import com.chauncy.data.mapper.order.OmRealUserMapper;
 import com.chauncy.data.mapper.pay.IPayOrderMapper;
 import com.chauncy.data.vo.app.order.pay.UnifiedOrderVo;
 import com.chauncy.order.afterSale.IOmAfterSaleOrderService;
@@ -62,10 +64,17 @@ public class WxServiceImpl implements IWxService {
     public static final String REFUND_NOTIFY_URL = "http://112.126.96.226/distribution/app/wxPay/wxPay/notify";
     //交易类型
     public static final String TRADE_TYPE_APP = "APP";
+    //币种  微信支付订单支付时使用的币种
+    public static final String FEE_TYPE = "CNY";
+    //清关用户实名信息  请传固定值IDCARD,暂只支持大陆身份证。
+    public static final String CERT_TYPE = "IDCARD";
 
 
     @Autowired
     private IPayOrderMapper payOrderMapper;
+
+    @Autowired
+    private OmRealUserMapper omRealUserMapper;
 
     @Autowired
     private AmGiftOrderMapper amGiftOrderMapper;
@@ -119,6 +128,55 @@ public class WxServiceImpl implements IWxService {
             throw new ServiceException(ResultCode.FAIL, "订单类型不是保税仓或者海外直邮");
         }
 
+        WxMD5Util md5Util = wxMD5Util;
+        WXConfigUtil config = wxConfigUtil;
+        WXPay wxpay = new WXPay(config);
+
+        //支付单
+        PayOrderPo payOrderPo = payOrderMapper.selectById(omOrderPo.getPayOrderId());
+
+        //申请退款接口微信签名参数
+        Map<String, String> data = new HashMap<>();
+        //商户订单号
+        data.put("out_trade_no", String.valueOf(omOrderPo.getPayOrderId()));
+        //微信支付订单号
+        data.put("transaction_id", payOrderPo.getPayOrderNo());
+        //应用id APPID
+        data.put("appid", config.getAppID());
+        //商户号
+        data.put("mch_id", config.getMchID());
+        //海关  GUANGZHOU_ZS 广州（总署版）
+        data.put("customs", config.getCustoms());
+        //商户海关备案号
+        data.put("mch_customs_no", config.getMchCustomsNo());
+        //以下为拆单传的信息
+        //商户子订单号，如有拆单则必传
+        data.put("sub_order_no", String.valueOf(omOrderPo.getId()));
+        //微信支付订单支付时使用的币种，暂只支持人民币CNY,如有拆单则必传。
+        data.put("fee_type", FEE_TYPE);
+        //物流费用，以分为单位，如有拆单则必传。
+        Integer transportFee = BigDecimalUtil.safeMultiply(omOrderPo.getShipMoney(), new BigDecimal(100)).intValue();
+        data.put("transport_fee", String.valueOf(transportFee));
+        //商品费用，以分为单位，如有拆单则必传。 订单总金额 - 运费(商品实际费用 + 税费)
+        BigDecimal productFee = BigDecimalUtil.safeSubtract(omOrderPo.getTotalMoney(), omOrderPo.getShipMoney());
+        Integer productFeeCent = BigDecimalUtil.safeMultiply(productFee, new BigDecimal(100)).intValue();
+        data.put("product_fee", String.valueOf(productFeeCent));
+        //子订单金额，以分为单位，不能超过原订单金额，order_fee=transport_fee+product_fee（应付金额=物流费+商品价格），如有拆单则必传。
+        data.put("order_fee", String.valueOf(transportFee + productFeeCent));
+        //用户实名信息
+        OmRealUserPo omRealUserPo = omRealUserMapper.selectById(omOrderPo.getRealUserId());
+        //证件类型	请传固定值IDCARD,暂只支持大陆身份证。
+        data.put("cert_type", CERT_TYPE);
+        //证件号码	用户大陆身份证号，尾号为字母X的身份证号，请大写字母X。
+        data.put("cert_id", omRealUserPo.getIdCard().toUpperCase());
+        //姓名	用户姓名。
+        data.put("name", omRealUserPo.getTrueName());
+        //参数签名
+        try {
+            data.put("sign", md5Util.getSign(data));
+        } catch (Exception e) {
+            throw new ServiceException(ResultCode.FAIL, "微信自助清关接口签名失败");
+        }
     }
 
     /**
@@ -257,8 +315,8 @@ public class WxServiceImpl implements IWxService {
         //app调起支付接口所需参数
         UnifiedOrderVo unifiedOrderVo = new UnifiedOrderVo();
         //参加调起支付的签名字段有且只能是6个，分别为appid、partnerid、prepayid、package、noncestr和timestamp，而且都必须是小写
-        unifiedOrderVo.setAppId(config.getAppID());
         unifiedOrderVo.setPartnerId(config.getMchID());
+        unifiedOrderVo.setAppId(config.getAppID());
         unifiedOrderVo.setPackageStr("Sign=WXPay");
         unifiedOrderVo.setNonceStr(WXPayUtil.generateNonceStr());
         //时间戳 单位为秒
