@@ -3,14 +3,20 @@ package com.chauncy.activity.coupon;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.activity.coupon.AmCouponPo;
+import com.chauncy.data.dto.app.order.coupon.CanUseCouponListDto;
+import com.chauncy.data.dto.base.BasePageDto;
 import com.chauncy.data.dto.manage.activity.coupon.add.SaveCouponDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchCouponListDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchDetailAssociationsDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchReceiveRecordDto;
 import com.chauncy.data.dto.manage.common.FindGoodsBaseByConditionDto;
+import com.chauncy.data.vo.app.activity.coupon.SelectCouponVo;
 import com.chauncy.data.vo.manage.activity.coupon.*;
 import com.chauncy.data.vo.manage.common.goods.GoodsBaseVo;
 import com.github.pagehelper.PageInfo;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * <p>
@@ -82,4 +88,17 @@ public interface IAmCouponService extends Service<AmCouponPo> {
      * @return
      */
     void delByAssociationsId(Long[] relIds);
+
+    /**
+     * @Author zhangrt
+     * @Date 2019/10/9 21:31
+     * @Description 这个订单当前用户能用什么优惠券
+     *
+     * @Update
+     *
+     * @Param [userId, skuIds]
+     * @return com.chauncy.data.vo.app.activity.coupon.SelectCouponVo
+     **/
+    List<SelectCouponVo> getSelectCouPonVo(List<CanUseCouponListDto> canUseCouponListDtos);
+
 }

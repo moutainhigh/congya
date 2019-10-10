@@ -8,6 +8,7 @@ import com.chauncy.data.dto.manage.activity.gift.select.SearchCouponDto;
 import com.chauncy.data.dto.manage.common.FindGoodsBaseByConditionDto;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.app.activity.coupon.SelectCouponVo;
 import com.chauncy.data.vo.manage.activity.coupon.FindCouponDetailByIdVo;
 import com.chauncy.data.vo.manage.activity.coupon.SearchCouponListVo;
 import com.chauncy.data.vo.manage.activity.coupon.SearchDetailAssociationsVo;
@@ -115,4 +116,20 @@ public interface AmCouponMapper extends IBaseMapper<AmCouponPo> {
      */
     @Update("update am_coupon set stock = stock-1 where id = #{couponId}")
     void receiveForUpdate(Long couponId);
+
+
+    /**
+     * @Author zhangrt
+     * @Date 2019/10/9 21:31
+     * @Description 这个订单当前用户能用什么优惠券
+     *
+     * @Update
+     *
+     * @Param [userId, skuIds]
+     * @return com.chauncy.data.vo.app.activity.coupon.SelectCouponVo
+     **/
+
+    List<SelectCouponVo> getSelectCouPonVo(@Param("userId") Long userId,@Param("skuIds") List<Long> skuIds);
+
+
 }

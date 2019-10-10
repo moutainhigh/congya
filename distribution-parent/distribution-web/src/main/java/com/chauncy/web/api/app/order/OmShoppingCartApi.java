@@ -1,6 +1,7 @@
 package com.chauncy.web.api.app.order;
 
 
+import com.chauncy.activity.coupon.IAmCouponService;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.order.OmRealUserPo;
 import com.chauncy.data.dto.app.car.SettleDto;
@@ -8,8 +9,10 @@ import com.chauncy.data.dto.app.car.SubmitOrderDto;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
 import com.chauncy.data.dto.app.order.cart.update.UpdateCartSkuDto;
+import com.chauncy.data.dto.app.order.coupon.CanUseCouponListDto;
 import com.chauncy.data.dto.app.user.add.AddIdCardDto;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.app.activity.coupon.SelectCouponVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.car.TotalCarVo;
 import com.chauncy.data.vo.app.goods.AssociatedGoodsVo;
@@ -22,6 +25,7 @@ import com.chauncy.order.service.IOmRealUserService;
 import com.chauncy.order.service.IOmShoppingCartService;
 import com.chauncy.web.base.BaseApi;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.BeanUtils;
@@ -49,6 +53,9 @@ public class OmShoppingCartApi extends BaseApi {
 
     @Autowired
     private IOmRealUserService realUserService;
+
+    @Autowired
+    private IAmCouponService couponService;
 
     /**
      * 查看商品详情
@@ -173,6 +180,13 @@ public class OmShoppingCartApi extends BaseApi {
     public JsonViewData<TotalCarVo> updateCart(@RequestBody @Validated SettleDto settleDto) {
         TotalCarVo totalCarVo = service.searchByIds(settleDto, getAppCurrUser());
         return setJsonViewData(totalCarVo);
+    }
+
+    @PostMapping("/getCoupon")
+    @ApiOperation("选择优惠券")
+    public JsonViewData<SelectCouponVo> getCoupon(@RequestBody @Validated List<CanUseCouponListDto> canUseCouponListDtos) {
+        List<SelectCouponVo> selectCouPonVo = couponService.getSelectCouPonVo(canUseCouponListDtos);
+        return setJsonViewData(selectCouPonVo);
     }
 
     @PostMapping("/submitOrder")

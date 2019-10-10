@@ -70,4 +70,7 @@ public class AmActivityRelGoodsSkuPo implements Serializable {
     @ApiModelProperty("活动与商品关联表的ID")
     private Long relId;
 
+    @ApiModelProperty("销量")
+    private Long salesVolume;
+
 }

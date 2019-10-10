@@ -8,6 +8,7 @@ import com.chauncy.common.enums.message.KeyWordTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.*;
+import com.chauncy.data.bo.app.car.ActivitySkuBo;
 import com.chauncy.data.bo.app.car.MoneyShipBo;
 import com.chauncy.data.bo.app.order.reward.RewardShopTicketBo;
 import com.chauncy.data.bo.base.BaseBo;
@@ -43,6 +44,7 @@ import com.chauncy.data.mapper.activity.coupon.AmCouponRelCouponUserMapper;
 import com.chauncy.data.mapper.activity.integrals.AmIntegralsMapper;
 import com.chauncy.data.mapper.activity.reduced.AmReducedMapper;
 import com.chauncy.data.mapper.activity.registration.AmActivityRelActivityGoodsMapper;
+import com.chauncy.data.mapper.activity.registration.AmActivityRelGoodsSkuMapper;
 import com.chauncy.data.mapper.activity.seckill.AmSeckillMapper;
 import com.chauncy.data.mapper.activity.spell.AmSpellGroupMapper;
 import com.chauncy.data.mapper.area.AreaRegionMapper;
@@ -232,6 +234,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     @Autowired
     private IPayUserRelationNextLevelService payUserRelationNextLevelService;
+
+    @Autowired
+    private AmActivityRelGoodsSkuMapper amActivityRelGoodsSkuMapper;
 
 
     //需要进行实行认证且计算税率的商品类型
@@ -445,6 +450,27 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             //为查询后的id匹配上用户下单的数量
             x.setNumber(settleAccountsDtos.stream().filter(y -> y.getSkuId().equals(x.getId())).findFirst().get().getNumber());
         });
+        //判断是否活动商品
+        List<ActivitySkuBo> boByIds = amActivityRelGoodsSkuMapper.getBoByIds(skuIds);
+        if (!ListUtil.isListNullAndEmpty(boByIds)){
+            boByIds.forEach(x->{
+                ShopTicketSoWithCarGoodVo shopTicketSoWithCarGoodVo=shopTicketSoWithCarGoodVos.stream().filter(y->x.getSkuId().equals(y.getId())).findFirst().orElse(null);
+                switch (x.getActivityType()) {
+                    case NON:
+                        break;
+                    case REDUCED:
+
+                        break;
+                    case INTEGRALS:
+                        break;
+                    case SECKILL:
+                        break;
+                    case SPELL_GROUP:
+                        break;
+                }
+            });
+        }
+
 
         TotalCarVo totalCarVo = new TotalCarVo();
 

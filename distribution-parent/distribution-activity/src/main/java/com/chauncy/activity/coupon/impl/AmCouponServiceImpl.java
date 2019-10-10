@@ -16,6 +16,9 @@ import com.chauncy.data.domain.po.activity.coupon.AmCouponRelCouponUserPo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.product.PmGoodsSkuPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.dto.app.order.coupon.CanUseCouponListDto;
+import com.chauncy.data.dto.base.BasePageDto;
 import com.chauncy.data.dto.manage.activity.coupon.add.SaveCouponDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchCouponListDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchDetailAssociationsDto;
@@ -28,6 +31,7 @@ import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
 import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.app.activity.coupon.SelectCouponVo;
 import com.chauncy.data.vo.manage.activity.coupon.*;
 import com.chauncy.data.vo.manage.common.goods.GoodsBaseVo;
 import com.chauncy.security.util.SecurityUtil;
@@ -44,6 +48,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -102,7 +107,7 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
             couponPo.setCreateBy(userPo.getUsername());
             couponPo.setStock(saveCouponDto.getTotalNum());//初始化库存信息
             couponPo.setId(null);
-            saveCouponAssociation(couponFormEnum,couponScopeEnum,saveCouponDto,couponPo,saveCouponResultVo);
+            saveCouponAssociation(couponFormEnum, couponScopeEnum, saveCouponDto, couponPo, saveCouponResultVo);
         }
         //修改操作
         else {
@@ -113,15 +118,15 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
             BeanUtils.copyProperties(saveCouponDto, couponPo);
             couponPo.setUpdateBy(userPo.getUsername());
             //删除优惠券与商品/分类的关联表
-            relCouponGoodsMapper.delete(new QueryWrapper<AmCouponRelCouponGoodsPo>().lambda().eq(AmCouponRelCouponGoodsPo::getCouponId,saveCouponDto.getId()));
-            saveCouponAssociation(couponFormEnum,couponScopeEnum,saveCouponDto,couponPo,saveCouponResultVo);
+            relCouponGoodsMapper.delete(new QueryWrapper<AmCouponRelCouponGoodsPo>().lambda().eq(AmCouponRelCouponGoodsPo::getCouponId, saveCouponDto.getId()));
+            saveCouponAssociation(couponFormEnum, couponScopeEnum, saveCouponDto, couponPo, saveCouponResultVo);
         }
         return null;
     }
 
-    public SaveCouponResultVo saveCouponAssociation(CouponFormEnum couponFormEnum,CouponScopeEnum couponScopeEnum,
-                                                    SaveCouponDto saveCouponDto,AmCouponPo couponPo,
-                                                    SaveCouponResultVo saveCouponResultVo){
+    public SaveCouponResultVo saveCouponAssociation(CouponFormEnum couponFormEnum, CouponScopeEnum couponScopeEnum,
+                                                    SaveCouponDto saveCouponDto, AmCouponPo couponPo,
+                                                    SaveCouponResultVo saveCouponResultVo) {
         switch (couponFormEnum) {
 
             //满减
@@ -344,8 +349,8 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
                             if (categoryMapper.selectById(a) == null) {
                                 throw new ServiceException(ResultCode.FAIL, "不存在该分类:[%s]");
                             }
-                            if (!ListUtil.isListNullAndEmpty(relCouponGoodsMapper.selectList(new QueryWrapper<AmCouponRelCouponGoodsPo>().eq("association_id",a)))){
-                                throw new ServiceException(ResultCode.FAIL,String.format("该分类已关联:[%s:%s]",a,categoryMapper.selectById(a).getName()));
+                            if (!ListUtil.isListNullAndEmpty(relCouponGoodsMapper.selectList(new QueryWrapper<AmCouponRelCouponGoodsPo>().eq("association_id", a)))) {
+                                throw new ServiceException(ResultCode.FAIL, String.format("该分类已关联:[%s:%s]", a, categoryMapper.selectById(a).getName()));
                             }
                             AmCouponRelCouponGoodsPo amCouponRelCouponGoodsPo = new AmCouponRelCouponGoodsPo();
                             amCouponRelCouponGoodsPo.setCreateBy(securityUtil.getCurrUser().getUsername());
@@ -480,9 +485,9 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
         Integer pageSize = searchDetailAssociationsDto.getPageSize() == null ? defaultPageSize : searchDetailAssociationsDto.getPageSize();
 
         AmCouponPo couponPo = mapper.selectById(searchDetailAssociationsDto.getId());
-        if (couponPo == null){
+        if (couponPo == null) {
             return new PageInfo<>();
-        }else {
+        } else {
             CouponFormEnum couponFormEnum = CouponFormEnum.getCouponFormEnumById(couponPo.getType());
             CouponScopeEnum couponScopeEnum = CouponScopeEnum.getCouponScopeEnumById(couponPo.getScope());
             PageInfo<SearchDetailAssociationsVo> searchDetailAssociationsVoPageInfo = new PageInfo<>();
@@ -594,7 +599,7 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
         Integer pageNo = findGoodsBaseByConditionDto.getPageNo() == null ? defaultPageNo : findGoodsBaseByConditionDto.getPageNo();
         Integer pageSize = findGoodsBaseByConditionDto.getPageSize() == null ? defaultPageSize : findGoodsBaseByConditionDto.getPageSize();
         PageInfo<GoodsBaseVo> goodsBaseVoPageInfo = PageHelper.startPage(pageNo, pageSize/*, defaultSoft*/)
-                .doSelectPageInfo(() -> mapper.findGoodsBaseByCondition(findGoodsBaseByConditionDto,finalGoodsIds));
+                .doSelectPageInfo(() -> mapper.findGoodsBaseByCondition(findGoodsBaseByConditionDto, finalGoodsIds));
         goodsBaseVoPageInfo.getList().forEach(a -> {
             PmGoodsCategoryPo goodsCategoryPo3 = categoryMapper.selectById(a.getCategoryId());
             String level3 = goodsCategoryPo3.getName();
@@ -629,5 +634,60 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
             }
         });
         relCouponGoodsMapper.deleteBatchIds(associationsIdList);
+    }
+
+    @Override
+    public List<SelectCouponVo> getSelectCouPonVo(List<CanUseCouponListDto> canUseCouponListDtos) {
+
+        List<Long> skuIds=canUseCouponListDtos.stream().map(CanUseCouponListDto::getSkuId).collect(Collectors.toList());
+
+        UmUserPo appCurrUser = securityUtil.getAppCurrUser();
+        List<SelectCouponVo> querySelectCouponVoList = mapper.getSelectCouPonVo(appCurrUser.getId(), skuIds);
+        //sku对应的数量
+        querySelectCouponVoList.forEach(x -> {
+            //为查询后的id匹配上用户下单的数量
+            x.setNumber(canUseCouponListDtos.stream().filter(y -> y.getSkuId().equals(x.getSkuId())).findFirst().get().getNumber());
+        });
+        if (ListUtil.isListNullAndEmpty(querySelectCouponVoList)) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "无可用的优惠券！");
+        }
+        //算出满足满减优惠的优惠券
+        List<SelectCouponVo> selectCouponVoList= com.google.common.collect.Lists.newArrayList();
+        Map<Long, List<SelectCouponVo>> map = querySelectCouponVoList.stream().collect(Collectors.groupingBy(SelectCouponVo::getCouponId));
+        for (Map.Entry<Long, List<SelectCouponVo>> entry : map.entrySet()) {
+            Long couponId = entry.getKey();
+            List<SelectCouponVo> selectCouponVos =entry.getValue();
+            Integer type = selectCouponVos.get(0).getType();
+            BigDecimal discountFullMoney = selectCouponVos.get(0).getDiscountFullMoney();
+            BigDecimal reductionFullMoney = selectCouponVos.get(0).getReductionFullMoney();
+            // 过滤去重
+            List<Long> skuIdList=Lists.newArrayList();
+            //重复的sku去掉，可能会出现用户拥有两张一样的优惠券
+            List<SelectCouponVo> unionSelectCouponVos = selectCouponVos.stream().filter(
+                    v -> {
+                        boolean flag = !skuIdList.contains(v.getSkuId());
+                        skuIdList.add(v.getSkuId());
+                        return flag;
+                    }
+            ).collect(Collectors.toList());
+            //使用同一优惠券商品的总销售价
+            BigDecimal totalPrice = unionSelectCouponVos.stream().map(x->BigDecimalUtil.safeMultiply(x.getNumber(),x.getSellPrice())).reduce(BigDecimal.ZERO, BigDecimal::add);
+            //满减
+            if (CouponFormEnum.WITH_PREFERENTIAL_REDUCTION.getId().equals(type)){
+                //不满足满减条件
+                if (reductionFullMoney.compareTo(totalPrice)>0){
+                    continue;
+                }
+            }
+            //折扣
+            if (CouponFormEnum.FIXED_DISCOUNT.getId().equals(type)){
+                //不满足折扣条件
+                if (discountFullMoney.compareTo(totalPrice)>0){
+                    continue;
+                }
+            }
+            selectCouponVoList.add(selectCouponVos.get(0));
+        }
+        return selectCouponVoList;
     }
 }

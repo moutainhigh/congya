@@ -253,7 +253,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         payOrderPoUpdateWrapper.lambda().set(PayOrderPo::getPayTime, notifyMap.get("time_end"));
         payOrderService.update(payOrderPoUpdateWrapper);
         //付款成功后需要做的操作
-        afterPayDo(payOrderPo.getId());
+        afterPayDo(payOrderPo.getId()) ;
         //订单下单流水生成
         UmUserPo umUserPo = userMapper.selectById(payOrderPo.getUmUserId());
         AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
