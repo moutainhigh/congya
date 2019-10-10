@@ -309,6 +309,7 @@
                     WHERE uuf.favorites_id = ss.id
                     AND uuf.`type` = '店铺'
                     AND uuf.user_id = #{userId}
+                    AND uuf.is_favorites = 1
                     AND uuf.del_flag = 0)
                 ) AS is_focus,
                 ss.store_describe,
@@ -387,6 +388,7 @@
                     WHERE uuf.favorites_id = ss.id
                     AND uuf.`type` = '店铺'
                     AND uuf.user_id = #{userId}
+                    AND uuf.is_favorites = 1
                     AND uuf.del_flag = 0)
                 ) AS is_focus,
             GROUP_CONCAT(`ssl`.name) AS storeLabels
@@ -488,6 +490,7 @@
                 WHERE uuf.favorites_id = ss.id
                 AND uuf.`type` = '店铺'
                 AND uuf.user_id = #{userId}
+                AND uuf.is_favorites = 1
                 AND uuf.del_flag = 0)
             ) AS is_focus,
             ss.collection_num,
