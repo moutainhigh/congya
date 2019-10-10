@@ -198,7 +198,7 @@
         select DISTINCT pga.id
         from pm_goods pg, pm_goods_rel_attribute_good pgrag,pm_goods_attribute pga
         where pg.id = pgrag.goods_good_id and pga.id = pgrag.goods_attribute_id
-        and pga.`type` = 8 and pg.store_id = #{id} and pg.del_flag = pgrag.del_flag = pga.del_flag = 0
+        and pga.`type` = 8 and pg.store_id = #{id} and pg.del_flag = 0 and pgrag.del_flag = 0 and pga.del_flag = 0
     </select>
 
     <select id="selectRelAttributeIds" resultType="Long">
@@ -309,6 +309,7 @@
                     WHERE uuf.favorites_id = ss.id
                     AND uuf.`type` = '店铺'
                     AND uuf.user_id = #{userId}
+                    AND uuf.is_favorites = 1
                     AND uuf.del_flag = 0)
                 ) AS is_focus,
                 ss.store_describe,
@@ -387,6 +388,7 @@
                     WHERE uuf.favorites_id = ss.id
                     AND uuf.`type` = '店铺'
                     AND uuf.user_id = #{userId}
+                    AND uuf.is_favorites = 1
                     AND uuf.del_flag = 0)
                 ) AS is_focus,
             GROUP_CONCAT(`ssl`.name) AS storeLabels
@@ -488,6 +490,7 @@
                 WHERE uuf.favorites_id = ss.id
                 AND uuf.`type` = '店铺'
                 AND uuf.user_id = #{userId}
+                AND uuf.is_favorites = 1
                 AND uuf.del_flag = 0)
             ) AS is_focus,
             ss.collection_num,

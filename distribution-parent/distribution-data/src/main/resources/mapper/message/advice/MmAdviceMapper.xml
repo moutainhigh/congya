@@ -591,7 +591,8 @@
                 WHERE uuf.favorites_id = ss.id
                 AND uuf.`type` = '店铺'
                 AND uuf.user_id = #{userId}
-                AND uuf.del_flag = 0)
+                AND uuf.del_flag = 0
+                AND is_favorites = 1)
             ) AS is_focus,
         (
             SELECT GROUP_CONCAT(`ssl`.name)
@@ -620,6 +621,7 @@
                 WHERE uuf.favorites_id = ss.id
                 AND uuf.`type` = '店铺'
                 AND uuf.user_id = #{userId}
+                AND uuf.is_favorites = 1
                 AND uuf.del_flag = 0)
             ) AS is_focus,
         (

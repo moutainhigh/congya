@@ -155,7 +155,7 @@
                 AND pgc1.parent_id = #{categoryId}
             </if>
             AND pg.`publish_status` = 1
-            AND aargs.del_flag = 1
+            AND aargs.del_flag = 0
         </where>
         GROUP BY pg.`id`
         <if test="null != sortFile and sortFile.name() == 'PRICE_SORT' ">

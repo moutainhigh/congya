@@ -3,9 +3,11 @@ package com.chauncy.order.pay.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.activity.gift.IAmGiftOrderService;
+import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.common.enums.app.order.PayOrderStatusEnum;
 import com.chauncy.common.enums.app.order.afterSale.AfterSaleStatusEnum;
 import com.chauncy.common.enums.app.order.afterSale.AfterSaleTypeEnum;
+import com.chauncy.common.enums.goods.GoodsTypeEnum;
 import com.chauncy.common.enums.log.PaymentWayEnum;
 import com.chauncy.common.enums.order.OrderPayTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
@@ -17,6 +19,7 @@ import com.chauncy.common.util.wechat.WxMD5Util;
 import com.chauncy.data.bo.manage.order.OrderRefundInfoBo;
 import com.chauncy.data.domain.po.activity.gift.AmGiftOrderPo;
 import com.chauncy.data.domain.po.afterSale.OmAfterSaleOrderPo;
+import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.app.order.pay.PayParamDto;
@@ -87,6 +90,36 @@ public class WxServiceImpl implements IWxService {
 
     @Autowired
     private IOmAfterSaleOrderService omAfterSaleOrderService;
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/9 20:40
+     * @Description 海外直邮的商品下单之后 微信自助清关 将订单附加信息提交到海关
+     * https://pay.weixin.qq.com/wiki/doc/api/external/declarecustom.php?chapter=18_1
+     *
+     * @Update yeJH
+     *
+     * @param  orderId
+     * @return void
+     **/
+    @Override
+    public void customDeclareOrder(Long orderId) {
+        OmOrderPo omOrderPo = omOrderService.getById(orderId);
+        if(null == omOrderPo) {
+            throw new ServiceException(ResultCode.NO_EXISTS);
+        }
+
+        if(!OrderStatusEnum.NEED_SEND_GOODS.getId().equals(omOrderPo.getStatus())) {
+            //订单不是已支付状态
+            throw new ServiceException(ResultCode.FAIL, "订单状态不是已支付状态");
+        }
+        if(!(GoodsTypeEnum.BONDED.getName().equals(omOrderPo.getGoodsType()) ||
+                GoodsTypeEnum.OVERSEA.getName().equals(omOrderPo.getGoodsType()))) {
+            //订单类型不是保税仓 或者 海外直邮
+            throw new ServiceException(ResultCode.FAIL, "订单类型不是保税仓或者海外直邮");
+        }
+
+    }
 
     /**
      * 调用官方SDK统一下单 获取前端调起支付接口的参数

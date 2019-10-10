@@ -60,7 +60,7 @@
             SUM(aargs.activity_stock) AS activityStock,
             SUM(aargs.sales_volume) AS salesVolume,
             MIN(aargs.activity_price) AS sellPrice,
-            MIN(pgs.`line_price`) AS linePrice,
+            MIN(pgs.`sell_price`) AS linePrice,
             `as`.`activity_end_time`
         FROM am_seckill `as`
         INNER JOIN am_activity_rel_activity_goods aarag

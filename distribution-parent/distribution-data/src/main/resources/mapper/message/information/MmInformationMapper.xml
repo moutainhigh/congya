@@ -96,6 +96,7 @@
                 WHERE uuf.favorites_id = ss.id
                 AND uuf.`type` = '店铺'
                 AND uuf.user_id = #{userId}
+                AND uuf.is_favorites = 1
                 AND uuf.del_flag = 0)
             ) AS is_focus,
             (EXISTS
@@ -104,6 +105,7 @@
                 WHERE uuf.favorites_id = mi.id
                 AND uuf.`type` = '资讯'
                 AND uuf.user_id = #{userId}
+                AND uuf.is_favorites = 1
                 AND uuf.del_flag = 0)
             ) AS isCollection,
             (EXISTS
@@ -230,6 +232,7 @@
                 WHERE uuf.favorites_id = ss.id
                 AND uuf.`type` = '店铺'
                 AND uuf.user_id = #{userId}
+                AND uuf.is_favorites = 1
                 AND uuf.del_flag = 0)
             ) AS is_focus,
             (EXISTS
@@ -264,6 +267,7 @@
             mi.del_flag = 0 and mi.enabled = 1
             <if test="informationType != null and informationType == 2">
                 and uuf.del_flag = 0 and uuf.user_id = #{userId}
+                AND uuf.is_favorites = 1
             </if>
             <if test="infoCategoryId != null and infoCategoryId !=0">
                 and mi.info_category_id = #{infoCategoryId}
@@ -374,6 +378,7 @@
                     <if test="informationType != null and informationType == 2">
                         AND uuf.del_flag = 0
                         AND uuf.user_id = #{userId}
+                        AND uuf.is_favorites = 1
                     </if>
                     <if test="infoCategoryId != null and infoCategoryId !=0">
                         AND mi.info_category_id = #{infoCategoryId}
@@ -403,6 +408,7 @@
             AND mi.enabled = 1
             AND uuf.del_flag = 0
             AND uuf.user_id = #{userId}
+            AND uuf.is_favorites = 1
             AND mi.update_time <![CDATA[>= ]]> #{readTime}
         </where>
     </select>

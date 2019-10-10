@@ -9,6 +9,18 @@ import com.chauncy.data.vo.app.order.pay.UnifiedOrderVo;
  * @since 2019/7/5 16:22
  */
 public interface IWxService {
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/9 20:10
+     * @Description 微信自助清关
+     *
+     * @Update yeJH
+     *
+     * @param  orderId 订单id
+     * @return void
+     **/
+    void customDeclareOrder(Long orderId);
     /**
      * 调用官方SDK 获取前端调起支付接口的参数
      * @return
