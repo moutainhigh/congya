@@ -696,7 +696,7 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
 //                                newBrandIds.removeAll(tabBrandIdList);
 
                                 if (ListUtil.isListNullAndEmpty(newBrandIds)) {
-                                    delBrandIds = newBrandIds;
+                                    delBrandIds = tabBrandIdList;
                                     delBrandIds.forEach(c -> {
                                         //获取该选项卡下的品牌下的关联id
                                         Long brandRelId = relTabThingsMapper.selectOne(new QueryWrapper<MmAdviceRelTabThingsPo>().lambda()

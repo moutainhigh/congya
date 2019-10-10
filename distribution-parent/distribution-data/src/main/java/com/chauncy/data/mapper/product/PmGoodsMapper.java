@@ -6,10 +6,11 @@ import com.chauncy.data.domain.po.product.PmGoodsPo;
 import com.chauncy.data.dto.app.component.ShareDto;
 import com.chauncy.data.dto.app.product.SearchActivityGoodsListDto;
 import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
-import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
 import com.chauncy.data.dto.manage.message.advice.tab.association.search.SearchActivityGoodsDto;
 import com.chauncy.data.dto.manage.message.advice.tab.tab.search.SearchAdviceGoodsDto;
+import com.chauncy.data.dto.manage.message.advice.select.SearchSpellAdviceBindGoodsDto;
+import com.chauncy.data.dto.manage.message.advice.select.SearchSpellAdviceGoodsDto;
 import com.chauncy.data.dto.supplier.activity.select.SearchAssociatedGoodsDto;
 import com.chauncy.data.dto.supplier.good.select.SearchExcelDto;
 import com.chauncy.data.dto.supplier.good.select.SearchGoodInfosDto;
@@ -32,7 +33,6 @@ import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
 import com.chauncy.data.vo.supplier.good.RecommendGoodsVo;
 import com.chauncy.data.vo.supplier.good.stock.StockTemplateGoodsInfoVo;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
@@ -290,4 +290,28 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
      * @return void
      **/
     List<SearchActivityGoodsVo> searchSpellGroupGoods(SearchActivityGoodsDto searchActivityGoodsDto);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-09 20:23
+     * @Description //条件分页查询今日必拼广告需要绑定的参加拼团的商品信息
+     *
+     * @Update chauncy
+     *
+     * @param  searchSpellAdviceGoodsDto
+     * @return java.util.List<com.chauncy.data.vo.manage.message.advice.tab.tab.SearchAdviceGoodsVo>
+     **/
+    List<SearchAdviceGoodsVo> searchSpellAdviceGoods(SearchSpellAdviceGoodsDto searchSpellAdviceGoodsDto);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-09 21:47
+     * @Description //条件分页查询今日必拼广告已经绑定的参加拼团的商品信息
+     *
+     * @Update chauncy
+     *
+     * @param  searchSpellAdviceGoodsDto
+     * @return void
+     **/
+    List<SearchAdviceGoodsVo> searchSpellAdviceBindGoods(SearchSpellAdviceBindGoodsDto searchSpellAdviceGoodsDto);
 }
