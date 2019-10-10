@@ -135,6 +135,57 @@ public class AsSpellGroupApi  extends BaseApi {
                 amSpellGroupService.getSpellGroupDetail(relId));
     }
 
+    /**
+     * @Author chauncy
+     * @Date 2019-10-10 13:39
+     * @Description //获取拼团主页面中的今日必拼的三个商品
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return com.chauncy.data.vo.JsonViewData<com.chauncy.data.vo.app.goods.SpellGroupGoodsVo>
+     **/
+    @ApiOperation("获取拼团主页面中的今日必拼的三个商品")
+    @GetMapping("/findTodaySpell")
+    public JsonViewData<List<SpellGroupGoodsVo>> findTodaySpell(){
 
+        return setJsonViewData(amSpellGroupService.findTodaySpell());
+    }
 
+    /**
+     * @Author chauncy
+     * @Date 2019-10-10 15:49
+     * @Description //获取今日必拼商品相关的类目
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.BaseVo>>
+     **/
+    @GetMapping("/findTodaySpellCategory")
+    @ApiOperation("获取今日必拼商品一级类目")
+    public JsonViewData<List<BaseVo>> findTodaySpellCategory(){
+
+        return setJsonViewData(amSpellGroupService.findTodaySpellCategory());
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-10 16:00
+     * @Description //查询今日必拼商品列表参数
+     *
+     * @Update chauncy
+     *
+     * @param  searchTodaySpellGoods
+     * @return com.chauncy.data.vo.JsonViewData<com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.goods.SpellGroupGoodsVo>>
+     **/
+    @ApiOperation("查询今日必拼商品列表参数")
+    @PostMapping("/searchTodaySpellGoods")
+    public JsonViewData<PageInfo<SpellGroupGoodsVo>> searchTodaySpellGoods(
+            @ApiParam(required = true, name = "searchTodaySpellGoods", value = "查询今日必拼商品列表参数")
+            @Valid @RequestBody SearchSpellGroupGoodsDto searchTodaySpellGoods){
+
+        return new JsonViewData(ResultCode.SUCCESS,"查找成功",
+                amSpellGroupService.searchTodaySpellGoods(searchTodaySpellGoods));
+    }
 }
