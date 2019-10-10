@@ -29,13 +29,31 @@
         id, create_by, create_time, update_by, update_time, del_flag, name, sort, picture, member_level_id, registration_start_time, registration_end_time, activity_start_time, activity_end_time, activity_description, group_num, discount_price_ratio, enable
     </sql>
 
-    <select id="searchMySpellGroup" resultType="com.chauncy.data.vo.app.activity.MySpellGroupVo">
+
+    <select id="getSpellGroupDetail" resultType="com.chauncy.data.vo.app.activity.spell.SpellGroupDetailVo">
+        SELECT asgm.id AS relId,
+            (
+                SELECT GROUP_CONCAT(uu.photo)
+                FROM am_spell_group_member temp
+                INNER JOIN um_user uu ON temp.user_id = uu.id AND  temp.group_main_id = #{mainId}
+                WHERE pay_status = 1
+                ORDER BY temp.create_time ASC LIMIT 5
+            ) AS headPortraits,
+            asgm1.`status` AS mainStatus,
+            asgm.`order_id`
+        FROM am_spell_group_member asgm
+        INNER JOIN am_spell_group_main asgm1 ON asgm.`group_main_id` = asgm1.`id`
+        WHERE asgm.id = #{relId}
+    </select>
+
+    <select id="searchMySpellGroup" resultType="com.chauncy.data.vo.app.activity.spell.MySpellGroupVo">
         SELECT asgm.id AS mainId,
             asgm.payed_num,
             pg.id AS goodsId,
             pg.`name` AS goodsName,
             pg.icon, asgm.status AS mainStatus,
             asgm1.order_id,
+            asgm1.id AS relId,
             oo.status AS orderStatus
         FROM am_spell_group_main asgm
         INNER JOIN am_activity_rel_activity_goods aarag ON aarag.id = asgm.rel_id
@@ -54,7 +72,7 @@
         ORDER BY asgm.create_time DESC
     </select>
 
-    <select id="searchSpellGroupInfo" resultType="com.chauncy.data.vo.app.activity.SpellGroupInfoVo">
+    <select id="searchSpellGroupInfo" resultType="com.chauncy.data.vo.app.activity.spell.SpellGroupInfoVo">
         SELECT asgm.id,
             asgm.expire_time,
             (asgm.condition_num - asgm.payed_num) AS margin,
@@ -77,7 +95,7 @@
             <where>
                 aarag.`activity_start_time` <![CDATA[< ]]>  NOW()
                 AND aarag.`activity_end_time` <![CDATA[> ]]>  NOW()
-                AND WHERE aarag.`verify_status` = 3
+                AND aarag.`verify_status` = 3
                 AND aarag.`activity_type` = 4
                 AND aarag.`del_flag` = 0
                 AND pg.`publish_status` = 1
@@ -89,7 +107,7 @@
             ON temp.parent_id = pgc.id
             WHERE pgc.del_flag=0
         )
-        SELECT id,`name` FROM parentIds WHERE `level` = 1
+        SELECT DISTINCT id,`name` FROM parentIds WHERE `level` = 1
     </select>
 
     <select id="getMemberHeadPortrait" resultType="java.lang.String">
@@ -101,7 +119,7 @@
             and pay_status = 1
         </where>
         ORDER BY asgm.create_time ASC
-        LIMIT 5
+        LIMIT ${spellHeadPortrait}
     </select>
 
     <select id="getMainHeadPortrait" resultType="java.lang.String">
@@ -115,7 +133,7 @@
     <select id="searchActivityGoodsList" resultType="com.chauncy.data.vo.app.goods.SpellGroupGoodsVo">
         SELECT pg.id AS goodsId,
             pg.`name` AS goodsName,
-            MIN(aargs.activity_price) AS sellPrices,
+            MIN(aargs.activity_price) AS sellPrice,
             pg.`icon`,
             SUM(asgm.payed_num) AS payedNum,
             GROUP_CONCAT(asgm.id) as mainIds
@@ -137,7 +155,7 @@
                 AND pgc1.parent_id = #{categoryId}
             </if>
             AND pg.`publish_status` = 1
-            AND aargs.del_flag = 1
+            AND aargs.del_flag = 0
         </where>
         GROUP BY pg.`id`
         <if test="null != sortFile and sortFile.name() == 'PRICE_SORT' ">
@@ -213,6 +231,74 @@
         from am_spell_group
         where id = #{id}
 
+    </select>
+    <select id="findTodaySpell" resultType="com.chauncy.data.vo.app.goods.SpellGroupGoodsVo">
+
+        SELECT pg.id AS goodsId,
+        pg.`name` AS goodsName,
+        MIN(aargs.activity_price) AS sellPrice,
+        pg.`icon`,
+        SUM(asgm.payed_num) AS payedNum,
+        GROUP_CONCAT(asgm.id) as mainIds
+        FROM mm_advice_rel_spell_goods marsg
+        INNER JOIN am_activity_rel_activity_goods aarag on aarag.goods_id = marsg.goods_id
+        INNER JOIN pm_goods pg ON aarag.`goods_id` = pg.`id`
+        INNER JOIN am_activity_rel_goods_sku aargs ON aarag.id = aargs.rel_id
+        LEFT JOIN am_spell_group_main asgm ON asgm.`rel_id` = aarag.`id` AND asgm.rel_id = 1 AND asgm.status BETWEEN 2 AND 3
+        where
+        aarag.`activity_start_time` &lt;=  NOW()
+        AND aarag.`activity_end_time` &gt;=  NOW()
+        AND aarag.`verify_status` = 3
+        AND aarag.`activity_type` = 4
+        AND aarag.`del_flag` = 0
+        AND pg.`publish_status` = 1
+        AND aargs.del_flag = 0
+        AND marsg.advice_id = #{adviceId}
+        GROUP BY pg.`id`
+        ORDER BY pg.sales_volume desc
+        limit 3;
+
+    </select>
+
+    <select id="searchTodaySpellGoods" resultType="com.chauncy.data.vo.app.goods.SpellGroupGoodsVo">
+        SELECT pg.id AS goodsId,
+        pg.`name` AS goodsName,
+        MIN(aargs.activity_price) AS sellPrice,
+        pg.`icon`,
+        SUM(asgm.payed_num) AS payedNum,
+        GROUP_CONCAT(asgm.id) as mainIds
+        FROM mm_advice_rel_spell_goods marsg
+        INNER JOIN am_activity_rel_activity_goods aarag on aarag.goods_id = marsg.goods_id
+        INNER JOIN pm_goods pg ON aarag.`goods_id` = pg.`id`
+        <if test="null != categoryId and categoryId != 0">
+            INNER JOIN pm_goods_category pgc ON pgc.id = pg.goods_category_id
+            INNER JOIN pm_goods_category pgc1 ON pgc1.id = pgc.parent_id
+        </if>
+        INNER JOIN am_activity_rel_goods_sku aargs ON aarag.id = aargs.rel_id
+        LEFT JOIN am_spell_group_main asgm ON asgm.`rel_id` = aarag.`id` AND asgm.rel_id = 1 AND asgm.status BETWEEN 2 AND 3
+        <where>
+            aarag.`activity_start_time` <![CDATA[< ]]>  NOW()
+            AND aarag.`activity_end_time` <![CDATA[> ]]>  NOW()
+            AND aarag.`verify_status` = 3
+            AND aarag.`activity_type` = 4
+            AND aarag.`del_flag` = 0
+            <if test="null != categoryId and categoryId != 0">
+                AND pgc1.parent_id = #{categoryId}
+            </if>
+            AND pg.`publish_status` = 1
+            AND aargs.del_flag = 0
+            AND marsg.advice_id = #{adviceId}
+        </where>
+        GROUP BY pg.`id`
+        <if test="null != sortFile and sortFile.name() == 'PRICE_SORT' ">
+            ORDER BY pgs.sell_price ${sortWay.name}
+        </if>
+        <if test="null != sortFile and sortFile.name() == 'SALES_SORT'">
+            ORDER BY pg.sales_volume ${sortWay.name}
+        </if>
+        <if test="null != sortFile and sortFile.name() == 'COMPREHENSIVE_SORT'">
+            ORDER BY pg.comprehensive_score DESC
+        </if>
     </select>
 
 </mapper>

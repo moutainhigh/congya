@@ -108,7 +108,9 @@ public enum AdviceLocationEnum implements BaseEnum {
 
     INVITATION(25,"邀请有礼"),
 
-    BAIHUO_MIDDLE(32,"百货中部广告");
+    BAIHUO_MIDDLE(32,"百货中部广告"),
+
+    TODAY_SPELL(33,"今日必拼");
 
     private Integer id;
 

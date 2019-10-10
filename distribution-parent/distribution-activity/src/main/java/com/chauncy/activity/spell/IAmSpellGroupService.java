@@ -9,8 +9,9 @@ import com.chauncy.data.dto.app.product.SearchSpellGroupGoodsDto;
 import com.chauncy.data.dto.manage.activity.SearchActivityListDto;
 import com.chauncy.data.dto.manage.activity.spell.SaveSpellDto;
 import com.chauncy.data.vo.BaseVo;
-import com.chauncy.data.vo.app.activity.MySpellGroupVo;
-import com.chauncy.data.vo.app.activity.SpellGroupInfoVo;
+import com.chauncy.data.vo.app.activity.spell.MySpellGroupVo;
+import com.chauncy.data.vo.app.activity.spell.SpellGroupDetailVo;
+import com.chauncy.data.vo.app.activity.spell.SpellGroupInfoVo;
 import com.chauncy.data.vo.app.goods.SpellGroupGoodsVo;
 import com.chauncy.data.vo.manage.activity.SearchActivityListVo;
 import com.github.pagehelper.PageInfo;
@@ -27,6 +28,19 @@ import java.util.List;
  */
 public interface IAmSpellGroupService extends Service<AmSpellGroupPo> {
 
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/7 21:33
+     * @Description 获取拼团详情
+     *
+     * @Update yeJH
+     *
+     * @param relId 用户拼团id
+     * @return com.chauncy.data.vo.app.activity.spell.SpellGroupDetailVo
+     **/
+    SpellGroupDetailVo getSpellGroupDetail(Long relId);
+
     /**
      * @Author yeJH
      * @Date 2019/10/6 23:47
@@ -35,7 +49,7 @@ public interface IAmSpellGroupService extends Service<AmSpellGroupPo> {
      * @Update yeJH
      *
      * @param  searchMySpellGroupDto
-     * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.activity.MySpellGroupVo>
+     * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.activity.spell.MySpellGroupVo>
      **/
     PageInfo<MySpellGroupVo> searchMySpellGroup(SearchMySpellGroupDto searchMySpellGroupDto);
 
@@ -97,4 +111,40 @@ public interface IAmSpellGroupService extends Service<AmSpellGroupPo> {
      * @return
      */
     void delByIds(List<Long> ids);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-10 13:42
+     * @Description //获取拼团主页面中的今日必拼的三个商品
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return java.util.List<com.chauncy.data.vo.app.goods.SpellGroupGoodsVo>
+     **/
+    List<SpellGroupGoodsVo> findTodaySpell();
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-10 15:51
+     * @Description //获取今日必拼商品相关的类目
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return java.util.List<com.chauncy.data.vo.BaseVo>
+     **/
+    List<BaseVo> findTodaySpellCategory();
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-10 16:01
+     * @Description //查询今日必拼商品列表参数
+     *
+     * @Update chauncy
+     *
+     * @param  searchTodaySpellGoods
+     * @return java.lang.Object
+     **/
+    PageInfo<SpellGroupGoodsVo> searchTodaySpellGoods(SearchSpellGroupGoodsDto searchTodaySpellGoods);
 }

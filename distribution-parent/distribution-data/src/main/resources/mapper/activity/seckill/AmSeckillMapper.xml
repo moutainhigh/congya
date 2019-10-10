@@ -29,6 +29,81 @@
     <sql id="Base_Column_List">
         id, create_by, create_time, update_by, update_time, del_flag, name, sort, picture, member_level_id, registration_start_time, registration_end_time, activity_start_time, activity_end_time, activity_description, activity_introduction, activity_title, discount_price_ratio, enable
     </sql>
+
+    <select id="findGoodsCategory" resultType="com.chauncy.data.vo.BaseVo">
+        WITH RECURSIVE parentIds (id,parent_id, `name`, `level`) AS
+        (
+            SELECT DISTINCT pgc.`id`, pgc.parent_id, pgc.name, pgc.`level`
+            FROM am_seckill `as`
+            INNER JOIN am_activity_rel_activity_goods aarag
+            ON `as`.id = aarag.`activity_id` AND `as`.`del_flag` = 0
+            AND `as`.`enable` = 1 AND `as`.activity_start_time = #{activityStartTime}
+            AND aarag.`verify_status` = 3 AND aarag.`del_flag` = 0
+            INNER JOIN pm_goods pg
+            ON pg.id = aarag.`goods_id` AND pg.`publish_status` = 1
+            INNER JOIN pm_goods_category pgc ON pg.goods_category_id = pgc.id
+            UNION ALL
+            SELECT pgc.id,pgc.parent_id,pgc.name, pgc.level
+            FROM parentIds AS temp
+            LEFT JOIN  pm_goods_category  AS pgc
+            ON temp.parent_id = pgc.id
+            WHERE pgc.del_flag=0
+        )
+        SELECT DISTINCT id,`name` FROM parentIds WHERE `level` = 1
+    </select>
+
+    <select id="searchActivityGoodsList" resultType="com.chauncy.data.vo.app.goods.SeckillGoodsVo">
+        SELECT pg.id AS goodsId,
+            pg.`name` AS goodsName,
+            pg.`subtitle`,
+            pg.icon,
+            SUM(aargs.activity_stock) AS activityStock,
+            SUM(aargs.sales_volume) AS salesVolume,
+            MIN(aargs.activity_price) AS sellPrice,
+            MIN(pgs.`sell_price`) AS linePrice,
+            `as`.`activity_end_time`
+        FROM am_seckill `as`
+        INNER JOIN am_activity_rel_activity_goods aarag
+        ON `as`.id = aarag.`activity_id` AND `as`.`del_flag` = 0
+        AND `as`.`enable` = 1 AND `as`.activity_start_time = #{activityStartTime}
+        AND aarag.`verify_status` = 3 AND aarag.`del_flag` = 0
+        INNER JOIN pm_goods pg
+        ON pg.id = aarag.`goods_id` AND pg.`publish_status` = 1
+        INNER JOIN am_activity_rel_goods_sku aargs
+        ON aarag.`id` = aargs.`rel_id` AND aargs.`del_flag` = 0
+        INNER JOIN pm_goods_sku pgs
+        ON pgs.id = aargs.`sku_id` AND pgs.`del_flag` = 0
+        <if test="null != categoryId and categoryId != 0">
+            INNER JOIN pm_goods_category pgc ON pgc.id = pg.goods_category_id
+            INNER JOIN pm_goods_category pgc1 ON pgc1.id = pgc.parent_id
+        </if>
+        <where>
+            <if test="null != categoryId and categoryId != 0">
+                AND pgc1.parent_id = #{categoryId}
+            </if>
+        </where>
+        GROUP BY `as`.`activity_end_time`, pg.`id`
+    </select>
+
+    <select id="getSeckillTimeQuantum" resultType="com.chauncy.data.vo.app.activity.seckill.SeckillTimeQuantumVo">
+        SELECT DISTINCT `as`.create_time AS activityTime
+        FROM am_seckill `as`
+        <where>
+             `as`.del_flag = 0
+            AND `as`.enable = 1
+            AND `as`.activity_start_time <![CDATA[>= ]]>  #{startDateTime}
+            AND `as`.activity_start_time <![CDATA[<= ]]> #{endDateTime}
+            AND EXISTS(
+                SELECT aarag.id
+                FROM am_activity_rel_activity_goods aarag
+                WHERE aarag.`activity_id` = `as`.id
+                AND aarag.del_flag = 0
+                AND aarag.verify_status = 3
+            )
+        </where>
+        ORDER BY `as`.create_time DESC
+    </select>
+
     <select id="searchSeckillList" resultType="com.chauncy.data.vo.manage.activity.SearchActivityListVo">
         select a.*,c.level_name as member_name
         from am_seckill a,pm_member_level c

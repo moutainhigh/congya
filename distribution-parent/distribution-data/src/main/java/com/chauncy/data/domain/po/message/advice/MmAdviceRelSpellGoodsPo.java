@@ -1,6 +1,4 @@
-package com.chauncy.data.domain.po.activity.registration;
-
-import java.math.BigDecimal;
+package com.chauncy.data.domain.po.message.advice;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -20,18 +18,18 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 平台活动的商品与sku关联表
+ * 今日必拼广告绑定参加拼团活动商品关联表
  * </p>
  *
  * @author huangwancheng
- * @since 2019-07-26
+ * @since 2019-10-09
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("am_activity_rel_goods_sku")
-@ApiModel(value = "AmActivityRelGoodsSkuPo对象", description = "'平台活动的商品与sku关联表")
-public class AmActivityRelGoodsSkuPo implements Serializable {
+@TableName("mm_advice_rel_spell_goods")
+@ApiModel(value = "MmAdviceRelSpellGoodsPo对象", description = "今日必拼广告绑定参加拼团活动商品关联表")
+public class MmAdviceRelSpellGoodsPo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -52,28 +50,23 @@ public class AmActivityRelGoodsSkuPo implements Serializable {
     private LocalDateTime updateTime;
 
     @ApiModelProperty(value = "删除标志 1-删除 0未删除")
-    @TableLogic
+//    @TableLogic
     private Boolean delFlag;
 
-    @ApiModelProperty(value = "活动价格")
-    private BigDecimal activityPrice;
-
-    @ApiModelProperty(value = "活动库存")
-    private Integer activityStock;
-
-    @ApiModelProperty(value = "活动商品ID")
+    @ApiModelProperty(value = "商品ID")
     private Long goodsId;
 
-    @ApiModelProperty(value = "活动商品对应skuID")
-    private Long skuId;
+    @ApiModelProperty(value = "一级分类id")
+    private Long firstCategoryId;
 
-    @ApiModelProperty(value = "已售数量")
-    private Integer salesVolume;
+    @ApiModelProperty(value = "二级分类id")
+    private Long secondCategoryId;
 
-    @ApiModelProperty("活动与商品关联表的ID")
-    private Long relId;
+    @ApiModelProperty(value = "三级分类id")
+    private Long thirdCategoryId;
 
-    @ApiModelProperty("销量")
-    private Long salesVolume;
+    @ApiModelProperty(value = "广告id")
+    private Long adviceId;
+
 
 }

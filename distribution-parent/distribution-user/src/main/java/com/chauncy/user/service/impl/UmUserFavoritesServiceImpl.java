@@ -330,7 +330,7 @@ public class UmUserFavoritesServiceImpl extends AbstractService<UmUserFavoritesM
                         .doSelectPageInfo(() -> mapper.searchMerchantFavorites(selectFavoritesDto, userPo.getId()));
 
                 if (ListUtil.isListNullAndEmpty(favoritesStoreVoPageInfo.getList())) {
-                    favoritesStoreVoPageInfo = new PageInfo<>();
+                    searchFavoritesVo = null;
                 } else {
                     favoritesStoreVoPageInfo.getList().forEach(a -> {
                         //获取店铺标签

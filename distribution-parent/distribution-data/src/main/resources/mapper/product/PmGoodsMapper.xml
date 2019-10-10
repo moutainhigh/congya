@@ -733,6 +733,58 @@
         c.activity_id = b.id and c.goods_id = a.id and c.activity_type = 4
         and a.publish_status =1 and c.verify_status = 3 and b.activity_start_time &lt;= NOW() and b.activity_end_time &gt;= NOW();
     </select>
+    <select id="searchSpellAdviceGoods"
+            resultType="com.chauncy.data.vo.manage.message.advice.tab.tab.SearchAdviceGoodsVo">
+        SELECT pg.id,
+        pg.`name`,
+        pg.goods_category_id,
+        MIN(aargs.activity_price) AS sellPrices,
+        pg.`icon`,
+        SUM(asgm.payed_num) AS payedNum,
+        GROUP_CONCAT(asgm.id) as mainIds
+        FROM am_activity_rel_activity_goods aarag
+        INNER JOIN pm_goods pg ON aarag.`goods_id` = pg.`id`
+
+        INNER JOIN am_activity_rel_goods_sku aargs ON aarag.id = aargs.rel_id
+        LEFT JOIN am_spell_group_main asgm ON asgm.`rel_id` = aarag.`id` AND asgm.rel_id = 1 AND asgm.status BETWEEN 2 AND 3
+        <where>
+            aarag.`activity_start_time` <![CDATA[< ]]>  NOW()
+            AND aarag.`activity_end_time` <![CDATA[> ]]>  NOW()
+            AND aarag.`verify_status` = 3
+            AND aarag.`activity_type` = 4
+            AND aarag.`del_flag` = 0
+            <if test="null != categoryId and categoryId != 0">
+                AND pg.goods_category_id = #{categoryId}
+            </if>
+            <if test="name!=null and name!=''">
+                and name like concat('%', #{name}, '%')
+            </if>
+            AND pg.`publish_status` = 1
+            AND aargs.del_flag = 0
+        </where>
+        GROUP BY pg.`id`
+        <if test="null != sortFile and sortFile.name() == 'PRICE_SORT' ">
+            ORDER BY pgs.sell_price ${sortWay.name}
+        </if>
+        <if test="null != sortFile and sortFile.name() == 'SALES_SORT'">
+            ORDER BY pg.sales_volume ${sortWay.name}
+        </if>
+        <if test="null != sortFile and sortFile.name() == 'COMPREHENSIVE_SORT'">
+            ORDER BY pg.comprehensive_score DESC
+        </if>
+    </select>
+    <select id="searchSpellAdviceBindGoods"
+            resultType="com.chauncy.data.vo.manage.message.advice.tab.tab.SearchAdviceGoodsVo">
+        select b.id,b.name,b.goods_category_id
+	    from mm_advice_rel_spell_goods a,pm_goods b
+	    where a.del_flag =0 and b.del_flag = 0 and b.publish_status = 1 and b.id = a.goods_id and a.advice_id = #{adviceId}
+        <if test="null != categoryId and categoryId != 0">
+            AND pg.goods_category_id = #{categoryId}
+        </if>
+        <if test="name!=null and name!=''">
+            and name like concat('%', #{name}, '%')
+        </if>
+    </select>
 
 
 </mapper>

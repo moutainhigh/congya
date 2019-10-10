@@ -94,7 +94,7 @@ public class RedisProperties {
         jedisPoolConfig.setMaxTotal(maxTotal);
         // 最大建立连接等待时间
         jedisPoolConfig.setMaxWaitMillis(maxWaitMillis);
-        // 逐出连接的最小空闲时间 默认1800000毫秒(30分钟)
+        // 逐出连接的最小空闲时间 默认1800000毫秒(下面是5h)
         jedisPoolConfig.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
         // 每次逐出检查时 逐出的最大数目 如果为负数就是 : 1/abs(n), 默认3
         jedisPoolConfig.setNumTestsPerEvictionRun(numTestsPerEvictionRun);
@@ -141,7 +141,7 @@ public class RedisProperties {
         //如果Redis设置有密码
         JedisConnectionFactory.setPassword(password);
         //客户端超时时间单位是毫秒
-        JedisConnectionFactory.setTimeout(5000);
+        JedisConnectionFactory.setTimeout(timeout);
 
         return JedisConnectionFactory;
     }

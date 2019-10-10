@@ -31,6 +31,12 @@ public class WXConfigUtil implements WXPayConfig {
     @Value("${distribution.wxpay.BODY}")
     public String BODY;
 
+    @Value("${distribution.wxpay.CUSTOMS}")
+    public String CUSTOMS;
+
+    @Value("${distribution.wxpay.MCH_CUSTOMS_NO}")
+    public String MCH_CUSTOMS_NO;
+
     public WXConfigUtil() throws Exception {
         //从微信商户平台下载的安全证书存放的路径
        /* String certPath = Thread.currentThread().getContextClassLoader().getResource("").getPath()
@@ -59,6 +65,14 @@ public class WXConfigUtil implements WXPayConfig {
 
     public String getBody() {
         return BODY;
+    }
+
+    public String getCustoms() {
+        return CUSTOMS;
+    }
+
+    public String getMchCustomsNo() {
+        return MCH_CUSTOMS_NO;
     }
 
     @Override

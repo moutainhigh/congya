@@ -1078,7 +1078,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         if(userWithdrawalDto.getWithdrawalAmount().compareTo(new BigDecimal(0))  < 1 ) {
             throw  new ServiceException(ResultCode.PARAM_ERROR, "提现金额必须大于0");
         }
-        if(userWithdrawalDto.getWithdrawalAmount().compareTo(umUserPo.getTotalRedEnvelops())  < 1 ) {
+        if(userWithdrawalDto.getWithdrawalAmount().compareTo(umUserPo.getCurrentRedEnvelops()) > 0) {
             throw  new ServiceException(ResultCode.PARAM_ERROR, "提现金额大于用户余额");
         }
 
@@ -1088,11 +1088,11 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         omUserWithdrawalPo.setWithdrawalStatus(WithdrawalStatusEnum.TO_BE_AUDITED.getId());
         omUserWithdrawalPo.setWithdrawalAmount(userWithdrawalDto.getWithdrawalAmount());
         omUserWithdrawalPo.setRealName(userWithdrawalDto.getRealName());
-        if(userWithdrawalDto.getWithdrawalWayEnum().equals(WithdrawalWayEnum.ALIPAY)) {
+        if(userWithdrawalDto.getWithdrawalWayEnum().equals(WithdrawalWayEnum.ALIPAY.getName())) {
             //申请支付宝提现
             omUserWithdrawalPo.setAlipay(userWithdrawalDto.getAccount());
             omUserWithdrawalPo.setWithdrawalWay(WithdrawalWayEnum.ALIPAY.getId());
-        } else if(userWithdrawalDto.getWithdrawalWayEnum().equals(WithdrawalWayEnum.WECHAT)) {
+        } else if(userWithdrawalDto.getWithdrawalWayEnum().equals(WithdrawalWayEnum.WECHAT.getName())) {
             //申请微信提现
             omUserWithdrawalPo.setWechat(userWithdrawalDto.getAccount());
             omUserWithdrawalPo.setWithdrawalWay(WithdrawalWayEnum.WECHAT.getId());
@@ -1107,6 +1107,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         //获取实际应发金额  扣除其他费用
         BigDecimal actualAmount = BigDecimalUtil.safeSubtract(userWithdrawalDto.getWithdrawalAmount(), deductedAmount);
         omUserWithdrawalPo.setActualAmount(actualAmount);
+        omUserWithdrawalPo.setCreateBy(umUserPo.getName());
         omUserWithdrawalMapper.insert(omUserWithdrawalPo);
 
         //APP用户提现红包  生成流水

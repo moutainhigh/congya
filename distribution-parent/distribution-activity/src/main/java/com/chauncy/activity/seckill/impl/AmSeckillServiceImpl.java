@@ -2,7 +2,9 @@ package com.chauncy.activity.seckill.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.activity.seckill.IAmSeckillService;
+import com.chauncy.common.constant.ServiceConstant;
 import com.chauncy.common.enums.app.activity.ActivityStatusEnum;
+import com.chauncy.common.enums.app.activity.SpellGroupStatusEnum;
 import com.chauncy.common.enums.app.activity.type.ActivityTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
@@ -12,6 +14,7 @@ import com.chauncy.data.domain.po.activity.reduced.AmReducedPo;
 import com.chauncy.data.domain.po.activity.seckill.AmSeckillPo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.dto.app.product.SearchSeckillGoodsDto;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.dto.manage.activity.SearchActivityListDto;
 import com.chauncy.data.dto.manage.activity.seckill.SaveSeckillDto;
@@ -20,6 +23,9 @@ import com.chauncy.data.mapper.activity.group.AmActivityGroupMapper;
 import com.chauncy.data.mapper.activity.seckill.AmSeckillMapper;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
+import com.chauncy.data.vo.BaseVo;
+import com.chauncy.data.vo.app.activity.seckill.SeckillTimeQuantumVo;
+import com.chauncy.data.vo.app.goods.SeckillGoodsVo;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.vo.manage.activity.SearchActivityListVo;
 import com.chauncy.data.vo.manage.activity.SearchGoodsCategoryVo;
@@ -27,14 +33,22 @@ import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -64,6 +78,135 @@ public class AmSeckillServiceImpl extends AbstractService<AmSeckillMapper, AmSec
     @Autowired
     private AmActivityRelActivityCategoryMapper relActivityCategoryMapper;
 
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/9 11:04
+     * @Description 获取秒杀活动商品一级分类
+     *
+     * @Update yeJH
+     *
+     * @param  searchSeckillGoodsDto
+     * @return java.util.List<com.chauncy.data.vo.BaseVo>
+     **/
+    @Override
+    public List<BaseVo> findGoodsCategory(SearchSeckillGoodsDto searchSeckillGoodsDto) {
+        return mapper.findGoodsCategory(searchSeckillGoodsDto);
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/8 20:58
+     * @Description 获取秒杀活动商品列表
+     *
+     * @Update yeJH
+     *
+     * @param  searchSeckillGoodsDto
+     * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.goods.SeckillGoodsVo>
+     **/
+    @Override
+    public PageInfo<SeckillGoodsVo> searchActivityGoodsList(SearchSeckillGoodsDto searchSeckillGoodsDto) {
+
+        Integer pageNo = searchSeckillGoodsDto.getPageNo()==null ? defaultPageNo : searchSeckillGoodsDto.getPageNo();
+        Integer pageSize = searchSeckillGoodsDto.getPageSize()==null ? defaultPageSize : searchSeckillGoodsDto.getPageSize();
+
+
+        PageInfo<SeckillGoodsVo> seckillGoodsVoPageInfo = PageHelper.startPage(pageNo, pageSize).doSelectPageInfo(() ->
+                mapper.searchActivityGoodsList(searchSeckillGoodsDto));
+
+        if(null != seckillGoodsVoPageInfo.getList() && seckillGoodsVoPageInfo.getList().size() > 0) {
+            seckillGoodsVoPageInfo.getList().forEach(seckillGoodsVo -> {
+                //获取活动结束时间时间戳  抢购中以及已抢购需要展示
+                if(searchSeckillGoodsDto.getActivityStartTime().isBefore(LocalDateTime.now())) {
+                    if (null != seckillGoodsVo.getActivityEndTime()) {
+                        //活动已开始
+                        seckillGoodsVo.setIsStart(true);
+                        //秒杀活动截止时间
+                        seckillGoodsVo.setEndTime(seckillGoodsVo.getActivityEndTime().toEpochSecond(ZoneOffset.of("+8")));
+                    } else {
+                        //活动未开始
+                        seckillGoodsVo.setIsStart(false);
+                    }
+                }
+                //剩余库存  活动总库存 - 已售数量
+                Integer remainingStock = seckillGoodsVo.getActivityStock() - seckillGoodsVo.getSalesVolume();
+                seckillGoodsVo.setRemainingStock(remainingStock > 0 ? remainingStock : 0);
+                //销售百分比
+                if(seckillGoodsVo.getActivityStock() == 0) {
+                    seckillGoodsVo.setSalePercentage(0);
+                } else {
+                    seckillGoodsVo.setSalePercentage(
+                            seckillGoodsVo.getSalesVolume() * 100 / seckillGoodsVo.getActivityStock());
+                }
+                //是否即将售罄
+                if(seckillGoodsVo.getSalePercentage() > ServiceConstant.SALE_PERCENTAGE) {
+                    seckillGoodsVo.setIsSellOut(true);
+                } else {
+                    seckillGoodsVo.setIsSellOut(false);
+                }
+            });
+        }
+
+        return seckillGoodsVoPageInfo;
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/8 11:10
+     * @Description 获取秒杀时间段  当前时间前24小时，之后24小时范围内的所有活动时间
+     *
+     * @Update yeJH
+     *
+     * @param
+     * @return java.util.List<com.chauncy.data.vo.app.activity.seckill.SeckillTimeQuantumVo>
+     **/
+    @Override
+    public List<SeckillTimeQuantumVo> getSeckillTimeQuantum() {
+
+        LocalDateTime nowDateTime = LocalDateTime.now();
+
+        LocalDateTime startDateTime = nowDateTime.plusHours(-24);
+        LocalDateTime endDateTime = nowDateTime.plusDays(24);
+        //获取前24小时，后24小时时间段内的所有活动对应的时间点 按时间降序  方便处理抢购中跟已抢购的状态
+        List<SeckillTimeQuantumVo> seckillTimeQuantumVoList = mapper.getSeckillTimeQuantum(startDateTime, endDateTime);
+        if(null != seckillTimeQuantumVoList && seckillTimeQuantumVoList.size() > 0) {
+            final Boolean[] isInProgress = {true};
+            seckillTimeQuantumVoList.stream().forEach(seckillTimeQuantumVo -> {
+                //秒杀活动时分
+                DateTimeFormatter df = DateTimeFormatter.ofPattern("HH:mm");
+                String seckillTime = df.format(seckillTimeQuantumVo.getActivityTime());
+                seckillTimeQuantumVo.setSeckillTime(seckillTime);
+                //秒杀活动状态
+                if(seckillTimeQuantumVo.getActivityTime().isBefore(nowDateTime)) {
+                    //活动时间在当前时间之前
+                    if(true == isInProgress[0]) {
+                        seckillTimeQuantumVo.setSpellGroupStatus(SpellGroupStatusEnum.IN_PROGRESS.getName());
+                        isInProgress[0] = false;
+                    } else {
+                        seckillTimeQuantumVo.setSpellGroupStatus(SpellGroupStatusEnum.SNAPPED_UP.getName());
+                    }
+                } else {
+                    //活动还未开始
+                    LocalDate nowDate = nowDateTime.toLocalDate();
+                    LocalDate activityDate = seckillTimeQuantumVo.getActivityTime().toLocalDate();
+                    //获取相差天数
+                    long days = activityDate.toEpochDay() - nowDate.toEpochDay();
+                    if(days != 0) {
+                        //不是同一天  预告
+                        seckillTimeQuantumVo.setSpellGroupStatus(SpellGroupStatusEnum.ANNOUNCE_IN_ADVANCE.getName());
+                    } else {
+                        //是同一天  即将开始
+                        seckillTimeQuantumVo.setSpellGroupStatus(SpellGroupStatusEnum.ABOUT_TO_START.getName());
+                    }
+                }
+            });
+            //倒序  前端展示数据为按照时间升序
+            Collections.reverse(seckillTimeQuantumVoList);
+        }
+
+
+        return seckillTimeQuantumVoList;
+    }
 
     /**
      * 保存秒杀活动信息

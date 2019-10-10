@@ -15,6 +15,7 @@
         <result column="goods_id" property="goodsId" />
         <result column="sku_id" property="skuId" />
         <result column="rel_id" property="relId" />
+        <result column="sales_volume" property="salesVolume" />
     </resultMap>
 
     <!-- 通用查询结果列 -->

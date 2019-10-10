@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.activity.spell.IAmSpellGroupService;
 import com.chauncy.common.constant.ServiceConstant;
 import com.chauncy.common.enums.app.activity.ActivityStatusEnum;
+import com.chauncy.common.enums.app.activity.SpellGroupMainStatusEnum;
 import com.chauncy.common.enums.app.activity.type.ActivityTypeEnum;
+import com.chauncy.common.enums.app.advice.AdviceLocationEnum;
 import com.chauncy.common.enums.app.sort.SortFileEnum;
 import com.chauncy.common.enums.app.sort.SortWayEnum;
 import com.chauncy.common.enums.common.VerifyStatusEnum;
@@ -13,8 +15,9 @@ import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.domain.po.activity.AmActivityRelActivityCategoryPo;
 import com.chauncy.data.domain.po.activity.registration.AmActivityRelActivityGoodsPo;
-import com.chauncy.data.domain.po.activity.seckill.AmSeckillPo;
+import com.chauncy.data.domain.po.activity.spell.AmSpellGroupMemberPo;
 import com.chauncy.data.domain.po.activity.spell.AmSpellGroupPo;
+import com.chauncy.data.domain.po.message.advice.MmAdvicePo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
@@ -28,17 +31,24 @@ import com.chauncy.data.mapper.activity.AmActivityRelActivityCategoryMapper;
 import com.chauncy.data.mapper.activity.registration.AmActivityRelActivityGoodsMapper;
 import com.chauncy.data.mapper.activity.spell.AmSpellGroupMapper;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.mapper.activity.spell.AmSpellGroupMemberMapper;
+import com.chauncy.data.mapper.message.advice.MmAdviceMapper;
+import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.vo.BaseVo;
-import com.chauncy.data.vo.app.activity.MySpellGroupVo;
-import com.chauncy.data.vo.app.activity.SpellGroupInfoVo;
+import com.chauncy.data.vo.app.activity.spell.MySpellGroupVo;
+import com.chauncy.data.vo.app.activity.spell.SpellGroupAreaVo;
+import com.chauncy.data.vo.app.activity.spell.SpellGroupDetailVo;
+import com.chauncy.data.vo.app.activity.spell.SpellGroupInfoVo;
 import com.chauncy.data.vo.app.goods.SpellGroupGoodsVo;
+import com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailGoodsVo;
 import com.chauncy.data.vo.manage.activity.SearchActivityListVo;
 import com.chauncy.data.vo.manage.activity.SearchGoodsCategoryVo;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
@@ -49,6 +59,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -65,7 +76,16 @@ import java.util.stream.Collectors;
 public class AmSpellGroupServiceImpl extends AbstractService<AmSpellGroupMapper, AmSpellGroupPo> implements IAmSpellGroupService {
 
     @Autowired
+    private OmOrderMapper orderMapper;
+
+    @Autowired
     private AmSpellGroupMapper mapper;
+
+    @Autowired
+    private MmAdviceMapper adviceMapper;
+
+    @Autowired
+    private AmSpellGroupMemberMapper amSpellGroupMemberMapper;
 
     @Autowired
     private AmActivityRelActivityGoodsMapper amActivityRelActivityGoodsMapper;
@@ -84,13 +104,55 @@ public class AmSpellGroupServiceImpl extends AbstractService<AmSpellGroupMapper,
 
     /**
      * @Author yeJH
+     * @Date 2019/10/7 21:35
+     * @Description 获取拼团详情
+     *
+     * @Update yeJH
+     *
+     * @param  relId  用户拼团id
+     * @return com.chauncy.data.vo.app.activity.spell.SpellGroupDetailVo
+     **/
+    @Override
+    public SpellGroupDetailVo getSpellGroupDetail(Long relId) {
+
+        AmSpellGroupMemberPo amSpellGroupMemberPo = amSpellGroupMemberMapper.selectById(relId);
+        if(null == amSpellGroupMemberPo) {
+            throw new ServiceException(ResultCode.NO_EXISTS);
+        }
+
+        SpellGroupDetailVo spellGroupDetailVo = mapper.getSpellGroupDetail(relId, amSpellGroupMemberPo.getGroupMainId());
+
+        //团员头像
+        if(Strings.isNotBlank(spellGroupDetailVo.getHeadPortraits())) {
+            List<String> headPortrait = Splitter.on(",").omitEmptyStrings().splitToList(spellGroupDetailVo.getHeadPortraits());
+            spellGroupDetailVo.setHeadPortrait(headPortrait);
+        }
+
+        //获取用户订单商品信息
+        List<AppMyOrderDetailGoodsVo> appMyOrderDetailGoodsVos =
+                orderMapper.getAppMyOrderDetailGoodsVoByOrderId(amSpellGroupMemberPo.getOrderId());
+        if(null != appMyOrderDetailGoodsVos && appMyOrderDetailGoodsVos.size() > 0) {
+            spellGroupDetailVo.setGoodsDetailVo(appMyOrderDetailGoodsVos.get(0));
+        }
+        //通过订单id获取用户订单发货地址
+        SpellGroupAreaVo spellGroupAreaVo = orderMapper.getShipAreaByOrderId(amSpellGroupMemberPo.getOrderId());
+        if(null != spellGroupAreaVo && Strings.isNotBlank(spellGroupAreaVo.getAreaName())) {
+            spellGroupAreaVo.setAreaName(spellGroupAreaVo.getAreaName().replace(",", " "));
+        }
+        spellGroupDetailVo.setSpellGroupAreaVo(spellGroupAreaVo);
+
+        return spellGroupDetailVo;
+    }
+
+    /**
+     * @Author yeJH
      * @Date 2019/10/6 23:47
      * @Description 查询我的拼团
      *
      * @Update yeJH
      *
      * @param  searchMySpellGroupDto
-     * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.activity.MySpellGroupVo>
+     * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.activity.spell.MySpellGroupVo>
      **/
     @Override
     public PageInfo<MySpellGroupVo> searchMySpellGroup(SearchMySpellGroupDto searchMySpellGroupDto) {
@@ -105,12 +167,12 @@ public class AmSpellGroupServiceImpl extends AbstractService<AmSpellGroupMapper,
         PageInfo<MySpellGroupVo> mySpellGroupVoPageInfo = PageHelper.startPage(pageNo, pageSize).doSelectPageInfo(() ->
                 mapper.searchMySpellGroup(searchMySpellGroupDto));
 
-
         if(null != mySpellGroupVoPageInfo.getList() && mySpellGroupVoPageInfo.getList().size() > 0) {
             //获取团员头像
             mySpellGroupVoPageInfo.getList().forEach(mySpellGroupVo -> {
                 if(null != mySpellGroupVo.getMainId()) {
-                    List<String> headPortrait = mapper.getMemberHeadPortrait(mySpellGroupVo.getMainId());
+                    List<String> headPortrait = mapper.getMemberHeadPortrait(mySpellGroupVo.getMainId(),
+                            ServiceConstant.SPELL_HEAD_PORTRAIT);
                     mySpellGroupVo.setHeadPortrait(headPortrait);
                 }
             });
@@ -128,7 +190,7 @@ public class AmSpellGroupServiceImpl extends AbstractService<AmSpellGroupMapper,
      * @Update yeJH
      *
      * @param  searchSpellGroupInfoDto
-     * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.activity.SpellGroupInfoVo>
+     * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.activity.spell.SpellGroupInfoVo>
      **/
     @Override
     public PageInfo<SpellGroupInfoVo> searchSpellGroupInfo(SearchSpellGroupInfoDto searchSpellGroupInfoDto) {
@@ -199,7 +261,7 @@ public class AmSpellGroupServiceImpl extends AbstractService<AmSpellGroupMapper,
             //获取团长头像
             spellGroupGoodsVoPageInfo.getList().forEach(spellGroupGoodsVo -> {
                 if(Strings.isNotBlank(spellGroupGoodsVo.getMainIds())) {
-                    String[] mainIds = spellGroupGoodsVo.getMainIds().split(",", ServiceConstant.VICE_COMMENT_NUM);
+                    String[] mainIds = spellGroupGoodsVo.getMainIds().split(",", ServiceConstant.SPELL_HEAD_PORTRAIT);
                     List<String> headPortrait = mapper.getMainHeadPortrait(StringUtils.join(mainIds, ","));
                     spellGroupGoodsVo.setHeadPortrait(headPortrait);
                 }
@@ -447,5 +509,95 @@ public class AmSpellGroupServiceImpl extends AbstractService<AmSpellGroupMapper,
             }
         });
         mapper.deleteBatchIds(ids);
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-10 13:42
+     * @Description //获取拼团主页面中的今日必拼的三个商品
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return java.util.List<com.chauncy.data.vo.app.goods.SpellGroupGoodsVo>
+     **/
+    @Override
+    public List<SpellGroupGoodsVo> findTodaySpell() {
+
+        //获取今日必拼的广告位置id
+        MmAdvicePo advicePo = adviceMapper.selectOne(new QueryWrapper<MmAdvicePo>().lambda().and(obj->obj
+                .eq(MmAdvicePo::getEnabled,true).eq(MmAdvicePo::getLocation, AdviceLocationEnum.TODAY_SPELL.name())));
+
+        List<SpellGroupGoodsVo> spellGroupGoodsVos = new ArrayList<>();
+        if (advicePo != null){
+            spellGroupGoodsVos = mapper.findTodaySpell(advicePo.getId());
+        }
+
+        return spellGroupGoodsVos;
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-10 15:51
+     * @Description //获取今日必拼商品相关的类目
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return java.util.List<com.chauncy.data.vo.BaseVo>
+     **/
+    @Override
+    public List<BaseVo> findTodaySpellCategory() {
+
+        return mapper.findTodaySpellCategory();
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-10 16:02
+     * @Description //查询今日必拼商品列表参数
+     *
+     * @Update chauncy
+     *
+     * @param  searchTodaySpellGoods
+     * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.goods.SpellGroupGoodsVo>
+     **/
+    @Override
+    public PageInfo<SpellGroupGoodsVo> searchTodaySpellGoods(SearchSpellGroupGoodsDto searchTodaySpellGoods) {
+
+
+        Integer pageNo = searchTodaySpellGoods.getPageNo()==null ? defaultPageNo : searchTodaySpellGoods.getPageNo();
+        Integer pageSize = searchTodaySpellGoods.getPageSize()==null ? defaultPageSize : searchTodaySpellGoods.getPageSize();
+        PageInfo<SpellGroupGoodsVo> spellGroupGoodsVoPageInfo = new PageInfo<>();
+
+        if(null == searchTodaySpellGoods.getSortFile()) {
+            //默认综合排序
+            searchTodaySpellGoods.setSortFile(SortFileEnum.COMPREHENSIVE_SORT);
+        }
+        if(null == searchTodaySpellGoods.getSortWay()) {
+            //默认降序
+            searchTodaySpellGoods.setSortWay(SortWayEnum.DESC);
+        }
+
+        //获取今日必拼的广告位置id
+        MmAdvicePo advicePo = adviceMapper.selectOne(new QueryWrapper<MmAdvicePo>().lambda().and(obj->obj
+                .eq(MmAdvicePo::getEnabled,true).eq(MmAdvicePo::getLocation, AdviceLocationEnum.TODAY_SPELL.name())));
+        if (advicePo != null) {
+            searchTodaySpellGoods.setAdviceId(advicePo.getId());
+            spellGroupGoodsVoPageInfo = PageHelper.startPage(pageNo, pageSize).doSelectPageInfo(() ->
+                    mapper.searchTodaySpellGoods(searchTodaySpellGoods));
+
+            if (null != spellGroupGoodsVoPageInfo.getList() && spellGroupGoodsVoPageInfo.getList().size() > 0) {
+                //获取团长头像
+                spellGroupGoodsVoPageInfo.getList().forEach(spellGroupGoodsVo -> {
+                    if (Strings.isNotBlank(spellGroupGoodsVo.getMainIds())) {
+                        String[] mainIds = spellGroupGoodsVo.getMainIds().split(",", ServiceConstant.SPELL_HEAD_PORTRAIT);
+                        List<String> headPortrait = mapper.getMainHeadPortrait(StringUtils.join(mainIds, ","));
+                        spellGroupGoodsVo.setHeadPortrait(headPortrait);
+                    }
+                });
+            }
+        }
+        return spellGroupGoodsVoPageInfo;
     }
 }

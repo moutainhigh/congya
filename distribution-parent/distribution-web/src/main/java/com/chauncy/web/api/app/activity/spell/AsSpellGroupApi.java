@@ -4,13 +4,12 @@ import com.chauncy.activity.spell.IAmSpellGroupService;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.app.activity.SearchMySpellGroupDto;
 import com.chauncy.data.dto.app.activity.SearchSpellGroupInfoDto;
-import com.chauncy.data.dto.app.product.FindActivityGoodsCategoryDto;
 import com.chauncy.data.dto.app.product.SearchSpellGroupGoodsDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
-import com.chauncy.data.vo.app.activity.MySpellGroupVo;
-import com.chauncy.data.vo.app.activity.SpellGroupInfoVo;
-import com.chauncy.data.vo.app.goods.ActivityGoodsVo;
+import com.chauncy.data.vo.app.activity.spell.MySpellGroupVo;
+import com.chauncy.data.vo.app.activity.spell.SpellGroupDetailVo;
+import com.chauncy.data.vo.app.activity.spell.SpellGroupInfoVo;
 import com.chauncy.data.vo.app.goods.SpellGroupGoodsVo;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
@@ -19,10 +18,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -44,7 +40,7 @@ public class AsSpellGroupApi  extends BaseApi {
     /**
      * @Author yeJH
      * @Date 2019/9/25 16:14
-     * @Description 获取拼团动商品列表
+     * @Description 获取拼团活动商品列表
      *
      * @Update yeJH
      *
@@ -88,7 +84,7 @@ public class AsSpellGroupApi  extends BaseApi {
      * @Update yeJH
      *
      * @param  searchSpellGroupInfoDto
-     * @return com.chauncy.data.vo.JsonViewData<com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.activity.SpellGroupInfoVo>>
+     * @return com.chauncy.data.vo.JsonViewData<com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.activity.spell.SpellGroupInfoVo>>
      **/
     @PostMapping("/searchSpellGroupInfo")
     @ApiOperation(value = "根据商品id获取拼团信息")
@@ -108,7 +104,7 @@ public class AsSpellGroupApi  extends BaseApi {
      * @Update yeJH
      *
      * @param  searchMySpellGroupDto
-     * @return com.chauncy.data.vo.JsonViewData<com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.activity.MySpellGroupVo>>
+     * @return com.chauncy.data.vo.JsonViewData<com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.activity.spell.MySpellGroupVo>>
      **/
     @PostMapping("/searchMySpellGroup")
     @ApiOperation(value = "查询我的拼团")
@@ -120,6 +116,76 @@ public class AsSpellGroupApi  extends BaseApi {
                 amSpellGroupService.searchMySpellGroup(searchMySpellGroupDto));
     }
 
+    /**
+     * @Author yeJH
+     * @Date 2019/10/7 21:28
+     * @Description 获取拼团详情
+     *
+     * @Update yeJH
+     *
+     * @param relId 用户拼团id
+     * @return com.chauncy.data.vo.JsonViewData<com.chauncy.data.vo.app.activity.spell.SpellGroupDetailVo>
+     **/
+    @PostMapping("/getSpellGroupDetail/{relId}")
+    @ApiOperation(value = "获取拼团详情")
+    public JsonViewData<SpellGroupDetailVo> getSpellGroupDetail(@ApiParam(required = true,name = "relId",value = "用户拼团id")
+                                                                    @PathVariable Long relId) {
 
+        return new JsonViewData(ResultCode.SUCCESS,"查找成功",
+                amSpellGroupService.getSpellGroupDetail(relId));
+    }
 
+    /**
+     * @Author chauncy
+     * @Date 2019-10-10 13:39
+     * @Description //获取拼团主页面中的今日必拼的三个商品
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return com.chauncy.data.vo.JsonViewData<com.chauncy.data.vo.app.goods.SpellGroupGoodsVo>
+     **/
+    @ApiOperation("获取拼团主页面中的今日必拼的三个商品")
+    @GetMapping("/findTodaySpell")
+    public JsonViewData<List<SpellGroupGoodsVo>> findTodaySpell(){
+
+        return setJsonViewData(amSpellGroupService.findTodaySpell());
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-10 15:49
+     * @Description //获取今日必拼商品相关的类目
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.BaseVo>>
+     **/
+    @GetMapping("/findTodaySpellCategory")
+    @ApiOperation("获取今日必拼商品一级类目")
+    public JsonViewData<List<BaseVo>> findTodaySpellCategory(){
+
+        return setJsonViewData(amSpellGroupService.findTodaySpellCategory());
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-10 16:00
+     * @Description //查询今日必拼商品列表参数
+     *
+     * @Update chauncy
+     *
+     * @param  searchTodaySpellGoods
+     * @return com.chauncy.data.vo.JsonViewData<com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.goods.SpellGroupGoodsVo>>
+     **/
+    @ApiOperation("查询今日必拼商品列表参数")
+    @PostMapping("/searchTodaySpellGoods")
+    public JsonViewData<PageInfo<SpellGroupGoodsVo>> searchTodaySpellGoods(
+            @ApiParam(required = true, name = "searchTodaySpellGoods", value = "查询今日必拼商品列表参数")
+            @Valid @RequestBody SearchSpellGroupGoodsDto searchTodaySpellGoods){
+
+        return new JsonViewData(ResultCode.SUCCESS,"查找成功",
+                amSpellGroupService.searchTodaySpellGoods(searchTodaySpellGoods));
+    }
 }

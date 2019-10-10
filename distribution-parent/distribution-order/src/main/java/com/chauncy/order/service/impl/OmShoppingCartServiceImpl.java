@@ -37,6 +37,7 @@ import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.car.*;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
+import com.chauncy.data.dto.app.order.cart.update.RemoveToFavoritesDto;
 import com.chauncy.data.dto.app.order.cart.update.UpdateCartSkuDto;
 import com.chauncy.data.mapper.activity.coupon.AmCouponMapper;
 import com.chauncy.data.mapper.activity.coupon.AmCouponRelCouponGoodsMapper;
@@ -1483,18 +1484,18 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
      *
      * @Update chauncy
      *
-     * @param  goodsIds
+     * @param  removeToFavoritesDto
      * @return void
      **/
     @Override
-    public void removeToFavorites(Long... goodsIds) {
+    public void removeToFavorites(RemoveToFavoritesDto removeToFavoritesDto) {
 
         UmUserPo userPo = securityUtil.getAppCurrUser();
         if (userPo == null) {
             throw new ServiceException(ResultCode.FAIL, "您不是app用户！");
         }
 
-        List<Long> goodsIdList = Arrays.asList(goodsIds);
+        List<Long> goodsIdList = Arrays.asList(removeToFavoritesDto.getGoodsIds());
         if (!ListUtil.isListNullAndEmpty(goodsIdList)){
             goodsIdList.forEach(a->{
                 //判断商品是否存在
@@ -1523,10 +1524,68 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     goodsMapper.addFavorites(a);
 
                 }
-                //删除对应的购物车数据
-                mapper.deleteById(a);
             });
+
+            List<Long> cartIds = Arrays.asList(removeToFavoritesDto.getCartIds());
+            if (!ListUtil.isListNullAndEmpty(cartIds)){
+                cartIds.forEach(b->{
+                    if (mapper.selectById(b) == null){
+                        throw new ServiceException(ResultCode.NO_EXISTS, "购物车数据库不存在该商品，请检查");
+                    }
+                });
+                mapper.deleteBatchIds(cartIds);
+            }
         }
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-09 13:22
+     * @Description //购物车空车猜你喜欢
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return java.util.List<com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo>
+     **/
+    @Override
+    public List<SearchGoodsBaseListVo> guessLike() {
+        UmUserPo user = securityUtil.getAppCurrUser();
+        if (user == null) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "您不是APP用户");
+        }
+
+        List<SearchGoodsBaseListVo> searchGoodsBaseListVos = adviceMapper.guessLike();
+
+        searchGoodsBaseListVos.forEach(a -> {
+
+            //获取商品的标签
+            List<String> labelNames = adviceMapper.getLabelNames(a.getGoodsId());
+            a.setLabelNames(labelNames);
+
+            //获取最高返券值
+            List<Double> rewardShopTickes = com.google.common.collect.Lists.newArrayList();
+            List<RewardShopTicketBo> rewardShopTicketBos = skuMapper.findRewardShopTicketInfos(a.getGoodsId());
+            rewardShopTicketBos.forEach(b -> {
+                //商品活动百分比
+                b.setActivityCostRate(a.getActivityCostRate());
+                //让利成本比例
+                b.setProfitsRate(a.getProfitsRate());
+                //会员等级比例
+                BigDecimal purchasePresent = memberLevelMapper.selectById(user.getMemberLevelId()).getPurchasePresent();
+                b.setPurchasePresent(purchasePresent);
+                //购物券比例
+                BigDecimal moneyToShopTicket = basicSettingMapper.selectList(null).get(0).getMoneyToShopTicket();
+                b.setMoneyToShopTicket(moneyToShopTicket);
+                BigDecimal rewardShopTicket = b.getRewardShopTicket();
+                rewardShopTickes.add(rewardShopTicket.doubleValue());
+            });
+            //获取RewardShopTickes列表最大返券值
+            Double maxRewardShopTicket = rewardShopTickes.stream().mapToDouble((x) -> x).summaryStatistics().getMax();
+            a.setMaxRewardShopTicket(BigDecimal.valueOf(maxRewardShopTicket));
+        });
+
+        return searchGoodsBaseListVos;
     }
 
     /**

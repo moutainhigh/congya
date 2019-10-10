@@ -1,4 +1,4 @@
-package com.chauncy.data.vo.app.activity;
+package com.chauncy.data.vo.app.activity.spell;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import io.swagger.annotations.ApiModel;
@@ -30,7 +30,7 @@ public class SpellGroupInfoVo implements Serializable {
     @ApiModelProperty(value = "还差几人拼成")
     private Integer margin;
 
-    @ApiModelProperty(value = "剩余时间，秒级时间戳")
+    @ApiModelProperty(value = "拼团结束时间，秒级时间戳")
     private Long endTime;
 
     @ApiModelProperty(value = "拼团结束时间")

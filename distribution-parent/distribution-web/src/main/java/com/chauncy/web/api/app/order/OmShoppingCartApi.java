@@ -8,6 +8,7 @@ import com.chauncy.data.dto.app.car.SettleDto;
 import com.chauncy.data.dto.app.car.SubmitOrderDto;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
 import com.chauncy.data.dto.app.order.cart.select.SearchCartDto;
+import com.chauncy.data.dto.app.order.cart.update.RemoveToFavoritesDto;
 import com.chauncy.data.dto.app.order.cart.update.UpdateCartSkuDto;
 import com.chauncy.data.dto.app.order.coupon.CanUseCouponListDto;
 import com.chauncy.data.dto.app.user.add.AddIdCardDto;
@@ -77,14 +78,15 @@ public class OmShoppingCartApi extends BaseApi {
      *
      * @Update chauncy
      *
-     * @param  goodsIds
+     * @param  removeToFavoritesDto
      * @return void
      **/
-    @GetMapping("/removeToFavorites/{goodsIds}")
+    @PostMapping("/removeToFavorites")
     @ApiOperation("移动购物车商品至收藏夹")
-    public JsonViewData removeToFavorites(Long[] goodsIds){
-        service.removeToFavorites(goodsIds);
-        return setJsonViewData(ResultCode.SUCCESS);
+    public JsonViewData removeToFavorites(@RequestBody @ApiParam(required = true, name = "removeToFavoritesDto", value = "移动购物车商品至收藏夹")
+                                              @Validated RemoveToFavoritesDto removeToFavoritesDto){
+        service.removeToFavorites(removeToFavoritesDto);
+        return setJsonViewData(ResultCode.SUCCESS,"移除成功!");
     }
 
     /**
@@ -119,6 +121,23 @@ public class OmShoppingCartApi extends BaseApi {
     public JsonViewData<List<SearchGoodsBaseListVo>> guessYourLike(@PathVariable Long goodsId){
 
         return setJsonViewData(service.guessYourLike(goodsId));
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-09 13:20
+     * @Description //购物车空车猜你喜欢
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo>>
+     **/
+    @GetMapping("/guessLike")
+    @ApiOperation("购物车空车猜你喜欢")
+    public JsonViewData<List<SearchGoodsBaseListVo>> guessLike(){
+
+        return setJsonViewData(service.guessLike());
     }
 
     /**
