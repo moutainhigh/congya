@@ -15,6 +15,7 @@ import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.common.util.wechat.WXConfigUtil;
+import com.chauncy.common.util.wechat.WXPayPlus;
 import com.chauncy.common.util.wechat.WxMD5Util;
 import com.chauncy.data.bo.manage.order.OrderRefundInfoBo;
 import com.chauncy.data.domain.po.activity.gift.AmGiftOrderPo;
@@ -130,7 +131,7 @@ public class WxServiceImpl implements IWxService {
 
         WxMD5Util md5Util = wxMD5Util;
         WXConfigUtil config = wxConfigUtil;
-        WXPay wxpay = new WXPay(config);
+        WXPayPlus wxPayPlus = new WXPayPlus(config);
 
         //支付单
         PayOrderPo payOrderPo = payOrderMapper.selectById(omOrderPo.getPayOrderId());
@@ -149,6 +150,7 @@ public class WxServiceImpl implements IWxService {
         data.put("customs", config.getCustoms());
         //商户海关备案号
         data.put("mch_customs_no", config.getMchCustomsNo());
+
         //以下为拆单传的信息
         //商户子订单号，如有拆单则必传
         data.put("sub_order_no", String.valueOf(omOrderPo.getId()));
@@ -163,6 +165,7 @@ public class WxServiceImpl implements IWxService {
         data.put("product_fee", String.valueOf(productFeeCent));
         //子订单金额，以分为单位，不能超过原订单金额，order_fee=transport_fee+product_fee（应付金额=物流费+商品价格），如有拆单则必传。
         data.put("order_fee", String.valueOf(transportFee + productFeeCent));
+
         //用户实名信息
         OmRealUserPo omRealUserPo = omRealUserMapper.selectById(omOrderPo.getRealUserId());
         //证件类型	请传固定值IDCARD,暂只支持大陆身份证。
@@ -177,6 +180,49 @@ public class WxServiceImpl implements IWxService {
         } catch (Exception e) {
             throw new ServiceException(ResultCode.FAIL, "微信自助清关接口签名失败");
         }
+
+        Map<String, String> response;
+        //调用微信订单附加信息提交接口API
+        try {
+            response = wxPayPlus.customDeclareOrder(data);
+        } catch (Exception e) {
+            throw new ServiceException(ResultCode.FAIL, "调用微信自助清关接口失败");
+        }
+
+        //获取返回码
+        //String returnCode = response.get("return_code");
+        //若返回码return_code为SUCCESS，则会返回一个result_code,再对该result_code进行判断
+        /*if (returnCode.equals("SUCCESS")) {
+            String resultCode = response.get("result_code");
+            if ("SUCCESS".equals(resultCode)) {
+                //resultCode 为SUCCESS，才会返回prepay_id和trade_type
+                unifiedOrderVo.setPrepayId(response.get("prepay_id"));
+                //调起支付参数重新签名  不要使用请求预支付订单时返回的签名
+                Map<String, String> returnMap = BeanUtils.describe(unifiedOrderVo);
+                unifiedOrderVo.setSign(md5Util.getSign(returnMap));
+                //更新支付订单
+                payOrderPo.setPrePayId(response.get("prepay_id"));
+                payOrderMapper.updateById(payOrderPo);
+                return unifiedOrderVo;
+            } else {
+                //调用微信统一下单接口返回失败
+                String errCodeDes = response.get("err_code_des");
+                //更新支付订单
+                payOrderPo.setErrorCode(response.get("err_code"));
+                payOrderPo.setErrorMsg(errCodeDes);
+                payOrderMapper.updateById(payOrderPo);
+                throw new ServiceException(ResultCode.FAIL, errCodeDes);
+            }
+        } else {
+            //调用微信统一下单接口返回失败
+            String returnMsg = response.get("return_msg");
+            //更新支付订单
+            payOrderPo.setErrorCode(response.get("return_code"));
+            payOrderPo.setErrorMsg(returnMsg);
+            payOrderMapper.updateById(payOrderPo);
+            throw new ServiceException(ResultCode.FAIL, returnMsg);
+        }
+*/
     }
 
     /**
