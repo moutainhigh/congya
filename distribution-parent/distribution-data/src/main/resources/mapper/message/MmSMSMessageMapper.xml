@@ -21,7 +21,7 @@
         id, create_by, create_time, update_by, update_time, del_flag, template_code, title, content, push_object
     </sql>
     <select id="searchSmsPush" resultType="com.chauncy.data.vo.manage.message.interact.push.SmsPushVo">
-        select id,create_time,title,content,push_object pushObject,template_code
+        select id,create_time,title,content,push_object objectType,template_code
         from mm_s_m_s_message
         <where>
             del_flag = false
