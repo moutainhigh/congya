@@ -33,4 +33,37 @@
         </foreach>
     </select>
 
+
+    <select id="getFullDiscountSkuBo" resultType="com.chauncy.data.bo.app.car.FullDiscountSkuBo">
+        SELECT
+        s.sku_id,
+        g.activity_type,
+        g.activity_id,
+        g.buy_limit,
+        r.reduction_full_money,
+        r.reduction_post_money,
+        u.sell_price
+        FROM
+        am_activity_rel_goods_sku s,
+        am_activity_rel_activity_goods g ,
+        am_reduced r,
+        pm_goods_sku u
+        WHERE
+        s.del_flag = 0
+        AND g.del_flag = 0
+        AND r.del_flag=0
+        and u.del_flag=0
+        and s.sku_id=u.id
+        AND s.rel_id = g.id
+        and r.id=g.activity_id
+        AND g.activity_type=1
+        AND g.verify_status = 3
+        AND g.activity_end_time &lt;= NOW( )
+        AND g.activity_start_time &gt;= NOW( )
+        AND s.sku_id IN
+        <foreach collection = "ids" item = "id" separator="," open="(" close = ")" >
+                 #{id}
+         </foreach>
+    </select>
+
 </mapper>
