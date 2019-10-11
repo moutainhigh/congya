@@ -41,4 +41,6 @@ public class SpecifiedSkuVo {
 
     @ApiModelProperty("图片")
     private String picture;
+
+//    @ApiModelProperty(value = "活动")
 }

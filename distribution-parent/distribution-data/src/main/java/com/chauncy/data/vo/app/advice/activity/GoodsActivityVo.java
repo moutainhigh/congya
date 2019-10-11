@@ -18,17 +18,18 @@ import java.math.BigDecimal;
 @Accessors(chain = true)
 public class GoodsActivityVo {
 
-    @ApiModelProperty(value = "商品参与的活动类型:1-满减、2-积分、3-秒杀、4-拼团")
+    @ApiModelProperty(value = "商品参与的活动类型:1-满减、2-积分、4-拼团、5-秒杀进行中、6-秒杀待开始(距离当前时间一天)")
     private Integer type;
 
-    @ApiModelProperty(value = "满减活动-满金额")
-    private BigDecimal reductionFullMoney;
+    @ApiModelProperty(value = "满减信息")
+    private ReducedVo reducedVo;
 
-    @ApiModelProperty(value = "满减活动-减金额")
-    private BigDecimal reductionPostMoney;
+    @ApiModelProperty(value = "积分信息")
+    private IntegralsVo integralsVo;
 
-    @ApiModelProperty(value = "积分活动-促销金额")
-    private BigDecimal discountPrice;
+    @ApiModelProperty(value = "秒杀信息")
+    private SeckillVo seckillVo;
 
-//    @ApiModelProperty(value = "")
+    @ApiModelProperty(value = "拼团信息")
+    private SpellGroupVo spellGroupVo;
 }

@@ -21,7 +21,9 @@ public enum ActivityTypeEnum implements BaseEnum {
     REDUCED(1,"满减"),
     INTEGRALS(2,"积分"),
     SECKILL(3,"秒杀"),
-    SPELL_GROUP(4,"拼团");
+    SPELL_GROUP(4,"拼团"),
+    SECKILL_ING(5,"秒杀进行中"),
+    SPELL_PRE(6,"秒杀待开始(距离当前时间一天)");
 
     @EnumValue
     private Integer id;
