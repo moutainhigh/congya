@@ -34,8 +34,11 @@ public class SearchEvaluatesDto {
     @ApiModelProperty("商品名称")
     private String goodsName;
 
-    @ApiModelProperty("评价时间")
-    private LocalDate evaluateTime;
+    @ApiModelProperty("评价开始时间")
+    private LocalDate evaluateStartTime;
+
+    @ApiModelProperty("评价结束时间")
+    private LocalDate evaluateEndTime;
 
     @ApiModelProperty("店铺ID")
     private Long storeId;
