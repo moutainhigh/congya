@@ -22,10 +22,19 @@ public class SeckillVo {
     @ApiModelProperty("活动开始时间")
     private LocalDateTime activityStartTime;
 
+    @ApiModelProperty("活动结束时间")
+    private LocalDateTime activityEndTime;
+
     @ApiModelProperty("已抢数量")
     private Integer secNum;
 
-    @ApiModelProperty("秒杀价格")
-    private BigDecimal activityPrice;
+    @ApiModelProperty("秒杀活动--最低秒杀价")
+    private double lowestActivityPrice;
+
+    @ApiModelProperty(value = "秒杀活动-最高秒杀价")
+    private double highestActivityPrice;
+
+    @ApiModelProperty(value = "秒杀活动-秒杀金额范围(未选择sku时显示的数据)")
+    private String secDisplayPrice;
 
 }

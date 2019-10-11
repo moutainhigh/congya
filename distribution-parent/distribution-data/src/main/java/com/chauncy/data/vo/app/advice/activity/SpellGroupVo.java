@@ -24,8 +24,11 @@ public class SpellGroupVo {
     @ApiModelProperty(value = "成团人数")
     private Integer groupNum;
 
-    @ApiModelProperty(value = "活动价格")
-    private BigDecimal activityPrice;
+    @ApiModelProperty(value = "拼团--活动最低价格")
+    private BigDecimal lowestActivityPrice;
+
+    @ApiModelProperty(value = "拼团--活动最高价格")
+    private BigDecimal highestActivityPrice;
 
     @ApiModelProperty(value = "拼团说明")
     private String spellGroupDescription;

@@ -47,4 +47,16 @@ public interface AmActivityRelActivityGoodsMapper extends IBaseMapper<AmActivity
      * @return com.chauncy.data.domain.po.activity.registration.AmActivityRelActivityGoodsPo
      **/
     AmActivityRelActivityGoodsPo findGoodsActivity(Long goodsId);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-11 21:03
+     * @Description //查询是否为距离当前时间为一天的秒杀商品
+     *
+     * @Update chauncy
+     *
+     * @param  goodsId
+     * @return com.chauncy.data.domain.po.activity.registration.AmActivityRelActivityGoodsPo
+     **/
+    AmActivityRelActivityGoodsPo findPreSeckill(Long goodsId);
 }

@@ -43,4 +43,7 @@ public class IntegralsVo {
 
     @ApiModelProperty(value = "积分抵扣范围(未选择sku时显示的数据)")
     private String integralsDispalyPrice;
+
+    @ApiModelProperty(value = "积分抵扣百分比范围(未选择sku时显示的数据)")
+    private String integralsDispalyPercentage;
 }
