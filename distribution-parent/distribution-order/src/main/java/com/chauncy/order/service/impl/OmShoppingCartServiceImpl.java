@@ -452,7 +452,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             x.setNumber(settleAccountsDtos.stream().filter(y -> y.getSkuId().equals(x.getId())).findFirst().get().getNumber());
         });
         //判断是否活动商品
-        List<ActivitySkuBo> boByIds = amActivityRelGoodsSkuMapper.getBoByIds(skuIds);
+      /*  List<ActivitySkuBo> boByIds = amActivityRelGoodsSkuMapper.getBoByIds(skuIds);
         if (!ListUtil.isListNullAndEmpty(boByIds)){
             boByIds.forEach(x->{
                 ShopTicketSoWithCarGoodVo shopTicketSoWithCarGoodVo=shopTicketSoWithCarGoodVos.stream().filter(y->x.getSkuId().equals(y.getId())).findFirst().orElse(null);
@@ -470,7 +470,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                         break;
                 }
             });
-        }
+        }*/
 
 
         TotalCarVo totalCarVo = new TotalCarVo();
