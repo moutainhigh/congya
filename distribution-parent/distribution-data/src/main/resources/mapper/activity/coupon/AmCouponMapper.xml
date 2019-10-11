@@ -137,5 +137,15 @@
             and name like concat('%',#{name},'%')
         </if>
     </select>
+    <select id="getSelectCouPonVo" resultType="com.chauncy.data.vo.app.activity.coupon.SelectCouponVo">
+        select s.id skuId,s.sell_price sellPrice,c.id couponId,c.name,u.receive_time,dead_line,c.type,
+        c.discount,c.discount_full_money,c.reduction_full_money,c.reduction_post_money
+        FROM am_coupon c,am_coupon_rel_coupon_goods cg,am_coupon_rel_coupon_user u,pm_goods_sku s
+        where c.del_flag=0 and s.del_flag=0 and c.id=cg.coupon_id and c.id=u.coupon_id and cg.association_id=s.goods_id and u.dead_line&gt;=NOW() and c.`enable`=1 and u.use_status=2
+        and u.user_id=#{userId}  and s.id in
+        <foreach collection="skuIds" close=")" open="(" separator="," item="skuId">
+            #{skuId}
+        </foreach>
+    </select>
 
 </mapper>

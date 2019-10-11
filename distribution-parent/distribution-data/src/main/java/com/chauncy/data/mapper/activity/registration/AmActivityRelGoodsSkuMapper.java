@@ -1,7 +1,11 @@
 package com.chauncy.data.mapper.activity.registration;
 
+import com.chauncy.data.bo.app.car.ActivitySkuBo;
 import com.chauncy.data.domain.po.activity.registration.AmActivityRelGoodsSkuPo;
 import com.chauncy.data.mapper.IBaseMapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * <p>
@@ -12,5 +16,18 @@ import com.chauncy.data.mapper.IBaseMapper;
  * @since 2019-07-26
  */
 public interface AmActivityRelGoodsSkuMapper extends IBaseMapper<AmActivityRelGoodsSkuPo> {
+
+    /**
+     * @Author zhangrt
+     * @Date 2019/10/9 13:32
+     * @Description  根据skuid查出活动一些信息，没有则不是活动商品
+     *
+     * @Update
+     *
+     * @Param [ids]
+     * @return java.util.List<com.chauncy.data.bo.app.car.ActivitySkuBo>
+     **/
+
+    List<ActivitySkuBo> getBoByIds(@Param("ids") List<Long> ids);
 
 }

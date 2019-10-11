@@ -41,35 +41,16 @@ public class GoodsTypeOrderVo {
     @ApiModelProperty(value = "该订单商品数量")
     private Integer totalNumber;
 
-  /*  @ApiModelProperty(value = "单个订单使用购物券")
-    private BigDecimal shopTicket;
+    @ApiModelProperty(value = "满减活动满足多少钱才能减")
+    private BigDecimal reductionFullMoney;
 
-    @ApiModelProperty(value = "单个订单使用红包")
-    private BigDecimal redEnvelops;
+    @ApiModelProperty(value = "满减活动减多少钱")
+    private BigDecimal reductionPostMoney;
 
-    @ApiModelProperty(value = "单个订单使用优惠券")
-    private BigDecimal coupon;
+    @ApiModelProperty(value = "评团优惠多少钱")
+    private BigDecimal groupDiscountMoney;
 
-    @ApiModelProperty(value = "单个订单使用总优惠")
-    private BigDecimal totalDiscount;
-
-    @ApiModelProperty(value = "单个订单实际付款")
-    private BigDecimal realPayMoney;
-
-    @ApiModelProperty(value = "单个订单积分抵扣")
-    private BigDecimal integralMoney;
-
-    @ApiModelProperty(value = "单个订单可抵扣金额")
-    private BigDecimal deductionMoney;*/
-
-   /* @ApiModelProperty(value = "单个订单预计奖励购物券")
-    private BigDecimal rewardShopTicket;*/
-
-  /*  //计算出应付金额=商品总额+运费+税费-总优惠
-    public BigDecimal calculationRealPayMoney(){
-        BigDecimal a = BigDecimalUtil.safeAdd(totalMoney, shipMoney, taxMoney);
-        return BigDecimalUtil.safeSubtract(a,totalDiscount);
-    }*/
-
+    @ApiModelProperty(value = "积分优惠多少钱")
+    private BigDecimal integralDiscountMoney;
 
 }

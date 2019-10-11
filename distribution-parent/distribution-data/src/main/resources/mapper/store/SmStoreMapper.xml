@@ -167,8 +167,11 @@
 
     <select id="findBindingStore" resultType="com.chauncy.data.vo.manage.store.rel.SmRelStoreVo">
         select (case when ssrs.`type`=1 then '产品代理' when ssrs.`type`=2 then '团队合作' end) as typeName,
-                ssrs.id, ss.name as storeName
-        from sm_store_rel_store ssrs left join sm_store ss on ss.id = ssrs.parent_id
+                ssrs.`type` as typeId,
+                ssrs.id,
+                ss.name as storeName,
+                ss.id as storeId
+        from sm_store_rel_store ssrs inner join sm_store ss on ss.id = ssrs.parent_id
         <where>
             ssrs.del_flag = 0 and ss.del_flag = 0 and ssrs.store_id = #{id}
         </where>

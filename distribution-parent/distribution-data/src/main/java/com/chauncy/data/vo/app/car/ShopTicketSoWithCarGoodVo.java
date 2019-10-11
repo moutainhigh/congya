@@ -18,6 +18,10 @@ import java.util.List;
 @Accessors(chain = true)
 public class ShopTicketSoWithCarGoodVo {
 
+    //活动类型
+    @ApiModelProperty("活动类型:1-满减；2-积分；3-秒杀；4-拼团")
+    private Integer type;
+
     //销售价
     @ApiModelProperty("销售价")
     private BigDecimal sellPrice;
@@ -67,11 +71,6 @@ public class ShopTicketSoWithCarGoodVo {
     @ApiModelProperty("数量")
     private Integer number;
 
-    @ApiModelProperty("商品当前参与的活动类型，没有则为空字符串")
-    private String activityType;
-
-    @ApiModelProperty("该支付单所参与的优惠活动")
-    private List<String> activityList;
 
     @ApiModelProperty(hidden = true)
     @JSONField(serialize = false)

@@ -28,7 +28,13 @@ public class SmRelStoreVo implements Serializable {
     @ApiModelProperty(value = "所属店铺名称")
     private String storeName;
 
+    @ApiModelProperty(value = "所属店铺id")
+    private String storeId;
+
     @ApiModelProperty(value = "业务关系")
     private String typeName;
+
+    @ApiModelProperty(value = "业务关系")
+    private String typeId;
 
 }
