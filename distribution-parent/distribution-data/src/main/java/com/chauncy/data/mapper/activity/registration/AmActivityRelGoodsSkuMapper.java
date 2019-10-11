@@ -3,6 +3,7 @@ package com.chauncy.data.mapper.activity.registration;
 import com.chauncy.data.bo.app.car.ActivitySkuBo;
 import com.chauncy.data.domain.po.activity.registration.AmActivityRelGoodsSkuPo;
 import com.chauncy.data.mapper.IBaseMapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -27,6 +28,6 @@ public interface AmActivityRelGoodsSkuMapper extends IBaseMapper<AmActivityRelGo
      * @return java.util.List<com.chauncy.data.bo.app.car.ActivitySkuBo>
      **/
 
-    List<ActivitySkuBo> getBoByIds( List<Long> ids);
+    List<ActivitySkuBo> getBoByIds(@Param("ids") List<Long> ids);
 
 }
