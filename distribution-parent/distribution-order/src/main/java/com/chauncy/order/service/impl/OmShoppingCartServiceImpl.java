@@ -261,9 +261,13 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     public void addToCart(AddCartDto addCartDto) {
         //获取当前app用户信息
         UmUserPo umUserPo = securityUtil.getAppCurrUser();
+        if (umUserPo == null){
+            throw new ServiceException(ResultCode.NO_EXISTS,"您不是APP用户!");
+        }
         //判断购物车是否存在该商品
         Map<String, Object> map = new HashMap<>();
         map.put("sku_id", addCartDto.getSkuId());
+        map.put("user_id",umUserPo.getId());
         List<OmShoppingCartPo> shoppingCartPos = mapper.selectByMap(map);
         boolean exit = shoppingCartPos != null && shoppingCartPos.size() != 0;
         //判断当前库存是否足够
@@ -1417,6 +1421,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                             if (activityRelGoodsSkuPo != null){
                                 Integer activityStock = activityRelGoodsSkuPo.getActivityStock();
                                 BigDecimal activityPrice = activityRelGoodsSkuPo.getActivityPrice();
+                                //积分抵扣多少钱
                                 BigDecimal integralsPrice = BigDecimalUtil.safeSubtract(true,b.getSellPrice(),activityPrice);
                                 specifiedSkuVo.setActivityPrice(activityPrice);
                                 specifiedSkuVo.setActivityStock(activityStock);
@@ -1426,12 +1431,35 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                         }
                         break;
                     case SECKILL:
-                        
+                        //这里是活动进行中的商品
+                        AmSeckillPo seckillPo = seckillMapper.selectOne(new QueryWrapper<AmSeckillPo>().lambda().and(obj->
+                                obj.eq(AmSeckillPo::getEnable,true).eq(AmSeckillPo::getId,relActivityGoodsPo.getActivityId())));
+                        if (seckillPo == null){
+                            goodsActivityVo.setType(ActivityTypeEnum.NON.getId());
+                        }
+                        else {
+                            goodsActivityVo.setType(ActivityTypeEnum.INTEGRALS.getId());
+                            //获取该sku对应的秒杀活动的价格、库存
+                            AmActivityRelGoodsSkuPo activityRelGoodsSkuPo = amActivityRelGoodsSkuMapper.selectOne(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda().and(obj->obj
+                                    .eq(AmActivityRelGoodsSkuPo::getRelId,relActivityGoodsPo.getId())
+                                    .eq(AmActivityRelGoodsSkuPo::getSkuId,b.getId())));
+                            if (activityRelGoodsSkuPo != null){
+                                Integer activityStock = activityRelGoodsSkuPo.getActivityStock();
+                                BigDecimal activityPrice = activityRelGoodsSkuPo.getActivityPrice();
+                                specifiedSkuVo.setActivityPrice(activityPrice);
+                                specifiedSkuVo.setActivityStock(activityStock);
+                            }
+
+                        }
+
                         break;
                     case SPELL_GROUP:
                         break;
                 }
             }
+
+            //获取距离当前时间为一天的待开始的秒杀活动信息
+
 
             /*********************** 商品参加的活动,sku对应的活动价格、活动库存 end***************************/
 
