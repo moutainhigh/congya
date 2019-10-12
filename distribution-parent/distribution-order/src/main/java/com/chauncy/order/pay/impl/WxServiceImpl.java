@@ -573,8 +573,8 @@ public class WxServiceImpl implements IWxService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String payBack(String notifyData) throws Exception{
-        String failXmlBack = "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[报文为空]]></return_msg></xml> ";
-        String successXmlBack = "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml> ";
+        String failXmlBack = "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[报文为空]]></return_msg></xml>";
+        String successXmlBack = "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>";
         WXConfigUtil config = null;
         try {
             config = new WXConfigUtil();
@@ -663,12 +663,12 @@ public class WxServiceImpl implements IWxService {
                 //签名错误，如果数据里没有sign字段，也认为是签名错误
                 //失败的数据要不要存储？
                 logger.error("手机支付回调通知签名错误,返回参数：" + notifyMap);
-                xmlBack = "<xml>" + "<return_code><![CDATA[FAIL]]></return_code>" + "<return_msg><![CDATA[报文为空]]></return_msg>" + "</xml> ";
+                xmlBack = "<xml>" + "<return_code><![CDATA[FAIL]]></return_code>" + "<return_msg><![CDATA[报文为空]]></return_msg>" + "</xml>";
                 return xmlBack;
             }
         } catch (Exception e) {
             logger.error("手机支付回调通知失败", e);
-            xmlBack = "<xml>" + "<return_code><![CDATA[FAIL]]></return_code>" + "<return_msg><![CDATA[报文为空]]></return_msg>" + "</xml> ";
+            xmlBack = "<xml>" + "<return_code><![CDATA[FAIL]]></return_code>" + "<return_msg><![CDATA[报文为空]]></return_msg>" + "</xml>";
         }
         return xmlBack;
     }

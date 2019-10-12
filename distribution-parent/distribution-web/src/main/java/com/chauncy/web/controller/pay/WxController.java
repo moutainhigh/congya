@@ -99,8 +99,8 @@ public class WxController {
      *   官方文档 ：https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=9_7&index=3
      */
     //@RequestMapping(value = "/wxPay/notify", method = {RequestMethod.GET, RequestMethod.POST}, produces={"application/xml;"})
-    @RequestMapping(value = "/wxPay/notify", method = {RequestMethod.GET, RequestMethod.POST}, produces={"text/html;charset=utf-8"})
-    @ApiOperation("统一下单")
+    @RequestMapping(value = "/wxPay/notify", method = {RequestMethod.GET, RequestMethod.POST})
+    @ApiOperation("支付异步结果通知")
     public String wxPayNotify(HttpServletRequest request, HttpServletResponse response) {
         String resXml;
         try {
@@ -127,7 +127,7 @@ public class WxController {
             return result;
         } catch (Exception e) {
             logger.error("微信手机支付失败:" + e.getMessage());
-            String result = "<xml>" + "<return_code><![CDATA[FAIL]]></return_code>" + "<return_msg><![CDATA[报文为空]]></return_msg>" + "</xml> ";
+            String result = "<xml>" + "<return_code><![CDATA[FAIL]]></return_code>" + "<return_msg><![CDATA[报文为空]]></return_msg>" + "</xml>";
             return result;
         }
     }
