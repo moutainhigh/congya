@@ -92,10 +92,36 @@ public class RabbitOrderHandler {
     public void listenerAccountLogQueue(AddAccountLogBo addAccountLogBo, Message message, Channel channel) {
         LoggerUtil.info(String.format("[saveAccountLog 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), addAccountLogBo));
 
-        omAccountLogService.saveAccountLog(addAccountLogBo);
         try {
+            omAccountLogService.saveAccountLog(addAccountLogBo);
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (IOException e) {
+            // TODO 如果报错了,那么我们可以进行容错处理,比如转移当前消息进入其它队列
+        }
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/11 17:30
+     * @Description 订单支付完成海外直邮跟保税仓的订单要报关，向海关申报信息
+     *
+     * @Update yeJH
+     *
+     * @param  omOrderPo  订单
+     * @param  message
+     * @param  channel
+     * @return void
+     **/
+    @RabbitListener(queues = {RabbitConstants.CUSTOM_DECLARE_QUEUE})
+    @Transactional(rollbackFor = Exception.class)
+    public void listenerCustomDeclareQueue(OmOrderPo omOrderPo, Message message, Channel channel) {
+        LoggerUtil.info(String.format("[customDeclareOrder 监听的消息] - [消费时间] - [%s] - [%s]",
+                LocalDateTime.now(), String.valueOf(omOrderPo.getId())));
+
+        try {
+            wxService.customDeclareOrder(omOrderPo);
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        } catch (Exception e) {
             // TODO 如果报错了,那么我们可以进行容错处理,比如转移当前消息进入其它队列
         }
     }
@@ -105,8 +131,8 @@ public class RabbitOrderHandler {
     public void listenerPlatformGiveQueue(AddAccountLogBo accountLogBo, Message message, Channel channel) {
         LoggerUtil.info(String.format("[saveAccountLog 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), accountLogBo));
 
-        omAccountLogService.saveAccountLog(accountLogBo);
         try {
+            omAccountLogService.saveAccountLog(accountLogBo);
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (IOException e) {
             // TODO 如果报错了,那么我们可以进行容错处理,比如转移当前消息进入其它队列

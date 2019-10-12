@@ -1,6 +1,7 @@
 package com.chauncy.order.pay;
 
 import com.chauncy.common.enums.order.OrderPayTypeEnum;
+import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.dto.app.order.pay.PayParamDto;
 import com.chauncy.data.vo.app.order.pay.UnifiedOrderVo;
 
@@ -17,10 +18,10 @@ public interface IWxService {
      *
      * @Update yeJH
      *
-     * @param  orderId 订单id
+     * @param  omOrderPo 订单
      * @return void
      **/
-    void customDeclareOrder(Long orderId);
+    void customDeclareOrder(OmOrderPo omOrderPo) throws Exception;
     /**
      * 调用官方SDK 获取前端调起支付接口的参数
      * @return

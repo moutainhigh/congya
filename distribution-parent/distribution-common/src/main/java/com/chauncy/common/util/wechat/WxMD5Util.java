@@ -34,7 +34,7 @@ public class WxMD5Util {
                 continue;
             }
             String asas = data.get(k);
-            System.out.println(asas);
+            System.out.println(k + "：" + asas);
             if (data.get(k).trim().length() > 0)
                 // 参数值为空，则不参与签名
                 sb.append(k).append("=").append(data.get(k).trim()).append("&");
