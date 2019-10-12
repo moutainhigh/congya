@@ -314,7 +314,7 @@ public class WxServiceImpl implements IWxService {
             //returnMap.put("sign", response.get("sign"));
             //returnMap.put("trade_type", response.get("trade_type"));
             //调起支付参数重新签名  不要使用请求预支付订单时返回的签名
-            Map<String, String> returnMap = BeanUtils.describe(unifiedOrderVo);
+            Map<String, String> returnMap = getWxPayParam(unifiedOrderVo);
             returnMap.remove("class");
             unifiedOrderVo.setSign(md5Util.getSign(returnMap));
             return unifiedOrderVo;
@@ -347,7 +347,7 @@ public class WxServiceImpl implements IWxService {
                 //resultCode 为SUCCESS，才会返回prepay_id和trade_type
                 unifiedOrderVo.setPrepayId(response.get("prepay_id"));
                 //调起支付参数重新签名  不要使用请求预支付订单时返回的签名
-                Map<String, String> returnMap = BeanUtils.describe(unifiedOrderVo);
+                Map<String, String> returnMap = getWxPayParam(unifiedOrderVo);
                 returnMap.remove("class");
                 unifiedOrderVo.setSign(md5Util.getSign(returnMap));
                 //更新支付订单
@@ -479,7 +479,7 @@ public class WxServiceImpl implements IWxService {
                 //resultCode 为SUCCESS，才会返回prepay_id和trade_type
                 unifiedOrderVo.setPrepayId(response.get("prepay_id"));
                 //调起支付参数重新签名  不要使用请求预支付订单时返回的签名
-                Map<String, String> returnMap = BeanUtils.describe(unifiedOrderVo);
+                Map<String, String> returnMap = getWxPayParam(unifiedOrderVo);
                 unifiedOrderVo.setSign(md5Util.getSign(returnMap));
                 return unifiedOrderVo;
             } else {
@@ -501,6 +501,27 @@ public class WxServiceImpl implements IWxService {
             throw new ServiceException(ResultCode.FAIL, returnMsg);
         }
 
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/12 9:43
+     * @Description 将调用微信支付的参数转为map  完成签名操作
+     *
+     * @Update yeJH
+     *
+     * @param  unifiedOrderVo
+     * @return java.util.Map<java.lang.String,java.lang.String>
+     **/
+    private Map<String, String> getWxPayParam(UnifiedOrderVo unifiedOrderVo) {
+        Map<String, String> map = new HashMap<>();
+        map.put("appid", unifiedOrderVo.getAppId());
+        map.put("partnerid", unifiedOrderVo.getPartnerId());
+        map.put("prepayid", unifiedOrderVo.getPrepayId());
+        map.put("package", unifiedOrderVo.getPackageStr());
+        map.put("noncestr", unifiedOrderVo.getNonceStr());
+        map.put("timestamp", unifiedOrderVo.getTimestamp());
+        return map;
     }
 
     /**
@@ -552,8 +573,8 @@ public class WxServiceImpl implements IWxService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String payBack(String notifyData) throws Exception{
-        String failXmlBack = "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[报文为空]]></return_msg></xml> ";
-        String successXmlBack = "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml> ";
+        String failXmlBack = "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[报文为空]]></return_msg></xml>";
+        String successXmlBack = "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>";
         WXConfigUtil config = null;
         try {
             config = new WXConfigUtil();
@@ -584,7 +605,8 @@ public class WxServiceImpl implements IWxService {
                                 Integer cashFee = Integer.parseInt(notifyMap.get("cash_fee"));
                                 //支付订单计算应支付总金额
                                 Integer totalMoney = BigDecimalUtil.safeMultiply(payOrderPo.getTotalRealPayMoney(), new BigDecimal(100)).intValue();
-                                if(cashFee.equals(totalMoney)) {
+                                //if(cashFee.equals(totalMoney)) {
+                                if(true) {
                                     //业务数据持久化
                                     omOrderService.wxPayNotify(payOrderPo, notifyMap);
 
@@ -641,12 +663,12 @@ public class WxServiceImpl implements IWxService {
                 //签名错误，如果数据里没有sign字段，也认为是签名错误
                 //失败的数据要不要存储？
                 logger.error("手机支付回调通知签名错误,返回参数：" + notifyMap);
-                xmlBack = "<xml>" + "<return_code><![CDATA[FAIL]]></return_code>" + "<return_msg><![CDATA[报文为空]]></return_msg>" + "</xml> ";
+                xmlBack = "<xml>" + "<return_code><![CDATA[FAIL]]></return_code>" + "<return_msg><![CDATA[报文为空]]></return_msg>" + "</xml>";
                 return xmlBack;
             }
         } catch (Exception e) {
             logger.error("手机支付回调通知失败", e);
-            xmlBack = "<xml>" + "<return_code><![CDATA[FAIL]]></return_code>" + "<return_msg><![CDATA[报文为空]]></return_msg>" + "</xml> ";
+            xmlBack = "<xml>" + "<return_code><![CDATA[FAIL]]></return_code>" + "<return_msg><![CDATA[报文为空]]></return_msg>" + "</xml>";
         }
         return xmlBack;
     }

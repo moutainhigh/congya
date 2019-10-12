@@ -100,6 +100,7 @@ ignored:
     - /generator/create
     - /app/order/logistics/callback/**
     - /manage/message/advice/findAdviceLocation
+    - /app/wxPay/notify
 
 # 配置快递100
 logistics:
