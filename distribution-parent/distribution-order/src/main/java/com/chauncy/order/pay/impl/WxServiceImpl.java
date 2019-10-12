@@ -64,9 +64,9 @@ public class WxServiceImpl implements IWxService {
     private static final Logger logger = LoggerFactory.getLogger(WxServiceImpl.class);
 
     //支付结果通知地址
-    public static final String PAY_NOTIFY_URL = "http://112.126.96.226/distribution/app/wxPay/wxPay/notify";
+    public static final String PAY_NOTIFY_URL = "http://112.126.96.226/distribution/app/wxPay/notify";
     //退款结果通知地址
-    public static final String REFUND_NOTIFY_URL = "http://112.126.96.226/distribution/app/wxPay/wxPay/notify";
+    public static final String REFUND_NOTIFY_URL = "http://112.126.96.226/distribution/app/wxPay/notify";
     //交易类型
     public static final String TRADE_TYPE_APP = "APP";
     //币种  微信支付订单支付时使用的币种
