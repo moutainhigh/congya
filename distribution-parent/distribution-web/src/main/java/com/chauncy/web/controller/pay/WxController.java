@@ -100,7 +100,8 @@ public class WxController {
      */
     //@RequestMapping(value = "/wxPay/notify", method = {RequestMethod.GET, RequestMethod.POST}, produces={"application/xml;"})
     //@RequestMapping(value = "/wxPay/notify", method = {RequestMethod.GET, RequestMethod.POST})
-    @RequestMapping(value = "/wxPay/notify", method = {RequestMethod.GET, RequestMethod.POST})
+    //@RequestMapping(value = "/wxPay/notify", method = {RequestMethod.GET, RequestMethod.POST})
+    @PostMapping("/wxPay/notify")
     @ApiOperation("支付异步结果通知")
     public String wxPayNotify(HttpServletRequest request) {
         String resXml;
