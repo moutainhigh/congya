@@ -99,9 +99,10 @@ public class WxController {
      *   官方文档 ：https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=9_7&index=3
      */
     //@RequestMapping(value = "/wxPay/notify", method = {RequestMethod.GET, RequestMethod.POST}, produces={"application/xml;"})
+    //@RequestMapping(value = "/wxPay/notify", method = {RequestMethod.GET, RequestMethod.POST})
     @RequestMapping(value = "/wxPay/notify", method = {RequestMethod.GET, RequestMethod.POST})
     @ApiOperation("支付异步结果通知")
-    public String wxPayNotify(HttpServletRequest request, HttpServletResponse response) {
+    public String wxPayNotify(HttpServletRequest request) {
         String resXml;
         try {
             InputStream inputStream = request.getInputStream();
