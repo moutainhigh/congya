@@ -20,15 +20,19 @@ import com.chauncy.common.util.wechat.WxMD5Util;
 import com.chauncy.data.bo.manage.order.OrderRefundInfoBo;
 import com.chauncy.data.domain.po.activity.gift.AmGiftOrderPo;
 import com.chauncy.data.domain.po.afterSale.OmAfterSaleOrderPo;
+import com.chauncy.data.domain.po.order.OmOrderCustomDeclarePo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.order.OmRealUserPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
+import com.chauncy.data.domain.po.pay.PayParamPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.app.order.pay.PayParamDto;
 import com.chauncy.data.mapper.activity.gift.AmGiftOrderMapper;
 import com.chauncy.data.mapper.afterSale.OmAfterSaleOrderMapper;
+import com.chauncy.data.mapper.order.OmOrderCustomDeclareMapper;
 import com.chauncy.data.mapper.order.OmRealUserMapper;
 import com.chauncy.data.mapper.pay.IPayOrderMapper;
+import com.chauncy.data.mapper.pay.PayParamMapper;
 import com.chauncy.data.vo.app.order.pay.UnifiedOrderVo;
 import com.chauncy.order.afterSale.IOmAfterSaleOrderService;
 import com.chauncy.order.pay.IWxService;
@@ -75,6 +79,12 @@ public class WxServiceImpl implements IWxService {
     private IPayOrderMapper payOrderMapper;
 
     @Autowired
+    private PayParamMapper payParamMapper;
+
+    @Autowired
+    private OmOrderCustomDeclareMapper omOrderCustomDeclareMapper;
+
+    @Autowired
     private OmRealUserMapper omRealUserMapper;
 
     @Autowired
@@ -109,24 +119,25 @@ public class WxServiceImpl implements IWxService {
      *
      * @Update yeJH
      *
-     * @param  orderId
+     * @param  omOrderPo
      * @return void
      **/
     @Override
-    public void customDeclareOrder(Long orderId) {
-        OmOrderPo omOrderPo = omOrderService.getById(orderId);
+    public void customDeclareOrder(OmOrderPo omOrderPo) throws Exception {
         if(null == omOrderPo) {
             throw new ServiceException(ResultCode.NO_EXISTS);
         }
 
         if(!OrderStatusEnum.NEED_SEND_GOODS.getId().equals(omOrderPo.getStatus())) {
             //订单不是已支付状态
-            throw new ServiceException(ResultCode.FAIL, "订单状态不是已支付状态");
+            return ;
+            //throw new ServiceException(ResultCode.FAIL, "订单状态不是已支付状态");
         }
         if(!(GoodsTypeEnum.BONDED.getName().equals(omOrderPo.getGoodsType()) ||
                 GoodsTypeEnum.OVERSEA.getName().equals(omOrderPo.getGoodsType()))) {
+            return ;
             //订单类型不是保税仓 或者 海外直邮
-            throw new ServiceException(ResultCode.FAIL, "订单类型不是保税仓或者海外直邮");
+            //throw new ServiceException(ResultCode.FAIL, "订单类型不是保税仓或者海外直邮");
         }
 
         WxMD5Util md5Util = wxMD5Util;
@@ -189,40 +200,62 @@ public class WxServiceImpl implements IWxService {
             throw new ServiceException(ResultCode.FAIL, "调用微信自助清关接口失败");
         }
 
+        OmOrderCustomDeclarePo omOrderCustomDeclarePo = new OmOrderCustomDeclarePo();
+        omOrderCustomDeclarePo.setOrderId(omOrderPo.getId());
+
         //获取返回码
-        //String returnCode = response.get("return_code");
+        String returnCode = response.get("return_code");
+        omOrderCustomDeclarePo.setReturnCode(returnCode);
+        //返回信息
+        omOrderCustomDeclarePo.setReturnMsg(response.get("return_msg"));
         //若返回码return_code为SUCCESS，则会返回一个result_code,再对该result_code进行判断
-        /*if (returnCode.equals("SUCCESS")) {
+        if (returnCode.equals("SUCCESS")) {
             String resultCode = response.get("result_code");
             if ("SUCCESS".equals(resultCode)) {
-                //resultCode 为SUCCESS，才会返回prepay_id和trade_type
-                unifiedOrderVo.setPrepayId(response.get("prepay_id"));
-                //调起支付参数重新签名  不要使用请求预支付订单时返回的签名
-                Map<String, String> returnMap = BeanUtils.describe(unifiedOrderVo);
-                unifiedOrderVo.setSign(md5Util.getSign(returnMap));
-                //更新支付订单
-                payOrderPo.setPrePayId(response.get("prepay_id"));
-                payOrderMapper.updateById(payOrderPo);
-                return unifiedOrderVo;
+                //保存海关申报信息
+                omOrderCustomDeclarePo = saveOrderCustomDeclare(response);
             } else {
-                //调用微信统一下单接口返回失败
-                String errCodeDes = response.get("err_code_des");
-                //更新支付订单
-                payOrderPo.setErrorCode(response.get("err_code"));
-                payOrderPo.setErrorMsg(errCodeDes);
-                payOrderMapper.updateById(payOrderPo);
-                throw new ServiceException(ResultCode.FAIL, errCodeDes);
+                //调用微信申报接口返回失败
+                //错误代码描述
+                omOrderCustomDeclarePo.setErrCodeDes(response.get("err_code_des"));
+                //错误代码
+                omOrderCustomDeclarePo.setErrCode(response.get("err_code"));
             }
-        } else {
-            //调用微信统一下单接口返回失败
-            String returnMsg = response.get("return_msg");
-            //更新支付订单
-            payOrderPo.setErrorCode(response.get("return_code"));
-            payOrderPo.setErrorMsg(returnMsg);
-            payOrderMapper.updateById(payOrderPo);
-            throw new ServiceException(ResultCode.FAIL, returnMsg);
         }
-*/
+        omOrderCustomDeclareMapper.insert(omOrderCustomDeclarePo);
+
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/11 15:39
+     * @Description 将海关申报结果保存
+     *
+     * @Update yeJH
+     *
+     * @param  response
+     * @return com.chauncy.data.domain.po.order.OmOrderCustomDeclarePo
+     **/
+    private OmOrderCustomDeclarePo saveOrderCustomDeclare(Map<String, String> response) {
+        OmOrderCustomDeclarePo omOrderCustomDeclarePo = new OmOrderCustomDeclarePo();
+        omOrderCustomDeclarePo.setCreateBy("auto");
+        //商户子订单号   orderId
+        omOrderCustomDeclarePo.setOrderId(Long.valueOf(response.get("sub_order_no")));
+        //海关申报状态码
+        omOrderCustomDeclarePo.setDeclareStatus(response.get("state"));
+        //微信子订单号
+        omOrderCustomDeclarePo.setSubOrderId(response.get("sub_order_id"));
+        //最后更新时间
+        omOrderCustomDeclarePo.setModifyTime(response.get("modify_time"));
+        //订购人和支付人身份信息校验结果
+        omOrderCustomDeclarePo.setCertCheckResult(response.get("cert_check_result"));
+        //验核机构
+        omOrderCustomDeclarePo.setVerifyDepartment(response.get("verify_department"));
+        //交易流水号
+        omOrderCustomDeclarePo.setVerifyDepartmentTradeId(response.get("verify_department_trade_id"));
+        //业务结果
+        omOrderCustomDeclarePo.setResultCode(response.get("result_code"));
+        return omOrderCustomDeclarePo;
     }
 
     /**
@@ -282,6 +315,7 @@ public class WxServiceImpl implements IWxService {
             //returnMap.put("trade_type", response.get("trade_type"));
             //调起支付参数重新签名  不要使用请求预支付订单时返回的签名
             Map<String, String> returnMap = BeanUtils.describe(unifiedOrderVo);
+            returnMap.remove("class");
             unifiedOrderVo.setSign(md5Util.getSign(returnMap));
             return unifiedOrderVo;
         }
@@ -314,10 +348,15 @@ public class WxServiceImpl implements IWxService {
                 unifiedOrderVo.setPrepayId(response.get("prepay_id"));
                 //调起支付参数重新签名  不要使用请求预支付订单时返回的签名
                 Map<String, String> returnMap = BeanUtils.describe(unifiedOrderVo);
+                returnMap.remove("class");
                 unifiedOrderVo.setSign(md5Util.getSign(returnMap));
                 //更新支付订单
                 payOrderPo.setPrePayId(response.get("prepay_id"));
                 payOrderMapper.updateById(payOrderPo);
+
+                //记录本次支付订单传给微信服务器的xml参数  海关申报需要用到
+                savePayParamPo(payOrderId, data);
+
                 return unifiedOrderVo;
             } else {
                 //调用微信统一下单接口返回失败
@@ -336,6 +375,62 @@ public class WxServiceImpl implements IWxService {
             payOrderPo.setErrorMsg(returnMsg);
             payOrderMapper.updateById(payOrderPo);
             throw new ServiceException(ResultCode.FAIL, returnMsg);
+        }
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/11 21:43
+     * @Description 记录本次支付订单传给微信服务器的xml参数  海关申报需要用到
+     *
+     * @Update yeJH
+     *
+     * @param  payOrderId
+     * @param  data
+     * @return void
+     **/
+    private void savePayParamPo(Long payOrderId, Map<String, String> data) throws Exception{
+
+        //记录本次支付订单传给微信服务器的xml参数
+        QueryWrapper<PayParamPo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(PayParamPo::getPayOrderId, payOrderId);
+        PayParamPo payParamPo = payParamMapper.selectOne(queryWrapper);
+        if(null != payParamPo) {
+            payParamPo.setId(payParamPo.getId());
+            payParamPo.setPayOrderId(payOrderId);
+            payParamPo.setInitalRequest(WXPayUtil.mapToXml(data));
+            payParamMapper.updateById(payParamPo);
+        } else {
+            payParamPo = new PayParamPo();
+            payParamPo.setPayOrderId(payOrderId);
+            payParamPo.setInitalRequest(WXPayUtil.mapToXml(data));
+            payParamMapper.insert(payParamPo);
+        }
+
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/11 21:55
+     * @Description 记录本次支付通知微信服务器传过来的参数  海关申报需要用到
+     *
+     * @Update yeJH
+     *
+     * @param  payOrderId
+     * @param  data
+     * @return void
+     **/
+    private void updatePayParamPo(Long payOrderId, String data) throws Exception{
+
+        //记录本次支付订单传给微信服务器的xml参数
+        QueryWrapper<PayParamPo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(PayParamPo::getPayOrderId, payOrderId);
+        PayParamPo payParamPo = payParamMapper.selectOne(queryWrapper);
+        if(null != payParamPo) {
+            payParamPo.setId(payParamPo.getId());
+            payParamPo.setPayOrderId(payOrderId);
+            payParamPo.setInitalResponse(data);
+            payParamMapper.updateById(payParamPo);
         }
 
     }
@@ -492,6 +587,10 @@ public class WxServiceImpl implements IWxService {
                                 if(cashFee.equals(totalMoney)) {
                                     //业务数据持久化
                                     omOrderService.wxPayNotify(payOrderPo, notifyMap);
+
+                                    //记录本次支付通知微信服务器传过来的参数  海关申报需要用到
+                                    updatePayParamPo(payOrderPo.getId(), notifyData);
+
                                 } else {
                                     logger.info("微信手机支付回调成功，订单号:{}，但是金额不对应，回调支付金额{}，支付订单计算应支付总金额", outTradeNo, cashFee, totalMoney);
                                 }
@@ -519,6 +618,7 @@ public class WxServiceImpl implements IWxService {
                                 if(cashFee.equals(totalMoney)) {
                                     //业务数据持久化
                                     amGiftOrderService.wxPayNotify(amGiftOrderPo, notifyMap);
+
                                 } else {
                                     logger.info("微信手机支付回调成功，订单号:{}，但是金额不对应，回调支付金额{}，支付订单计算应支付总金额", outTradeNo, cashFee, totalMoney);
                                 }

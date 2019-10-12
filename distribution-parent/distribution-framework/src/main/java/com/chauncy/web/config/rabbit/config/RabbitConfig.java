@@ -129,6 +129,30 @@ public class RabbitConfig {
     }
 
     /**
+     * 海关申报 消息队列  延迟队列
+     * @return
+     */
+    @Bean
+    public Queue customDeclareQueue() {
+        return new Queue(RabbitConstants.CUSTOM_DECLARE_QUEUE, true);
+    }
+
+    /**
+     * 海关申报 消息交换机
+     **/
+    @Bean
+    public TopicExchange customDeclareTopicExchange() {
+        return new TopicExchange(RabbitConstants.CUSTOM_DECLARE_EXCHANGE);
+    }
+
+    @Bean
+    public Binding customDeclareBinding() {
+        // TODO 如果要让延迟队列之间有关联,这里的 routingKey 和 绑定的交换机很关键
+        return BindingBuilder.bind(customDeclareQueue()).to(customDeclareTopicExchange())
+                .with(RabbitConstants.CUSTOM_DECLARE_ROUTING_KEY);
+    }
+
+    /**
      * 系统赠送 消息队列
      * @return
      */

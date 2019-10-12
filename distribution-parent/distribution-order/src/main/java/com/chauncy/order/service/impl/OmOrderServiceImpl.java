@@ -264,6 +264,23 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         this.rabbitTemplate.convertAndSend(
                 RabbitConstants.ACCOUNT_LOG_EXCHANGE, RabbitConstants.ACCOUNT_LOG_ROUTING_KEY, addAccountLogBo);
 
+        //海关申报 拆单之后的订单是海外直邮或者保税仓
+        QueryWrapper<OmOrderPo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda()
+                .eq(OmOrderPo::getPayOrderId, payOrderPo.getId())
+                .and(wrapper -> wrapper.eq(OmOrderPo::getGoodsType, GoodsTypeEnum.BONDED.getName())
+                .or().eq(OmOrderPo::getGoodsType, GoodsTypeEnum.OVERSEA.getName()));
+        List<OmOrderPo> omOrderPoList = mapper.selectList(queryWrapper);
+        omOrderPoList.stream().forEach(omOrderPo -> {
+            this.rabbitTemplate.convertAndSend(
+                    RabbitConstants.CUSTOM_DECLARE_EXCHANGE, RabbitConstants.CUSTOM_DECLARE_ROUTING_KEY, omOrderPo,
+                    message -> {
+                        //一分钟之后再执行   当前方法未执行完成，订单状态可能未更新
+                        message.getMessageProperties().setExpiration(60*1000 + "");
+                        return message;
+                    });
+        });
+
        /* //更新OmOrderPo
         UpdateWrapper<OmOrderPo> omOrderPoUpdateWrapper = new UpdateWrapper<>();
         omOrderPoUpdateWrapper.lambda().eq(OmOrderPo::getPayOrderId, payOrderPo.getId());
