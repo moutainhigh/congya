@@ -58,7 +58,7 @@ public class WebLogAspect {
         // 打印请求的 IP
         logger.info("IP             : {}", request.getRemoteAddr());
         // 打印请求入参
-        logger.info("Request Args   : {}", new Gson().toJson(joinPoint.getArgs()));
+        logger.info("Request Args   : {}", joinPoint.getArgs());
     }
 
     /**
