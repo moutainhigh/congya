@@ -101,6 +101,7 @@ public class WxController {
      */
     @RequestMapping(value = "/wxPay/notify", method = {RequestMethod.GET, RequestMethod.POST})
     @WebLog(description = "支付异步结果通知")
+    @ApiOperation("异步通知")
     public String wxPayNotify(HttpServletRequest request) {
         String resXml;
         try {
