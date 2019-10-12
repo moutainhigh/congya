@@ -42,5 +42,13 @@ public class SpecifiedSkuVo {
     @ApiModelProperty("图片")
     private String picture;
 
-//    @ApiModelProperty(value = "活动")
+    @ApiModelProperty(value = "活动库存")
+    private Integer activityStock;
+
+    @ApiModelProperty(value = "活动价格")
+    private BigDecimal activityPrice;
+
+    @ApiModelProperty(value = "积分抵扣的金额")
+    private BigDecimal integralsPrice;
+
 }

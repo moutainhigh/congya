@@ -8,7 +8,6 @@ import com.chauncy.common.enums.message.KeyWordTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.*;
-import com.chauncy.data.bo.app.car.ActivitySkuBo;
 import com.chauncy.data.bo.app.car.MoneyShipBo;
 import com.chauncy.data.bo.app.order.reward.RewardShopTicketBo;
 import com.chauncy.data.bo.base.BaseBo;
@@ -20,6 +19,9 @@ import com.chauncy.data.domain.po.activity.integrals.AmIntegralsPo;
 import com.chauncy.data.domain.po.activity.reduced.AmReducedPo;
 import com.chauncy.data.domain.po.activity.registration.AmActivityRelActivityGoodsPo;
 import com.chauncy.data.domain.po.activity.registration.AmActivityRelGoodsSkuPo;
+import com.chauncy.data.domain.po.activity.seckill.AmSeckillPo;
+import com.chauncy.data.domain.po.activity.spell.AmSpellGroupMainPo;
+import com.chauncy.data.domain.po.activity.spell.AmSpellGroupPo;
 import com.chauncy.data.domain.po.message.content.MmArticlePo;
 import com.chauncy.data.domain.po.order.*;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
@@ -48,6 +50,7 @@ import com.chauncy.data.mapper.activity.reduced.AmReducedMapper;
 import com.chauncy.data.mapper.activity.registration.AmActivityRelActivityGoodsMapper;
 import com.chauncy.data.mapper.activity.registration.AmActivityRelGoodsSkuMapper;
 import com.chauncy.data.mapper.activity.seckill.AmSeckillMapper;
+import com.chauncy.data.mapper.activity.spell.AmSpellGroupMainMapper;
 import com.chauncy.data.mapper.activity.spell.AmSpellGroupMapper;
 import com.chauncy.data.mapper.area.AreaRegionMapper;
 import com.chauncy.data.mapper.message.advice.MmAdviceMapper;
@@ -66,9 +69,7 @@ import com.chauncy.data.mapper.user.UmAreaShippingMapper;
 import com.chauncy.data.mapper.user.UmUserFavoritesMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.temp.order.service.IOmGoodsTempService;
-import com.chauncy.data.vo.app.advice.activity.GoodsActivityVo;
-import com.chauncy.data.vo.app.advice.activity.IntegralsVo;
-import com.chauncy.data.vo.app.advice.activity.ReducedVo;
+import com.chauncy.data.vo.app.advice.activity.*;
 import com.chauncy.data.vo.app.advice.coupon.FindCouponListVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.evaluate.EvaluateLevelNumVo;
@@ -127,6 +128,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     private PmGoodsMapper goodsMapper;
 
     @Autowired
+    private MmArticleMapper articleMapper;
+
+    @Autowired
     private AmCouponRelCouponGoodsMapper relCouponGoodsMapper;
 
     @Autowired
@@ -149,6 +153,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     @Autowired
     private AmSpellGroupMapper spellGroupMapper;
+
+    @Autowired
+    private AmSpellGroupMainMapper spellGroupMainMapper;
 
     @Autowired
     private AmCouponMapper couponMapper;
@@ -235,9 +242,6 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     private SysUserMapper sysUserMapper;
 
     @Autowired
-    private MmArticleMapper articleMapper;
-
-    @Autowired
     private IPayUserRelationService payUserRelationService;
 
     @Autowired
@@ -260,9 +264,13 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     public void addToCart(AddCartDto addCartDto) {
         //获取当前app用户信息
         UmUserPo umUserPo = securityUtil.getAppCurrUser();
+        if (umUserPo == null){
+            throw new ServiceException(ResultCode.NO_EXISTS,"您不是APP用户!");
+        }
         //判断购物车是否存在该商品
         Map<String, Object> map = new HashMap<>();
         map.put("sku_id", addCartDto.getSkuId());
+        map.put("user_id",umUserPo.getId());
         List<OmShoppingCartPo> shoppingCartPos = mapper.selectByMap(map);
         boolean exit = shoppingCartPos != null && shoppingCartPos.size() != 0;
         //判断当前库存是否足够
@@ -1123,7 +1131,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         });
         specifiedGoodsVo.setGoodsStandardVoList(goodsStandardVoList);
 
-        /** 商品参加的活动,点击商品进来需要展示的信息 **/
+        /*********************** 商品参加的活动,点击商品进来需要展示的信息 start***************************/
+        //查询已经开始的活动
         AmActivityRelActivityGoodsPo relActivityGoodsPo = relActivityGoodsMapper.findGoodsActivity(goodsId);
         GoodsActivityVo goodsActivityVo = new GoodsActivityVo();
         if (relActivityGoodsPo != null){
@@ -1131,9 +1140,11 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             switch (activityTypeEnum) {
                 //满减
                 case REDUCED:
-                    AmReducedPo reducedPo = reducedMapper.selectById(relActivityGoodsPo.getActivityType());
+                    AmReducedPo reducedPo = reducedMapper.selectOne(new QueryWrapper<AmReducedPo>().lambda().and(obj->
+                            obj.eq(AmReducedPo::getEnable,true).eq(AmReducedPo::getId,relActivityGoodsPo.getActivityId())));
                     if (reducedPo == null){
-                        throw new ServiceException(ResultCode.NO_EXISTS,String.format("该商品参加的满减活动不存在"));
+//                        throw new ServiceException(ResultCode.NO_EXISTS,String.format("该商品参加的满减活动不存在"));
+                        goodsActivityVo.setType(ActivityTypeEnum.NON.getId());
                     }else {
                         goodsActivityVo.setType(ActivityTypeEnum.REDUCED.getId());
                         ReducedVo reducedVo = new ReducedVo();
@@ -1144,9 +1155,11 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     break;
                 //积分--活动价格范围+积分抵扣价格
                 case INTEGRALS:
-                    AmIntegralsPo integralsPo = integralsMapper.selectById(relActivityGoodsPo.getActivityType());
+                    AmIntegralsPo integralsPo = integralsMapper.selectOne(new QueryWrapper<AmIntegralsPo>().lambda().and(obj->
+                            obj.eq(AmIntegralsPo::getEnable,true).eq(AmIntegralsPo::getId,relActivityGoodsPo.getActivityId())));
                     if (integralsPo == null){
-                        throw new ServiceException(ResultCode.NO_EXISTS,String.format("该商品参加的积分活动不存在"));
+//                        throw new ServiceException(ResultCode.NO_EXISTS,String.format("该商品参加的积分活动不存在"));
+                        goodsActivityVo.setType(ActivityTypeEnum.NON.getId());
                     }
                     else {
                         goodsActivityVo.setType(ActivityTypeEnum.INTEGRALS.getId());
@@ -1156,6 +1169,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                         List<Double> skuActivityPrices = new ArrayList<>();
                         //保存所有sku对应的积分抵扣
                         List<Double> integralsDeductions = new ArrayList<>();
+                        //保存所有sku对应的积分抵扣百分比
+                        List<Double> integralsPercentages = new ArrayList<>();
 
                         //获取该商品参与活动的所有sku信息
                         List<AmActivityRelGoodsSkuPo> relGoodsSkuPos = activityRelGoodsSkuMapper.selectList(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda()
@@ -1163,7 +1178,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                         if (!ListUtil.isListNullAndEmpty(relGoodsSkuPos)){
                             relGoodsSkuPos.forEach(a->{
                                 //判断sku是否存在
-                                PmGoodsSkuPo goodsSkuPo = skuMapper.selectById(a);
+                                PmGoodsSkuPo goodsSkuPo = skuMapper.selectById(a.getSkuId());
                                 if (goodsSkuPo != null){
                                     //获取原来sku销售价
                                     BigDecimal skuSellPrice = goodsSkuPo.getSellPrice();
@@ -1173,9 +1188,12 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                                     skuActivityPrices.add(a.getActivityPrice().doubleValue());
                                     //保存积分抵扣
                                     integralsDeductions.add(integralsDeduction.doubleValue());
+                                    //保存积分抵扣百分比
+                                    integralsPercentages.add(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(integralsDeduction,skuSellPrice,2,new BigDecimal(0)),new BigDecimal(100),2).doubleValue());
                                 }
                             });
                         }
+
                         //获取最低和最高的活动价格
                         Double lowestActivityPrice = skuActivityPrices.stream().mapToDouble((x)->x).summaryStatistics().getMin();
                         Double highestActivityPrice = skuActivityPrices.stream().mapToDouble((x)->x).summaryStatistics().getMax();
@@ -1188,12 +1206,13 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                         integralsVo.setLowestActivityPrice(lowestActivityPrice);
                         integralsVo.setHighestActivityPrice(highestActivityPrice);
                         integralsVo.setDiscountDisplayPrice(discountDisplayPrice);
+
                         //获取最低和最高积分抵扣
                         Double lowestIntegralsPrice = integralsDeductions.stream().mapToDouble((x)->x).summaryStatistics().getMin();
                         Double highestIntegralsPrice = integralsDeductions.stream().mapToDouble((x)->x).summaryStatistics().getMax();
                         String integralsDispalyPrice = "";
                         if (lowestIntegralsPrice.equals(highestIntegralsPrice)){
-                            discountDisplayPrice = lowestIntegralsPrice.toString();
+                            integralsDispalyPrice = lowestIntegralsPrice.toString();
                         }else {
                             integralsDispalyPrice = lowestIntegralsPrice.toString()+"~"+highestIntegralsPrice.toString();
                         }
@@ -1201,16 +1220,209 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                         integralsVo.setLowestIntegralsPrice(lowestIntegralsPrice);
                         integralsVo.setIntegralsDispalyPrice(integralsDispalyPrice);
 
+                        //获取最低和最高积分抵扣比例
+                        Double lowestIntegralsPercentage = integralsPercentages.stream().mapToDouble((x)->x).summaryStatistics().getMin();
+                        Double highestIntegralsPercentage = integralsPercentages.stream().mapToDouble((x)->x).summaryStatistics().getMax();
+                        String integralsDispalyPercentage = "";
+                        if (lowestIntegralsPercentage.equals(highestIntegralsPercentage)){
+                            integralsDispalyPercentage = lowestIntegralsPercentage.toString();
+                        }else {
+                            integralsDispalyPercentage = lowestIntegralsPercentage.toString()+"~"+highestIntegralsPercentage.toString();
+                        }
+                        integralsVo.setHighestIntegralsPrice(highestIntegralsPercentage);
+                        integralsVo.setLowestIntegralsPrice(lowestIntegralsPercentage);
+                        integralsVo.setIntegralsDispalyPercentage(integralsDispalyPercentage);
+
+                        //获取抵扣说明文章
+                        String integralsDescription = "";
+                        MmArticlePo mmArticlePo = articleMapper.selectOne(new QueryWrapper<MmArticlePo>().lambda().and(obj->obj
+                                .eq(MmArticlePo::getEnabled,true)
+                                .eq(MmArticlePo::getArticleLocation,ArticleLocationEnum.INTEGRALS_DESCRIPTION.getName())));
+                        if (mmArticlePo != null){
+                            integralsDescription = mmArticlePo.getArticleLocation();
+                        }
+                        integralsVo.setIntegralsDescription(integralsDescription);
+
                         goodsActivityVo.setIntegralsVo(integralsVo);
 
                     }
                     break;
                 case SECKILL:
+                    AmSeckillPo seckillPo = seckillMapper.selectOne(new QueryWrapper<AmSeckillPo>().lambda().and(obj->
+                            obj.eq(AmSeckillPo::getEnable,true).eq(AmSeckillPo::getId,relActivityGoodsPo.getActivityId())));
+                    if (seckillPo == null){
+                        goodsActivityVo.setType(ActivityTypeEnum.NON.getId());
+                    }
+                    else {
+                        goodsActivityVo.setType(ActivityTypeEnum.SECKILL_ING.getId());
+                        SeckillVo seckillVo = new SeckillVo();
+                        //秒杀结束时间
+                        seckillVo.setActivityEndTime(seckillPo.getActivityEndTime());
+
+                        //获取参与活动商品所有sku活动价格，并获取最低价格和最高价格
+                        //保存所有sku活动价格
+                        List<Double> skuActivityPrices = new ArrayList<>();
+                        //活动总秒杀量
+                        final Integer[] saleVolumes = {0};
+
+                        //获取该商品参与活动的所有sku信息
+                        List<AmActivityRelGoodsSkuPo> relGoodsSkuPos = activityRelGoodsSkuMapper.selectList(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda()
+                                .and(obj->obj.eq(AmActivityRelGoodsSkuPo::getRelId,relActivityGoodsPo.getId())));
+                        if (!ListUtil.isListNullAndEmpty(relGoodsSkuPos)){
+                            relGoodsSkuPos.forEach(a->{
+                                //判断sku是否存在
+                                PmGoodsSkuPo goodsSkuPo = skuMapper.selectById(a.getSkuId());
+                                if (goodsSkuPo != null){
+                                    //保存sku对应的活动价格
+                                    skuActivityPrices.add(a.getActivityPrice().doubleValue());
+                                    //获取每个sku活动销量(已秒杀数量)
+                                    saleVolumes[0] = saleVolumes[0] +a.getSalesVolume();
+                                }
+                            });
+                        }
+                        //活动总秒杀量
+                        seckillVo.setSecNum(saleVolumes[0]);
+
+                        //获取最低和最高的活动价格
+                        Double lowestActivityPrice = skuActivityPrices.stream().mapToDouble((x)->x).summaryStatistics().getMin();
+                        Double highestActivityPrice = skuActivityPrices.stream().mapToDouble((x)->x).summaryStatistics().getMax();
+                        String secDisplayPrice = "";
+                        if (lowestActivityPrice.equals(highestActivityPrice)){
+                            secDisplayPrice = lowestActivityPrice.toString();
+                        }else {
+                            secDisplayPrice = lowestActivityPrice.toString()+"~"+highestActivityPrice.toString();
+                        }
+                        seckillVo.setLowestActivityPrice(lowestActivityPrice);
+                        seckillVo.setHighestActivityPrice(highestActivityPrice);
+                        seckillVo.setSecDisplayPrice(secDisplayPrice);
+
+                        goodsActivityVo.setSeckillVo(seckillVo);
+
+                    }
                     break;
                 case SPELL_GROUP:
+
+                    AmSpellGroupPo spellGroupPo = spellGroupMapper.selectOne(new QueryWrapper<AmSpellGroupPo>().lambda().and(obj->
+                            obj.eq(AmSpellGroupPo::getEnable,true).eq(AmSpellGroupPo::getId,relActivityGoodsPo.getActivityId())));
+                    if (spellGroupPo == null){
+                        goodsActivityVo.setType(ActivityTypeEnum.NON.getId());
+                    }
+                    else {
+                        goodsActivityVo.setType(ActivityTypeEnum.SPELL_GROUP.getId());
+                        SpellGroupVo spellGroupVo = new SpellGroupVo();
+                        //成团人数
+                        spellGroupVo.setGroupNum(spellGroupPo.getGroupNum());
+
+                        //获取参与拼团活动商品所有sku活动价格，并获取最低价格和最高价格
+                        //保存所有sku活动价格
+                        List<Double> skuActivityPrices = new ArrayList<>();
+                        //活动总拼团量
+                        List<Integer> payedNum = spellGroupMainMapper.selectList(new QueryWrapper<AmSpellGroupMainPo>().lambda().and(obj->obj
+                                .eq(AmSpellGroupMainPo::getRelId,relActivityGoodsPo.getId()))).stream().map(n->n.getPayedNum()).collect(Collectors.toList());
+                        Integer sumPayedNum = payedNum.stream().mapToInt((x)->x).sum();
+                        spellGroupVo.setSpellNum(sumPayedNum);
+
+                        //获取该商品参与活动的所有sku信息
+                        List<AmActivityRelGoodsSkuPo> relGoodsSkuPos = activityRelGoodsSkuMapper.selectList(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda()
+                                .and(obj->obj.eq(AmActivityRelGoodsSkuPo::getRelId,relActivityGoodsPo.getId())));
+                        if (!ListUtil.isListNullAndEmpty(relGoodsSkuPos)){
+                            relGoodsSkuPos.forEach(a->{
+                                //判断sku是否存在
+                                PmGoodsSkuPo goodsSkuPo = skuMapper.selectById(a.getSkuId());
+                                if (goodsSkuPo != null){
+                                    //保存sku对应的活动价格
+                                    skuActivityPrices.add(a.getActivityPrice().doubleValue());
+                                }
+                            });
+                        }
+
+                        //获取最低和最高的活动价格
+                        Double lowestActivityPrice = skuActivityPrices.stream().mapToDouble((x)->x).summaryStatistics().getMin();
+                        Double highestActivityPrice = skuActivityPrices.stream().mapToDouble((x)->x).summaryStatistics().getMax();
+                        String spellGroupDisplayPrice = "";
+                        if (lowestActivityPrice.equals(highestActivityPrice)){
+                            spellGroupDisplayPrice = lowestActivityPrice.toString();
+                        }else {
+                            spellGroupDisplayPrice = lowestActivityPrice.toString()+"~"+highestActivityPrice.toString();
+                        }
+                        spellGroupVo.setLowestActivityPrice(lowestActivityPrice);
+                        spellGroupVo.setHighestActivityPrice(highestActivityPrice);
+                        spellGroupVo.setSpellGroupDisplayPrice(spellGroupDisplayPrice);
+
+                        //获取拼团说明
+                        //获取抵扣说明文章
+                        String spellGroupDescription = "";
+                        MmArticlePo mmArticlePo = articleMapper.selectOne(new QueryWrapper<MmArticlePo>().lambda().and(obj->obj
+                                .eq(MmArticlePo::getEnabled,true)
+                                .eq(MmArticlePo::getArticleLocation,ArticleLocationEnum.SPELL_GROUP_SHOW.getName())));
+                        if (mmArticlePo != null){
+                            spellGroupDescription = mmArticlePo.getArticleLocation();
+                        }
+                        spellGroupVo.setSpellGroupDescription(spellGroupDescription);
+
+                        goodsActivityVo.setSpellGroupVo(spellGroupVo);
+
+                    }
+
                     break;
             }
         }
+
+        /********* 查询是否为距离当前时间为一天的秒杀商品 start ***************/
+        AmActivityRelActivityGoodsPo relSecKilllGoodsPo = relActivityGoodsMapper.findPreSeckill(goodsId);
+        if (relSecKilllGoodsPo != null) {
+            AmSeckillPo seckillPo = seckillMapper.selectOne(new QueryWrapper<AmSeckillPo>().lambda().and(obj ->
+                    obj.eq(AmSeckillPo::getEnable, true).eq(AmSeckillPo::getId, relSecKilllGoodsPo.getActivityId())));
+            //活动是否取消
+            if (seckillPo == null) {
+                goodsActivityVo.setType(ActivityTypeEnum.NON.getId());
+            }
+            else {
+                goodsActivityVo.setType(ActivityTypeEnum.SECKILL_PRE.getId());
+                SeckillVo seckillVo = new SeckillVo();
+                //秒杀结束时间
+                seckillVo.setActivityStartTime(seckillPo.getActivityStartTime());
+
+                //获取参与活动商品所有sku活动价格，并获取最低价格和最高价格
+                //保存所有sku活动价格
+                List<Double> skuActivityPrices = new ArrayList<>();
+                //活动总秒杀量
+                final Integer[] saleVolumes = {0};
+
+                //获取该商品参与活动的所有sku信息
+                List<AmActivityRelGoodsSkuPo> relGoodsSkuPos = activityRelGoodsSkuMapper.selectList(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda()
+                        .and(obj -> obj.eq(AmActivityRelGoodsSkuPo::getRelId, relActivityGoodsPo.getId())));
+                if (!ListUtil.isListNullAndEmpty(relGoodsSkuPos)) {
+                    relGoodsSkuPos.forEach(a -> {
+                        //判断sku是否存在
+                        PmGoodsSkuPo goodsSkuPo = skuMapper.selectById(a.getSkuId());
+                        if (goodsSkuPo != null) {
+                            //保存sku对应的活动价格
+                            skuActivityPrices.add(a.getActivityPrice().doubleValue());
+                        }
+                    });
+                }
+
+                //获取最低和最高的活动价格
+                Double lowestActivityPrice = skuActivityPrices.stream().mapToDouble((x) -> x).summaryStatistics().getMin();
+                Double highestActivityPrice = skuActivityPrices.stream().mapToDouble((x) -> x).summaryStatistics().getMax();
+                String secDisplayPrice = "";
+                if (lowestActivityPrice.equals(highestActivityPrice)) {
+                    secDisplayPrice = lowestActivityPrice.toString();
+                } else {
+                    secDisplayPrice = lowestActivityPrice.toString() + "~" + highestActivityPrice.toString();
+                }
+                seckillVo.setLowestActivityPrice(lowestActivityPrice);
+                seckillVo.setHighestActivityPrice(highestActivityPrice);
+                seckillVo.setSecDisplayPrice(secDisplayPrice);
+
+                goodsActivityVo.setSeckillVo(seckillVo);
+
+            }
+        }
+        /********* 查询是否为距离当前时间为一天的秒杀商品 end ***************/
+
+        /*********************** 商品参加的活动,点击商品进来需要展示的信息 end***************************/
 
         /**获取商品规格的具体信息*/
         Map<String, Object> query = new HashMap<>();
@@ -1255,6 +1467,114 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 Long attributeId = attributeValuePo.getProductAttributeId();
                 relIds.append(attributeId).append(":").append(attributeValueId).append(";");
             });
+
+
+            /*********************** 商品参加的活动,sku对应的活动价格、活动库存 start***************************/
+            if (relActivityGoodsPo != null){
+                ActivityTypeEnum activityTypeEnum = ActivityTypeEnum.getActivityTypeEnumById(relActivityGoodsPo.getActivityType());
+                switch (activityTypeEnum) {
+                    //积分--sku对应的活动价格+积分抵扣+活动库存
+                    case INTEGRALS:
+                        AmIntegralsPo integralsPo = integralsMapper.selectOne(new QueryWrapper<AmIntegralsPo>().lambda().and(obj->
+                                obj.eq(AmIntegralsPo::getEnable,true).eq(AmIntegralsPo::getId,relActivityGoodsPo.getActivityId())));
+                        if (integralsPo == null){
+                            goodsActivityVo.setType(ActivityTypeEnum.NON.getId());
+                        }
+                        else {
+                            goodsActivityVo.setType(ActivityTypeEnum.INTEGRALS.getId());
+                            //获取该sku对应的积分活动的价格
+                            AmActivityRelGoodsSkuPo activityRelGoodsSkuPo = amActivityRelGoodsSkuMapper.selectOne(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda().and(obj->obj
+                                    .eq(AmActivityRelGoodsSkuPo::getRelId,relActivityGoodsPo.getId())
+                                    .eq(AmActivityRelGoodsSkuPo::getSkuId,b.getId())));
+                            if (activityRelGoodsSkuPo != null){
+                                Integer activityStock = activityRelGoodsSkuPo.getActivityStock();
+                                BigDecimal activityPrice = activityRelGoodsSkuPo.getActivityPrice();
+                                //积分抵扣多少钱
+                                BigDecimal integralsPrice = BigDecimalUtil.safeSubtract(true,b.getSellPrice(),activityPrice);
+                                specifiedSkuVo.setActivityPrice(activityPrice);
+                                specifiedSkuVo.setActivityStock(activityStock);
+                                specifiedSkuVo.setIntegralsPrice(integralsPrice);
+                            }
+
+                        }
+                        break;
+                    case SECKILL:
+                        //这里是活动进行中的商品
+                        AmSeckillPo seckillPo = seckillMapper.selectOne(new QueryWrapper<AmSeckillPo>().lambda().and(obj->
+                                obj.eq(AmSeckillPo::getEnable,true).eq(AmSeckillPo::getId,relActivityGoodsPo.getActivityId())));
+                        if (seckillPo == null){
+                            goodsActivityVo.setType(ActivityTypeEnum.NON.getId());
+                        }
+                        else {
+                            goodsActivityVo.setType(ActivityTypeEnum.SECKILL_ING.getId());
+                            //获取该sku对应的秒杀活动的价格、库存
+                            AmActivityRelGoodsSkuPo activityRelGoodsSkuPo = amActivityRelGoodsSkuMapper.selectOne(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda().and(obj->obj
+                                    .eq(AmActivityRelGoodsSkuPo::getRelId,relActivityGoodsPo.getId())
+                                    .eq(AmActivityRelGoodsSkuPo::getSkuId,b.getId())));
+                            if (activityRelGoodsSkuPo != null){
+                                Integer activityStock = activityRelGoodsSkuPo.getActivityStock();
+                                BigDecimal activityPrice = activityRelGoodsSkuPo.getActivityPrice();
+                                specifiedSkuVo.setActivityPrice(activityPrice);
+                                specifiedSkuVo.setActivityStock(activityStock);
+                            }
+
+                        }
+
+                        break;
+                    case SPELL_GROUP:
+
+                        //这里是活动进行中的商品
+                        AmSpellGroupPo spellGroupPo = spellGroupMapper.selectOne(new QueryWrapper<AmSpellGroupPo>().lambda().and(obj->
+                                obj.eq(AmSpellGroupPo::getEnable,true).eq(AmSpellGroupPo::getId,relActivityGoodsPo.getActivityId())));
+                        if (spellGroupPo == null){
+                            goodsActivityVo.setType(ActivityTypeEnum.NON.getId());
+                        }
+                        else {
+                            goodsActivityVo.setType(ActivityTypeEnum.SPELL_GROUP.getId());
+                            //获取该sku对应的秒杀活动的价格、库存
+                            AmActivityRelGoodsSkuPo activityRelGoodsSkuPo = amActivityRelGoodsSkuMapper.selectOne(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda().and(obj->obj
+                                    .eq(AmActivityRelGoodsSkuPo::getRelId,relActivityGoodsPo.getId())
+                                    .eq(AmActivityRelGoodsSkuPo::getSkuId,b.getId())));
+                            if (activityRelGoodsSkuPo != null){
+                                Integer activityStock = activityRelGoodsSkuPo.getActivityStock();
+                                BigDecimal activityPrice = activityRelGoodsSkuPo.getActivityPrice();
+                                specifiedSkuVo.setActivityPrice(activityPrice);
+                                specifiedSkuVo.setActivityStock(activityStock);
+                            }
+
+                        }
+
+                        break;
+                }
+            }
+
+            //获取距离当前时间为一天的待开始的秒杀活动信息,------秒杀待开始不需要算出sku对应的活动库存和活动价格
+            /*if (relSecKilllGoodsPo != null) {
+                AmSeckillPo seckillPo = seckillMapper.selectOne(new QueryWrapper<AmSeckillPo>().lambda().and(obj ->
+                        obj.eq(AmSeckillPo::getEnable, true).eq(AmSeckillPo::getId, relSecKilllGoodsPo.getActivityId())));
+                //活动是否取消
+                if (seckillPo == null) {
+                    goodsActivityVo.setType(ActivityTypeEnum.NON.getId());
+                } else {
+                    goodsActivityVo.setType(ActivityTypeEnum.SECKILL_PRE.getId());
+
+                    //获取该sku对应的秒杀活动的价格、库存
+                    AmActivityRelGoodsSkuPo activityRelGoodsSkuPo = amActivityRelGoodsSkuMapper.selectOne(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda().and(obj->obj
+                            .eq(AmActivityRelGoodsSkuPo::getRelId,relActivityGoodsPo.getId())
+                            .eq(AmActivityRelGoodsSkuPo::getSkuId,b.getId())));
+                    if (activityRelGoodsSkuPo != null){
+                        Integer activityStock = activityRelGoodsSkuPo.getActivityStock();
+                        BigDecimal activityPrice = activityRelGoodsSkuPo.getActivityPrice();
+                        specifiedSkuVo.setActivityPrice(activityPrice);
+                        specifiedSkuVo.setActivityStock(activityStock);
+                    }
+
+                }
+            }*/
+
+
+            /*********************** 商品参加的活动,sku对应的活动价格、活动库存 end***************************/
+
             skuDetail.put(String.valueOf(relIds), specifiedSkuVo);
             finalSpecifiedGoodsVo.setSkuDetail(skuDetail);
         });

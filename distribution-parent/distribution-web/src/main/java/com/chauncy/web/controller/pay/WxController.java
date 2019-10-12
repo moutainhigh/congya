@@ -1,6 +1,7 @@
 package com.chauncy.web.controller.pay;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.chauncy.common.annotation.WebLog;
 import com.chauncy.common.enums.app.order.PayOrderStatusEnum;
 import com.chauncy.common.enums.log.PaymentWayEnum;
 import com.chauncy.common.enums.system.ResultCode;
@@ -98,8 +99,10 @@ public class WxController {
      *   支付异步结果通知，请求预支付订单时传入的地址
      *   官方文档 ：https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=9_7&index=3
      */
-    @RequestMapping(value = "/wxPay/notify", method = {RequestMethod.GET, RequestMethod.POST}, produces={"application/xml;"})
-    public String wxPayNotify(HttpServletRequest request, HttpServletResponse response) {
+    @RequestMapping(value = "/wxPay/notify", method = {RequestMethod.GET, RequestMethod.POST})
+    @WebLog(description = "支付异步结果通知")
+    @ApiOperation("异步通知")
+    public String wxPayNotify(HttpServletRequest request) {
         String resXml;
         try {
             InputStream inputStream = request.getInputStream();
@@ -125,7 +128,7 @@ public class WxController {
             return result;
         } catch (Exception e) {
             logger.error("微信手机支付失败:" + e.getMessage());
-            String result = "<xml>" + "<return_code><![CDATA[FAIL]]></return_code>" + "<return_msg><![CDATA[报文为空]]></return_msg>" + "</xml> ";
+            String result = "<xml>" + "<return_code><![CDATA[FAIL]]></return_code>" + "<return_msg><![CDATA[报文为空]]></return_msg>" + "</xml>";
             return result;
         }
     }
