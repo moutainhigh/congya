@@ -98,7 +98,9 @@ public class WxController {
      *   支付异步结果通知，请求预支付订单时传入的地址
      *   官方文档 ：https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=9_7&index=3
      */
-    @RequestMapping(value = "/wxPay/notify", method = {RequestMethod.GET, RequestMethod.POST}, produces={"application/xml;"})
+    //@RequestMapping(value = "/wxPay/notify", method = {RequestMethod.GET, RequestMethod.POST}, produces={"application/xml;"})
+    @RequestMapping(value = "/wxPay/notify", method = {RequestMethod.GET, RequestMethod.POST}, produces={"text/html;charset=utf-8"})
+    @ApiOperation("统一下单")
     public String wxPayNotify(HttpServletRequest request, HttpServletResponse response) {
         String resXml;
         try {
