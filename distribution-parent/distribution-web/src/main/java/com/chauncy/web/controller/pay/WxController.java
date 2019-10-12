@@ -1,6 +1,7 @@
 package com.chauncy.web.controller.pay;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.chauncy.common.annotation.WebLog;
 import com.chauncy.common.enums.app.order.PayOrderStatusEnum;
 import com.chauncy.common.enums.log.PaymentWayEnum;
 import com.chauncy.common.enums.system.ResultCode;
@@ -102,7 +103,7 @@ public class WxController {
     //@RequestMapping(value = "/wxPay/notify", method = {RequestMethod.GET, RequestMethod.POST})
     //@RequestMapping(value = "/wxPay/notify", method = {RequestMethod.GET, RequestMethod.POST})
     @PostMapping("/wxPay/notify")
-    @ApiOperation("支付异步结果通知")
+    @WebLog(description = "支付异步结果通知")
     public String wxPayNotify(HttpServletRequest request) {
         String resXml;
         try {
