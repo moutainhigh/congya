@@ -37,7 +37,7 @@ public class SmsPushVo {
     @ApiModelProperty(value = "阿里云短信模板")
     private String templateCode;
 
-    @ApiModelProperty(value = "列表显示推送对象类型 1、全部用户 2、指定用户 3、指定会员等级",hidden = true)
+    @ApiModelProperty(value = "列表显示推送对象类型 1、全部用户 2、指定用户 3、指定会员等级")
     private Integer objectType;
 
 

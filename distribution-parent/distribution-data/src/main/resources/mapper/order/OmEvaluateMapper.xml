@@ -72,7 +72,7 @@
         select b.id as user_id,b.name as nick_name,b.phone,c.name as goods_name,e.sku_id,e.id as evaluate_id,e.description_start_level,
                e.picture,e.content,e.create_time,a.id as order_id
         from om_order a,um_user b,pm_goods c,pm_goods_sku d,om_evaluate e,sm_store f
-        <where> a.evaluate_status = 2 and a.id = e.order_id and e.sku_id = d.id and d.goods_id = c.id and a.um_user_id = b.id
+        <where> a.status = 4 and a.id = e.order_id and e.sku_id = d.id and d.goods_id = c.id and a.um_user_id = b.id
 		      and ISNULL(e.parent_id) and a.store_id = f.id
 		      <if test="evaluate.storeId != null">
                   and a.store_id = #{evaluate.storeId}
@@ -92,11 +92,11 @@
             <if test="evaluate.goodsName != null and evaluate.goodsName != ''">
                   and c.name like concat ('%', #{evaluate.goodsName} ,'%')
             </if>
-            <if test="evaluate.evaluateTime != null">
-                  and DATE_FORMAT(e.create_time,'%Y-%m-%d')=#{evaluate.evaluateTime}
+            <if test="evaluate.evaluateStartTime != null">
+                  and DATE_FORMAT(e.create_time,'%Y-%m-%d')=#{evaluate.evaluateStartTime}
             </if>
-            <if test="evaluate.evaluateTime">
-
+            <if test="evaluate.evaluateEndTime != null">
+                and DATE_FORMAT(e.create_time,'%Y-%m-%d')=#{evaluate.evaluateEndTime}
             </if>
         </where>
         order by e.create_time
@@ -104,7 +104,7 @@
     <select id="getEvaluate" resultType="com.chauncy.data.vo.supplier.evaluate.EvaluateVo">
         select c.name as nickName,c.photo as icon,content,picture,a.id,ROUND((a.attitude_start_level+a.description_start_level+a.ship_start_level)/3) as startLevel
         from om_evaluate a,om_order b,um_user c
-        where b.id = a.order_id and b.id = #{orderId} and a.sku_id = #{skuId} and b.um_user_id = c.id and isNull(a.parent_id)
+        where a.del_flag = 0 and b.del_flag = 0 and c.del_flag = 0 and b.id = a.order_id and b.id = #{orderId} and a.sku_id = #{skuId} and b.um_user_id = c.id and isNull(a.parent_id)
     </select>
     <select id="findEvaluateLevelNum" resultType="com.chauncy.data.vo.app.evaluate.EvaluateLevelNumVo">
     SELECT b.id , SUM(description_start_level = 5 OR description_start_level=4) AS high_praise_num,

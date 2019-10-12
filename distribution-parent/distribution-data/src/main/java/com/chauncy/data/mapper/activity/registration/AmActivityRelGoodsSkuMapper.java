@@ -1,6 +1,7 @@
 package com.chauncy.data.mapper.activity.registration;
 
 import com.chauncy.data.bo.app.car.ActivitySkuBo;
+import com.chauncy.data.bo.app.car.FullDiscountSkuBo;
 import com.chauncy.data.domain.po.activity.registration.AmActivityRelGoodsSkuPo;
 import com.chauncy.data.mapper.IBaseMapper;
 import org.apache.ibatis.annotations.Param;
@@ -29,5 +30,19 @@ public interface AmActivityRelGoodsSkuMapper extends IBaseMapper<AmActivityRelGo
      **/
 
     List<ActivitySkuBo> getBoByIds(@Param("ids") List<Long> ids);
+
+
+    /**
+     * @Author zhangrt
+     * @Date 2019/10/9 13:32
+     * @Description  根据skuid查出满减活动的一些信息
+     *
+     * @Update
+     *
+     * @Param [ids]
+     * @return java.util.List<com.chauncy.data.bo.app.car.ActivitySkuBo>
+     **/
+
+    List<FullDiscountSkuBo> getFullDiscountSkuBo(@Param("ids") List<Long> ids);
 
 }
