@@ -314,7 +314,7 @@ public class WxServiceImpl implements IWxService {
             //returnMap.put("sign", response.get("sign"));
             //returnMap.put("trade_type", response.get("trade_type"));
             //调起支付参数重新签名  不要使用请求预支付订单时返回的签名
-            Map<String, String> returnMap = BeanUtils.describe(unifiedOrderVo);
+            Map<String, String> returnMap = getWxPayParam(unifiedOrderVo);
             returnMap.remove("class");
             unifiedOrderVo.setSign(md5Util.getSign(returnMap));
             return unifiedOrderVo;
@@ -347,7 +347,7 @@ public class WxServiceImpl implements IWxService {
                 //resultCode 为SUCCESS，才会返回prepay_id和trade_type
                 unifiedOrderVo.setPrepayId(response.get("prepay_id"));
                 //调起支付参数重新签名  不要使用请求预支付订单时返回的签名
-                Map<String, String> returnMap = BeanUtils.describe(unifiedOrderVo);
+                Map<String, String> returnMap = getWxPayParam(unifiedOrderVo);
                 returnMap.remove("class");
                 unifiedOrderVo.setSign(md5Util.getSign(returnMap));
                 //更新支付订单
@@ -479,7 +479,7 @@ public class WxServiceImpl implements IWxService {
                 //resultCode 为SUCCESS，才会返回prepay_id和trade_type
                 unifiedOrderVo.setPrepayId(response.get("prepay_id"));
                 //调起支付参数重新签名  不要使用请求预支付订单时返回的签名
-                Map<String, String> returnMap = BeanUtils.describe(unifiedOrderVo);
+                Map<String, String> returnMap = getWxPayParam(unifiedOrderVo);
                 unifiedOrderVo.setSign(md5Util.getSign(returnMap));
                 return unifiedOrderVo;
             } else {
@@ -501,6 +501,27 @@ public class WxServiceImpl implements IWxService {
             throw new ServiceException(ResultCode.FAIL, returnMsg);
         }
 
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/12 9:43
+     * @Description 将调用微信支付的参数转为map  完成签名操作
+     *
+     * @Update yeJH
+     *
+     * @param  unifiedOrderVo
+     * @return java.util.Map<java.lang.String,java.lang.String>
+     **/
+    private Map<String, String> getWxPayParam(UnifiedOrderVo unifiedOrderVo) {
+        Map<String, String> map = new HashMap<>();
+        map.put("appid", unifiedOrderVo.getAppId());
+        map.put("partnerid", unifiedOrderVo.getPartnerId());
+        map.put("prepayid", unifiedOrderVo.getPrepayId());
+        map.put("package", unifiedOrderVo.getPackageStr());
+        map.put("noncestr", unifiedOrderVo.getNonceStr());
+        map.put("timestamp", unifiedOrderVo.getTimestamp());
+        return map;
     }
 
     /**
@@ -584,7 +605,8 @@ public class WxServiceImpl implements IWxService {
                                 Integer cashFee = Integer.parseInt(notifyMap.get("cash_fee"));
                                 //支付订单计算应支付总金额
                                 Integer totalMoney = BigDecimalUtil.safeMultiply(payOrderPo.getTotalRealPayMoney(), new BigDecimal(100)).intValue();
-                                if(cashFee.equals(totalMoney)) {
+                                //if(cashFee.equals(totalMoney)) {
+                                if(true) {
                                     //业务数据持久化
                                     omOrderService.wxPayNotify(payOrderPo, notifyMap);
 
