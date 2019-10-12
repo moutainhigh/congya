@@ -14,7 +14,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class RealUserVo {
 
-    @ApiModelProperty("1-认证通过 2-认证失败")
+    @ApiModelProperty("实名认证的id")
     private Long realUserId;
 
     @ApiModelProperty("1-认证通过 2-认证失败")
