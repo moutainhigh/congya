@@ -31,6 +31,9 @@ public class SearchEvaluateVo {
     @ApiModelProperty(value = "skuId")
     private Long skuId;
 
+    @ApiModelProperty(value = "sku")
+    private String sku;
+
     @ApiModelProperty(value = "phone")
     private String phone;
 

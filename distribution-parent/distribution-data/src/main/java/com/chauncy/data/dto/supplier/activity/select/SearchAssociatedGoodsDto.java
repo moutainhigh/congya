@@ -20,13 +20,14 @@ import javax.validation.constraints.NotNull;
 @Data
 @ApiModel(description = "查询需要被选参与活动的商品的条件")
 @Accessors(chain = true)
-public class SearchAssociatedGoodsDto {
+public class  SearchAssociatedGoodsDto {
 
     @ApiModelProperty("商品ID")
-    @NeedExistConstraint(tableName = "pm_goods")
+//    @NeedExistConstraint(tableName = "pm_goods")
     private Long goodsId;
 
     @ApiModelProperty("活动ID")
+    @NotNull(message = "活动ID不能为空")
     private Long activityId;
 
     @ApiModelProperty("活动类型:满减、积分、秒杀、拼团")

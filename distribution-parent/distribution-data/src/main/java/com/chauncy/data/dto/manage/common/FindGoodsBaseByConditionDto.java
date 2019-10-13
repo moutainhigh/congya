@@ -17,12 +17,12 @@ import javax.validation.constraints.Min;
 @ApiModel("条件获取商品的基础信息")
 public class FindGoodsBaseByConditionDto {
 
-    @ApiModelProperty(value = "优惠券ID")
-    @NeedExistConstraint(tableName = "am_coupon")
+    @ApiModelProperty(value = "优惠券ID",hidden = true)
+//    @NeedExistConstraint(tableName = "am_coupon")
     private Long couponId;
 
-    @ApiModelProperty(value = "商品ID")
-    @NeedExistConstraint(tableName = "pm_goods")
+    @ApiModelProperty(value = "商品ID",hidden = true)
+//    @NeedExistConstraint(tableName = "pm_goods")
     private Long goodsId;
 
     @ApiModelProperty(value = "模糊查询名称")

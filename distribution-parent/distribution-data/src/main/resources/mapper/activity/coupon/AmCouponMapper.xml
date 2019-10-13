@@ -104,29 +104,48 @@
     </select>
 
     <select id="findGoodsBaseByCondition" resultType="com.chauncy.data.vo.manage.common.goods.GoodsBaseVo">
-        select a.id as goods_id,a.name as goods_name,b.id as category_id
-        from pm_goods as a,pm_goods_category b
-        <where>
-            a.del_flag = 0 and b.del_flag=0 and a.publish_status = 1 and a.goods_category_id = b.id and b.`level`=3
-            <if test="ids !=null">
-            and a.id not in
-            <foreach collection="ids" close=")" open="(" separator="," item="id">
-                #{id}
-            </foreach>
-            </if>
-            <if test="t.goodsId != null">
-                and a.id = #{goodsId}
-            </if>
-            <if test="t.goodsName != null and t.goodsName != '' ">
-                and a.name like concat('%', #{goodsName}, '%')
-            </if>
-            <if test="t.categoryId != null">
-                and b.id = #{categoryId}
-            </if>
-            <if test="t.categoryName != null and t.categoryName != '' ">
-                and b.name like concat('%', #{categoryName}, '%')
-            </if>
-        </where>
+
+        select DISTINCT a.id as goods_id,a.name as goods_name,b.id as category_id,b.name as category_name
+        from pm_goods a
+        left join (select * from am_activity_rel_activity_goods c where c.del_flag = 0 and c.verify_status !=6) as d on a.id = d.goods_id
+        INNER JOIN pm_goods_category b on a.goods_category_id = b.id
+        where a.del_flag = 0 and b.del_flag	= 0 and a.publish_status = 1 and d.id is null
+        <if test="t.goodsId != null">
+            and a.id = #{t.goodsId}
+        </if>
+        <if test="t.goodsName != null and t.goodsName != '' ">
+            and a.name like concat('%', #{t.goodsName}, '%')
+        </if>
+        <if test="t.categoryId != null">
+            and b.id = #{t.categoryId}
+        </if>
+        <if test="t.categoryName != null and t.categoryName != '' ">
+            and b.name like concat('%', #{t.categoryName}, '%')
+        </if>
+
+<!--        select a.id as goods_id,a.name as goods_name,b.id as category_id-->
+<!--        from pm_goods as a,pm_goods_category b-->
+<!--        <where>-->
+<!--            a.del_flag = 0 and b.del_flag=0 and a.publish_status = 1 and a.goods_category_id = b.id and b.`level`=3-->
+<!--            <if test="ids !=null and ids.size() != 0 ">-->
+<!--            and a.id not in-->
+<!--            <foreach collection="ids" close=")" open="(" separator="," item="id">-->
+<!--                #{id}-->
+<!--            </foreach>-->
+<!--            </if>-->
+<!--            <if test="t.goodsId != null">-->
+<!--                and a.id = #{t.goodsId}-->
+<!--            </if>-->
+<!--            <if test="t.goodsName != null and t.goodsName != '' ">-->
+<!--                and a.name like concat('%', #{t.goodsName}, '%')-->
+<!--            </if>-->
+<!--            <if test="t.categoryId != null">-->
+<!--                and b.id = #{t.categoryId}-->
+<!--            </if>-->
+<!--            <if test="t.categoryName != null and t.categoryName != '' ">-->
+<!--                and b.name like concat('%', #{t.categoryName}, '%')-->
+<!--            </if>-->
+<!--        </where>-->
 
     </select>
     <select id="findAllCoupon" resultType="com.chauncy.data.vo.BaseVo">

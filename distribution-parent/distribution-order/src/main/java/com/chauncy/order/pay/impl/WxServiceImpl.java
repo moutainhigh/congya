@@ -575,12 +575,7 @@ public class WxServiceImpl implements IWxService {
     public String payBack(String notifyData) throws Exception{
         String failXmlBack = "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[报文为空]]></return_msg></xml>";
         String successXmlBack = "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>";
-        WXConfigUtil config = null;
-        try {
-            config = new WXConfigUtil();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        WXConfigUtil config = wxConfigUtil;
         WXPay wxpay = new WXPay(config);
         //异步通知返回微信的参数 xml格式
         String xmlBack = "";
@@ -691,7 +686,7 @@ public class WxServiceImpl implements IWxService {
         }
 
         WxMD5Util md5Util = new WxMD5Util();
-        WXConfigUtil config = new WXConfigUtil();
+        WXConfigUtil config = wxConfigUtil;
         WXPay wxpay = new WXPay(config);
         Map<String, String> returnMap = new HashMap<>();
 
