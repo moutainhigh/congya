@@ -23,8 +23,8 @@ public class UserDataVo {
     @ApiModelProperty("性别")
     private String sex;
 
-    @ApiModelProperty("是否实名认证通过")
-    private boolean isPass;
+    @ApiModelProperty("是否实名认证 true--》已经实名认证 false--》没有实名认证")
+    private Boolean isPass;
 
     @ApiModelProperty("邀请码")
     private Long inviteCode;

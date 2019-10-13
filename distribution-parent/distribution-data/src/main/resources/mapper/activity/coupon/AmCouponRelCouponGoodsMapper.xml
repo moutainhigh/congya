@@ -37,5 +37,14 @@
         where b.del_flag = 0 and c.del_flag = 0 and b.scope = 2 and a.coupon_id = b.id
         and c.goods_category_id = a.association_id and c.id = #{goodsCategoryId}
     </select>
+    <select id="isParticipateCoupon" resultType="com.chauncy.data.bo.supplier.activity.CouponActivityBo">
+
+        select DISTINCT a.id as goodsId,a.name as goodsName,b.coupon_id,c.name as couponName
+        from pm_goods a
+        left join am_coupon_rel_coupon_goods b on b.association_id = a.id
+        left join am_coupon c on c.id = b.coupon_id and c.del_flag = 0
+        where a.del_flag = 0 and a.publish_status = 1 and b.id is null and c.id is null and a.id = #{goodsId}
+
+    </select>
 
 </mapper>
