@@ -10,6 +10,7 @@ import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.common.util.JSONUtils;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.bo.base.BaseBo;
+import com.chauncy.data.bo.supplier.activity.CouponActivityBo;
 import com.chauncy.data.bo.supplier.activity.StoreActivityBo;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.core.AbstractService;
@@ -34,6 +35,7 @@ import com.chauncy.data.dto.supplier.activity.select.SearchAssociatedGoodsDto;
 import com.chauncy.data.dto.supplier.activity.select.SearchSupplierActivityDto;
 import com.chauncy.data.dto.supplier.activity.select.UpdateVerifyStatusDto;
 import com.chauncy.data.mapper.activity.AmActivityRelActivityCategoryMapper;
+import com.chauncy.data.mapper.activity.coupon.AmCouponRelCouponGoodsMapper;
 import com.chauncy.data.mapper.activity.integrals.AmIntegralsMapper;
 import com.chauncy.data.mapper.activity.reduced.AmReducedMapper;
 import com.chauncy.data.mapper.activity.registration.AmActivityRelActivityGoodsMapper;
@@ -88,6 +90,9 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
 
     @Autowired
     private AmSpellGroupMapper spellGroupMapper;
+
+    @Autowired
+    private AmCouponRelCouponGoodsMapper relCouponGoodsMapper;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -733,6 +738,12 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
                 }
             });
         }
+        //查询改商品是否以参与优惠券活动
+        CouponActivityBo couponActivityBo = relCouponGoodsMapper .isParticipateCoupon(isConformDto.getGoodsId());
+        if (couponActivityBo == null){
+            throw new ServiceException(ResultCode.FAIL,String.format("该商品[%s]已经参加【%s】优惠券活动!",couponActivityBo.getGoodsName(),couponActivityBo.getCouponName()));
+        }
+
 
         return true;
     }

@@ -1,6 +1,8 @@
 package com.chauncy.data.mapper.activity.coupon;
 
+import com.chauncy.data.bo.supplier.activity.CouponActivityBo;
 import com.chauncy.data.domain.po.activity.coupon.AmCouponRelCouponGoodsPo;
+import com.chauncy.data.domain.po.product.PmGoodsPo;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.app.advice.coupon.FindCouponListVo;
 
@@ -51,4 +53,16 @@ public interface AmCouponRelCouponGoodsMapper extends IBaseMapper<AmCouponRelCou
      * @return java.util.List<com.chauncy.data.vo.app.advice.coupon.FindCouponListVo>
      **/
     List<FindCouponListVo> findCouponList2(Long goodsCategoryId);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-13 13:34
+     * @Description //判断该商品是否参加优惠券活动
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return com.chauncy.data.domain.po.product.PmGoodsPo
+     **/
+    CouponActivityBo isParticipateCoupon(Long goodsId);
 }
