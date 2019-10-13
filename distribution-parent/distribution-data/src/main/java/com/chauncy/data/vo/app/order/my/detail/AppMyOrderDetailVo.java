@@ -48,7 +48,7 @@ public class AppMyOrderDetailVo {
     private LocalDateTime closeTime;
 
     @ApiModelProperty("支付流水号")
-    private Long payOrderNo;
+    private String payOrderNo;
 
     @ApiModelProperty("订单金额")
     private BigDecimal totalMoney;

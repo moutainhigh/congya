@@ -336,7 +336,8 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         RabbitOrderBo rabbitOrderBo=new RabbitOrderBo();
         rabbitOrderBo.setOrderId(orderId).setOrderStatusEnum(OrderStatusEnum.NEED_RECEIVE_GOODS);
         //添加自动收货的消息队列
-        rabbitUtil.sendDelayMessage(1*60*1000+"",rabbitOrderBo);
+        rabbitUtil.sendDelayMessage(10*60*1000+"",rabbitOrderBo);
+       // rabbitUtil.sendDelayMessage(expiration+"",rabbitOrderBo);
         LoggerUtil.info("【已发货等待自动收货消息发送时间】:" + LocalDateTime.now());
 
     }
