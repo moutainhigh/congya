@@ -940,44 +940,48 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
      */
     private void orderPayment(AddAccountLogBo addAccountLogBo, PayOrderPo payOrderPo) {
         //APP用户 购物券 支出流水 购物券-消费抵扣购物券
-        OmAccountLogPo fromShopTicketLog = getFromOmAccountLogPo(addAccountLogBo, UserTypeEnum.APP_USER,
-                AccountTypeEnum.SHOP_TICKET, LogTypeEnum.EXPENDITURE);
         UmUserPo umUserPo = umUserMapper.selectById(payOrderPo.getUmUserId());
-        fromShopTicketLog.setUserId(umUserPo.getId());
-        fromShopTicketLog.setBalance(BigDecimalUtil.safeSubtract(umUserPo.getCurrentShopTicket(),payOrderPo.getTotalShopTicket()));
-        fromShopTicketLog.setLastBalance(umUserPo.getCurrentShopTicket());
-        //流水发生金额  购物券抵扣金额
-        fromShopTicketLog.setAmount(BigDecimalUtil.safeMultiply(payOrderPo.getTotalShopTicket(), -1));
-        //支付方式
-        fromShopTicketLog.setPaymentWay(PaymentWayEnum.ACCOUNT.getId());
-        //流水事由
-        fromShopTicketLog.setLogMatter(ShopTicketLogMatterEnum.ORDER_PAYMENT.getId());
-        //流水详情标题
-        fromShopTicketLog.setLogDetailTitle(LogDetailTitleEnum.ORDER_PAYMENT.getName());
-        //流水详情当前状态
-        fromShopTicketLog.setLogDetailState(LogDetailStateEnum.PAYMENT_SUCCESS.getId());
-        //流水详情说明
-        fromShopTicketLog.setLogDetailExplain(LogDetailExplainEnum.ORDER_PAYMENT.getId());
-        omAccountLogMapper.insert(fromShopTicketLog);
+        if(payOrderPo.getTotalShopTicket().compareTo(BigDecimal.ZERO) > 0) {
+            OmAccountLogPo fromShopTicketLog = getFromOmAccountLogPo(addAccountLogBo, UserTypeEnum.APP_USER,
+                    AccountTypeEnum.SHOP_TICKET, LogTypeEnum.EXPENDITURE);
+            fromShopTicketLog.setUserId(umUserPo.getId());
+            fromShopTicketLog.setBalance(BigDecimalUtil.safeSubtract(umUserPo.getCurrentShopTicket(), payOrderPo.getTotalShopTicket()));
+            fromShopTicketLog.setLastBalance(umUserPo.getCurrentShopTicket());
+            //流水发生金额  购物券抵扣金额
+            fromShopTicketLog.setAmount(BigDecimalUtil.safeMultiply(payOrderPo.getTotalShopTicket(), -1));
+            //支付方式
+            fromShopTicketLog.setPaymentWay(PaymentWayEnum.ACCOUNT.getId());
+            //流水事由
+            fromShopTicketLog.setLogMatter(ShopTicketLogMatterEnum.ORDER_PAYMENT.getId());
+            //流水详情标题
+            fromShopTicketLog.setLogDetailTitle(LogDetailTitleEnum.ORDER_PAYMENT.getName());
+            //流水详情当前状态
+            fromShopTicketLog.setLogDetailState(LogDetailStateEnum.PAYMENT_SUCCESS.getId());
+            //流水详情说明
+            fromShopTicketLog.setLogDetailExplain(LogDetailExplainEnum.ORDER_PAYMENT.getId());
+            omAccountLogMapper.insert(fromShopTicketLog);
+        }
         //APP用户 红包 支出流水 红包-消费抵扣红包
-        OmAccountLogPo fromRedEnvelopsLog = getFromOmAccountLogPo(addAccountLogBo, UserTypeEnum.APP_USER,
-                AccountTypeEnum.RED_ENVELOPS, LogTypeEnum.EXPENDITURE);
-        fromRedEnvelopsLog.setUserId(umUserPo.getId());
-        fromRedEnvelopsLog.setBalance(BigDecimalUtil.safeSubtract(umUserPo.getCurrentRedEnvelops(),payOrderPo.getTotalRedEnvelops()));
-        fromRedEnvelopsLog.setLastBalance(umUserPo.getCurrentShopTicket());
-        //流水发生金额  红包抵扣金额
-        fromRedEnvelopsLog.setAmount(BigDecimalUtil.safeMultiply(payOrderPo.getTotalRedEnvelops(), -1));
-        //支付方式
-        fromRedEnvelopsLog.setPaymentWay(PaymentWayEnum.ACCOUNT.getId());
-        //流水事由
-        fromRedEnvelopsLog.setLogMatter(RedEnvelopsLogMatterEnum.ORDER_PAYMENT.getId());
-        //流水详情标题
-        fromRedEnvelopsLog.setLogDetailTitle(LogDetailTitleEnum.ORDER_PAYMENT.getName());
-        //流水详情当前状态
-        fromRedEnvelopsLog.setLogDetailState(LogDetailStateEnum.PAYMENT_SUCCESS.getId());
-        //流水详情说明
-        fromRedEnvelopsLog.setLogDetailExplain(LogDetailExplainEnum.ORDER_PAYMENT.getId());
-        omAccountLogMapper.insert(fromRedEnvelopsLog);
+        if(payOrderPo.getTotalRedEnvelops().compareTo(BigDecimal.ZERO) > 0) {
+            OmAccountLogPo fromRedEnvelopsLog = getFromOmAccountLogPo(addAccountLogBo, UserTypeEnum.APP_USER,
+                    AccountTypeEnum.RED_ENVELOPS, LogTypeEnum.EXPENDITURE);
+            fromRedEnvelopsLog.setUserId(umUserPo.getId());
+            fromRedEnvelopsLog.setBalance(BigDecimalUtil.safeSubtract(umUserPo.getCurrentRedEnvelops(), payOrderPo.getTotalRedEnvelops()));
+            fromRedEnvelopsLog.setLastBalance(umUserPo.getCurrentShopTicket());
+            //流水发生金额  红包抵扣金额
+            fromRedEnvelopsLog.setAmount(BigDecimalUtil.safeMultiply(payOrderPo.getTotalRedEnvelops(), -1));
+            //支付方式
+            fromRedEnvelopsLog.setPaymentWay(PaymentWayEnum.ACCOUNT.getId());
+            //流水事由
+            fromRedEnvelopsLog.setLogMatter(RedEnvelopsLogMatterEnum.ORDER_PAYMENT.getId());
+            //流水详情标题
+            fromRedEnvelopsLog.setLogDetailTitle(LogDetailTitleEnum.ORDER_PAYMENT.getName());
+            //流水详情当前状态
+            fromRedEnvelopsLog.setLogDetailState(LogDetailStateEnum.PAYMENT_SUCCESS.getId());
+            //流水详情说明
+            fromRedEnvelopsLog.setLogDetailExplain(LogDetailExplainEnum.ORDER_PAYMENT.getId());
+            omAccountLogMapper.insert(fromRedEnvelopsLog);
+        }
         //todo 积分第一期不做
     }
 
