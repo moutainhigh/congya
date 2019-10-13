@@ -64,9 +64,9 @@ public class WxServiceImpl implements IWxService {
     private static final Logger logger = LoggerFactory.getLogger(WxServiceImpl.class);
 
     //支付结果通知地址
-    public static final String PAY_NOTIFY_URL = "http://112.126.96.226/distribution/app/wxPay/wxPay/notify";
+    public static final String PAY_NOTIFY_URL = "http://112.126.96.226/distribution/app/wxPay/notify";
     //退款结果通知地址
-    public static final String REFUND_NOTIFY_URL = "http://112.126.96.226/distribution/app/wxPay/wxPay/notify";
+    public static final String REFUND_NOTIFY_URL = "http://112.126.96.226/distribution/app/wxPay/notify";
     //交易类型
     public static final String TRADE_TYPE_APP = "APP";
     //币种  微信支付订单支付时使用的币种
@@ -575,12 +575,7 @@ public class WxServiceImpl implements IWxService {
     public String payBack(String notifyData) throws Exception{
         String failXmlBack = "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[报文为空]]></return_msg></xml>";
         String successXmlBack = "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>";
-        WXConfigUtil config = null;
-        try {
-            config = new WXConfigUtil();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        WXConfigUtil config = wxConfigUtil;
         WXPay wxpay = new WXPay(config);
         //异步通知返回微信的参数 xml格式
         String xmlBack = "";
@@ -588,6 +583,9 @@ public class WxServiceImpl implements IWxService {
         try {
             //异步通知微信返回的参数 调用官方SDK转换成map类型数据
             notifyMap = WXPayUtil.xmlToMap(notifyData);
+            logger.info("===============================================");
+            logger.info(notifyData);
+            logger.info("验签结果" + wxpay.isPayResultNotifySignatureValid(notifyMap));
             String outTradeNo = notifyMap.get("out_trade_no");
             String attach = notifyMap.get("attach");
             OrderPayTypeEnum orderPayTypeEnum = OrderPayTypeEnum.valueOf(attach);
@@ -688,7 +686,7 @@ public class WxServiceImpl implements IWxService {
         }
 
         WxMD5Util md5Util = new WxMD5Util();
-        WXConfigUtil config = new WXConfigUtil();
+        WXConfigUtil config = wxConfigUtil;
         WXPay wxpay = new WXPay(config);
         Map<String, String> returnMap = new HashMap<>();
 

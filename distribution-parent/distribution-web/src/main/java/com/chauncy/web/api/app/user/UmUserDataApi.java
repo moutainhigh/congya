@@ -17,6 +17,7 @@ import com.chauncy.data.dto.app.user.update.UpdateUserDataDto;
 import com.chauncy.data.valid.group.ISaveGroup;
 import com.chauncy.data.valid.group.IUpdateGroup;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.data.vo.app.order.cart.RealUserVo;
 import com.chauncy.data.vo.app.user.*;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.user.service.IUmAreaShippingService;
@@ -204,6 +205,18 @@ public class UmUserDataApi extends BaseApi {
         updateUserPo.setId(appCurrUser.getId()).setUpdateBy(appCurrUser.getPhone());
         umUserService.updateById(updateUserPo);
         return setJsonViewData(ResultCode.SUCCESS);
+    }
+
+    @PostMapping("/getRealUser")
+    @ApiOperation("获取实名认证信息")
+    public JsonViewData<RealUserVo> certification() {
+        UmUserPo appCurrUser = securityUtil.getAppCurrUser();
+        RealUserVo realUserVo=new RealUserVo();
+        realUserVo.setStatus(1).setBackPhoto(appCurrUser.getBackPhoto()).setTrueName(appCurrUser.getTrueName()).
+                setFrontPhoto(appCurrUser.getFrontPhoto()).setIdCard(appCurrUser.getIdCard());
+
+        return setJsonViewData(realUserVo);
+
     }
 
     @PostMapping("/get_phone")
