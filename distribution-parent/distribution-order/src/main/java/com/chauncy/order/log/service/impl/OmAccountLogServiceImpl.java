@@ -1022,8 +1022,13 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         SearchUserLogVo searchUserLogVo = new SearchUserLogVo();
         //获取用户账目余额
         if(searchUserLogDto.getAccountType().equals(AccountTypeEnum.RED_ENVELOPS.getId())) {
-            //红包
-            searchUserLogVo.setAmount(umUserPo.getCurrentRedEnvelops());
+            //红包   展示红包对应的金额
+            //获取系统基本设置
+            BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
+            // 计算红包等价多少金额 用户红包余额/money_to_current_red_envelops(个人消费的订单金额1元=多少红包)
+            BigDecimal equalAmount = BigDecimalUtil.safeDivide(umUserPo.getCurrentRedEnvelops(),
+                    basicSettingPo.getMoneyToCurrentRedEnvelops());
+            searchUserLogVo.setAmount(equalAmount);
         } else if(searchUserLogDto.getAccountType().equals(AccountTypeEnum.SHOP_TICKET.getId())) {
             //购物券
             searchUserLogVo.setAmount(umUserPo.getCurrentShopTicket());
@@ -1104,10 +1109,15 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
 
         //获取系统基本设置
         BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
-        // 计算红包等价多少金额 用户红包余额/money_to_current_red_envelops(个人消费的订单金额1元=多少红包)
-        BigDecimal equalAmount = BigDecimalUtil.safeDivide(userWithdrawalDto.getWithdrawalAmount(), basicSettingPo.getMoneyToCurrentRedEnvelops());
-        // 金额扣除对应的手续费  equalAmount*手续费比例/100
-        BigDecimal deductedAmount = BigDecimalUtil.safeDivide(BigDecimalUtil.safeMultiply(equalAmount, basicSettingPo.getWithdrawCommission()), new BigDecimal(100));
+        // 计算金额对应多少红包 用户提现金额余额*money_to_current_red_envelops(个人消费的订单金额1元=多少红包)
+        BigDecimal equalAmount = BigDecimalUtil.safeMultiply(
+                userWithdrawalDto.getWithdrawalAmount(),
+                basicSettingPo.getMoneyToCurrentRedEnvelops());
+        omUserWithdrawalPo.setEqualAmount(equalAmount);
+        // 金额扣除对应的手续费  提现金额*手续费比例/100
+        BigDecimal deductedAmount = BigDecimalUtil.safeDivide(
+                BigDecimalUtil.safeMultiply(omUserWithdrawalPo.getWithdrawalAmount(), basicSettingPo.getWithdrawCommission()),
+                new BigDecimal(100));
         //获取实际应发金额  扣除其他费用
         BigDecimal actualAmount = BigDecimalUtil.safeSubtract(userWithdrawalDto.getWithdrawalAmount(), deductedAmount);
         omUserWithdrawalPo.setActualAmount(actualAmount);

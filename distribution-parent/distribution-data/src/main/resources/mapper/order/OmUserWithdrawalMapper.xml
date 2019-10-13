@@ -6,6 +6,7 @@
     <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.order.OmUserWithdrawalPo">
         <id column="id" property="id" />
         <result column="um_user_id" property="umUserId" />
+        <result column="equal_amount" property="equalAmount" />
         <result column="withdrawal_amount" property="withdrawalAmount" />
         <result column="remark" property="remark" />
         <result column="withdrawal_status" property="withdrawalStatus" />
