@@ -182,8 +182,8 @@ public class RabbitConfig {
     @Bean
     public Binding customDeclareRedirectBinding() {
         // TODO 如果要让延迟队列之间有关联,这里的 routingKey 和 绑定的交换机很关键
-        return BindingBuilder.bind(redirectAfterQueue()).
-                to(afterRedirectExchange()).with(RabbitConstants.CUSTOM_DECLARE_REDIRECT_ROUTING_KEY);
+        return BindingBuilder.bind(customDeclareRedirectQueue()).
+                to(customDeclareRedirectExchange()).with(RabbitConstants.CUSTOM_DECLARE_REDIRECT_ROUTING_KEY);
     }
 
 
