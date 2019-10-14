@@ -16,7 +16,8 @@ public enum VerifyStatusEnum implements BaseEnum {
     WAIT_CONFIRM(2,"待审核"),
     CHECKED(3,"审核通过"),
     NOT_APPROVED(4,"不通过/驳回"),
-    MODIFY(5,"返回修改");
+    MODIFY(5,"返回修改"),
+    DISABLED(6,"禁用正在进行的活动");
 
     private Integer id;
     private String name;
