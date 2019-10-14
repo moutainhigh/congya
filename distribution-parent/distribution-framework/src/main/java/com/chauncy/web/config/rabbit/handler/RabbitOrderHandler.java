@@ -107,19 +107,19 @@ public class RabbitOrderHandler {
      *
      * @Update yeJH
      *
-     * @param  omOrderPo  订单
+     * @param  omOrderId  订单
      * @param  message
      * @param  channel
      * @return void
      **/
     @RabbitListener(queues = {RabbitConstants.CUSTOM_DECLARE_QUEUE})
     @Transactional(rollbackFor = Exception.class)
-    public void listenerCustomDeclareQueue(OmOrderPo omOrderPo, Message message, Channel channel) {
+    public void listenerCustomDeclareQueue(Long omOrderId, Message message, Channel channel) {
         LoggerUtil.info(String.format("[customDeclareOrder 监听的消息] - [消费时间] - [%s] - [%s]",
-                LocalDateTime.now(), String.valueOf(omOrderPo.getId())));
+                LocalDateTime.now(), String.valueOf(omOrderId)));
 
         try {
-            wxService.customDeclareOrder(omOrderPo);
+            wxService.customDeclareOrder(omOrderId);
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (Exception e) {
             // TODO 如果报错了,那么我们可以进行容错处理,比如转移当前消息进入其它队列

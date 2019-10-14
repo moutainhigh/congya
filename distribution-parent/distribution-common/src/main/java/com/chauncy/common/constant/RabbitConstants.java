@@ -61,6 +61,19 @@ public interface RabbitConstants {
     static final String CUSTOM_DECLARE_ROUTING_KEY = "custom.declare.key";
 
     /**
+     * 海关申报转发队列
+     */
+    static final String CUSTOM_DECLARE_REDIRECT_QUEUE = "custom.declare.redirect.queue";
+    /**
+     * 海关申报转发交换机
+     */
+    static final String CUSTOM_DECLARE_REDIRECT_EXCHANGE = "custom.declare.redirect.exchange";
+    /**
+     * 海关申报转发死信的路由键
+     */
+    static final String CUSTOM_DECLARE_REDIRECT_ROUTING_KEY = "custom.declare.redirect.key";
+
+    /**
      * 账目流水队列
      */
     static final String PLATFORM_GIVE_QUEUE = "platform.give.queue";

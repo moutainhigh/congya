@@ -119,11 +119,13 @@ public class WxServiceImpl implements IWxService {
      *
      * @Update yeJH
      *
-     * @param  omOrderPo
+     * @param  orderId
      * @return void
      **/
     @Override
-    public void customDeclareOrder(OmOrderPo omOrderPo) throws Exception {
+    public void customDeclareOrder(Long orderId) throws Exception {
+        OmOrderPo omOrderPo = omOrderService.getById(orderId);
+
         if(null == omOrderPo) {
             throw new ServiceException(ResultCode.NO_EXISTS);
         }

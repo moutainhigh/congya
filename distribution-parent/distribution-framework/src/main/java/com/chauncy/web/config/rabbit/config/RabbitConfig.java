@@ -134,23 +134,60 @@ public class RabbitConfig {
      */
     @Bean
     public Queue customDeclareQueue() {
-        return new Queue(RabbitConstants.CUSTOM_DECLARE_QUEUE, true);
+        //死信队列
+        Map<String, Object> params = new HashMap<>();
+        params.put("x-dead-letter-exchange", RabbitConstants.CUSTOM_DECLARE_REDIRECT_EXCHANGE);
+        params.put("x-dead-letter-routing-key", RabbitConstants.CUSTOM_DECLARE_REDIRECT_ROUTING_KEY);
+        return new Queue(RabbitConstants.CUSTOM_DECLARE_QUEUE, true, false,false, params);
     }
 
     /**
      * 海关申报 消息交换机
      **/
     @Bean
-    public TopicExchange customDeclareTopicExchange() {
-        return new TopicExchange(RabbitConstants.CUSTOM_DECLARE_EXCHANGE);
+    public DirectExchange customDeclareExchange() {
+        return new DirectExchange(RabbitConstants.CUSTOM_DECLARE_EXCHANGE);
     }
 
     @Bean
     public Binding customDeclareBinding() {
         // TODO 如果要让延迟队列之间有关联,这里的 routingKey 和 绑定的交换机很关键
-        return BindingBuilder.bind(customDeclareQueue()).to(customDeclareTopicExchange())
+        return BindingBuilder.bind(customDeclareQueue()).to(customDeclareExchange())
                 .with(RabbitConstants.CUSTOM_DECLARE_ROUTING_KEY);
     }
+
+    /**
+     * 海关申报转发队列
+     * @return
+     */
+    @Bean
+    public Queue customDeclareRedirectQueue() {
+        return new Queue(RabbitConstants.CUSTOM_DECLARE_REDIRECT_QUEUE, true);
+    }
+
+    /**
+     * 海关申报死信转发的交换机
+     * @return
+     */
+    @Bean
+    public TopicExchange customDeclareRedirectExchange() {
+        return new TopicExchange(RabbitConstants.CUSTOM_DECLARE_REDIRECT_EXCHANGE);
+    }
+
+
+    /**
+     * 海关申报死信交换机与队列绑定
+     * @return
+     */
+    @Bean
+    public Binding customDeclareRedirectBinding() {
+        // TODO 如果要让延迟队列之间有关联,这里的 routingKey 和 绑定的交换机很关键
+        return BindingBuilder.bind(redirectAfterQueue()).
+                to(afterRedirectExchange()).with(RabbitConstants.CUSTOM_DECLARE_REDIRECT_ROUTING_KEY);
+    }
+
+
+
 
     /**
      * 系统赠送 消息队列
