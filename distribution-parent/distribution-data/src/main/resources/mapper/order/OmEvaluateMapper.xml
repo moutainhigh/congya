@@ -40,7 +40,8 @@
         select d.store_id,a.photo as icon,a.name as nick_name,b.content,b.picture,b.id,ROUND((b.attitude_start_level+b.description_start_level+b.ship_start_level)/3) as startLevel
                 ,GROUP_CONCAT(CONCAT(h.`name`,":",g.`value`)) as sku,b.create_time as evaluate_time,b.liked_num
         from um_user a,om_evaluate b,om_order c,pm_goods d,pm_goods_sku e,pm_goods_rel_attribute_value_sku f,pm_goods_attribute_value g,pm_goods_attribute h
-        where isNull(b.parent_id) and b.order_id = c.id and c.um_user_id=a.id and
+        where a.del_flag = 0 and b.del_flag = 0 and c.del_flag  = 0 and d.del_flag = 0 and e.del_flag = 0 and f.del_flag = 0 and g.del_flag = 0 and h.del_flag = 0
+         and isNull(b.parent_id) and b.order_id = c.id and c.um_user_id=a.id and
               b.sku_id = e.id and d.id = e.goods_id and d.id = #{t.goodsId}
               and f.goods_sku_id = e.id and f.goods_attribute_value_id = g.id
               and h.id = g.product_attribute_id
@@ -70,12 +71,17 @@
 
     <select id="searchEvaluate" resultType="com.chauncy.data.vo.supplier.evaluate.SearchEvaluateVo">
         select b.id as user_id,b.name as nick_name,b.phone,c.name as goods_name,e.sku_id,e.id as evaluate_id,e.description_start_level,
-               e.picture,e.content,e.create_time,a.id as order_id
-        from om_order a,um_user b,pm_goods c,pm_goods_sku d,om_evaluate e,sm_store f
-        <where> a.status = 4 and a.id = e.order_id and e.sku_id = d.id and d.goods_id = c.id and a.um_user_id = b.id
+               e.picture,e.content,e.create_time,a.id as order_id,GROUP_CONCAT(CONCAT(h.`name`,":",g.`value`)) as sku
+        from om_order a,um_user b,pm_goods c,pm_goods_sku d,om_evaluate e,sm_store f,pm_goods_attribute_value g,pm_goods_attribute h,pm_goods_rel_attribute_value_sku i
+        where a.del_flag = 0 and b.del_flag = 0 and c.del_flag = 0 and d.del_flag = 0 and e.del_flag = 0 and f.del_flag = 0 and g.del_flag = 0 and h.del_flag = 0 and i.del_flag = 0
+         and a.status = 4 and a.id = e.order_id and e.sku_id = d.id and d.goods_id = c.id and a.um_user_id = b.id
+                and i.goods_sku_id = d.id and i.goods_attribute_value_id = g.id and h.id = g.product_attribute_id
 		      and ISNULL(e.parent_id) and a.store_id = f.id
 		      <if test="evaluate.storeId != null">
                   and a.store_id = #{evaluate.storeId}
+              </if>
+              <if test="evaluate.startLevel != null">
+                 and e.description_start_level = #{evaluate.startLevel}
               </if>
               <if test="evaluate.phone != null and evaluate.phone !=' '">
                   and b.phone = #{evaluate.phone}
@@ -92,13 +98,13 @@
             <if test="evaluate.goodsName != null and evaluate.goodsName != ''">
                   and c.name like concat ('%', #{evaluate.goodsName} ,'%')
             </if>
-            <if test="evaluate.evaluateStartTime != null">
-                  and DATE_FORMAT(e.create_time,'%Y-%m-%d')=#{evaluate.evaluateStartTime}
+            <if test="evaluate.startTime != null">
+                  and DATE_FORMAT(e.create_time,'%Y-%m-%d') &gt;= #{evaluate.startTime}
             </if>
-            <if test="evaluate.evaluateEndTime != null">
-                and DATE_FORMAT(e.create_time,'%Y-%m-%d')=#{evaluate.evaluateEndTime}
+            <if test="evaluate.endTime != null">
+                and DATE_FORMAT(e.create_time,'%Y-%m-%d') &lt;= #{evaluate.endTime}
             </if>
-        </where>
+        group by e.id
         order by e.create_time
     </select>
     <select id="getEvaluate" resultType="com.chauncy.data.vo.supplier.evaluate.EvaluateVo">
