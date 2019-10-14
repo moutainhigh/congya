@@ -17,7 +17,7 @@ public class RealUserVo {
     @ApiModelProperty("实名认证的id")
     private Long realUserId;
 
-    @ApiModelProperty("1-认证通过 2-认证失败")
+    @ApiModelProperty("1-认证通过 0-未认证")
     private Integer status;
 
     @ApiModelProperty(value = "身份证号码")

@@ -214,6 +214,9 @@ public class UmUserDataApi extends BaseApi {
         RealUserVo realUserVo=new RealUserVo();
         realUserVo.setStatus(1).setBackPhoto(appCurrUser.getBackPhoto()).setTrueName(appCurrUser.getTrueName()).
                 setFrontPhoto(appCurrUser.getFrontPhoto()).setIdCard(appCurrUser.getIdCard());
+        if (appCurrUser.getIdCard()==null){
+            realUserVo.setStatus(0);
+        }
 
         return setJsonViewData(realUserVo);
 

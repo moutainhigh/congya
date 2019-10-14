@@ -119,11 +119,13 @@ public class WxServiceImpl implements IWxService {
      *
      * @Update yeJH
      *
-     * @param  omOrderPo
+     * @param  orderId
      * @return void
      **/
     @Override
-    public void customDeclareOrder(OmOrderPo omOrderPo) throws Exception {
+    public void customDeclareOrder(Long orderId) throws Exception {
+        OmOrderPo omOrderPo = omOrderService.getById(orderId);
+
         if(null == omOrderPo) {
             throw new ServiceException(ResultCode.NO_EXISTS);
         }
@@ -583,9 +585,6 @@ public class WxServiceImpl implements IWxService {
         try {
             //异步通知微信返回的参数 调用官方SDK转换成map类型数据
             notifyMap = WXPayUtil.xmlToMap(notifyData);
-            logger.info("===============================================");
-            logger.info(notifyData);
-            logger.info("验签结果" + wxpay.isPayResultNotifySignatureValid(notifyMap));
             String outTradeNo = notifyMap.get("out_trade_no");
             String attach = notifyMap.get("attach");
             OrderPayTypeEnum orderPayTypeEnum = OrderPayTypeEnum.valueOf(attach);

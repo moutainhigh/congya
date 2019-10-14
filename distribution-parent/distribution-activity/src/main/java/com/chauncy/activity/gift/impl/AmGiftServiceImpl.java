@@ -356,7 +356,7 @@ public class AmGiftServiceImpl extends AbstractService<AmGiftMapper, AmGiftPo> i
                 relCouponUserMapper.insert(relCouponUserPo);
             });
         }
-        //TODO junhao补充经验值、购物券、积分、优惠券等流水
+        //TODO junhao补充经验值、购物券、积分、优惠券等流水(完成)
         //新人领取礼包对应流水生成
         AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
         addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.NEW_GIFT);

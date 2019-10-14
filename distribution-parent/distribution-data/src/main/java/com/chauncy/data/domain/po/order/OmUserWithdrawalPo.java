@@ -42,6 +42,9 @@ public class OmUserWithdrawalPo implements Serializable {
     @ApiModelProperty(value = "用户id")
     private Long umUserId;
 
+    @ApiModelProperty(value = "提现对应红包数额")
+    private BigDecimal equalAmount;
+
     @ApiModelProperty(value = "提现金额")
     private BigDecimal withdrawalAmount;
 

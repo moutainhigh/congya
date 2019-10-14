@@ -153,7 +153,7 @@ public interface SmStoreMapper extends IBaseMapper<SmStorePo> {
     /**
      * @Author yeJH
      * @Date 2019/9/20 20:30
-     * @Description //TODO
+     * @Description 获取筛选店铺的参数  店铺分类  店铺标签
      *
      * @Update yeJH
      *
