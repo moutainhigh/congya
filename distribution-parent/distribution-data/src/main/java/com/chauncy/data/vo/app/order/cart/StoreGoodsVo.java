@@ -1,5 +1,6 @@
 package com.chauncy.data.vo.app.order.cart;
 
+import com.chauncy.data.vo.app.advice.activity.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -59,9 +60,17 @@ public class StoreGoodsVo {
     @ApiModelProperty("返券值")
     private BigDecimal rewardShopTicke;
 
-//    @ApiModelProperty("满减活动信息")
-//    @ApiModelProperty("积分活动信息")
-//    @ApiModelProperty("秒杀活动信息")
+    @ApiModelProperty(value = "商品参与的活动类型:0-不参与活动、1-满减、2-积分、5-秒杀进行中、6-秒杀待开始(距离当前时间一天)")
+    private Integer activityType;
+
+    @ApiModelProperty(value = "满减信息")
+    private CartReducedVo cartReducedVo;
+
+    @ApiModelProperty(value = "积分信息")
+    private CartIntegralsVo cartIntegralsVo;
+
+    @ApiModelProperty(value = "秒杀信息")
+    private CartSeckillVo cartSeckillVo;
 
 
 }
