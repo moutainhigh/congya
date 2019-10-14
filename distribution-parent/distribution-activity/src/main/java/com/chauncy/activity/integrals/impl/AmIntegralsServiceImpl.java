@@ -37,6 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -153,6 +154,30 @@ public class AmIntegralsServiceImpl extends AbstractService<AmIntegralsMapper, A
             }
         }else {
             memberLevelId = saveIntegralsDto.getMemberLevelId();
+        }
+
+        //判断所选的分类不能重复
+        List<Long> categoryIdList = saveIntegralsDto.getCategoryIds();
+        boolean categoryIdIsRepeat = categoryIdList.size() != new HashSet<Long>(categoryIdList).size();
+        if (categoryIdIsRepeat) {
+            List<String> repeatNames = Lists.newArrayList();
+            //查找重复的数据
+            Map<Long, Integer> repeatMap = Maps.newHashMap();
+            categoryIdList.forEach(str -> {
+                Integer i = 1;
+                if (repeatMap.get(str) != null) {
+                    i = repeatMap.get(str) + 1;
+                }
+                repeatMap.put(str, i);
+            });
+            for (Long s : repeatMap.keySet()) {
+                if (repeatMap.get(s) > 1) {
+
+                    repeatNames.add(categoryMapper.selectById(s).getName());
+                }
+            }
+//            log.info("重复数据为：" + repeatNames.toString());
+            throw new ServiceException(ResultCode.DUPLICATION, String.format("存在重复分类名称：%s,请检查!", repeatNames.toString()));
         }
 
         //新增操作
