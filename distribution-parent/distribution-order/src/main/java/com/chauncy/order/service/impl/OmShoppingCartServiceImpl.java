@@ -1716,6 +1716,11 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 //设置一些优惠信息：红包、购物券
                 setDiscountMessage(saveOrder, savePayOrderPo);
 
+                //设置订单数量
+                Integer goodsNumberInOrder=x.getShopTicketSoWithCarGoodDtos().stream().mapToInt(ShopTicketSoWithCarGoodDto::getNumber)
+                        .sum();
+                saveOrder.setTotalNumber(goodsNumberInOrder);
+
                 SmStorePo queryStore=storeMapper.selectById(x.getStoreId());
                 //设置用户所属店铺
                 saveOrder.setUserStoreId(userStoreId).setIncomeRate(queryStore.getIncomeRate());
