@@ -112,7 +112,7 @@ public class RabbitOrderHandler {
      * @param  channel
      * @return void
      **/
-    @RabbitListener(queues = {RabbitConstants.CUSTOM_DECLARE_QUEUE})
+    @RabbitListener(queues = {RabbitConstants.CUSTOM_DECLARE_REDIRECT_QUEUE})
     @Transactional(rollbackFor = Exception.class)
     public void listenerCustomDeclareQueue(Long omOrderId, Message message, Channel channel) {
         LoggerUtil.info(String.format("[customDeclareOrder 监听的消息] - [消费时间] - [%s] - [%s]",
