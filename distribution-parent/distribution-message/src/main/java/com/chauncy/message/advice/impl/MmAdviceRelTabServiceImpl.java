@@ -1150,9 +1150,9 @@ public class MmAdviceRelTabServiceImpl extends AbstractService<MmAdviceRelTabMap
         List<BaiHuoMiddleAdviceVo> baiHuoMiddleAdviceVos = new ArrayList<>();
 
         //百货中部广告是否存在并启用
-        MmAdvicePo advicePo = adviceMapper.selectOne(new QueryWrapper<MmAdvicePo>().lambda().and(obj->obj
+        MmAdvicePo advicePo = adviceMapper.selectOne(new QueryWrapper<MmAdvicePo>().lambda()
                 .eq(MmAdvicePo::getLocation,AdviceLocationEnum.BAIHUO_MIDDLE.name())
-                .eq(MmAdvicePo::getEnabled,true)));
+                .eq(MmAdvicePo::getEnabled,true));
         if (advicePo != null){
             List<TabAdviceVo> tabAdviceVos = relTabMapper.findBaiHuoMiddleAdvice(advicePo.getId());
             if (!ListUtil.isListNullAndEmpty(tabAdviceVos)){

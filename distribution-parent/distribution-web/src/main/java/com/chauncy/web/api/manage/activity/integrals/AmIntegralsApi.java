@@ -1,6 +1,7 @@
 package com.chauncy.web.api.manage.activity.integrals;
 
 
+import com.chauncy.activity.registration.IAmActivityRelActivityGoodsService;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.manage.activity.EditEnableDto;
 import com.chauncy.data.dto.manage.activity.SearchCategoryByActivityIdDto;
@@ -40,6 +41,9 @@ public class AmIntegralsApi extends BaseApi {
 
     @Autowired
     private IAmIntegralsService service;
+
+    @Autowired
+    private IAmActivityRelActivityGoodsService relActivityGoodsService;
 
     /**
      * 获取分类信息
@@ -134,6 +138,8 @@ public class AmIntegralsApi extends BaseApi {
     public JsonViewData editEnable(@RequestBody @ApiParam(required = true,name="enableDto",value="批量禁用启用")
                                    @Validated EditEnableDto enableDto){
         service.editEnable(enableDto);
+        //判断该满减活动ID是否在am_activity_rel_activity_goods表中存在,true则更新verify_status状态为6--活动已被禁用
+        relActivityGoodsService.updateStatusByEnable(enableDto);
         return setJsonViewData(ResultCode.SUCCESS,"修改成功");
     }
 }

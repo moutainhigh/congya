@@ -27,6 +27,7 @@ import com.chauncy.data.domain.po.product.PmGoodsRelAttributeValueSkuPo;
 import com.chauncy.data.domain.po.product.PmGoodsSkuPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.app.user.favorites.add.UpdateFavoritesDto;
+import com.chauncy.data.dto.manage.activity.EditEnableDto;
 import com.chauncy.data.dto.manage.activity.spell.select.SearchSpellRecordDto;
 import com.chauncy.data.dto.supplier.activity.add.SaveRegistrationDto;
 import com.chauncy.data.dto.supplier.activity.delete.CancelRegistrationDto;
@@ -59,6 +60,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,6 +101,9 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
 
     @Autowired
     private AmActivityRelActivityCategoryMapper relActivityCategoryMapper;
+
+    @Autowired
+    private AmActivityRelActivityGoodsMapper relActivityGoodsMapper;
 
     @Autowired
     private PmGoodsMapper goodsMapper;
@@ -409,7 +414,7 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
             throw new ServiceException(ResultCode.NO_EXISTS, "该商品不存在！");
         }
         AmActivityRelActivityGoodsPo activityRelActivityGoodsPo = new AmActivityRelActivityGoodsPo();
-        if (userPo.getStoreId() !=null) {
+        if (userPo.getStoreId() != null) {
             //从am_activity_rel_activity_goods 平台活动与商品关联表 获取活动商品信息
             activityRelActivityGoodsPo = activityRelActivityGoodsMapper.selectOne(new QueryWrapper<AmActivityRelActivityGoodsPo>()
                     .lambda().and(obj -> obj.eq(AmActivityRelActivityGoodsPo::getStoreId, userPo.getStoreId())
@@ -418,7 +423,7 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
             if (activityRelActivityGoodsPo.getActivityType() != ActivityTypeEnum.fromName(findActivitySkuDto.getActivityType()).getId()) {
                 throw new ServiceException(ResultCode.FAIL, String.format("所传的活动类型:[%s]不对,该活动对应的类型应该是:[%s]", findActivitySkuDto.getActivityType(), ActivityTypeEnum.getActivityTypeEnumById(activityRelActivityGoodsPo.getActivityType()).getName()));
             }
-        }else {
+        } else {
             //从am_activity_rel_activity_goods 平台活动与商品关联表 获取活动商品信息
             activityRelActivityGoodsPo = activityRelActivityGoodsMapper.selectOne(new QueryWrapper<AmActivityRelActivityGoodsPo>()
                     .lambda().and(obj -> obj.eq(AmActivityRelActivityGoodsPo::getActivityId, findActivitySkuDto.getActivityId())
@@ -461,14 +466,14 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
             switch (activityTypeEnum) {
                 case REDUCED:
                     AmReducedPo amReducedPo = reducedMapper.selectById(activityId);
-                    if (finalActivityRelActivityGoodsPo == null){
-                        throw new ServiceException(ResultCode.FAIL,String.format("商品:[%s]不参与该活动:[%s],请检查",goodsPo.getName(),amReducedPo.getName()));
+                    if (finalActivityRelActivityGoodsPo == null) {
+                        throw new ServiceException(ResultCode.FAIL, String.format("商品:[%s]不参与该活动:[%s],请检查", goodsPo.getName(), amReducedPo.getName()));
                     }
                     break;
                 case INTEGRALS:
                     AmIntegralsPo integralsPo = integralsMapper.selectById(activityId);
-                    if (finalActivityRelActivityGoodsPo == null){
-                        throw new ServiceException(ResultCode.FAIL,String.format("商品:[%s]不参与该活动:[%s],请检查",goodsPo.getName(),integralsPo.getName()));
+                    if (finalActivityRelActivityGoodsPo == null) {
+                        throw new ServiceException(ResultCode.FAIL, String.format("商品:[%s]不参与该活动:[%s],请检查", goodsPo.getName(), integralsPo.getName()));
                     }
                     if (integralsPo != null) {
                         highActivityPrice = BigDecimalUtil.safeSubtract(false, sellPrice, BigDecimalUtil.safeMultiply(sellPrice, BigDecimalUtil.safeDivide(integralsPo.getDiscountPriceRatio(), new BigDecimal(100), new BigDecimal(-1))));
@@ -476,8 +481,8 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
                     break;
                 case SECKILL:
                     AmSeckillPo seckillPo = seckillMapper.selectById(activityId);
-                    if (finalActivityRelActivityGoodsPo == null){
-                        throw new ServiceException(ResultCode.FAIL,String.format("商品:[%s]不参与该活动:[%s],请检查",goodsPo.getName(),seckillPo.getName()));
+                    if (finalActivityRelActivityGoodsPo == null) {
+                        throw new ServiceException(ResultCode.FAIL, String.format("商品:[%s]不参与该活动:[%s],请检查", goodsPo.getName(), seckillPo.getName()));
                     }
                     if (seckillPo != null) {
                         highActivityPrice = BigDecimalUtil.safeSubtract(false, sellPrice, BigDecimalUtil.safeMultiply(sellPrice, BigDecimalUtil.safeDivide(seckillPo.getDiscountPriceRatio(), new BigDecimal(100), new BigDecimal(-1))));
@@ -485,8 +490,8 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
                     break;
                 case SPELL_GROUP:
                     AmSpellGroupPo spellGroupPo = spellGroupMapper.selectById(activityId);
-                    if (finalActivityRelActivityGoodsPo == null){
-                        throw new ServiceException(ResultCode.FAIL,String.format("商品:[%s]不参与该活动:[%s],请检查",goodsPo.getName(),spellGroupPo.getName()));
+                    if (finalActivityRelActivityGoodsPo == null) {
+                        throw new ServiceException(ResultCode.FAIL, String.format("商品:[%s]不参与该活动:[%s],请检查", goodsPo.getName(), spellGroupPo.getName()));
                     }
                     if (spellGroupPo != null) {
                         highActivityPrice = BigDecimalUtil.safeSubtract(false, sellPrice, BigDecimalUtil.safeMultiply(sellPrice, BigDecimalUtil.safeDivide(spellGroupPo.getDiscountPriceRatio(), new BigDecimal(100), new BigDecimal(-1))));
@@ -739,9 +744,9 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
             });
         }
         //查询改商品是否以参与优惠券活动
-        CouponActivityBo couponActivityBo = relCouponGoodsMapper .isParticipateCoupon(isConformDto.getGoodsId());
-        if (couponActivityBo == null){
-            throw new ServiceException(ResultCode.FAIL,String.format("该商品[%s]已经参加【%s】优惠券活动!",couponActivityBo.getGoodsName(),couponActivityBo.getCouponName()));
+        CouponActivityBo couponActivityBo = relCouponGoodsMapper.isParticipateCoupon(isConformDto.getGoodsId());
+        if (couponActivityBo == null) {
+            throw new ServiceException(ResultCode.FAIL, String.format("该商品[%s]已经参加【%s】优惠券活动!", couponActivityBo.getGoodsName(), couponActivityBo.getCouponName()));
         }
 
 
@@ -788,14 +793,14 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
 
 
         SysUserPo sysUserPo = securityUtil.getCurrUser();
-        if (sysUserPo.getStoreId() == null){
-            throw new ServiceException(ResultCode.FAIL,String.format("用户:[%s]不是商家用户,不能执行此操作!",sysUserPo.getUsername()));
+        if (sysUserPo.getStoreId() == null) {
+            throw new ServiceException(ResultCode.FAIL, String.format("用户:[%s]不是商家用户,不能执行此操作!", sysUserPo.getUsername()));
         }
         //判断添加或修改操作
-        if (saveRegistrationDto.getActivityGoodsRelId() == 0){
+        if (saveRegistrationDto.getActivityGoodsRelId() == 0) {
             //先保存活动与商品关联表
             AmActivityRelActivityGoodsPo relActivityGoodsPo = new AmActivityRelActivityGoodsPo();
-            BeanUtils.copyProperties(saveRegistrationDto,relActivityGoodsPo);
+            BeanUtils.copyProperties(saveRegistrationDto, relActivityGoodsPo);
             relActivityGoodsPo.setStoreId(sysUserPo.getStoreId());
             relActivityGoodsPo.setCreateBy(sysUserPo.getUsername());
             relActivityGoodsPo.setId(null);
@@ -804,9 +809,9 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
             relActivityGoodsPo.setActivityEndTime(activityEndTime);
             activityRelActivityGoodsMapper.insert(relActivityGoodsPo);
             //再保存参与活动的商品与sku关联表
-            saveRegistrationDto.getActivitySkuDtoList().forEach(a->{
+            saveRegistrationDto.getActivitySkuDtoList().forEach(a -> {
                 AmActivityRelGoodsSkuPo relGoodsSkuPo = new AmActivityRelGoodsSkuPo();
-                BeanUtils.copyProperties(a,relGoodsSkuPo);
+                BeanUtils.copyProperties(a, relGoodsSkuPo);
                 relGoodsSkuPo.setCreateBy(sysUserPo.getUsername());
                 relGoodsSkuPo.setRelId(relActivityGoodsPo.getId());
                 relGoodsSkuPo.setGoodsId(saveRegistrationDto.getGoodsId());
@@ -814,18 +819,18 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
             });
         }
         //修改操作
-        else{
+        else {
             AmActivityRelActivityGoodsPo relActivityGoodsPo = activityRelActivityGoodsMapper.selectById(saveRegistrationDto.getActivityGoodsRelId());
-            if (relActivityGoodsPo.getVerifyStatus() != VerifyStatusEnum.MODIFY.getId()){
-                throw new ServiceException(ResultCode.FAIL,String.format("该状态:[%s]不是返回修改状态，不能执行修改操作!",VerifyStatusEnum.getVerifyStatusById(relActivityGoodsPo.getActivityType()).getName()));
+            if (relActivityGoodsPo.getVerifyStatus() != VerifyStatusEnum.MODIFY.getId()) {
+                throw new ServiceException(ResultCode.FAIL, String.format("该状态:[%s]不是返回修改状态，不能执行修改操作!", VerifyStatusEnum.getVerifyStatusById(relActivityGoodsPo.getActivityType()).getName()));
             }
-            BeanUtils.copyProperties(saveRegistrationDto,relActivityGoodsPo);
+            BeanUtils.copyProperties(saveRegistrationDto, relActivityGoodsPo);
             relActivityGoodsPo.setUpdateBy(sysUserPo.getUsername());
             activityRelActivityGoodsMapper.updateById(relActivityGoodsPo);
-            List<AmActivityRelGoodsSkuPo> relGoodsSkuPoList = activityRelGoodsSkuMapper.selectList(new QueryWrapper<AmActivityRelGoodsSkuPo>().eq("rel_id",relActivityGoodsPo.getId()).eq("goods_id",relActivityGoodsPo.getGoodsId()));
-            relGoodsSkuPoList.forEach(b->{
+            List<AmActivityRelGoodsSkuPo> relGoodsSkuPoList = activityRelGoodsSkuMapper.selectList(new QueryWrapper<AmActivityRelGoodsSkuPo>().eq("rel_id", relActivityGoodsPo.getId()).eq("goods_id", relActivityGoodsPo.getGoodsId()));
+            relGoodsSkuPoList.forEach(b -> {
                 AmActivityRelGoodsSkuPo relGoodsSkuPo = activityRelGoodsSkuMapper.selectById(b.getId());
-                BeanUtils.copyProperties(b,relGoodsSkuPo);
+                BeanUtils.copyProperties(b, relGoodsSkuPo);
                 relGoodsSkuPo.setUpdateBy(sysUserPo.getUsername());
                 activityRelGoodsSkuMapper.updateById(relGoodsSkuPo);
             });
@@ -863,9 +868,9 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
                 break;
         }
         String finalTableName = tableName;
-        PageInfo<SearchSupplierActivityVo> searchSupplierActivityVoPageInfo = PageHelper.startPage(pageNum,pageSize)
-                .doSelectPageInfo(()->mapper.searchSupplierActivity(searchSupplierActivityDto, finalTableName,storeId));
-        searchSupplierActivityVoPageInfo.getList().forEach(a->{
+        PageInfo<SearchSupplierActivityVo> searchSupplierActivityVoPageInfo = PageHelper.startPage(pageNum, pageSize)
+                .doSelectPageInfo(() -> mapper.searchSupplierActivity(searchSupplierActivityDto, finalTableName, storeId));
+        searchSupplierActivityVoPageInfo.getList().forEach(a -> {
             FindActivitySkuDto findActivitySkuDto = new FindActivitySkuDto();
             findActivitySkuDto.setGoodsId(a.getGoodsId());
             findActivitySkuDto.setActivityId(a.getActivityId());
@@ -874,8 +879,8 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
 //            List<Object> skuIds = this.findActivitySku(findActivitySkuDto).getSkuList().stream().map(b->b.get("skuId")).collect(Collectors.toList());
 //            List<Long> skuIdList = JSONUtils.toList(skuIds,Long.class);
 //            a.setSkuIds(skuIdList);
-            List<Object> goodsSkuRelIds = this.findActivitySku(findActivitySkuDto).getSkuList().stream().map(b->b.get("goodsSkuRelId")).collect(Collectors.toList());
-            List<Long> goodsSkuRelIdList = JSONUtils.toList(goodsSkuRelIds,Long.class);
+            List<Object> goodsSkuRelIds = this.findActivitySku(findActivitySkuDto).getSkuList().stream().map(b -> b.get("goodsSkuRelId")).collect(Collectors.toList());
+            List<Long> goodsSkuRelIdList = JSONUtils.toList(goodsSkuRelIds, Long.class);
             a.setGoodsSkuRelIds(goodsSkuRelIdList);
         });
 
@@ -884,23 +889,24 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
 
     /**
      * 商家端取消活动报名
+     *
      * @param cancelRegistrationDtos
      * @return
      */
     @Override
     public void cancelRegistration(List<CancelRegistrationDto> cancelRegistrationDtos) {
 
-        cancelRegistrationDtos.forEach(a->{
+        cancelRegistrationDtos.forEach(a -> {
             //获取审核状态
             Integer verifyStatus = activityRelActivityGoodsMapper.selectById(a.getActivityGoodsRelId()).getVerifyStatus();
-            if (verifyStatus != VerifyStatusEnum.WAIT_CONFIRM.getId()){
-                throw new ServiceException(ResultCode.FAIL,"该活动审核状态:[%s]不是待审核,不能取消报名！",VerifyStatusEnum.getVerifyStatusById(verifyStatus));
+            if (verifyStatus != VerifyStatusEnum.WAIT_CONFIRM.getId()) {
+                throw new ServiceException(ResultCode.FAIL, "该活动审核状态:[%s]不是待审核,不能取消报名！", VerifyStatusEnum.getVerifyStatusById(verifyStatus));
             }
 
             //删除平台活动与商品关联表
             activityRelActivityGoodsMapper.deleteById(a.getActivityGoodsRelId());
             //删除活动商品和对应的sku信息
-            List<Long> goodsSkuRelIdList = a.getGoodsSkuRelIds().stream().filter(b->!b.equals(0)).collect(Collectors.toList());
+            List<Long> goodsSkuRelIdList = a.getGoodsSkuRelIds().stream().filter(b -> !b.equals(0)).collect(Collectors.toList());
             activityRelGoodsSkuMapper.deleteBatchIds(goodsSkuRelIdList);
         });
     }
@@ -917,8 +923,8 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
         VerifyStatusEnum verifyStatusEnum = VerifyStatusEnum.getVerifyStatusById(updateVerifyStatusDto.getVerifyStatus());
         Long activityGoodsRelId = updateVerifyStatusDto.getActivityGoodsRelId();
         AmActivityRelActivityGoodsPo relActivityGoodsPo = activityRelActivityGoodsMapper.selectById(activityGoodsRelId);
-        if (!relActivityGoodsPo.getVerifyStatus().equals(VerifyStatusEnum.WAIT_CONFIRM.getId())){
-            throw new ServiceException(ResultCode.FAIL,String.format("该状态:[%s]不是待审核状态，不能执行[%s]操作",VerifyStatusEnum.getVerifyStatusById(relActivityGoodsPo.getVerifyStatus()).getName(),VerifyStatusEnum.getVerifyStatusById(updateVerifyStatusDto.getVerifyStatus()).getName()));
+        if (!relActivityGoodsPo.getVerifyStatus().equals(VerifyStatusEnum.WAIT_CONFIRM.getId())) {
+            throw new ServiceException(ResultCode.FAIL, String.format("该状态:[%s]不是待审核状态，不能执行[%s]操作", VerifyStatusEnum.getVerifyStatusById(relActivityGoodsPo.getVerifyStatus()).getName(), VerifyStatusEnum.getVerifyStatusById(updateVerifyStatusDto.getVerifyStatus()).getName()));
         }
         relActivityGoodsPo.setUpdateBy(securityUtil.getCurrUser().getUsername());
         relActivityGoodsPo.setVerifyStatus(updateVerifyStatusDto.getVerifyStatus());
@@ -929,7 +935,8 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
     }
 
     /**
-     *  条件查询拼团记录
+     * 条件查询拼团记录
+     *
      * @param searchSpellRecordDto
      * @return
      */
@@ -940,9 +947,52 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
         searchSpellRecordDto.setStoreId(userPo.getStoreId());
         Integer pageNo = searchSpellRecordDto.getPageNo() == null ? defaultPageNo : searchSpellRecordDto.getPageNo();
         Integer pageSize = searchSpellRecordDto.getPageSize() == null ? defaultPageSize : searchSpellRecordDto.getPageSize();
-        PageInfo<SearchSpellRecordVo> searchSpellRecordDtoPageInfo = PageHelper.startPage(pageNo,pageSize)
-                .doSelectPageInfo(()->spellGroupMainMapper.searchSpellRecord(searchSpellRecordDto));
+        PageInfo<SearchSpellRecordVo> searchSpellRecordDtoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> spellGroupMainMapper.searchSpellRecord(searchSpellRecordDto));
 
         return searchSpellRecordDtoPageInfo;
+    }
+
+    /**
+     * @param enableDto
+     * @return void
+     * @Author chauncy
+     * @Date 2019-10-14 12:46
+     * @Description //判断该满减活动ID是否在am_activity_rel_activity_goods表中存在,true则更新verify_status状态为6--活动已被禁用
+     * @Update chauncy
+     **/
+    @Override
+    public void updateStatusByEnable(EditEnableDto enableDto) {
+
+        //禁用操作更新状态
+        if (!enableDto.getEnable()) {
+            Arrays.asList(enableDto.getId()).forEach(id -> {
+                //获取该活动并且通过审核的相关信息
+                List<AmActivityRelActivityGoodsPo> relActivityGoodsPoList = relActivityGoodsMapper.selectList(new QueryWrapper<AmActivityRelActivityGoodsPo>()
+                        .lambda().and(obj -> obj.eq(AmActivityRelActivityGoodsPo::getActivityId, id)
+                                .eq(AmActivityRelActivityGoodsPo::getVerifyStatus, VerifyStatusEnum.CHECKED.getId())));
+
+                if (!ListUtil.isListNullAndEmpty(relActivityGoodsPoList)) {
+                    relActivityGoodsPoList.forEach(a -> {
+                        a.setVerifyStatus(VerifyStatusEnum.DISABLED.getId());
+                        relActivityGoodsMapper.updateById(a);
+                    });
+                }
+            });
+        }
+        //启用操作更新状态
+        else {
+            Arrays.asList(enableDto.getId()).forEach(id -> {
+                List<AmActivityRelActivityGoodsPo> relActivityGoodsPoList2 = relActivityGoodsMapper.selectList(new QueryWrapper<AmActivityRelActivityGoodsPo>()
+                        .lambda().and(obj -> obj.eq(AmActivityRelActivityGoodsPo::getActivityId,id)
+                                .eq(AmActivityRelActivityGoodsPo::getVerifyStatus, VerifyStatusEnum.DISABLED.getId())));
+                if (!ListUtil.isListNullAndEmpty(relActivityGoodsPoList2)) {
+                    relActivityGoodsPoList2.forEach(a -> {
+                        a.setVerifyStatus(VerifyStatusEnum.CHECKED.getId());
+                        relActivityGoodsMapper.updateById(a);
+                    });
+                }
+            });
+        }
     }
 }

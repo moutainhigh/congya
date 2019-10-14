@@ -3,6 +3,7 @@ package com.chauncy.activity.registration;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.activity.registration.AmActivityRelActivityGoodsPo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.dto.manage.activity.EditEnableDto;
 import com.chauncy.data.dto.manage.activity.spell.select.SearchSpellRecordDto;
 import com.chauncy.data.dto.supplier.activity.add.SaveRegistrationDto;
 import com.chauncy.data.dto.supplier.activity.delete.CancelRegistrationDto;
@@ -87,4 +88,16 @@ public interface IAmActivityRelActivityGoodsService extends Service<AmActivityRe
      * @return
      */
     PageInfo<SearchSpellRecordVo> searchSpellRecord(SearchSpellRecordDto searchSpellRecordDto);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-14 12:46
+     * @Description //判断该满减活动ID是否在am_activity_rel_activity_goods表中存在,true则更新verify_status状态为6--活动已被禁用
+     *
+     * @Update chauncy
+     *
+     * @param  enableDto
+     * @return void
+     **/
+    void updateStatusByEnable(EditEnableDto enableDto);
 }
