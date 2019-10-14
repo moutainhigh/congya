@@ -132,7 +132,7 @@ public class RabbitConfig {
      * 海关申报 消息队列  延迟队列
      * @return
      */
-    /*@Bean
+    @Bean
     public Queue customDeclareQueue() {
         //死信队列
         Map<String, Object> params = new HashMap<>();
@@ -141,9 +141,9 @@ public class RabbitConfig {
         return new Queue(RabbitConstants.CUSTOM_DECLARE_QUEUE, true, false,false, params);
     }
 
-    *//**
+    /**
      * 海关申报 消息交换机
-     **//*
+     **/
     @Bean
     public DirectExchange customDeclareExchange() {
         return new DirectExchange(RabbitConstants.CUSTOM_DECLARE_EXCHANGE);
@@ -154,30 +154,8 @@ public class RabbitConfig {
         // TODO 如果要让延迟队列之间有关联,这里的 routingKey 和 绑定的交换机很关键
         return BindingBuilder.bind(customDeclareQueue()).to(customDeclareExchange())
                 .with(RabbitConstants.CUSTOM_DECLARE_ROUTING_KEY);
-    }*/
-    /**
-     * 海关申报 消息队列  延迟队列
-     * @return
-     */
-    @Bean
-    public Queue customDeclareQueue() {
-        return new Queue(RabbitConstants.CUSTOM_DECLARE_QUEUE, true);
     }
 
-    /**
-     * 海关申报 消息交换机
-     **/
-    @Bean
-    public TopicExchange customDeclareTopicExchange() {
-        return new TopicExchange(RabbitConstants.CUSTOM_DECLARE_EXCHANGE);
-    }
-
-    @Bean
-    public Binding customDeclareBinding() {
-        // TODO 如果要让延迟队列之间有关联,这里的 routingKey 和 绑定的交换机很关键
-        return BindingBuilder.bind(customDeclareQueue()).to(customDeclareTopicExchange())
-                .with(RabbitConstants.CUSTOM_DECLARE_ROUTING_KEY);
-    }
     /**
      * 海关申报转发队列
      * @return
@@ -192,8 +170,8 @@ public class RabbitConfig {
      * @return
      */
     @Bean
-    public TopicExchange customDeclareRedirectExchange() {
-        return new TopicExchange(RabbitConstants.CUSTOM_DECLARE_REDIRECT_EXCHANGE);
+    public DirectExchange customDeclareRedirectExchange() {
+        return new DirectExchange(RabbitConstants.CUSTOM_DECLARE_REDIRECT_EXCHANGE);
     }
 
 
