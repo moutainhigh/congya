@@ -274,7 +274,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         System.out.println("==================将要海关消息队列了===================");
         System.out.println("=======================================================" + omOrderPoList);
         omOrderPoList.stream().forEach(omOrderPo -> this.rabbitTemplate.convertAndSend(
-                RabbitConstants.CUSTOM_DECLARE_EXCHANGE, RabbitConstants.CUSTOM_DECLARE_ROUTING_KEY, omOrderPo,
+                RabbitConstants.CUSTOM_DECLARE_EXCHANGE, RabbitConstants.CUSTOM_DECLARE_ROUTING_KEY, omOrderPo.getId(),
                 message -> {
                     System.out.println("==================进来海关消息队列了===================");
                     System.out.println("=======================================================" + omOrderPo);
