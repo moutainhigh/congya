@@ -11,6 +11,7 @@ import com.chauncy.data.domain.po.activity.reduced.AmReducedPo;
 import com.chauncy.data.domain.po.activity.spell.AmSpellGroupPo;
 import com.chauncy.data.domain.po.activity.view.ActivityViewPo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
+import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.dto.supplier.activity.add.SearchAllActivitiesDto;
 import com.chauncy.data.dto.supplier.activity.select.FindByIdAndTypeDto;
 import com.chauncy.data.mapper.activity.AmActivityRelActivityCategoryMapper;
@@ -116,7 +117,15 @@ public class ActivityViewServiceImpl extends AbstractService<ActivityViewMapper,
 
                 getCategoryName(goodsCategoryVoList, categoryIds);
                 activityVo.setGoodsCategoryVoList(goodsCategoryVoList);
+                PmMemberLevelPo memberLevelPo1 = memberLevelMapper.selectById(activityVo.getMemberLevelId());
+                Long memberLevelId1 = 0L;
+                if (memberLevelPo1 != null){
+                    if (memberLevelPo1.getLevel() != 1){
+                        memberLevelId1 = activityVo.getMemberLevelId();
+                    }
+                }
                 activityVo.setMemberName(memberLevelMapper.selectById(activityVo.getMemberLevelId()).getLevelName());
+                activityVo.setMemberLevelId(memberLevelId1);
                 break;
             case INTEGRALS:
                 activityVo = integralsMapper.findIntegralById(findByIdAndTypeDto.getId());
@@ -126,7 +135,15 @@ public class ActivityViewServiceImpl extends AbstractService<ActivityViewMapper,
                 List<SearchGoodsCategoryVo> goodsCategoryVoList1 = Lists.newArrayList();
                 getCategoryName(goodsCategoryVoList, categoryIds1);
                 activityVo.setGoodsCategoryVoList(goodsCategoryVoList);
+                PmMemberLevelPo memberLevelPo2 = memberLevelMapper.selectById(activityVo.getMemberLevelId());
+                Long memberLevelId2 = 0L;
+                if (memberLevelPo2 != null){
+                    if (memberLevelPo2.getLevel() != 1){
+                        memberLevelId2 = activityVo.getMemberLevelId();
+                    }
+                }
                 activityVo.setMemberName(memberLevelMapper.selectById(activityVo.getMemberLevelId()).getLevelName());
+                activityVo.setMemberLevelId(memberLevelId2);
                 break;
             case SECKILL:
                 activityVo = seckillMapper.findSeckillById(findByIdAndTypeDto.getId());
@@ -135,7 +152,15 @@ public class ActivityViewServiceImpl extends AbstractService<ActivityViewMapper,
                 List<SearchGoodsCategoryVo> goodsCategoryVoList2 = Lists.newArrayList();
                 getCategoryName(goodsCategoryVoList, categoryIds2);
                 activityVo.setGoodsCategoryVoList(goodsCategoryVoList);
+                PmMemberLevelPo memberLevelPo3 = memberLevelMapper.selectById(activityVo.getMemberLevelId());
+                Long memberLevelId3 = 0L;
+                if (memberLevelPo3 != null){
+                    if (memberLevelPo3.getLevel() != 1){
+                        memberLevelId3 = activityVo.getMemberLevelId();
+                    }
+                }
                 activityVo.setMemberName(memberLevelMapper.selectById(activityVo.getMemberLevelId()).getLevelName());
+                activityVo.setMemberLevelId(memberLevelId3);
                 break;
             case SPELL_GROUP:
                 activityVo = spellGroupMapper.findSpellGroupById(findByIdAndTypeDto.getId());
@@ -144,7 +169,15 @@ public class ActivityViewServiceImpl extends AbstractService<ActivityViewMapper,
                 List<SearchGoodsCategoryVo> goodsCategoryVoList3 = Lists.newArrayList();
                 getCategoryName(goodsCategoryVoList, categoryIds3);
                 activityVo.setGoodsCategoryVoList(goodsCategoryVoList);
+                PmMemberLevelPo memberLevelPo4 = memberLevelMapper.selectById(activityVo.getMemberLevelId());
+                Long memberLevelId4 = 0L;
+                if (memberLevelPo4 != null){
+                    if (memberLevelPo4.getLevel() != 1){
+                        memberLevelId4 = activityVo.getMemberLevelId();
+                    }
+                }
                 activityVo.setMemberName(memberLevelMapper.selectById(activityVo.getMemberLevelId()).getLevelName());
+                activityVo.setMemberLevelId(memberLevelId4);
                 break;
         }
         return activityVo;
