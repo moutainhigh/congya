@@ -18,10 +18,10 @@ public interface IWxService {
      *
      * @Update yeJH
      *
-     * @param  omOrderPo 订单
+     * @param  omOrderId 订单id
      * @return void
      **/
-    void customDeclareOrder(OmOrderPo omOrderPo) throws Exception;
+    void customDeclareOrder(Long omOrderId) throws Exception;
     /**
      * 调用官方SDK 获取前端调起支付接口的参数
      * @return

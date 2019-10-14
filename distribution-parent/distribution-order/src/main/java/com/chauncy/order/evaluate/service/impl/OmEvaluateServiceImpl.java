@@ -5,10 +5,13 @@ import com.chauncy.common.constant.SecurityConstant;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.order.OmEvaluateLikedPo;
 import com.chauncy.data.domain.po.order.OmEvaluatePo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
+import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
+import com.chauncy.data.domain.po.product.PmGoodsRelAttributeValueSkuPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.evaluate.add.AddValuateDto;
@@ -19,6 +22,7 @@ import com.chauncy.data.dto.supplier.good.select.SearchEvaluatesDto;
 import com.chauncy.data.mapper.order.OmEvaluateLikedMapper;
 import com.chauncy.data.mapper.order.OmEvaluateMapper;
 import com.chauncy.data.mapper.order.OmOrderMapper;
+import com.chauncy.data.mapper.product.PmGoodsRelAttributeValueSkuMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.sys.SysUserMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
@@ -56,6 +60,9 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
 
     @Autowired
     private OmEvaluateLikedMapper evaluateLikedMapper;
+
+    @Autowired
+    private PmGoodsRelAttributeValueSkuMapper relAttributeValueSkuMapper;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -209,8 +216,9 @@ public class OmEvaluateServiceImpl extends AbstractService<OmEvaluateMapper, OmE
 
         PageInfo<SearchEvaluateVo> searchEvaluateVo = PageHelper.startPage(pageNo,pageSize)
                 .doSelectPageInfo(()->mapper.searchEvaluate(searchEvaluateDto));
+
         //获取评价信息
-        if (searchEvaluateVo.getList().size() != 0 && searchEvaluateVo.getList() != null) {
+        if (!ListUtil.isListNullAndEmpty(searchEvaluateVo.getList())) {
             searchEvaluateVo.getList().forEach(a -> {
                 //用户的评价
                 EvaluateVo evaluateVo1 = mapper.getEvaluate(a.getOrderId(),a.getSkuId());

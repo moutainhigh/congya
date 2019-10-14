@@ -14,6 +14,7 @@ import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.activity.AmActivityRelActivityCategoryPo;
 import com.chauncy.data.domain.po.activity.reduced.AmReducedPo;
 import com.chauncy.data.domain.po.activity.registration.AmActivityRelActivityGoodsPo;
+import com.chauncy.data.domain.po.activity.registration.AmActivityRelGoodsSkuPo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
@@ -24,6 +25,7 @@ import com.chauncy.data.mapper.activity.AmActivityRelActivityCategoryMapper;
 import com.chauncy.data.mapper.activity.group.AmActivityGroupMapper;
 import com.chauncy.data.mapper.activity.reduced.AmReducedMapper;
 import com.chauncy.data.mapper.activity.registration.AmActivityRelActivityGoodsMapper;
+import com.chauncy.data.mapper.activity.registration.AmActivityRelGoodsSkuMapper;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.vo.app.goods.ActivityGoodsVo;
@@ -34,13 +36,17 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -53,6 +59,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
+@Slf4j
 public class AmReducedServiceImpl extends AbstractService<AmReducedMapper, AmReducedPo> implements IAmReducedService {
 
     @Autowired
@@ -60,6 +67,9 @@ public class AmReducedServiceImpl extends AbstractService<AmReducedMapper, AmRed
 
     @Autowired
     private AmActivityRelActivityGoodsMapper amActivityRelActivityGoodsMapper;
+
+    @Autowired
+    private AmActivityRelGoodsSkuMapper relGoodsSkuMapper;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -143,6 +153,7 @@ public class AmReducedServiceImpl extends AbstractService<AmReducedMapper, AmRed
                 throw new ServiceException(ResultCode.NO_EXISTS,String.format("该分类:[%s]不是三级分类",categoryMapper.selectById(a).getName()));
             }
         });
+
         //时间判断
         LocalDateTime registrationStartTime = saveReducedDto.getRegistrationStartTime();
         LocalDateTime registrationEndTime = saveReducedDto.getRegistrationEndTime();
@@ -169,6 +180,31 @@ public class AmReducedServiceImpl extends AbstractService<AmReducedMapper, AmRed
         }else {
             memberLevelId = saveReducedDto.getMemberLevelId();
         }
+
+        //判断所选的分类不能重复
+        List<Long> categoryIdList = saveReducedDto.getCategoryIds();
+        boolean categoryIdIsRepeat = categoryIdList.size() != new HashSet<Long>(categoryIdList).size();
+        if (categoryIdIsRepeat) {
+            List<String> repeatNames = Lists.newArrayList();
+            //查找重复的数据
+            Map<Long, Integer> repeatMap = Maps.newHashMap();
+            categoryIdList.forEach(str -> {
+                Integer i = 1;
+                if (repeatMap.get(str) != null) {
+                    i = repeatMap.get(str) + 1;
+                }
+                repeatMap.put(str, i);
+            });
+            for (Long s : repeatMap.keySet()) {
+                if (repeatMap.get(s) > 1) {
+
+                    repeatNames.add(categoryMapper.selectById(s).getName());
+                }
+            }
+            log.info("重复数据为：" + repeatNames.toString());
+            throw new ServiceException(ResultCode.DUPLICATION, String.format("存在重复分类名称：%s,请检查!", repeatNames.toString()));
+        }
+
 
         //新增操作
         if (saveReducedDto.getId() == 0) {
@@ -349,6 +385,23 @@ public class AmReducedServiceImpl extends AbstractService<AmReducedMapper, AmRed
             if (!amReducedPo.getRegistrationStartTime().isAfter(LocalDateTime.now())){
                 throw new ServiceException(ResultCode.FAIL,String.format("该活动[%s:%s]的报名状态不是待开始状态，不能删除",id,amReducedPo.getName()));
             }
+
+            //删除活动与分类关联表am_activity_rel_activity_category
+            relActivityCategoryMapper.delete(new QueryWrapper<AmActivityRelActivityCategoryPo>().lambda().and(obj->
+                    obj.eq(AmActivityRelActivityCategoryPo::getActivityId,id)));
+            //获取am_activity_rel_activity_goods信息
+            List<AmActivityRelActivityGoodsPo> relActivityGoodsPos = amActivityRelActivityGoodsMapper.selectList(new QueryWrapper<AmActivityRelActivityGoodsPo>().lambda().and(obj->obj
+                    .eq(AmActivityRelActivityGoodsPo::getActivityId,id)));
+            //删除活动与sku关联表
+            if (!ListUtil.isListNullAndEmpty(relActivityGoodsPos)) {
+                relActivityGoodsPos.forEach(b->{
+                    relGoodsSkuMapper.delete(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda().and(obj -> obj
+                            .eq(AmActivityRelGoodsSkuPo::getRelId, b.getId())));
+                });
+            }
+            //删除活动与商品关联表
+            amActivityRelActivityGoodsMapper.delete(new QueryWrapper<AmActivityRelActivityGoodsPo>().lambda()
+                    .eq(AmActivityRelActivityGoodsPo::getActivityId,id));
         });
         mapper.deleteBatchIds(ids);
     }

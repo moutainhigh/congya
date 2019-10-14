@@ -11,6 +11,8 @@ import com.chauncy.common.util.TreeUtil;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.activity.AmActivityRelActivityCategoryPo;
 import com.chauncy.data.domain.po.activity.integrals.AmIntegralsPo;
+import com.chauncy.data.domain.po.activity.registration.AmActivityRelActivityGoodsPo;
+import com.chauncy.data.domain.po.activity.registration.AmActivityRelGoodsSkuPo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
@@ -20,6 +22,8 @@ import com.chauncy.data.dto.manage.activity.integrals.add.SaveIntegralsDto;
 import com.chauncy.data.mapper.activity.AmActivityRelActivityCategoryMapper;
 import com.chauncy.data.mapper.activity.group.AmActivityGroupMapper;
 import com.chauncy.data.mapper.activity.integrals.AmIntegralsMapper;
+import com.chauncy.data.mapper.activity.registration.AmActivityRelActivityGoodsMapper;
+import com.chauncy.data.mapper.activity.registration.AmActivityRelGoodsSkuMapper;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.vo.manage.activity.SearchActivityListVo;
@@ -37,6 +41,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -70,6 +75,12 @@ public class AmIntegralsServiceImpl extends AbstractService<AmIntegralsMapper, A
 
     @Autowired
     private SecurityUtil securityUtil;
+
+    @Autowired
+    private AmActivityRelActivityGoodsMapper amActivityRelActivityGoodsMapper;
+
+    @Autowired
+    private AmActivityRelGoodsSkuMapper relGoodsSkuMapper;
 
     /**
      * 获取分类信息
@@ -153,6 +164,30 @@ public class AmIntegralsServiceImpl extends AbstractService<AmIntegralsMapper, A
             }
         }else {
             memberLevelId = saveIntegralsDto.getMemberLevelId();
+        }
+
+        //判断所选的分类不能重复
+        List<Long> categoryIdList = saveIntegralsDto.getCategoryIds();
+        boolean categoryIdIsRepeat = categoryIdList.size() != new HashSet<Long>(categoryIdList).size();
+        if (categoryIdIsRepeat) {
+            List<String> repeatNames = Lists.newArrayList();
+            //查找重复的数据
+            Map<Long, Integer> repeatMap = Maps.newHashMap();
+            categoryIdList.forEach(str -> {
+                Integer i = 1;
+                if (repeatMap.get(str) != null) {
+                    i = repeatMap.get(str) + 1;
+                }
+                repeatMap.put(str, i);
+            });
+            for (Long s : repeatMap.keySet()) {
+                if (repeatMap.get(s) > 1) {
+
+                    repeatNames.add(categoryMapper.selectById(s).getName());
+                }
+            }
+//            log.info("重复数据为：" + repeatNames.toString());
+            throw new ServiceException(ResultCode.DUPLICATION, String.format("存在重复分类名称：%s,请检查!", repeatNames.toString()));
         }
 
         //新增操作
@@ -335,6 +370,24 @@ public class AmIntegralsServiceImpl extends AbstractService<AmIntegralsMapper, A
           if (!integralsPo.getRegistrationStartTime().isAfter(LocalDateTime.now())){
               throw new ServiceException(ResultCode.FAIL,String.format("该活动[%s:%s]的报名状态不是待开始状态，不能删除",id,integralsPo.getName()));
           }
+
+          //删除活动与分类关联表am_activity_rel_activity_category
+          relActivityCategoryMapper.delete(new QueryWrapper<AmActivityRelActivityCategoryPo>().lambda().and(obj->
+                  obj.eq(AmActivityRelActivityCategoryPo::getActivityId,id)));
+          //获取am_activity_rel_activity_goods信息
+          List<AmActivityRelActivityGoodsPo> relActivityGoodsPos = amActivityRelActivityGoodsMapper.selectList(new QueryWrapper<AmActivityRelActivityGoodsPo>().lambda().and(obj->obj
+                  .eq(AmActivityRelActivityGoodsPo::getActivityId,id)));
+          //删除活动与sku关联表
+          if (!ListUtil.isListNullAndEmpty(relActivityGoodsPos)) {
+              relActivityGoodsPos.forEach(b->{
+                  relGoodsSkuMapper.delete(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda().and(obj -> obj
+                          .eq(AmActivityRelGoodsSkuPo::getRelId, b.getId())));
+              });
+          }
+          //删除活动与商品关联表
+          amActivityRelActivityGoodsMapper.delete(new QueryWrapper<AmActivityRelActivityGoodsPo>().lambda()
+                  .eq(AmActivityRelActivityGoodsPo::getActivityId,id));
+
       });
         mapper.deleteBatchIds(ids);
     }

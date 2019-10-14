@@ -50,4 +50,23 @@ public class RabbitUtil {
 
     }
 
+
+
+    /**
+     * 海关申报发送消息到延迟队列
+     * @param expiration 消息过期时间(单位毫秒)
+     * @param messageContent 消息具体内容
+     */
+    public void customSendDelayMessage(String expiration, Object messageContent) {
+
+        // 添加延时队列
+        rabbitTemplate.convertAndSend(RabbitConstants.CUSTOM_DECLARE_EXCHANGE,
+                RabbitConstants.CUSTOM_DECLARE_ROUTING_KEY,
+                messageContent, message -> {
+            // TODO 如果配置了 params.put("x-message-ttl", 5 * 1000); 那么这一句也可以省略,具体根据业务需要是声明 Queue 的时候就指定好延迟时间还是在发送自己控制时间
+
+            message.getMessageProperties().setExpiration(expiration);
+            return message;
+        });
+    }
 }

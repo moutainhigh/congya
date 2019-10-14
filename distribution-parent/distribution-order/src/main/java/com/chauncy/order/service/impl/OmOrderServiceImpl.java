@@ -271,15 +271,19 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 .and(wrapper -> wrapper.eq(OmOrderPo::getGoodsType, GoodsTypeEnum.BONDED.getName())
                 .or().eq(OmOrderPo::getGoodsType, GoodsTypeEnum.OVERSEA.getName()));
         List<OmOrderPo> omOrderPoList = mapper.selectList(queryWrapper);
-        omOrderPoList.stream().forEach(omOrderPo -> {
-            this.rabbitTemplate.convertAndSend(
-                    RabbitConstants.CUSTOM_DECLARE_EXCHANGE, RabbitConstants.CUSTOM_DECLARE_ROUTING_KEY, omOrderPo,
-                    message -> {
-                        //一分钟之后再执行   当前方法未执行完成，订单状态可能未更新
-                        message.getMessageProperties().setExpiration(60*1000 + "");
-                        return message;
-                    });
-        });
+        System.out.println("==================将要海关消息队列了===================");
+        System.out.println("=======================================================" + omOrderPoList);
+        omOrderPoList.stream().forEach(omOrderPo -> this.rabbitTemplate.convertAndSend(
+                RabbitConstants.CUSTOM_DECLARE_EXCHANGE, RabbitConstants.CUSTOM_DECLARE_ROUTING_KEY, omOrderPo.getId(),
+                message -> {
+                    System.out.println("==================进来海关消息队列了===================");
+                    System.out.println("=======================================================" + omOrderPo);
+                    //一分钟之后再执行   当前方法未执行完成，订单状态可能未更新
+                    message.getMessageProperties().setExpiration(60*1000 + "");
+                    LoggerUtil.info(String.format("订单支付【%s】发送消息队列时间：",omOrderPo.getId())
+                            + LocalDateTime.now());
+                    return message;
+                }));
 
        /* //更新OmOrderPo
         UpdateWrapper<OmOrderPo> omOrderPoUpdateWrapper = new UpdateWrapper<>();
