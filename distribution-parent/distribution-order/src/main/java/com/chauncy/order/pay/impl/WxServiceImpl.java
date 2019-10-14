@@ -130,7 +130,7 @@ public class WxServiceImpl implements IWxService {
             throw new ServiceException(ResultCode.NO_EXISTS);
         }
 
-        if(!OrderStatusEnum.NEED_SEND_GOODS.getId().equals(omOrderPo.getStatus())) {
+        if(!OrderStatusEnum.NEED_SEND_GOODS.equals(omOrderPo.getStatus())) {
             //订单不是已支付状态
             return ;
             //throw new ServiceException(ResultCode.FAIL, "订单状态不是已支付状态");
