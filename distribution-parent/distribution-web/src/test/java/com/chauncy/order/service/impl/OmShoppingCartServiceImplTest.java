@@ -2,6 +2,8 @@ package com.chauncy.order.service.impl;
 
 import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.data.domain.po.order.OmOrderPo;
+import com.chauncy.order.pay.IWxService;
+import com.chauncy.order.pay.impl.WxServiceImpl;
 import com.chauncy.order.service.IOmShoppingCartService;
 import com.chauncy.test.service.UserService;
 import com.chauncy.user.service.IUmUserService;
@@ -24,6 +26,8 @@ public class OmShoppingCartServiceImplTest {
     private OmShoppingCartServiceImpl shoppingCartService;
     @Autowired
     private OmOrderServiceImpl orderService;
+    @Autowired
+    private IWxService wxService;
 
 
     @Autowired
@@ -49,7 +53,23 @@ public class OmShoppingCartServiceImplTest {
 
     @Test
     public void firstSecond() {
-        shoppingCartService.getPayUserMessage(1146432777142534145l);
+        try {
+            wxService.customDeclareOrder(196041755143966720L);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }try {
+            wxService.customDeclareOrder(196049962889383936L);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }try {
+            wxService.customDeclareOrder(196085074867785728L);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }try {
+            wxService.customDeclareOrder(196090445959270400L);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
