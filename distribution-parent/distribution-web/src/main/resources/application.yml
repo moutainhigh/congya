@@ -1,5 +1,5 @@
 server:
-  port: 80
+  port: 81
   servlet:
       context-path: /distribution
   tomcat:
@@ -9,7 +9,7 @@ server:
 
 spring:
   profiles:
-    active: prod
+    active: dev
   devtools:
     restart:
       enabled: true
@@ -19,7 +19,6 @@ logging:
     com.chauncy: debug
     org.springframework: WARN
     org.spring.springboot.dao: debug
-
 
 mybatis-plus:
   type-aliases-package: com.chauncy.*.domain.po.*

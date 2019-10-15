@@ -105,7 +105,7 @@ ignored:
 # 配置快递100
 logistics:
   key: JAQwnglU8950
-  callbackUrl: http://112.126.96.226/distribution/app/order/logistics/callback
+  callbackUrl: http://112.126.96.226:81/distribution/app/order/logistics/callback
   customer: B68940AC663A6C2576F8469305BE6AE6
   resultv2: 1 #行政区域解析 0-关闭 1-开启
   autoCom: 0  #单号智能识别 0-关闭 1-开启
