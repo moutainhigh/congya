@@ -105,7 +105,7 @@ public class CustomsDataServiceImpl extends AbstractService<CustomsDataMapper, C
             goodsInfo.setGname(x.getName()).setItemLink(x.getId()+"");
             goodsInfos.add(goodsInfo);
         });
-        payExchangeInfoHead.setInitalRequest(queryPayParam.getInitalRequest()).setInitalResponse(queryPayParam.getInitalResponse()).setPayTransactionId(queryPayOrder.getPayOrderNo())
+        payExchangeInfoHead.setInitalRequest("uy").setInitalResponse("iu").setPayTransactionId(queryPayOrder.getPayOrderNo())
                 .setTradingTime(queryPayOrder.getPayTime().toEpochSecond(ZoneOffset.of("+8"))+"")
                 .setTotalAmount(queryOrder.getTotalMoney()).setGuid(queryCustom.getId()+"");
 
