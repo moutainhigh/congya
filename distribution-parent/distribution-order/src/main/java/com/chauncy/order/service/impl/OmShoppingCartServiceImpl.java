@@ -358,14 +358,123 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 b.setRewardShopTicke(rewardShopTicket);
 
 
-                //下架处理,宝贝失效处理
-                /*if (goodsMapper.selectById(skuMapper.selectById(b.getSkuId()).getGoodsId()).getPublishStatus() != null) {
-                    boolean publish = goodsMapper.selectById(skuMapper.selectById(b.getSkuId()).getGoodsId()).getPublishStatus();
-                    if (!publish) {
-                        b.setIsObtained(true);
-                        disableList.add(b);
+                //活动处理
+                /*********************** 商品参加的活动,点击商品进来需要展示的信息 start***************************/
+                //查询已经开始的活动
+                AmActivityRelActivityGoodsPo relActivityGoodsPo = relActivityGoodsMapper.findGoodsActivity(b.getGoodsId());
+                if (relActivityGoodsPo != null){
+                    ActivityTypeEnum activityTypeEnum = ActivityTypeEnum.getActivityTypeEnumById(relActivityGoodsPo.getActivityType());
+                    switch (activityTypeEnum) {
+                        //满减
+                        case REDUCED:
+                            AmReducedPo reducedPo = reducedMapper.selectOne(new QueryWrapper<AmReducedPo>().lambda().and(obj->
+                                    obj.eq(AmReducedPo::getEnable,true).eq(AmReducedPo::getId,relActivityGoodsPo.getActivityId())));
+                            if (reducedPo == null){
+//                        throw new ServiceException(ResultCode.NO_EXISTS,String.format("该商品参加的满减活动不存在"));
+                                b.setActivityType(ActivityTypeEnum.NON.getId());
+                            }else {
+                                b.setActivityType(ActivityTypeEnum.REDUCED.getId());
+                                CartReducedVo reducedVo = new CartReducedVo();
+                                reducedVo.setReductionFullMoney(reducedPo.getReductionFullMoney());
+                                reducedVo.setReductionPostMoney(reducedPo.getReductionPostMoney());
+                                b.setCartReducedVo(reducedVo);
+                            }
+                            break;
+                        //积分--积分抵扣
+                        case INTEGRALS:
+                            AmIntegralsPo integralsPo = integralsMapper.selectOne(new QueryWrapper<AmIntegralsPo>().lambda().and(obj->
+                                    obj.eq(AmIntegralsPo::getEnable,true).eq(AmIntegralsPo::getId,relActivityGoodsPo.getActivityId())));
+                            if (integralsPo == null){
+//                        throw new ServiceException(ResultCode.NO_EXISTS,String.format("该商品参加的积分活动不存在"));
+                                b.setActivityType(ActivityTypeEnum.NON.getId());
+                            }
+                            else {
+                                b.setActivityType(ActivityTypeEnum.INTEGRALS.getId());
+                                CartIntegralsVo integralsVo = new CartIntegralsVo();
+
+                                //获取该sku参加活动的信息
+                                AmActivityRelGoodsSkuPo relGoodsSkuPo = activityRelGoodsSkuMapper.selectOne(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda()
+                                        .and(obj->obj.eq(AmActivityRelGoodsSkuPo::getRelId,relActivityGoodsPo.getId())
+                                                .eq(AmActivityRelGoodsSkuPo::getSkuId,b.getSkuId())));
+                                //判断sku是否存在
+                                PmGoodsSkuPo goodsSkuPo = skuMapper.selectById(b.getSkuId());
+                                BigDecimal integralsDeduction = new BigDecimal(0);
+                                if (goodsSkuPo != null && relGoodsSkuPo != null) {
+                                    //获取原来sku销售价
+                                    BigDecimal skuSellPrice = goodsSkuPo.getSellPrice();
+                                    //积分抵扣
+                                    integralsDeduction = BigDecimalUtil.safeSubtract(true, skuSellPrice, relGoodsSkuPo.getActivityPrice());
+                                }
+                                integralsVo.setDiscountPrice(integralsDeduction);
+                                b.setCartIntegralsVo(integralsVo);
+
+                            }
+                            break;
+                        case SECKILL:
+                            AmSeckillPo seckillPo = seckillMapper.selectOne(new QueryWrapper<AmSeckillPo>().lambda().and(obj->
+                                    obj.eq(AmSeckillPo::getEnable,true).eq(AmSeckillPo::getId,relActivityGoodsPo.getActivityId())));
+                            if (seckillPo == null){
+                                b.setActivityType(ActivityTypeEnum.NON.getId());
+                            }
+                            else {
+                                b.setActivityType(ActivityTypeEnum.SECKILL_ING.getId());
+                                CartSeckillVo seckillVo = new CartSeckillVo();
+                                //秒杀结束时间
+                                seckillVo.setActivityEndTime(seckillPo.getActivityEndTime());
+
+                                //获取该sku参与活动的信息
+                                AmActivityRelGoodsSkuPo relGoodsSkuPo = activityRelGoodsSkuMapper.selectOne(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda()
+                                        .and(obj->obj.eq(AmActivityRelGoodsSkuPo::getRelId,relActivityGoodsPo.getId())
+                                                .eq(AmActivityRelGoodsSkuPo::getSkuId,b.getSkuId())));
+                                        //判断sku是否存在
+                                        PmGoodsSkuPo goodsSkuPo = skuMapper.selectById(b.getSkuId());
+                                        if (goodsSkuPo != null && relGoodsSkuPo != null){
+                                            //保存sku对应的活动价格
+                                            seckillVo.setActivityPrice(relGoodsSkuPo.getActivityPrice());
+                                            seckillVo.setSeckillName(seckillPo.getName());
+                                        }
+
+                                b.setCartSeckillVo(seckillVo);
+
+                            }
+                            break;
                     }
-                }*/
+                }
+
+                /********* 查询是否为距离当前时间为一天的秒杀商品 start ***************/
+                AmActivityRelActivityGoodsPo relSecKilllGoodsPo = relActivityGoodsMapper.findPreSeckill(b.getGoodsId());
+                if (relSecKilllGoodsPo != null) {
+                    AmSeckillPo seckillPo = seckillMapper.selectOne(new QueryWrapper<AmSeckillPo>().lambda().and(obj ->
+                            obj.eq(AmSeckillPo::getEnable, true).eq(AmSeckillPo::getId, relSecKilllGoodsPo.getActivityId())));
+                    //活动是否取消
+                    if (seckillPo == null) {
+                        b.setActivityType(ActivityTypeEnum.NON.getId());
+                    }
+                    else {
+                        b.setActivityType(ActivityTypeEnum.SECKILL_PRE.getId());
+                        CartSeckillVo seckillVo = new CartSeckillVo();
+                        //秒杀开始时间
+                        seckillVo.setActivityStartTime(seckillPo.getActivityStartTime());
+
+                        AmActivityRelGoodsSkuPo relGoodsSkuPos = activityRelGoodsSkuMapper.selectOne(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda()
+                                .and(obj -> obj.eq(AmActivityRelGoodsSkuPo::getRelId, relActivityGoodsPo.getId())
+                                .eq(AmActivityRelGoodsSkuPo::getSkuId,b.getSkuId())));
+                                //判断sku是否存在
+                                PmGoodsSkuPo goodsSkuPo = skuMapper.selectById(b.getSkuId());
+                                if (goodsSkuPo != null && seckillPo != null) {
+                                    //保存sku对应的活动价格
+                                    seckillVo.setSeckillName(seckillPo.getName());
+                                    seckillVo.setActivityPrice(relGoodsSkuPos.getActivityPrice());
+                                }
+
+
+                        b.setCartSeckillVo(seckillVo);
+
+                    }
+                }
+                /********* 查询是否为距离当前时间为一天的秒杀商品 end ***************/
+
+                /*********************** 商品参加的活动,点击商品进来需要展示的信息 end***************************/
 
                 storeGoodsVos.add(b);
             });

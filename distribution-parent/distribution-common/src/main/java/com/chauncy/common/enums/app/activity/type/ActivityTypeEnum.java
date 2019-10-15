@@ -23,8 +23,8 @@ public enum ActivityTypeEnum implements BaseEnum {
     SECKILL(3,"秒杀"),
     SPELL_GROUP(4,"拼团"),
     SECKILL_ING(5,"秒杀进行中"),
-    SECKILL_PRE(6,"秒杀待开始(距离当前时间一天)");
-
+    SECKILL_PRE(6,"秒杀待开始(距离当前时间一天)"),
+    COUPON(7,"优惠券");
     @EnumValue
     private Integer id;
 
