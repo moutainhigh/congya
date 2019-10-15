@@ -1,5 +1,7 @@
 package com.chauncy.data.haiguan.vo;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.serializer.LongCodec;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,5 +30,6 @@ public class ReturnCustomsVo {
 
     private String message;
 
+    @JSONField(serializeUsing = LongCodec.class)
     private Long serviceTime;
 }

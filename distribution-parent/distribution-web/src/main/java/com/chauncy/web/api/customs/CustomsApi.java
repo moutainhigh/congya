@@ -74,7 +74,7 @@ public class CustomsApi {
         customsDataService.save(saveCustoms);
         //haiGuanApi.putPostMsg(haiGuanApi.getOrderNo());
 
-        return new ReturnCustomsVo("10000","",System.currentTimeMillis());
+        return new ReturnCustomsVo("10000","",Long.valueOf(System.currentTimeMillis()));
     }
 
     /**
