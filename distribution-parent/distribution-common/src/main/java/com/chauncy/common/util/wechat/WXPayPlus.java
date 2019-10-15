@@ -15,9 +15,13 @@ public class WXPayPlus extends WXPay {
 
     private WXPayConfig config;
     private WXPayConstants.SignType signType;
+    private boolean useSandbox;
 
     public WXPayPlus(WXPayConfig config) {
             super(config);
+            this.config = config;
+            this.signType = WXPayConstants.SignType.MD5;
+            this.useSandbox = false;
     }
 
     public Map<String, String> customDeclareOrder(Map<String, String> reqData) throws Exception {
@@ -25,7 +29,7 @@ public class WXPayPlus extends WXPay {
     }
 
     public Map<String, String> customDeclareOrder(Map<String, String> reqData, int connectTimeoutMs, int readTimeoutMs) throws Exception {
-        String url = "URL地址：https://api.mch.weixin.qq.com/cgi-bin/mch/customs/customdeclareorder";
+        String url = "https://api.mch.weixin.qq.com/cgi-bin/mch/customs/customdeclareorder";
 
         String respXml = this.requestWithoutCert(url, this.fillRequestData(reqData), connectTimeoutMs, readTimeoutMs);
         return this.processResponseXml(respXml);

@@ -14,10 +14,10 @@ import java.time.LocalDateTime;
  *
  * 秒杀活动Vo
  */
-@ApiModel(description = "秒杀活动Vo")
+@ApiModel(description = "购物车秒杀活动Vo")
 @Data
 @Accessors(chain = true)
-public class SeckillVo {
+public class CartSeckillVo {
 
     @ApiModelProperty("活动开始时间")
     private LocalDateTime activityStartTime;
@@ -25,16 +25,10 @@ public class SeckillVo {
     @ApiModelProperty("活动结束时间")
     private LocalDateTime activityEndTime;
 
-    @ApiModelProperty("已抢数量")
-    private Integer secNum;
+    @ApiModelProperty("秒杀活动--秒杀价")
+    private BigDecimal activityPrice;
 
-    @ApiModelProperty("秒杀活动--最低秒杀价")
-    private double lowestActivityPrice;
-
-    @ApiModelProperty(value = "秒杀活动-最高秒杀价")
-    private double highestActivityPrice;
-
-    @ApiModelProperty(value = "秒杀活动-秒杀金额范围(未选择sku时显示的数据)")
-    private String secDisplayPrice;
+    @ApiModelProperty(value = "秒杀活动名称")
+    private String seckillName;
 
 }
