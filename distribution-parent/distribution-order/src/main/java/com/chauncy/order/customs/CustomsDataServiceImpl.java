@@ -104,10 +104,9 @@ public class CustomsDataServiceImpl extends AbstractService<CustomsDataMapper, C
             goodsInfo.setGname(x.getName()).setItemLink(x.getId()+"");
             goodsInfos.add(goodsInfo);
         });
-        //todo 微信请求和响应
         payExchangeInfoHead.setInitalRequest(queryPayParam.getInitalRequest()).setInitalResponse(queryPayParam.getInitalResponse()).setPayTransactionId(queryPayOrder.getPayOrderNo())
                 .setTradingTime(queryPayOrder.getPayTime().toEpochSecond(ZoneOffset.of("+8"))+"")
-                .setTotalAmount(queryOrder.getRealMoney()).setGuid(queryCustom.getId()+"");
+                .setTotalAmount(queryOrder.getTotalMoney()).setGuid(queryCustom.getId()+"");
 
 
         Body179 body179=new Body179();
