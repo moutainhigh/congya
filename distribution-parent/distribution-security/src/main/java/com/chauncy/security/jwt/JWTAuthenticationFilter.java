@@ -102,6 +102,7 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
             // redis
             String v = redisTemplate.opsForValue().get(SecurityConstant.TOKEN_PRE + header);
             if(StrUtil.isBlank(v)){
+                LoggerUtil.info("redis不存在导致登录失败！");
                 ResponseUtil.out(response, new JsonViewData<Object>(ResultCode.NO_LOGIN,"未登陆或登陆已超时！"));
                 return null;
             }
@@ -147,7 +148,8 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
                     authorities = securityUtil.getCurrUserPerms(username);
                 }
             } catch (ExpiredJwtException e) {
-                ResponseUtil.out(response, new JsonViewData<Object>(ResultCode.NO_LOGIN,"未登陆或登陆已超时！"));
+                LoggerUtil.error(e);
+                ResponseUtil.out(response, new JsonViewData<Object>(ResultCode.NO_LOGIN,"jwt过期，未登陆或登陆已超时！"));
             } catch (Exception e){
                 log.error(e.toString());
                 ResponseUtil.out(response, new JsonViewData<Object>(ResultCode.FAIL,"解析token错误"));

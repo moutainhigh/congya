@@ -204,6 +204,7 @@ public class WxServiceImpl implements IWxService {
 
         OmOrderCustomDeclarePo omOrderCustomDeclarePo = new OmOrderCustomDeclarePo();
         omOrderCustomDeclarePo.setOrderId(omOrderPo.getId());
+        omOrderCustomDeclarePo.setCreateBy("auto");
 
         //获取返回码
         String returnCode = response.get("return_code");
@@ -215,7 +216,7 @@ public class WxServiceImpl implements IWxService {
             String resultCode = response.get("result_code");
             if ("SUCCESS".equals(resultCode)) {
                 //保存海关申报信息
-                omOrderCustomDeclarePo = saveOrderCustomDeclare(response);
+                omOrderCustomDeclarePo = saveOrderCustomDeclare(omOrderCustomDeclarePo, response);
             } else {
                 //调用微信申报接口返回失败
                 //错误代码描述
@@ -238,8 +239,8 @@ public class WxServiceImpl implements IWxService {
      * @param  response
      * @return com.chauncy.data.domain.po.order.OmOrderCustomDeclarePo
      **/
-    private OmOrderCustomDeclarePo saveOrderCustomDeclare(Map<String, String> response) {
-        OmOrderCustomDeclarePo omOrderCustomDeclarePo = new OmOrderCustomDeclarePo();
+    private OmOrderCustomDeclarePo saveOrderCustomDeclare(OmOrderCustomDeclarePo omOrderCustomDeclarePo,
+                                                          Map<String, String> response) {
         omOrderCustomDeclarePo.setCreateBy("auto");
         //商户子订单号   orderId
         omOrderCustomDeclarePo.setOrderId(Long.valueOf(response.get("sub_order_no")));
