@@ -45,6 +45,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,7 +65,8 @@ public class WxServiceImpl implements IWxService {
     private static final Logger logger = LoggerFactory.getLogger(WxServiceImpl.class);
 
     //支付结果通知地址
-    public static final String PAY_NOTIFY_URL = "http://112.126.96.226/distribution/app/wxPay/notify";
+    @Value("${distribution.wxpay.PAY_NOTIFY_URL}")
+    public String PAY_NOTIFY_URL ;
     //退款结果通知地址
     public static final String REFUND_NOTIFY_URL = "http://112.126.96.226/distribution/app/wxPay/notify";
     //交易类型

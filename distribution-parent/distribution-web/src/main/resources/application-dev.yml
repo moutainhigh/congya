@@ -178,3 +178,4 @@ distribution:
     BODY: 葱鸭百货
     CUSTOMS: GUANGZHOU_ZS
     MCH_CUSTOMS_NO: "03628569"
+    PAY_NOTIFY_URL: http://112.126.96.226:81/distribution/app/wxPay/notify
