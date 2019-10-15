@@ -9,7 +9,7 @@ server:
 
 spring:
   profiles:
-    active: dev
+    active: prod
   devtools:
     restart:
       enabled: true
@@ -40,3 +40,5 @@ mybatis-plus:
 #  #token有效期一天
 #  expiration: 86400
 #  tokenHead: "Bearer "
+
+#  1233223

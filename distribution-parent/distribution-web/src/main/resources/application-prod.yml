@@ -5,7 +5,7 @@ spring:
     druid:
       master:
         #        url: jdbc:mysql://localhost:3306/tests?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT
-        url: jdbc:mysql://47.102.104.124:3306/distribution?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&useSSL=true&useAffectedRows=true&serverTimezone=Asia/Shanghai
+        url: jdbc:mysql://112.126.96.226:3306/distribution?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&useSSL=true&useAffectedRows=true&serverTimezone=Asia/Shanghai
         username: root
         password: root
       slave:
@@ -165,3 +165,12 @@ distribution:
   # mob api配置 mob官网注册申请即可
   mob:
     appKey: appKey
+
+  # 微信配置
+  wxpay:
+    APP_ID: wx1aaefbe9953a4485
+    KEY: BoHUI2028CongYa8BoHUI2028CongYa8
+    MCH_ID: 1530116071
+    BODY: 葱鸭百货
+    CUSTOMS: GUANGZHOU_ZS
+    MCH_CUSTOMS_NO: "03628569"

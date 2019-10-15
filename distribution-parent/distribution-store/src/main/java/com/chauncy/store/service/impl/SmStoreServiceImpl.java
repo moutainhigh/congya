@@ -301,12 +301,16 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
      * @param storeRelStoreDtoList
      */
     private void bindingStore(Long storeId, List<StoreRelStoreDto> storeRelStoreDtoList) {
-        if(null == storeRelStoreDtoList) {
+        if(null == storeRelStoreDtoList || storeRelStoreDtoList.size() <= 0) {
             return ;
         }
 
         List<SmStoreRelStorePo> smStoreRelStorePoList = new ArrayList<>();
         for(StoreRelStoreDto storeRelStoreDto : storeRelStoreDtoList) {
+            if(storeId.equals(storeRelStoreDto.getParentId())) {
+                //店铺不能绑定自身
+                break;
+            }
             SmStoreRelStorePo smStoreRelStorePo = new SmStoreRelStorePo();
             smStoreRelStorePo.setStoreId(storeId);
             smStoreRelStorePo.setParentId(storeRelStoreDto.getParentId());
@@ -316,10 +320,15 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
                 //关系已存在
             } else {
                 //关系不存在
+                if(StoreRelationEnum.TEAM_WORK.getId().equals(storeRelStoreDto.getType())) {
+                    //团队合作 关系是一条单线不超过5层 判断店铺是否已被绑定
+                }
                 smStoreRelStorePoList.add(smStoreRelStorePo);
             }
         }
-        smStoreRelStoreService.saveBatch(smStoreRelStorePoList);
+        if(smStoreRelStorePoList.size() >= 0) {
+            smStoreRelStoreService.saveBatch(smStoreRelStorePoList);
+        }
     }
 
     /**
