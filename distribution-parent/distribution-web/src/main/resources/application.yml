@@ -39,3 +39,5 @@ mybatis-plus:
 #  #token有效期一天
 #  expiration: 86400
 #  tokenHead: "Bearer "
+
+#  1233223

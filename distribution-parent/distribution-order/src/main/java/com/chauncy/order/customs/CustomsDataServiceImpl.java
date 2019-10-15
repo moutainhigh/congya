@@ -4,14 +4,18 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.order.CustomsStatusEnum;
 import com.chauncy.data.domain.po.order.CustomsDataPo;
 import com.chauncy.data.domain.po.order.OmGoodsTempPo;
+import com.chauncy.data.domain.po.order.OmOrderCustomDeclarePo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
+import com.chauncy.data.domain.po.pay.PayParamPo;
 import com.chauncy.data.haiguan.vo.*;
 import com.chauncy.data.mapper.order.CustomsDataMapper;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.mapper.order.OmGoodsTempMapper;
+import com.chauncy.data.mapper.order.OmOrderCustomDeclareMapper;
 import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.mapper.pay.IPayOrderMapper;
+import com.chauncy.data.mapper.pay.PayParamMapper;
 import com.google.common.collect.Lists;
 import org.assertj.core.util.Maps;
 import org.springframework.stereotype.Service;
@@ -46,6 +50,12 @@ public class CustomsDataServiceImpl extends AbstractService<CustomsDataMapper, C
     @Autowired
     private IPayOrderMapper payOrderMapper;
 
+    @Autowired
+    private PayParamMapper payParamMapper;
+
+    @Autowired
+    private OmOrderCustomDeclareMapper orderCustomDeclareMapper;
+
     @Override
     public CustomsDataWithMyId getHgCheckVo(String customsDataId) {
         //查出orderid和sessionid
@@ -75,6 +85,13 @@ public class CustomsDataServiceImpl extends AbstractService<CustomsDataMapper, C
         //查出支付单信息
         PayOrderPo queryPayOrder = payOrderMapper.selectById(queryOrder.getPayOrderId());
 
+        //查出支付请求和请求响应
+        PayParamPo queryPayParam=payParamMapper.selectOne(new QueryWrapper<PayParamPo>().lambda().eq(PayParamPo::getPayOrderId,queryOrder.getPayOrderId()));
+
+        //查出拆单后海关数据
+        OmOrderCustomDeclarePo orderCustomDeclarePo=orderCustomDeclareMapper.selectOne(new QueryWrapper<OmOrderCustomDeclarePo>().
+                lambda().eq(OmOrderCustomDeclarePo::getOrderId,queryCustom.getOrderId()));
+
 
         HgCheckVO hgCheckVO = new HgCheckVO();
         List<Body179> payExchangeInfoLists = Lists.newArrayList();
@@ -88,7 +105,7 @@ public class CustomsDataServiceImpl extends AbstractService<CustomsDataMapper, C
             goodsInfos.add(goodsInfo);
         });
         //todo 微信请求和响应
-        payExchangeInfoHead.setInitalRequest("ini").setInitalResponse("re").setPayTransactionId(queryPayOrder.getPayOrderNo())
+        payExchangeInfoHead.setInitalRequest(queryPayParam.getInitalRequest()).setInitalResponse(queryPayParam.getInitalResponse()).setPayTransactionId(queryPayOrder.getPayOrderNo())
                 .setTradingTime(queryPayOrder.getPayTime().toEpochSecond(ZoneOffset.of("+8"))+"")
                 .setTotalAmount(queryOrder.getRealMoney()).setGuid(queryCustom.getId()+"");
 

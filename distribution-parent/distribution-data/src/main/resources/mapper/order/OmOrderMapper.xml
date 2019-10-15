@@ -56,7 +56,7 @@
         <if test="activityTypeEnum!=null">
             and activity_type=#{activityTypeEnum}
         </if>
-
+        order by o.update_time desc
 
     </select>
     <select id="loadById" resultType="com.chauncy.data.vo.manage.order.list.OrderDetailVo">
@@ -107,6 +107,7 @@
         <if test="goodsType!=null">
             and o.`goods_type`=#{goodsType}
         </if>
+        order by o.update_time desc
     </select>
     <select id="loadSmById" resultType="com.chauncy.data.vo.supplier.order.SmOrderDetailVo">
             select o.goods_type,o.id orderId,o.`status`,o.um_user_id,u.name name,o.create_time,o.pay_time,o.send_time,o.receive_time,
@@ -148,6 +149,7 @@
             and o.create_time &lt;=#{endCreateTime}
         </if>
         and o.`status`=#{orderStatus}
+        order by o.update_time desc
     </select>
     <select id="searchSendGoodsTemp" resultType="com.chauncy.data.vo.supplier.order.SmSendGoodsTempVo">
             select `name`,standard_str,sell_price,number,icon,article_number
@@ -171,6 +173,7 @@
             and o.status=#{orderStatusEnum}
         </if>
         and o.del_flag=0 and s.del_flag=0
+        order by o.update_time desc
     </select>
     <select id="getPayOrderByOrderId" resultType="com.chauncy.data.domain.po.pay.PayOrderPo">
             select p.*
@@ -285,6 +288,7 @@
         </choose>
         and (o.goods_type='自取' or o.goods_type='服务类')
         and o.del_flag=0 and s.del_flag=0
+        order by o.update_time desc
     </select>
     <select id="getRewardBoByGoodsTempId" resultType="com.chauncy.data.bo.app.order.reward.RewardBuyerBo">
         select SUM(reward_shop_ticket*number) reward_shop_ticket,SUM(reward_experience*number) reward_experience,SUM(reward_integrate*number ) reward_integrate,
