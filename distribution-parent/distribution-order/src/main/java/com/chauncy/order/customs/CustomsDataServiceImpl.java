@@ -88,9 +88,9 @@ public class CustomsDataServiceImpl extends AbstractService<CustomsDataMapper, C
         //查出支付请求和请求响应
         PayParamPo queryPayParam=payParamMapper.selectOne(new QueryWrapper<PayParamPo>().lambda().eq(PayParamPo::getPayOrderId,queryOrder.getPayOrderId()));
 
-        //查出拆单后海关数据
+      /*  //查出拆单后海关数据
         OmOrderCustomDeclarePo orderCustomDeclarePo=orderCustomDeclareMapper.selectOne(new QueryWrapper<OmOrderCustomDeclarePo>().
-                lambda().eq(OmOrderCustomDeclarePo::getOrderId,queryCustom.getOrderId()));
+                lambda().eq(OmOrderCustomDeclarePo::getOrderId,queryCustom.getOrderId()));*/
 
 
         HgCheckVO hgCheckVO = new HgCheckVO();
