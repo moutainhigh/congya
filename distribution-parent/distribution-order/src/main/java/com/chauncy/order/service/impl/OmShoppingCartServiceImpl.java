@@ -1821,7 +1821,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 BeanUtils.copyProperties(x, saveOrder);
                 saveOrder.setUmUserId(umUserPo.getId()).setAreaShippingId(submitOrderDto.getUmAreaShipId())
                         .setStoreId(x.getStoreId()).setPayOrderId(savePayOrderPo.getId()).setCreateBy(umUserPo.getId() + "")
-                        .setId(SnowFlakeUtil.getFlowIdInstance().nextId());
+                        .setId(SnowFlakeUtil.getFlowIdInstance().nextId()).setUpdateTime(LocalDateTime.now());
                 //设置一些优惠信息：红包、购物券
                 setDiscountMessage(saveOrder, savePayOrderPo);
 

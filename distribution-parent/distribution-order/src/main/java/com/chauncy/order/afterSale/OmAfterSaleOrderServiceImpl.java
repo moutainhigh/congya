@@ -137,12 +137,6 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
             throw new ServiceException(ResultCode.FAIL, "已超过售后截止时间，该商品不能进行售后！");
         }
 
-        //设置用户不可再进行售后
-        OmGoodsTempPo updateGoodsTemp = new OmGoodsTempPo();
-        updateGoodsTemp.setId(queryGoodsTemp.getId()).setCanAfterSale(false);
-        goodsTempMapper.updateById(updateGoodsTemp);
-
-
         ApplyAfterSaleVo applyAfterSaleVo = new ApplyAfterSaleVo();
         BeanUtils.copyProperties(queryGoodsTemp, applyAfterSaleVo);
         applyAfterSaleVo.setGoodsTempId(queryGoodsTemp.getId());

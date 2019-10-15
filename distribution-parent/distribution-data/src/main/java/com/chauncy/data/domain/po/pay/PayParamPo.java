@@ -44,7 +44,7 @@ public class PayParamPo implements Serializable {
     @TableLogic
     private Boolean delFlag;
 
-    @ApiModelProperty(value = "订单id")
+    @ApiModelProperty(value = "支付单id")
     private Long payOrderId;
 
     @ApiModelProperty(value = "支付原始请求")
