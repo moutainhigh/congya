@@ -106,7 +106,7 @@ public class CustomsDataServiceImpl extends AbstractService<CustomsDataMapper, C
             goodsInfos.add(goodsInfo);
         });
         payExchangeInfoHead.setInitalRequest("uy").setInitalResponse("iu").setPayTransactionId(queryPayOrder.getPayOrderNo())
-                .setTradingTime(queryPayOrder.getPayTime().toEpochSecond(ZoneOffset.of("+8"))+"")
+                .setTradingTime(queryPayOrder.getPayTime().toInstant(ZoneOffset.of("+8")).toEpochMilli()+"")
                 .setTotalAmount(queryOrder.getTotalMoney()).setGuid(queryCustom.getId()+"");
 
 
@@ -114,7 +114,7 @@ public class CustomsDataServiceImpl extends AbstractService<CustomsDataMapper, C
         body179.setOrderNo(queryCustom.getOrderId()).setGoodsInfo(goodsInfos);
         payExchangeInfoLists.add(body179);
 
-        hgCheckVO.setServiceTime(queryCustom.getCreateTime().toEpochSecond(ZoneOffset.of("+8"))+"").setSessionID(queryCustom.getSessionId())
+        hgCheckVO.setServiceTime(queryCustom.getCreateTime().toInstant(ZoneOffset.of("+8")).toEpochMilli()+"").setSessionID(queryCustom.getSessionId())
         .setPayExchangeInfoHead(payExchangeInfoHead).setPayExchangeInfoLists(payExchangeInfoLists);
 
         return new CustomsDataWithMyId(queryCustom.getId()+"",hgCheckVO);
