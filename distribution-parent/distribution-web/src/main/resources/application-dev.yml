@@ -180,9 +180,6 @@ distribution:
     MCH_CUSTOMS_NO: "03628569"
     PAY_NOTIFY_URL: http://112.126.96.226:81/distribution/app/wxPay/notify
 
-  redis:
-    hostName: 47.102.104.124
-
 redis:
   hostName: 47.102.104.124
   port: 6379
