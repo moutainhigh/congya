@@ -50,6 +50,61 @@
     </resultMap>
 
 
+    <select id="getTeamWorkCondition" resultType="java.lang.Integer">
+        SELECT COUNT(1) + 1  AS num FROM (
+            WITH RECURSIVE parentIds (store_id,parent_id) AS
+            (
+                SELECT ssrs.store_id, ssrs.parent_id
+                FROM  sm_store_rel_store ssrs
+                WHERE ssrs.store_id = #{parentId}
+                AND ssrs.del_flag = 0
+                AND ssrs.type = 2
+                UNION ALL
+                SELECT ssrs1.store_id, ssrs1.parent_id
+                FROM parentIds AS p INNER JOIN  sm_store_rel_store ssrs1
+                ON p.parent_id = ssrs1.store_id
+                WHERE ssrs1.del_flag = 0
+                AND ssrs1.type = 2
+            )
+            SELECT DISTINCT store_id, parent_id FROM parentIds
+        ) AS temp
+        UNION ALL
+        SELECT EXISTS (
+            SELECT ssrs.id
+            FROM sm_store_rel_store ssrs
+            WHERE ssrs.store_id = #{storeId}
+            AND ssrs.del_flag = 0
+            AND ssrs.type = 2
+        )
+        UNION ALL
+        SELECT EXISTS (
+            SELECT ssrs.id
+            FROM sm_store_rel_store ssrs
+            WHERE ssrs.parent_id = #{parentId}
+            AND ssrs.del_flag = 0
+            AND ssrs.type = 2
+        )
+    </select>
+
+    <select id="getProductAgentCondition" resultType="java.lang.Boolean">
+        SELECT EXISTS
+        (
+            WITH RECURSIVE childrenIds (store_id,parent_id) AS
+            (
+                SELECT ssrs.store_id, ssrs.parent_id
+                FROM  sm_store_rel_store ssrs
+                WHERE ssrs.parent_id = #{storeId}
+                AND ssrs.del_flag=0
+                AND ssrs.type = 1
+                UNION ALL
+                SELECT ssrs1.store_id, ssrs1.parent_id
+                FROM childrenIds AS c LEFT JOIN  sm_store_rel_store ssrs1
+                ON c.store_id = ssrs1.parent_id
+                WHERE ssrs1.del_flag=0 AND ssrs1.type = 1
+                )
+                SELECT DISTINCT store_id FROM childrenIds WHERE store_id = #{parentId}) AS productAgentCondition
+    </select>
+
     <sql id="selectSmStoreBaseVo">
          ss.id, ss.`name`, ss.`type`, (case when ss.`type`=1 then '推广店铺' when ss.`type`=2 then '商品店铺' end) as typeName,
           ss.parent_id, ss.store_turnover, ss.store_member_num, ss.store_sub_num, ss.goods_num, ss.owner_mobile, ss.sort, ss.enabled

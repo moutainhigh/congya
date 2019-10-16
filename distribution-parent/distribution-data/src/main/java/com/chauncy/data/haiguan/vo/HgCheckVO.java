@@ -19,6 +19,7 @@ import net.sf.json.JSONObject;
 @Accessors(chain = true)
 public class HgCheckVO extends HgSignVO{
 	private String certNo="013b5b11";
+	//private String certNo="0147e07b";
 	private String signValue;
 
 

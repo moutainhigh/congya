@@ -59,9 +59,6 @@ public class OmOrderCustomDeclarePo implements Serializable {
     @ApiModelProperty(value = "海关申报状态码")
     private String declareStatus;
 
-    @ApiModelProperty(value = "商品所属店铺ID")
-    private Long storeId;
-
     @ApiModelProperty(value = "微信子订单号")
     private String subOrderId;
 

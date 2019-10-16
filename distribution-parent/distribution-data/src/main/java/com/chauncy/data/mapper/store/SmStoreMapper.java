@@ -35,6 +35,37 @@ import java.util.Map;
 public interface SmStoreMapper extends IBaseMapper<SmStorePo> {
 
     /**
+     * @Author yeJH
+     * @Date 2019/10/15 20:22
+     * @Description 团队合作
+     *              1.获取被绑定的店铺的关系链的层数  不能超过5层
+     *              2.当前店铺是否绑定过其他店铺
+     *              3.被绑定的店铺是否被其他店铺绑定过
+     *
+     * @Update yeJH
+     *
+     * @param  storeId   当前店铺
+     * @param  parentId  被绑定的店铺
+     * @return java.util.List<java.lang.Integer>
+     **/
+    List<Integer> getTeamWorkCondition(@Param("storeId") Long storeId, @Param("parentId") Long parentId);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/16 13:48
+     * @Description 被绑定的店铺不允许存在在当前店铺的子店铺中（避免形成闭环）
+     *              true 表示被绑定的店铺在当前店铺的子店铺中 循环绑定  形成闭环
+     *              false 表示被绑定的店铺不在当前店铺的子店铺中  满足绑定条件
+     *
+     * @Update yeJH
+     *
+     * @param  storeId
+     * @param  parentId
+     * @return java.lang.Boolean
+     **/
+    Boolean getProductAgentCondition(@Param("storeId") Long storeId, @Param("parentId") Long parentId);
+
+    /**
      * APP 查询店铺  启用中
      * @param id
      * @return
