@@ -335,8 +335,12 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
                         throw new ServiceException(ResultCode.PARAM_ERROR, "当前被绑定店铺已被其他店铺绑定为团队合作关系");
                     }
                 } else if(StoreRelationEnum.PRODUCT_AGENT.getId().equals(storeRelStoreDto.getType())) {
-                    //产品代理
-
+                    //产品代理   被绑定的店铺不允许存在在当前店铺的子店铺中（避免形成闭环）
+                    Boolean productAgentCondition = smStoreMapper.getProductAgentCondition(storeId, storeRelStoreDto.getParentId());
+                    if(true == productAgentCondition) {
+                        //true 表示被绑定的店铺在当前店铺的子店铺中 循环绑定  形成闭环
+                        throw new ServiceException(ResultCode.PARAM_ERROR, "被绑定店铺是当前店铺的子店铺，绑定错误");
+                    }
                 }
                 smStoreRelStorePoList.add(smStoreRelStorePo);
             }
