@@ -24,7 +24,6 @@ import redis.clients.jedis.JedisPoolConfig;
  * Redis属性配置
  */
 @Configuration
-@ConfigurationProperties(prefix = "spring")
 @Slf4j
 public class RedisProperties {
     /**
