@@ -181,7 +181,7 @@ public class CustomsApi {
 
         } catch (Exception e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            LoggerUtil.error(e);
             writer.print(api.responseServiceError());
         } finally {
             if (writer!=null){
