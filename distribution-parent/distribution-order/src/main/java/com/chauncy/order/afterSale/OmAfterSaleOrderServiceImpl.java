@@ -103,7 +103,6 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
     @Autowired
     private IOmOrderService omOrderService;
 
-
     @Autowired
     private UmUserMapper userMapper;
 
@@ -356,9 +355,6 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         //listenerOrderLogQueue 消息队列
         this.rabbitTemplate.convertAndSend(
                 RabbitConstants.ACCOUNT_LOG_EXCHANGE, RabbitConstants.ACCOUNT_LOG_ROUTING_KEY, addAccountLogBo);
-
-
-
     }
 
     @Override
