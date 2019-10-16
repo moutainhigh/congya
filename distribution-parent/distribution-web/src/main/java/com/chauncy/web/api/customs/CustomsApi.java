@@ -149,6 +149,7 @@ public class CustomsApi {
 
         String url = "https://swapptest.singlewindow.cn/ceb2grab/grab/realTimeDataUpload";
 
+
         try {
 
             if (null != hgCheckVO) {
