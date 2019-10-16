@@ -59,7 +59,7 @@ public class OrderDetailVo {
     private LocalDateTime receiveTime;
 
     @ApiModelProperty("支付流水号")
-    private Long payOrderNo;
+    private String payOrderNo;
 
     @ApiModelProperty("支付方式")
     private String payTypeCode;
