@@ -61,5 +61,11 @@
             AND oo.id = oaso.order_id
             AND oaso.id = #{afterSaleOrderId}
     </select>
+    <select id="getByAfterSaleOrderId" resultType="com.chauncy.data.domain.po.pay.PayOrderPo">
+             select p.*
+             from om_order o,pay_order p,om_after_sale_order a
+             where a.del_flag=0 and o.del_flag=0 and o.id=a.order_id
+             and o.pay_order_id=p.id and a.id=#{afterSaleOrderId}
+    </select>
 
 </mapper>
