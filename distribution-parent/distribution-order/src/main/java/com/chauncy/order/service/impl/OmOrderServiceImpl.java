@@ -340,7 +340,8 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         RabbitOrderBo rabbitOrderBo=new RabbitOrderBo();
         rabbitOrderBo.setOrderId(orderId).setOrderStatusEnum(OrderStatusEnum.NEED_RECEIVE_GOODS);
         //添加自动收货的消息队列
-        rabbitUtil.sendDelayMessage(10*60*1000+"",rabbitOrderBo);
+        //rabbitUtil.sendDelayMessage(10*60*1000+"",rabbitOrderBo);
+        rabbitUtil.sendDelayMessage(expiration,rabbitOrderBo);
        // rabbitUtil.sendDelayMessage(expiration+"",rabbitOrderBo);
         LoggerUtil.info("【已发货等待自动收货消息发送时间】:" + LocalDateTime.now());
 
@@ -514,11 +515,11 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         rabbitOrderBo.setOrderId(orderId).setOrderStatusEnum(OrderStatusEnum.NEED_EVALUATE);
 
         //添加自动评价延时队列
-        rabbitUtil.sendDelayMessage(1 * 60 * 1000 + "", rabbitOrderBo);
+        rabbitUtil.sendDelayMessage(expiration + "", rabbitOrderBo);
         //添加售后截止延时队列,售后截止队列的状态为空
         RabbitOrderBo afterRabbitOrderBo = new RabbitOrderBo();
         afterRabbitOrderBo.setOrderId(orderId);
-        rabbitUtil.sendDelayMessage(1 * 60 * 1000 + "", afterRabbitOrderBo);
+        rabbitUtil.sendDelayMessage(afterExpiration + "", afterRabbitOrderBo);
 
         LoggerUtil.info("【确认收货后：待评价===》自动评价发送时间】:" + LocalDateTime.now());
         LoggerUtil.info("【确认收货等待售后截止】:" + LocalDateTime.now());
@@ -836,7 +837,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         orderDeadline(orderId);
 
         //添加自动评价延时队列
-        rabbitUtil.sendDelayMessage(1 * 60 * 1000 + "", rabbitOrderBo);
+        rabbitUtil.sendDelayMessage(expiration + "", rabbitOrderBo);
         LoggerUtil.info("【确认收货后：待评价===》自动评价发送时间】:" + LocalDateTime.now());
 
 

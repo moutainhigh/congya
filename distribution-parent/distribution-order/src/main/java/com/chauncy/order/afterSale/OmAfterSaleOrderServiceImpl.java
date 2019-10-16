@@ -231,7 +231,7 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         // 添加延时队列
         this.rabbitTemplate.convertAndSend(RabbitConstants.AFTER_DEAD_EXCHANGE, RabbitConstants.AFTER_DEAD_ROUTING_KEY, rabbitAfterBo, message -> {
 
-            message.getMessageProperties().setExpiration(5*60*1000+"");
+            message.getMessageProperties().setExpiration(RabbitConstants.AFTER_DELAY_TIME);
             return message;
         });
         LoggerUtil.info(String.format("售后订单id【%s】,状态【%s】发送消息队列时间：",rabbitAfterBo.getAfterSaleOrderId(),rabbitAfterBo.getAfterSaleStatusEnum().getName())
