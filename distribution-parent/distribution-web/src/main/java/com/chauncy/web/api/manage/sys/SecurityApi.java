@@ -56,7 +56,8 @@ public class SecurityApi {
 //        Object token = redisUtil.get (key1);
         Object token = redisTemplate.opsForValue().get(key1);
         String key2 = SecurityConstant.TOKEN_PRE+token;
-        redisUtil.del (key1,key2);
+        String key3 = "permission::userMenuList:" + userPo.getId();
+        redisUtil.del (key1,key2,key3);
         return new JsonViewData (ResultCode.SUCCESS);
     }
 }
