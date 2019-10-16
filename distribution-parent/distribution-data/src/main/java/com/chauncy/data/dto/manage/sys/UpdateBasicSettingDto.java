@@ -104,4 +104,7 @@ public class UpdateBasicSettingDto implements Serializable {
 
     @ApiModelProperty(value = "订单收货后 ，用户在x天内未评论未进行评论，则默认为默认评价")
     private Integer autoCommentDay;
+
+    @ApiModelProperty(value = "是否展示提现按钮 1-是 0-否")
+    private Boolean isShowWithdraw;
 }

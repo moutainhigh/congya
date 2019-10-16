@@ -7,6 +7,7 @@ import com.chauncy.data.domain.po.order.CustomsDataPo;
 import com.chauncy.data.haiguan.HaiGuanApi;
 import com.chauncy.data.haiguan.vo.CustomsDataWithMyId;
 import com.chauncy.data.haiguan.vo.HgCheckVO;
+import com.chauncy.data.haiguan.vo.ReturnCustomsVo;
 import com.chauncy.order.customs.ICustomsDataService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiOperation;
@@ -58,13 +59,13 @@ public class CustomsApi {
     @RequestMapping(method = RequestMethod.POST, value = "/platDataOpen")
     @ResponseBody
     @ApiOperation("海关请求")
-    public Map<String, Object> platDataOpen(@RequestParam(value = "openReq") String openReq) {
+    public ReturnCustomsVo platDataOpen(@RequestParam(value = "openReq") String openReq) {
 
         openReq = openReq.replaceAll("&quot;", "\"");
 
         HaiGuanApi haiGuanApi = JSON.parseObject(openReq, HaiGuanApi.class);
         if (haiGuanApi.getOrderNo() == null || haiGuanApi.getServiceTime() == null || haiGuanApi.getSessionID() == null) {
-            return haiGuanApi.responseServiceError();
+            return new ReturnCustomsVo("20000","参数错误",System.currentTimeMillis());
         }
         //保存海关数据
         CustomsDataPo saveCustoms = new CustomsDataPo();
@@ -73,7 +74,7 @@ public class CustomsApi {
         customsDataService.save(saveCustoms);
         //haiGuanApi.putPostMsg(haiGuanApi.getOrderNo());
 
-        return haiGuanApi.responseServiceSuccess();
+        return new ReturnCustomsVo("10000","",Long.valueOf(System.currentTimeMillis()));
     }
 
     /**
@@ -180,7 +181,7 @@ public class CustomsApi {
 
         } catch (Exception e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            LoggerUtil.error(e);
             writer.print(api.responseServiceError());
         } finally {
             if (writer!=null){

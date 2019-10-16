@@ -61,7 +61,8 @@ public class CustomsDataServiceImpl extends AbstractService<CustomsDataMapper, C
         //查出orderid和sessionid
         QueryWrapper<CustomsDataPo> customsDataPoQueryWrapper = new QueryWrapper<>();
         if (customsDataId==null){
-            customsDataPoQueryWrapper.lambda().eq(CustomsDataPo::getCustomsStatus, CustomsStatusEnum.NEED_SEND).last("limit 1");
+            customsDataPoQueryWrapper.lambda().eq(CustomsDataPo::getCustomsStatus, CustomsStatusEnum.NEED_SEND);
+            customsDataPoQueryWrapper.last(" limit 1");
         }
         else {
             customsDataPoQueryWrapper.lambda().eq(CustomsDataPo::getId, customsDataId);
@@ -88,9 +89,9 @@ public class CustomsDataServiceImpl extends AbstractService<CustomsDataMapper, C
         //查出支付请求和请求响应
         PayParamPo queryPayParam=payParamMapper.selectOne(new QueryWrapper<PayParamPo>().lambda().eq(PayParamPo::getPayOrderId,queryOrder.getPayOrderId()));
 
-        //查出拆单后海关数据
+      /*  //查出拆单后海关数据
         OmOrderCustomDeclarePo orderCustomDeclarePo=orderCustomDeclareMapper.selectOne(new QueryWrapper<OmOrderCustomDeclarePo>().
-                lambda().eq(OmOrderCustomDeclarePo::getOrderId,queryCustom.getOrderId()));
+                lambda().eq(OmOrderCustomDeclarePo::getOrderId,queryCustom.getOrderId()));*/
 
 
         HgCheckVO hgCheckVO = new HgCheckVO();
@@ -104,17 +105,16 @@ public class CustomsDataServiceImpl extends AbstractService<CustomsDataMapper, C
             goodsInfo.setGname(x.getName()).setItemLink(x.getId()+"");
             goodsInfos.add(goodsInfo);
         });
-        //todo 微信请求和响应
-        payExchangeInfoHead.setInitalRequest(queryPayParam.getInitalRequest()).setInitalResponse(queryPayParam.getInitalResponse()).setPayTransactionId(queryPayOrder.getPayOrderNo())
-                .setTradingTime(queryPayOrder.getPayTime().toEpochSecond(ZoneOffset.of("+8"))+"")
-                .setTotalAmount(queryOrder.getRealMoney()).setGuid(queryCustom.getId()+"");
+        payExchangeInfoHead.setInitalRequest("uy").setInitalResponse("iu").setPayTransactionId(queryPayOrder.getPayOrderNo())
+                .setTradingTime(queryPayOrder.getPayTime().toInstant(ZoneOffset.of("+8")).toEpochMilli()+"")
+                .setTotalAmount(queryOrder.getTotalMoney()).setGuid(queryCustom.getId()+"");
 
 
         Body179 body179=new Body179();
         body179.setOrderNo(queryCustom.getOrderId()).setGoodsInfo(goodsInfos);
         payExchangeInfoLists.add(body179);
 
-        hgCheckVO.setServiceTime(queryCustom.getCreateTime().toEpochSecond(ZoneOffset.of("+8"))+"").setSessionID(queryCustom.getSessionId())
+        hgCheckVO.setServiceTime(queryCustom.getCreateTime().toInstant(ZoneOffset.of("+8")).toEpochMilli()+"").setSessionID(queryCustom.getSessionId())
         .setPayExchangeInfoHead(payExchangeInfoHead).setPayExchangeInfoLists(payExchangeInfoLists);
 
         return new CustomsDataWithMyId(queryCustom.getId()+"",hgCheckVO);
