@@ -5,6 +5,7 @@ import com.chauncy.common.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -23,7 +24,6 @@ import redis.clients.jedis.JedisPoolConfig;
  * Redis属性配置
  */
 @Configuration
-@PropertySource("classpath:redis.properties")
 @Slf4j
 public class RedisProperties {
     /**
@@ -142,6 +142,8 @@ public class RedisProperties {
         JedisConnectionFactory.setPassword(password);
         //客户端超时时间单位是毫秒
         JedisConnectionFactory.setTimeout(timeout);
+        //Redis数据库索引
+        JedisConnectionFactory.setDatabase(database);
 
         return JedisConnectionFactory;
     }

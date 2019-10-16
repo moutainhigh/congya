@@ -175,3 +175,20 @@ distribution:
     CUSTOMS: GUANGZHOU_ZS
     MCH_CUSTOMS_NO: "03628569"
     PAY_NOTIFY_URL: http://112.126.96.226/distribution/app/wxPay/notify
+
+redis:
+  hostName: 112.126.96.226
+  port: 6379
+  database: 0
+  password: admin
+  timeout: 0
+  maxIdle: 300
+  min-idle: 0
+  maxTotal: 1000
+  maxWaitMillis: 1000
+  minEvictableIdleTimeMillis: 18000000
+  numTestsPerEvictionRun: 1024
+  timeBetweenEvictionRunsMillis: 30000
+  testOnBorrow: true
+  testWhileIdle: true
+  testOnReturn: true

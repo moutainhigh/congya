@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import com.chauncy.common.constant.Constants;
 import com.chauncy.common.constant.SecurityConstant;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.third.easemob.RegistIM;
 import com.chauncy.common.third.easemob.comm.RegUserBo;
 import com.chauncy.data.domain.po.sys.SysDepartmentPo;
@@ -128,6 +129,8 @@ public class SysUserApi {
                 ur.setCreateBy(currentUser.getUsername());
                 iUserRoleService.save(ur);
             }
+        }else {
+            throw new ServiceException(ResultCode.FAIL,"用户所属角色不能为空");
         }
 
         RegUserBo regUserBo = new RegUserBo();
@@ -205,6 +208,8 @@ public class SysUserApi {
                 ur.setCreateBy(securityUtil.getCurrUser().getUsername());
                 iUserRoleService.save(ur);
             }
+        }else {
+            throw new ServiceException(ResultCode.FAIL,"用户所属角色不能为空");
         }
         //手动删除缓存
         redisTemplate.delete("userRole::" + u.getId());
