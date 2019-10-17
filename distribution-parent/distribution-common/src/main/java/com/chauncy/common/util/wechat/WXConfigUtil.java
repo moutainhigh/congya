@@ -45,7 +45,7 @@ public class WXConfigUtil implements WXPayConfig {
             //Windows环境
             certPath = "D:" + File.separator + "cert" + File.separator + "BoHUI20190802_apiclient_cert.p12";
         } else {
-            certPath = "congya" + File.separator + "cert" + File.separator + "BoHUI20190802_apiclient_cert.p12";
+            certPath = File.separator + "congya" + File.separator + "cert" + File.separator + "BoHUI20190802_apiclient_cert.p12";
         }
         File file = new File(certPath);
         InputStream certStream = new FileInputStream(file);
