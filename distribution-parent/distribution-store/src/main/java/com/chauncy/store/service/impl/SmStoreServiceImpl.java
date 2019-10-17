@@ -26,6 +26,7 @@ import com.chauncy.data.domain.po.sys.SysRoleUserPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.store.FindStoreCategoryDto;
+import com.chauncy.data.dto.app.store.FindStoreParamDto;
 import com.chauncy.data.dto.app.store.SearchStoreDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.add.StoreAccountInfoDto;
@@ -767,14 +768,14 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
      * @return com.chauncy.data.vo.app.component.ScreenParamVo
      **/
     @Override
-    public ScreenParamVo findScreenStoreParam(SearchStoreDto searchStoreDto) {
+    public ScreenParamVo findScreenStoreParam(FindStoreParamDto findStoreParamDto) {
 
         //获取当前app用户信息
         UmUserPo umUserPo = securityUtil.getAppCurrUser();
-        searchStoreDto.setUserId(umUserPo.getId());
+        findStoreParamDto.setUserId(umUserPo.getId());
 
         ScreenParamVo screenParamVo = new ScreenParamVo();
-        ScreenStoreParamVo screenStoreParamVo = smStoreMapper.findScreenStoreParam(searchStoreDto);
+        ScreenStoreParamVo screenStoreParamVo = smStoreMapper.findScreenStoreParam(findStoreParamDto);
         screenParamVo.setScreenStoreParamVo(screenStoreParamVo);
         return screenParamVo;
     }

@@ -3,7 +3,6 @@ package com.chauncy.web.api.app.component;
 import com.chauncy.activity.gift.IAmGiftService;
 import com.chauncy.common.enums.message.KeyWordTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
-import com.chauncy.data.domain.MyBaseTree;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.advice.category.select.GoodsCategoryVo;
 import com.chauncy.data.dto.app.component.ScreenParamDto;
@@ -14,7 +13,6 @@ import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.component.ScreenParamVo;
 import com.chauncy.data.vo.app.user.GetMembersCenterVo;
 import com.chauncy.data.vo.manage.message.content.app.FindArticleContentVo;
-import com.chauncy.data.vo.manage.product.GoodsCategoryTreeVo;
 import com.chauncy.message.content.service.IMmArticleService;
 import com.chauncy.message.content.service.IMmBootPageService;
 import com.chauncy.message.content.service.IMmKeywordsSearchService;
@@ -151,13 +149,13 @@ public class ComponentApi extends BaseApi {
         ScreenParamVo screenParamVo = new ScreenParamVo();
         if(screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.GOODS.getId())) {
             //商品
-            screenParamVo = goodsService.findScreenGoodsParam(screenParamDto.getSearchStoreGoodsDto());
+            screenParamVo = goodsService.findScreenGoodsParam(screenParamDto.getFindStoreGoodsParamDto());
         } else if (screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.MERCHANT.getId())) {
             //店铺
-            screenParamVo = smStoreService.findScreenStoreParam(screenParamDto.getSearchStoreDto());
+            screenParamVo = smStoreService.findScreenStoreParam(screenParamDto.getFindStoreParamDto());
         } else if (screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.INFORMATION.getId())) {
             //资讯
-            screenParamVo = mmInformationService.findScreenInfoParam(screenParamDto.getSearchInformationDto());
+            screenParamVo = mmInformationService.findScreenInfoParam(screenParamDto.getFindInfoParamDto());
         }
         return setJsonViewData(screenParamVo);
     }

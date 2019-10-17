@@ -1,10 +1,8 @@
 package com.chauncy.data.dto.app.component;
 
-import com.chauncy.common.enums.message.KeyWordTypeEnum;
-import com.chauncy.data.dto.app.message.information.select.SearchInfoByConditionDto;
-import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
-import com.chauncy.data.dto.app.store.SearchStoreDto;
-import com.chauncy.data.valid.annotation.EnumConstraint;
+import com.chauncy.data.dto.app.message.information.select.FindInfoParamDto;
+import com.chauncy.data.dto.app.product.FindStoreGoodsParamDto;
+import com.chauncy.data.dto.app.store.FindStoreParamDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -27,11 +25,11 @@ public class ScreenParamDto  implements Serializable {
     private Integer keyWordType;
 
     @ApiModelProperty(value = "keyWordType = 1 时传参")
-    private SearchStoreGoodsDto searchStoreGoodsDto;
+    private FindStoreGoodsParamDto findStoreGoodsParamDto;
 
     @ApiModelProperty(value = "keyWordType = 2 时传参")
-    private SearchStoreDto searchStoreDto;
+    private FindStoreParamDto findStoreParamDto;
 
     @ApiModelProperty(value = "keyWordType = 3 时传参")
-    private SearchInfoByConditionDto searchInformationDto;
+    private FindInfoParamDto findInfoParamDto;
 }

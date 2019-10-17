@@ -2,6 +2,7 @@ package com.chauncy.data.mapper.store;
 
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
+import com.chauncy.data.dto.app.store.FindStoreParamDto;
 import com.chauncy.data.dto.app.store.SearchStoreDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.select.StoreSearchByConditionDto;
@@ -183,15 +184,15 @@ public interface SmStoreMapper extends IBaseMapper<SmStorePo> {
 
     /**
      * @Author yeJH
-     * @Date 2019/9/20 20:30
+     * @Date 2019/10/17 14:41
      * @Description 获取筛选店铺的参数  店铺分类  店铺标签
      *
      * @Update yeJH
      *
-     * @Param [searchStoreDto]
+     * @param  findStoreParamDto
      * @return com.chauncy.data.vo.app.component.ScreenStoreParamVo
      **/
-    ScreenStoreParamVo findScreenStoreParam(SearchStoreDto searchStoreDto);
+    ScreenStoreParamVo findScreenStoreParam(FindStoreParamDto findStoreParamDto);
 
     /**
      * app获取店铺信息
