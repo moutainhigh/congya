@@ -152,7 +152,7 @@
         order by o.update_time desc
     </select>
     <select id="searchSendGoodsTemp" resultType="com.chauncy.data.vo.supplier.order.SmSendGoodsTempVo">
-            select `name`,standard_str,sell_price,number,icon,article_number
+            select `name`,standard_str,sell_price,number,icon,article_number,sku_id
             from om_goods_temp
             where order_id=#{orderId}
     </select>

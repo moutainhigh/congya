@@ -29,8 +29,8 @@ public class AfterSaleDetailVo {
     @ApiModelProperty(value = "操作时间")
     private LocalDateTime operatingTime;
 
-    @ApiModelProperty("剩余分钟数")
-    private Long remainMinute;
+    @ApiModelProperty("到期时间")
+    private LocalDateTime expireTime;
 
     @ApiModelProperty(hidden = true)
     @JSONField(serialize = false)
@@ -71,6 +71,20 @@ public class AfterSaleDetailVo {
 
     @ApiModelProperty(value = "退款编号")
     private Long afterSaleOrderId;
+
+    @ApiModelProperty("收货人姓名")
+    private String receiveName;
+
+    @ApiModelProperty("收货地址")
+    private String shipAddress;
+
+    @ApiModelProperty("收货人手机")
+    private String phone;
+
+    @ApiModelProperty(value = "支付类型：微信 ，支付宝")
+    private String payTypeCode;
+
+
 
 
 

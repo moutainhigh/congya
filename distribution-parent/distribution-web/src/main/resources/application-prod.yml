@@ -177,7 +177,7 @@ distribution:
     PAY_NOTIFY_URL: http://112.126.96.226/distribution/app/wxPay/notify
 
 redis:
-  hostName: 112.126.96.126
+  hostName: 112.126.96.226
   port: 6379
   database: 0
   password: admin

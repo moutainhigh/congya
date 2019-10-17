@@ -147,7 +147,8 @@ public class CustomsApi {
         CustomsDataWithMyId customsDataWithMyId = customsDataService.getHgCheckVo(orderNo);
         HgCheckVO hgCheckVO = customsDataWithMyId.getHgCheckVO();
 
-        String url = "https://swapptest.singlewindow.cn/ceb2grab/grab/realTimeDataUpload";
+       // String url = "https://swapptest.singlewindow.cn/ceb2grab/grab/realTimeDataUpload";
+        String url = "https://customs.chinaport.gov.cn/ceb2grab/grab/realTimeDataUpload";
 
 
         try {
