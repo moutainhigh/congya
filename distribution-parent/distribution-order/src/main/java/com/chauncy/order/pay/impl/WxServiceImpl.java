@@ -227,7 +227,16 @@ public class WxServiceImpl implements IWxService {
                 omOrderCustomDeclarePo.setErrCode(response.get("err_code"));
             }
         }
-        omOrderCustomDeclareMapper.insert(omOrderCustomDeclarePo);
+        QueryWrapper<OmOrderCustomDeclarePo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(OmOrderCustomDeclarePo::getOrderId, omOrderPo.getId());
+        OmOrderCustomDeclarePo oldDeclarePo = omOrderCustomDeclareMapper.selectOne(queryWrapper);
+        if(null == oldDeclarePo) {
+            omOrderCustomDeclareMapper.insert(omOrderCustomDeclarePo);
+        } else {
+            omOrderCustomDeclarePo.setId(oldDeclarePo.getId());
+            omOrderCustomDeclareMapper.updateById(omOrderCustomDeclarePo);
+        }
+
 
     }
 
