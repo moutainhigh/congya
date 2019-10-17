@@ -782,7 +782,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             }
 
             //下一级用户集合
-            if (ListUtil.isListNullAndEmpty(queryPayUser.getNextUserIds())) {
+            if (!ListUtil.isListNullAndEmpty(queryPayUser.getNextUserIds())) {
                 //得到经验值
                 BigDecimal experience = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getNextLevelExperience(), 100));
                 //得到积分

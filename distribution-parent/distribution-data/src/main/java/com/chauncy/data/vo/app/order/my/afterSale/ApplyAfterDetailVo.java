@@ -1,15 +1,11 @@
 package com.chauncy.data.vo.app.order.my.afterSale;
 
-import com.alibaba.fastjson.annotation.JSONField;
-import com.chauncy.common.enums.app.order.afterSale.AfterSaleLogEnum;
-import com.chauncy.common.enums.app.order.afterSale.AfterSaleStatusEnum;
-import com.chauncy.common.enums.app.order.afterSale.AfterSaleTypeEnum;
+import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -39,7 +35,6 @@ public class ApplyAfterDetailVo {
     @ApiModelProperty("数量")
     private Integer number;
 
-
     @ApiModelProperty("退款原因")
     private String reason;
 
@@ -51,6 +46,9 @@ public class ApplyAfterDetailVo {
 
     @ApiModelProperty(value = "描述")
     private String describes;
+
+    @ApiModelProperty("订单状态")
+    private OrderStatusEnum orderStatus;
 
 
 }

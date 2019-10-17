@@ -14,6 +14,9 @@ import java.math.BigDecimal;
 @ApiModel(description = "订单发货商品信息")
 public class SmSendGoodsTempVo {
 
+    @ApiModelProperty(value = "skuId")
+    private String skuId;
+
     @ApiModelProperty(value = "商品名称")
     private String name;
 

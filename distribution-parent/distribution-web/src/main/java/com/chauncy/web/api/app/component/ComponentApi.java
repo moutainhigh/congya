@@ -3,6 +3,7 @@ package com.chauncy.web.api.app.component;
 import com.chauncy.activity.gift.IAmGiftService;
 import com.chauncy.common.enums.message.KeyWordTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.domain.MyBaseTree;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.component.ScreenParamDto;
 import com.chauncy.data.dto.app.component.ShareDto;
@@ -11,10 +12,12 @@ import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.component.ScreenParamVo;
 import com.chauncy.data.vo.app.user.GetMembersCenterVo;
 import com.chauncy.data.vo.manage.message.content.app.FindArticleContentVo;
+import com.chauncy.data.vo.manage.product.GoodsCategoryTreeVo;
 import com.chauncy.message.content.service.IMmArticleService;
 import com.chauncy.message.content.service.IMmBootPageService;
 import com.chauncy.message.content.service.IMmKeywordsSearchService;
 import com.chauncy.message.information.service.IMmInformationService;
+import com.chauncy.product.service.IPmGoodsCategoryService;
 import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.store.service.ISmStoreService;
@@ -66,7 +69,27 @@ public class ComponentApi extends BaseApi {
     private IMmArticleService articleService;
 
     @Autowired
+    private IPmGoodsCategoryService goodsCategoryService;
+
+    @Autowired
     private SecurityUtil securityUtil;
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/17 10:29
+     * @Description 联动查询所有分类
+     *
+     * @Update yeJH
+     *
+     * @param
+     * @return com.chauncy.data.vo.JsonViewData
+     **/
+    @PostMapping("/findAllCategory")
+    @ApiOperation(value = "联动查询所有分类")
+    public JsonViewData findGoodsCategoryTreeVo(){
+        List<GoodsCategoryTreeVo> goodsCategoryTreeVo = goodsCategoryService.findGoodsCategoryTreeVo();
+        return setJsonViewData(MyBaseTree.build(goodsCategoryTreeVo));
+    }
 
     /**
      * 判断用户是否领取过新人礼包

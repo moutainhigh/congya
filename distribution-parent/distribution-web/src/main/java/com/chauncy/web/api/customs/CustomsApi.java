@@ -147,12 +147,16 @@ public class CustomsApi {
         CustomsDataWithMyId customsDataWithMyId = customsDataService.getHgCheckVo(orderNo);
         HgCheckVO hgCheckVO = customsDataWithMyId.getHgCheckVO();
 
-        String url = "https://swapptest.singlewindow.cn/ceb2grab/grab/realTimeDataUpload";
+       String url = "https://swapptest.singlewindow.cn/ceb2grab/grab/realTimeDataUpload";
+        //String url = "https://customs.chinaport.gov.cn/ceb2grab/grab/realTimeDataUpload";
 
 
         try {
 
             if (null != hgCheckVO) {
+                response.setContentType("text/html;charset=utf-8");
+
+                writer = response.getWriter();
                 hgCheckVO.setSignValue(asin);
                 LoggerUtil.info("发送海关请求参数："+JSON.toJSONString(hgCheckVO));
                 HttpHeaders headers = new HttpHeaders();
@@ -165,9 +169,6 @@ public class CustomsApi {
                 HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<MultiValueMap<String, String>>(params, headers);
                 ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, requestEntity , String.class );
 
-                response.setContentType("text/html;charset=utf-8");
-
-                writer = response.getWriter();
                 //保存上传结果
                 CustomsDataPo updateCustom=new CustomsDataPo();
                 updateCustom.setId(Long.parseLong(orderNo)).setResponseBody(responseEntity.getBody());

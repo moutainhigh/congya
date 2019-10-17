@@ -20,6 +20,7 @@ import com.chauncy.data.domain.po.afterSale.OmAfterSaleLogPo;
 import com.chauncy.data.domain.po.afterSale.OmAfterSaleOrderPo;
 import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
+import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
@@ -33,6 +34,7 @@ import com.chauncy.data.mapper.afterSale.OmAfterSaleOrderMapper;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.mapper.order.OmGoodsTempMapper;
 import com.chauncy.data.mapper.order.OmOrderMapper;
+import com.chauncy.data.mapper.pay.IPayOrderMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.app.order.my.afterSale.AfterSaleDetailVo;
@@ -101,9 +103,11 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
     @Autowired
     private IOmOrderService omOrderService;
 
-
     @Autowired
     private UmUserMapper userMapper;
+
+    @Autowired
+    private IPayOrderMapper payOrderMapper;
 
 
 
@@ -351,9 +355,6 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         //listenerOrderLogQueue 消息队列
         this.rabbitTemplate.convertAndSend(
                 RabbitConstants.ACCOUNT_LOG_EXCHANGE, RabbitConstants.ACCOUNT_LOG_ROUTING_KEY, addAccountLogBo);
-
-
-
     }
 
     @Override
@@ -529,9 +530,14 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         if (afterSaleDetail.getAfterSaleStatusEnum() != AfterSaleStatusEnum.CLOSE &&
                 afterSaleDetail.getAfterSaleStatusEnum() != AfterSaleStatusEnum.SUCCESS) {
             LocalDateTime expireTime = afterSaleDetail.getOperatingTime().plusDays(3);
-            Duration duration = Duration.between(LocalDateTime.now(), expireTime);
-            afterSaleDetail.setRemainMinute(duration.toMinutes());
+            afterSaleDetail.setExpireTime(expireTime);
         }
+        //收货信息
+        PayOrderPo queryPayOrder = payOrderMapper.getByAfterSaleOrderId(afterSaleOrderId);
+        afterSaleDetail.setShipAddress(queryPayOrder.getAreaName()+queryPayOrder.getShipAddress());
+        afterSaleDetail.setPhone(queryPayOrder.getPhone());
+        afterSaleDetail.setReceiveName(queryPayOrder.getShipName());
+        afterSaleDetail.setPayTypeCode(queryPayOrder.getPayTypeCode());
         //售后说明和售后提示
         AfterSaleLogEnum node = afterSaleDetail.getNode();
         afterSaleDetail.setContentExplain(node.getContentExplain());

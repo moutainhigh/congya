@@ -175,7 +175,7 @@
             AND l.create_time = ( SELECT MAX( create_time ) FROM om_after_sale_log l2 WHERE l2.after_sale_order_id = #{afterSaleOrderId} )
     </select>
     <select id="getApplyAfterDetail" resultMap="ApplyAfterDetailVo">
-                SELECT
+            SELECT
             o.id afterOrderId,
             t.`name` name,
             t.icon ,
@@ -185,17 +185,21 @@
             o.reason,
             o.refund_money,
             o.pictures,
-            l.describes describes
+            l.describes describes,
+            oo.status orderStatus
 
         FROM
             om_after_sale_order o,
             om_after_sale_log l,
-            om_goods_temp t
+            om_goods_temp t,
+            om_order oo
         WHERE
             o.del_flag = 0
             AND l.del_flag = 0
             AND t.del_flag = 0
+            and oo.del_flag=0
             AND t.id = o.goods_temp_id AND o.id = l.after_sale_order_id
+            and o.order_id=oo.id
             and l.after_sale_order_id=#{afterSaleOrderId}
             AND l.create_time = ( SELECT MAX( create_time ) FROM om_after_sale_log l2 WHERE l2.after_sale_order_id = #{afterSaleOrderId} )
     </select>
