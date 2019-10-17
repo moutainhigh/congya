@@ -7,6 +7,7 @@ import com.chauncy.common.enums.message.NoticeTitleEnum;
 import com.chauncy.common.enums.message.NoticeTypeEnum;
 import com.chauncy.common.enums.order.BillTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.enums.user.RefuseWithdrawalEnum;
 import com.chauncy.common.enums.user.UserTypeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
@@ -57,6 +58,7 @@ import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -1066,6 +1068,28 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
             searchUserLogVo.setIncome(null == map.get("income") ? BigDecimal.ZERO : map.get("income"));
         }
         if(searchUserLogDto.getAccountType().equals(AccountTypeEnum.RED_ENVELOPS.getId())) {
+            BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
+            //是否展示提现按钮
+            searchUserLogVo.setIsShow(basicSettingPo.getIsShowWithdraw());
+            //判断
+            //判断用户能否有提现未完成的  1 待审核   2 处理中
+            QueryWrapper<OmUserWithdrawalPo> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda().eq(OmUserWithdrawalPo::getUmUserId, umUserPo.getId()).and(obj -> obj
+                    .eq(OmUserWithdrawalPo::getWithdrawalStatus, WithdrawalStatusEnum.PROCESSING.getId())
+                    .or().eq(OmUserWithdrawalPo::getWithdrawalStatus, WithdrawalStatusEnum.TO_BE_AUDITED.getId()));
+            List<OmUserWithdrawalPo> omUserWithdrawalPoList = omUserWithdrawalMapper.selectList(queryWrapper);
+            if(Strings.isBlank(umUserPo.getIdCard())) {
+                //用户未实名认证
+                searchUserLogVo.setWithdrawalCode(RefuseWithdrawalEnum.NON_REAL_NAME.getId());
+                searchUserLogVo.setWithdrawalMsg(RefuseWithdrawalEnum.NON_REAL_NAME.getName());
+            } else if(null != omUserWithdrawalPoList && omUserWithdrawalPoList.size() > 0) {
+                //用户有正在提现的记录
+                searchUserLogVo.setWithdrawalCode(RefuseWithdrawalEnum.INCOMPLETE.getId());
+                searchUserLogVo.setWithdrawalMsg(RefuseWithdrawalEnum.INCOMPLETE.getName());
+            } else {
+                searchUserLogVo.setWithdrawalCode(RefuseWithdrawalEnum.CAN_WITHDRAWAL.getId());
+                searchUserLogVo.setWithdrawalMsg(RefuseWithdrawalEnum.CAN_WITHDRAWAL.getName());
+            }
 
         }
         return searchUserLogVo;
