@@ -1065,6 +1065,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
             searchUserLogVo.setConsume(null == map.get("consume") ? BigDecimal.ZERO : map.get("consume"));
             searchUserLogVo.setIncome(null == map.get("income") ? BigDecimal.ZERO : map.get("income"));
         }
+        if(searchUserLogDto.getAccountType().equals(AccountTypeEnum.RED_ENVELOPS.getId())) {
+
+        }
         return searchUserLogVo;
 
 

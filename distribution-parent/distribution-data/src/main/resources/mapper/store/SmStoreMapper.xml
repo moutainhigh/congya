@@ -470,7 +470,7 @@
                 </foreach>
             </if>
             <if test="keyword != null and keyword !=''">
-                and name like concat('%', #{keyword}, '%')
+                and `ss`.name like concat('%', #{keyword}, '%')
             </if>
         </where>
         GROUP BY `ss`.id
@@ -505,7 +505,7 @@
         <where>
             `ss`.enabled = 1
             <if test="keyword != null and keyword !=''">
-                and name like concat('%', #{keyword}, '%')
+                and `ss`.name like concat('%', #{keyword}, '%')
             </if>
         </where>
     </select>
