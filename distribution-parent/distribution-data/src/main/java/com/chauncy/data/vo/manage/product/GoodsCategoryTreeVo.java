@@ -14,4 +14,7 @@ public class GoodsCategoryTreeVo extends MyBaseTree<Long,GoodsCategoryTreeVo> {
 
     @ApiModelProperty(value = "名称")
     private String label;
+
+    @ApiModelProperty(value = "图片")
+    private String icon;
 }
