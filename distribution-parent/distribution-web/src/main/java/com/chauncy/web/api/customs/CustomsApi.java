@@ -3,6 +3,7 @@ package com.chauncy.web.api.customs;
 import com.alibaba.fastjson.JSON;
 import com.chauncy.common.enums.order.CustomsStatusEnum;
 import com.chauncy.common.util.LoggerUtil;
+import com.chauncy.common.util.SslUtils;
 import com.chauncy.data.domain.po.order.CustomsDataPo;
 import com.chauncy.data.haiguan.HaiGuanApi;
 import com.chauncy.data.haiguan.vo.CustomsDataWithMyId;
@@ -154,6 +155,7 @@ public class CustomsApi {
         try {
 
             if (null != hgCheckVO) {
+                SslUtils.ignoreSsl();
                 response.setContentType("text/html;charset=utf-8");
 
                 writer = response.getWriter();
