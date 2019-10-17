@@ -4,6 +4,7 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.dto.app.advice.category.select.GoodsCategoryVo;
+import com.chauncy.data.dto.app.product.FindGoodsCategoryDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.SearchAttributeByNamePageDto;
 import com.chauncy.data.dto.manage.good.select.SearchGoodCategoryDto;
@@ -26,6 +27,19 @@ import java.util.Map;
  * @since 2019-05-21
  */
 public interface IPmGoodsCategoryService extends Service<PmGoodsCategoryPo> {
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/17 12:33
+     * @Description 获取商品分类  没有参数返回一级分类  有一级分类id返回二三级分类
+     *
+     * @Update yeJH
+     *
+     * @param  findGoodsCategoryDto
+     * @return java.util.List<com.chauncy.data.dto.app.advice.category.select.GoodsCategoryVo>
+     **/
+    List<GoodsCategoryVo> findAllCategory(FindGoodsCategoryDto findGoodsCategoryDto);
+
     /**
      * 查询分类详情
      * @param id

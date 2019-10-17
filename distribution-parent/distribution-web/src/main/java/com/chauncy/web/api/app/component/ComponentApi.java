@@ -5,8 +5,10 @@ import com.chauncy.common.enums.message.KeyWordTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.MyBaseTree;
 import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.dto.app.advice.category.select.GoodsCategoryVo;
 import com.chauncy.data.dto.app.component.ScreenParamDto;
 import com.chauncy.data.dto.app.component.ShareDto;
+import com.chauncy.data.dto.app.product.FindGoodsCategoryDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.component.ScreenParamVo;
@@ -84,11 +86,29 @@ public class ComponentApi extends BaseApi {
      * @param
      * @return com.chauncy.data.vo.JsonViewData
      **/
-    @PostMapping("/findAllCategory")
+   /* @PostMapping("/findAllCategory")
     @ApiOperation(value = "联动查询所有分类")
     public JsonViewData<GoodsCategoryTreeVo> findGoodsCategoryTreeVo(){
         List<GoodsCategoryTreeVo> goodsCategoryTreeVo = goodsCategoryService.findGoodsCategoryTreeVo();
         return setJsonViewData(MyBaseTree.build(goodsCategoryTreeVo));
+    }*/
+  /**
+     * @Author yeJH
+     * @Date 2019/10/17 10:29
+     * @Description 联动查询所有分类
+     *
+     * @Update yeJH
+     *
+     * @param
+     * @return com.chauncy.data.vo.JsonViewData
+     **/
+    @PostMapping("/findAllCategory")
+    @ApiOperation(value = "联动查询所有分类（修改）")
+    public JsonViewData<GoodsCategoryVo> findAllCategory(
+            @RequestBody @ApiParam(required = true,name = "findGoodsCategoryDto",value = "一级分类id")
+            @Validated FindGoodsCategoryDto findGoodsCategoryDto){
+        List<GoodsCategoryVo> goodsCategoryVoList = goodsCategoryService.findAllCategory(findGoodsCategoryDto);
+        return setJsonViewData(goodsCategoryVoList);
     }
 
     /**

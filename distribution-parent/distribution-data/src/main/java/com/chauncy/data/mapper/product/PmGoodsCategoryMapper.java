@@ -32,6 +32,31 @@ import java.util.Map;
  * @since 2019-05-21
  */
 public interface PmGoodsCategoryMapper extends IBaseMapper<PmGoodsCategoryPo> {
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/17 12:43
+     * @Description 获取商品一级分类 根据sort 排序
+     *
+     * @Update yeJH
+     *
+     * @param
+     * @return java.util.List<com.chauncy.data.dto.app.advice.category.select.GoodsCategoryVo>
+     **/
+    List<GoodsCategoryVo> findFirstCategory();
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/17 12:49
+     * @Description 根据商品一级分类查找二三级分类
+     *
+     * @Update yeJH
+     *
+     * @param  categoryId
+     * @return java.util.List<com.chauncy.data.dto.app.advice.category.select.GoodsCategoryVo>
+     **/
+    List<GoodsCategoryVo> findChildrenCategory(Long categoryId);
+
     /**
      * 查询分类详情
      * @param id
