@@ -86,7 +86,7 @@ public class ComponentApi extends BaseApi {
      **/
     @PostMapping("/findAllCategory")
     @ApiOperation(value = "联动查询所有分类")
-    public JsonViewData findGoodsCategoryTreeVo(){
+    public JsonViewData<GoodsCategoryTreeVo> findGoodsCategoryTreeVo(){
         List<GoodsCategoryTreeVo> goodsCategoryTreeVo = goodsCategoryService.findGoodsCategoryTreeVo();
         return setJsonViewData(MyBaseTree.build(goodsCategoryTreeVo));
     }
