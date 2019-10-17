@@ -170,7 +170,7 @@ FROM
 		and a.type=#{type}
 	</select>
 	<select id="loadGoodsCategoryTreeVo" resultType="com.chauncy.data.vo.manage.product.GoodsCategoryTreeVo">
-		     select id as value,parent_id,name label
+		     select id as value,parent_id,name label, icon
 		     from pm_goods_category
 		     where del_flag=0 and enabled=1
 	</select>
