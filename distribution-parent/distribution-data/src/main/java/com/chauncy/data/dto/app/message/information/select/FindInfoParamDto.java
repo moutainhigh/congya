@@ -35,7 +35,6 @@ public class FindInfoParamDto implements Serializable {
     @ApiModelProperty(value = "资讯类型   \n1：全部资讯列表    \n2：关注资讯列表   \n" +
             "3：推荐资讯列表   \n4：分类资讯列表   \n5：搜索资讯列表   \n")
     @NotNull(message = "资讯列表类型不能为空")
-    @EnumConstraint(target = InformationTypeEnum.class)
     private Integer informationType;
 
     @ApiModelProperty(value = "模糊搜索关键字，informationType=5时传参")

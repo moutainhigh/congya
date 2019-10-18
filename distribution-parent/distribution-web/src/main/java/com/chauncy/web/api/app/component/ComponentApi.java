@@ -3,6 +3,7 @@ package com.chauncy.web.api.app.component;
 import com.chauncy.activity.gift.IAmGiftService;
 import com.chauncy.common.enums.message.KeyWordTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.advice.category.select.GoodsCategoryVo;
 import com.chauncy.data.dto.app.component.ScreenParamDto;
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
@@ -145,17 +147,28 @@ public class ComponentApi extends BaseApi {
     @PostMapping("/findScreenParam")
     public JsonViewData<ScreenParamVo> findScreenParam(
             @RequestBody @ApiParam(required = true,name = "screenParamDto",value = "获取筛选店铺/资讯/商品的参数")
-            @Validated ScreenParamDto screenParamDto){
+            @Valid ScreenParamDto screenParamDto){
         ScreenParamVo screenParamVo = new ScreenParamVo();
-        if(screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.GOODS.getId())) {
+        if(screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.GOODS.getId()) &&
+                null != screenParamDto.getFindStoreGoodsParamDto()) {
             //商品
             screenParamVo = goodsService.findScreenGoodsParam(screenParamDto.getFindStoreGoodsParamDto());
-        } else if (screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.MERCHANT.getId())) {
+        }  else {
+            throw new ServiceException(ResultCode.PARAM_ERROR, "筛选商品的参数不能为空");
+        }
+        if (screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.MERCHANT.getId()) &&
+                null != screenParamDto.getFindStoreParamDto()) {
             //店铺
             screenParamVo = smStoreService.findScreenStoreParam(screenParamDto.getFindStoreParamDto());
-        } else if (screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.INFORMATION.getId())) {
+        } else {
+            throw new ServiceException(ResultCode.PARAM_ERROR, "筛选店铺的参数不能为空");
+        }
+        if (screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.INFORMATION.getId()) &&
+                null != screenParamDto.getFindInfoParamDto()) {
             //资讯
             screenParamVo = mmInformationService.findScreenInfoParam(screenParamDto.getFindInfoParamDto());
+        } else {
+            throw new ServiceException(ResultCode.PARAM_ERROR, "筛选资讯的参数不能为空");
         }
         return setJsonViewData(screenParamVo);
     }
