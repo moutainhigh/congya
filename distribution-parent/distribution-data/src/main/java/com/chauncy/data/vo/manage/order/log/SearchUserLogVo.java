@@ -45,7 +45,7 @@ public class SearchUserLogVo  implements Serializable {
     @JSONField(ordinal = 6)
     private Boolean isShow;
 
-    @ApiModelProperty(value = "提现状态")
+    @ApiModelProperty(value = "提现状态   \n 0 可以提现    \n 1 不可以提现，未完成实名认证    \n 2 不可以提现，有提现未完成")
     @JSONField(ordinal = 7)
     private Integer withdrawalCode;
 
