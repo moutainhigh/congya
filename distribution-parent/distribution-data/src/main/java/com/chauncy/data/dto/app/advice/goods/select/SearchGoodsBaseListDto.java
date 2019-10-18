@@ -13,6 +13,7 @@ import lombok.experimental.Accessors;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @Author cheng
@@ -57,5 +58,14 @@ public class SearchGoodsBaseListDto {
     @ApiModelProperty(value = "分页大小 默认10")
     private Integer pageSize;
 
+
+    @ApiModelProperty(value = "筛选条件  品牌id")
+    private List<Long> brandIds;
+
+    @ApiModelProperty(value = "筛选条件  分类id")
+    private List<Long> categoryIds;
+
+    @ApiModelProperty(value = "筛选条件  标签id")
+    private List<Long> labelIds;
 
 }

@@ -384,7 +384,7 @@
         FROM
             pm_goods pg
             <!-- 店铺 -->
-            <if test="null != storeId">
+            <if test="null != storeId and storeId != 0">
                 inner join sm_store ss on pg.store_id = ss.id AND ss.id = #{storeId}
             </if>
             <!-- 分类 -->
@@ -403,7 +403,7 @@
             </if>
             inner join pm_goods_sku pgs on pgs.goods_id = pg.id
         <where>
-            <if test="null != storeId">
+            <if test="null != storeId and storeId != 0">
                 ss.id = #{storeId}
             </if>
             AND pg.`del_flag` = 0
