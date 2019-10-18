@@ -18,7 +18,7 @@ import java.io.Serializable;
  * @since 2019/10/17 14:31
  */
 @Data
-@ApiModel(value = "SearchInfoByConditionDto", description = "条件查询资讯筛选参数")
+@ApiModel(value = "FindInfoParamDto", description = "条件查询资讯筛选参数")
 public class FindInfoParamDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
