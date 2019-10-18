@@ -149,26 +149,26 @@ public class ComponentApi extends BaseApi {
             @RequestBody @ApiParam(required = true,name = "screenParamDto",value = "获取筛选店铺/资讯/商品的参数")
             @Valid ScreenParamDto screenParamDto){
         ScreenParamVo screenParamVo = new ScreenParamVo();
-        if(screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.GOODS.getId()) &&
-                null != screenParamDto.getFindStoreGoodsParamDto()) {
+        if(screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.GOODS.getId())) {
+            if (null == screenParamDto.getFindStoreGoodsParamDto()) {
+                throw new ServiceException(ResultCode.PARAM_ERROR, "筛选商品的参数不能为空");
+            }
             //商品
             screenParamVo = goodsService.findScreenGoodsParam(screenParamDto.getFindStoreGoodsParamDto());
-        }  else {
-            throw new ServiceException(ResultCode.PARAM_ERROR, "筛选商品的参数不能为空");
         }
-        if (screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.MERCHANT.getId()) &&
-                null != screenParamDto.getFindStoreParamDto()) {
+        if (screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.MERCHANT.getId())) {
+            if (null == screenParamDto.getFindStoreParamDto()) {
+                throw new ServiceException(ResultCode.PARAM_ERROR, "筛选店铺的参数不能为空");
+            }
             //店铺
             screenParamVo = smStoreService.findScreenStoreParam(screenParamDto.getFindStoreParamDto());
-        } else {
-            throw new ServiceException(ResultCode.PARAM_ERROR, "筛选店铺的参数不能为空");
         }
-        if (screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.INFORMATION.getId()) &&
-                null != screenParamDto.getFindInfoParamDto()) {
+        if (screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.INFORMATION.getId()) ) {
+            if (null == screenParamDto.getFindInfoParamDto()){
+                throw new ServiceException(ResultCode.PARAM_ERROR, "筛选资讯的参数不能为空");
+            }
             //资讯
             screenParamVo = mmInformationService.findScreenInfoParam(screenParamDto.getFindInfoParamDto());
-        } else {
-            throw new ServiceException(ResultCode.PARAM_ERROR, "筛选资讯的参数不能为空");
         }
         return setJsonViewData(screenParamVo);
     }
