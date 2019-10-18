@@ -389,7 +389,7 @@
             </if>
             <!-- 分类 -->
             <if test="(null != goodsType and goodsType == 6) or (null != categoryIds and categoryIds.size() > 0) ">
-                inner join pm_goods_category pgc on pgc.id = pg.goods_category_id
+                LEFT JOIN pm_goods_category pgc on pgc.id = pg.goods_category_id
             </if>
             <!-- 标签 -->
             <if test="(null != labelIds and labelIds.size() > 0) ">
