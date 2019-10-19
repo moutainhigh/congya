@@ -525,8 +525,8 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
 
         PersonalCenterPictureVo topPicture = adviceMapper.getTopPicture();
         PersonalCenterPictureVo topUpPicture =adviceMapper.getTopUpPicture();
-        myDataStatisticsVo.setTopPicture(topPicture);
-        myDataStatisticsVo.setTopUpPicture(topUpPicture);
+        myDataStatisticsVo.setTopPicture(null == topPicture ? new PersonalCenterPictureVo() : topPicture);
+        myDataStatisticsVo.setTopUpPicture(null == topUpPicture ? new PersonalCenterPictureVo() : topUpPicture);
 
         return myDataStatisticsVo;
     }

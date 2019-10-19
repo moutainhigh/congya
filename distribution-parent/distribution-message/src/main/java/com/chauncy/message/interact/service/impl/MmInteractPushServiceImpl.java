@@ -13,6 +13,7 @@ import com.chauncy.common.util.third.SendSms;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.interact.MmInteractPushPo;
 import com.chauncy.data.domain.po.message.interact.MmInteractRelMessageObjectPo;
+import com.chauncy.data.domain.po.message.interact.MmUserNoticeRelUserPo;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.dto.manage.message.interact.add.AddPushMessageDto;
 import com.chauncy.data.dto.manage.message.interact.select.SearchPushDto;
@@ -21,6 +22,7 @@ import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
 import com.chauncy.data.mapper.message.MmSMSMessageMapper;
 import com.chauncy.data.mapper.message.interact.MmInteractPushMapper;
 import com.chauncy.data.mapper.message.interact.MmInteractRelMessageObjectMapper;
+import com.chauncy.data.mapper.message.interact.MmUserNoticeRelUserMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.BaseVo;
@@ -28,6 +30,7 @@ import com.chauncy.data.vo.manage.message.interact.push.InteractPushVo;
 import com.chauncy.data.vo.manage.message.interact.push.SmsPushVo;
 import com.chauncy.data.vo.manage.message.interact.push.UmUsersVo;
 import com.chauncy.message.interact.service.IMmInteractPushService;
+import com.chauncy.message.interact.service.IMmUserNoticeRelUserService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -38,6 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +61,12 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
 
     @Autowired
     private MmInteractPushMapper mapper;
+
+    @Autowired
+    private MmUserNoticeRelUserMapper mmUserNoticeRelUserMapper;
+
+    @Autowired
+    private IMmUserNoticeRelUserService mmUserNoticeRelUserService;
 
     @Autowired
     private UmUserMapper userMapper;
@@ -99,8 +109,6 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
      */
     @Override
     public void addPushMessage(AddPushMessageDto addPushMessageDto) {
-        //保存推送信息与用户的关联
-        saveNoticeRelUser(addPushMessageDto);
         //获取推送方式
         PushTypeEnum pushType = PushTypeEnum.fromName(addPushMessageDto.getPushType());
         PushObjectEnum pushObject = PushObjectEnum.fromName(addPushMessageDto.getObjectType());
@@ -183,7 +191,15 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
                     //指定会员
                     case SPECIFYMEMBERLEVEL:
                         //通过会员ID获取对应的用户ID
+                        if (addPushMessageDto.getObjectIds() == null || addPushMessageDto.getObjectIds().size() == 0) {
+                            throw new ServiceException(ResultCode.NO_EXISTS, "请选择指定会员等级");
+                        }
+                        //通过会员ID获取对应的用户ID
                         Long memberLevelId = addPushMessageDto.getObjectIds().get(0);
+                        PmMemberLevelPo queryMemberLevel = memberLevelMapper.selectById(memberLevelId);
+                        if (queryMemberLevel == null) {
+                            throw new ServiceException(ResultCode.NO_EXISTS, "数据库不存在该会员等级，请检查");
+                        }
                         MmInteractRelMessageObjectPo relMessageObjectPo = new MmInteractRelMessageObjectPo();
                         relMessageObjectPo.setPushId(interactPushPo.getId());
                         relMessageObjectPo.setObjectId(memberLevelId);
@@ -193,6 +209,9 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
                         break;
                     //指定用户
                     case SPECIFYUSER:
+                        if (addPushMessageDto.getObjectIds() == null || addPushMessageDto.getObjectIds().size() == 0) {
+                            throw new ServiceException(ResultCode.NO_EXISTS, "请选择指定用户");
+                        }
                         addPushMessageDto.getObjectIds().forEach(a -> {
                             MmInteractRelMessageObjectPo messageObjectPo = new MmInteractRelMessageObjectPo();
                             messageObjectPo.setPushId(interactPushPo.getId());
@@ -205,6 +224,12 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
                 }
                 break;
         }
+
+        if(PushTypeEnum.APPMESSAGE.getName().equals(addPushMessageDto.getPushType())) {
+            //如果是app内消息中心推送 保存推送信息与用户的关联（哪些用户收到了消息）
+            saveNoticeRelUser(interactPushPo, addPushMessageDto.getObjectIds());
+        }
+
     }
 
     /**
@@ -214,11 +239,39 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
      *
      * @Update yeJH
      *
-     * @param  addPushMessageDto
+     * @param  interactPushPo
      * @return void
      **/
-    private void saveNoticeRelUser(AddPushMessageDto addPushMessageDto) {
-        //todo
+    private void saveNoticeRelUser(MmInteractPushPo interactPushPo, List<Long> relIds) {
+        if(PushObjectEnum.ALLUSER.getName().equals(interactPushPo.getObjectType())) {
+            //指定全部用户
+            MmUserNoticeRelUserPo mmUserNoticeRelUserPo = new MmUserNoticeRelUserPo();
+            mmUserNoticeRelUserPo.setPushId(interactPushPo.getId());
+            mmUserNoticeRelUserPo.setSendType(PushObjectEnum.ALLUSER.getId());
+            mmUserNoticeRelUserPo.setCreateBy(interactPushPo.getCreateBy());
+            mmUserNoticeRelUserMapper.insert(mmUserNoticeRelUserPo);
+        } else if(PushObjectEnum.SPECIFYMEMBERLEVEL.getName().equals(interactPushPo.getObjectType())) {
+            //指定会员等级
+            MmUserNoticeRelUserPo mmUserNoticeRelUserPo = new MmUserNoticeRelUserPo();
+            mmUserNoticeRelUserPo.setPushId(interactPushPo.getId());
+            mmUserNoticeRelUserPo.setSendType(PushObjectEnum.SPECIFYMEMBERLEVEL.getId());
+            PmMemberLevelPo pmMemberLevelPo = memberLevelMapper.selectById(relIds.get(0));
+            mmUserNoticeRelUserPo.setLevel(pmMemberLevelPo.getLevel());
+            mmUserNoticeRelUserPo.setCreateBy(interactPushPo.getCreateBy());
+            mmUserNoticeRelUserMapper.insert(mmUserNoticeRelUserPo);
+        } else {
+            //指定用户
+            List<MmUserNoticeRelUserPo> mmUserNoticeRelUserPoList = new ArrayList<>();
+            relIds.stream().forEach(userId -> {
+                MmUserNoticeRelUserPo mmUserNoticeRelUserPo = new MmUserNoticeRelUserPo();
+                mmUserNoticeRelUserPo.setPushId(interactPushPo.getId());
+                mmUserNoticeRelUserPo.setSendType(PushObjectEnum.SPECIFYUSER.getId());
+                mmUserNoticeRelUserPo.setUserId(userId);
+                mmUserNoticeRelUserPo.setCreateBy(interactPushPo.getCreateBy());
+                mmUserNoticeRelUserPoList.add(mmUserNoticeRelUserPo);
+            });
+            mmUserNoticeRelUserService.saveBatch(mmUserNoticeRelUserPoList);
+        }
     }
 
     /**
