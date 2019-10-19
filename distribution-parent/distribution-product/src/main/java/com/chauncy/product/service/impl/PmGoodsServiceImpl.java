@@ -1310,7 +1310,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         BeanUtils.copyProperties(updateGoodOperationDto, goodsPo);
 
         //应对前端在新增商品时传了校验状态为0的情况
-        if (updateGoodOperationDto.getVerifyStatus() == 0) {
+        if (updateGoodOperationDto.getVerifyStatus() == null || updateGoodOperationDto.getVerifyStatus() == 0) {
             goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId()).setPublishStatus(null);
         }
 
