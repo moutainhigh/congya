@@ -3,6 +3,7 @@ package com.chauncy.data.mapper.message.advice;
 import com.chauncy.data.domain.po.message.advice.MmAdvicePo;
 import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
 import com.chauncy.data.dto.app.advice.category.select.BaiHuoMiddleAdviceVo;
+import com.chauncy.data.dto.app.advice.goods.select.FindRelGoodsParamDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
 import com.chauncy.data.dto.app.product.SearchActivityGoodsListDto;
@@ -20,6 +21,7 @@ import com.chauncy.data.vo.app.advice.home.GetAdviceInfoVo;
 import com.chauncy.data.vo.app.advice.home.ShufflingVo;
 import com.chauncy.data.vo.app.advice.store.StoreCategoryDetailVo;
 import com.chauncy.data.vo.app.advice.store.StoreCategoryInfoVo;
+import com.chauncy.data.vo.app.component.ScreenGoodsParamVo;
 import com.chauncy.data.vo.app.goods.ActivityGoodsVo;
 import com.chauncy.data.vo.app.user.PersonalCenterPictureVo;
 import com.chauncy.data.vo.manage.message.advice.FindBaiHuoAdviceVo;
@@ -286,6 +288,18 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
     List<SearchGoodsBaseListVo> searchBrandGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto);
 
     /**
+     * @Author yeJH
+     * @Date 2019/10/19 0:51
+     * @Description 查询品牌下的商品列表的筛选参数
+     *
+     * @Update yeJH
+     *
+     * @param  findRelGoodsParamDto
+     * @return com.chauncy.data.vo.app.component.ScreenGoodsParamVo
+     **/
+    ScreenGoodsParamVo findBrandGoodsParam(FindRelGoodsParamDto findRelGoodsParamDto);
+
+    /**
      * 分页条件查询品牌下的商品列表
      *
      * @param searchGoodsBaseListDto
@@ -294,12 +308,36 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
     List<SearchGoodsBaseListVo> searchTabGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto);
 
     /**
+     * @Author yeJH
+     * @Date 2019/10/19 0:50
+     * @Description 查询有品选项卡下的商品列表筛选参数
+     *
+     * @Update yeJH
+     *
+     * @param  findRelGoodsParamDto
+     * @return com.chauncy.data.vo.app.component.ScreenGoodsParamVo
+     **/
+    ScreenGoodsParamVo findTabGoodsParam(FindRelGoodsParamDto findRelGoodsParamDto);
+
+    /**
      * 分页条件查询葱鸭优选推荐的分类的商品列表
      *
      * @param searchGoodsBaseListDto
      * @return
      */
     List<SearchGoodsBaseListVo> searchCategoryGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/19 0:52
+     * @Description 葱鸭百货关联三级分类的商品列表的筛选参数
+     *
+     * @Update yeJH
+     *
+     * @param  findRelGoodsParamDto
+     * @return com.chauncy.data.vo.app.component.ScreenGoodsParamVo
+     **/
+    ScreenGoodsParamVo findCategoryGoodsParam(FindRelGoodsParamDto findRelGoodsParamDto);
 
     /**
      * 分页条件查询葱鸭百货关联三级分类的所有商品
@@ -316,6 +354,18 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
      * @return
      */
     List<SearchGoodsBaseListVo> searchCouponGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/19 0:54
+     * @Description 优惠券关联的商品列表的筛选条件
+     *
+     * @Update yeJH
+     *
+     * @param  findRelGoodsParamDto
+     * @return com.chauncy.data.vo.app.component.ScreenGoodsParamVo
+     **/
+    ScreenGoodsParamVo findCouponGoodsParam(FindRelGoodsParamDto findRelGoodsParamDto);
 
     /**
      * 分页条件查询首页下面的商品列表/品牌id/选项卡id/商品分类id/葱鸭百货关联/优惠券关联下的商品列表
@@ -337,6 +387,17 @@ public interface MmAdviceMapper extends IBaseMapper<MmAdvicePo> {
      **/
     List<SearchGoodsBaseListVo> searchSecondCategoryGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto);
 
+    /**
+     * @Author yeJH
+     * @Date 2019/10/19 0:57
+     * @Description 查询葱鸭百货关联二级分类的商品列表筛选参数
+     *
+     * @Update yeJH
+     *
+     * @param  findRelGoodsParamDto
+     * @return com.chauncy.data.vo.app.component.ScreenGoodsParamVo
+     **/
+    ScreenGoodsParamVo findSecondCategoryGoodsParam(FindRelGoodsParamDto findRelGoodsParamDto);
     /**
      * @Author chauncy
      * @Date 2019-09-22 18:06

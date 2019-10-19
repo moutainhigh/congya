@@ -147,7 +147,7 @@ public class AdviceStoreInfoApi extends BaseApi {
                     "COLLECTION_NUM：人气    \n" +
                     "排序方式（sortWay ）：   DESC：降序  ASC：升序  \n")
     @PostMapping("/searchStoreList")
-    public JsonViewData<PageInfo<SearchGoodsBaseListVo>> searchStoreList(@RequestBody @ApiParam(required = true,
+    public JsonViewData<PageInfo<StoreCategoryDetailVo>> searchStoreList(@RequestBody @ApiParam(required = true,
             name = "searchStoreDto",value = "查询条件")  @Validated SearchStoreDto searchStoreDto){
 
         return setJsonViewData(smStoreService.searchStoreBaseList(searchStoreDto));

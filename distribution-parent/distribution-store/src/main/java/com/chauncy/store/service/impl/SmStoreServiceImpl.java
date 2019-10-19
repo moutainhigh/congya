@@ -215,7 +215,7 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         //oldAttributeIds 与 newAttributeIds的差集
         List<Long> reduceList = oldAttributeIds.stream().filter(item -> !newAttributeIds.contains(item)).collect(toList());
         if(null != reduceList && reduceList.size() > 0 ) {
-            throw  new ServiceException(ResultCode.PARAM_ERROR, "修改失败，包含正被使用的关联的品牌");
+            throw  new ServiceException(ResultCode.PARAM_ERROR, "修改失败，删除的品牌包含正被使用的关联的品牌");
         }
 
         //将店铺与品牌关联表的记录删除  关联不能全部删除重新创建  因为可能已经有已存在关联，删除差集 needDelList
