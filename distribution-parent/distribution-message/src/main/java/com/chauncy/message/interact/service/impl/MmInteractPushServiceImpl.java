@@ -13,6 +13,7 @@ import com.chauncy.common.util.third.SendSms;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.interact.MmInteractPushPo;
 import com.chauncy.data.domain.po.message.interact.MmInteractRelMessageObjectPo;
+import com.chauncy.data.domain.po.message.interact.MmUserNoticeRelUserPo;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.dto.manage.message.interact.add.AddPushMessageDto;
 import com.chauncy.data.dto.manage.message.interact.select.SearchPushDto;
@@ -222,7 +223,9 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
      **/
     private void saveNoticeRelUser(MmInteractPushPo interactPushPo, List<Long> userIds) {
         if(PushObjectEnum.ALLUSER.getName().equals(interactPushPo.getObjectType())) {
-
+            MmUserNoticeRelUserPo mmUserNoticeRelUserPo = new MmUserNoticeRelUserPo();
+            mmUserNoticeRelUserPo.setPushId(interactPushPo.getId());
+            //mmUserNoticeRelUserPo.set
         }
     }
 

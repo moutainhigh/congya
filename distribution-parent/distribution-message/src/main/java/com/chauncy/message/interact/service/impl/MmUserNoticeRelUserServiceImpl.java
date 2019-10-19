@@ -1,8 +1,8 @@
 package com.chauncy.message.interact.service.impl;
 
 import com.chauncy.data.domain.po.message.interact.MmUserNoticeRelUserPo;
-import com.chauncy.data.mapper.message.interact.MmInteractPushRelUserMapper;
-import com.chauncy.message.interact.service.IMmInteractPushRelUserService;
+import com.chauncy.data.mapper.message.interact.MmUserNoticeRelUserMapper;
+import com.chauncy.message.interact.service.IMmUserNoticeRelUserService;
 import com.chauncy.data.core.AbstractService;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class MmInteractPushRelUserServiceImpl extends AbstractService<MmInteractPushRelUserMapper, MmUserNoticeRelUserPo> implements IMmInteractPushRelUserService {
+public class MmUserNoticeRelUserServiceImpl extends AbstractService<MmUserNoticeRelUserMapper, MmUserNoticeRelUserPo> implements IMmUserNoticeRelUserService {
 
- @Autowired
- private MmInteractPushRelUserMapper mapper;
+    @Autowired
+    private MmUserNoticeRelUserMapper mapper;
 
 }

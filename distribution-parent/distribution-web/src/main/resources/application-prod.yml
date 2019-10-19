@@ -97,6 +97,9 @@ ignored:
     - /app/user/data/binding
     - /generator/create
     - /app/order/logistics/callback/**
+    - /manage/message/advice/findAdviceLocation
+    - /app/wxPay/notify
+    - /app/component/findBootPage
 
 # 配置快递100
 logistics:

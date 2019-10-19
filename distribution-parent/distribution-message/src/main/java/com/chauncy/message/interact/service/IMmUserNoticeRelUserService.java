@@ -11,6 +11,6 @@ import com.chauncy.data.core.Service;
  * @author huangwancheng
  * @since 2019-09-16
  */
-public interface IMmInteractPushRelUserService extends Service<MmUserNoticeRelUserPo> {
+public interface IMmUserNoticeRelUserService extends Service<MmUserNoticeRelUserPo> {
 
 }
