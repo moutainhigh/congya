@@ -99,6 +99,8 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
      */
     @Override
     public void addPushMessage(AddPushMessageDto addPushMessageDto) {
+        //保存推送信息与用户的关联
+        saveNoticeRelUser(addPushMessageDto);
         //获取推送方式
         PushTypeEnum pushType = PushTypeEnum.fromName(addPushMessageDto.getPushType());
         PushObjectEnum pushObject = PushObjectEnum.fromName(addPushMessageDto.getObjectType());
@@ -203,6 +205,20 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
                 }
                 break;
         }
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/19 14:01
+     * @Description 系统推送消息  添加用户跟消息的关联
+     *
+     * @Update yeJH
+     *
+     * @param  addPushMessageDto
+     * @return void
+     **/
+    private void saveNoticeRelUser(AddPushMessageDto addPushMessageDto) {
+        //todo
     }
 
     /**

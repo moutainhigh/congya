@@ -32,13 +32,13 @@
                 LEFT JOIN mm_user_notice_rel_user munru
                 ON mip.id = munru.push_id
                 WHERE
-                    mip.push_type = 'APP内消息中心推送' AND mip.create_time  <![CDATA[> ]]>  #{readTime}
+                    mip.create_time  <![CDATA[> ]]>  #{readTime}
                     AND  (
-                        mip.object_type = '全部用户'
+                        munru.send_type = 1
                         OR
-                        mip.object_type = '指定会员等级' AND #{userLevel} <![CDATA[<= ]]>  munru.rel_id
+                        munru.send_type = 3 AND #{userLevel} <![CDATA[<= ]]>  munru.level
                         OR
-                        mip.object_type = '指定用户' AND munru.rel_id =  #{userId}
+                        munru.send_type = 2 AND munru.user_id =  #{userId}
                         )
             ) AS systemNoticeNum
          FROM mm_user_notice mun
@@ -70,17 +70,15 @@
             '' AS picture,
             mip.create_time
         FROM mm_interact_push mip
-        LEFT JOIN mm_user_notice_rel_user munru
+        INNER JOIN mm_user_notice_rel_user munru
         ON mip.id = munru.push_id
-        WHERE
-            mip.push_type = 'APP内消息中心推送'
-            AND   (
-                mip.object_type = '全部用户'
-                OR
-                mip.object_type = '指定会员等级' AND  #{userLevel} <![CDATA[<= ]]>  munru.rel_id
-                OR
-                mip.object_type = '指定用户' AND munru.rel_id =  #{userId}
-                )
+        WHERE (
+            munru.send_type = 1
+            OR
+            munru.send_type = 3 AND  #{userLevel} <![CDATA[<= ]]>  munru.level
+            OR
+            munru.send_type = 2 AND munru.user_id =  #{userId}
+        )
         ORDER BY mip.create_time DESC
     </select>
 

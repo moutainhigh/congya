@@ -117,10 +117,11 @@ public class MmUserNoticeServiceImpl extends AbstractService<MmUserNoticeMapper,
                     }
                 });
             } else {
+                //记录不存在 记录数据
                 mmUserNoticeTimePo = new MmUserNoticeTimePo();
                 mmUserNoticeTimePo.setId(userPo.getId());
                 mmUserNoticeTimePo.setReadTime(LocalDateTime.now());
-                mmUserNoticeTimeMapper.updateById(mmUserNoticeTimePo);
+                mmUserNoticeTimeMapper.insert(mmUserNoticeTimePo);
             }
         }
         return userNoticeListVoPageInfo;
