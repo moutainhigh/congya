@@ -41,7 +41,10 @@ public class MmUserNoticeRelUserPo implements Serializable {
     private Long pushId;
 
     @ApiModelProperty(value = "用户id")
-    private Long relId;
+    private Long userId;
+
+    @ApiModelProperty(value = "用户等级")
+    private Integer level;
 
     @ApiModelProperty(value = "评论是否已读 1-是 0-否 默认为0")
     private Boolean isRead;
