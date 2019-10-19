@@ -110,27 +110,27 @@ public class GetMembersCenterVo {
     @JSONField(ordinal = 18)
     private BigDecimal contributionProportion;
 
-    @ApiModelProperty("赞")
+    @ApiModelProperty(hidden = true,value = "赞")
     @JSONField(ordinal = 19,serialize = false)
     private Integer praise;
 
-    @ApiModelProperty("分享")
+    @ApiModelProperty(value = "分享",hidden = true)
     @JSONField(ordinal = 20,serialize = false)
     private Integer share;
 
-    @ApiModelProperty("评论")
+    @ApiModelProperty(value = "评论",hidden = true)
     @JSONField(ordinal = 21,serialize = false)
     private Integer comments;
 
-    @ApiModelProperty("CRO")
+    @ApiModelProperty(value = "CRO",hidden = true)
     @JSONField(ordinal = 22,serialize = false)
     private Integer cRO;
 
-    @ApiModelProperty("活跃")
+    @ApiModelProperty(value = "活跃",hidden = true)
     @JSONField(ordinal = 23,serialize = false)
     private BigDecimal active;
 
-    @ApiModelProperty("用户注册时间")
+    @ApiModelProperty(value = "用户注册时间",hidden = true)
     @JSONField(ordinal = 24,serialize = false)
     private LocalDateTime createTime;
 }

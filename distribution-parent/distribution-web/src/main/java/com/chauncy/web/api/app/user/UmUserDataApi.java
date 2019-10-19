@@ -310,13 +310,14 @@ public class UmUserDataApi extends BaseApi {
     @ApiOperation("根据邀请码获取用户昵称 inviteCode:邀请码")
     public JsonViewData<UserNickNameVo> getNameByCode(@PathVariable Long inviteCode){
         QueryWrapper<UmUserPo> queryWrapper=new QueryWrapper<>();
-        queryWrapper.lambda().eq(UmUserPo::getInviteCode,inviteCode).select(UmUserPo::getName);
+        queryWrapper.lambda().eq(UmUserPo::getInviteCode,inviteCode).select(UmUserPo::getName,UmUserPo::getPhoto);
         UmUserPo queryUser=umUserService.getOne(queryWrapper);
         UserNickNameVo userNickNameVo=new UserNickNameVo();
         if (queryUser==null){
             return setJsonViewData(ResultCode.NO_EXISTS);
         }
         userNickNameVo.setName(queryUser.getName());
+        userNickNameVo.setPhoto(queryUser.getPhoto());
         return setJsonViewData(userNickNameVo);
 
     }

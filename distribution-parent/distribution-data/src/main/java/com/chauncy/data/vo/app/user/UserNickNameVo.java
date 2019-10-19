@@ -16,4 +16,7 @@ public class UserNickNameVo {
 
     @ApiModelProperty("昵称")
     private String name;
+
+    @ApiModelProperty("头像")
+    private String photo;
 }
