@@ -22,6 +22,7 @@ import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
 import com.chauncy.data.mapper.message.MmSMSMessageMapper;
 import com.chauncy.data.mapper.message.interact.MmInteractPushMapper;
 import com.chauncy.data.mapper.message.interact.MmInteractRelMessageObjectMapper;
+import com.chauncy.data.mapper.message.interact.MmUserNoticeRelUserMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.BaseVo;
@@ -58,6 +59,9 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
 
     @Autowired
     private MmInteractPushMapper mapper;
+
+    @Autowired
+    private MmUserNoticeRelUserMapper mmUserNoticeRelUserMapper;
 
     @Autowired
     private UmUserMapper userMapper;
@@ -225,7 +229,9 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
         if(PushObjectEnum.ALLUSER.getName().equals(interactPushPo.getObjectType())) {
             MmUserNoticeRelUserPo mmUserNoticeRelUserPo = new MmUserNoticeRelUserPo();
             mmUserNoticeRelUserPo.setPushId(interactPushPo.getId());
-            //mmUserNoticeRelUserPo.set
+            mmUserNoticeRelUserPo.setSendType(PushObjectEnum.ALLUSER.getId());
+            mmUserNoticeRelUserPo.setCreateBy(interactPushPo.getCreateBy());
+            //mmUserNoticeRelUserMapper
         }
     }
 
