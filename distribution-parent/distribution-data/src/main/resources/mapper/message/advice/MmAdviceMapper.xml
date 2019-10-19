@@ -31,6 +31,26 @@
         </collection>
     </resultMap>
 
+    <!-- 商品列表筛选条件列表 -->
+    <resultMap id="screenGoodsParamResult" type="com.chauncy.data.vo.app.component.ScreenGoodsParamVo">
+        <id column="id" property="id" />
+        <!-- collection定义关联集合类型的属性封装规则
+        offType:指定集合中的元素类型
+        -->
+        <collection property="categoryList" ofType="com.chauncy.data.vo.BaseVo">
+            <id column="categoryId" property="id"/>
+            <result column="categoryName" property="name"/>
+        </collection>
+        <collection property="labelList" ofType="com.chauncy.data.vo.BaseVo">
+            <id column="labelId" property="id"/>
+            <result column="labelName" property="name"/>
+        </collection>
+        <collection property="brandList" ofType="com.chauncy.data.vo.BaseVo">
+            <id column="brandId" property="id"/>
+            <result column="brandName" property="name"/>
+        </collection>
+    </resultMap>
+
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, create_by, create_time, update_by, update_time, del_flag, location, name, picture, enabled
@@ -690,13 +710,57 @@
         where a.tab_id = #{tabId} and a.association_id = b.id and a.del_flag =0 and b.del_flag = 0
     </select>
     <select id="searchBrandGoodsBaseList" resultType="com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo">
-        select a.name as condition_name,b.id as goods_id,b.name as goods_name,b.subtitle,b.icon as picture,b.activity_cost_rate,
-        b.profits_rate,b.sales_volume,d.sell_price as sell_price,d.line_price,b.forward_num,b.collection_num
-        from pm_goods_attribute a,pm_goods b,pm_goods_rel_attribute_good c,pm_goods_sku	d
-        where b.publish_status = 1 and a.del_flag = 0 and b.del_flag = 0 and c.del_flag =0 and d.del_flag =0 and a.id = #{conditionId}
-        and c.goods_attribute_id = a.id and c.goods_good_id = b.id and d.goods_id = b.id
-        and d.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = b.id  and d2.del_flag =0 and d2.sell_price =
-        (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = b.id  and d1.del_flag =0 LIMIT 1) limit 1)
+        select a.name as condition_name,
+            b.id as goods_id,
+            b.name as goods_name,
+            b.subtitle,
+            b.icon as picture,
+            b.activity_cost_rate,
+            b.profits_rate,
+            b.sales_volume,
+            d.sell_price as sell_price,
+            d.line_price,
+            b.forward_num,
+            b.collection_num
+        from pm_goods_attribute a
+        inner join pm_goods_rel_attribute_good c on c.goods_attribute_id = a.id and  a.id = #{conditionId} and c.del_flag =0
+        inner join pm_goods b on c.goods_good_id = b.id and  b.publish_status = 1 and b.del_flag = 0
+        inner join pm_goods_sku	d on  d.goods_id = b.id and d.del_flag =0
+        <!-- 分类 -->
+        <if test="(null != categoryIds and categoryIds.size() > 0) ">
+            INNER JOIN pm_goods_category pgc on pgc.id = b.goods_category_id
+            AND pgc.id IN
+            <foreach item="item" collection="categoryIds" separator="," open="(" close=")" index="">
+                #{item}
+            </foreach>
+        </if>
+        <!-- 标签 -->
+        <if test="(null != labelIds and labelIds.size() > 0) ">
+            INNER JOIN pm_goods_rel_attribute_good pgrag1  ON b.id = pgrag1.`goods_good_id`
+            INNER JOIN pm_goods_attribute pga1 ON pgrag1.goods_attribute_id = pga1.`id`
+            AND pga1.id IN
+            <foreach item="item" collection="labelIds" separator="," open="(" close=")" index="">
+                #{item}
+            </foreach>
+            AND pgrag1.`del_flag` = 0
+            <!-- AND pga1.`del_flag` = 0
+            AND pga1.`enabled` = 1 -->
+            AND pga1.`type` = 5
+        </if>
+        where a.del_flag = 0
+        and d.id = (
+            SELECT id
+            from pm_goods_sku d2
+            where d2.`goods_id` = b.id
+            and d2.del_flag =0
+            and d2.sell_price = (
+                SELECT Min(d1.sell_price)
+                FROM pm_goods_sku d1
+                WHERE d1.`goods_id` = b.id
+                and d1.del_flag =0
+                LIMIT 1)
+            limit 1
+        )
         <if test="lowestPrice !=null ">
             and sell_price &gt;= #{lowestPrice}
         </if>
@@ -723,6 +787,37 @@
         <if test="sortFile.name() == 'COLLECTION_NUM'">
             order by b.collection_num ${sortWay.name}
         </if>
+    </select>
+    <select id="findBrandGoodsParam" resultMap="screenGoodsParamResult">
+        SELECT
+            '1' AS id,
+            pgc.id AS categoryId,
+            pgc.`name` AS categoryName,
+            pga1.id AS labelId,
+            pga1.NAME AS labelName
+        FROM (
+            SELECT
+                b.id,
+                b.goods_category_id
+            FROM pm_goods_attribute a
+            INNER JOIN pm_goods_rel_attribute_good c ON c.goods_attribute_id = a.id AND  a.id =  #{conditionId}  AND c.del_flag =0 AND a.del_flag = 0
+            INNER JOIN pm_goods b ON c.goods_good_id = b.id AND  b.publish_status = 1 AND b.del_flag = 0
+        ) temp
+        INNER JOIN pm_goods_category pgc ON temp.goods_category_id = pgc.`id`
+        AND pgc.`del_flag` = 0
+        AND pgc.`enabled` = 1
+        INNER JOIN pm_goods_rel_attribute_good pgrag1 ON temp.id = pgrag1.`goods_good_id`
+        AND pgrag1.`del_flag` = 0
+        INNER JOIN pm_goods_attribute pga1 ON pgrag1.goods_attribute_id = pga1.`id`
+        AND pga1.`del_flag` = 0
+        AND pga1.`enabled` = 1
+        AND pga1.`type` = 5
+        INNER JOIN pm_goods_rel_attribute_good pgrag2 ON temp.id = pgrag2.`goods_good_id`
+        AND pgrag2.`del_flag` = 0
+        INNER JOIN pm_goods_attribute pga2 ON pgrag2.goods_attribute_id = pga2.`id`
+        AND pga2.`del_flag` = 0
+        AND pga2.`enabled` = 1
+        AND pga2.`type` = 8
     </select>
     <select id="searchTabGoodsBaseList"
             resultType="com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo">
@@ -808,15 +903,101 @@
             order by b.collection_num ${sortWay.name}
         </if>
     </select>
+    <select id="findTabGoodsParam" resultMap="screenGoodsParamResult">
+        SELECT
+            '1' AS id,
+            pgc.id AS categoryId,
+            pgc.`name` AS categoryName,
+            pga1.id AS labelId,
+            pga1.NAME AS labelName,
+            pga2.id AS brandId,
+            pga2.NAME AS brandName
+        FROM (
+            SELECT
+                b.id,
+                b.goods_category_id
+            FROM
+                mm_advice_rel_tab_things a
+                INNER JOIN pm_goods b ON a.association_id = b.id
+                AND a.tab_id =  #{conditionId}
+                AND b.del_flag = 0
+                AND b.publish_status = 1
+            WHERE
+                a.del_flag = 0
+        ) temp
+        INNER JOIN pm_goods_category pgc ON temp.goods_category_id = pgc.`id`
+        AND pgc.`del_flag` = 0
+        AND pgc.`enabled` = 1
+        INNER JOIN pm_goods_rel_attribute_good pgrag1 ON temp.id = pgrag1.`goods_good_id`
+        AND pgrag1.`del_flag` = 0
+        INNER JOIN pm_goods_attribute pga1 ON pgrag1.goods_attribute_id = pga1.`id`
+        AND pga1.`del_flag` = 0
+        AND pga1.`enabled` = 1
+        AND pga1.`type` = 5
+        INNER JOIN pm_goods_rel_attribute_good pgrag2 ON temp.id = pgrag2.`goods_good_id`
+        AND pgrag2.`del_flag` = 0
+        INNER JOIN pm_goods_attribute pga2 ON pgrag2.goods_attribute_id = pga2.`id`
+        AND pga2.`del_flag` = 0
+        AND pga2.`enabled` = 1
+        AND pga2.`type` = 8
+    </select>
     <select id="searchCategoryGoodsBaseList"
             resultType="com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo">
-
-        select c.name as condition_name,b.id as goods_id,b.name as goods_name,b.icon as picture,b.activity_cost_rate,
-        b.profits_rate,b.sales_volume,d.sell_price as sell_price,d.line_price,b.forward_num,b.collection_num
-        from pm_goods b,pm_goods_sku d,pm_goods_category c
-        where  b.publish_status = 1 and b.del_flag = 0 and d.del_flag =0 and c.del_flag = 0 and c.id = #{conditionId} and b.goods_category_id = #{conditionId} and d.goods_id=b.id
-        and d.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = b.id  and d2.del_flag =0 and d2.sell_price =
-        (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = b.id  and d1.del_flag =0 LIMIT 1) limit 1)
+        select c.name as condition_name,
+            b.id as goods_id,
+            b.name as goods_name,
+            b.icon as picture,
+            b.activity_cost_rate,
+            b.profits_rate,
+            b.sales_volume,
+            d.sell_price as sell_price,
+            d.line_price,
+            b.forward_num,
+            b.collection_num
+        from pm_goods b
+        inner join pm_goods_sku d on d.goods_id=b.id and b.goods_category_id = #{conditionId} and d.del_flag =0
+        inner join pm_goods_category c on c.id = b.goods_category_id and c.del_flag = 0
+        <!-- 标签 -->
+        <if test="(null != labelIds and labelIds.size() > 0) ">
+            INNER JOIN pm_goods_rel_attribute_good pgrag1  ON b.id = pgrag1.`goods_good_id`
+            INNER JOIN pm_goods_attribute pga1 ON pgrag1.goods_attribute_id = pga1.`id`
+            AND pga1.id IN
+            <foreach item="item" collection="labelIds" separator="," open="(" close=")" index="">
+                #{item}
+            </foreach>
+            AND pgrag1.`del_flag` = 0
+            <!-- AND pga1.`del_flag` = 0
+            AND pga1.`enabled` = 1 -->
+            AND pga1.`type` = 5
+        </if>
+        <!-- 品牌 -->
+        <if test="(null != brandIds and brandIds.size() > 0) ">
+            INNER JOIN pm_goods_rel_attribute_good pgrag2 ON b.id = pgrag2.`goods_good_id`
+            INNER JOIN pm_goods_attribute pga2 ON pgrag2.goods_attribute_id = pga2.`id`
+            AND pga2.id IN
+            <foreach item="item" collection="brandIds" separator="," open="(" close=")" index="">
+                #{item}
+            </foreach>
+            AND pgrag2.`del_flag` = 0
+            <!-- AND pga2.`del_flag` = 0
+            AND pga2.`enabled` = 1  -->
+            AND pga2.`type` = 8
+        </if>
+        where  b.publish_status = 1
+        and b.del_flag = 0
+        and d.id = (
+            SELECT id
+            from pm_goods_sku d2
+            where d2.`goods_id` = b.id
+            and d2.del_flag =0
+            and d2.sell_price = (
+                SELECT Min(d1.sell_price)
+                FROM pm_goods_sku d1
+                WHERE d1.`goods_id` = b.id
+                and d1.del_flag =0
+                LIMIT 1
+            ) limit 1
+        )
         <if test="lowestPrice !=null ">
             and sell_price &gt;= #{lowestPrice}
         </if>
@@ -835,19 +1016,70 @@
         <if test="sortFile.name() == 'COLLECTION_NUM'">
             order by b.collection_num ${sortWay.name}
         </if>
-
+    </select>
+    <select id="findCategoryGoodsParam" resultMap="screenGoodsParamResult">
+        SELECT
+            '1' AS id,
+            pga1.id AS labelId,
+            pga1.NAME AS labelName,
+            pga2.id AS brandId,
+            pga2.NAME AS brandName
+        FROM (
+            SELECT
+                b.id,
+                b.goods_category_id
+            FROM pm_goods b
+            INNER JOIN pm_goods_category c ON b.goods_category_id = c.id AND c.id =  #{conditionId}  AND c.del_flag = 0
+            AND   b.publish_status = 1
+            AND b.del_flag = 0
+        ) temp
+        INNER JOIN pm_goods_category pgc ON temp.goods_category_id = pgc.`id`
+        AND pgc.`del_flag` = 0
+        AND pgc.`enabled` = 1
+        INNER JOIN pm_goods_rel_attribute_good pgrag1 ON temp.id = pgrag1.`goods_good_id`
+        AND pgrag1.`del_flag` = 0
+        INNER JOIN pm_goods_attribute pga1 ON pgrag1.goods_attribute_id = pga1.`id`
+        AND pga1.`del_flag` = 0
+        AND pga1.`enabled` = 1
+        AND pga1.`type` = 5
+        INNER JOIN pm_goods_rel_attribute_good pgrag2 ON temp.id = pgrag2.`goods_good_id`
+        AND pgrag2.`del_flag` = 0
+        INNER JOIN pm_goods_attribute pga2 ON pgrag2.goods_attribute_id = pga2.`id`
+        AND pga2.`del_flag` = 0
+        AND pga2.`enabled` = 1
+        AND pga2.`type` = 8
     </select>
     <select id="searchAssociatedGoodsBaseList"
             resultType="com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo">
-
-        select distinct b.id as goods_id,b.name as goods_name,b.icon as picture,b.activity_cost_rate,
-        b.profits_rate,b.sales_volume,d.sell_price as sell_price,d.line_price,b.forward_num,b.collection_num,b.comprehensive_score
-        from pm_goods b,pm_goods_sku d,pm_goods_category c,mm_advice_rel_associaiton a
-        where a.del_flag = 0 and b.publish_status = 1 and b.del_flag = 0 and d.del_flag =0 and c.del_flag = 0 and a.association_id = c.id and d.goods_id=b.id
-        and a.advice_id = #{adviceId}
-        and d.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = b.id  and d2.del_flag =0 and d2.sell_price =
-        (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = b.id  and d1.del_flag =0 LIMIT 1) limit 1)
-
+        select distinct b.id as goods_id,
+            b.name as goods_name,
+            b.icon as picture,
+            b.activity_cost_rate,
+            b.profits_rate,
+            b.sales_volume,
+            d.sell_price as sell_price,
+            d.line_price,
+            b.forward_num,
+            b.collection_num,
+            b.comprehensive_score
+        from mm_advice_rel_associaiton a
+        inner join pm_goods_category c on  a.advice_id = #{adviceId} and  a.association_id = c.id and c.del_flag = 0
+        inner join pm_goods b on b.goods_category_id = c.id and b.publish_status = 1 and b.del_flag = 0
+        inner join pm_goods_sku d on  d.goods_id=b.id and d.del_flag =0
+        where a.del_flag = 0
+        and d.id = (
+            SELECT id
+            from pm_goods_sku d2
+            where d2.`goods_id` = b.id
+            and d2.del_flag =0
+            and d2.sell_price = (
+                SELECT Min(d1.sell_price)
+                FROM pm_goods_sku d1
+                WHERE d1.`goods_id` = b.id
+                and d1.del_flag =0
+                LIMIT 1
+            ) limit 1
+        )
         <if test="lowestPrice !=null ">
             and sell_price &gt;= #{lowestPrice}
         </if>
@@ -866,19 +1098,70 @@
         <if test="sortFile.name() == 'COLLECTION_NUM'">
             order by b.collection_num ${sortWay.name}
         </if>
-
     </select>
     <select id="searchCouponGoodsBaseList"
             resultType="com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo">
-
-        select b.id as goods_id,b.name as goods_name,b.icon as picture,b.activity_cost_rate,
-        b.profits_rate,b.sales_volume,d.sell_price as sell_price,d.line_price,b.forward_num,b.collection_num
-        from pm_goods b,pm_goods_sku d,am_coupon_rel_coupon_goods a
-        where b.publish_status = 1 and b.del_flag = 0 and d.del_flag =0 and a.association_id = b.id and d.goods_id=b.id
-        and a.coupon_id = #{conditionId}
-        and d.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = b.id  and d2.del_flag =0 and d2.sell_price =
-        (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = b.id  and d1.del_flag =0 LIMIT 1) limit 1)
-
+        select b.id as goods_id,
+            b.name as goods_name,
+            b.icon as picture,
+            b.activity_cost_rate,
+            b.profits_rate,
+            b.sales_volume,
+            d.sell_price as sell_price,
+            d.line_price,
+            b.forward_num,
+            b.collection_num
+        from am_coupon_rel_coupon_goods a
+        inner join pm_goods b on a.coupon_id = #{conditionId} and a.association_id = b.id
+        and b.publish_status = 1 and b.del_flag = 0
+        inner join pm_goods_sku d on d.goods_id=b.id and d.del_flag =0
+        <!-- 分类 -->
+        <if test="(null != categoryIds and categoryIds.size() > 0) ">
+            INNER JOIN pm_goods_category pgc on pgc.id = b.goods_category_id
+            AND pgc.id IN
+            <foreach item="item" collection="categoryIds" separator="," open="(" close=")" index="">
+                #{item}
+            </foreach>
+        </if>
+        <!-- 标签 -->
+        <if test="(null != labelIds and labelIds.size() > 0) ">
+            INNER JOIN pm_goods_rel_attribute_good pgrag1  ON b.id = pgrag1.`goods_good_id`
+            INNER JOIN pm_goods_attribute pga1 ON pgrag1.goods_attribute_id = pga1.`id`
+            AND pga1.id IN
+            <foreach item="item" collection="labelIds" separator="," open="(" close=")" index="">
+                #{item}
+            </foreach>
+            AND pgrag1.`del_flag` = 0
+            <!-- AND pga1.`del_flag` = 0
+            AND pga1.`enabled` = 1 -->
+            AND pga1.`type` = 5
+        </if>
+        <!-- 品牌 -->
+        <if test="(null != brandIds and brandIds.size() > 0) ">
+            INNER JOIN pm_goods_rel_attribute_good pgrag2 ON b.id = pgrag2.`goods_good_id`
+            INNER JOIN pm_goods_attribute pga2 ON pgrag2.goods_attribute_id = pga2.`id`
+            AND pga2.id IN
+            <foreach item="item" collection="brandIds" separator="," open="(" close=")" index="">
+                #{item}
+            </foreach>
+            AND pgrag2.`del_flag` = 0
+            <!-- AND pga2.`del_flag` = 0
+            AND pga2.`enabled` = 1  -->
+            AND pga2.`type` = 8
+        </if>
+        where d.id = (
+            SELECT id
+            from pm_goods_sku d2
+            where d2.`goods_id` = b.id
+            and d2.del_flag =0
+            and d2.sell_price = (
+                SELECT Min(d1.sell_price)
+                FROM pm_goods_sku d1
+                WHERE d1.`goods_id` = b.id
+                and d1.del_flag =0
+                LIMIT 1
+            ) limit 1
+        )
         <if test="lowestPrice !=null ">
             and sell_price &gt;= #{lowestPrice}
         </if>
@@ -897,17 +1180,104 @@
         <if test="sortFile.name() == 'COLLECTION_NUM'">
             order by b.collection_num ${sortWay.name}
         </if>
-
+    </select>
+    <select id="findCouponGoodsParam" resultMap="screenGoodsParamResult">
+        SELECT
+            '1' AS id,
+            pgc.id AS categoryId,
+            pgc.`name` AS categoryName,
+            pga1.id AS labelId,
+            pga1.NAME AS labelName,
+            pga2.id AS brandId,
+            pga2.NAME AS brandName
+        FROM (
+            SELECT
+                b.id,
+                b.goods_category_id
+            FROM am_coupon_rel_coupon_goods a
+            INNER JOIN pm_goods b ON a.coupon_id = #{conditionId} AND a.association_id = b.id
+            AND b.publish_status = 1 AND b.del_flag = 0
+        ) temp
+        INNER JOIN pm_goods_category pgc ON temp.goods_category_id = pgc.`id`
+        AND pgc.`del_flag` = 0
+        AND pgc.`enabled` = 1
+        INNER JOIN pm_goods_rel_attribute_good pgrag1 ON temp.id = pgrag1.`goods_good_id`
+        AND pgrag1.`del_flag` = 0
+        INNER JOIN pm_goods_attribute pga1 ON pgrag1.goods_attribute_id = pga1.`id`
+        AND pga1.`del_flag` = 0
+        AND pga1.`enabled` = 1
+        AND pga1.`type` = 5
+        INNER JOIN pm_goods_rel_attribute_good pgrag2 ON temp.id = pgrag2.`goods_good_id`
+        AND pgrag2.`del_flag` = 0
+        INNER JOIN pm_goods_attribute pga2 ON pgrag2.goods_attribute_id = pga2.`id`
+        AND pga2.`del_flag` = 0
+        AND pga2.`enabled` = 1
+        AND pga2.`type` = 8
     </select>
     <select id="searchHomeGoodsBaseList"
             resultType="com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo">
-        select b.id as goods_id,b.name as goods_name,b.icon as picture,b.activity_cost_rate,
-        b.profits_rate,b.sales_volume,d.sell_price as sell_price,d.line_price,b.forward_num,b.collection_num
-        from pm_goods b,pm_goods_sku d
-        where b.publish_status = 1 and b.del_flag = 0 and d.del_flag =0 and d.goods_id=b.id
-        and d.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = b.id  and d2.del_flag =0 and d2.sell_price =
-        (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = b.id  and d1.del_flag =0 LIMIT 1) limit 1)
-
+        select b.id as goods_id,
+            b.name as goods_name,
+            b.icon as picture,
+            b.activity_cost_rate,
+            b.profits_rate,
+            b.sales_volume,
+            d.sell_price as sell_price,
+            d.line_price,
+            b.forward_num,
+            b.collection_num
+        from pm_goods b
+        inner join pm_goods_sku d on d.goods_id=b.id
+        <!-- 分类 -->
+        <if test="(null != categoryIds and categoryIds.size() > 0) ">
+            INNER JOIN pm_goods_category pgc on pgc.id = b.goods_category_id
+            AND pgc.id IN
+            <foreach item="item" collection="categoryIds" separator="," open="(" close=")" index="">
+                #{item}
+            </foreach>
+        </if>
+        <!-- 标签 -->
+        <if test="(null != labelIds and labelIds.size() > 0) ">
+            INNER JOIN pm_goods_rel_attribute_good pgrag1  ON b.id = pgrag1.`goods_good_id`
+            INNER JOIN pm_goods_attribute pga1 ON pgrag1.goods_attribute_id = pga1.`id`
+            AND pga1.id IN
+            <foreach item="item" collection="labelIds" separator="," open="(" close=")" index="">
+                #{item}
+            </foreach>
+            AND pgrag1.`del_flag` = 0
+            <!-- AND pga1.`del_flag` = 0
+            AND pga1.`enabled` = 1 -->
+            AND pga1.`type` = 5
+        </if>
+        <!-- 品牌 -->
+        <if test="(null != brandIds and brandIds.size() > 0) ">
+            INNER JOIN pm_goods_rel_attribute_good pgrag2 ON b.id = pgrag2.`goods_good_id`
+            INNER JOIN pm_goods_attribute pga2 ON pgrag2.goods_attribute_id = pga2.`id`
+            AND pga2.id IN
+            <foreach item="item" collection="brandIds" separator="," open="(" close=")" index="">
+                #{item}
+            </foreach>
+            AND pgrag2.`del_flag` = 0
+            <!-- AND pga2.`del_flag` = 0
+            AND pga2.`enabled` = 1  -->
+            AND pga2.`type` = 8
+        </if>
+        where b.publish_status = 1
+        and b.del_flag = 0
+        and d.del_flag =0
+        and d.id = (
+            SELECT id
+            from pm_goods_sku d2
+            where d2.`goods_id` = b.id
+            and d2.del_flag =0
+            and d2.sell_price = (
+                SELECT Min(d1.sell_price)
+                FROM pm_goods_sku d1
+                WHERE d1.`goods_id` = b.id
+                and d1.del_flag =0
+                LIMIT 1
+            ) limit 1
+        )
         <if test="lowestPrice !=null ">
             and sell_price &gt;= #{lowestPrice}
         </if>
@@ -926,17 +1296,72 @@
         <if test="sortFile.name() == 'COLLECTION_NUM'">
             order by b.collection_num ${sortWay.name}
         </if>
-
     </select>
     <select id="searchSecondCategoryGoodsBaseList"
             resultType="com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo">
-
-        select c.name as condition_name,b.id as goods_id,b.name as goods_name,b.icon as picture,b.activity_cost_rate,
-        b.profits_rate,b.sales_volume,d.sell_price as sell_price,d.line_price,b.forward_num,b.collection_num
-        from pm_goods b,pm_goods_sku d,pm_goods_category c
-        where  b.publish_status = 1 and b.del_flag = 0 and d.del_flag =0 and c.del_flag = 0 and b.goods_category_id = c.id and c.parent_id	= #{conditionId} and d.goods_id=b.id
-        and d.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = b.id  and d2.del_flag =0 and d2.sell_price =
-        (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = b.id  and d1.del_flag =0 LIMIT 1) limit 1)
+        select
+            c.name as condition_name,
+            b.id as goods_id,
+            b.name as goods_name,
+            b.icon as picture,
+            b.activity_cost_rate,
+            b.profits_rate,
+            b.sales_volume,
+            d.sell_price as sell_price,
+            d.line_price,
+            b.forward_num,
+            b.collection_num
+        from pm_goods_category c
+        inner join pm_goods b on  b.goods_category_id = c.id and c.del_flag = 0
+        and c.parent_id	= #{conditionId} and  b.publish_status = 1 and b.del_flag = 0
+        inner join pm_goods_sku d on  d.goods_id=b.id and d.del_flag =0
+        <!-- 分类 -->
+        <if test="(null != categoryIds and categoryIds.size() > 0) ">
+            INNER JOIN pm_goods_category pgc on pgc.id = b.goods_category_id
+            AND pgc.id IN
+            <foreach item="item" collection="categoryIds" separator="," open="(" close=")" index="">
+                #{item}
+            </foreach>
+        </if>
+        <!-- 标签 -->
+        <if test="(null != labelIds and labelIds.size() > 0) ">
+            INNER JOIN pm_goods_rel_attribute_good pgrag1  ON b.id = pgrag1.`goods_good_id`
+            INNER JOIN pm_goods_attribute pga1 ON pgrag1.goods_attribute_id = pga1.`id`
+            AND pga1.id IN
+            <foreach item="item" collection="labelIds" separator="," open="(" close=")" index="">
+                #{item}
+            </foreach>
+            AND pgrag1.`del_flag` = 0
+            <!-- AND pga1.`del_flag` = 0
+            AND pga1.`enabled` = 1 -->
+            AND pga1.`type` = 5
+        </if>
+        <!-- 品牌 -->
+        <if test="(null != brandIds and brandIds.size() > 0) ">
+            INNER JOIN pm_goods_rel_attribute_good pgrag2 ON b.id = pgrag2.`goods_good_id`
+            INNER JOIN pm_goods_attribute pga2 ON pgrag2.goods_attribute_id = pga2.`id`
+            AND pga2.id IN
+            <foreach item="item" collection="brandIds" separator="," open="(" close=")" index="">
+                #{item}
+            </foreach>
+            AND pgrag2.`del_flag` = 0
+            <!-- AND pga2.`del_flag` = 0
+            AND pga2.`enabled` = 1  -->
+            AND pga2.`type` = 8
+        </if>
+        where d.id = (
+            SELECT id
+            from pm_goods_sku d2
+            where d2.`goods_id` = b.id
+            and d2.del_flag =0
+            and d2.sell_price = (
+                SELECT Min(d1.sell_price)
+                FROM pm_goods_sku d1
+                WHERE d1.`goods_id` = b.id
+                and d1.del_flag =0
+                LIMIT 1
+            ) limit 1
+        )
         <if test="lowestPrice !=null ">
             and sell_price &gt;= #{lowestPrice}
         </if>
@@ -955,7 +1380,39 @@
         <if test="sortFile.name() == 'COLLECTION_NUM'">
             order by b.collection_num ${sortWay.name}
         </if>
-
+    </select>
+    <select id="findSecondCategoryGoodsParam" resultMap="screenGoodsParamResult">
+        SELECT
+            '1' AS id,
+            pgc.id AS categoryId,
+            pgc.`name` AS categoryName,
+            pga1.id AS labelId,
+            pga1.NAME AS labelName,
+            pga2.id AS brandId,
+            pga2.NAME AS brandName
+        FROM (
+            SELECT
+                b.id,
+                b.goods_category_id
+            FROM pm_goods_category c
+            INNER JOIN pm_goods b ON  b.goods_category_id = c.id AND c.del_flag = 0
+            AND c.parent_id	=  #{conditionId}  AND  b.publish_status = 1 AND b.del_flag = 0
+        ) temp
+        INNER JOIN pm_goods_category pgc ON temp.goods_category_id = pgc.`id`
+        AND pgc.`del_flag` = 0
+        AND pgc.`enabled` = 1
+        INNER JOIN pm_goods_rel_attribute_good pgrag1 ON temp.id = pgrag1.`goods_good_id`
+        AND pgrag1.`del_flag` = 0
+        INNER JOIN pm_goods_attribute pga1 ON pgrag1.goods_attribute_id = pga1.`id`
+        AND pga1.`del_flag` = 0
+        AND pga1.`enabled` = 1
+        AND pga1.`type` = 5
+        INNER JOIN pm_goods_rel_attribute_good pgrag2 ON temp.id = pgrag2.`goods_good_id`
+        AND pgrag2.`del_flag` = 0
+        INNER JOIN pm_goods_attribute pga2 ON pgrag2.goods_attribute_id = pga2.`id`
+        AND pga2.`del_flag` = 0
+        AND pga2.`enabled` = 1
+        AND pga2.`type` = 8
     </select>
     <select id="guessYourLike" resultType="com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo">
         select b.id as goods_id,b.name as goods_name,b.icon as picture,b.activity_cost_rate,

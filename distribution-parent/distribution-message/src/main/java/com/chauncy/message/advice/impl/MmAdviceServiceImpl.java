@@ -25,6 +25,7 @@ import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.advice.brand.select.FindBrandShufflingDto;
 import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
+import com.chauncy.data.dto.app.advice.goods.select.FindRelGoodsParamDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
 import com.chauncy.data.dto.app.product.FindActivityGoodsCategoryDto;
@@ -62,6 +63,8 @@ import com.chauncy.data.vo.app.advice.home.GetAdviceInfoVo;
 import com.chauncy.data.vo.app.advice.home.ShufflingVo;
 import com.chauncy.data.vo.app.advice.store.StoreCategoryDetailVo;
 import com.chauncy.data.vo.app.advice.store.StoreCategoryInfoVo;
+import com.chauncy.data.vo.app.component.ScreenGoodsParamVo;
+import com.chauncy.data.vo.app.component.ScreenParamVo;
 import com.chauncy.data.vo.app.goods.ActivityGoodsVo;
 import com.chauncy.data.vo.manage.message.advice.ClassificationVo;
 import com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo;
@@ -1449,6 +1452,69 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
 
 
         return searchGoodsBaseListVoPageInfo;
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/19 0:33
+     * @Description 获取筛选商品的参数  商品列表如下
+     * 分页条件查询首页下面的商品列表/品牌id/选项卡id/商品分类id/葱鸭百货关联/优惠券关联下的商品列表
+     *
+     * @Update yeJH
+     *
+     * @param  findRelGoodsParamDto
+     * @return com.chauncy.data.vo.app.component.ScreenParamVo
+     **/
+    @Override
+    public ScreenParamVo findScreenRelGoodsParam(FindRelGoodsParamDto findRelGoodsParamDto) {
+        //筛选条件
+        ScreenParamVo screenParamVo = new ScreenParamVo();
+        //关联商品筛选条件
+        ScreenGoodsParamVo screenGoodsParamVo = new ScreenGoodsParamVo();
+        ConditionTypeEnum conditionTypeEnum = findRelGoodsParamDto.getConditionType();
+        if (conditionTypeEnum == null){
+            throw new ServiceException(ResultCode.NO_EXISTS,String.format("conditionType所传的值在枚举类中不存在！"));
+        }
+        switch (conditionTypeEnum) {
+            case TAB:
+                if (tabMapper.selectById(findRelGoodsParamDto.getConditionId()) == null){
+                    throw new ServiceException(ResultCode.NO_EXISTS,String.format("不存在ID为%s的选项卡",findRelGoodsParamDto.getConditionId()));
+                }
+                screenGoodsParamVo = mapper.findTabGoodsParam(findRelGoodsParamDto);
+                break;
+            case BRAND:
+                if (attributeMapper.selectById(findRelGoodsParamDto.getConditionId()) == null){
+                    throw new ServiceException(ResultCode.NO_EXISTS,String.format("不存在ID为%s的品牌",findRelGoodsParamDto.getConditionId()));
+                }
+                screenGoodsParamVo = mapper.findBrandGoodsParam(findRelGoodsParamDto);
+                break;
+            case THIRD_CATEGORY:
+                if (goodsCategoryMapper.selectById(findRelGoodsParamDto.getConditionId()) == null){
+                    throw new ServiceException(ResultCode.NO_EXISTS,String.format("不存在ID为%s的商品分类",findRelGoodsParamDto.getConditionId()));
+                }
+                screenGoodsParamVo = mapper.findCategoryGoodsParam(findRelGoodsParamDto);
+                break;
+            case BAIHUO_ASSOCIATED:
+                //screenGoodsParamVo = mapper.findAssociatedGoodsParam(findRelGoodsParamDto);
+                break;
+            case COUPON:
+                if (couponMapper.selectById(findRelGoodsParamDto.getConditionId()) == null){
+                    throw new ServiceException(ResultCode.NO_EXISTS,String.format("不存在ID为%s的优惠券",findRelGoodsParamDto.getConditionId()));
+                }
+                screenGoodsParamVo = mapper.findCouponGoodsParam(findRelGoodsParamDto);
+                break;
+            case HOME:
+                //screenGoodsParamVo = mapper.findHomeGoodsParam(findRelGoodsParamDto);
+                break;
+            case SECOND_CATEGORY:
+                if (goodsCategoryMapper.selectById(findRelGoodsParamDto.getConditionId()) == null){
+                    throw new ServiceException(ResultCode.NO_EXISTS,String.format("不存在ID为%s的商品分类",findRelGoodsParamDto.getConditionId()));
+                }
+                screenGoodsParamVo = mapper.findSecondCategoryGoodsParam(findRelGoodsParamDto);
+                break;
+        }
+        screenParamVo.setScreenGoodsParamVo(screenGoodsParamVo);
+        return screenParamVo;
     }
 
     /**

@@ -14,6 +14,7 @@ import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.component.ScreenParamVo;
 import com.chauncy.data.vo.app.user.GetMembersCenterVo;
 import com.chauncy.data.vo.manage.message.content.app.FindArticleContentVo;
+import com.chauncy.message.advice.IMmAdviceService;
 import com.chauncy.message.content.service.IMmArticleService;
 import com.chauncy.message.content.service.IMmBootPageService;
 import com.chauncy.message.content.service.IMmKeywordsSearchService;
@@ -72,6 +73,9 @@ public class ComponentApi extends BaseApi {
 
     @Autowired
     private IPmGoodsCategoryService goodsCategoryService;
+
+    @Autowired
+    private IMmAdviceService adviceService;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -151,7 +155,7 @@ public class ComponentApi extends BaseApi {
         ScreenParamVo screenParamVo = new ScreenParamVo();
         if(screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.GOODS.getId())) {
             if (null == screenParamDto.getFindStoreGoodsParamDto()) {
-                throw new ServiceException(ResultCode.PARAM_ERROR, "筛选商品的参数不能为空");
+                throw new ServiceException(ResultCode.PARAM_ERROR, "筛选店铺商品的参数不能为空");
             }
             //商品
             screenParamVo = goodsService.findScreenGoodsParam(screenParamDto.getFindStoreGoodsParamDto());
@@ -169,6 +173,13 @@ public class ComponentApi extends BaseApi {
             }
             //资讯
             screenParamVo = mmInformationService.findScreenInfoParam(screenParamDto.getFindInfoParamDto());
+        }
+        if (screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.BRAND.getId()) ) {
+            if (null == screenParamDto.getFindRelGoodsParamDto()){
+                throw new ServiceException(ResultCode.PARAM_ERROR, "筛选关联商品的参数不能为空");
+            }
+            //各种关联下的商品
+            screenParamVo = adviceService.findScreenRelGoodsParam(screenParamDto.getFindRelGoodsParamDto());
         }
         return setJsonViewData(screenParamVo);
     }

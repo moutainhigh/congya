@@ -4,6 +4,7 @@ import com.chauncy.data.domain.po.message.advice.MmAdvicePo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.advice.brand.select.FindBrandShufflingDto;
 import com.chauncy.data.dto.app.advice.brand.select.SearchBrandAndSkuBaseDto;
+import com.chauncy.data.dto.app.advice.goods.select.FindRelGoodsParamDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseDto;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
 import com.chauncy.data.dto.app.product.FindActivityGoodsCategoryDto;
@@ -29,6 +30,7 @@ import com.chauncy.data.vo.app.advice.home.GetAdviceInfoVo;
 import com.chauncy.data.vo.app.advice.home.ShufflingVo;
 import com.chauncy.data.vo.app.advice.store.StoreCategoryDetailVo;
 import com.chauncy.data.vo.app.advice.store.StoreCategoryInfoVo;
+import com.chauncy.data.vo.app.component.ScreenParamVo;
 import com.chauncy.data.vo.app.goods.ActivityGoodsVo;
 import com.chauncy.data.vo.manage.message.advice.ClassificationVo;
 import com.chauncy.data.vo.manage.message.advice.SearchAdvicesVo;
@@ -267,6 +269,18 @@ public interface IMmAdviceService extends Service<MmAdvicePo> {
      * @return
      */
     PageInfo<SearchGoodsBaseListVo> searchGoodsBaseList(SearchGoodsBaseListDto searchGoodsBaseListDto);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/19 0:30
+     * @Description 获取筛选商品的参数
+     *
+     * @Update yeJH
+     *
+     * @param  findRelGoodsParamDto
+     * @return com.chauncy.data.vo.app.component.ScreenParamVo
+     **/
+    ScreenParamVo findScreenRelGoodsParam(FindRelGoodsParamDto findRelGoodsParamDto);
 
     /**
      * 获取选项卡下的品牌下的轮播图广告

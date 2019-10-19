@@ -389,17 +389,17 @@
             </if>
             <!-- 分类 -->
             <if test="(null != goodsType and goodsType == 6) or (null != categoryIds and categoryIds.size() > 0) ">
-                LEFT JOIN pm_goods_category pgc on pgc.id = pg.goods_category_id
+                INNER JOIN pm_goods_category pgc on pgc.id = pg.goods_category_id
             </if>
             <!-- 标签 -->
             <if test="(null != labelIds and labelIds.size() > 0) ">
-                LEFT JOIN pm_goods_rel_attribute_good pgrag1  ON pg.id = pgrag1.`goods_good_id`
-                LEFT JOIN pm_goods_attribute pga1 ON pgrag1.goods_attribute_id = pga1.`id`
+                INNER JOIN pm_goods_rel_attribute_good pgrag1  ON pg.id = pgrag1.`goods_good_id`
+                INNER JOIN pm_goods_attribute pga1 ON pgrag1.goods_attribute_id = pga1.`id`
             </if>
             <!-- 品牌 -->
             <if test="(null != brandIds and brandIds.size() > 0) ">
-                inner JOIN pm_goods_rel_attribute_good pgrag2 ON pg.id = pgrag2.`goods_good_id`
-                inner JOIN pm_goods_attribute pga2 ON pgrag2.goods_attribute_id = pga2.`id`
+                INNER JOIN pm_goods_rel_attribute_good pgrag2 ON pg.id = pgrag2.`goods_good_id`
+                INNER JOIN pm_goods_attribute pga2 ON pgrag2.goods_attribute_id = pga2.`id`
             </if>
             inner join pm_goods_sku pgs on pgs.goods_id = pg.id
         <where>
