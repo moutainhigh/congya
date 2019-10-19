@@ -52,6 +52,7 @@ import com.chauncy.data.vo.app.component.ScreenParamVo;
 import com.chauncy.data.vo.app.component.ScreenStoreParamVo;
 import com.chauncy.data.vo.app.store.StoreDetailVo;
 import com.chauncy.data.vo.app.store.StorePagingVo;
+import com.chauncy.data.vo.app.user.UserNickNameVo;
 import com.chauncy.data.vo.manage.product.SearchCategoryVo;
 import com.chauncy.data.vo.manage.store.*;
 import com.chauncy.data.vo.supplier.store.BranchInfoVo;
@@ -123,6 +124,37 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
      *  店铺用户默认密码
      */
     private final static String DEFAULT_PASSWORD = "123456";
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/19 16:15
+     * @Description 获取商家端头像+昵称
+     *
+     * @Update yeJH
+     *
+     * @param
+     * @return com.chauncy.data.vo.app.user.UserNickNameVo
+     **/
+    @Override
+    public UserNickNameVo getStoreUserInfo() {
+
+        //获取当前店铺用户
+        SysUserPo sysUserPo = securityUtil.getCurrUser();
+        if(null == sysUserPo) {
+            throw new ServiceException(ResultCode.FAIL, "当前用户不是商家用户");
+        }
+        SmStorePo smStorePo = smStoreMapper.selectById(sysUserPo.getStoreId());
+        if(null == smStorePo) {
+            throw new ServiceException(ResultCode.FAIL, "当前商家用户不存在");
+        }
+
+        UserNickNameVo userNickNameVo = new UserNickNameVo();
+        userNickNameVo.setName(smStorePo.getUserName());
+        userNickNameVo.setPhoto(smStorePo.getLogoImage());
+
+        return userNickNameVo;
+    }
+
     /**
      * 保存店铺基本信息
      * @param storeBaseInfoDto

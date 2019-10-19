@@ -99,8 +99,6 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
      */
     @Override
     public void addPushMessage(AddPushMessageDto addPushMessageDto) {
-        //保存推送信息与用户的关联
-        saveNoticeRelUser(addPushMessageDto);
         //获取推送方式
         PushTypeEnum pushType = PushTypeEnum.fromName(addPushMessageDto.getPushType());
         PushObjectEnum pushObject = PushObjectEnum.fromName(addPushMessageDto.getObjectType());
@@ -109,6 +107,11 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
         interactPushPo.setId(null);
         interactPushPo.setCreateBy(securityUtil.getCurrUser().getUsername());
         mapper.insert(interactPushPo);
+
+        if(PushTypeEnum.APPMESSAGE.getName().equals(addPushMessageDto.getPushType())) {
+            //如果是app内消息中心推送 保存推送信息与用户的关联（哪些用户收到了消息）
+            saveNoticeRelUser(interactPushPo, addPushMessageDto.getObjectIds());
+        }
 
         Map<String, String> extras = Maps.newHashMap();
         extras.put("param", "额外的字段");
@@ -214,11 +217,13 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
      *
      * @Update yeJH
      *
-     * @param  addPushMessageDto
+     * @param  interactPushPo
      * @return void
      **/
-    private void saveNoticeRelUser(AddPushMessageDto addPushMessageDto) {
-        //todo
+    private void saveNoticeRelUser(MmInteractPushPo interactPushPo, List<Long> userIds) {
+        if(PushObjectEnum.ALLUSER.getName().equals(interactPushPo.getObjectType())) {
+
+        }
     }
 
     /**
