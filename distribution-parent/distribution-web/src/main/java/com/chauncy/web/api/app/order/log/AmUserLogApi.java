@@ -57,8 +57,9 @@ public class AmUserLogApi extends BaseApi {
      */
     @ApiOperation(value = "用户红包提现", notes = "用户红包提现 paymentWayEnum提现方式   \nWECHAT(微信)   \nALIPAY(支付宝) ")
     @PostMapping("/userWithdrawal")
-    public JsonViewData userWithdrawal(@RequestBody @ApiParam(required = true, name = "userWithdrawalDto", value = "用户红包提现信息") @Validated
-                                               UserWithdrawalDto userWithdrawalDto) {
+    public JsonViewData userWithdrawal(
+            @RequestBody @ApiParam(required = true, name = "userWithdrawalDto", value = "用户红包提现信息")
+            @Validated UserWithdrawalDto userWithdrawalDto) {
 
         omAccountLogService.userWithdrawal(userWithdrawalDto);
         return new JsonViewData(ResultCode.SUCCESS, "操作成功");

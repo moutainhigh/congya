@@ -4,6 +4,7 @@ import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
 import com.chauncy.data.dto.app.component.ShareDto;
+import com.chauncy.data.dto.app.product.FindStoreGoodsParamDto;
 import com.chauncy.data.dto.app.product.SearchActivityGoodsListDto;
 import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
 import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
@@ -106,15 +107,15 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
 
     /**
      * @Author yeJH
-     * @Date 2019/9/19 20:15
+     * @Date 2019/10/17 14:39
      * @Description 根据筛选商品的条件获取商品对应的品牌，分类，类目的参数
      *
      * @Update yeJH
      *
-     * @Param [searchStoreGoodsDto]
+     * @param  findStoreGoodsParamDto
      * @return com.chauncy.data.vo.app.component.ScreenGoodsParamVo
      **/
-    ScreenGoodsParamVo findScreenGoodsParam(SearchStoreGoodsDto searchStoreGoodsDto);
+    ScreenGoodsParamVo findScreenGoodsParam(FindStoreGoodsParamDto findStoreGoodsParamDto);
 
     /**
      * @Author yeJH

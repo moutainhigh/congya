@@ -3,16 +3,18 @@ package com.chauncy.web.api.app.component;
 import com.chauncy.activity.gift.IAmGiftService;
 import com.chauncy.common.enums.message.KeyWordTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
-import com.chauncy.data.domain.MyBaseTree;
+import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.dto.app.advice.category.select.GoodsCategoryVo;
 import com.chauncy.data.dto.app.component.ScreenParamDto;
 import com.chauncy.data.dto.app.component.ShareDto;
+import com.chauncy.data.dto.app.product.FindGoodsCategoryDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.component.ScreenParamVo;
 import com.chauncy.data.vo.app.user.GetMembersCenterVo;
 import com.chauncy.data.vo.manage.message.content.app.FindArticleContentVo;
-import com.chauncy.data.vo.manage.product.GoodsCategoryTreeVo;
+import com.chauncy.message.advice.IMmAdviceService;
 import com.chauncy.message.content.service.IMmArticleService;
 import com.chauncy.message.content.service.IMmBootPageService;
 import com.chauncy.message.content.service.IMmKeywordsSearchService;
@@ -30,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
@@ -72,6 +75,9 @@ public class ComponentApi extends BaseApi {
     private IPmGoodsCategoryService goodsCategoryService;
 
     @Autowired
+    private IMmAdviceService adviceService;
+
+    @Autowired
     private SecurityUtil securityUtil;
 
     /**
@@ -84,11 +90,29 @@ public class ComponentApi extends BaseApi {
      * @param
      * @return com.chauncy.data.vo.JsonViewData
      **/
-    @PostMapping("/findAllCategory")
+   /* @PostMapping("/findAllCategory")
     @ApiOperation(value = "联动查询所有分类")
     public JsonViewData<GoodsCategoryTreeVo> findGoodsCategoryTreeVo(){
         List<GoodsCategoryTreeVo> goodsCategoryTreeVo = goodsCategoryService.findGoodsCategoryTreeVo();
         return setJsonViewData(MyBaseTree.build(goodsCategoryTreeVo));
+    }*/
+  /**
+     * @Author yeJH
+     * @Date 2019/10/17 10:29
+     * @Description 联动查询所有分类
+     *
+     * @Update yeJH
+     *
+     * @param
+     * @return com.chauncy.data.vo.JsonViewData
+     **/
+    @PostMapping("/findAllCategory")
+    @ApiOperation(value = "联动查询所有分类（修改）")
+    public JsonViewData<GoodsCategoryVo> findAllCategory(
+            @RequestBody @ApiParam(required = true,name = "findGoodsCategoryDto",value = "一级分类id")
+            @Validated FindGoodsCategoryDto findGoodsCategoryDto){
+        List<GoodsCategoryVo> goodsCategoryVoList = goodsCategoryService.findAllCategory(findGoodsCategoryDto);
+        return setJsonViewData(goodsCategoryVoList);
     }
 
     /**
@@ -127,17 +151,35 @@ public class ComponentApi extends BaseApi {
     @PostMapping("/findScreenParam")
     public JsonViewData<ScreenParamVo> findScreenParam(
             @RequestBody @ApiParam(required = true,name = "screenParamDto",value = "获取筛选店铺/资讯/商品的参数")
-            @Validated ScreenParamDto screenParamDto){
+            @Valid ScreenParamDto screenParamDto){
         ScreenParamVo screenParamVo = new ScreenParamVo();
         if(screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.GOODS.getId())) {
+            if (null == screenParamDto.getFindStoreGoodsParamDto()) {
+                throw new ServiceException(ResultCode.PARAM_ERROR, "筛选店铺商品的参数不能为空");
+            }
             //商品
-            screenParamVo = goodsService.findScreenGoodsParam(screenParamDto.getSearchStoreGoodsDto());
-        } else if (screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.MERCHANT.getId())) {
+            screenParamVo = goodsService.findScreenGoodsParam(screenParamDto.getFindStoreGoodsParamDto());
+        }
+        if (screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.MERCHANT.getId())) {
+            if (null == screenParamDto.getFindStoreParamDto()) {
+                throw new ServiceException(ResultCode.PARAM_ERROR, "筛选店铺的参数不能为空");
+            }
             //店铺
-            screenParamVo = smStoreService.findScreenStoreParam(screenParamDto.getSearchStoreDto());
-        } else if (screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.INFORMATION.getId())) {
+            screenParamVo = smStoreService.findScreenStoreParam(screenParamDto.getFindStoreParamDto());
+        }
+        if (screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.INFORMATION.getId()) ) {
+            if (null == screenParamDto.getFindInfoParamDto()){
+                throw new ServiceException(ResultCode.PARAM_ERROR, "筛选资讯的参数不能为空");
+            }
             //资讯
-            screenParamVo = mmInformationService.findScreenInfoParam(screenParamDto.getSearchInformationDto());
+            screenParamVo = mmInformationService.findScreenInfoParam(screenParamDto.getFindInfoParamDto());
+        }
+        if (screenParamDto.getKeyWordType().equals(KeyWordTypeEnum.BRAND.getId()) ) {
+            if (null == screenParamDto.getFindRelGoodsParamDto()){
+                throw new ServiceException(ResultCode.PARAM_ERROR, "筛选关联商品的参数不能为空");
+            }
+            //各种关联下的商品
+            screenParamVo = adviceService.findScreenRelGoodsParam(screenParamDto.getFindRelGoodsParamDto());
         }
         return setJsonViewData(screenParamVo);
     }

@@ -227,7 +227,16 @@ public class WxServiceImpl implements IWxService {
                 omOrderCustomDeclarePo.setErrCode(response.get("err_code"));
             }
         }
-        omOrderCustomDeclareMapper.insert(omOrderCustomDeclarePo);
+        QueryWrapper<OmOrderCustomDeclarePo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(OmOrderCustomDeclarePo::getOrderId, omOrderPo.getId());
+        OmOrderCustomDeclarePo oldDeclarePo = omOrderCustomDeclareMapper.selectOne(queryWrapper);
+        if(null == oldDeclarePo) {
+            omOrderCustomDeclareMapper.insert(omOrderCustomDeclarePo);
+        } else {
+            omOrderCustomDeclarePo.setId(oldDeclarePo.getId());
+            omOrderCustomDeclareMapper.updateById(omOrderCustomDeclarePo);
+        }
+
 
     }
 
@@ -555,9 +564,7 @@ public class WxServiceImpl implements IWxService {
         data.put("attach", orderPayTypeEnum.name());
         //商户订单号
         data.put("out_trade_no", String.valueOf(payOrderId));
-        //data.put("total_fee", String.valueOf(totalFee));
-        //测试 默认1分钱
-        data.put("total_fee", "1");
+        data.put("total_fee", String.valueOf(totalFee));
         //调用微信支付API的机器IP
         data.put("spbill_create_ip", ipAddr);
         //异步通知地址
@@ -605,8 +612,7 @@ public class WxServiceImpl implements IWxService {
                                 Integer cashFee = Integer.parseInt(notifyMap.get("cash_fee"));
                                 //支付订单计算应支付总金额
                                 Integer totalMoney = BigDecimalUtil.safeMultiply(payOrderPo.getTotalRealPayMoney(), new BigDecimal(100)).intValue();
-                                //if(cashFee.equals(totalMoney)) {
-                                if(true) {
+                                if(cashFee.equals(totalMoney)) {
                                     //业务数据持久化
                                     omOrderService.wxPayNotify(payOrderPo, notifyMap);
 

@@ -18,6 +18,46 @@
         <result column="del_flag" property="delFlag"/>
 
     </resultMap>
+
+
+	<select id="findFirstCategory" resultType="com.chauncy.data.dto.app.advice.category.select.GoodsCategoryVo">
+		SELECT pgc.id AS categoryId,
+			pgc.name AS categoryName,
+			pgc.icon AS categoryIcon
+		FROM pm_goods_category pgc
+		WHERE pgc.del_flag = 0
+		AND pgc.level = 1
+		ORDER BY pgc.sort ASC
+	</select>
+
+	<resultMap id="childrenCategoryResult" type="com.chauncy.data.dto.app.advice.category.select.GoodsCategoryVo">
+		<id column="categoryId" property="categoryId"/>
+		<result column="categoryName" property="categoryName"/>
+		<result column="categoryIcon" property="categoryIcon"/>
+		<result column="parentId" property="parentId"/>
+		<!-- collection定义关联集合类型的属性封装规则
+        offType:指定集合中的元素类型
+        -->
+		<collection property="children" ofType="com.chauncy.data.dto.app.advice.category.select.GoodsCategoryVo">
+			<result column="categoryId1" property="categoryId"/>
+			<result column="categoryName1" property="categoryName"/>
+			<result column="categoryIcon1" property="categoryIcon"/>
+			<result column="parentId1" property="parentId"/>
+		</collection>
+	</resultMap>
+	<select id="findChildrenCategory" resultMap="childrenCategoryResult">
+		SELECT pgc.id AS categoryId,
+			pgc.name AS categoryName,
+			pgc.icon AS categoryIcon ,
+			pgc.parent_id AS parentId ,
+			pgc1.id AS categoryId1,
+			pgc1.name AS categoryName1,
+			pgc1.icon AS categoryIcon1,
+			pgc1.parent_id AS parentId1
+		FROM pm_goods_category pgc INNER JOIN pm_goods_category pgc1 ON pgc1.parent_id = pgc.id AND pgc1.del_flag = 0
+		WHERE pgc.del_flag = 0 AND pgc.parent_id = #{categoryId}
+		ORDER BY pgc.sort, pgc1.sort ASC
+	</select>
     <select id="loadById" resultType="java.util.Map">
       SELECT
 	id,

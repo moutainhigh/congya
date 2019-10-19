@@ -21,6 +21,7 @@ import com.chauncy.data.domain.po.store.rel.SmRelStoreAttributePo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserFavoritesPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.dto.app.message.information.select.FindInfoParamDto;
 import com.chauncy.data.dto.app.message.information.select.SearchInfoByConditionDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.base.BaseSearchPagingDto;
@@ -519,27 +520,27 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
      * @return com.chauncy.data.vo.app.component.ScreenParamVo
      **/
     @Override
-    public ScreenParamVo findScreenInfoParam(SearchInfoByConditionDto searchInformationDto) {
+    public ScreenParamVo findScreenInfoParam(FindInfoParamDto findInfoParamDto) {
         //获取当前app用户信息
         UmUserPo umUserPo = securityUtil.getAppCurrUser();
         if(null == umUserPo) {
             throw new ServiceException(ResultCode.NO_LOGIN,"未登陆或登陆已超时");
         } else {
-            searchInformationDto.setUserId(umUserPo.getId());
+            findInfoParamDto.setUserId(umUserPo.getId());
         }
 
 
-        if(searchInformationDto.getInformationType().equals(InformationTypeEnum.CATEGORY_LIST.getId())
-                && null == searchInformationDto.getInfoCategoryId()) {
+        if(findInfoParamDto.getInformationType().equals(InformationTypeEnum.CATEGORY_LIST.getId())
+                && null == findInfoParamDto.getInfoCategoryId()) {
             throw new ServiceException(ResultCode.PARAM_ERROR, "infoCategoryId参数不能为空");
         }
-        if(searchInformationDto.getInformationType().equals(InformationTypeEnum.SEARCH_LIST.getId())
-                && null == searchInformationDto.getKeyword()) {
+        if(findInfoParamDto.getInformationType().equals(InformationTypeEnum.SEARCH_LIST.getId())
+                && null == findInfoParamDto.getKeyword()) {
             throw new ServiceException(ResultCode.PARAM_ERROR, "keyword参数不能为空");
         }
 
         ScreenParamVo screenParamVo = new ScreenParamVo();
-        ScreenInfoParamVo screenInfoParamVo = mmInformationMapper.findScreenInfoParam(searchInformationDto);
+        ScreenInfoParamVo screenInfoParamVo = mmInformationMapper.findScreenInfoParam(findInfoParamDto);
         screenParamVo.setScreenInfoParamVo(screenInfoParamVo);
         return screenParamVo;
     }

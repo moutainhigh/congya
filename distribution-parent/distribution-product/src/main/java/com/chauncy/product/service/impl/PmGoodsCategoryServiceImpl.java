@@ -7,6 +7,7 @@ import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.BaseTree;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.dto.app.advice.category.select.GoodsCategoryVo;
+import com.chauncy.data.dto.app.product.FindGoodsCategoryDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.SearchAttributeByNamePageDto;
 import com.chauncy.data.dto.manage.good.select.SearchThirdCategoryDto;
@@ -23,6 +24,7 @@ import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +41,33 @@ public class PmGoodsCategoryServiceImpl extends AbstractService<PmGoodsCategoryM
 
     @Autowired
     private PmGoodsCategoryMapper categoryMapper;
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/17 12:35
+     * @Description  获取商品分类  没有参数返回一级分类  有一级分类id返回二三级分类
+     *
+     * @Update yeJH
+     *
+     * @param  findGoodsCategoryDto
+     * @return java.util.List<com.chauncy.data.dto.app.advice.category.select.GoodsCategoryVo>
+     **/
+    @Override
+    public List<GoodsCategoryVo> findAllCategory(FindGoodsCategoryDto findGoodsCategoryDto) {
+
+        List<GoodsCategoryVo> goodsCategoryVoList = new ArrayList<>();
+        if(null == findGoodsCategoryDto.getCategoryId()) {
+            //查询商品一级分类
+            goodsCategoryVoList = categoryMapper.findFirstCategory();
+        } else {
+            //根据商品一级分类查找二三级分类
+            goodsCategoryVoList = categoryMapper.findChildrenCategory(findGoodsCategoryDto.getCategoryId());
+        }
+
+        return goodsCategoryVoList;
+
+
+    }
 
     @Override
     public Map<String, Object> findById(Long id) {

@@ -4,6 +4,7 @@ import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
 import com.chauncy.data.dto.app.store.FindStoreCategoryDto;
+import com.chauncy.data.dto.app.store.FindStoreParamDto;
 import com.chauncy.data.dto.app.store.SearchStoreDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.add.StoreAccountInfoDto;
@@ -191,15 +192,15 @@ public interface ISmStoreService extends Service<SmStorePo> {
 
     /**
      * @Author yeJH
-     * @Date 2019/9/19 23:38
+     * @Date 2019/10/17 14:40
      * @Description 根据筛选店铺的条件获取店铺对应的标签，类目等参数
      *
      * @Update yeJH
      *
-     * @Param [searchStoreDto]
+     * @param  findStoreParamDto
      * @return com.chauncy.data.vo.app.component.ScreenParamVo
      **/
-    ScreenParamVo findScreenStoreParam(SearchStoreDto searchStoreDto);
+    ScreenParamVo findScreenStoreParam(FindStoreParamDto findStoreParamDto);
 
     /**
      * 获取店铺首页-店铺详情信息

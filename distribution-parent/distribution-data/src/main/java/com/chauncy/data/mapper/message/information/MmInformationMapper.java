@@ -2,6 +2,7 @@ package com.chauncy.data.mapper.message.information;
 
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.dto.app.component.ShareDto;
+import com.chauncy.data.dto.app.message.information.select.FindInfoParamDto;
 import com.chauncy.data.dto.app.message.information.select.SearchInfoByConditionDto;
 import com.chauncy.data.dto.base.BaseSearchByTimeDto;
 import com.chauncy.data.mapper.IBaseMapper;
@@ -95,15 +96,15 @@ public interface MmInformationMapper extends IBaseMapper<MmInformationPo> {
 
     /**
      * @Author yeJH
-     * @Date 2019/9/19 23:53
-     * @Description /根据筛选资讯的条件获取资讯对应的资讯标签，内容分类等参数
+     * @Date 2019/10/17 14:44
+     * @Description 根据筛选资讯的条件获取资讯对应的资讯标签，内容分类等参数
      *
      * @Update yeJH
      *
-     * @Param [searchInformationDto]
+     * @param  findInfoParamDto
      * @return com.chauncy.data.vo.app.component.ScreenInfoParamVo
      **/
-    ScreenInfoParamVo findScreenInfoParam(SearchInfoByConditionDto searchInformationDto);
+    ScreenInfoParamVo findScreenInfoParam(FindInfoParamDto findInfoParamDto);
 
     /**
      * 获取关注的店铺更新的资讯数目

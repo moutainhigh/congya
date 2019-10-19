@@ -3,6 +3,7 @@ package com.chauncy.message.information.service;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.dto.app.message.information.select.FindInfoParamDto;
 import com.chauncy.data.dto.app.message.information.select.SearchInfoByConditionDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.base.BaseSearchPagingDto;
@@ -122,15 +123,15 @@ public interface IMmInformationService extends Service<MmInformationPo> {
 
     /**
      * @Author yeJH
-     * @Date 2019/9/19 23:45
+     * @Date 2019/10/17 14:42
      * @Description 根据筛选资讯的条件获取资讯对应的资讯标签，内容分类等参数
      *
      * @Update yeJH
      *
-     * @Param [searchInformationDto]
+     * @param  findInfoParamDto
      * @return com.chauncy.data.vo.app.component.ScreenParamVo
      **/
-    ScreenParamVo findScreenInfoParam(SearchInfoByConditionDto searchInformationDto);
+    ScreenParamVo findScreenInfoParam(FindInfoParamDto findInfoParamDto);
 
     /**
      * 获取关注的店铺更新的资讯数目

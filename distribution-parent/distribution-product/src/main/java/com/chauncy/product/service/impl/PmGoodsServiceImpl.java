@@ -22,6 +22,7 @@ import com.chauncy.data.domain.po.sys.BasicSettingPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.component.ShareDto;
+import com.chauncy.data.dto.app.product.FindStoreGoodsParamDto;
 import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
@@ -221,37 +222,37 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
     /**
      * @Author yeJH
-     * @Date 2019/9/19 18:44
+     * @Date 2019/10/17 14:38
      * @Description 获取筛选商品的参数
      *
      * @Update yeJH
      *
-     * @Param [searchStoreGoodsDto]
+     * @param  findStoreGoodsParamDto
      * @return com.chauncy.data.vo.app.component.ScreenParamVo
      **/
     @Override
-    public ScreenParamVo findScreenGoodsParam(SearchStoreGoodsDto searchStoreGoodsDto) {
+    public ScreenParamVo findScreenGoodsParam(FindStoreGoodsParamDto findStoreGoodsParamDto) {
 
-        if(searchStoreGoodsDto.getGoodsType().equals(StoreGoodsListTypeEnum.CATEGORY_LIST.getId())
-                && null == searchStoreGoodsDto.getGoodsCategoryId()) {
+        if(findStoreGoodsParamDto.getGoodsType().equals(StoreGoodsListTypeEnum.CATEGORY_LIST.getId())
+                && null == findStoreGoodsParamDto.getGoodsCategoryId()) {
             throw new ServiceException(ResultCode.PARAM_ERROR, "goodsCategoryId不能为空");
         }
-        if(searchStoreGoodsDto.getGoodsType().equals(StoreGoodsListTypeEnum.SEARCH_LIST.getId())
-                && null == searchStoreGoodsDto.getGoodsName()) {
+        if(findStoreGoodsParamDto.getGoodsType().equals(StoreGoodsListTypeEnum.SEARCH_LIST.getId())
+                && null == findStoreGoodsParamDto.getGoodsName()) {
             throw new ServiceException(ResultCode.PARAM_ERROR, "goodsName不能为空");
         }
-        if(null == searchStoreGoodsDto.getGoodsType()) {
+        if(null == findStoreGoodsParamDto.getGoodsType()) {
             //默认全部商品列表
-            searchStoreGoodsDto.setGoodsType(StoreGoodsListTypeEnum.ALL_LIST.getId());
+            findStoreGoodsParamDto.setGoodsType(StoreGoodsListTypeEnum.ALL_LIST.getId());
         }
-        if(searchStoreGoodsDto.getGoodsType().equals(StoreGoodsListTypeEnum.NEW_LIST.getId())) {
+        if(findStoreGoodsParamDto.getGoodsType().equals(StoreGoodsListTypeEnum.NEW_LIST.getId())) {
             //获取系统基本设置  新品的评判标准  上架几天内为新品
             BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
-            searchStoreGoodsDto.setNewGoodsDays(basicSettingPo.getNewProductDay());
+            findStoreGoodsParamDto.setNewGoodsDays(basicSettingPo.getNewProductDay());
         }
 
         ScreenParamVo screenParamVo = new ScreenParamVo();
-        ScreenGoodsParamVo screenGoodsParamVo = mapper.findScreenGoodsParam(searchStoreGoodsDto);
+        ScreenGoodsParamVo screenGoodsParamVo = mapper.findScreenGoodsParam(findStoreGoodsParamDto);
         screenParamVo.setScreenGoodsParamVo(screenGoodsParamVo);
         return screenParamVo;
 

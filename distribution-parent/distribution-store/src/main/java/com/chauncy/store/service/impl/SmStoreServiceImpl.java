@@ -26,6 +26,7 @@ import com.chauncy.data.domain.po.sys.SysRoleUserPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.store.FindStoreCategoryDto;
+import com.chauncy.data.dto.app.store.FindStoreParamDto;
 import com.chauncy.data.dto.app.store.SearchStoreDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.store.add.StoreAccountInfoDto;
@@ -214,7 +215,7 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         //oldAttributeIds 与 newAttributeIds的差集
         List<Long> reduceList = oldAttributeIds.stream().filter(item -> !newAttributeIds.contains(item)).collect(toList());
         if(null != reduceList && reduceList.size() > 0 ) {
-            throw  new ServiceException(ResultCode.PARAM_ERROR, "修改失败，包含正被使用的关联的品牌");
+            throw  new ServiceException(ResultCode.PARAM_ERROR, "修改失败，删除的品牌包含正被使用的关联的品牌");
         }
 
         //将店铺与品牌关联表的记录删除  关联不能全部删除重新创建  因为可能已经有已存在关联，删除差集 needDelList
@@ -767,14 +768,14 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
      * @return com.chauncy.data.vo.app.component.ScreenParamVo
      **/
     @Override
-    public ScreenParamVo findScreenStoreParam(SearchStoreDto searchStoreDto) {
+    public ScreenParamVo findScreenStoreParam(FindStoreParamDto findStoreParamDto) {
 
         //获取当前app用户信息
         UmUserPo umUserPo = securityUtil.getAppCurrUser();
-        searchStoreDto.setUserId(umUserPo.getId());
+        findStoreParamDto.setUserId(umUserPo.getId());
 
         ScreenParamVo screenParamVo = new ScreenParamVo();
-        ScreenStoreParamVo screenStoreParamVo = smStoreMapper.findScreenStoreParam(searchStoreDto);
+        ScreenStoreParamVo screenStoreParamVo = smStoreMapper.findScreenStoreParam(findStoreParamDto);
         screenParamVo.setScreenStoreParamVo(screenStoreParamVo);
         return screenParamVo;
     }
