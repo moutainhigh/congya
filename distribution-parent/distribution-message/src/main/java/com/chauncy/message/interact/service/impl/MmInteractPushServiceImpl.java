@@ -30,6 +30,7 @@ import com.chauncy.data.vo.manage.message.interact.push.InteractPushVo;
 import com.chauncy.data.vo.manage.message.interact.push.SmsPushVo;
 import com.chauncy.data.vo.manage.message.interact.push.UmUsersVo;
 import com.chauncy.message.interact.service.IMmInteractPushService;
+import com.chauncy.message.interact.service.IMmUserNoticeRelUserService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -40,6 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +64,9 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
 
     @Autowired
     private MmUserNoticeRelUserMapper mmUserNoticeRelUserMapper;
+
+    @Autowired
+    private IMmUserNoticeRelUserService mmUserNoticeRelUserService;
 
     @Autowired
     private UmUserMapper userMapper;
@@ -112,11 +117,6 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
         interactPushPo.setId(null);
         interactPushPo.setCreateBy(securityUtil.getCurrUser().getUsername());
         mapper.insert(interactPushPo);
-
-        if(PushTypeEnum.APPMESSAGE.getName().equals(addPushMessageDto.getPushType())) {
-            //如果是app内消息中心推送 保存推送信息与用户的关联（哪些用户收到了消息）
-            saveNoticeRelUser(interactPushPo, addPushMessageDto.getObjectIds());
-        }
 
         Map<String, String> extras = Maps.newHashMap();
         extras.put("param", "额外的字段");
@@ -191,7 +191,15 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
                     //指定会员
                     case SPECIFYMEMBERLEVEL:
                         //通过会员ID获取对应的用户ID
+                        if (addPushMessageDto.getObjectIds() == null || addPushMessageDto.getObjectIds().size() == 0) {
+                            throw new ServiceException(ResultCode.NO_EXISTS, "请选择指定会员等级");
+                        }
+                        //通过会员ID获取对应的用户ID
                         Long memberLevelId = addPushMessageDto.getObjectIds().get(0);
+                        PmMemberLevelPo queryMemberLevel = memberLevelMapper.selectById(memberLevelId);
+                        if (queryMemberLevel == null) {
+                            throw new ServiceException(ResultCode.NO_EXISTS, "数据库不存在该会员等级，请检查");
+                        }
                         MmInteractRelMessageObjectPo relMessageObjectPo = new MmInteractRelMessageObjectPo();
                         relMessageObjectPo.setPushId(interactPushPo.getId());
                         relMessageObjectPo.setObjectId(memberLevelId);
@@ -201,6 +209,9 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
                         break;
                     //指定用户
                     case SPECIFYUSER:
+                        if (addPushMessageDto.getObjectIds() == null || addPushMessageDto.getObjectIds().size() == 0) {
+                            throw new ServiceException(ResultCode.NO_EXISTS, "请选择指定用户");
+                        }
                         addPushMessageDto.getObjectIds().forEach(a -> {
                             MmInteractRelMessageObjectPo messageObjectPo = new MmInteractRelMessageObjectPo();
                             messageObjectPo.setPushId(interactPushPo.getId());
@@ -213,6 +224,12 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
                 }
                 break;
         }
+
+        if(PushTypeEnum.APPMESSAGE.getName().equals(addPushMessageDto.getPushType())) {
+            //如果是app内消息中心推送 保存推送信息与用户的关联（哪些用户收到了消息）
+            saveNoticeRelUser(interactPushPo, addPushMessageDto.getObjectIds());
+        }
+
     }
 
     /**
@@ -225,13 +242,35 @@ public class MmInteractPushServiceImpl extends AbstractService<MmInteractPushMap
      * @param  interactPushPo
      * @return void
      **/
-    private void saveNoticeRelUser(MmInteractPushPo interactPushPo, List<Long> userIds) {
+    private void saveNoticeRelUser(MmInteractPushPo interactPushPo, List<Long> relIds) {
         if(PushObjectEnum.ALLUSER.getName().equals(interactPushPo.getObjectType())) {
+            //指定全部用户
             MmUserNoticeRelUserPo mmUserNoticeRelUserPo = new MmUserNoticeRelUserPo();
             mmUserNoticeRelUserPo.setPushId(interactPushPo.getId());
             mmUserNoticeRelUserPo.setSendType(PushObjectEnum.ALLUSER.getId());
             mmUserNoticeRelUserPo.setCreateBy(interactPushPo.getCreateBy());
-            //mmUserNoticeRelUserMapper
+            mmUserNoticeRelUserMapper.insert(mmUserNoticeRelUserPo);
+        } else if(PushObjectEnum.SPECIFYMEMBERLEVEL.getName().equals(interactPushPo.getObjectType())) {
+            //指定会员等级
+            MmUserNoticeRelUserPo mmUserNoticeRelUserPo = new MmUserNoticeRelUserPo();
+            mmUserNoticeRelUserPo.setPushId(interactPushPo.getId());
+            mmUserNoticeRelUserPo.setSendType(PushObjectEnum.SPECIFYMEMBERLEVEL.getId());
+            PmMemberLevelPo pmMemberLevelPo = memberLevelMapper.selectById(relIds.get(0));
+            mmUserNoticeRelUserPo.setLevel(pmMemberLevelPo.getLevel());
+            mmUserNoticeRelUserPo.setCreateBy(interactPushPo.getCreateBy());
+            mmUserNoticeRelUserMapper.insert(mmUserNoticeRelUserPo);
+        } else {
+            //指定用户
+            List<MmUserNoticeRelUserPo> mmUserNoticeRelUserPoList = new ArrayList<>();
+            relIds.stream().forEach(userId -> {
+                MmUserNoticeRelUserPo mmUserNoticeRelUserPo = new MmUserNoticeRelUserPo();
+                mmUserNoticeRelUserPo.setPushId(interactPushPo.getId());
+                mmUserNoticeRelUserPo.setSendType(PushObjectEnum.SPECIFYUSER.getId());
+                mmUserNoticeRelUserPo.setUserId(userId);
+                mmUserNoticeRelUserPo.setCreateBy(interactPushPo.getCreateBy());
+                mmUserNoticeRelUserPoList.add(mmUserNoticeRelUserPo);
+            });
+            mmUserNoticeRelUserService.saveBatch(mmUserNoticeRelUserPoList);
         }
     }
 
