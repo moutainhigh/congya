@@ -142,6 +142,7 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
            userInfoVo.setIM(String.valueOf(userPo.getId()));
            userInfoVo.setJPush(String.valueOf(userPo.getId()));
            userInfoVo.setNickName(userPo.getName() == null ? userPo.getName() : SecurityConstant.USER_DEFAULT_NICKNAME);
+           userInfoVo.setAvatar(userPo.getPhoto() == null ? userPo.getPhoto() : SecurityConstant.USER_DEFAULT_AVATAR);
            ResponseUtil.out(response, new JsonViewData<UserInfoVo>(userInfoVo));
 
        }else {

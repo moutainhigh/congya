@@ -25,4 +25,7 @@ public class UserInfoVo {
 
     @ApiModelProperty(value = "token")
     private String token;
+
+    @ApiModelProperty(value = "头像")
+    private String avatar;
 }
