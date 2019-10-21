@@ -1,12 +1,18 @@
 package com.chauncy.security.jwt;
 
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.annotation.SystemLog;
 import com.chauncy.common.constant.SecurityConstant;
 import com.chauncy.common.enums.system.LogType;
+import com.chauncy.common.enums.system.LoginType;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.domain.po.user.UmUserPo;
+import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.sys.TokenUser;
+import com.chauncy.data.vo.sys.UserInfoVo;
+import com.chauncy.security.details.MyAuthenticationDetails;
 import com.chauncy.security.util.IpInfoUtil;
 import com.chauncy.security.util.ResponseUtil;
 import com.google.gson.Gson;
@@ -58,9 +64,14 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
     @Autowired
     private StringRedisTemplate redisTemplate;
 
+    @Autowired
+    private IBaseMapper<UmUserPo> umUserPoIBaseMapper;
+
     @Override
     @SystemLog(description = "登录系统", type = LogType.LOGIN)
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+
+        MyAuthenticationDetails details = (MyAuthenticationDetails) authentication.getDetails();
 
         //用户选择保存登录状态几天
         String saveLogin = request.getParameter(SecurityConstant.SAVE_LOGIN);
@@ -121,8 +132,27 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
         if (loginType.equals("MANAGE")||loginType.equals("SUPPLIER")){
             ResponseUtil.out(response, ResponseUtil.resultMap(true,200,"登录成功", token));
         }*/
-            ResponseUtil.out(response, new JsonViewData<String>(token));
+        UserInfoVo userInfoVo = new UserInfoVo();
+       if (details.getLoginType().equals(LoginType.MANAGE) || details.getLoginType().equals(LoginType.SUPPLIER)) {
+           ResponseUtil.out(response, new JsonViewData<String>(token));
+       }else if (details.getLoginType().equals(LoginType.THIRD_WECHAT)){
+           UmUserPo userPo =umUserPoIBaseMapper.selectOne(new QueryWrapper<UmUserPo>().lambda()
+                   .eq(UmUserPo::getUnionId,details.getUnionId()));
+           userInfoVo.setToken(token);
+           userInfoVo.setIM(String.valueOf(userPo.getId()));
+           userInfoVo.setJPush(String.valueOf(userPo.getId()));
+           userInfoVo.setNickName(userPo.getName() == null ? userPo.getName() : SecurityConstant.USER_DEFAULT_NICKNAME);
+           ResponseUtil.out(response, new JsonViewData<UserInfoVo>(userInfoVo));
 
+       }else {
+           UmUserPo userPo =umUserPoIBaseMapper.selectOne(new QueryWrapper<UmUserPo>().lambda()
+                   .eq(UmUserPo::getPhone,details.getPhone()));
+           userInfoVo.setToken(token);
+           userInfoVo.setIM(String.valueOf(userPo.getId()));
+           userInfoVo.setJPush(String.valueOf(userPo.getId()));
+           userInfoVo.setNickName(userPo.getName() == null ? userPo.getName() : SecurityConstant.USER_DEFAULT_NICKNAME);
+           ResponseUtil.out(response, new JsonViewData<UserInfoVo>(userInfoVo));
 
+       }
     }
 }

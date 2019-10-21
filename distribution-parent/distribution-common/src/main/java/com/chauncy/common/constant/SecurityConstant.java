@@ -50,6 +50,11 @@ public interface SecurityConstant {
     String USER_DEFAULT_AVATAR = "https://i.loli.net/2019/04/28/5cc5a71a6e3b6.png";
 
     /**
+     * 用户默认昵称
+     */
+    String USER_DEFAULT_NICKNAME = "昵称";
+
+    /**
      * 用户正常状态
      */
     Integer USER_STATUS_NORMAL = 0;
