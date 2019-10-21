@@ -38,6 +38,7 @@ public class SubmitOrderDto {
 
 
     @ApiModelProperty(value = "用户实名认证id,若无须实名认证，该字段为空")
+    @NeedExistConstraint(tableName = "om_real_user")
     private Long realUserId;
 
 

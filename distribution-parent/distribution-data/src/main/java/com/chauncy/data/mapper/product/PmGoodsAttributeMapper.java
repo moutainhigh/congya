@@ -102,10 +102,10 @@ public interface PmGoodsAttributeMapper extends IBaseMapper<PmGoodsAttributePo> 
     /**
      * 通过类型查找属性
      *
-     * @param id
+     * @param type
      * @return
      */
-    List<BaseVo> findAttByType(Integer id);
+    List<BaseVo> findAttByType(Integer type);
 
     /**
      * 查找分类下的品牌信息
@@ -158,4 +158,6 @@ public interface PmGoodsAttributeMapper extends IBaseMapper<PmGoodsAttributePo> 
      */
     @Update("update pm_goods_attribute set collection_num = collection_num-1 where id = #{favoritesId} and collection_num > 0")
     void delFavorites(Long favoritesId);
+
+    List<BaseVo> findAttByTypeAndStore(@Param("type") Integer type, @Param("storeId") Long storeId);
 }

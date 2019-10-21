@@ -45,8 +45,17 @@ public class MyFilterSecurityInterceptor extends AbstractSecurityInterceptor imp
 
     public void invoke(FilterInvocation fi) throws IOException, ServletException {
 
+        //默认实现类AbstractSecurityInterceptor的beforeInvocation()方法，通过
+        // SecurityMetadataSource obtainSecurityMetadataSource()
+        // 1、Collection<ConfigAttribute> attributes = this.obtainSecurityMetadataSource().getAttributes(object);
+        // 获取到属性url的值
+        // private AccessDecisionManager accessDecisionManager;
+        // 2、将该值作为decide(Authentication authentication, Object o, Collection<ConfigAttribute> configAttributes)
+        // accessDecisionManager.decide(authenticated, object, attributes)的第三个参数传给AccessDecisionManager
+
         InterceptorStatusToken token = super.beforeInvocation(fi);
         try {
+            //doFilter()方法就是调用我们的接口处理响应求
             fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
         } finally {
             super.afterInvocation(token, null);
@@ -63,6 +72,18 @@ public class MyFilterSecurityInterceptor extends AbstractSecurityInterceptor imp
         return FilterInvocation.class;
     }
 
+    /**
+     * @Author chauncy
+     * @Date 2019-10-18 23:27
+     * @Description //安全元数据资源--Collection<ConfigAttribute> attributes = this.obtainSecurityMetadataSource()
+     * 				.getAttributes(object);
+     * 			如果url在权限表中，则返回给decide方法，用来判定用户是否有此权限
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return org.springframework.security.access.SecurityMetadataSource
+     **/
     @Override
     public SecurityMetadataSource obtainSecurityMetadataSource() {
         return this.securityMetadataSource;
