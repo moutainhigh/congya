@@ -54,7 +54,7 @@ public class GetMembersCenterVo {
     @JSONField(ordinal = 4)
     private BigDecimal sumExperience;
 
-    @ApiModelProperty("当前经验值")
+    @ApiModelProperty(value = "当前经验值",hidden = true)
     @JSONField(ordinal = 5,serialize = false)
     private BigDecimal currentExperience;
 
@@ -124,7 +124,7 @@ public class GetMembersCenterVo {
 
     @ApiModelProperty(value = "CRO",hidden = true)
     @JSONField(ordinal = 22,serialize = false)
-    private Integer cRO;
+    private Integer cro;
 
     @ApiModelProperty(value = "活跃",hidden = true)
     @JSONField(ordinal = 23,serialize = false)
