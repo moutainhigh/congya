@@ -11,6 +11,6 @@ import com.chauncy.data.mapper.IBaseMapper;
  * @author huangwancheng
  * @since 2019-09-16
  */
-public interface MmInteractPushRelUserMapper extends IBaseMapper<MmUserNoticeRelUserPo> {
+public interface MmUserNoticeRelUserMapper extends IBaseMapper<MmUserNoticeRelUserPo> {
 
 }

@@ -1,5 +1,6 @@
 package com.chauncy.store.service;
 
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
@@ -19,6 +20,7 @@ import com.chauncy.data.vo.app.component.ScreenParamVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.app.store.StoreDetailVo;
 import com.chauncy.data.vo.app.store.StorePagingVo;
+import com.chauncy.data.vo.app.user.UserNickNameVo;
 import com.chauncy.data.vo.manage.product.SearchCategoryVo;
 import com.chauncy.data.vo.manage.store.*;
 import com.chauncy.data.vo.supplier.store.BranchInfoVo;
@@ -40,6 +42,18 @@ import java.util.Map;
  * @since 2019-06-03
  */
 public interface ISmStoreService extends Service<SmStorePo> {
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/19 16:14
+     * @Description 获取商家端头像+昵称
+     *
+     * @Update yeJH
+     *
+     * @param
+     * @return com.chauncy.data.vo.app.user.UserNickNameVo
+     **/
+    UserNickNameVo getStoreUserInfo();
 
     /**
      * 保存店铺基本信息

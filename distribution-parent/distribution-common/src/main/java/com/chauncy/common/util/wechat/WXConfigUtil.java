@@ -43,7 +43,7 @@ public class WXConfigUtil implements WXPayConfig {
         String certPath;
         if(isWindows) {
             //Windows环境
-            certPath = "D:" + File.separator + "cert" + File.separator + "BoHUI20190802_apiclient_cert.p12";
+            certPath = "E:" + File.separator + "cert" + File.separator + "BoHUI20190802_apiclient_cert.p12";
         } else {
             certPath = File.separator + "congya" + File.separator + "cert" + File.separator + "BoHUI20190802_apiclient_cert.p12";
         }

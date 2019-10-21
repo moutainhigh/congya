@@ -396,6 +396,10 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             else {
                 appSearchOrderVoPageInfo.getList().forEach(x->x.setStatus(OrderStatusEnum.WAIT_WRITE_OFF));
             }
+            appSearchOrderVoPageInfo.getList().forEach(x -> {
+                List<SmSendGoodsTempVo> smSendGoodsTempVos = mapper.searchSendGoodsTemp(x.getOrderId());
+                x.setSmSendGoodsTempVos(smSendGoodsTempVos);
+            });
             return appSearchOrderVoPageInfo;
         }
         else {

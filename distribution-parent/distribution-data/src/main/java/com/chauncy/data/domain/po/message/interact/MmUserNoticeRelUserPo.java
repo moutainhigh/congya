@@ -40,6 +40,9 @@ public class MmUserNoticeRelUserPo implements Serializable {
     @ApiModelProperty(value = "推送id")
     private Long pushId;
 
+    @ApiModelProperty(value = "推送用户类型 1全部用户 2指定用户 3指定等级")
+    private Integer sendType;
+
     @ApiModelProperty(value = "用户id")
     private Long userId;
 

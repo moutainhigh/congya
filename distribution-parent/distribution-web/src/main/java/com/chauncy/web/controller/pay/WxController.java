@@ -76,7 +76,7 @@ public class WxController {
     public JsonViewData<UnifiedOrderVo> wxPay(HttpServletRequest request, @RequestBody @ApiParam(required = true,
             name = "payParamDto",value = "下单参数") @Validated PayParamDto payParamDto) {
 
-        //获取当前店铺用户
+        //获取当前用户
         UmUserPo umUserPo = securityUtil.getAppCurrUser();
         if(null == umUserPo) {
             throw  new ServiceException(ResultCode.NO_LOGIN, "未登陆或登陆已超时");
