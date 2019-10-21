@@ -13,9 +13,9 @@ public enum NoticeTypeEnum  implements BaseEnum {
     /**
      * 消息通知类型
      */
-    Express_Logistics(1, "快递物流"),
-    System_Notice(2, "系统通知"),
-    Task_reward(3, "任务奖励"),
+    EXPRESS_LOGISTICS(1, "快递物流"),
+    SYSTEM_NOTICE(2, "系统通知"),
+    TASK_REWARD(3, "任务奖励"),
     ;
 
     @EnumValue

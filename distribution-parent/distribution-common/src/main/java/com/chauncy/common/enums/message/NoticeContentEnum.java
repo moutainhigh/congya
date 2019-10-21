@@ -11,15 +11,23 @@ import java.util.Objects;
  */
 public enum NoticeContentEnum   implements BaseEnum {
     /**
-     * 消息内容枚举
+     * 奖励通知  消息内容枚举
      */
     UPGRADE(1, "恭喜你的会员等级已经提升到{0}级，点击查看详情"),
-    SHOPPING_REWARD(2, "预计入账{0}消费券，具体时间以本次订单完成为准"),
+    SHOPPING_REWARD(2, "预计入账{0}{1}，具体时间以本次订单完成为准"),
     FRIENDS_ASSIST(3, "预计入账{0}积分，具体时间以本次订单完成为准"),
     GET_INTEGRATE(4, "恭喜您有{0}积分到账了，点击查看使用"),
     GET_SHOP_TICKET(5, "恭喜您有{0}消费券到账了，点击查看使用"),
     GET_RED_ENVELOPS(6, "恭喜您有{0}红包到账了，点击查看使用"),
-            ;
+    /**
+     * 交易物流  消息内容枚举
+     */
+    ALREADY_SIGNED(7, "您购买的{0}订单已签收"),
+    SHIPPED(8, "您购买的{0}订单已发货"),
+    REFUND_SUCCESSFUL(9, "亲爱的{0}：退款售后编号：{1}，系统已给您退款。请注意查收"),
+    RETURN_GOODS(10, "亲爱的{0}：退款售后编号：{1}，卖家已同意退款。请于{2}前将货物寄回指定售后点"),
+    WITHDRAWAL_SUCCESS(11, "亲爱的{0}：流水编号{1}，请注意查收"),
+    ;
 
     @EnumValue
     private Integer id;

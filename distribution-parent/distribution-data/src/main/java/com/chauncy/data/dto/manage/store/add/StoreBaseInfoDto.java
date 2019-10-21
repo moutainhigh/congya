@@ -92,7 +92,7 @@ public class StoreBaseInfoDto implements Serializable {
     private String backgroundImage;
 
     @ApiModelProperty(value = "所属品牌集合")
-    @NotEmpty
+    //@NotEmpty
     @NeedExistConstraint(tableName = "pm_goods_attribute")
     private Long[] attributeIds;
 

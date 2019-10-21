@@ -11,7 +11,7 @@ import java.util.Objects;
  */
 public enum NoticeTitleEnum   implements BaseEnum {
     /**
-     * 消息标题枚举
+     * 奖励通知  消息标题枚举
      */
     UPGRADE(1, "升级达成"),
     SHOPPING_REWARD(2, "消费奖励"),
@@ -19,6 +19,14 @@ public enum NoticeTitleEnum   implements BaseEnum {
     GET_INTEGRATE(4, "积分到账"),
     GET_SHOP_TICKET(5, "消费券到账"),
     GET_RED_ENVELOPS(6, "红包到账"),
+    /**
+     * 交易物流  消息标题枚举
+     */
+    ALREADY_SIGNED(7, "您的订单已签收"),
+    SHIPPED(8, "您的订单已发货"),
+    REFUND_SUCCESSFUL(9, "退款已经成功"),
+    RETURN_GOODS(10, "卖家同意售后，需要您退货"),
+    WITHDRAWAL_SUCCESS(11, "提现成功"),
     ;
 
     @EnumValue

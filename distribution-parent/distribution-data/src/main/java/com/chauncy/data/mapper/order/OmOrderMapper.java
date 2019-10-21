@@ -169,6 +169,18 @@ public interface OmOrderMapper extends IBaseMapper<OmOrderPo> {
     RewardBuyerBo getRewardBoByOrder (Long orderId);
 
     /**
+     * @Author yeJH
+     * @Date 2019/10/21 9:20
+     * @Description 根据支付单id获取售后截止时间到了之后奖励的购物券、积分、经验值
+     *
+     * @Update yeJH
+     *
+     * @param  payOrderId  支付单id
+     * @return com.chauncy.data.bo.app.order.my.OrderRewardBo
+     **/
+    OrderRewardBo getOrderRewardByPayId(@Param("payOrderId") Long payOrderId);
+
+    /**
      * 售后订单关闭之后（表示这个商品无法再申请售后）应该奖励的东西
      * 购物券、积分、经验值
      * @param goodsTempId

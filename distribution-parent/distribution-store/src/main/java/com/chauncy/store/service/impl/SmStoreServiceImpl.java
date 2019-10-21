@@ -241,14 +241,14 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         //绑定店铺关系
         bindingStore(oldSmStore.getId(), storeBaseInfoDto.getStoreRelStoreDtoList());
 
-        //查询新更改的品牌中缺少的已有品牌是否有关联的商品  如果有则编辑失败
-        List<Long> oldAttributeIds = smStoreMapper.selectAttributeIdsById(storeBaseInfoDto.getId());
+        //查询新更改的品牌中缺少的已有品牌是否有关联的商品  如果有则编辑失败(修改  改为店铺下的商品品牌选择跟店铺无关)
+        //List<Long> oldAttributeIds = smStoreMapper.selectAttributeIdsById(storeBaseInfoDto.getId());
         List<Long> newAttributeIds = Arrays.asList(storeBaseInfoDto.getAttributeIds());
         //oldAttributeIds 与 newAttributeIds的差集
-        List<Long> reduceList = oldAttributeIds.stream().filter(item -> !newAttributeIds.contains(item)).collect(toList());
+        /*List<Long> reduceList = oldAttributeIds.stream().filter(item -> !newAttributeIds.contains(item)).collect(toList());
         if(null != reduceList && reduceList.size() > 0 ) {
             throw  new ServiceException(ResultCode.PARAM_ERROR, "修改失败，删除的品牌包含正被使用的关联的品牌");
-        }
+        }*/
 
         //将店铺与品牌关联表的记录删除  关联不能全部删除重新创建  因为可能已经有已存在关联，删除差集 needDelList
         /*Map<String, Object> map = new HashMap<>();
@@ -293,14 +293,16 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
      */
     private void saveBatchRelStoreAttribute (StoreBaseInfoDto storeBaseInfoDto, String userName) {
         List<SmRelStoreAttributePo> smRelStoreAttributePoList = new ArrayList<>();
-        for(Long attributeId : storeBaseInfoDto.getAttributeIds()) {
-            SmRelStoreAttributePo smRelStoreAttributePo = new SmRelStoreAttributePo();
-            smRelStoreAttributePo.setAttributeId(attributeId);
-            smRelStoreAttributePo.setCreateBy(userName);
-            smRelStoreAttributePo.setStoreId(storeBaseInfoDto.getId());
-            smRelStoreAttributePoList.add(smRelStoreAttributePo);
+        if(null != storeBaseInfoDto.getAttributeIds() && storeBaseInfoDto.getAttributeIds().length > 0) {
+            for (Long attributeId : storeBaseInfoDto.getAttributeIds()) {
+                SmRelStoreAttributePo smRelStoreAttributePo = new SmRelStoreAttributePo();
+                smRelStoreAttributePo.setAttributeId(attributeId);
+                smRelStoreAttributePo.setCreateBy(userName);
+                smRelStoreAttributePo.setStoreId(storeBaseInfoDto.getId());
+                smRelStoreAttributePoList.add(smRelStoreAttributePo);
+            }
+            smRelStoreAttributeService.saveBatch(smRelStoreAttributePoList);
         }
-        smRelStoreAttributeService.saveBatch(smRelStoreAttributePoList);
     }
 
     /**

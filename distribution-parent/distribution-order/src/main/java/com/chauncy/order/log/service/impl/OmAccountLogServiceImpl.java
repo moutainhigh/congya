@@ -227,7 +227,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
                 //新增用户任务奖励消息 积分到账消息
                 MmUserNoticePo getIntegrateNotice = new MmUserNoticePo();
                 getIntegrateNotice.setUserId(umUserId)
-                        .setNoticeType(NoticeTypeEnum.Task_reward.getId())
+                        .setNoticeType(NoticeTypeEnum.TASK_REWARD.getId())
                         .setTitle(NoticeTitleEnum.GET_INTEGRATE.getName())
                         .setContent(MessageFormat.format(NoticeContentEnum.GET_INTEGRATE.getName(), amount));
                 mmUserNoticeMapper.insert(getIntegrateNotice);
@@ -236,7 +236,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
                 //新增用户任务奖励消息 消费券到账消息
                 MmUserNoticePo getShopTicketNotice = new MmUserNoticePo();
                 getShopTicketNotice.setUserId(umUserId)
-                        .setNoticeType(NoticeTypeEnum.Task_reward.getId())
+                        .setNoticeType(NoticeTypeEnum.TASK_REWARD.getId())
                         .setTitle(NoticeTitleEnum.GET_SHOP_TICKET.getName())
                         .setContent(MessageFormat.format(NoticeContentEnum.GET_SHOP_TICKET.getName(), amount));
                 mmUserNoticeMapper.insert(getShopTicketNotice);
@@ -245,7 +245,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
                 //新增用户任务奖励消息 红包到账消息
                 MmUserNoticePo getRedEnvelopsNotice = new MmUserNoticePo();
                 getRedEnvelopsNotice.setUserId(umUserId)
-                        .setNoticeType(NoticeTypeEnum.Task_reward.getId())
+                        .setNoticeType(NoticeTypeEnum.TASK_REWARD.getId())
                         .setTitle(NoticeTitleEnum.GET_RED_ENVELOPS.getName())
                         .setContent(MessageFormat.format(NoticeContentEnum.GET_RED_ENVELOPS.getName(), amount));
                 mmUserNoticeMapper.insert(getRedEnvelopsNotice);
