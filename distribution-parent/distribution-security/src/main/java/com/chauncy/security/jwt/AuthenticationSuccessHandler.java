@@ -3,10 +3,14 @@ package com.chauncy.security.jwt;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.annotation.SystemLog;
+import com.chauncy.common.constant.Constants;
 import com.chauncy.common.constant.SecurityConstant;
 import com.chauncy.common.enums.system.LogType;
 import com.chauncy.common.enums.system.LoginType;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.third.easemob.RegistIM;
+import com.chauncy.common.third.easemob.comm.RegUserBo;
+import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.JsonViewData;
@@ -66,6 +70,9 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
 
     @Autowired
     private IBaseMapper<UmUserPo> umUserPoIBaseMapper;
+
+    @Autowired
+    private IBaseMapper<SysUserPo> sysUserPoIBaseMapper;
 
     @Override
     @SystemLog(description = "登录系统", type = LogType.LOGIN)
@@ -133,11 +140,18 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
             ResponseUtil.out(response, ResponseUtil.resultMap(true,200,"登录成功", token));
         }*/
         UserInfoVo userInfoVo = new UserInfoVo();
+        //登录成功之后的操作--检查该用户是否注册环信账号，没有则注册
        if (details.getLoginType().equals(LoginType.MANAGE) || details.getLoginType().equals(LoginType.SUPPLIER)) {
+           SysUserPo sysUserPo = sysUserPoIBaseMapper.selectOne(new QueryWrapper<SysUserPo>().lambda()
+                   .eq(SysUserPo::getUsername,username));
+           //是否注册环信账号
+           isRegistry(sysUserPo.getId(), sysUserPo.getNickName());
            ResponseUtil.out(response, new JsonViewData<String>(token));
        }else if (details.getLoginType().equals(LoginType.THIRD_WECHAT)){
            UmUserPo userPo =umUserPoIBaseMapper.selectOne(new QueryWrapper<UmUserPo>().lambda()
                    .eq(UmUserPo::getUnionId,details.getUnionId()));
+           //是否注册环信账号
+           isRegistry(userPo.getId().toString(), userPo.getName());
            userInfoVo.setToken(token);
            userInfoVo.setIM(String.valueOf(userPo.getId()));
            userInfoVo.setJPush(String.valueOf(userPo.getId()));
@@ -148,6 +162,9 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
        }else {
            UmUserPo userPo =umUserPoIBaseMapper.selectOne(new QueryWrapper<UmUserPo>().lambda()
                    .eq(UmUserPo::getPhone,details.getPhone()));
+           //是否注册环信账号
+           isRegistry(userPo.getId().toString(), userPo.getName());
+
            userInfoVo.setToken(token);
            userInfoVo.setIM(String.valueOf(userPo.getId()));
            userInfoVo.setJPush(String.valueOf(userPo.getId()));
@@ -155,5 +172,15 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
            ResponseUtil.out(response, new JsonViewData<UserInfoVo>(userInfoVo));
 
        }
+    }
+
+    private void isRegistry(String s, String name) {
+        if (RegistIM.getUser(s) == null) {
+            RegUserBo regUserBo = new RegUserBo();
+            regUserBo.setPassword(Constants.PASSWORD);
+            regUserBo.setUsername(s);
+            regUserBo.setNickname(name == null ? name : SecurityConstant.USER_DEFAULT_NICKNAME);
+            RegistIM.reg(regUserBo);
+        }
     }
 }
