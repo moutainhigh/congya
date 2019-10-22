@@ -109,7 +109,7 @@ public class AppMyOrderDetailVo {
     @ApiModelProperty("物流节点信息")
     private List<LogisticsDataBo> logisticsData;
 
-    @ApiModelProperty(value = "二维码")
+    @ApiModelProperty("二维码")
     private String qRCode;
 
     @ApiModelProperty(value = "商家地址")

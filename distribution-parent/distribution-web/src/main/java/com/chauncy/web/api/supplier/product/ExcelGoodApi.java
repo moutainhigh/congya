@@ -224,7 +224,7 @@ public class ExcelGoodApi extends BaseApi {
                 continue;
             }
             //商品分类
-            PmGoodsCategoryPo categoryCondition = new PmGoodsCategoryPo(rowDataList.get(0), 3);
+            PmGoodsCategoryPo categoryCondition = new PmGoodsCategoryPo(rowDataList.get(0), 3,true);
             Wrapper categoryPoWrapper = new QueryWrapper<>(categoryCondition, "id");
             PmGoodsCategoryPo categoryPo = categoryService.getOne(categoryPoWrapper);
             if (categoryPo == null) {
@@ -234,7 +234,7 @@ public class ExcelGoodApi extends BaseApi {
                 continue;
             }
             //商品品牌
-            PmGoodsAttributePo brandCondition = new PmGoodsAttributePo(rowDataList.get(5), 8);
+            PmGoodsAttributePo brandCondition = new PmGoodsAttributePo(rowDataList.get(5), 8,true);
             Wrapper brandWrapper = new QueryWrapper<>(brandCondition, "id");
             PmGoodsAttributePo brand = attributePoService.getOne(brandWrapper);
             if (brand == null) {

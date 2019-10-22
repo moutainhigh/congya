@@ -137,8 +137,9 @@ public class PmGoodsAttributePo implements Serializable {
     @ApiModelProperty(value = "商品属性值")
     private String[] values;
 
-    public PmGoodsAttributePo(String name,  Integer type) {
+    public PmGoodsAttributePo(String name,  Integer type,Boolean enabled) {
         this.name = name;
         this.type = type;
+        this.enabled=enabled;
     }
 }

@@ -106,5 +106,14 @@ public class OmGoodsTempPo implements Serializable {
     @ApiModelProperty(value = "是否售后成功")
     private Boolean isAfterSale;
 
+    @ApiModelProperty(value = "使用了多少积分")
+    private BigDecimal integral;
+
+    @ApiModelProperty(value = "使用了多少红包")
+    private BigDecimal red;
+
+    @ApiModelProperty(value = "使用了多少购物券")
+    private BigDecimal shopTicket;
+
 
 }

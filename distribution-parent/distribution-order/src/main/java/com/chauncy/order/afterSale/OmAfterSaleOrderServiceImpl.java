@@ -332,16 +332,15 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         //退还使用的红包、购物券
         OmGoodsTempPo queryGoodsTemp = goodsTempMapper.selectById(queryAfterSaleOrder.getGoodsTempId());
         OmOrderPo queryOrder=omOrderMapper.selectById(queryGoodsTemp.getOrderId());
-        //根据商品销售价在订单中的比例算出退还的红包、购物券
-        BigDecimal ratio=BigDecimalUtil.safeDivide(BigDecimalUtil.safeMultiply(queryGoodsTemp.getNumber(),queryGoodsTemp.getSellPrice()),
-               BigDecimalUtil.safeSubtract(queryOrder.getTotalMoney(),queryOrder.getShipMoney(),queryOrder.getTaxMoney()) );
         UmUserPo updateUser=new UmUserPo();
-        BigDecimal marginRedEnvelops = BigDecimalUtil.safeMultiply(ratio,queryOrder.getRedEnvelops());
-        BigDecimal marginShopTicket = BigDecimalUtil.safeMultiply(ratio,queryOrder.getShopTicket());
+        BigDecimal marginRedEnvelops = queryGoodsTemp.getRed();
+        BigDecimal marginShopTicket = queryGoodsTemp.getShopTicket();
+        BigDecimal marginIntegral = queryGoodsTemp.getIntegral();
         updateUser.setCurrentRedEnvelops(marginRedEnvelops)
                 .setCurrentShopTicket(marginShopTicket)
+                .setCurrentIntegral(marginIntegral)
                 .setId(queryOrder.getUmUserId());
-        userMapper.updateAdd(updateUser);
+        userMapper.returnWallet(updateUser);
 
 
         //售后成功  购物券，红包退还 对应流水生成

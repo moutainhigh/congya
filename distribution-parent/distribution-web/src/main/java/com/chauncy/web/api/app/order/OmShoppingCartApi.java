@@ -196,7 +196,7 @@ public class OmShoppingCartApi extends BaseApi {
 
     @PostMapping("/settle")
     @ApiOperation("购物车结算")
-    public JsonViewData<TotalCarVo> updateCart(@RequestBody @Validated SettleDto settleDto) {
+    public JsonViewData<TotalCarVo> settle(@RequestBody @Validated SettleDto settleDto) {
         TotalCarVo totalCarVo = service.searchByIds(settleDto, getAppCurrUser());
         return setJsonViewData(totalCarVo);
     }

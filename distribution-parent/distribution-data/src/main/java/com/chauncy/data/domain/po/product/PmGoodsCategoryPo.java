@@ -52,9 +52,10 @@ public class PmGoodsCategoryPo {
     @ApiModelProperty(value = "是否启用 1-是 0-否 默认为1")
     private Boolean enabled;
 
-    public PmGoodsCategoryPo(String name, Integer level) {
+    public PmGoodsCategoryPo(String name, Integer level,Boolean enabled) {
         this.name = name;
         this.level = level;
+        this.enabled=enabled;
     }
 
     @ApiModelProperty(value = "税率")

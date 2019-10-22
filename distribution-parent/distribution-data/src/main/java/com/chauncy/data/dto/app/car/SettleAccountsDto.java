@@ -15,7 +15,7 @@ import java.math.BigDecimal;
  * @Date 2019/7/9 23:21
  **/
 @Data
-@ApiModel(description = "购物车点击结算")
+@ApiModel(description = "结算")
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor

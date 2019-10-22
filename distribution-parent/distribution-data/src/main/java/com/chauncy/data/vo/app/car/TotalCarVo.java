@@ -35,7 +35,7 @@ public class TotalCarVo {
     private BigDecimal totalRedEnvelopsMoney;
 
     @ApiModelProperty(value = "（第二版本）积分抵扣了多少钱")
-    private BigDecimal totalIntegralMoney=BigDecimal.ZERO;
+    private BigDecimal totalIntegralMoney;
 
     @ApiModelProperty(value = "总订单应付总额")
     private BigDecimal totalRealPayMoney;
@@ -64,6 +64,15 @@ public class TotalCarVo {
 
     @ApiModelProperty(value = "是否需要实名认证")
     private Boolean needCertification;
+
+
+    //第二版本
+    @ApiModelProperty(value = "满减优惠券扣去了多少钱")
+    private BigDecimal reduceCouponMoney;
+
+    //第二版本
+    @ApiModelProperty(value = "满减活动扣去了多少钱")
+    private BigDecimal fullDiscountMoney;
 
 
 

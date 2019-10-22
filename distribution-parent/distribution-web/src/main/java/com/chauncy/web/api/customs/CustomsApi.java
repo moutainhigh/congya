@@ -61,6 +61,7 @@ public class CustomsApi {
     @ResponseBody
     @ApiOperation("海关请求")
     public ReturnCustomsVo platDataOpen(@RequestParam(value = "openReq") String openReq) {
+        LoggerUtil.error("接收海关数据："+openReq);
 
         openReq = openReq.replaceAll("&quot;", "\"");
 

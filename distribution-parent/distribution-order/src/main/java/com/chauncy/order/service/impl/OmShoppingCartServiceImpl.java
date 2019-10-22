@@ -8,6 +8,8 @@ import com.chauncy.common.enums.message.KeyWordTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.*;
+import com.chauncy.data.bo.app.car.ActivitySkuBo;
+import com.chauncy.data.bo.app.car.FullDiscountSkuBo;
 import com.chauncy.data.bo.app.car.MoneyShipBo;
 import com.chauncy.data.bo.app.order.reward.RewardShopTicketBo;
 import com.chauncy.data.bo.base.BaseBo;
@@ -69,6 +71,7 @@ import com.chauncy.data.mapper.user.UmAreaShippingMapper;
 import com.chauncy.data.mapper.user.UmUserFavoritesMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.temp.order.service.IOmGoodsTempService;
+import com.chauncy.data.vo.app.activity.coupon.SelectCouponVo;
 import com.chauncy.data.vo.app.advice.activity.*;
 import com.chauncy.data.vo.app.advice.coupon.FindCouponListVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
@@ -91,6 +94,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
+import io.netty.handler.codec.compression.Bzip2Decoder;
 import org.assertj.core.util.Lists;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
@@ -250,6 +254,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     @Autowired
     private AmActivityRelGoodsSkuMapper amActivityRelGoodsSkuMapper;
 
+    //拆单后每个订单至少要支付0.01
+    private BigDecimal orderMinPayMoney=BigDecimal.valueOf(0.01);
+
 
     //需要进行实行认证且计算税率的商品类型
     private final List<String> needRealGoodsType = Lists.newArrayList("保税仓", "海外直邮");
@@ -264,13 +271,13 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     public void addToCart(AddCartDto addCartDto) {
         //获取当前app用户信息
         UmUserPo umUserPo = securityUtil.getAppCurrUser();
-        if (umUserPo == null){
-            throw new ServiceException(ResultCode.NO_EXISTS,"您不是APP用户!");
+        if (umUserPo == null) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "您不是APP用户!");
         }
         //判断购物车是否存在该商品
         Map<String, Object> map = new HashMap<>();
         map.put("sku_id", addCartDto.getSkuId());
-        map.put("user_id",umUserPo.getId());
+        map.put("user_id", umUserPo.getId());
         List<OmShoppingCartPo> shoppingCartPos = mapper.selectByMap(map);
         boolean exit = shoppingCartPos != null && shoppingCartPos.size() != 0;
         //判断当前库存是否足够
@@ -362,17 +369,17 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 /*********************** 商品参加的活动,点击商品进来需要展示的信息 start***************************/
                 //查询已经开始的活动
                 AmActivityRelActivityGoodsPo relActivityGoodsPo = relActivityGoodsMapper.findGoodsActivity(b.getGoodsId());
-                if (relActivityGoodsPo != null){
+                if (relActivityGoodsPo != null) {
                     ActivityTypeEnum activityTypeEnum = ActivityTypeEnum.getActivityTypeEnumById(relActivityGoodsPo.getActivityType());
                     switch (activityTypeEnum) {
                         //满减
                         case REDUCED:
-                            AmReducedPo reducedPo = reducedMapper.selectOne(new QueryWrapper<AmReducedPo>().lambda().and(obj->
-                                    obj.eq(AmReducedPo::getEnable,true).eq(AmReducedPo::getId,relActivityGoodsPo.getActivityId())));
-                            if (reducedPo == null){
+                            AmReducedPo reducedPo = reducedMapper.selectOne(new QueryWrapper<AmReducedPo>().lambda().and(obj ->
+                                    obj.eq(AmReducedPo::getEnable, true).eq(AmReducedPo::getId, relActivityGoodsPo.getActivityId())));
+                            if (reducedPo == null) {
 //                        throw new ServiceException(ResultCode.NO_EXISTS,String.format("该商品参加的满减活动不存在"));
                                 b.setActivityType(ActivityTypeEnum.NON.getId());
-                            }else {
+                            } else {
                                 b.setActivityType(ActivityTypeEnum.REDUCED.getId());
                                 CartReducedVo reducedVo = new CartReducedVo();
                                 reducedVo.setReductionFullMoney(reducedPo.getReductionFullMoney());
@@ -382,20 +389,19 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                             break;
                         //积分--积分抵扣
                         case INTEGRALS:
-                            AmIntegralsPo integralsPo = integralsMapper.selectOne(new QueryWrapper<AmIntegralsPo>().lambda().and(obj->
-                                    obj.eq(AmIntegralsPo::getEnable,true).eq(AmIntegralsPo::getId,relActivityGoodsPo.getActivityId())));
-                            if (integralsPo == null){
+                            AmIntegralsPo integralsPo = integralsMapper.selectOne(new QueryWrapper<AmIntegralsPo>().lambda().and(obj ->
+                                    obj.eq(AmIntegralsPo::getEnable, true).eq(AmIntegralsPo::getId, relActivityGoodsPo.getActivityId())));
+                            if (integralsPo == null) {
 //                        throw new ServiceException(ResultCode.NO_EXISTS,String.format("该商品参加的积分活动不存在"));
                                 b.setActivityType(ActivityTypeEnum.NON.getId());
-                            }
-                            else {
+                            } else {
                                 b.setActivityType(ActivityTypeEnum.INTEGRALS.getId());
                                 CartIntegralsVo integralsVo = new CartIntegralsVo();
 
                                 //获取该sku参加活动的信息
                                 AmActivityRelGoodsSkuPo relGoodsSkuPo = activityRelGoodsSkuMapper.selectOne(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda()
-                                        .and(obj->obj.eq(AmActivityRelGoodsSkuPo::getRelId,relActivityGoodsPo.getId())
-                                                .eq(AmActivityRelGoodsSkuPo::getSkuId,b.getSkuId())));
+                                        .and(obj -> obj.eq(AmActivityRelGoodsSkuPo::getRelId, relActivityGoodsPo.getId())
+                                                .eq(AmActivityRelGoodsSkuPo::getSkuId, b.getSkuId())));
                                 //判断sku是否存在
                                 PmGoodsSkuPo goodsSkuPo = skuMapper.selectById(b.getSkuId());
                                 BigDecimal integralsDeduction = new BigDecimal(0);
@@ -411,12 +417,11 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                             }
                             break;
                         case SECKILL:
-                            AmSeckillPo seckillPo = seckillMapper.selectOne(new QueryWrapper<AmSeckillPo>().lambda().and(obj->
-                                    obj.eq(AmSeckillPo::getEnable,true).eq(AmSeckillPo::getId,relActivityGoodsPo.getActivityId())));
-                            if (seckillPo == null){
+                            AmSeckillPo seckillPo = seckillMapper.selectOne(new QueryWrapper<AmSeckillPo>().lambda().and(obj ->
+                                    obj.eq(AmSeckillPo::getEnable, true).eq(AmSeckillPo::getId, relActivityGoodsPo.getActivityId())));
+                            if (seckillPo == null) {
                                 b.setActivityType(ActivityTypeEnum.NON.getId());
-                            }
-                            else {
+                            } else {
                                 b.setActivityType(ActivityTypeEnum.SECKILL_ING.getId());
                                 CartSeckillVo seckillVo = new CartSeckillVo();
                                 //秒杀结束时间
@@ -424,15 +429,15 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
                                 //获取该sku参与活动的信息
                                 AmActivityRelGoodsSkuPo relGoodsSkuPo = activityRelGoodsSkuMapper.selectOne(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda()
-                                        .and(obj->obj.eq(AmActivityRelGoodsSkuPo::getRelId,relActivityGoodsPo.getId())
-                                                .eq(AmActivityRelGoodsSkuPo::getSkuId,b.getSkuId())));
-                                        //判断sku是否存在
-                                        PmGoodsSkuPo goodsSkuPo = skuMapper.selectById(b.getSkuId());
-                                        if (goodsSkuPo != null && relGoodsSkuPo != null){
-                                            //保存sku对应的活动价格
-                                            seckillVo.setActivityPrice(relGoodsSkuPo.getActivityPrice());
-                                            seckillVo.setSeckillName(seckillPo.getName());
-                                        }
+                                        .and(obj -> obj.eq(AmActivityRelGoodsSkuPo::getRelId, relActivityGoodsPo.getId())
+                                                .eq(AmActivityRelGoodsSkuPo::getSkuId, b.getSkuId())));
+                                //判断sku是否存在
+                                PmGoodsSkuPo goodsSkuPo = skuMapper.selectById(b.getSkuId());
+                                if (goodsSkuPo != null && relGoodsSkuPo != null) {
+                                    //保存sku对应的活动价格
+                                    seckillVo.setActivityPrice(relGoodsSkuPo.getActivityPrice());
+                                    seckillVo.setSeckillName(seckillPo.getName());
+                                }
 
                                 b.setCartSeckillVo(seckillVo);
 
@@ -449,8 +454,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     //活动是否取消
                     if (seckillPo == null) {
                         b.setActivityType(ActivityTypeEnum.NON.getId());
-                    }
-                    else {
+                    } else {
                         b.setActivityType(ActivityTypeEnum.SECKILL_PRE.getId());
                         CartSeckillVo seckillVo = new CartSeckillVo();
                         //秒杀开始时间
@@ -458,14 +462,14 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
                         AmActivityRelGoodsSkuPo relGoodsSkuPos = activityRelGoodsSkuMapper.selectOne(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda()
                                 .and(obj -> obj.eq(AmActivityRelGoodsSkuPo::getRelId, relActivityGoodsPo.getId())
-                                .eq(AmActivityRelGoodsSkuPo::getSkuId,b.getSkuId())));
-                                //判断sku是否存在
-                                PmGoodsSkuPo goodsSkuPo = skuMapper.selectById(b.getSkuId());
-                                if (goodsSkuPo != null && seckillPo != null) {
-                                    //保存sku对应的活动价格
-                                    seckillVo.setSeckillName(seckillPo.getName());
-                                    seckillVo.setActivityPrice(relGoodsSkuPos.getActivityPrice());
-                                }
+                                        .eq(AmActivityRelGoodsSkuPo::getSkuId, b.getSkuId())));
+                        //判断sku是否存在
+                        PmGoodsSkuPo goodsSkuPo = skuMapper.selectById(b.getSkuId());
+                        if (goodsSkuPo != null && seckillPo != null) {
+                            //保存sku对应的活动价格
+                            seckillVo.setSeckillName(seckillPo.getName());
+                            seckillVo.setActivityPrice(relGoodsSkuPos.getActivityPrice());
+                        }
 
 
                         b.setCartSeckillVo(seckillVo);
@@ -575,9 +579,138 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             //为查询后的id匹配上用户下单的数量
             x.setNumber(settleAccountsDtos.stream().filter(y -> y.getSkuId().equals(x.getId())).findFirst().get().getNumber());
         });
-        //判断是否活动商品
-      /*  List<ActivitySkuBo> boByIds = amActivityRelGoodsSkuMapper.getBoByIds(skuIds);
-        if (!ListUtil.isListNullAndEmpty(boByIds)){
+
+        //判断限购
+        List<ActivitySkuBo> boByIds = amActivityRelGoodsSkuMapper.getBoByIds(skuIds);
+        boByIds.forEach(x -> {
+            Integer buyNumber = shopTicketSoWithCarGoodVos.stream().filter(y -> y.getId().equals(x.getSkuId())).findFirst().get().getNumber();
+            if (x.getBuyLimit() < buyNumber) {
+                String goodsName = skuMapper.getGoodsName(x.getSkuId());
+                throw new ServiceException(ResultCode.FAIL,
+                        String.format("商品名称【%s】购买数量【%s】大于实际数量【%s】，请重新选择。", goodsName, buyNumber, x.getBuyLimit()));
+            }
+
+        });
+
+
+        //秒杀销售价改为活动价
+        List<ActivitySkuBo> seckills = boByIds.stream().filter(x -> x.getActivityType() == ActivityTypeEnum.SECKILL).collect(Collectors.toList());
+        seckills.forEach(x -> {
+            //查询秒杀限定的会员等级
+            AmSeckillPo querySeckill = seckillMapper.selectById(x.getActivityId());
+            PmMemberLevelPo memberLevel = memberLevelMapper.selectById(querySeckill.getMemberLevelId());
+            //用户会员等级大于等于活动限定的等级
+            if (currentUser.getLevel() >= memberLevel.getLevel()) {
+                ShopTicketSoWithCarGoodVo shopTicketSoWithCarGoodVo = shopTicketSoWithCarGoodVos.stream().filter(y -> y.getId().equals(x.getSkuId())).findFirst().get();
+                shopTicketSoWithCarGoodVo.setRealPayMoney(x.getActivityPrice());
+            }
+        });
+
+        //积分不足用原价。足够用积分+活动价
+        List<ActivitySkuBo> integrals = boByIds.stream().filter(x -> x.getActivityType() == ActivityTypeEnum.INTEGRALS).collect(Collectors.toList());
+        final BigDecimal[] totalIntegral = {BigDecimal.ZERO};
+        final BigDecimal[] currentIntegral = {currentUser.getCurrentIntegral()};
+        //积分抵扣金额
+        final BigDecimal[] totalIntegralMoney = {BigDecimal.ZERO};
+        integrals.forEach(x -> {
+            //销售价与活动价之间的差价
+            BasicSettingPo queryBasic = basicSettingMapper.selectOne(new QueryWrapper<>());
+            //售价与活动价的差价
+            BigDecimal price = BigDecimalUtil.safeSubtract(x.getSellPrice(), x.getActivityPrice());
+            ShopTicketSoWithCarGoodVo shopTicketSoWithCarGoodVo = shopTicketSoWithCarGoodVos.stream().filter(y -> y.getId().equals(x.getSkuId())).findFirst().get();
+            //需要多少积分
+            BigDecimal integral = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeMultiply(price, queryBasic.getMoneyToIntegrate()), shopTicketSoWithCarGoodVo.getNumber());
+            //查询积分活动限定的会员等级
+            AmIntegralsPo queryIntegral = integralsMapper.selectById(x.getActivityId());
+            PmMemberLevelPo memberLevel = memberLevelMapper.selectById(queryIntegral.getMemberLevelId());
+            //如果积分足够且用户的等级足够
+            if (currentIntegral[0].compareTo(integral) >= 0 && currentUser.getLevel() >= memberLevel.getLevel()) {
+                currentIntegral[0] = BigDecimalUtil.safeSubtract(currentIntegral[0], integral);
+                totalIntegralMoney[0] = BigDecimalUtil.safeAdd(totalIntegralMoney[0], price);
+                //实付价改为活动价
+                shopTicketSoWithCarGoodVo.setRealPayMoney(x.getActivityPrice());
+                totalIntegral[0] = BigDecimalUtil.safeAdd(totalIntegral[0], integral);
+            }
+        });
+
+        BigDecimal totalFullDiscount = BigDecimal.ZERO;
+        //判断sku是否参加了满减活动
+        List<FullDiscountSkuBo> fullDiscountSkuBos = amActivityRelGoodsSkuMapper.getFullDiscountSkuBo(skuIds);
+        if (!ListUtil.isListNullAndEmpty(fullDiscountSkuBos)) {
+
+            //根据满减的活动id分组
+            Map<Long, List<FullDiscountSkuBo>> groupFullDiscountMap = fullDiscountSkuBos.stream().collect(Collectors.groupingBy(x -> x.getActivityId()));
+            //满减优惠了多少钱
+            //遍历map,算出整个支付单满减优惠了多少钱
+            for (Map.Entry<Long, List<FullDiscountSkuBo>> entry : groupFullDiscountMap.entrySet()) {
+                Long activityId = entry.getKey();
+                List<FullDiscountSkuBo> fullDiscountSkuBoList = entry.getValue();
+                //满多少钱可以减
+                BigDecimal reductionFullMoney = fullDiscountSkuBoList.get(0).getReductionFullMoney();
+                //减多少钱
+                BigDecimal reductionPostMoney = fullDiscountSkuBoList.get(0).getReductionPostMoney();
+                //该支付单下同个满减活动下商品的销售总价
+                BigDecimal sumSellPrice = fullDiscountSkuBoList.stream().map(x -> x.getSellPrice()).reduce(BigDecimal.ZERO, BigDecimal::add);
+                //查询满减活动限定的会员等级
+                AmReducedPo queryReduce = reducedMapper.selectById(activityId);
+                PmMemberLevelPo memberLevel = memberLevelMapper.selectById(queryReduce.getMemberLevelId());
+                //如果满足满减优惠且会员等级满足
+                if (sumSellPrice.compareTo(reductionFullMoney) >= 0 && currentUser.getLevel() >= memberLevel.getLevel()) {
+                    //找出满足满减优惠的skuid集合，计算他们的付现价
+                    List<Long> fullSkuIds = fullDiscountSkuBoList.stream().map(FullDiscountSkuBo::getSkuId).collect(Collectors.toList());
+                    List<ShopTicketSoWithCarGoodVo> fullRedetionSkus = shopTicketSoWithCarGoodVos.stream().filter(x -> fullSkuIds.contains(x)).collect(Collectors.toList());
+                    //计算满减的付现价
+                    setRealPayMoneyForFullRedution2(fullRedetionSkus, reductionPostMoney);
+
+                    totalFullDiscount = BigDecimalUtil.safeAdd(totalFullDiscount, reductionPostMoney);
+                }
+
+            }
+        }
+
+        //优惠券满减的金额
+        BigDecimal reduceCouponMoney = BigDecimal.ZERO;
+        //优惠券
+        if (settleDto.getCouponRelUserId() != null && !settleDto.getCouponRelUserId().equals(0L)) {
+            List<SelectCouponVo> querySelectCouponVoList = couponMapper.getSelectCouPonVo(currentUser.getId(), skuIds, settleDto.getCouponRelUserId());
+
+            //如果是包邮类型，将sku设置为包邮
+            querySelectCouponVoList.stream().filter(x -> x.getType() == 3).forEach(x -> {
+                shopTicketSoWithCarGoodVos.stream().filter(y -> y.getId().equals(x.getSkuId())).forEach(y -> y.setIsFreePostage(true));
+            });
+            //如果是满减,加入总优惠
+            SelectCouponVo reduceCoupon = querySelectCouponVoList.stream().filter(x -> x.getType() == 1).findFirst().orElse(null);
+            if (reduceCoupon != null) {
+                BigDecimal reducePriceSum = querySelectCouponVoList.stream().filter(x -> x.getType() == 1).map(SelectCouponVo::getSellPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+                //商品价格是否满足打折标准
+                if (reducePriceSum.compareTo(reduceCoupon.getReductionFullMoney()) >= 0) {
+                    //找出满足满减优惠的skuid集合，计算他们的付现价
+                    List<Long> fullSkuIds = querySelectCouponVoList.stream().map(SelectCouponVo::getSkuId).collect(Collectors.toList());
+                    List<ShopTicketSoWithCarGoodVo> fullRedetionSkus = shopTicketSoWithCarGoodVos.stream().filter(x -> fullSkuIds.contains(x)).collect(Collectors.toList());
+                    //计算满减的付现价
+                    setRealPayMoneyForFullRedution2(fullRedetionSkus, reduceCoupon.getReductionFullMoney());
+                    //满减优惠券金额加入总优惠
+                    reduceCouponMoney = reduceCoupon.getReductionPostMoney();
+                }
+
+            }
+            //如果是满折扣，将sku价格改变
+            SelectCouponVo discountCoupon = querySelectCouponVoList.stream().filter(x -> x.getType() == 2).findFirst().orElse(null);
+            if (discountCoupon != null) {
+                BigDecimal discountPriceSum = querySelectCouponVoList.stream().filter(x -> x.getType() == 2).map(SelectCouponVo::getSellPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+                //商品价格是否满足打折标准
+                if (discountPriceSum.compareTo(discountCoupon.getDiscountFullMoney()) >= 0) {
+                    //折扣换算成小数
+                    BigDecimal discount = BigDecimalUtil.safeDivide(discountCoupon.getDiscount(), 100);
+                    //sku价格打折
+                    querySelectCouponVoList.stream().filter(x -> x.getType() == 2).forEach(x -> {
+                        shopTicketSoWithCarGoodVos.stream().filter(y -> y.getId().equals(x.getSkuId())).
+                                forEach(y -> y.setRealPayMoney(BigDecimalUtil.safeMultiply(y.getSellPrice(), discount)));
+                    });
+                }
+            }
+        }
+       /* if (!ListUtil.isListNullAndEmpty(boByIds)){
             boByIds.forEach(x->{
                 ShopTicketSoWithCarGoodVo shopTicketSoWithCarGoodVo=shopTicketSoWithCarGoodVos.stream().filter(y->x.getSkuId().equals(y.getId())).findFirst().orElse(null);
                 switch (x.getActivityType()) {
@@ -614,7 +747,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
         totalCarVo.setStoreOrderVos(storeOrderVos);
 
-        //商品总额=所有订单金额的总和
+        //订单总额=所有订单金额的总和（包括运费、税费）
         BigDecimal totalMoney = storeOrderVos.stream().map(x ->
                 x.getGoodsTypeOrderVos().stream().map(GoodsTypeOrderVo::getTotalMoney).reduce(BigDecimal.ZERO, BigDecimal::add)
         ).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -622,7 +755,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         int totalNumber = settleAccountsDtos.stream().mapToInt(SettleAccountsDto::getNumber).sum();
         //总邮费=所有订单的总和
         BigDecimal totalShipMoney = storeOrderVos.stream().map(x ->
-                x.getGoodsTypeOrderVos().stream().map(y -> y.getShipMoney()).reduce(BigDecimal.ZERO, BigDecimal::add)
+                x.getGoodsTypeOrderVos().stream().map(GoodsTypeOrderVo::getShipMoney).reduce(BigDecimal.ZERO, BigDecimal::add)
         ).reduce(BigDecimal.ZERO, BigDecimal::add);
         //总税费=所有订单的总和
         BigDecimal totalTaxMoney = storeOrderVos.stream().map(x ->
@@ -642,9 +775,18 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         totalCarVo.setTotalMoney(totalMoney).setTotalNumber(totalNumber);
         //红包、购物券、可抵扣金额
         setDiscount(totalCarVo, currentUser, basicSettingPo);
-        //合计优惠暂时=0
+        //积分
+        totalCarVo.setTotalIntegralMoney(totalIntegralMoney[0]);
+        //计算实付金额=商品活动价格总和-红包购物券
+        BigDecimal totalGoodsRealPayMoney = shopTicketSoWithCarGoodVos.stream().map(x ->
+                BigDecimalUtil.safeMultiply(x.getNumber(), x.getRealPayMoney())
+        ).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalRealPayMoney = BigDecimalUtil.safeSubtract(totalGoodsRealPayMoney, totalCarVo.getTotalDeductionMoney());
+        //葱鸭钱包总优惠加上积分的优惠
+        totalCarVo.setTotalDeductionMoney(BigDecimalUtil.safeAdd(totalCarVo.getTotalDeductionMoney(), totalIntegralMoney[0]));
         totalCarVo.setTotalShipMoney(totalShipMoney)
-                .setTotalTaxMoney(totalTaxMoney).setTotalRealPayMoney(totalCarVo.calculationRealPayMoney());
+                .setTotalTaxMoney(totalTaxMoney).setTotalRealPayMoney(totalRealPayMoney);
+        totalCarVo.setFullDiscountMoney(totalFullDiscount).setReduceCouponMoney(reduceCouponMoney);
 
 
         return totalCarVo;
@@ -703,19 +845,11 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 goodsTypeOrderVo.setShopTicketSoWithCarGoodVos(shopTicketSoWithCarGoodVos);
                 //拆单后商品总数量
                 goodsTypeOrderVo.setTotalNumber(shopTicketSoWithCarGoodVos.stream().mapToInt(x -> x.getNumber()).sum());
-                //商品总额=数量*单价
+                //商品总额=数量*单价（活动价格）+邮费+运费
                 BigDecimal totalMoney = shopTicketSoWithCarGoodVos.stream().map(x -> BigDecimalUtil.safeMultiply(x.getNumber(), x.getSellPrice())).
                         reduce(BigDecimal.ZERO, BigDecimal::add);
                 totalMoney = BigDecimalUtil.safeAdd(totalMoney, shipMoney, taxMoney);
-               /* //奖励购物券
-                BigDecimal rewardShopTicket = shopTicketSoWithCarGoodVos.stream().map(x -> BigDecimalUtil.safeMultiply(x.getNumber(), x.getRewardShopTicket()))
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);*/
-                goodsTypeOrderVo.setTotalMoney(totalMoney);/*.setRewardShopTicket(rewardShopTicket)*/
-                /*//设置可用红包、购物券、可抵扣金额 需要用到：totalMoney shipMoney1 taxMoney1
-                setDiscount(goodsTypeOrderVo, currentUser, basicSettingPo);*/
-                /*//第一版本总优惠=红包+抵用券
-                goodsTypeOrderVo.setTotalDiscount(goodsTypeOrderVo.getDeductionMoney());*/
-                //实付金额 需要用到： totalMoney, shipMoney1, taxMoney1,totalDiscount
+                goodsTypeOrderVo.setTotalMoney(totalMoney);
                 goodsTypeOrderVos.add(goodsTypeOrderVo);
             }
             storeOrderVo.setGoodsTypeOrderVos(goodsTypeOrderVos);
@@ -797,14 +931,19 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         }
     }
 
+
     /**
-     * 设置可用红包、购物券、可抵扣金额
-     *
-     * @param submitOrderDto
-     */
-    private void setDiscountInSubmit(SubmitOrderDto submitOrderDto, UmUserPo currentUser, BasicSettingPo basicSettingPo) {
+     * @return void
+     * @Author zhangrt
+     * @Date 2019/10/17 18:29
+     * @Description 设置可用红包、购物券的可抵扣金额
+     * @Update
+     * @Param [realPayMoney, submitOrderDto, currentUser, basicSettingPo]  扣去活动后的金额
+     **/
+
+    private void setDiscountInSubmit(BigDecimal realPayMoney, SubmitOrderDto submitOrderDto, UmUserPo currentUser, BasicSettingPo basicSettingPo) {
         //至少要支付0.01
-        BigDecimal totalMoney = BigDecimalUtil.safeSubtract(submitOrderDto.getTotalMoney(), BigDecimal.valueOf(0.01));
+        BigDecimal totalMoney = BigDecimalUtil.safeSubtract(realPayMoney, BigDecimal.valueOf(0.01));
         //一个购物券=多少元
         BigDecimal shopTicketToMoney = BigDecimalUtil.safeDivide(1, basicSettingPo.getMoneyToShopTicket());
         //一个红包=多少元
@@ -951,7 +1090,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     private BigDecimal getShipByMoney(List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVos, BigDecimal fullMoney,
                                       BigDecimal postMoney, BigDecimal basisFreight) {
         //同个模板下所有商品的总价
-        BigDecimal price = shopTicketSoWithCarGoodVos.stream().map(x -> BigDecimalUtil.safeMultiply(x.getNumber(), x.getSellPrice()))
+        BigDecimal price = shopTicketSoWithCarGoodVos.stream().map(x -> BigDecimalUtil.safeMultiply(x.getNumber(), x.getRealPayMoney()))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         //满足金额优惠条件
         if (price.compareTo(fullMoney) >= 0) {
@@ -1108,9 +1247,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         findCouponListVos.addAll(findCouponListVos2);
         if (!ListUtil.isListNullAndEmpty(findCouponListVos)) {
             findCouponListVos.forEach(a -> {
-                List<AmCouponRelCouponUserPo> relCouponUserPos = relCouponUserMapper.selectList(new QueryWrapper<AmCouponRelCouponUserPo>().lambda().and(obj->obj
-                        .eq(AmCouponRelCouponUserPo::getUserId,userPo.getId()).eq(AmCouponRelCouponUserPo::getCouponId,a.getCouponId())));
-                if (!ListUtil.isListNullAndEmpty(relCouponUserPos)){
+                List<AmCouponRelCouponUserPo> relCouponUserPos = relCouponUserMapper.selectList(new QueryWrapper<AmCouponRelCouponUserPo>().lambda().and(obj -> obj
+                        .eq(AmCouponRelCouponUserPo::getUserId, userPo.getId()).eq(AmCouponRelCouponUserPo::getCouponId, a.getCouponId())));
+                if (!ListUtil.isListNullAndEmpty(relCouponUserPos)) {
                     a.setIsReceive(true);
                 }
             });
@@ -1244,17 +1383,17 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         //查询已经开始的活动
         AmActivityRelActivityGoodsPo relActivityGoodsPo = relActivityGoodsMapper.findGoodsActivity(goodsId);
         GoodsActivityVo goodsActivityVo = new GoodsActivityVo();
-        if (relActivityGoodsPo != null){
+        if (relActivityGoodsPo != null) {
             ActivityTypeEnum activityTypeEnum = ActivityTypeEnum.getActivityTypeEnumById(relActivityGoodsPo.getActivityType());
             switch (activityTypeEnum) {
                 //满减
                 case REDUCED:
-                    AmReducedPo reducedPo = reducedMapper.selectOne(new QueryWrapper<AmReducedPo>().lambda().and(obj->
-                            obj.eq(AmReducedPo::getEnable,true).eq(AmReducedPo::getId,relActivityGoodsPo.getActivityId())));
-                    if (reducedPo == null){
+                    AmReducedPo reducedPo = reducedMapper.selectOne(new QueryWrapper<AmReducedPo>().lambda().and(obj ->
+                            obj.eq(AmReducedPo::getEnable, true).eq(AmReducedPo::getId, relActivityGoodsPo.getActivityId())));
+                    if (reducedPo == null) {
 //                        throw new ServiceException(ResultCode.NO_EXISTS,String.format("该商品参加的满减活动不存在"));
                         goodsActivityVo.setType(ActivityTypeEnum.NON.getId());
-                    }else {
+                    } else {
                         goodsActivityVo.setType(ActivityTypeEnum.REDUCED.getId());
                         ReducedVo reducedVo = new ReducedVo();
                         reducedVo.setReductionFullMoney(reducedPo.getReductionFullMoney());
@@ -1264,13 +1403,12 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     break;
                 //积分--活动价格范围+积分抵扣价格
                 case INTEGRALS:
-                    AmIntegralsPo integralsPo = integralsMapper.selectOne(new QueryWrapper<AmIntegralsPo>().lambda().and(obj->
-                            obj.eq(AmIntegralsPo::getEnable,true).eq(AmIntegralsPo::getId,relActivityGoodsPo.getActivityId())));
-                    if (integralsPo == null){
+                    AmIntegralsPo integralsPo = integralsMapper.selectOne(new QueryWrapper<AmIntegralsPo>().lambda().and(obj ->
+                            obj.eq(AmIntegralsPo::getEnable, true).eq(AmIntegralsPo::getId, relActivityGoodsPo.getActivityId())));
+                    if (integralsPo == null) {
 //                        throw new ServiceException(ResultCode.NO_EXISTS,String.format("该商品参加的积分活动不存在"));
                         goodsActivityVo.setType(ActivityTypeEnum.NON.getId());
-                    }
-                    else {
+                    } else {
                         goodsActivityVo.setType(ActivityTypeEnum.INTEGRALS.getId());
                         IntegralsVo integralsVo = new IntegralsVo();
                         //获取参与活动商品所有sku活动价格，并获取最低价格和最高价格
@@ -1283,60 +1421,60 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
                         //获取该商品参与活动的所有sku信息
                         List<AmActivityRelGoodsSkuPo> relGoodsSkuPos = activityRelGoodsSkuMapper.selectList(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda()
-                                .and(obj->obj.eq(AmActivityRelGoodsSkuPo::getRelId,relActivityGoodsPo.getId())));
-                        if (!ListUtil.isListNullAndEmpty(relGoodsSkuPos)){
-                            relGoodsSkuPos.forEach(a->{
+                                .and(obj -> obj.eq(AmActivityRelGoodsSkuPo::getRelId, relActivityGoodsPo.getId())));
+                        if (!ListUtil.isListNullAndEmpty(relGoodsSkuPos)) {
+                            relGoodsSkuPos.forEach(a -> {
                                 //判断sku是否存在
                                 PmGoodsSkuPo goodsSkuPo = skuMapper.selectById(a.getSkuId());
-                                if (goodsSkuPo != null){
+                                if (goodsSkuPo != null) {
                                     //获取原来sku销售价
                                     BigDecimal skuSellPrice = goodsSkuPo.getSellPrice();
                                     //积分抵扣
-                                    BigDecimal integralsDeduction = BigDecimalUtil.safeSubtract(true,skuSellPrice,a.getActivityPrice());
+                                    BigDecimal integralsDeduction = BigDecimalUtil.safeSubtract(true, skuSellPrice, a.getActivityPrice());
                                     //保存sku对应的活动价格
                                     skuActivityPrices.add(a.getActivityPrice().doubleValue());
                                     //保存积分抵扣
                                     integralsDeductions.add(integralsDeduction.doubleValue());
                                     //保存积分抵扣百分比
-                                    integralsPercentages.add(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(integralsDeduction,skuSellPrice,2,new BigDecimal(0)),new BigDecimal(100),2).doubleValue());
+                                    integralsPercentages.add(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(integralsDeduction, skuSellPrice, 2, new BigDecimal(0)), new BigDecimal(100), 2).doubleValue());
                                 }
                             });
                         }
 
                         //获取最低和最高的活动价格
-                        Double lowestActivityPrice = skuActivityPrices.stream().mapToDouble((x)->x).summaryStatistics().getMin();
-                        Double highestActivityPrice = skuActivityPrices.stream().mapToDouble((x)->x).summaryStatistics().getMax();
+                        Double lowestActivityPrice = skuActivityPrices.stream().mapToDouble((x) -> x).summaryStatistics().getMin();
+                        Double highestActivityPrice = skuActivityPrices.stream().mapToDouble((x) -> x).summaryStatistics().getMax();
                         String discountDisplayPrice = "";
-                        if (lowestActivityPrice.equals(highestActivityPrice)){
+                        if (lowestActivityPrice.equals(highestActivityPrice)) {
                             discountDisplayPrice = lowestActivityPrice.toString();
-                        }else {
-                            discountDisplayPrice = lowestActivityPrice.toString()+"~"+highestActivityPrice.toString();
+                        } else {
+                            discountDisplayPrice = lowestActivityPrice.toString() + "~" + highestActivityPrice.toString();
                         }
                         integralsVo.setLowestActivityPrice(lowestActivityPrice);
                         integralsVo.setHighestActivityPrice(highestActivityPrice);
                         integralsVo.setDiscountDisplayPrice(discountDisplayPrice);
 
                         //获取最低和最高积分抵扣
-                        Double lowestIntegralsPrice = integralsDeductions.stream().mapToDouble((x)->x).summaryStatistics().getMin();
-                        Double highestIntegralsPrice = integralsDeductions.stream().mapToDouble((x)->x).summaryStatistics().getMax();
+                        Double lowestIntegralsPrice = integralsDeductions.stream().mapToDouble((x) -> x).summaryStatistics().getMin();
+                        Double highestIntegralsPrice = integralsDeductions.stream().mapToDouble((x) -> x).summaryStatistics().getMax();
                         String integralsDispalyPrice = "";
-                        if (lowestIntegralsPrice.equals(highestIntegralsPrice)){
+                        if (lowestIntegralsPrice.equals(highestIntegralsPrice)) {
                             integralsDispalyPrice = lowestIntegralsPrice.toString();
-                        }else {
-                            integralsDispalyPrice = lowestIntegralsPrice.toString()+"~"+highestIntegralsPrice.toString();
+                        } else {
+                            integralsDispalyPrice = lowestIntegralsPrice.toString() + "~" + highestIntegralsPrice.toString();
                         }
                         integralsVo.setHighestIntegralsPrice(highestIntegralsPrice);
                         integralsVo.setLowestIntegralsPrice(lowestIntegralsPrice);
                         integralsVo.setIntegralsDispalyPrice(integralsDispalyPrice);
 
                         //获取最低和最高积分抵扣比例
-                        Double lowestIntegralsPercentage = integralsPercentages.stream().mapToDouble((x)->x).summaryStatistics().getMin();
-                        Double highestIntegralsPercentage = integralsPercentages.stream().mapToDouble((x)->x).summaryStatistics().getMax();
+                        Double lowestIntegralsPercentage = integralsPercentages.stream().mapToDouble((x) -> x).summaryStatistics().getMin();
+                        Double highestIntegralsPercentage = integralsPercentages.stream().mapToDouble((x) -> x).summaryStatistics().getMax();
                         String integralsDispalyPercentage = "";
-                        if (lowestIntegralsPercentage.equals(highestIntegralsPercentage)){
+                        if (lowestIntegralsPercentage.equals(highestIntegralsPercentage)) {
                             integralsDispalyPercentage = lowestIntegralsPercentage.toString();
-                        }else {
-                            integralsDispalyPercentage = lowestIntegralsPercentage.toString()+"~"+highestIntegralsPercentage.toString();
+                        } else {
+                            integralsDispalyPercentage = lowestIntegralsPercentage.toString() + "~" + highestIntegralsPercentage.toString();
                         }
                         integralsVo.setHighestIntegralsPrice(highestIntegralsPercentage);
                         integralsVo.setLowestIntegralsPrice(lowestIntegralsPercentage);
@@ -1344,10 +1482,10 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
                         //获取抵扣说明文章
                         String integralsDescription = "";
-                        MmArticlePo mmArticlePo = articleMapper.selectOne(new QueryWrapper<MmArticlePo>().lambda().and(obj->obj
-                                .eq(MmArticlePo::getEnabled,true)
-                                .eq(MmArticlePo::getArticleLocation,ArticleLocationEnum.INTEGRALS_DESCRIPTION.getName())));
-                        if (mmArticlePo != null){
+                        MmArticlePo mmArticlePo = articleMapper.selectOne(new QueryWrapper<MmArticlePo>().lambda().and(obj -> obj
+                                .eq(MmArticlePo::getEnabled, true)
+                                .eq(MmArticlePo::getArticleLocation, ArticleLocationEnum.INTEGRALS_DESCRIPTION.getName())));
+                        if (mmArticlePo != null) {
                             integralsDescription = mmArticlePo.getArticleLocation();
                         }
                         integralsVo.setIntegralsDescription(integralsDescription);
@@ -1357,12 +1495,11 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     }
                     break;
                 case SECKILL:
-                    AmSeckillPo seckillPo = seckillMapper.selectOne(new QueryWrapper<AmSeckillPo>().lambda().and(obj->
-                            obj.eq(AmSeckillPo::getEnable,true).eq(AmSeckillPo::getId,relActivityGoodsPo.getActivityId())));
-                    if (seckillPo == null){
+                    AmSeckillPo seckillPo = seckillMapper.selectOne(new QueryWrapper<AmSeckillPo>().lambda().and(obj ->
+                            obj.eq(AmSeckillPo::getEnable, true).eq(AmSeckillPo::getId, relActivityGoodsPo.getActivityId())));
+                    if (seckillPo == null) {
                         goodsActivityVo.setType(ActivityTypeEnum.NON.getId());
-                    }
-                    else {
+                    } else {
                         goodsActivityVo.setType(ActivityTypeEnum.SECKILL_ING.getId());
                         SeckillVo seckillVo = new SeckillVo();
                         //秒杀结束时间
@@ -1376,16 +1513,16 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
                         //获取该商品参与活动的所有sku信息
                         List<AmActivityRelGoodsSkuPo> relGoodsSkuPos = activityRelGoodsSkuMapper.selectList(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda()
-                                .and(obj->obj.eq(AmActivityRelGoodsSkuPo::getRelId,relActivityGoodsPo.getId())));
-                        if (!ListUtil.isListNullAndEmpty(relGoodsSkuPos)){
-                            relGoodsSkuPos.forEach(a->{
+                                .and(obj -> obj.eq(AmActivityRelGoodsSkuPo::getRelId, relActivityGoodsPo.getId())));
+                        if (!ListUtil.isListNullAndEmpty(relGoodsSkuPos)) {
+                            relGoodsSkuPos.forEach(a -> {
                                 //判断sku是否存在
                                 PmGoodsSkuPo goodsSkuPo = skuMapper.selectById(a.getSkuId());
-                                if (goodsSkuPo != null){
+                                if (goodsSkuPo != null) {
                                     //保存sku对应的活动价格
                                     skuActivityPrices.add(a.getActivityPrice().doubleValue());
                                     //获取每个sku活动销量(已秒杀数量)
-                                    saleVolumes[0] = saleVolumes[0] +a.getSalesVolume();
+                                    saleVolumes[0] = saleVolumes[0] + a.getSalesVolume();
                                 }
                             });
                         }
@@ -1393,13 +1530,13 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                         seckillVo.setSecNum(saleVolumes[0]);
 
                         //获取最低和最高的活动价格
-                        Double lowestActivityPrice = skuActivityPrices.stream().mapToDouble((x)->x).summaryStatistics().getMin();
-                        Double highestActivityPrice = skuActivityPrices.stream().mapToDouble((x)->x).summaryStatistics().getMax();
+                        Double lowestActivityPrice = skuActivityPrices.stream().mapToDouble((x) -> x).summaryStatistics().getMin();
+                        Double highestActivityPrice = skuActivityPrices.stream().mapToDouble((x) -> x).summaryStatistics().getMax();
                         String secDisplayPrice = "";
-                        if (lowestActivityPrice.equals(highestActivityPrice)){
+                        if (lowestActivityPrice.equals(highestActivityPrice)) {
                             secDisplayPrice = lowestActivityPrice.toString();
-                        }else {
-                            secDisplayPrice = lowestActivityPrice.toString()+"~"+highestActivityPrice.toString();
+                        } else {
+                            secDisplayPrice = lowestActivityPrice.toString() + "~" + highestActivityPrice.toString();
                         }
                         seckillVo.setLowestActivityPrice(lowestActivityPrice);
                         seckillVo.setHighestActivityPrice(highestActivityPrice);
@@ -1411,12 +1548,11 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     break;
                 case SPELL_GROUP:
 
-                    AmSpellGroupPo spellGroupPo = spellGroupMapper.selectOne(new QueryWrapper<AmSpellGroupPo>().lambda().and(obj->
-                            obj.eq(AmSpellGroupPo::getEnable,true).eq(AmSpellGroupPo::getId,relActivityGoodsPo.getActivityId())));
-                    if (spellGroupPo == null){
+                    AmSpellGroupPo spellGroupPo = spellGroupMapper.selectOne(new QueryWrapper<AmSpellGroupPo>().lambda().and(obj ->
+                            obj.eq(AmSpellGroupPo::getEnable, true).eq(AmSpellGroupPo::getId, relActivityGoodsPo.getActivityId())));
+                    if (spellGroupPo == null) {
                         goodsActivityVo.setType(ActivityTypeEnum.NON.getId());
-                    }
-                    else {
+                    } else {
                         goodsActivityVo.setType(ActivityTypeEnum.SPELL_GROUP.getId());
                         SpellGroupVo spellGroupVo = new SpellGroupVo();
                         //成团人数
@@ -1426,19 +1562,19 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                         //保存所有sku活动价格
                         List<Double> skuActivityPrices = new ArrayList<>();
                         //活动总拼团量
-                        List<Integer> payedNum = spellGroupMainMapper.selectList(new QueryWrapper<AmSpellGroupMainPo>().lambda().and(obj->obj
-                                .eq(AmSpellGroupMainPo::getRelId,relActivityGoodsPo.getId()))).stream().map(n->n.getPayedNum()).collect(Collectors.toList());
-                        Integer sumPayedNum = payedNum.stream().mapToInt((x)->x).sum();
+                        List<Integer> payedNum = spellGroupMainMapper.selectList(new QueryWrapper<AmSpellGroupMainPo>().lambda().and(obj -> obj
+                                .eq(AmSpellGroupMainPo::getRelId, relActivityGoodsPo.getId()))).stream().map(n -> n.getPayedNum()).collect(Collectors.toList());
+                        Integer sumPayedNum = payedNum.stream().mapToInt((x) -> x).sum();
                         spellGroupVo.setSpellNum(sumPayedNum);
 
                         //获取该商品参与活动的所有sku信息
                         List<AmActivityRelGoodsSkuPo> relGoodsSkuPos = activityRelGoodsSkuMapper.selectList(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda()
-                                .and(obj->obj.eq(AmActivityRelGoodsSkuPo::getRelId,relActivityGoodsPo.getId())));
-                        if (!ListUtil.isListNullAndEmpty(relGoodsSkuPos)){
-                            relGoodsSkuPos.forEach(a->{
+                                .and(obj -> obj.eq(AmActivityRelGoodsSkuPo::getRelId, relActivityGoodsPo.getId())));
+                        if (!ListUtil.isListNullAndEmpty(relGoodsSkuPos)) {
+                            relGoodsSkuPos.forEach(a -> {
                                 //判断sku是否存在
                                 PmGoodsSkuPo goodsSkuPo = skuMapper.selectById(a.getSkuId());
-                                if (goodsSkuPo != null){
+                                if (goodsSkuPo != null) {
                                     //保存sku对应的活动价格
                                     skuActivityPrices.add(a.getActivityPrice().doubleValue());
                                 }
@@ -1446,13 +1582,13 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                         }
 
                         //获取最低和最高的活动价格
-                        Double lowestActivityPrice = skuActivityPrices.stream().mapToDouble((x)->x).summaryStatistics().getMin();
-                        Double highestActivityPrice = skuActivityPrices.stream().mapToDouble((x)->x).summaryStatistics().getMax();
+                        Double lowestActivityPrice = skuActivityPrices.stream().mapToDouble((x) -> x).summaryStatistics().getMin();
+                        Double highestActivityPrice = skuActivityPrices.stream().mapToDouble((x) -> x).summaryStatistics().getMax();
                         String spellGroupDisplayPrice = "";
-                        if (lowestActivityPrice.equals(highestActivityPrice)){
+                        if (lowestActivityPrice.equals(highestActivityPrice)) {
                             spellGroupDisplayPrice = lowestActivityPrice.toString();
-                        }else {
-                            spellGroupDisplayPrice = lowestActivityPrice.toString()+"~"+highestActivityPrice.toString();
+                        } else {
+                            spellGroupDisplayPrice = lowestActivityPrice.toString() + "~" + highestActivityPrice.toString();
                         }
                         spellGroupVo.setLowestActivityPrice(lowestActivityPrice);
                         spellGroupVo.setHighestActivityPrice(highestActivityPrice);
@@ -1461,10 +1597,10 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                         //获取拼团说明
                         //获取抵扣说明文章
                         String spellGroupDescription = "";
-                        MmArticlePo mmArticlePo = articleMapper.selectOne(new QueryWrapper<MmArticlePo>().lambda().and(obj->obj
-                                .eq(MmArticlePo::getEnabled,true)
-                                .eq(MmArticlePo::getArticleLocation,ArticleLocationEnum.SPELL_GROUP_SHOW.getName())));
-                        if (mmArticlePo != null){
+                        MmArticlePo mmArticlePo = articleMapper.selectOne(new QueryWrapper<MmArticlePo>().lambda().and(obj -> obj
+                                .eq(MmArticlePo::getEnabled, true)
+                                .eq(MmArticlePo::getArticleLocation, ArticleLocationEnum.SPELL_GROUP_SHOW.getName())));
+                        if (mmArticlePo != null) {
                             spellGroupDescription = mmArticlePo.getArticleLocation();
                         }
                         spellGroupVo.setSpellGroupDescription(spellGroupDescription);
@@ -1485,8 +1621,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             //活动是否取消
             if (seckillPo == null) {
                 goodsActivityVo.setType(ActivityTypeEnum.NON.getId());
-            }
-            else {
+            } else {
                 goodsActivityVo.setType(ActivityTypeEnum.SECKILL_PRE.getId());
                 SeckillVo seckillVo = new SeckillVo();
                 //秒杀结束时间
@@ -1579,27 +1714,26 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
 
             /*********************** 商品参加的活动,sku对应的活动价格、活动库存 start***************************/
-            if (relActivityGoodsPo != null){
+            if (relActivityGoodsPo != null) {
                 ActivityTypeEnum activityTypeEnum = ActivityTypeEnum.getActivityTypeEnumById(relActivityGoodsPo.getActivityType());
                 switch (activityTypeEnum) {
                     //积分--sku对应的活动价格+积分抵扣+活动库存
                     case INTEGRALS:
-                        AmIntegralsPo integralsPo = integralsMapper.selectOne(new QueryWrapper<AmIntegralsPo>().lambda().and(obj->
-                                obj.eq(AmIntegralsPo::getEnable,true).eq(AmIntegralsPo::getId,relActivityGoodsPo.getActivityId())));
-                        if (integralsPo == null){
+                        AmIntegralsPo integralsPo = integralsMapper.selectOne(new QueryWrapper<AmIntegralsPo>().lambda().and(obj ->
+                                obj.eq(AmIntegralsPo::getEnable, true).eq(AmIntegralsPo::getId, relActivityGoodsPo.getActivityId())));
+                        if (integralsPo == null) {
                             goodsActivityVo.setType(ActivityTypeEnum.NON.getId());
-                        }
-                        else {
+                        } else {
                             goodsActivityVo.setType(ActivityTypeEnum.INTEGRALS.getId());
                             //获取该sku对应的积分活动的价格
-                            AmActivityRelGoodsSkuPo activityRelGoodsSkuPo = amActivityRelGoodsSkuMapper.selectOne(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda().and(obj->obj
-                                    .eq(AmActivityRelGoodsSkuPo::getRelId,relActivityGoodsPo.getId())
-                                    .eq(AmActivityRelGoodsSkuPo::getSkuId,b.getId())));
-                            if (activityRelGoodsSkuPo != null){
+                            AmActivityRelGoodsSkuPo activityRelGoodsSkuPo = amActivityRelGoodsSkuMapper.selectOne(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda().and(obj -> obj
+                                    .eq(AmActivityRelGoodsSkuPo::getRelId, relActivityGoodsPo.getId())
+                                    .eq(AmActivityRelGoodsSkuPo::getSkuId, b.getId())));
+                            if (activityRelGoodsSkuPo != null) {
                                 Integer activityStock = activityRelGoodsSkuPo.getActivityStock();
                                 BigDecimal activityPrice = activityRelGoodsSkuPo.getActivityPrice();
                                 //积分抵扣多少钱
-                                BigDecimal integralsPrice = BigDecimalUtil.safeSubtract(true,b.getSellPrice(),activityPrice);
+                                BigDecimal integralsPrice = BigDecimalUtil.safeSubtract(true, b.getSellPrice(), activityPrice);
                                 specifiedSkuVo.setActivityPrice(activityPrice);
                                 specifiedSkuVo.setActivityStock(activityStock);
                                 specifiedSkuVo.setIntegralsPrice(integralsPrice);
@@ -1609,18 +1743,17 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                         break;
                     case SECKILL:
                         //这里是活动进行中的商品
-                        AmSeckillPo seckillPo = seckillMapper.selectOne(new QueryWrapper<AmSeckillPo>().lambda().and(obj->
-                                obj.eq(AmSeckillPo::getEnable,true).eq(AmSeckillPo::getId,relActivityGoodsPo.getActivityId())));
-                        if (seckillPo == null){
+                        AmSeckillPo seckillPo = seckillMapper.selectOne(new QueryWrapper<AmSeckillPo>().lambda().and(obj ->
+                                obj.eq(AmSeckillPo::getEnable, true).eq(AmSeckillPo::getId, relActivityGoodsPo.getActivityId())));
+                        if (seckillPo == null) {
                             goodsActivityVo.setType(ActivityTypeEnum.NON.getId());
-                        }
-                        else {
+                        } else {
                             goodsActivityVo.setType(ActivityTypeEnum.SECKILL_ING.getId());
                             //获取该sku对应的秒杀活动的价格、库存
-                            AmActivityRelGoodsSkuPo activityRelGoodsSkuPo = amActivityRelGoodsSkuMapper.selectOne(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda().and(obj->obj
-                                    .eq(AmActivityRelGoodsSkuPo::getRelId,relActivityGoodsPo.getId())
-                                    .eq(AmActivityRelGoodsSkuPo::getSkuId,b.getId())));
-                            if (activityRelGoodsSkuPo != null){
+                            AmActivityRelGoodsSkuPo activityRelGoodsSkuPo = amActivityRelGoodsSkuMapper.selectOne(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda().and(obj -> obj
+                                    .eq(AmActivityRelGoodsSkuPo::getRelId, relActivityGoodsPo.getId())
+                                    .eq(AmActivityRelGoodsSkuPo::getSkuId, b.getId())));
+                            if (activityRelGoodsSkuPo != null) {
                                 Integer activityStock = activityRelGoodsSkuPo.getActivityStock();
                                 BigDecimal activityPrice = activityRelGoodsSkuPo.getActivityPrice();
                                 specifiedSkuVo.setActivityPrice(activityPrice);
@@ -1633,18 +1766,17 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     case SPELL_GROUP:
 
                         //这里是活动进行中的商品
-                        AmSpellGroupPo spellGroupPo = spellGroupMapper.selectOne(new QueryWrapper<AmSpellGroupPo>().lambda().and(obj->
-                                obj.eq(AmSpellGroupPo::getEnable,true).eq(AmSpellGroupPo::getId,relActivityGoodsPo.getActivityId())));
-                        if (spellGroupPo == null){
+                        AmSpellGroupPo spellGroupPo = spellGroupMapper.selectOne(new QueryWrapper<AmSpellGroupPo>().lambda().and(obj ->
+                                obj.eq(AmSpellGroupPo::getEnable, true).eq(AmSpellGroupPo::getId, relActivityGoodsPo.getActivityId())));
+                        if (spellGroupPo == null) {
                             goodsActivityVo.setType(ActivityTypeEnum.NON.getId());
-                        }
-                        else {
+                        } else {
                             goodsActivityVo.setType(ActivityTypeEnum.SPELL_GROUP.getId());
                             //获取该sku对应的秒杀活动的价格、库存
-                            AmActivityRelGoodsSkuPo activityRelGoodsSkuPo = amActivityRelGoodsSkuMapper.selectOne(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda().and(obj->obj
-                                    .eq(AmActivityRelGoodsSkuPo::getRelId,relActivityGoodsPo.getId())
-                                    .eq(AmActivityRelGoodsSkuPo::getSkuId,b.getId())));
-                            if (activityRelGoodsSkuPo != null){
+                            AmActivityRelGoodsSkuPo activityRelGoodsSkuPo = amActivityRelGoodsSkuMapper.selectOne(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda().and(obj -> obj
+                                    .eq(AmActivityRelGoodsSkuPo::getRelId, relActivityGoodsPo.getId())
+                                    .eq(AmActivityRelGoodsSkuPo::getSkuId, b.getId())));
+                            if (activityRelGoodsSkuPo != null) {
                                 Integer activityStock = activityRelGoodsSkuPo.getActivityStock();
                                 BigDecimal activityPrice = activityRelGoodsSkuPo.getActivityPrice();
                                 specifiedSkuVo.setActivityPrice(activityPrice);
@@ -1695,10 +1827,155 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     @Transactional(rollbackFor = Exception.class)
     public SubmitOrderVo submitOrder(SubmitOrderDto submitOrderDto, UmUserPo umUserPo) {
 
-        UmUserPo currentUser=securityUtil.getAppCurrUser();
+        UmUserPo currentUser = securityUtil.getAppCurrUser();
 
         //检查库存,设置一些需要计算购物券的值，并把所有商品抽出来
         List<ShopTicketSoWithCarGoodDto> shopTicketSoWithCarGoodDtos = checkStock(submitOrderDto);
+        List<Long> skuIds = shopTicketSoWithCarGoodDtos.stream().map(ShopTicketSoWithCarGoodDto::getId).collect(Collectors.toList());
+
+        //查出活动商品
+        List<ActivitySkuBo> boByIds = amActivityRelGoodsSkuMapper.getBoByIds(skuIds);
+        boByIds.forEach(x -> {
+            Integer buyNumber = shopTicketSoWithCarGoodDtos.stream().filter(y -> y.getId().equals(x.getSkuId())).findFirst().get().getNumber();
+            //判断限购
+            if (x.getBuyLimit() < buyNumber) {
+                String goodsName = skuMapper.getGoodsName(x.getSkuId());
+                throw new ServiceException(ResultCode.FAIL,
+                        String.format("商品名称【%s】购买数量【%s】大于实际数量【%s】，请重新选择。", goodsName, buyNumber, x.getBuyLimit()));
+            }
+            //判断活动库存
+            if (x.getActivityStock() < buyNumber) {
+                String goodsName = skuMapper.getGoodsName(x.getSkuId());
+                throw new ServiceException(ResultCode.FAIL,
+                        String.format("商品名称【%s】购买数量【%s】大于活动库存【%s】，请重新选择。", goodsName, buyNumber, x.getActivityStock()));
+            }
+        });
+
+        //秒杀销售价改为活动价
+        List<ActivitySkuBo> seckills = boByIds.stream().filter(x -> x.getActivityType() == ActivityTypeEnum.SECKILL).collect(Collectors.toList());
+        seckills.forEach(x -> {
+            //查询秒杀限定的会员等级
+            AmSeckillPo querySeckill = seckillMapper.selectById(x.getActivityId());
+            PmMemberLevelPo memberLevel = memberLevelMapper.selectById(querySeckill.getMemberLevelId());
+            //用户会员等级大于等于活动限定的等级
+            if (currentUser.getLevel() >= memberLevel.getLevel()) {
+                ShopTicketSoWithCarGoodDto shopTicketSoWithCarGoodDto = shopTicketSoWithCarGoodDtos.stream().filter(y -> y.getId().equals(x.getSkuId())).findFirst().get();
+                shopTicketSoWithCarGoodDto.setRealPayMoney(x.getActivityPrice());
+            }
+        });
+
+        //积分不足用原价。足够用积分+活动价
+        final BigDecimal[] totalIntegral = {BigDecimal.ZERO};
+        //使用葱鸭钱包才可以使用积分抵扣，没有则按照原价
+        if (submitOrderDto.getIsUseWallet()) {
+            List<ActivitySkuBo> integrals = boByIds.stream().filter(x -> x.getActivityType() == ActivityTypeEnum.INTEGRALS).collect(Collectors.toList());
+            //用户当前积分
+            final BigDecimal[] currentIntegral = {currentUser.getCurrentIntegral()};
+            integrals.forEach(x -> {
+                BasicSettingPo queryBasic = basicSettingMapper.selectOne(new QueryWrapper<>());
+                //售价与活动价的差价
+                BigDecimal price = BigDecimalUtil.safeSubtract(x.getSellPrice(), x.getActivityPrice());
+                ShopTicketSoWithCarGoodDto shopTicketSoWithCarGoodDto = shopTicketSoWithCarGoodDtos.stream().filter(y -> y.getId().equals(x.getSkuId())).findFirst().get();
+                //需要多少积分
+                BigDecimal integral = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeMultiply(price, queryBasic.getMoneyToIntegrate()), shopTicketSoWithCarGoodDto.getNumber());
+                //查询积分活动限定的会员等级
+                AmIntegralsPo queryIntegral = integralsMapper.selectById(x.getActivityId());
+                PmMemberLevelPo memberLevel = memberLevelMapper.selectById(queryIntegral.getMemberLevelId());
+                //如果积分足够且用户的等级足够
+                if (currentIntegral[0].compareTo(integral) >= 0 && currentUser.getLevel() >= memberLevel.getLevel()) {
+                    //销售价改为活动价
+                    shopTicketSoWithCarGoodDto.setRealPayMoney(x.getActivityPrice()).setIntegral(integral);
+                    currentIntegral[0] = BigDecimalUtil.safeSubtract(currentIntegral[0], integral);
+                    totalIntegral[0] = BigDecimalUtil.safeAdd(totalIntegral[0], integral);
+                }
+            });
+        }
+
+        //判断sku是否参加了满减活动
+        List<FullDiscountSkuBo> fullDiscountSkuBos = amActivityRelGoodsSkuMapper.getFullDiscountSkuBo(skuIds);
+        //满减金额
+        BigDecimal totalFullDiscount = BigDecimal.ZERO;
+        if (!ListUtil.isListNullAndEmpty(fullDiscountSkuBos)) {
+
+            //根据满减的活动id分组
+            Map<Long, List<FullDiscountSkuBo>> groupFullDiscountMap = fullDiscountSkuBos.stream().collect(Collectors.groupingBy(x -> x.getActivityId()));
+            //满减优惠了多少钱
+            //遍历map,算出整个支付单满减优惠了多少钱
+            for (Map.Entry<Long, List<FullDiscountSkuBo>> entry : groupFullDiscountMap.entrySet()) {
+                Long activityId = entry.getKey();
+                List<FullDiscountSkuBo> fullDiscountSkuBoList = entry.getValue();
+                //满多少钱可以减
+                BigDecimal reductionFullMoney = fullDiscountSkuBoList.get(0).getReductionFullMoney();
+                //减多少钱
+                BigDecimal reductionPostMoney = fullDiscountSkuBoList.get(0).getReductionPostMoney();
+                //该支付单下同个满减活动下商品的销售总价
+                BigDecimal sumSellPrice = fullDiscountSkuBoList.stream().map(x -> x.getSellPrice()).reduce(BigDecimal.ZERO, BigDecimal::add);
+                //查询满减活动限定的会员等级
+                AmReducedPo queryReduce = reducedMapper.selectById(activityId);
+                PmMemberLevelPo memberLevel = memberLevelMapper.selectById(queryReduce.getMemberLevelId());
+                //如果满足满减优惠且会员等级满足
+                if (sumSellPrice.compareTo(reductionFullMoney) >= 0 && currentUser.getLevel() >= memberLevel.getLevel()) {
+                    //找出满足满减优惠的skuid集合，计算他们的付现价
+                    List<Long> fullSkuIds = fullDiscountSkuBoList.stream().map(FullDiscountSkuBo::getSkuId).collect(Collectors.toList());
+                    List<ShopTicketSoWithCarGoodDto> fullRedetionSkus = shopTicketSoWithCarGoodDtos.stream().filter(x -> fullSkuIds.contains(x)).collect(Collectors.toList());
+                    //计算满减的付现价
+                    setRealPayMoneyForFullRedution(fullRedetionSkus, reductionPostMoney);
+
+                    totalFullDiscount = BigDecimalUtil.safeAdd(totalFullDiscount, reductionPostMoney);
+                }
+
+            }
+        }
+
+        BigDecimal reduceCouponMoney = BigDecimal.ZERO;
+        //优惠券
+        if (submitOrderDto.getCouponRelUserId() != null && !submitOrderDto.getCouponRelUserId().equals(0L)) {
+            List<SelectCouponVo> querySelectCouponVoList = couponMapper.getSelectCouPonVo(currentUser.getId(), skuIds, submitOrderDto.getCouponRelUserId());
+
+            //如果是包邮类型，将sku设置为包邮
+            querySelectCouponVoList.stream().filter(x -> x.getType() == 3).forEach(x -> {
+                shopTicketSoWithCarGoodDtos.stream().filter(y -> y.getId().equals(x.getSkuId())).forEach(y -> y.setIsFreePostage(true));
+            });
+            //如果是满减,加入总优惠
+            SelectCouponVo reduceCoupon = querySelectCouponVoList.stream().filter(x -> x.getType() == 1).findFirst().orElse(null);
+            if (reduceCoupon != null) {
+                BigDecimal reducePriceSum = querySelectCouponVoList.stream().filter(x -> x.getType() == 1).map(SelectCouponVo::getSellPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+                //商品价格是否满足打折标准
+                if (reducePriceSum.compareTo(reduceCoupon.getReductionFullMoney()) >= 0) {
+                    //找出满足满减优惠的skuid集合，计算他们的付现价
+                    List<Long> fullSkuIds = querySelectCouponVoList.stream().map(SelectCouponVo::getSkuId).collect(Collectors.toList());
+                    List<ShopTicketSoWithCarGoodDto> fullRedetionSkus = shopTicketSoWithCarGoodDtos.stream().filter(x -> fullSkuIds.contains(x)).collect(Collectors.toList());
+                    //计算满减的付现价
+                    setRealPayMoneyForFullRedution(fullRedetionSkus, reduceCoupon.getReductionFullMoney());
+                    //满减优惠券金额加入总优惠
+                    reduceCouponMoney = reduceCoupon.getReductionPostMoney();
+                    //优惠券状态变为已使用
+                    AmCouponRelCouponUserPo updateCouponRelCouponUser=new AmCouponRelCouponUserPo();
+                    updateCouponRelCouponUser.setId(submitOrderDto.getCouponRelUserId()).setUseStatus(1);
+                    relCouponUserMapper.updateById(updateCouponRelCouponUser);
+                }
+
+            }
+            //如果是满折扣，将sku价格改变
+            SelectCouponVo discountCoupon = querySelectCouponVoList.stream().filter(x -> x.getType() == 2).findFirst().orElse(null);
+            if (discountCoupon != null) {
+                BigDecimal discountPriceSum = querySelectCouponVoList.stream().filter(x -> x.getType() == 2).map(SelectCouponVo::getSellPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+                //商品价格是否满足打折标准
+                if (discountPriceSum.compareTo(discountCoupon.getDiscountFullMoney()) >= 0) {
+                    //折扣换算成小数
+                    BigDecimal discount = BigDecimalUtil.safeDivide(discountCoupon.getDiscount(), 10);
+                    //sku价格打折
+                    querySelectCouponVoList.stream().filter(x -> x.getType() == 2).forEach(x -> {
+                        shopTicketSoWithCarGoodDtos.stream().filter(y -> y.getId().equals(x.getSkuId())).
+                                forEach(y -> y.setRealPayMoney(BigDecimalUtil.safeMultiply(y.getSellPrice(), discount)));
+                    });
+                    //优惠券状态变为已使用
+                    AmCouponRelCouponUserPo updateCouponRelCouponUser=new AmCouponRelCouponUserPo();
+                    updateCouponRelCouponUser.setId(submitOrderDto.getCouponRelUserId()).setUseStatus(1);
+                    relCouponUserMapper.updateById(updateCouponRelCouponUser);
+                }
+            }
+        }
        /* //结算一些数据
         TotalCarVo totalCarVo = searchByIds(orderSubmitDto, umUserPo);*/
         //判断商品是否保税仓或者海外直邮，是则需要进行实名认证
@@ -1716,58 +1993,74 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         final BigDecimal[] payMoney = {BigDecimal.ZERO};
         final BigDecimal[] totalShipMoney = {BigDecimal.ZERO};
         final BigDecimal[] totalTaxMoney = {BigDecimal.ZERO};
-        submitOrderDto.getGoodsTypeOrderDtos().forEach(x->{
+        submitOrderDto.getGoodsTypeOrderDtos().forEach(x -> {
 
             BigDecimal taxMoney = BigDecimal.ZERO;
             //判断商品是否保税仓或者海外直邮，且计算税率
             if (needRealGoodsType.contains(x.getGoodsType())) {
                 //商品的税率=数量*销售价*百分比/100
                 taxMoney = x.getShopTicketSoWithCarGoodDtos().stream().map(y -> BigDecimalUtil.safeMultiply(y.getNumber(),
-                        BigDecimalUtil.safeMultiply(y.getSellPrice(), transfromDecimal(y.getCustomTaxRate())))).
+                        BigDecimalUtil.safeMultiply(y.getRealPayMoney(), transfromDecimal(y.getCustomTaxRate())))).
                         reduce(BigDecimal.ZERO, BigDecimal::add);
                 x.setTaxMoney(taxMoney);
             } else {
                 x.setTaxMoney(BigDecimal.ZERO);
             }
-            //将dto转为vo是（兼容之前计算运费需要传vo），并计算商品总价
-            List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVos=Lists.newArrayList();
-            x.getShopTicketSoWithCarGoodDtos().forEach(y->{
-                ShopTicketSoWithCarGoodVo shopTicketSoWithCarGoodVo=new ShopTicketSoWithCarGoodVo();
-                BeanUtils.copyProperties(y,shopTicketSoWithCarGoodVo);
+            //将dto转为vo是（兼容之前计算运费需要传vo）
+            List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVos = Lists.newArrayList();
+            x.getShopTicketSoWithCarGoodDtos().forEach(y -> {
+                ShopTicketSoWithCarGoodVo shopTicketSoWithCarGoodVo = new ShopTicketSoWithCarGoodVo();
+                BeanUtils.copyProperties(y, shopTicketSoWithCarGoodVo);
                 shopTicketSoWithCarGoodVos.add(shopTicketSoWithCarGoodVo);
             });
             //计算邮费
             BigDecimal shipMoney = getShipMoney(shopTicketSoWithCarGoodVos, submitOrderDto.getUmAreaShipId(), currentUser);
             x.setShipMoney(shipMoney);
 
-            //商品总额=数量*单价
-            BigDecimal goodsMoney = shopTicketSoWithCarGoodDtos.stream().map(y -> BigDecimalUtil.safeMultiply(y.getNumber(), y.getSellPrice())).
+            //商品总额=数量*单价(销售价)
+            BigDecimal goodsMoney = x.getShopTicketSoWithCarGoodDtos().stream().map(y -> BigDecimalUtil.safeMultiply(y.getNumber(), y.getSellPrice())).
                     reduce(BigDecimal.ZERO, BigDecimal::add);
 
             //订单总额=商品价格+运费+税费
-            x.setTotalMoney(BigDecimalUtil.safeAdd(taxMoney,shipMoney,goodsMoney));
+            x.setTotalMoney(BigDecimalUtil.safeAdd(taxMoney, shipMoney, goodsMoney));
 
             //支付单总额
-            payMoney[0] =BigDecimalUtil.safeAdd(payMoney[0],goodsMoney,shipMoney,taxMoney);
+            payMoney[0] = BigDecimalUtil.safeAdd(payMoney[0], goodsMoney, shipMoney, taxMoney);
             //支付单总运费
-            totalShipMoney[0] =BigDecimalUtil.safeAdd(totalShipMoney[0],shipMoney);
+            totalShipMoney[0] = BigDecimalUtil.safeAdd(totalShipMoney[0], shipMoney);
             //支付单总税费
-            totalTaxMoney[0] =BigDecimalUtil.safeAdd(totalTaxMoney[0],taxMoney);
+            totalTaxMoney[0] = BigDecimalUtil.safeAdd(totalTaxMoney[0], taxMoney);
 
         });
-         submitOrderDto.setTotalMoney(payMoney[0]).setTotalShipMoney(totalShipMoney[0])
-         .setTotalTaxMoney(totalTaxMoney[0]);
-        //设置总红包和购物券
-        setDiscountInSubmit(submitOrderDto,currentUser,basicSettingPo);
+        submitOrderDto.setTotalMoney(payMoney[0]).setTotalShipMoney(totalShipMoney[0])
+                .setTotalTaxMoney(totalTaxMoney[0]);
 
+        //支付单商品活动价格总和
+        BigDecimal goodsActivityPayInPayOrder = shopTicketSoWithCarGoodDtos.stream().map(x ->
+                BigDecimalUtil.safeMultiply(x.getRealPayMoney(), x.getNumber())).reduce(BigDecimal.ZERO, BigDecimal::add);
+        //支付单应付金额（还没减去葱鸭钱包的）
+        BigDecimal payRealPayNoRed = BigDecimalUtil.safeAdd(goodsActivityPayInPayOrder, totalShipMoney[0], totalTaxMoney[0]);
+
+
+        //如果不使用葱鸭钱包
+        if (!submitOrderDto.getIsUseWallet()) {
+            /*//实付金额=订单总金额(活动优惠后的金额)
+            submitOrderDto.setTotalRealPayMoney(payMoney[0]);*/
+            submitOrderDto.setTotalRedEnvelopsMoney(BigDecimal.ZERO);
+            submitOrderDto.setTotalShopTicketMoney(BigDecimal.ZERO);
+        } else {
+            //设置总红包和购物券分别抵扣的金额
+            setDiscountInSubmit(payRealPayNoRed, submitOrderDto, currentUser, basicSettingPo);
+
+        }
 
 
         //生成商品快照
-        List<com.chauncy.data.domain.po.order.OmGoodsTempPo> saveGoodsTemps = Lists.newArrayList();
+        List<OmGoodsTempPo> saveGoodsTemps = Lists.newArrayList();
         //商品订单
         List<OmOrderPo> saveOrders = Lists.newArrayList();
         //支付单实付金额
-        BigDecimal payTotalRealMoney=BigDecimalUtil.safeSubtract(payMoney[0],submitOrderDto.getTotalRedEnvelopsMoney(),
+        BigDecimal payTotalRealMoney = BigDecimalUtil.safeSubtract(payRealPayNoRed, submitOrderDto.getTotalRedEnvelopsMoney(),
                 submitOrderDto.getTotalShopTicketMoney());
         //总支付单
         PayOrderPo savePayOrderPo = new PayOrderPo();
@@ -1780,90 +2073,109 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         savePayOrderPo.setTotalMoney(payMoney[0]).setTotalShopTicketMoney(submitOrderDto.getTotalShopTicketMoney())
                 .setTotalRedEnvelopsMoney(submitOrderDto.getTotalRedEnvelopsMoney()).setTotalShipMoney(totalShipMoney[0])
                 .setTotalTaxMoney(totalTaxMoney[0]).setTotalRealPayMoney(payTotalRealMoney).
-                setTotalDiscount(BigDecimalUtil.safeAdd(submitOrderDto.getTotalRedEnvelopsMoney(),submitOrderDto.getTotalShopTicketMoney()))
-        .setTotalRedEnvelops(totalRedEnvelops).setTotalShopTicket(totalShopTicket);
+                //总优惠=红包+购物券+满减活动+满减优惠券（没有算秒杀、积分、折扣优惠券的差价）
+                        setTotalDiscount(BigDecimalUtil.safeSubtract(payMoney[0], payTotalRealMoney))
+                .setTotalRedEnvelops(totalRedEnvelops).setTotalShopTicket(totalShopTicket);
 
-        //如果不使用葱鸭钱包
-        if (!submitOrderDto.getIsUseWallet()) {
-            //实付金额=订单总金额
-            submitOrderDto.setTotalRealPayMoney(submitOrderDto.getTotalMoney());
-            submitOrderDto.setTotalRedEnvelopsMoney(BigDecimal.ZERO);
-            submitOrderDto.setTotalShopTicketMoney(BigDecimal.ZERO);
-
-            savePayOrderPo.setTotalRealPayMoney(submitOrderDto.getTotalMoney());
-            savePayOrderPo.setTotalRedEnvelopsMoney(BigDecimal.ZERO);
-            savePayOrderPo.setTotalShopTicketMoney(BigDecimal.ZERO);
-        }
         UmAreaShippingPo umAreaShippingPo = umAreaShippingMapper.selectById(submitOrderDto.getUmAreaShipId());
         savePayOrderPo.setShipName(umAreaShippingPo.getShipName()).setPhone(umAreaShippingPo.getMobile())
                 .setShipAddress(umAreaShippingPo.getDetailedAddress()).setUmUserId(umUserPo.getId()).
-                setAreaName(umAreaShippingPo.getAreaName()).setTotalNumber(0);
-        //生成支付单
-        payOrderMapper.insert(savePayOrderPo);
+                setAreaName(umAreaShippingPo.getAreaName()).setTotalNumber(0).setId(SnowFlakeUtil.getFlowIdInstance().nextId());
+       /* //生成支付单
+        payOrderMapper.insert(savePayOrderPo);*/
 
         //用户所属店铺id
         Long userStoreId = userMapper.getUserStoreId(umUserPo.getId());
 
-
+        //当订单不足0.01时，支付单要补多少钱
+        final BigDecimal[] payAddMoney = {BigDecimal.ZERO};
         //循环遍历 生成订单
         submitOrderDto.getGoodsTypeOrderDtos().forEach(x -> {
-            //店铺id
-           /* QueryWrapper<SmStorePo> storeWrapper = new QueryWrapper();
-            storeWrapper.lambda().eq(SmStorePo::getName, x.getStoreName());
-            SmStorePo queryStore = storeMapper.selectOne(storeWrapper);
-            Long storeId = queryStore.getId();*/
             //循环遍历店铺下的订单
-                //生成订单
-                OmOrderPo saveOrder = new OmOrderPo();
-                if (submitOrderDto.getRealUserId() != null) {
-                    saveOrder.setRealUserId(submitOrderDto.getRealUserId());
-                }
-                BeanUtils.copyProperties(x, saveOrder);
-                saveOrder.setUmUserId(umUserPo.getId()).setAreaShippingId(submitOrderDto.getUmAreaShipId())
-                        .setStoreId(x.getStoreId()).setPayOrderId(savePayOrderPo.getId()).setCreateBy(umUserPo.getId() + "")
-                        .setId(SnowFlakeUtil.getFlowIdInstance().nextId()).setUpdateTime(LocalDateTime.now());
-                //设置一些优惠信息：红包、购物券
-                setDiscountMessage(saveOrder, savePayOrderPo);
+            //生成订单
+            OmOrderPo saveOrder = new OmOrderPo();
+            if (submitOrderDto.getRealUserId() != null) {
+                saveOrder.setRealUserId(submitOrderDto.getRealUserId());
+            }
+            //remark  storeId goodsType shipMoney taxMoney totalMoney
+            BeanUtils.copyProperties(x, saveOrder);
+            saveOrder.setUmUserId(umUserPo.getId()).setAreaShippingId(submitOrderDto.getUmAreaShipId())
+                    .setStoreId(x.getStoreId()).setPayOrderId(savePayOrderPo.getId()).setCreateBy(umUserPo.getId() + "")
+                    .setId(SnowFlakeUtil.getFlowIdInstance().nextId()).setUpdateTime(LocalDateTime.now());
+            //设置一些优惠信息：红包、购物券(个数以及抵扣金额)
+            setDiscountMessage(saveOrder, savePayOrderPo);
 
-                //设置订单数量
-                Integer goodsNumberInOrder=x.getShopTicketSoWithCarGoodDtos().stream().mapToInt(ShopTicketSoWithCarGoodDto::getNumber)
-                        .sum();
-                saveOrder.setTotalNumber(goodsNumberInOrder);
 
-                SmStorePo queryStore=storeMapper.selectById(x.getStoreId());
-                //设置用户所属店铺
-                saveOrder.setUserStoreId(userStoreId).setIncomeRate(queryStore.getIncomeRate());
-                saveOrders.add(saveOrder);
+            //设置订单数量
+            Integer goodsNumberInOrder = x.getShopTicketSoWithCarGoodDtos().stream().mapToInt(ShopTicketSoWithCarGoodDto::getNumber)
+                    .sum();
+            saveOrder.setTotalNumber(goodsNumberInOrder);
 
-                //订单商品总金额
-                BigDecimal goodsMoney = BigDecimalUtil.safeSubtract(saveOrder.getTotalMoney(), saveOrder.getTaxMoney(),
-                        saveOrder.getShipMoney());
+            SmStorePo queryStore = storeMapper.selectById(x.getStoreId());
+            //设置用户所属店铺
+            saveOrder.setUserStoreId(userStoreId).setIncomeRate(queryStore.getIncomeRate());
 
-                //订单实付总金额
-                BigDecimal realPayMoney = BigDecimalUtil.safeSubtract(goodsMoney, saveOrder.getRedEnvelopsMoney(), saveOrder.getShopTicketMoney());
-                //生成商品快照
-                x.getShopTicketSoWithCarGoodDtos().forEach(g -> {
-                    PmGoodsSkuPo skuPo = skuMapper.selectById(g.getId());
-                    com.chauncy.data.domain.po.order.OmGoodsTempPo saveGoodsTemp = new com.chauncy.data.domain.po.order.OmGoodsTempPo();
-                    BeanUtils.copyProperties(g, saveGoodsTemp);
-                    saveGoodsTemp.setCreateBy(umUserPo.getId() + "").setOrderId(saveOrder.getId()).setSkuId(g.getId());
-                    saveGoodsTemp.setId(null).setSupplierPrice(skuPo.getSupplierPrice()).setProfitRate(skuPo.getProfitRate())
-                            .setGoodsId(skuPo.getGoodsId()).setArticleNumber(skuPo.getArticleNumber()).
-                            //预计奖励购物券
-                                    setRewardShopTicket(g.getRewardShopTicket())
-                            //预计奖励经验值
-                            .setRewardExperience(BigDecimalUtil.safeMultiply(basicSettingPo.getMoneyToExperience(), g.getSellPrice()))
-                            //预计奖励积分
-                            .setRewardIntegrate(BigDecimalUtil.safeMultiply(basicSettingPo.getMoneyToIntegrate(), g.getSellPrice()))
-                    ;
-                    //商品价格占订单的比率
-                    BigDecimal ratio = BigDecimalUtil.safeDivide(BigDecimalUtil.safeMultiply(saveGoodsTemp.getSellPrice(), saveGoodsTemp.getNumber()),
-                            goodsMoney);
-                    saveGoodsTemp.setRealPayMoney(BigDecimalUtil.safeMultiply(ratio, realPayMoney));
-                    saveGoodsTemps.add(saveGoodsTemp);
 
-                });
+            //商品活动总价
+            BigDecimal goodsActivityMoneyInOrder=x.getShopTicketSoWithCarGoodDtos().stream().map(y->
+                    BigDecimalUtil.safeMultiply(y.getRealPayMoney(),y.getNumber())
+            ).reduce(BigDecimal.ZERO,BigDecimal::add);
+            //订单实付金额（还没减去红包购物券）
+            BigDecimal realMoneyInOrderNoRed=BigDecimalUtil.safeAdd(goodsActivityMoneyInOrder,x.getShipMoney(),x.getTaxMoney());
+            //订单实付金额
+            BigDecimal realMoneyInOrder=BigDecimalUtil.safeSubtract(realMoneyInOrderNoRed,saveOrder.getRedEnvelopsMoney(),saveOrder.getShopTicketMoney());
+
+            saveOrder.setRealMoney(realMoneyInOrder);
+            saveOrders.add(saveOrder);
+            //每个订单至少要支付一分钱
+            if (realMoneyInOrder.compareTo(orderMinPayMoney)<0){
+                BigDecimal addMoney=BigDecimalUtil.safeSubtract(realMoneyInOrder,orderMinPayMoney);
+                payAddMoney[0] =BigDecimalUtil.safeAdd(payAddMoney[0],addMoney);
+                saveOrder.setRealMoney(orderMinPayMoney);
+
+            }
+
+            /*//订单商品总金额
+               BigDecimal goodsMoney = BigDecimalUtil.safeSubtract(saveOrder.getTotalMoney(), saveOrder.getTaxMoney(),
+                        saveOrder.getShipMoney());*/
+
+
+
+            //生成商品快照
+            x.getShopTicketSoWithCarGoodDtos().forEach(g -> {
+                PmGoodsSkuPo skuPo = skuMapper.selectById(g.getId());
+                OmGoodsTempPo saveGoodsTemp = new OmGoodsTempPo();
+                //number sellPrice profitRate supplierPrice icon name standardStr
+                //realPayMoney integral
+                BeanUtils.copyProperties(g, saveGoodsTemp,"id");
+                saveGoodsTemp.setCreateBy(umUserPo.getId() + "").setOrderId(saveOrder.getId()).setSkuId(g.getId());
+                saveGoodsTemp.setSupplierPrice(skuPo.getSupplierPrice()).setProfitRate(skuPo.getProfitRate())
+                        .setGoodsId(skuPo.getGoodsId()).setArticleNumber(skuPo.getArticleNumber()).
+                        //预计奖励购物券
+                                setRewardShopTicket(g.getRewardShopTicket())
+                        //预计奖励经验值
+                        .setRewardExperience(BigDecimalUtil.safeMultiply(basicSettingPo.getMoneyToExperience(), g.getRealPayMoney()))
+                        //预计奖励积分
+                        .setRewardIntegrate(BigDecimalUtil.safeMultiply(basicSettingPo.getMoneyToIntegrate(), g.getRealPayMoney()))
+                ;
+                //商品活动价格占订单商品活动价格的比例
+                BigDecimal ratio = BigDecimalUtil.safeDivide(BigDecimalUtil.safeMultiply(g.getRealPayMoney(), g.getNumber()),
+                        goodsActivityMoneyInOrder);
+                //快照购物券、红包、以及对应的金额
+                BigDecimal goodsShopTicket = BigDecimalUtil.safeMultiply(ratio, saveOrder.getShopTicket());
+                BigDecimal goodsRedEnvelops = BigDecimalUtil.safeMultiply(ratio, saveOrder.getRedEnvelops());
+                BigDecimal goodsShopTicketMoney = BigDecimalUtil.safeMultiply(ratio, saveOrder.getShopTicketMoney());
+                BigDecimal goodsRedEnvelopsMoney = BigDecimalUtil.safeMultiply(ratio, saveOrder.getRedEnvelopsMoney());
+                //saveGoodsTemp.setRealPayMoney(BigDecimalUtil.safeMultiply(ratio, realPayMoney));
+                saveGoodsTemp.setRealPayMoney(BigDecimalUtil.safeSubtract(g.getRealPayMoney(), goodsShopTicketMoney,goodsRedEnvelopsMoney));
+                saveGoodsTemp.setRed(goodsRedEnvelops).setShopTicket(goodsShopTicket);
+                saveGoodsTemps.add(saveGoodsTemp);
+
+            });
         });
+        savePayOrderPo.setTotalRealPayMoney(BigDecimalUtil.safeAdd(savePayOrderPo.getTotalRealPayMoney(),payAddMoney[0]));
+        //生成支付单
+        payOrderMapper.insert(savePayOrderPo);
 
         //保存订单
         omOrderService.saveBatch(saveOrders);
@@ -1872,12 +2184,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         //减去库存
         skuMapper.updateStock2(shopTicketSoWithCarGoodDtos);
         //减去购物券和红包
-        mapper.updateDiscount(totalRedEnvelops,
-                totalShopTicket
-                , umUserPo.getId()
-        );
+        mapper.updateDiscount(totalRedEnvelops, totalShopTicket, totalIntegral[0], umUserPo.getId());
         //减去购物车
-        delShopCatAfterOrder2(shopTicketSoWithCarGoodDtos,umUserPo.getId());
+        delShopCatAfterOrder2(shopTicketSoWithCarGoodDtos, umUserPo.getId());
         //保存返佣用户信息
         PayUserRelationPo queryPayUser = getPayUserMessage(umUserPo.getId());
         if (queryPayUser != null) {
@@ -1887,16 +2196,15 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 savePayUser.setCreateBy(umUserPo.getId() + "").setOrderId(x.getId());
                 payUserRelationService.save(savePayUser);
                 //保存下级用户集合
-                List<PayUserRelationNextLevelPo> savePayUserRelationNextLevels= com.google.common.collect.Lists.newArrayList();
-                PayUserRelationNextLevelPo savePayUserRelationNextLevel=new PayUserRelationNextLevelPo();
-                if (ListUtil.isListNullAndEmpty(queryPayUser.getNextUserIds())){
-                    queryPayUser.getNextUserIds().forEach(y->{
+                List<PayUserRelationNextLevelPo> savePayUserRelationNextLevels = com.google.common.collect.Lists.newArrayList();
+                PayUserRelationNextLevelPo savePayUserRelationNextLevel = new PayUserRelationNextLevelPo();
+                if (ListUtil.isListNullAndEmpty(queryPayUser.getNextUserIds())) {
+                    queryPayUser.getNextUserIds().forEach(y -> {
                         savePayUserRelationNextLevel.setNextUserId(y).setPayUserRealtionId(savePayUser.getId());
                         savePayUserRelationNextLevels.add(savePayUserRelationNextLevel);
                     });
                     payUserRelationNextLevelService.saveBatch(savePayUserRelationNextLevels);
                 }
-                //保存下级
             });
         }
 
@@ -1912,12 +2220,42 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         });
         LoggerUtil.info("【下单等待取消订单发送时间】:" + LocalDateTime.now());
 
-        // TODO: 2019/9/25 积分暂时固定为0
-        SubmitOrderVo submitOrderVo=new SubmitOrderVo();
+        SubmitOrderVo submitOrderVo = new SubmitOrderVo();
         submitOrderVo.setPayOrderId(savePayOrderPo.getId()).setTotalRealPayMoney(savePayOrderPo.getTotalRealPayMoney())
-                .setTotalRedEnvelops(totalRedEnvelops).setTotalShopTicket(totalShopTicket).setTotalIntegral(BigDecimal.ZERO);
+                .setTotalRedEnvelops(totalRedEnvelops).setTotalShopTicket(totalShopTicket).setTotalIntegral(totalIntegral[0]);
 
         return submitOrderVo;
+    }
+
+    /**
+     * @return void
+     * @Author zhangrt
+     * @Date 2019/10/17 23:15
+     * @Description 计算满减商品的付现价
+     * @Update
+     * @Param [shopTicketSoWithCarGoodDtos]
+     **/
+
+    private void setRealPayMoneyForFullRedution(List<ShopTicketSoWithCarGoodDto> shopTicketSoWithCarGoodDtos, BigDecimal reductionPostMoney) {
+        //固定成本总和
+        BigDecimal fixedCostSum = shopTicketSoWithCarGoodDtos.stream().map(x -> x.computeFixedCost()).reduce(BigDecimal.ZERO, BigDecimal::add);
+        shopTicketSoWithCarGoodDtos.forEach(x -> {
+            //实际优惠金额
+            BigDecimal discountMoney = BigDecimalUtil.safeMultiply(reductionPostMoney,
+                    BigDecimalUtil.safeDivide(x.computeFixedCost(), fixedCostSum));
+            x.setRealPayMoney(BigDecimalUtil.safeSubtract(x.getSellPrice(), discountMoney));
+        });
+    }
+
+    private void setRealPayMoneyForFullRedution2(List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVos, BigDecimal reductionPostMoney) {
+        //固定成本总和
+        BigDecimal fixedCostSum = shopTicketSoWithCarGoodVos.stream().map(x -> x.computeFixedCost()).reduce(BigDecimal.ZERO, BigDecimal::add);
+        shopTicketSoWithCarGoodVos.forEach(x -> {
+            //实际优惠金额
+            BigDecimal discountMoney = BigDecimalUtil.safeMultiply(reductionPostMoney,
+                    BigDecimalUtil.safeDivide(x.computeFixedCost(), fixedCostSum));
+            x.setRealPayMoney(BigDecimalUtil.safeSubtract(x.getSellPrice(), discountMoney));
+        });
     }
 
     /**
@@ -1990,14 +2328,12 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     }
 
     /**
+     * @param removeToFavoritesDto
+     * @return void
      * @Author chauncy
      * @Date 2019-09-29 20:17
      * @Description //移动购物车商品至收藏夹
-     *
      * @Update chauncy
-     *
-     * @param  removeToFavoritesDto
-     * @return void
      **/
     @Override
     public void removeToFavorites(RemoveToFavoritesDto removeToFavoritesDto) {
@@ -2008,8 +2344,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         }
 
         List<Long> goodsIdList = Arrays.asList(removeToFavoritesDto.getGoodsIds());
-        if (!ListUtil.isListNullAndEmpty(goodsIdList)){
-            goodsIdList.forEach(a->{
+        if (!ListUtil.isListNullAndEmpty(goodsIdList)) {
+            goodsIdList.forEach(a -> {
                 //判断商品是否存在
                 if (goodsMapper.selectById(a) == null) {
                     throw new ServiceException(ResultCode.NO_EXISTS, "数据库不存在该商品，请检查");
@@ -2029,7 +2365,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     //不用updateById  update a=a+1
                     goodsMapper.addFavorites(a);
 
-                }else if (!userFavoritesPo.getIsFavorites()) { //收藏过且取消收藏再次收藏
+                } else if (!userFavoritesPo.getIsFavorites()) { //收藏过且取消收藏再次收藏
                     userFavoritesPo.setIsFavorites(true);
                     userFavoritesMapper.updateById(userFavoritesPo);
                     //不用updateById  update a=a+1
@@ -2039,9 +2375,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             });
 
             List<Long> cartIds = Arrays.asList(removeToFavoritesDto.getCartIds());
-            if (!ListUtil.isListNullAndEmpty(cartIds)){
-                cartIds.forEach(b->{
-                    if (mapper.selectById(b) == null){
+            if (!ListUtil.isListNullAndEmpty(cartIds)) {
+                cartIds.forEach(b -> {
+                    if (mapper.selectById(b) == null) {
                         throw new ServiceException(ResultCode.NO_EXISTS, "购物车数据库不存在该商品，请检查");
                     }
                 });
@@ -2051,14 +2387,12 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     }
 
     /**
+     * @param
+     * @return java.util.List<com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo>
      * @Author chauncy
      * @Date 2019-10-09 13:22
      * @Description //购物车空车猜你喜欢
-     *
      * @Update chauncy
-     *
-     * @param
-     * @return java.util.List<com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo>
      **/
     @Override
     public List<SearchGoodsBaseListVo> guessLike() {
@@ -2200,9 +2534,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         /**
          * 订单金额
          */
-        BigDecimal orderMoney = BigDecimalUtil.safeAdd(saveOrder.getTotalMoney(), saveOrder.getShipMoney(), saveOrder.getTaxMoney());
+        BigDecimal orderMoney = saveOrder.getTotalMoney();
         //总支付单
-        BigDecimal payMoney = BigDecimalUtil.safeAdd(payOrderPo.getTotalMoney(), payOrderPo.getTotalShipMoney(), payOrderPo.getTotalTaxMoney());
+        BigDecimal payMoney = payOrderPo.getTotalMoney();
         //订单占总金额的比例
         BigDecimal ration = BigDecimalUtil.safeDivide(orderMoney, payMoney);
         saveOrder.setRedEnvelops(BigDecimalUtil.safeMultiply(ration, payOrderPo.getTotalRedEnvelops()));
@@ -2246,7 +2580,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         shopTicketSoWithCarGoodDtos.forEach(x -> {
             ShopTicketSoWithCarGoodDto tempById = mapper.getTempById(x.getId());
             tempById.setNumber(x.getNumber());
-            BeanUtils.copyProperties(tempById,x);
+            BeanUtils.copyProperties(tempById, x);
+            x.setRealPayMoney(x.getSellPrice());
         });
         return shopTicketSoWithCarGoodDtos;
     }

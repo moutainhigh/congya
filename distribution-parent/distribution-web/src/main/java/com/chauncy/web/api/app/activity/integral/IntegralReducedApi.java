@@ -1,7 +1,9 @@
 package com.chauncy.web.api.app.activity.integral;
 
 import com.chauncy.activity.reduced.IAmReducedService;
+import com.chauncy.activity.registration.IAmActivityRelGoodsSkuService;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.dto.app.car.SettleAccountsDto;
 import com.chauncy.data.dto.app.product.FindActivityGoodsCategoryDto;
 import com.chauncy.data.dto.app.product.FindTabGoodsListDto;
 import com.chauncy.data.dto.app.product.SearchActivityGoodsListDto;
@@ -41,6 +43,9 @@ public class IntegralReducedApi extends BaseApi {
 
     @Autowired
     private IAmReducedService amReducedService;
+
+    @Autowired
+    private IAmActivityRelGoodsSkuService amActivityRelGoodsSkuService;
 
     /**
      * @Author yeJH
@@ -177,6 +182,14 @@ public class IntegralReducedApi extends BaseApi {
 
         return new JsonViewData(ResultCode.SUCCESS,"查找成功",
                 amReducedService.searchReducedGoods(searchReducedGoodsDto));
+    }
+
+
+    @PostMapping("/judgeIntegralEnough")
+    @ApiOperation(value = "判断积分是否足够")
+    public JsonViewData<PageInfo<ActivityGoodsVo>> judgeIntegralEnough(@Valid @RequestBody SettleAccountsDto settleAccountsDto) {
+
+        return setJsonViewData(amActivityRelGoodsSkuService.judgeIntegralBalance(settleAccountsDto));
     }
 
 }

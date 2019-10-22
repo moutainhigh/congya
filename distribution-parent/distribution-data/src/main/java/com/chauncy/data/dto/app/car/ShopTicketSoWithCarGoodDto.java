@@ -111,6 +111,17 @@ public class ShopTicketSoWithCarGoodDto {
     @JSONField(serialize = false)
     private Boolean isFreePostage;
 
+    //第二版本
+    //实付价格(还没减去红包和购物券)
+    @ApiModelProperty(hidden = true)
+    @JSONField(serialize = false)
+    private BigDecimal realPayMoney;
+
+    //该商品使用了多少积分
+    @ApiModelProperty(hidden = true)
+    @JSONField(serialize = false)
+    private BigDecimal integral;
+
 
 
 
@@ -132,7 +143,7 @@ public class ShopTicketSoWithCarGoodDto {
         //购物券=（付现价-固定成本-活动成本）X让利成本（%）(商品详情页面)X该用户所属的会员等级反购物券比例X购物券比例设置(参数设置)
 
         //（付现价-固定成本-活动成本）
-        BigDecimal a=BigDecimalUtil.safeSubtract(true,sellPrice,fixedCost,activityCost);
+        BigDecimal a=BigDecimalUtil.safeSubtract(true,realPayMoney,fixedCost,activityCost);
 
         //让利成本（%）(商品详情页面)X该用户所属的会员等级反购物券比例X购物券比例设置(参数设置)
         BigDecimal b=BigDecimalUtil.safeMultiply(BigDecimalUtil.safeMultiply(transfromDecimal(profitsRate),transfromDecimal(purchasePresent)),moneyToShopTicket);
@@ -140,6 +151,25 @@ public class ShopTicketSoWithCarGoodDto {
         //购物券
         return BigDecimalUtil.safeMultiply(a,b);
 
+    }
+
+/**
+ * @Author zhangrt
+ * @Date 2019/10/18 12:18
+ * @Description  计算出固定成本
+ *
+ * @Update
+ *
+ * @Param []
+ * @return java.math.BigDecimal
+ **/
+
+    public BigDecimal computeFixedCost(){
+        //运营成本
+        BigDecimal operation = BigDecimalUtil.safeMultiply(sellPrice, transfromDecimal(operationCost));
+        //利润
+        BigDecimal profit = BigDecimalUtil.safeMultiply(sellPrice, transfromDecimal(profitRate));
+        return BigDecimalUtil.safeAdd(operation,profit,supplierPrice);
     }
     /**
      * 将百分比转换成小数

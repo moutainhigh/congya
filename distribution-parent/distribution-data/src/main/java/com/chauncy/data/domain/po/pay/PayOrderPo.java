@@ -132,7 +132,7 @@ public class PayOrderPo implements Serializable {
     @ApiModelProperty(value = "总使用购物券")
     private BigDecimal totalShopTicket;
 
-    @ApiModelProperty(value = "商品总额")
+    @ApiModelProperty(value = "订单总额，包括商品(活动价格)、运费、税费")
     private BigDecimal totalMoney;
 
     @ApiModelProperty(value = "总数量")
