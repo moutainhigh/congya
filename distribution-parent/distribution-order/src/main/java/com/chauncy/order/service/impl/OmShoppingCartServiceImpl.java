@@ -896,8 +896,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
      * @param totalCarVo
      */
     private void setDiscount(TotalCarVo totalCarVo, UmUserPo currentUser, BasicSettingPo basicSettingPo) {
-        //至少要支付0.01
-        BigDecimal totalMoney = BigDecimalUtil.safeSubtract(totalCarVo.getTotalMoney(), BigDecimal.valueOf(0.01));
+        BigDecimal totalMoney = totalCarVo.getTotalMoney();
         //一个购物券=多少元
         BigDecimal shopTicketToMoney = BigDecimalUtil.safeDivide(1, basicSettingPo.getMoneyToShopTicket());
         //一个红包=多少元
@@ -943,7 +942,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     private void setDiscountInSubmit(BigDecimal realPayMoney, SubmitOrderDto submitOrderDto, UmUserPo currentUser, BasicSettingPo basicSettingPo) {
         //至少要支付0.01
-        BigDecimal totalMoney = BigDecimalUtil.safeSubtract(realPayMoney, BigDecimal.valueOf(0.01));
+        BigDecimal totalMoney = realPayMoney;
         //一个购物券=多少元
         BigDecimal shopTicketToMoney = BigDecimalUtil.safeDivide(1, basicSettingPo.getMoneyToShopTicket());
         //一个红包=多少元
@@ -2129,7 +2128,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             saveOrders.add(saveOrder);
             //每个订单至少要支付一分钱
             if (realMoneyInOrder.compareTo(orderMinPayMoney)<0){
-                BigDecimal addMoney=BigDecimalUtil.safeSubtract(realMoneyInOrder,orderMinPayMoney);
+                BigDecimal addMoney=BigDecimalUtil.safeSubtract(orderMinPayMoney,realMoneyInOrder);
                 payAddMoney[0] =BigDecimalUtil.safeAdd(payAddMoney[0],addMoney);
                 saveOrder.setRealMoney(orderMinPayMoney);
 
@@ -2156,7 +2155,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                         //预计奖励经验值
                         .setRewardExperience(BigDecimalUtil.safeMultiply(basicSettingPo.getMoneyToExperience(), g.getRealPayMoney()))
                         //预计奖励积分
-                        .setRewardIntegrate(BigDecimalUtil.safeMultiply(basicSettingPo.getMoneyToIntegrate(), g.getRealPayMoney()))
+                        .setRewardIntegrate(BigDecimalUtil.safeMultiply(basicSettingPo.getOwnRewardIntegrate() ,transfromDecimal(g.getRealPayMoney())));
                 ;
                 //商品活动价格占订单商品活动价格的比例
                 BigDecimal ratio = BigDecimalUtil.safeDivide(BigDecimalUtil.safeMultiply(g.getRealPayMoney(), g.getNumber()),

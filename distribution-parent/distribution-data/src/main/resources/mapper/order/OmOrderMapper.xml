@@ -234,7 +234,7 @@
             and order_id=#{orderId}
     </select>
     <select id="getOrderRewardByOrderId" resultType="com.chauncy.data.bo.app.order.my.OrderRewardBo">
-           select SUM(g.reward_integrate*number) rewardShopTicket, SUM(g.reward_experience*number) rewardIntegral,SUM(g.reward_shop_ticket*number) rewardExperience
+           select SUM(g.reward_integrate*number) rewardIntegral, SUM(g.reward_experience*number) rewardExperience ,SUM(g.reward_shop_ticket*number) rewardShopTicket
             from om_goods_temp g
             where order_id=#{orderId} and del_flag=0
     </select>

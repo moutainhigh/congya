@@ -107,4 +107,7 @@ public class UpdateBasicSettingDto implements Serializable {
 
     @ApiModelProperty(value = "是否展示提现按钮 1-是 0-否")
     private Boolean isShowWithdraw;
+
+    @ApiModelProperty(value = "个人消费得到订单金额%的积分")
+    private BigDecimal ownRewardIntegrate;
 }
