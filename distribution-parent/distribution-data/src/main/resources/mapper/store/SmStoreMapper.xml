@@ -208,9 +208,9 @@
         left join sm_store_rel_attribute srsa
         on ss.id = srsa.store_id
         left join pm_goods_attribute pga
-        on srsa.attribute_id = pga.id   AND srsa.del_flag = 0
+        on srsa.attribute_id = pga.id   AND srsa.del_flag = 0  AND  pga.type = 8
         left join sm_store_rel_label ssrl
-        on ssrl.store_id = ss.id  AND  pga.type = 8
+        on ssrl.store_id = ss.id
         left join sm_store_label `ssl`
         on ssl.id = ssrl.store_label_id AND ssrl.del_flag = 0
         <where>

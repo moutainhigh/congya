@@ -84,8 +84,8 @@ public class MmUserNoticeServiceImpl extends AbstractService<MmUserNoticeMapper,
 
         UmUserPo userPo = securityUtil.getAppCurrUser();
         PageInfo<UserNoticeListVo> userNoticeListVoPageInfo = new PageInfo<>();
-        if (noticeType.equals(NoticeTypeEnum.Express_Logistics.getId())
-                || noticeType.equals(NoticeTypeEnum.Task_reward.getId())) {
+        if (noticeType.equals(NoticeTypeEnum.EXPRESS_LOGISTICS.getId())
+                || noticeType.equals(NoticeTypeEnum.TASK_REWARD.getId())) {
             //物流快递 跟 任务奖励的消息从 mm_user_notice表获取
             userNoticeListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                     .doSelectPageInfo(() -> mapper.searchUserNoticeList(userPo.getId(), noticeType));
@@ -96,7 +96,7 @@ public class MmUserNoticeServiceImpl extends AbstractService<MmUserNoticeMapper,
                     .eq(MmUserNoticePo::getNoticeType, noticeType)
                     .set(MmUserNoticePo::getIsRead, true);
             this.update(userNoticePoUpdateWrapper);
-        } else if (noticeType.equals(NoticeTypeEnum.System_Notice.getId())) {
+        } else if (noticeType.equals(NoticeTypeEnum.SYSTEM_NOTICE.getId())) {
             //系统通知从mm_interact_push表获取
             userNoticeListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                     .doSelectPageInfo(() -> mapper.searchUserSystemNoticeList(userPo.getId(), userPo.getLevel()));

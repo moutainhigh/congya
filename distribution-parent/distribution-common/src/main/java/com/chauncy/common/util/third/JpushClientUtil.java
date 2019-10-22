@@ -28,9 +28,9 @@ public class JpushClientUtil {
     @Value("${distribution.jpush.APPKEY}")
     private String app_key;
 
-    private final static String APPKEY = "43fce926da40c017ab4b4818";
+    private final static String APPKEY = "42980128a76f589da77d55b2";
 
-    private final static String MASTERSECRET = "328f5af7bc97bb017c715c77";
+    private final static String MASTERSECRET = "9b40acaac77ffbf3b8c42053";
 
     private static JPushClient jPushClient = new JPushClient(MASTERSECRET, APPKEY);
 

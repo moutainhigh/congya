@@ -153,8 +153,8 @@ distribution:
     zone: -1
   # 极光推送配置
   jpush:
-    APPKEY: 43fce926da40c017ab4b4818
-    MASTERSECRET: 328f5af7bc97bb017c715c77
+    APPKEY: 42980128a76f589da77d55b2
+    MASTERSECRET: 9b40acaac77ffbf3b8c42053
 
   # 环信配置
   easemob:

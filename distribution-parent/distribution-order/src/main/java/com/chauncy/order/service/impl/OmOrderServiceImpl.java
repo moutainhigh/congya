@@ -6,9 +6,13 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chauncy.common.constant.RabbitConstants;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.common.enums.app.order.PayOrderStatusEnum;
+import com.chauncy.common.enums.log.AccountTypeEnum;
 import com.chauncy.common.enums.log.LogTriggerEventEnum;
 import com.chauncy.common.enums.log.PaymentWayEnum;
 import com.chauncy.common.enums.goods.GoodsTypeEnum;
+import com.chauncy.common.enums.message.NoticeContentEnum;
+import com.chauncy.common.enums.message.NoticeTitleEnum;
+import com.chauncy.common.enums.message.NoticeTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.*;
@@ -20,6 +24,7 @@ import com.chauncy.data.bo.app.order.rabbit.RabbitOrderBo;
 import com.chauncy.data.bo.app.order.reward.RewardRedBo;
 import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.message.interact.MmUserNoticePo;
 import com.chauncy.data.domain.po.order.*;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.domain.po.pay.PayUserRelationPo;
@@ -32,6 +37,7 @@ import com.chauncy.data.dto.app.order.store.WriteOffDto;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchSendOrderDto;
+import com.chauncy.data.mapper.message.interact.MmUserNoticeMapper;
 import com.chauncy.data.mapper.order.*;
 import com.chauncy.data.mapper.pay.IPayOrderMapper;
 import com.chauncy.data.mapper.pay.PayUserRelationMapper;
@@ -66,6 +72,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -93,6 +100,9 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
     @Autowired
     private PmGoodsSkuMapper goodsSkuMapper;
+
+    @Autowired
+    private MmUserNoticeMapper mmUserNoticeMapper;
 
     @Autowired
     private OmShoppingCartMapper shoppingCartMapper;
@@ -259,9 +269,10 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         payOrderPoUpdateWrapper.lambda().set(PayOrderPo::getPayAmount, payAmount);
         payOrderPoUpdateWrapper.lambda().set(PayOrderPo::getPayTime, notifyMap.get("time_end"));
         payOrderService.update(payOrderPoUpdateWrapper);
+
         //付款成功后需要做的操作
         afterPayDo(payOrderPo.getId()) ;
-        //订单下单流水生成
+        //1.订单下单流水生成
         UmUserPo umUserPo = userMapper.selectById(payOrderPo.getUmUserId());
         AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
         addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.APP_ORDER);
@@ -271,7 +282,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         this.rabbitTemplate.convertAndSend(
                 RabbitConstants.ACCOUNT_LOG_EXCHANGE, RabbitConstants.ACCOUNT_LOG_ROUTING_KEY, addAccountLogBo);
 
-        //海关申报 拆单之后的订单是海外直邮或者保税仓
+        //2.海关申报 拆单之后的订单是海外直邮或者保税仓
         QueryWrapper<OmOrderPo> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda()
                 .eq(OmOrderPo::getPayOrderId, payOrderPo.getId())
@@ -292,6 +303,9 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                     return message;
                 }));
 
+        //3.发送APP内消息中心的消息给用户
+        //saveRewardNotice(payOrderPo.getId(), umUserPo.getId());
+
        /* //更新OmOrderPo
         UpdateWrapper<OmOrderPo> omOrderPoUpdateWrapper = new UpdateWrapper<>();
         omOrderPoUpdateWrapper.lambda().eq(OmOrderPo::getPayOrderId, payOrderPo.getId());
@@ -300,6 +314,40 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         omOrderPoUpdateWrapper.lambda().set(OmOrderPo::getStatus, OrderStatusEnum.NEED_SEND_GOODS);
         omOrderPoUpdateWrapper.lambda().set(OmOrderPo::getPayTime, notifyMap.get("time_end"));
         this.update(omOrderPoUpdateWrapper);*/
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/20 22:09
+     * @Description 保存奖励通知消息  支付完成通知订单预计入账积分以及消费券
+     *
+     * @Update yeJH
+     *
+     * @param  payOrderId  支付单id
+     * @param  umUserId  用户id
+     * @return void
+     **/
+    private void saveRewardNotice(Long payOrderId, Long umUserId) {
+        OrderRewardBo orderRewardBo = mapper.getOrderRewardByPayId(payOrderId);
+        if(null != orderRewardBo && null != orderRewardBo.getRewardIntegral()) {
+            //新增APP消息中心消息  预计入账积分
+            MmUserNoticePo mmUserNoticePo = new MmUserNoticePo();
+            mmUserNoticePo.setUserId(umUserId)
+                    .setNoticeType(NoticeTypeEnum.TASK_REWARD.getId())
+                    .setTitle(NoticeTitleEnum.SHOPPING_REWARD.getName())
+                    .setContent(MessageFormat.format(NoticeContentEnum.SHOPPING_REWARD.getName(),
+                            orderRewardBo.getRewardIntegral(), AccountTypeEnum.SHOP_TICKET.getName()));
+            mmUserNoticeMapper.insert(mmUserNoticePo);
+        } else if(null != orderRewardBo && null != orderRewardBo.getRewardShopTicket()) {
+            //新增APP消息中心消息  预计入账积分
+            MmUserNoticePo mmUserNoticePo = new MmUserNoticePo();
+            mmUserNoticePo.setUserId(umUserId)
+                    .setNoticeType(NoticeTypeEnum.TASK_REWARD.getId())
+                    .setTitle(NoticeTitleEnum.SHOPPING_REWARD.getName())
+                    .setContent(MessageFormat.format(NoticeContentEnum.SHOPPING_REWARD.getName(),
+                            orderRewardBo.getRewardIntegral(), AccountTypeEnum.INTEGRATE.getName()));
+            mmUserNoticeMapper.insert(mmUserNoticePo);
+        }
     }
 
     @Override

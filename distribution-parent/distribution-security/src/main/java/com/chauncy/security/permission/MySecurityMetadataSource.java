@@ -47,7 +47,7 @@ public class MySecurityMetadataSource implements FilterInvocationSecurityMetadat
             if(StrUtil.isNotBlank(permission.getTitle())&&StrUtil.isNotBlank(permission.getPath())){
                 configAttributes = new ArrayList<>();
                 cfg = new SecurityConfig(permission.getTitle());
-                //作为MyAccessDecisionManager类的decide的第三个参数
+                //作为MyAccessDecisionManager类的decide()的第三个参数
                 configAttributes.add(cfg);
                 //用权限的path作为map的key，用ConfigAttribute的集合作为value
                 map.put(permission.getPath(), configAttributes);
@@ -58,6 +58,7 @@ public class MySecurityMetadataSource implements FilterInvocationSecurityMetadat
     /**
      * 判定用户请求的url是否在权限表中
      * 如果在权限表中，则返回给decide方法，用来判定用户是否有此权限
+     * decide(Authentication authentication, Object o, Collection<ConfigAttribute> configAttributes)
      * 如果不在权限表中则放行
      * @param o
      * @return
