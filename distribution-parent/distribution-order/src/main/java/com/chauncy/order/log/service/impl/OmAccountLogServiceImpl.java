@@ -829,7 +829,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
             OmAccountLogPo fromRedEnvelopsLog = getFromOmAccountLogPo(addAccountLogBo, UserTypeEnum.APP_USER,
                     AccountTypeEnum.RED_ENVELOPS, LogTypeEnum.EXPENDITURE);
             UmUserPo umUserPo = umUserMapper.selectById(omUserWithdrawalPo.getUmUserId());
-            fromRedEnvelopsLog.setUserId(umUserPo.getId());
+            fromRedEnvelopsLog.setRelUserId(omUserWithdrawalPo.getUmUserId());
             fromRedEnvelopsLog.setBalance(BigDecimalUtil.safeSubtract(umUserPo.getCurrentRedEnvelops(), omUserWithdrawalPo.getWithdrawalAmount()));
             fromRedEnvelopsLog.setLastBalance(umUserPo.getCurrentRedEnvelops());
             //流水发生金额  用户提现金额

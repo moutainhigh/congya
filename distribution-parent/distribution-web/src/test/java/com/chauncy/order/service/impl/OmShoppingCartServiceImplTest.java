@@ -1,9 +1,9 @@
 package com.chauncy.order.service.impl;
 
-import com.chauncy.common.util.LoggerUtil;
-import com.chauncy.data.domain.po.order.OmOrderPo;
-import com.chauncy.order.service.IOmShoppingCartService;
-import com.chauncy.test.service.UserService;
+import com.chauncy.common.enums.message.NoticeTitleEnum;
+import com.chauncy.data.bo.app.message.SaveUserNoticeBo;
+import com.chauncy.message.interact.service.IMmUserNoticeService;
+import com.chauncy.order.logistics.impl.OmOrderLogisticsServiceImpl;
 import com.chauncy.user.service.IUmUserService;
 import com.chauncy.web.StartApplication;
 import org.junit.Test;
@@ -24,6 +24,10 @@ public class OmShoppingCartServiceImplTest {
     private OmShoppingCartServiceImpl shoppingCartService;
     @Autowired
     private OmOrderServiceImpl orderService;
+    @Autowired
+    private IMmUserNoticeService mmUserNoticeService;
+    @Autowired
+    private OmOrderLogisticsServiceImpl omOrderLogisticsService;
 
 
     @Autowired
@@ -49,7 +53,14 @@ public class OmShoppingCartServiceImplTest {
 
     @Test
     public void firstSecond() {
-        shoppingCartService.getPayUserMessage(1146432777142534145l);
+
+        omOrderLogisticsService.saveSignedNotice("190320936170295296");
+        //订单发货成功  发送APP内消息给用户
+        SaveUserNoticeBo saveUserNoticeBo = new SaveUserNoticeBo();
+        saveUserNoticeBo.setOrderId(190320936170295296L);
+        mmUserNoticeService.saveUserNotice(NoticeTitleEnum.SHIPPED.name(), saveUserNoticeBo);
+
+
     }
 
 

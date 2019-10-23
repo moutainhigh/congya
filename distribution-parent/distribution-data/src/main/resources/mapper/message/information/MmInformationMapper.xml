@@ -39,6 +39,21 @@
         update mm_information set forward_num = forward_num+1 where id = #{shareId}
     </update>
 
+    <select id="getBaseInformation" resultType="com.chauncy.data.vo.manage.message.information.InformationContentVo">
+        SELECT mi.id AS infoId,
+            ss.id AS storeId,
+            ss.logo_image,
+            ss.name AS storeName,
+            mi.`create_time`,
+            mi.`title`,
+            mi.`detail_html`,
+            mi.`cover_image`
+        FROM mm_information mi
+        LEFT JOIN sm_store ss ON mi.`store_id` = ss.id
+        <where>
+            mi.id = #{infoId}
+        </where>
+    </select>
 
     <select id="findById" resultType="com.chauncy.data.vo.manage.message.information.InformationVo">
         select mi.*, mil.`name` as infoLabelName, mic.`name` as infoCategoryName

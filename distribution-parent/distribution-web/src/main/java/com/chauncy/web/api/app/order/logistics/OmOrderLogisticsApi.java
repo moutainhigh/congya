@@ -1,11 +1,11 @@
 package com.chauncy.web.api.app.order.logistics;
 
 
-import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.common.enums.goods.GoodsTypeEnum;
+import com.chauncy.common.enums.message.NoticeTitleEnum;
 import com.chauncy.common.enums.system.ResultCode;
-import com.chauncy.data.bo.app.logistics.LastResultBo;
 import com.chauncy.data.bo.app.logistics.TaskResponseBo;
+import com.chauncy.data.bo.app.message.SaveUserNoticeBo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.dto.app.order.logistics.SynQueryLogisticsDto;
 import com.chauncy.data.dto.app.order.logistics.TaskRequestDto;
@@ -14,6 +14,7 @@ import com.chauncy.data.vo.app.order.logistics.FindLogicDetailVo;
 import com.chauncy.data.vo.app.order.logistics.LogisticsCodeNumVo;
 import com.chauncy.data.vo.app.order.logistics.NoticeResponseVo;
 import com.chauncy.data.vo.app.order.logistics.SynQueryLogisticsVo;
+import com.chauncy.message.interact.service.IMmUserNoticeService;
 import com.chauncy.order.logistics.IOmOrderLogisticsService;
 import com.chauncy.order.service.IOmOrderService;
 import io.swagger.annotations.ApiOperation;
@@ -46,6 +47,9 @@ public class OmOrderLogisticsApi extends BaseApi {
     private IOmOrderLogisticsService service;
 
     @Autowired
+    private IMmUserNoticeService mmUserNoticeService;
+
+    @Autowired
     private IOmOrderService orderService;
 
     /**
@@ -71,6 +75,12 @@ public class OmOrderLogisticsApi extends BaseApi {
             TaskResponseBo taskResponseBo = service.subscribleLogistics(taskRequestDto);
 
             if (taskResponseBo.getResult()){
+
+                //订单发货成功  发送APP内消息给用户
+                SaveUserNoticeBo saveUserNoticeBo = new SaveUserNoticeBo();
+                saveUserNoticeBo.setOrderId(queryOrder.getId());
+                mmUserNoticeService.saveUserNotice(NoticeTitleEnum.SHIPPED.name(), saveUserNoticeBo);
+
                 return setJsonViewData(ResultCode.SUCCESS,taskResponseBo.getMessage());
             }else{
                 return setJsonViewData(ResultCode.FAIL,taskResponseBo.getMessage());

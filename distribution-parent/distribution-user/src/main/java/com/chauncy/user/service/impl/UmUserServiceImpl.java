@@ -6,6 +6,9 @@ import com.chauncy.common.constant.Constants;
 import com.chauncy.common.constant.RabbitConstants;
 import com.chauncy.common.enums.log.AccountTypeEnum;
 import com.chauncy.common.enums.log.LogTriggerEventEnum;
+import com.chauncy.common.enums.message.NoticeContentEnum;
+import com.chauncy.common.enums.message.NoticeTitleEnum;
+import com.chauncy.common.enums.message.NoticeTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.enums.user.ValidCodeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
@@ -18,6 +21,7 @@ import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.message.information.comment.MmInformationCommentPo;
 import com.chauncy.data.domain.po.message.information.rel.MmInformationLikedPo;
 import com.chauncy.data.domain.po.message.interact.MmFeedBackPo;
+import com.chauncy.data.domain.po.message.interact.MmUserNoticePo;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.domain.po.user.UmRelUserLabelPo;
@@ -32,6 +36,7 @@ import com.chauncy.data.mapper.message.advice.MmAdviceMapper;
 import com.chauncy.data.mapper.message.information.comment.MmInformationCommentMapper;
 import com.chauncy.data.mapper.message.information.rel.MmInformationLikedMapper;
 import com.chauncy.data.mapper.message.interact.MmFeedBackMapper;
+import com.chauncy.data.mapper.message.interact.MmUserNoticeMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.mapper.user.UmRelUserLabelMapper;
@@ -55,6 +60,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -86,6 +92,8 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     private SmStoreMapper smStoreMapper;
     @Autowired
     private MmFeedBackMapper feedBackMapper;
+    @Autowired
+    private MmUserNoticeMapper mmUserNoticeMapper;
 
     @Autowired
     private MmInformationLikedMapper informationLikedMapper;
@@ -375,6 +383,14 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
             UmUserPo updateUser = new UmUserPo();
             updateUser.setId(userId).setMemberLevelId(memberLevelId).setLevel(nextLevel.getLevel()-1);
             mapper.updateById(updateUser);
+
+            //会员升级  发送APP内消息中心推送
+            MmUserNoticePo mmUserNoticePo = new MmUserNoticePo();
+            mmUserNoticePo.setUserId(userId)
+                    .setNoticeType(NoticeTypeEnum.TASK_REWARD.getId())
+                    .setTitle(NoticeTitleEnum.UPGRADE.getName())
+                    .setContent(MessageFormat.format(NoticeContentEnum.UPGRADE.getName(), nextLevel.getLevel()-1));
+            mmUserNoticeMapper.insert(mmUserNoticePo);
         }
 
     }

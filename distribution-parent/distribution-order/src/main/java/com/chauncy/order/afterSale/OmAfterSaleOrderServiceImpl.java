@@ -9,6 +9,9 @@ import com.chauncy.common.enums.app.order.afterSale.AfterSaleLogEnum;
 import com.chauncy.common.enums.app.order.afterSale.AfterSaleStatusEnum;
 import com.chauncy.common.enums.app.order.afterSale.AfterSaleTypeEnum;
 import com.chauncy.common.enums.log.LogTriggerEventEnum;
+import com.chauncy.common.enums.message.NoticeContentEnum;
+import com.chauncy.common.enums.message.NoticeTitleEnum;
+import com.chauncy.common.enums.message.NoticeTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
@@ -18,6 +21,7 @@ import com.chauncy.data.bo.app.order.rabbit.RabbitAfterBo;
 import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
 import com.chauncy.data.domain.po.afterSale.OmAfterSaleLogPo;
 import com.chauncy.data.domain.po.afterSale.OmAfterSaleOrderPo;
+import com.chauncy.data.domain.po.message.interact.MmUserNoticePo;
 import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
@@ -32,6 +36,7 @@ import com.chauncy.data.dto.manage.order.afterSale.SearchAfterSaleOrderDto;
 import com.chauncy.data.mapper.afterSale.OmAfterSaleLogMapper;
 import com.chauncy.data.mapper.afterSale.OmAfterSaleOrderMapper;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.mapper.message.interact.MmUserNoticeMapper;
 import com.chauncy.data.mapper.order.OmGoodsTempMapper;
 import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.mapper.pay.IPayOrderMapper;
@@ -56,6 +61,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -74,6 +80,9 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
 
     @Autowired
     private OmAfterSaleOrderMapper mapper;
+
+    @Autowired
+    private MmUserNoticeMapper mmUserNoticeMapper;
 
     @Autowired
     private OmGoodsTempMapper goodsTempMapper;
@@ -355,6 +364,17 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         //listenerOrderLogQueue 消息队列
         this.rabbitTemplate.convertAndSend(
                 RabbitConstants.ACCOUNT_LOG_EXCHANGE, RabbitConstants.ACCOUNT_LOG_ROUTING_KEY, addAccountLogBo);
+
+        //交易物流消息  给用户发送APP内消息推送
+        UmUserPo umUserPo = userMapper.selectById(queryAfterSaleOrder.getCreateBy());
+        MmUserNoticePo mmUserNoticePo = new MmUserNoticePo();
+        mmUserNoticePo.setUserId(Long.valueOf(queryAfterSaleOrder.getCreateBy()))
+                .setNoticeType(NoticeTypeEnum.EXPRESS_LOGISTICS.getId())
+                .setTitle(NoticeTitleEnum.REFUND_SUCCESSFUL.getName())
+                .setContent(MessageFormat.format(NoticeContentEnum.REFUND_SUCCESSFUL.getName(),
+                        umUserPo.getName(), queryAfterSaleOrder.getId()));
+        mmUserNoticeMapper.insert(mmUserNoticePo);
+
     }
 
     @Override

@@ -2,12 +2,8 @@ package com.chauncy.message.information.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.chauncy.common.enums.app.sort.SortFileEnum;
-import com.chauncy.common.enums.app.sort.SortWayEnum;
 import com.chauncy.common.enums.common.VerifyStatusEnum;
-import com.chauncy.common.enums.goods.StoreGoodsListTypeEnum;
 import com.chauncy.common.enums.message.InformationTypeEnum;
-import com.chauncy.common.enums.message.KeyWordTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.RelativeDateFormatUtil;
@@ -16,14 +12,10 @@ import com.chauncy.data.domain.po.message.information.MmUserInformationTimePo;
 import com.chauncy.data.domain.po.message.information.rel.MmInformationForwardPo;
 import com.chauncy.data.domain.po.message.information.rel.MmInformationLikedPo;
 import com.chauncy.data.domain.po.message.information.rel.MmRelInformationGoodsPo;
-import com.chauncy.data.domain.po.product.PmShippingTemplatePo;
-import com.chauncy.data.domain.po.store.rel.SmRelStoreAttributePo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
-import com.chauncy.data.domain.po.user.UmUserFavoritesPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.message.information.select.FindInfoParamDto;
 import com.chauncy.data.dto.app.message.information.select.SearchInfoByConditionDto;
-import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.base.BaseSearchPagingDto;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.information.add.InformationDto;
@@ -38,13 +30,12 @@ import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.user.UmUserFavoritesMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
-import com.chauncy.data.vo.app.component.ScreenGoodsParamVo;
 import com.chauncy.data.vo.app.component.ScreenInfoParamVo;
 import com.chauncy.data.vo.app.component.ScreenParamVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
 import com.chauncy.data.vo.app.message.information.InformationBaseVo;
 import com.chauncy.data.vo.app.message.information.InformationPagingVo;
-import com.chauncy.data.vo.app.message.information.InformationStoreInfoVo;
+import com.chauncy.data.vo.manage.message.information.InformationContentVo;
 import com.chauncy.data.vo.manage.message.information.InformationPageInfoVo;
 import com.chauncy.data.vo.manage.message.information.InformationVo;
 import com.chauncy.data.vo.supplier.good.InformationRelGoodsVo;
@@ -55,7 +46,6 @@ import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -102,6 +92,38 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
 
     @Autowired
     private SecurityUtil securityUtil;
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/21 23:44
+     * @Description 根据资讯id查询资讯信息
+     *
+     * @Update yeJH
+     *
+     * @param  infoId 资讯id
+     * @return com.chauncy.data.vo.manage.message.information.InformationContentVo
+     **/
+    @Override
+    public InformationContentVo getBaseInformation(Long infoId) {
+
+        MmInformationPo mmInformationPo = mmInformationMapper.selectById(infoId);
+        if(null == mmInformationPo) {
+            throw new ServiceException(ResultCode.NO_EXISTS);
+        }
+
+        InformationContentVo informationContentVo = mmInformationMapper.getBaseInformation(infoId);
+        if (null == informationContentVo) {
+            return new InformationContentVo();
+        } else {
+            //资讯图片
+            List<String> coverImages = Splitter.on(",").omitEmptyStrings()
+                    .splitToList(informationContentVo.getCoverImage());
+            informationContentVo.setCoverImages(coverImages);
+            return informationContentVo;
+        }
+
+
+    }
 
     /**
      * 保存资讯

@@ -1,9 +1,12 @@
 package com.chauncy.web.api.supplier.order.afterSale;
 
 
+import com.chauncy.common.enums.message.NoticeTitleEnum;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.bo.app.message.SaveUserNoticeBo;
 import com.chauncy.data.dto.manage.order.afterSale.OperateAfterSaleDto;
 import com.chauncy.data.vo.JsonViewData;
+import com.chauncy.message.interact.service.IMmUserNoticeService;
 import com.chauncy.order.afterSale.IOmAfterSaleOrderService;
 import com.chauncy.order.pay.IWxService;
 import com.chauncy.security.util.SecurityUtil;
@@ -33,6 +36,9 @@ public class OmAfterSaleOrderApi extends BaseApi {
 
     @Autowired
     private IOmAfterSaleOrderService afterSaleOrderService;
+
+    @Autowired
+    private IMmUserNoticeService mmUserNoticeService;
 
     @Autowired
     private IWxService wxService;
@@ -81,6 +87,10 @@ public class OmAfterSaleOrderApi extends BaseApi {
             //确认退货
             case PERMIT_RETURN_GOODS:
                 afterSaleOrderService.permitReturnGoods(operateAfterSaleDto.getAfterSaleOrderId(),false);
+                //商家同意售后  发送APP内消息给用户
+                SaveUserNoticeBo saveUserNoticeBo = new SaveUserNoticeBo();
+                saveUserNoticeBo.setAfterSaleOrderId(operateAfterSaleDto.getAfterSaleOrderId());
+                mmUserNoticeService.saveUserNotice(NoticeTitleEnum.RETURN_GOODS.getName(), saveUserNoticeBo);
                 break;
             //拒绝退货
             case REFUSE_RETURN_GOODS:

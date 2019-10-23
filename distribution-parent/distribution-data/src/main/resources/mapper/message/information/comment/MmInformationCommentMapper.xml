@@ -55,16 +55,53 @@
         order by mic.create_time asc
     </list>-->
 
+
+    <select id="searchInfoComment" resultType="com.chauncy.data.vo.manage.message.information.comment.InformationCommentVo">
+        SELECT mi.id AS infoId,
+            mic.id AS commentId,
+            mic.`user_id`,
+            uu.`phone`,
+            mi.author,
+            mi.`title`,
+            mic.`content`,
+            mic.`create_time`,
+            mic.`enabled`
+        FROM mm_information_comment mic
+        INNER JOIN mm_information mi ON mic.info_id = mi.id AND mi.`del_flag` = 0
+        INNER JOIN um_user uu ON uu.id = mic.`user_id`
+        <where>
+            mic.del_flag = 0
+            <if test="startTime != null">
+                and date(mic.create_time) <![CDATA[>= ]]>  #{startTime}
+            </if>
+            <if test="endTime != null">
+                and date(mic.create_time) <![CDATA[<= ]]> #{endTime}
+            </if>
+            <if test="userId != null and userId != 0">
+                and uu.id = #{userId}
+            </if>
+            <if test="enabled != null">
+                and mic.enabled = #{enabled}
+            </if>
+        </where>
+        ORDER BY mic.`create_time` DESC
+    </select>
+
     <select id="searchInfoViceComment" resultType="com.chauncy.data.vo.manage.message.information.comment.InformationViceCommentVo">
-        select mic.id, mic.user_id, mic.parent_user_id, mic.create_time, mic.enabled, mic.content, IFNULL(uu.name,su.username) as userName,
-        IFNULL(uu.name,su.avatar) as avatar, IFNULL(puu.name,psu.username) as parentUserName
+        select mic.id as viceId,
+            mic.user_id,
+            mic.parent_user_id,
+            mic.create_time,
+            mic.enabled,
+            mic.content,
+            uu.name as userName,
+            uu.photo as avatar,
+            puu.name as parentUserName
         from mm_information_comment mic
         left join um_user uu on mic.user_id = uu.id
-        left join sys_user su on mic.user_id = su.id
         left join um_user puu on mic.parent_user_id = puu.id
-        left join sys_user psu on mic.parent_user_id = psu.id
         where mic.info_id = #{id} and mic.del_flag = 0
-        order by mic.create_time asc
+        order by mic.create_time DESC
     </select>
 
     <resultMap id="commentBaseResult" type="com.chauncy.data.vo.manage.message.information.comment.InformationMainCommentVo">
@@ -109,12 +146,11 @@
                 AND mcl.del_flag = 0
                 )
             ) as isLiked,
-            IFNULL(uu.name,su.username) as userName,
-            IFNULL(uu.name,su.avatar) as avatar ,
+            uu.name as userName,
+            uu.photo as avatar ,
             'subStep' as type
         from mm_information_comment mic
         left join um_user uu on mic.user_id = uu.id
-        left join sys_user su on mic.user_id = su.id
         left join mm_information_comment mic1 on (mic1.parent_id = mic.id and mic1.enabled = 1 and mic1.del_flag = 0)
         <where>
                 <if test="null != id">
@@ -148,14 +184,12 @@
                 AND mcl.del_flag = 0
                 )
             ) as isLiked,
-            IFNULL(uu.name,su.username) as userName,
-            IFNULL(uu.name,su.avatar) as avatar,
-            IFNULL(puu.name,psu.username) as parentUserName
+            uu.name as userName,
+            uu.photo as avatar,
+            puu.name as parentUserName
         from mm_information_comment mic
         left join um_user uu on mic.user_id = uu.id
-        left join sys_user su on mic.user_id = su.id
         left join um_user puu on mic.parent_user_id = puu.id
-        left join sys_user psu on mic.parent_user_id = psu.id
         where mic.parent_id = #{id} and mic.del_flag = 0
         order by mic.create_time desc
         <choose>
@@ -163,7 +197,7 @@
                 limit 0, 2
             </when>
             <otherwise>
-                limit 2, 100
+                limit 2, 500
             </otherwise>
         </choose>
     </select>
