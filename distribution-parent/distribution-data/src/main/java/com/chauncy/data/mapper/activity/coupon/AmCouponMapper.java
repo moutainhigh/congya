@@ -129,7 +129,8 @@ public interface AmCouponMapper extends IBaseMapper<AmCouponPo> {
      * @return com.chauncy.data.vo.app.activity.coupon.SelectCouponVo
      **/
 
-    List<SelectCouponVo> getSelectCouPonVo(@Param("userId") Long userId,@Param("skuIds") List<Long> skuIds);
+    List<SelectCouponVo> getSelectCouPonVo(@Param("userId") Long userId,@Param("skuIds") List<Long> skuIds,
+    @Param("couponRelUserId") Long couponRelUserId);
 
 
 }

@@ -125,6 +125,13 @@ public interface UmUserMapper extends IBaseMapper<UmUserPo> {
     int updateAdd(UmUserPo userPo);
 
     /**
+     * 用户退回购物券、红包、积分
+     * @param userPo
+     * @return
+     */
+    int returnWallet(UmUserPo userPo);
+
+    /**
      * 根据用户id获取红包赠送比例
      * @param userId
      * @return

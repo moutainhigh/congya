@@ -1,5 +1,6 @@
 package com.chauncy.data.mapper.activity.registration;
 
+import com.chauncy.data.bo.app.activity.IntegralPriceBo;
 import com.chauncy.data.bo.app.car.ActivitySkuBo;
 import com.chauncy.data.bo.app.car.FullDiscountSkuBo;
 import com.chauncy.data.domain.po.activity.registration.AmActivityRelGoodsSkuPo;
@@ -44,5 +45,18 @@ public interface AmActivityRelGoodsSkuMapper extends IBaseMapper<AmActivityRelGo
      **/
 
     List<FullDiscountSkuBo> getFullDiscountSkuBo(@Param("ids") List<Long> ids);
+
+    /**
+     * @Author zhangrt
+     * @Date 2019/10/12 11:03
+     * @Description 根据skuid查出积分商品的销售价和活动价格
+     *
+     * @Update
+     *
+     * @Param [skuId]
+     * @return com.chauncy.data.bo.app.activity.IntegralPriceBo
+     **/
+
+    IntegralPriceBo getIntegralPriceBo(Long skuId);
 
 }

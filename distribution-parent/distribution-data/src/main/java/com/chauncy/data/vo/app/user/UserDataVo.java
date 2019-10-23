@@ -9,7 +9,7 @@ import lombok.experimental.Accessors;
  * @Author zhangrt
  * @Date 2019/7/5 14:20
  **/
-@ApiModel(description = "收货地址详情")
+@ApiModel(description = "用户信息")
 @Data
 @Accessors(chain = true)
 public class UserDataVo {

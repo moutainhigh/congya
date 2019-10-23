@@ -195,11 +195,15 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             shopTicketSoWithCarGoodVo.setId(x.getSkuId());
             shopTicketSoWithCarGoodVoList.add(shopTicketSoWithCarGoodVo);
         });
+        //该支付单使用了多少积分
+        BigDecimal integralInPayOrder=goodsTemps.stream().map(OmGoodsTempPo::getIntegral).reduce(BigDecimal.ZERO,BigDecimal::add);
         goodsSkuMapper.updateStock(shopTicketSoWithCarGoodVoList);
-        //红包与购物券退还
+        //红包、购物券、积分退还
         PayOrderPo queryPayOrder = payOrderMapper.selectById(payOrderId);
         shoppingCartMapper.updateDiscount(BigDecimalUtil.safeMultiply(-1, queryPayOrder.getTotalRedEnvelops()),
-                BigDecimalUtil.safeMultiply(-1, queryPayOrder.getTotalShopTicket()), queryPayOrder.getUmUserId());
+                BigDecimalUtil.safeMultiply(-1, queryPayOrder.getTotalShopTicket()),
+                BigDecimalUtil.safeMultiply(-1, integralInPayOrder),
+                queryPayOrder.getUmUserId());
         return true;
     }
 
@@ -231,10 +235,13 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             shopTicketSoWithCarGoodVoList.add(shopTicketSoWithCarGoodVo);
         });
         goodsSkuMapper.updateStock(shopTicketSoWithCarGoodVoList);
-
-        //购物券和红包加回去
+        //该订单使用了多少积分
+        BigDecimal integralInOrder=goodsTemps.stream().map(OmGoodsTempPo::getIntegral).reduce(BigDecimal.ZERO,BigDecimal::add);
+        //购物券、红包、积分加回去
         shoppingCartMapper.updateDiscount(BigDecimalUtil.safeMultiply(-1, orderPo.getRedEnvelops()),
-                BigDecimalUtil.safeMultiply(-1, orderPo.getShopTicket()), orderPo.getUmUserId());
+                BigDecimalUtil.safeMultiply(-1, orderPo.getShopTicket()),
+                BigDecimalUtil.safeMultiply(-1, integralInOrder),
+                orderPo.getUmUserId());
         return true;
     }
 
@@ -493,9 +500,28 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         updateOrder.setId(queryOrder.getId());
         mapper.updateById(updateOrder);
 
+        QueryWrapper<OmGoodsTempPo> queryWrapper=new QueryWrapper<>();
+        queryWrapper.lambda().eq(OmGoodsTempPo::getOrderId,orderId);
+        List<OmGoodsTempPo> queryGoodsTemps = goodsTempMapper.selectList(queryWrapper);
+        BigDecimal sumIntegralInOrder=queryGoodsTemps.stream().map(OmGoodsTempPo::getIntegral).reduce(BigDecimal.ZERO,BigDecimal::add);
+
         SubmitOrderVo submitOrderVo=new SubmitOrderVo();
         submitOrderVo.setPayOrderId(savePayOrderPo.getId()).setTotalRealPayMoney(queryOrder.getRealMoney())
-                .setTotalIntegral(BigDecimal.ZERO).setTotalShopTicket(queryOrder.getShopTicket()).setTotalRedEnvelops(queryOrder.getRedEnvelops());
+                .setTotalIntegral(sumIntegralInOrder).setTotalShopTicket(queryOrder.getShopTicket()).setTotalRedEnvelops(queryOrder.getRedEnvelops());
+
+        BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
+
+        //过期时间
+        String expireTime = basicSettingPo.getAutoCloseOrderDay() * 24 * 60 * 60 * 1000 + "";
+
+        // 添加延时取消订单队列
+        this.rabbitTemplate.convertAndSend(RabbitConstants.ORDER_UNPAID_DELAY_EXCHANGE, RabbitConstants.DELAY_ROUTING_KEY, savePayOrderPo.getId(), message -> {
+
+            // message.getMessageProperties().setExpiration(basicSettingPo.getAutoCloseOrderDay()*24*60*60*1000 + "");
+            message.getMessageProperties().setExpiration(expireTime);
+            return message;
+        });
+        LoggerUtil.info("【下单等待取消订单发送时间】:" + LocalDateTime.now());
 
         return submitOrderVo;
     }

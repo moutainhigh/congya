@@ -51,6 +51,7 @@ public interface OmShoppingCartMapper extends IBaseMapper<OmShoppingCartPo> {
      * @return
      */
     int updateDiscount(@Param("redEnvelops") BigDecimal redEnvelops,@Param("shopTicket") BigDecimal shopTicket,
+    @Param("integral") BigDecimal integral,
     @Param("id") Long id
     );
 

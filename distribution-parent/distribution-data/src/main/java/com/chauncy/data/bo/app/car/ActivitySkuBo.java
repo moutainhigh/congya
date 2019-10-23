@@ -34,6 +34,8 @@ public class ActivitySkuBo {
     @ApiModelProperty(value = "购买上限")
     private Integer buyLimit;
 
+    private BigDecimal sellPrice;
+
     @ApiModelProperty(value = "活动价格")
     private BigDecimal activityPrice;
 

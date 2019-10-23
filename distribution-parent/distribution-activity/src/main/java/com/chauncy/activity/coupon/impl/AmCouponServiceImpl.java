@@ -16,6 +16,7 @@ import com.chauncy.data.domain.po.activity.coupon.AmCouponRelCouponUserPo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.product.PmGoodsSkuPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.coupon.CanUseCouponListDto;
 import com.chauncy.data.dto.base.BasePageDto;
@@ -30,6 +31,7 @@ import com.chauncy.data.mapper.activity.coupon.AmCouponRelCouponUserMapper;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
+import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.app.activity.coupon.SelectCouponVo;
 import com.chauncy.data.vo.manage.activity.coupon.*;
@@ -84,6 +86,9 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
 
     @Autowired
     private PmGoodsCategoryMapper categoryMapper;
+
+    @Autowired
+    private PmMemberLevelMapper levelMapper;
 
     /**
      * 保存优惠券--添加或者修改
@@ -642,7 +647,7 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
         List<Long> skuIds=canUseCouponListDtos.stream().map(CanUseCouponListDto::getSkuId).collect(Collectors.toList());
 
         UmUserPo appCurrUser = securityUtil.getAppCurrUser();
-        List<SelectCouponVo> querySelectCouponVoList = mapper.getSelectCouPonVo(appCurrUser.getId(), skuIds);
+        List<SelectCouponVo> querySelectCouponVoList = mapper.getSelectCouPonVo(appCurrUser.getId(), skuIds,null);
         //sku对应的数量
         querySelectCouponVoList.forEach(x -> {
             //为查询后的id匹配上用户下单的数量
@@ -653,25 +658,23 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
         }
         //算出满足满减优惠的优惠券
         List<SelectCouponVo> selectCouponVoList= com.google.common.collect.Lists.newArrayList();
-        Map<Long, List<SelectCouponVo>> map = querySelectCouponVoList.stream().collect(Collectors.groupingBy(SelectCouponVo::getCouponId));
+        Map<Long, List<SelectCouponVo>> map = querySelectCouponVoList.stream().collect(Collectors.groupingBy(SelectCouponVo::getCouponRelUserId));
         for (Map.Entry<Long, List<SelectCouponVo>> entry : map.entrySet()) {
-            Long couponId = entry.getKey();
+
+            Long couponRelUserId = entry.getKey();
             List<SelectCouponVo> selectCouponVos =entry.getValue();
+            //会员id
+            Long levelId = selectCouponVos.get(0).getLevelId();
+            PmMemberLevelPo queryLevel = levelMapper.selectById(levelId);
+            //如果用户等级不够，不能用优惠券
+            if (queryLevel.getLevel()>appCurrUser.getLevel()){
+                continue;
+            }
             Integer type = selectCouponVos.get(0).getType();
             BigDecimal discountFullMoney = selectCouponVos.get(0).getDiscountFullMoney();
             BigDecimal reductionFullMoney = selectCouponVos.get(0).getReductionFullMoney();
-            // 过滤去重
-            List<Long> skuIdList=Lists.newArrayList();
-            //重复的sku去掉，可能会出现用户拥有两张一样的优惠券
-            List<SelectCouponVo> unionSelectCouponVos = selectCouponVos.stream().filter(
-                    v -> {
-                        boolean flag = !skuIdList.contains(v.getSkuId());
-                        skuIdList.add(v.getSkuId());
-                        return flag;
-                    }
-            ).collect(Collectors.toList());
             //使用同一优惠券商品的总销售价
-            BigDecimal totalPrice = unionSelectCouponVos.stream().map(x->BigDecimalUtil.safeMultiply(x.getNumber(),x.getSellPrice())).reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal totalPrice = selectCouponVos.stream().map(x->BigDecimalUtil.safeMultiply(x.getNumber(),x.getSellPrice())).reduce(BigDecimal.ZERO, BigDecimal::add);
             //满减
             if (CouponFormEnum.WITH_PREFERENTIAL_REDUCTION.getId().equals(type)){
                 //不满足满减条件

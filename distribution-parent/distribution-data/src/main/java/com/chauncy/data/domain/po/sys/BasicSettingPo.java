@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 
 import java.io.Serializable;
 
+import com.chauncy.common.util.BigDecimalUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -124,4 +125,7 @@ public class BasicSettingPo implements Serializable {
 
     @ApiModelProperty(value = "是否显示提现按钮 1-是 0-否")
     private Boolean isShowWithdraw;
+
+    @ApiModelProperty(value = "个人消费得到订单金额%的积分")
+    private BigDecimal ownRewardIntegrate;
 }

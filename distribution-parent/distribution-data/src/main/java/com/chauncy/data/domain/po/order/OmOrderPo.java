@@ -75,7 +75,7 @@ public class OmOrderPo implements Serializable {
     @ApiModelProperty(value = "活动类型0-无 1-秒杀 2-拼团 3-积分 4-满减")
     private Integer activityType;
 
-    @ApiModelProperty(value = "订单总金额，包括运费、税费、商品")
+    @ApiModelProperty(value = "订单总金额，包括运费、税费、商品（活动价格）")
     private BigDecimal totalMoney;
 
     @ApiModelProperty(value = "商品数量")

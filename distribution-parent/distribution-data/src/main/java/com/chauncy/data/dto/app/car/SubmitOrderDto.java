@@ -70,4 +70,8 @@ public class SubmitOrderDto {
     @ApiModelProperty(value = "总订单税费",hidden = true)
     @JSONField(deserialize = false)
     private BigDecimal totalTaxMoney;
+
+    //第二版本
+    @ApiModelProperty(value = "用户使用的优惠券id",hidden = true)
+    private Long couponRelUserId;
 }

@@ -28,4 +28,8 @@ public class SettleDto {
 
     @ApiModelProperty(value = "结算详情")
     private List<SettleAccountsDto> settleAccountsDtos;
+
+    //第二版本
+    @ApiModelProperty(value = "结算时使用用户哪张优惠券")
+    private Long couponRelUserId;
 }

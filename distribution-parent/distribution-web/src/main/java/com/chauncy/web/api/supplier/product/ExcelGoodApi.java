@@ -39,6 +39,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -54,7 +55,7 @@ import java.util.stream.Collectors;
 public class ExcelGoodApi extends BaseApi {
 
     //导入商品基本属性的列数
-    private final int BASE_GOOD_ROW_NUMBER = 18;
+    private final int BASE_GOOD_ROW_NUMBER = 17;
 
     //导入商品基本属性的列数
     private final int BASE_SKU_NUMBER = 7;
@@ -224,7 +225,7 @@ public class ExcelGoodApi extends BaseApi {
                 continue;
             }
             //商品分类
-            PmGoodsCategoryPo categoryCondition = new PmGoodsCategoryPo(rowDataList.get(0), 3);
+            PmGoodsCategoryPo categoryCondition = new PmGoodsCategoryPo(rowDataList.get(0), 3,true);
             Wrapper categoryPoWrapper = new QueryWrapper<>(categoryCondition, "id");
             PmGoodsCategoryPo categoryPo = categoryService.getOne(categoryPoWrapper);
             if (categoryPo == null) {
@@ -234,7 +235,7 @@ public class ExcelGoodApi extends BaseApi {
                 continue;
             }
             //商品品牌
-            PmGoodsAttributePo brandCondition = new PmGoodsAttributePo(rowDataList.get(5), 8);
+            PmGoodsAttributePo brandCondition = new PmGoodsAttributePo(rowDataList.get(5), 8,true);
             Wrapper brandWrapper = new QueryWrapper<>(brandCondition, "id");
             PmGoodsAttributePo brand = attributePoService.getOne(brandWrapper);
             if (brand == null) {
@@ -270,7 +271,12 @@ public class ExcelGoodApi extends BaseApi {
                 serviceIds = categoryService.findAttributeIdsByNamesAndCategoryId(serviceNames, 1, categoryPo.getId());
             } else {
                 serviceNames = Splitter.on(";").omitEmptyStrings().splitToList(rowDataList.get(10));
-                serviceIds = categoryService.findAttributeIdsByNamesAndCategoryId(serviceNames, 2, categoryPo.getId());
+                QueryWrapper<PmGoodsAttributePo> attributePoQueryWrapper=new QueryWrapper<>();
+                attributePoQueryWrapper.lambda().in(PmGoodsAttributePo::getName,serviceNames).
+                        eq(PmGoodsAttributePo::getEnabled,true);
+                List<PmGoodsAttributePo> queryGoodsAttributes = attributePoService.list(attributePoQueryWrapper);
+                serviceIds = queryGoodsAttributes.stream().map(PmGoodsAttributePo::getId).collect(Collectors.toList());
+
             }
             if (ListUtil.isListNullAndEmpty(serviceIds)) {
                 excelImportErrorLogVo.setRowNumber(i + 1);
@@ -319,8 +325,11 @@ public class ExcelGoodApi extends BaseApi {
                 continue;
             }
 
-            List<Long> goodIds = Splitter.on(";").trimResults().omitEmptyStrings().splitToList(rowDataList.get(17))
-                    .stream().map(x -> Long.parseLong(x)).collect(Collectors.toList());
+            List<Long> goodIds =new ArrayList<>();
+            if (rowDataList.size()>=18){
+                goodIds=Splitter.on(";").trimResults().omitEmptyStrings().splitToList(rowDataList.get(17))
+                        .stream().map(x -> Long.parseLong(x)).collect(Collectors.toList());
+            }
 
             //保存商品表
             PmGoodsPo saveGoodPo = new PmGoodsPo();

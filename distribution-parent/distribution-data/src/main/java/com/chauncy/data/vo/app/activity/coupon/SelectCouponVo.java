@@ -16,6 +16,13 @@ import java.time.LocalDateTime;
 @ApiModel(description = "选择优惠券列表")
 public class SelectCouponVo {
 
+    @ApiModelProperty(value = "用户的优惠券id")
+    private Long couponRelUserId;
+
+    @ApiModelProperty(value = "会员等级",hidden = true)
+    @JSONField(serialize = false)
+    private Long levelId;
+
     @ApiModelProperty(value = "skuId",hidden = true)
     @JSONField(serialize = false)
     private Long skuId;

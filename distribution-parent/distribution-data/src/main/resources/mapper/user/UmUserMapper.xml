@@ -101,6 +101,24 @@
     <update id="updateLogin">
              update um_user   set login_times=login_times+1,recent_login_time=now() where phone=#{phone}
     </update>
+    <update id="returnWallet">
+        UPDATE `um_user`
+        SET
+
+        <if test="currentRedEnvelops!=null">
+            `current_red_envelops` = current_red_envelops+#{currentRedEnvelops},
+        </if>
+        <if test="currentIntegral!=null">
+            `current_integral` = current_integral+#{currentIntegral},
+        </if>
+        <if test="currentShopTicket!=null">
+            `current_shop_ticket` =current_shop_ticket+ #{currentShopTicket},
+        </if>
+
+        id=#{id}
+        WHERE
+        `id` = #{id};
+    </update>
     <select id="loadSearchUserList" resultType="com.chauncy.data.vo.manage.user.list.UmUserListVo">
         SELECT
         u.id,
