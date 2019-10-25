@@ -69,7 +69,7 @@ public class MmInformationCommentServiceImpl extends AbstractService<MmInformati
 
         PageInfo<InformationCommentVo> informationCommentVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> mmInformationCommentMapper.searchInfoComment(searchInfoCommentDto));
-        return informationCommentVoPageInfo;
+        return informationCommentVoPageInfo ;
 
     }
 
