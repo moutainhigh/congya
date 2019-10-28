@@ -56,9 +56,9 @@ public class JasyptUtil {
     public static void main(String[] args){
 
         //加密
+        System.out.println(encyptPwd("congya2019","w+.8?2267"));
         System.out.println(encyptPwd("congya2019","admin"));
-        System.out.println(encyptPwd("congya2019","admin"));
-        System.out.println(encyptPwd("congya2019","admin"));
+        System.out.println(encyptPwd("congya2019","admins"));
         //解密
         System.out.println(decyptPwd("congya2019","I/RglyglQQM961R19e0FFw=="));
 
