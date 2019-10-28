@@ -24,7 +24,8 @@ public enum OrderStatusEnum implements BaseEnum {
     NEED_USE(5,"待使用"),
     ALREADY_CANCEL(6,"已取消"),
     WAIT_WRITE_OFF(7,"待核销"),
-    FINISH(8,"已完成");
+    FINISH(8,"已完成"),
+    FINISH_PAY(9,"已付款");
 
     @EnumValue
     private final Integer id;

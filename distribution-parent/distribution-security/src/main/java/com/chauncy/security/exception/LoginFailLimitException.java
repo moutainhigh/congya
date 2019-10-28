@@ -13,6 +13,7 @@ import org.springframework.security.authentication.InternalAuthenticationService
 @Data
 public class LoginFailLimitException extends InternalAuthenticationServiceException {
 
+
     private String msg;
 
     public LoginFailLimitException(String msg){

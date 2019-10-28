@@ -1,5 +1,6 @@
 package com.chauncy.data.mapper.activity.registration;
 
+import com.chauncy.data.bo.app.activity.GroupStockBo;
 import com.chauncy.data.bo.app.activity.IntegralPriceBo;
 import com.chauncy.data.bo.app.car.ActivitySkuBo;
 import com.chauncy.data.bo.app.car.FullDiscountSkuBo;
@@ -58,5 +59,31 @@ public interface AmActivityRelGoodsSkuMapper extends IBaseMapper<AmActivityRelGo
      **/
 
     IntegralPriceBo getIntegralPriceBo(Long skuId);
+
+
+    int updateStock(@Param("list") List<ActivitySkuBo> activitySkuBos);
+
+    List<GroupStockBo> getGroupStockBo(Long mainId);
+
+    GroupStockBo getGroupStockBoByMemberId(Long memberId);
+
+
+    int addStockInActivityStock(GroupStockBo groupStockBo);
+    int addSaleVolumeInActivityStock(GroupStockBo groupStockBo);
+
+
+    /**
+     * @Author zhangrt
+     * @Date 2019/10/26 0:54
+     * @Description  根据评团成员id修改
+     *
+     * @Update
+     *
+     * @Param [groupStockBo]
+     * @return int
+     **/
+
+    int addStockInActivityStockByMemberId(GroupStockBo groupStockBo);
+
 
 }

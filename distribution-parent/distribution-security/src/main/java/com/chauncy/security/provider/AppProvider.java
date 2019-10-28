@@ -104,7 +104,7 @@ public class AppProvider implements AuthenticationProvider {
                 thirdCondition.setUnionId(unionId);
                 UmUserPo thirdQueryUser = umUserService.getOne(new QueryWrapper<>(thirdCondition));
                 if (thirdQueryUser==null){
-                    throw new LoginFailLimitException("该用户尚未注册，请先完成手机验证注册！");
+                    throw new LoginFailLimitException("该用户尚未注册，请先完成手机验证注册!");
                 }
                 if (!thirdQueryUser.getEnabled()){
                     throw new LockedException("该账户已被禁用！");

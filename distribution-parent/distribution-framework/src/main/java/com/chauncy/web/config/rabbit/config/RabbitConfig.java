@@ -336,4 +336,107 @@ public class RabbitConfig {
     }
 
 
+
+    @Bean
+    public Queue openGroupQueue() {
+        //死信队列
+        Map<String, Object> params = new HashMap<>();
+        params.put("x-dead-letter-exchange", RabbitConstants.CLOSE_GROUP_EXCHANGE);
+        params.put("x-dead-letter-routing-key", RabbitConstants.CLOSE_GROUP_ROUTING_KEY);
+        return new Queue(RabbitConstants.OPEN_GROUP_DELAY_QUEUE, true, false, false, params);
+    }
+
+    @Bean
+    public DirectExchange openGroupExchange() {
+        //死信交换机
+        return new DirectExchange(RabbitConstants.OPEN_GROUP_DELAY_EXCHANGE);
+    }
+
+    @Bean
+    public Binding dlxOpenGroupBinding() {
+        return BindingBuilder.bind(openGroupQueue()).to(openGroupExchange()).with(RabbitConstants.OPEN_GROUP_DELAY_ROUTING_KEY);
+    }
+
+
+    /**
+     * 转发队列
+     * @return
+     */
+    @Bean
+    public Queue closeGroupQueue() {
+        return new Queue(RabbitConstants.CLOSE_GROUP_QUEUE, true);
+    }
+
+    /**
+     * 死信转发的交换机
+     * @return
+     */
+    @Bean
+    public TopicExchange closeGroupExchange() {
+        return new TopicExchange(RabbitConstants.CLOSE_GROUP_EXCHANGE);
+    }
+
+    /**
+     * 死信交换机与队列绑定
+     * @return
+     */
+    @Bean
+    public Binding closeGroupBinding() {
+        return BindingBuilder.bind(closeGroupQueue()).
+                to(closeGroupExchange()).with(RabbitConstants.CLOSE_GROUP_ROUTING_KEY);
+    }
+
+
+
+    @Bean
+    public Queue addMemberQueue() {
+        //死信队列
+        Map<String, Object> params = new HashMap<>();
+        params.put("x-dead-letter-exchange", RabbitConstants.DEL_MEMBER_EXCHANGE);
+        params.put("x-dead-letter-routing-key", RabbitConstants.DEL_MEMBER_ROUTING_KEY);
+        return new Queue(RabbitConstants.ADD_MEMBER_DELAY_QUEUE, true, false, false, params);
+    }
+
+    @Bean
+    public DirectExchange addMemberExchange() {
+        //死信交换机
+        return new DirectExchange(RabbitConstants.ADD_MEMBER__DELAY_EXCHANGE);
+    }
+
+    @Bean
+    public Binding dlxAddMemberBinding() {
+        return BindingBuilder.bind(addMemberQueue()).to(addMemberExchange()).with(RabbitConstants.ADD_MEMBER_DELAY_ROUTING_KEY);
+    }
+
+
+    /**
+     * 转发队列
+     * @return
+     */
+    @Bean
+    public Queue delMemberQueue() {
+        return new Queue(RabbitConstants.DEL_MEMBER_QUEUE, true);
+    }
+
+    /**
+     * 死信转发的交换机
+     * @return
+     */
+    @Bean
+    public TopicExchange delMemberExchange() {
+        return new TopicExchange(RabbitConstants.DEL_MEMBER_EXCHANGE);
+    }
+
+    /**
+     * 死信交换机与队列绑定
+     * @return
+     */
+    @Bean
+    public Binding delMemberBinding() {
+        return BindingBuilder.bind(delMemberQueue()).
+                to(delMemberExchange()).with(RabbitConstants.DEL_MEMBER_ROUTING_KEY);
+    }
+
+
+
 }

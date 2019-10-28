@@ -72,6 +72,13 @@ public class SubmitOrderDto {
     private BigDecimal totalTaxMoney;
 
     //第二版本
-    @ApiModelProperty(value = "用户使用的优惠券id",hidden = true)
+    @ApiModelProperty(value = "用户使用的优惠券id")
     private Long couponRelUserId;
+
+    @ApiModelProperty(value = "是否拼团")
+    private Boolean isGroup;
+
+    @ApiModelProperty(value = "参加拼团id,自己发起新团时该字段为空")
+    @NeedExistConstraint(tableName = "am_spell_group_main")
+    private Long mainId;
 }

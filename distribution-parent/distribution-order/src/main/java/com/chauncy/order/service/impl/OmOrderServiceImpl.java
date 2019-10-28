@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chauncy.common.constant.RabbitConstants;
+import com.chauncy.common.enums.app.activity.SpellGroupMainStatusEnum;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.common.enums.app.order.PayOrderStatusEnum;
 import com.chauncy.common.enums.log.AccountTypeEnum;
@@ -17,6 +18,7 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.*;
 import com.chauncy.common.util.rabbit.RabbitUtil;
+import com.chauncy.data.bo.app.activity.GroupStockBo;
 import com.chauncy.data.bo.app.logistics.LogisticsDataBo;
 import com.chauncy.data.bo.app.order.reward.RewardBuyerBo;
 import com.chauncy.data.bo.app.order.my.OrderRewardBo;
@@ -24,6 +26,8 @@ import com.chauncy.data.bo.app.order.rabbit.RabbitOrderBo;
 import com.chauncy.data.bo.app.order.reward.RewardRedBo;
 import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.activity.spell.AmSpellGroupMainPo;
+import com.chauncy.data.domain.po.activity.spell.AmSpellGroupMemberPo;
 import com.chauncy.data.domain.po.message.interact.MmUserNoticePo;
 import com.chauncy.data.domain.po.order.*;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
@@ -37,6 +41,9 @@ import com.chauncy.data.dto.app.order.store.WriteOffDto;
 import com.chauncy.data.dto.manage.order.select.SearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchOrderDto;
 import com.chauncy.data.dto.supplier.order.SmSearchSendOrderDto;
+import com.chauncy.data.mapper.activity.registration.AmActivityRelGoodsSkuMapper;
+import com.chauncy.data.mapper.activity.spell.AmSpellGroupMainMapper;
+import com.chauncy.data.mapper.activity.spell.AmSpellGroupMemberMapper;
 import com.chauncy.data.mapper.message.interact.MmUserNoticeMapper;
 import com.chauncy.data.mapper.order.*;
 import com.chauncy.data.mapper.pay.IPayOrderMapper;
@@ -151,8 +158,18 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     @Autowired
     private PayUserRelationNextLevelMapper payUserRelationNextLevelMapper;
 
+    @Autowired
+    private AmSpellGroupMemberMapper groupMemberMapper;
+
+    @Autowired
+    private AmSpellGroupMainMapper groupMainMapper;
+
+    @Autowired
+    private AmActivityRelGoodsSkuMapper amActivityRelGoodsSkuMapper;
+
     @Value("${jasypt.encryptor.password}")
     private String password;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean closeOrderByPayId(Long payOrderId) {
@@ -196,7 +213,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             shopTicketSoWithCarGoodVoList.add(shopTicketSoWithCarGoodVo);
         });
         //该支付单使用了多少积分
-        BigDecimal integralInPayOrder=goodsTemps.stream().map(OmGoodsTempPo::getIntegral).reduce(BigDecimal.ZERO,BigDecimal::add);
+        BigDecimal integralInPayOrder = goodsTemps.stream().map(OmGoodsTempPo::getIntegral).reduce(BigDecimal.ZERO, BigDecimal::add);
         goodsSkuMapper.updateStock(shopTicketSoWithCarGoodVoList);
         //红包、购物券、积分退还
         PayOrderPo queryPayOrder = payOrderMapper.selectById(payOrderId);
@@ -215,10 +232,13 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         PayOrderPo updatePayOrder = new PayOrderPo();
         updatePayOrder.setId(orderPo.getPayOrderId()).setEnabled(false);
         payOrderMapper.updateById(updatePayOrder);
+
         //订单改状态
-        orderPo.setStatus(OrderStatusEnum.ALREADY_CANCEL);
-        orderPo.setRealMoney(null);
-        orderPo.setCloseTime(LocalDateTime.now());
+        OmOrderPo updateOrder=new OmOrderPo();
+        updateOrder.setId(orderId);
+        updateOrder.setStatus(OrderStatusEnum.ALREADY_CANCEL);
+        updateOrder.setRealMoney(null);
+        updateOrder.setCloseTime(LocalDateTime.now());
         this.updateById(orderPo);
 
         //查找skuid和数量
@@ -236,7 +256,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         });
         goodsSkuMapper.updateStock(shopTicketSoWithCarGoodVoList);
         //该订单使用了多少积分
-        BigDecimal integralInOrder=goodsTemps.stream().map(OmGoodsTempPo::getIntegral).reduce(BigDecimal.ZERO,BigDecimal::add);
+        BigDecimal integralInOrder = goodsTemps.stream().map(OmGoodsTempPo::getIntegral).reduce(BigDecimal.ZERO, BigDecimal::add);
         //购物券、红包、积分加回去
         shoppingCartMapper.updateDiscount(BigDecimalUtil.safeMultiply(-1, orderPo.getRedEnvelops()),
                 BigDecimalUtil.safeMultiply(-1, orderPo.getShopTicket()),
@@ -271,7 +291,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         payOrderService.update(payOrderPoUpdateWrapper);
 
         //付款成功后需要做的操作
-        afterPayDo(payOrderPo.getId()) ;
+        afterPayDo(payOrderPo.getId());
         //1.订单下单流水生成
         UmUserPo umUserPo = userMapper.selectById(payOrderPo.getUmUserId());
         AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
@@ -287,7 +307,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         queryWrapper.lambda()
                 .eq(OmOrderPo::getPayOrderId, payOrderPo.getId())
                 .and(wrapper -> wrapper.eq(OmOrderPo::getGoodsType, GoodsTypeEnum.BONDED.getName())
-                .or().eq(OmOrderPo::getGoodsType, GoodsTypeEnum.OVERSEA.getName()));
+                        .or().eq(OmOrderPo::getGoodsType, GoodsTypeEnum.OVERSEA.getName()));
         List<OmOrderPo> omOrderPoList = mapper.selectList(queryWrapper);
         System.out.println("==================将要海关消息队列了===================");
         System.out.println("=======================================================" + omOrderPoList);
@@ -297,8 +317,8 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                     System.out.println("==================进来海关消息队列了===================");
                     System.out.println("=======================================================" + omOrderPo);
                     //一分钟之后再执行   当前方法未执行完成，订单状态可能未更新
-                    message.getMessageProperties().setExpiration(60*1000 + "");
-                    LoggerUtil.info(String.format("订单支付【%s】发送消息队列时间：",omOrderPo.getId())
+                    message.getMessageProperties().setExpiration(60 * 1000 + "");
+                    LoggerUtil.info(String.format("订单支付【%s】发送消息队列时间：", omOrderPo.getId())
                             + LocalDateTime.now());
                     return message;
                 }));
@@ -317,19 +337,17 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     }
 
     /**
+     * @param payOrderId 支付单id
+     * @param umUserId   用户id
+     * @return void
      * @Author yeJH
      * @Date 2019/10/20 22:09
      * @Description 保存奖励通知消息  支付完成通知订单预计入账积分以及消费券
-     *
      * @Update yeJH
-     *
-     * @param  payOrderId  支付单id
-     * @param  umUserId  用户id
-     * @return void
      **/
     private void saveRewardNotice(Long payOrderId, Long umUserId) {
         OrderRewardBo orderRewardBo = mapper.getOrderRewardByPayId(payOrderId);
-        if(null != orderRewardBo && null != orderRewardBo.getRewardIntegral()) {
+        if (null != orderRewardBo && null != orderRewardBo.getRewardIntegral()) {
             //新增APP消息中心消息  预计入账积分
             MmUserNoticePo mmUserNoticePo = new MmUserNoticePo();
             mmUserNoticePo.setUserId(umUserId)
@@ -338,7 +356,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                     .setContent(MessageFormat.format(NoticeContentEnum.SHOPPING_REWARD.getName(),
                             orderRewardBo.getRewardIntegral(), AccountTypeEnum.SHOP_TICKET.getName()));
             mmUserNoticeMapper.insert(mmUserNoticePo);
-        } else if(null != orderRewardBo && null != orderRewardBo.getRewardShopTicket()) {
+        } else if (null != orderRewardBo && null != orderRewardBo.getRewardShopTicket()) {
             //新增APP消息中心消息  预计入账积分
             MmUserNoticePo mmUserNoticePo = new MmUserNoticePo();
             mmUserNoticePo.setUserId(umUserId)
@@ -390,14 +408,14 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         //获取系统基本设置
         BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
         //多久自动收货(毫秒)
-        String expiration=basicSettingPo.getAutoReceiveDay()*24*60*60*1000+"";
+        String expiration = basicSettingPo.getAutoReceiveDay() * 24 * 60 * 60 * 1000 + "";
 
-        RabbitOrderBo rabbitOrderBo=new RabbitOrderBo();
+        RabbitOrderBo rabbitOrderBo = new RabbitOrderBo();
         rabbitOrderBo.setOrderId(orderId).setOrderStatusEnum(OrderStatusEnum.NEED_RECEIVE_GOODS);
         //添加自动收货的消息队列
         //rabbitUtil.sendDelayMessage(10*60*1000+"",rabbitOrderBo);
-        rabbitUtil.sendDelayMessage(expiration,rabbitOrderBo);
-       // rabbitUtil.sendDelayMessage(expiration+"",rabbitOrderBo);
+        rabbitUtil.sendDelayMessage(expiration, rabbitOrderBo);
+        // rabbitUtil.sendDelayMessage(expiration+"",rabbitOrderBo);
         LoggerUtil.info("【已发货等待自动收货消息发送时间】:" + LocalDateTime.now());
 
     }
@@ -408,10 +426,10 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         //订单基本信息
         OrderDetailVo orderDetailVo = mapper.loadById(id);
         //订单实名认证信息
-        if (orderDetailVo.getRealUserId()!=null){
+        if (orderDetailVo.getRealUserId() != null) {
             OmRealUserPo queryRealUser = realUserMapper.selectById(orderDetailVo.getRealUserId());
             //防止实名认证的创建时间复制过去
-            BeanUtils.copyProperties(queryRealUser,orderDetailVo,"createTime");
+            BeanUtils.copyProperties(queryRealUser, orderDetailVo, "createTime");
         }
         //订单商品信息
         orderDetailVo.setGoodsTempVos(mapper.searchGoodsTempVos(id));
@@ -435,29 +453,28 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     @Override
     public PageInfo<AppSearchOrderVo> searchAppOrder(SearchMyOrderDto searchMyOrderDto) {
         //待核销和已完成是商家的
-        if (searchMyOrderDto.getStatus()!=null&&searchMyOrderDto.getStatus().getId()>=OrderStatusEnum.WAIT_WRITE_OFF.getId()){
+        if (searchMyOrderDto.getStatus() != null &&(searchMyOrderDto.getStatus() == OrderStatusEnum.WAIT_WRITE_OFF ||
+                searchMyOrderDto.getStatus() == OrderStatusEnum.FINISH )) {
             SysUserPo currUser = securityUtil.getCurrUser();
-            boolean isFinish=true;
+            boolean isFinish = true;
             //商家待核销==》未使用 已完成==》待评价、已评价
-            if (searchMyOrderDto.getStatus()==OrderStatusEnum.WAIT_WRITE_OFF){
-                isFinish=false;
+            if (searchMyOrderDto.getStatus() == OrderStatusEnum.WAIT_WRITE_OFF) {
+                isFinish = false;
             }
             boolean finalIsFinish = isFinish;
             PageInfo<AppSearchOrderVo> appSearchOrderVoPageInfo = PageHelper.startPage(searchMyOrderDto.getPageNo(), searchMyOrderDto.getPageSize())
                     .doSelectPageInfo(() -> mapper.searchStoreAppOrder(currUser.getStoreId(), finalIsFinish));
-            if (isFinish){
-                appSearchOrderVoPageInfo.getList().forEach(x->x.setStatus(OrderStatusEnum.FINISH));
-            }
-            else {
-                appSearchOrderVoPageInfo.getList().forEach(x->x.setStatus(OrderStatusEnum.WAIT_WRITE_OFF));
+            if (isFinish) {
+                appSearchOrderVoPageInfo.getList().forEach(x -> x.setStatus(OrderStatusEnum.FINISH));
+            } else {
+                appSearchOrderVoPageInfo.getList().forEach(x -> x.setStatus(OrderStatusEnum.WAIT_WRITE_OFF));
             }
             appSearchOrderVoPageInfo.getList().forEach(x -> {
                 List<SmSendGoodsTempVo> smSendGoodsTempVos = mapper.searchSendGoodsTemp(x.getOrderId());
                 x.setSmSendGoodsTempVos(smSendGoodsTempVos);
             });
             return appSearchOrderVoPageInfo;
-        }
-        else {
+        } else {
             UmUserPo appCurrUser = securityUtil.getAppCurrUser();
             PageInfo<AppSearchOrderVo> appSearchOrderVoPageInfo = PageHelper.startPage(searchMyOrderDto.getPageNo(), searchMyOrderDto.getPageSize())
                     .doSelectPageInfo(() -> mapper.searchAppOrder(appCurrUser.getId(), searchMyOrderDto.getStatus()));
@@ -500,12 +517,12 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         updateOrder.setId(queryOrder.getId());
         mapper.updateById(updateOrder);
 
-        QueryWrapper<OmGoodsTempPo> queryWrapper=new QueryWrapper<>();
-        queryWrapper.lambda().eq(OmGoodsTempPo::getOrderId,orderId);
+        QueryWrapper<OmGoodsTempPo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(OmGoodsTempPo::getOrderId, orderId);
         List<OmGoodsTempPo> queryGoodsTemps = goodsTempMapper.selectList(queryWrapper);
-        BigDecimal sumIntegralInOrder=queryGoodsTemps.stream().map(OmGoodsTempPo::getIntegral).reduce(BigDecimal.ZERO,BigDecimal::add);
+        BigDecimal sumIntegralInOrder = queryGoodsTemps.stream().map(OmGoodsTempPo::getIntegral).reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        SubmitOrderVo submitOrderVo=new SubmitOrderVo();
+        SubmitOrderVo submitOrderVo = new SubmitOrderVo();
         submitOrderVo.setPayOrderId(savePayOrderPo.getId()).setTotalRealPayMoney(queryOrder.getRealMoney())
                 .setTotalIntegral(sumIntegralInOrder).setTotalShopTicket(queryOrder.getShopTicket()).setTotalRedEnvelops(queryOrder.getRedEnvelops());
 
@@ -550,9 +567,9 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         appMyOrderDetailVo.setAppMyOrderDetailStoreVo(appMyOrderDetailStoreVo);
 
         //如果是自取或者服务类的商品就有二维码
-        if (appMyOrderDetailVo.getGoodsType().equals(GoodsTypeEnum.PICK_UP_INSTORE.getName())||
-                appMyOrderDetailVo.getGoodsType().equals(GoodsTypeEnum.SERVICES.getName()) ){
-            appMyOrderDetailVo.setQRCode(JasyptUtil.encyptPwd(password,appMyOrderDetailVo.getOrderId().toString()));
+        if (appMyOrderDetailVo.getGoodsType().equals(GoodsTypeEnum.PICK_UP_INSTORE.getName()) ||
+                appMyOrderDetailVo.getGoodsType().equals(GoodsTypeEnum.SERVICES.getName())) {
+            appMyOrderDetailVo.setQRCode(JasyptUtil.encyptPwd(password, appMyOrderDetailVo.getOrderId().toString()));
 
         }
 
@@ -612,18 +629,70 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         QueryWrapper<OmOrderPo> queryOrderWrapper = new QueryWrapper<>();
         queryOrderWrapper.lambda().eq(OmOrderPo::getPayOrderId, payOrderId);
         List<OmOrderPo> queryOrders = mapper.selectList(queryOrderWrapper);
+        //是否是拼团订单
+        Boolean finalIsGroup=false;
+        //如果拼团成功，为该字段赋值，用于更改
+        Long mainId = null;
+        //一个支付单下只有一个订单才有可能是拼团订单
+        if (queryOrders.size() == 1) {
+            OmOrderPo groupOrder = queryOrders.get(0);
+            QueryWrapper<AmSpellGroupMemberPo> groupMemberPoQueryWrapper = new QueryWrapper<>();
+            groupMemberPoQueryWrapper.lambda().eq(AmSpellGroupMemberPo::getOrderId,groupOrder.getId());
+            AmSpellGroupMemberPo queryGroupMember = groupMemberMapper.selectOne(groupMemberPoQueryWrapper);
+            if (queryGroupMember != null) {
+                finalIsGroup=true;
+                groupMemberMapper.updateById(queryGroupMember.setPayStatus(true));
+                AmSpellGroupMainPo queryMain = groupMainMapper.selectById(queryGroupMember.getGroupMainId());
+                //如果是团长
+                if (queryGroupMember.getIsHead()) {
+                    groupMainMapper.updateById(queryMain.setStatus(SpellGroupMainStatusEnum.SPELL_GROUP.getId())
+                            .setPayedNum(queryMain.getPayedNum() + 1));
+                } else {
+                    //如果是拼团最后一人,表示拼团成功
+                    if (queryMain.getPayedNum() + 1 == queryMain.getConditionNum()){
+                        mainId=queryGroupMember.getGroupMainId();
+                        groupMainMapper.updateById(queryMain.setStatus(SpellGroupMainStatusEnum.SPELL_GROUP_SUCCESS.getId())
+                                .setPayedNum(queryMain.getPayedNum() + 1).setSuccessTime(LocalDateTime.now()));
+                        //增加活动销量
+                        List<GroupStockBo> groupStockBos = amActivityRelGoodsSkuMapper.getGroupStockBo(queryMain.getId());
+                        groupStockBos.forEach(x->{
+                            amActivityRelGoodsSkuMapper.addSaleVolumeInActivityStock(x);
+                        });
+                    }else {
+                        groupMainMapper.updateById(queryMain.setPayedNum(queryMain.getPayedNum() + 1));
+                    }
+                }
+            }
+        }
+        Boolean finalIsGroup1 = finalIsGroup;
         queryOrders.forEach(x -> {
             OmOrderPo updateOrder = new OmOrderPo();
             updateOrder.setId(x.getId()).setPayTime(queryPayOrder.getPayTime());
             //自取与服务类商品没有发货状态
-            if (x.getGoodsType().equals(GoodsTypeEnum.PICK_UP_INSTORE.getName()) ||
-                    x.getGoodsType().equals(GoodsTypeEnum.SERVICES.getName())) {
-                updateOrder.setStatus(OrderStatusEnum.NEED_USE);
-            } else {
-                updateOrder.setStatus(OrderStatusEnum.NEED_SEND_GOODS);
+            if (!finalIsGroup1) {
+                if (x.getGoodsType().equals(GoodsTypeEnum.PICK_UP_INSTORE.getName()) ||
+                        x.getGoodsType().equals(GoodsTypeEnum.SERVICES.getName())) {
+                    updateOrder.setStatus(OrderStatusEnum.NEED_USE);
+                } else {
+                    updateOrder.setStatus(OrderStatusEnum.NEED_SEND_GOODS);
+                }
+            }
+            else {
+                updateOrder.setStatus(OrderStatusEnum.FINISH_PAY);
             }
             mapper.updateById(updateOrder);
         });
+
+        //如果评团成功,所有成功订单更改为待发货
+        if (mainId!=null){
+            List<Long> successOrders = groupMemberMapper.getSuccessOrders(mainId);
+            OmOrderPo updateOrder =new OmOrderPo();
+            updateOrder.setStatus(OrderStatusEnum.FINISH_PAY);
+
+            UpdateWrapper<OmOrderPo> updateWrapper=new UpdateWrapper<>();
+            updateWrapper.lambda().in(OmOrderPo::getId,successOrders);
+            mapper.update(updateOrder,updateWrapper);
+        }
 
         //sku和商品增加销量
         QueryWrapper<OmGoodsTempPo> queryGoodsTempWrapper = new QueryWrapper<>();
@@ -638,19 +707,17 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     }
 
     /**
+     * @return void
      * @Author yeJH
      * @Date 2019/9/21 14:37
      * @Description 售后时间关闭   订单返佣
      * 返佣的流水分两种  分配给下单用户本人的是购物奖励  分配给下单用户之外的人是好友助攻 此处是购物奖励
      * 只有积分，购物券有购物奖励
-     *
      * @Update yeJH
-     *
-     * @Param   relId 关联订单id
-     * @Param   umUserId  获得流水用户
-     * @Param   integrate  获得积分
-     * @Param   shopTicket  获得购物券
-     * @return void
+     * @Param relId 关联订单id
+     * @Param umUserId  获得流水用户
+     * @Param integrate  获得积分
+     * @Param shopTicket  获得购物券
      **/
     private void addShoppingRewardLog(Long relId, Long umUserId, BigDecimal integrate, BigDecimal shopTicket) {
         //返佣的流水分两种  分配给下单用户本人的是购物奖励  分配给下单用户之外的人是好友助攻 此处是购物奖励
@@ -668,19 +735,17 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     }
 
     /**
+     * @return void
      * @Author yeJH
      * @Date 2019/9/21 14:37
      * @Description 售后时间关闭   订单返佣
      * 返佣的流水分两种  分配给下单用户本人的是购物奖励  分配给下单用户之外的人是好友助攻 此处是购物奖励
      * 只有积分，红包有好友助攻
-     *
      * @Update yeJH
-     *
-     * @Param   relId 关联订单id
-     * @Param   umUserId  获得流水用户
-     * @Param   redEnvelops  红包
-     * @Param   integrate  积分
-     * @return void
+     * @Param relId 关联订单id
+     * @Param umUserId  获得流水用户
+     * @Param redEnvelops  红包
+     * @Param integrate  积分
      **/
     private void addFriendsAssistLog(Long relId, Long umUserId, BigDecimal integrate, BigDecimal redEnvelops) {
         //返佣的流水分两种  红包的是好友助攻  积分购物券的是购物奖励 此处是好友助攻
@@ -699,6 +764,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
     /**
      * 根据商品快照返佣
+     *
      * @param goodsTempId 商品快照id
      */
     @Override
@@ -730,9 +796,9 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         PayUserRelationPo queryPayUser = payUserRelationMapper.selectOne(payUserWrapper);
         //set下一级的用户集合
         QueryWrapper<PayUserRelationNextLevelPo> nextUserWrapper = new QueryWrapper<>();
-        nextUserWrapper.lambda().eq(PayUserRelationNextLevelPo::getPayUserRealtionId,queryPayUser.getId());
+        nextUserWrapper.lambda().eq(PayUserRelationNextLevelPo::getPayUserRealtionId, queryPayUser.getId());
         List<PayUserRelationNextLevelPo> payUserRelationNextLevelPos = payUserRelationNextLevelMapper.selectList(nextUserWrapper);
-        queryPayUser.setNextUserIds(payUserRelationNextLevelPos.stream().map(x->x.getNextUserId()).collect(Collectors.toList()));
+        queryPayUser.setNextUserIds(payUserRelationNextLevelPos.stream().map(x -> x.getNextUserId()).collect(Collectors.toList()));
 
         //基本参数设置
         BasicSettingPo queryBasicSetting = basicSettingMapper.selectOne(new QueryWrapper<>());
@@ -741,7 +807,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         BigDecimal realPayMoney = rewardBuyerBo.getRealPayMoney();
         if (queryPayUser != null) {
             //返红包
-            rewardRed(queryPayUser, queryBasicSetting,queryGoodsTemp);
+            rewardRed(queryPayUser, queryBasicSetting, queryGoodsTemp);
             //上两级用户
             if (queryPayUser.getLastTwoUserId() != null) {
                 //得到积分
@@ -749,7 +815,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 //得到经验值
                 BigDecimal lastTwoExperience = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getLastTwoLevelExperience(), 100));
                 //增加积分和经验值
-                UmUserPo updateLastTwo=new UmUserPo();
+                UmUserPo updateLastTwo = new UmUserPo();
                 updateLastTwo.setId(queryPayUser.getLastTwoUserId()).setCurrentExperience(lastTwoExperience).setCurrentIntegral(lastTwoIntegrate);
                 userMapper.updateAdd(updateLastTwo);
                 umUserService.updateLevel(queryPayUser.getLastTwoUserId());
@@ -765,7 +831,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 //得到经验值
                 BigDecimal experience = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getLastLevelExperience(), 100));
                 //增加积分和经验值
-                UmUserPo updateUser=new UmUserPo();
+                UmUserPo updateUser = new UmUserPo();
                 updateUser.setId(queryPayUser.getLastOneUserId()).setCurrentExperience(experience).setCurrentIntegral(integrate);
                 userMapper.updateAdd(updateUser);
                 umUserService.updateLevel(queryPayUser.getLastOneUserId());
@@ -781,8 +847,8 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 //得到经验值
                 BigDecimal experience = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getNextLevelExperience(), 100));
                 //增加积分和经验值
-                queryPayUser.getNextUserIds().forEach(x->{
-                    UmUserPo updateUser=new UmUserPo();
+                queryPayUser.getNextUserIds().forEach(x -> {
+                    UmUserPo updateUser = new UmUserPo();
                     updateUser.setId(x).setCurrentExperience(experience).setCurrentIntegral(integrate);
                     userMapper.updateAdd(updateUser);
                     umUserService.updateLevel(x);
@@ -833,7 +899,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 //得到积分
                 BigDecimal lastTwoIntegrate = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getLastTwoLevelIntegrate(), 100));
                 //增加积分和经验值
-                UmUserPo updateLastTwo=new UmUserPo();
+                UmUserPo updateLastTwo = new UmUserPo();
                 updateLastTwo.setId(queryPayUser.getLastTwoUserId()).setCurrentExperience(lastTwoExperience).setCurrentIntegral(lastTwoIntegrate);
                 userMapper.updateAdd(updateLastTwo);
                 umUserService.updateLevel(queryPayUser.getLastTwoUserId());
@@ -849,7 +915,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 //得到积分
                 BigDecimal integrate = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getLastLevelIntegrate(), 100));
                 //增加积分和经验值
-                UmUserPo updateUser=new UmUserPo();
+                UmUserPo updateUser = new UmUserPo();
                 updateUser.setId(queryPayUser.getLastOneUserId()).setCurrentExperience(experience).setCurrentIntegral(integrate);
                 userMapper.updateAdd(updateUser);
                 umUserService.updateLevel(queryPayUser.getLastOneUserId());
@@ -866,8 +932,8 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 //得到积分
                 BigDecimal integrate = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getNextLevelIntegrate(), 100));
                 //增加积分和经验值
-                queryPayUser.getNextUserIds().forEach(x->{
-                    UmUserPo updateUser=new UmUserPo();
+                queryPayUser.getNextUserIds().forEach(x -> {
+                    UmUserPo updateUser = new UmUserPo();
                     updateUser.setId(x).setCurrentExperience(experience).setCurrentIntegral(integrate);
                     userMapper.updateAdd(updateUser);
                     umUserService.updateLevel(x);
@@ -878,7 +944,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         }
 
         //用户总消费、总订单数
-        UmUserPo updateUser=new UmUserPo();
+        UmUserPo updateUser = new UmUserPo();
         updateUser.setId(userId).setTotalConsumeMoney(realPayMoney).setTotalOrder(1);
         userMapper.updateAdd(updateUser);
 
@@ -893,15 +959,15 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         //二维码内容解密成订单id
         Long orderId = Long.parseLong(JasyptUtil.decyptPwd(password, writeOffDto.getQRCode()));
         OmOrderPo queryOrder = mapper.selectById(orderId);
-        if (!currUser.getStoreId().equals(queryOrder.getStoreId())){
-            throw new ServiceException(ResultCode.FAIL,"操作失败！不是该店铺的订单！");
+        if (!currUser.getStoreId().equals(queryOrder.getStoreId())) {
+            throw new ServiceException(ResultCode.FAIL, "操作失败！不是该店铺的订单！");
         }
-        if (queryOrder.getStatus()!=OrderStatusEnum.NEED_USE){
-            throw new ServiceException(ResultCode.FAIL,String.format("该订单处于【%s】状态！不允许使用",queryOrder.getStatus().getName()));
+        if (queryOrder.getStatus() != OrderStatusEnum.NEED_USE) {
+            throw new ServiceException(ResultCode.FAIL, String.format("该订单处于【%s】状态！不允许使用", queryOrder.getStatus().getName()));
         }
 
         //修改订单状态
-        OmOrderPo updateOrder=new OmOrderPo();
+        OmOrderPo updateOrder = new OmOrderPo();
         updateOrder.setId(orderId).setStatus(OrderStatusEnum.NEED_EVALUATE).setUpdateBy(currUser.getId());
         mapper.updateById(updateOrder);
         //延迟队列：待评价===》已评价
@@ -942,9 +1008,9 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             BigDecimal red = x.calculateRed();
             totalRed[0] = BigDecimalUtil.safeAdd(totalRed[0], BigDecimalUtil.safeMultiply(red, x.getNumber()));
         });
-        UmUserPo queryFirstUser=umUserService.getById(queryPayUser.getFirstUserId());
+        UmUserPo queryFirstUser = umUserService.getById(queryPayUser.getFirstUserId());
         //如果只有第一级上级用户且一级用户有返佣资格
-        if (queryPayUser.getSecondUserId() == null&&queryFirstUser.getCommissionStatus()) {
+        if (queryPayUser.getSecondUserId() == null && queryFirstUser.getCommissionStatus()) {
             UmUserPo updateFirst = new UmUserPo();
             updateFirst.setId(queryPayUser.getFirstUserId()).setCurrentRedEnvelops(totalRed[0]);
             userMapper.updateAdd(updateFirst);
@@ -968,7 +1034,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             //第二级别用户获得红包
             BigDecimal secondRed = BigDecimalUtil.safeMultiply(totalRed[0], secondRatio);
 
-            UmUserPo querySecondUser=umUserService.getById(queryPayUser.getFirstUserId());
+            UmUserPo querySecondUser = umUserService.getById(queryPayUser.getFirstUserId());
 
             //一级佣金判断资格
             if (queryFirstUser.getCommissionStatus()) {
@@ -1003,7 +1069,6 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     private void rewardRed(PayUserRelationPo queryPayUser, BasicSettingPo basicSettingPo, OmGoodsTempPo queryGoodsTemp) {
 
 
-
         UmUserPo userPo = userMapper.selectById(queryPayUser.getCreateBy());
         PmMemberLevelPo queryMember = memberLevelMapper.selectById(userPo.getMemberLevelId());
         if (queryPayUser.getFirstUserId() == null) {
@@ -1015,15 +1080,15 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         rewardBuyer.setMoneyToRed(basicSettingPo.getMoneyToCurrentRedEnvelops());
         BigDecimal red = rewardBuyer.calculateRed();
 
-        UmUserPo queryFirstUser=umUserService.getById(queryPayUser.getFirstUserId());
+        UmUserPo queryFirstUser = umUserService.getById(queryPayUser.getFirstUserId());
         //如果只有第一级上级用户且一级用户有返佣资格
-        if (queryPayUser.getSecondUserId() == null&&queryFirstUser.getCommissionStatus()) {
+        if (queryPayUser.getSecondUserId() == null && queryFirstUser.getCommissionStatus()) {
             UmUserPo updateFirst = new UmUserPo();
             updateFirst.setId(queryPayUser.getFirstUserId()).setCurrentRedEnvelops(red);
             userMapper.updateAdd(updateFirst);
 
             //好友助攻 返佣最高等级用户获得红包
-            addFriendsAssistLog(queryGoodsTemp.getOrderId(), queryPayUser.getFirstUserId(), BigDecimal.ZERO,  red);
+            addFriendsAssistLog(queryGoodsTemp.getOrderId(), queryPayUser.getFirstUserId(), BigDecimal.ZERO, red);
 
         }
         //如果有两个上级需要返佣
@@ -1041,7 +1106,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             //第二级别用户获得红包
             BigDecimal secondRed = BigDecimalUtil.safeMultiply(red, secondRatio);
 
-            UmUserPo querySecondUser=umUserService.getById(queryPayUser.getFirstUserId());
+            UmUserPo querySecondUser = umUserService.getById(queryPayUser.getFirstUserId());
 
             //一级佣金判断资格
             if (queryFirstUser.getCommissionStatus()) {
@@ -1050,7 +1115,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 userMapper.updateAdd(updateFirst);
 
                 //好友助攻 返佣最高等级用户获得红包
-                addFriendsAssistLog(queryGoodsTemp.getOrderId(), queryPayUser.getFirstUserId(), BigDecimal.ZERO,  firstRed);
+                addFriendsAssistLog(queryGoodsTemp.getOrderId(), queryPayUser.getFirstUserId(), BigDecimal.ZERO, firstRed);
 
             }
 

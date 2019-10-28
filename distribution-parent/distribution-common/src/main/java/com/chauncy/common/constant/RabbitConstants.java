@@ -147,4 +147,65 @@ public interface RabbitConstants {
     static final String AFTER_DELAY_TIME = 72*60*60*1000+"";
 
 
+
+
+
+    /**
+     * 开团队列，24小时候没成功就拼团失败
+     */
+    static final String OPEN_GROUP_DELAY_QUEUE = "open.group.delay.queue";
+    /**
+     * DLX，dead letter发送到的 exchange
+     */
+    static final String OPEN_GROUP_DELAY_EXCHANGE = "open.group.delay.exchange";
+    /**
+     * routing key 名称
+     */
+    static final String OPEN_GROUP_DELAY_ROUTING_KEY = "open.group.delay.key";
+
+    /**
+     * 拼团失败
+     */
+    static final String CLOSE_GROUP_QUEUE = "close.group.queue";
+    /**
+     * 关闭订单交换机
+     */
+    static final String CLOSE_GROUP_EXCHANGE = "close.group.exchange";
+    /**
+     * 延迟交换机与队列的路由键
+     */
+    static final String CLOSE_GROUP_ROUTING_KEY = "all";
+
+
+
+
+
+
+    /**
+     * 参团队列，半小时候没付款释放库存
+     */
+    static final String ADD_MEMBER_DELAY_QUEUE = "add.member.delay.queue";
+    /**
+     * DLX，dead letter发送到的 exchange
+     */
+    static final String ADD_MEMBER__DELAY_EXCHANGE = "add.member.delay.exchange";
+    /**
+     * routing key 名称
+     */
+    static final String ADD_MEMBER_DELAY_ROUTING_KEY = "add.member.delay.key";
+
+    /**
+     * 参团失败
+     */
+    static final String DEL_MEMBER_QUEUE = "del.member.queue";
+    /**
+     *
+     */
+    static final String DEL_MEMBER_EXCHANGE = "del.member.exchange";
+    /**
+     * 延迟交换机与队列的路由键
+     */
+    static final String DEL_MEMBER_ROUTING_KEY = "all";
+
+
 }

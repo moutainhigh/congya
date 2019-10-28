@@ -15,8 +15,8 @@ public enum SpellGroupMainStatusEnum implements BaseEnum {
 
     NEED_PAY(1,"发起未支付"),
     SPELL_GROUP(2,"拼团中"),
-    SPELL_GROUP_SUCCESS(2,"拼团成功"),
-    SPELL_GROUP_FAIL(2,"拼团失败"),
+    SPELL_GROUP_SUCCESS(3,"拼团成功"),
+    SPELL_GROUP_FAIL(4,"拼团失败"),
     ;
 
     private Integer id;

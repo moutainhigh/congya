@@ -24,6 +24,10 @@ import java.math.BigDecimal;
 @Accessors(chain = true)
 public class ActivitySkuBo {
 
+    private Long goodsRelId;
+    private Long skuRelId;
+
+
     private Long skuId;
 
     private ActivityTypeEnum activityType;
@@ -44,4 +48,6 @@ public class ActivitySkuBo {
 
     @ApiModelProperty("销量")
     private Long salesVolume;
+
+    private Integer number;
 }

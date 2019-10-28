@@ -42,4 +42,11 @@ public class FullDiscountSkuBo {
 
     @ApiModelProperty(value = "销售价")
     private BigDecimal sellPrice;
+
+    @ApiModelProperty(value = "商品与活动关联的id")
+    private Long relId;
+
+    @ApiModelProperty(value = "sku的数量")
+    private Integer number;
+
 }

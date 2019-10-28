@@ -1,7 +1,7 @@
 部署注意：
 1、数据库会员等级给个默认值，id为1
-2、redis设置notify-keyspace-events
-3、基本设置给一行默认值
+2、基本设置给一行默认值
+3】写死的表：`area_region`、`area_shop_logistics`
 
 开发注意：
 1、经验值检验跳级时才更改用户对应的会员等级。

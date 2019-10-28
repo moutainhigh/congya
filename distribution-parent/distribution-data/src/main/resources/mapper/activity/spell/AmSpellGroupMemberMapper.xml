@@ -20,5 +20,11 @@
     <sql id="Base_Column_List">
         id, create_by, create_time, del_flag, group_main_id, user_id, order_id, is_head
     </sql>
+    <select id="getSuccessOrders" resultType="java.lang.Long">
+             select mb.order_id
+                FROM am_spell_group_main m,am_spell_group_member mb
+                where m.del_flag=0 and mb.del_flag=0 and mb.group_main_id=m.id
+                and mb.pay_status=1 and m.id=#{mainId}
+    </select>
 
 </mapper>

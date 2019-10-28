@@ -1,21 +1,30 @@
 package com.chauncy.web.config.rabbit.handler;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.chauncy.activity.registration.IAmActivityRelGoodsSkuService;
+import com.chauncy.activity.spell.IAmSpellGroupMainService;
+import com.chauncy.activity.spell.IAmSpellGroupMemberService;
 import com.chauncy.common.constant.RabbitConstants;
+import com.chauncy.common.enums.app.activity.ActivityStatusEnum;
+import com.chauncy.common.enums.app.activity.SpellGroupMainStatusEnum;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.common.enums.app.order.PayOrderStatusEnum;
 import com.chauncy.common.enums.app.order.afterSale.AfterSaleStatusEnum;
 import com.chauncy.common.enums.app.order.afterSale.AfterSaleTypeEnum;
 import com.chauncy.common.util.LoggerUtil;
+import com.chauncy.data.bo.app.activity.GroupStockBo;
 import com.chauncy.data.bo.app.order.rabbit.RabbitAfterBo;
 import com.chauncy.data.bo.app.order.rabbit.RabbitOrderBo;
 import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
 import com.chauncy.data.bo.order.log.AccountLogBo;
+import com.chauncy.data.domain.po.activity.spell.AmSpellGroupMainPo;
+import com.chauncy.data.domain.po.activity.spell.AmSpellGroupMemberPo;
 import com.chauncy.data.domain.po.afterSale.OmAfterSaleOrderPo;
 import com.chauncy.data.domain.po.order.OmEvaluatePo;
 import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
+import com.chauncy.data.mapper.activity.registration.AmActivityRelGoodsSkuMapper;
 import com.chauncy.data.temp.order.service.IOmGoodsTempService;
 import com.chauncy.order.afterSale.IOmAfterSaleOrderService;
 import com.chauncy.order.evaluate.service.impl.OmEvaluateServiceImpl;
@@ -24,6 +33,7 @@ import com.chauncy.order.pay.IWxService;
 import com.chauncy.order.service.IOmAfterSaleLogService;
 import com.chauncy.order.service.IOmOrderService;
 import com.chauncy.order.service.IPayOrderService;
+import com.chauncy.product.service.IPmGoodsSkuService;
 import com.google.common.collect.Lists;
 import com.rabbitmq.client.Channel;
 import org.springframework.amqp.core.Message;
@@ -36,6 +46,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 做一些订单到期后的具体工作:取消订单、自动收货、自动评价、自动售后
@@ -70,6 +81,18 @@ public class RabbitOrderHandler {
 
     @Autowired
     private IWxService wxService;
+
+    @Autowired
+    private IAmSpellGroupMainService groupMainService;
+
+    @Autowired
+    private IAmSpellGroupMemberService memberService;
+
+    @Autowired
+    private IAmActivityRelGoodsSkuService amActivityRelGoodsSkuService;
+
+    @Autowired
+    private IPmGoodsSkuService skuService;
 
     @RabbitListener(queues = {RabbitConstants.CLOSE_ORDER_QUEUE})
     @Transactional(rollbackFor = Exception.class)
@@ -252,5 +275,101 @@ public class RabbitOrderHandler {
         }
 
     }
+
+
+    /**
+     * @Author zhangrt
+     * @Date 2019/10/25 16:26
+     * @Description 24小时内人数不足评团失败
+     *
+     * @Update
+     *
+     * @Param [addAccountLogBo, message, channel]
+     * @return void
+     **/
+
+    @RabbitListener(queues = {RabbitConstants.CLOSE_GROUP_QUEUE})
+    @Transactional(rollbackFor = Exception.class)
+    public void listenerCloseGroupQueue(Long mainId, Message message, Channel channel) throws IOException {
+        LoggerUtil.info(String.format("[拼团失败 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), mainId));
+
+        try {
+            AmSpellGroupMainPo queryMain = groupMainService.getById(mainId);
+            //待开始、活动中关闭订单
+            if (queryMain.getStatus().equals(ActivityStatusEnum.TO_START.getId())||
+                    queryMain.getStatus().equals(ActivityStatusEnum.ONGOING.getId())){
+                //拼团失败
+                AmSpellGroupMainPo updateMain=new AmSpellGroupMainPo();
+                updateMain.setId(mainId).setStatus(SpellGroupMainStatusEnum.SPELL_GROUP_FAIL.getId());
+                groupMainService.updateById(updateMain);
+                //找出已支付的订单
+                QueryWrapper<AmSpellGroupMemberPo> groupMemberPoQueryWrapper=new QueryWrapper<>();
+                groupMemberPoQueryWrapper.lambda().eq(AmSpellGroupMemberPo::getGroupMainId,mainId)
+                        .eq(AmSpellGroupMemberPo::getPayStatus,true);
+                List<AmSpellGroupMemberPo> queryMembers = memberService.list(groupMemberPoQueryWrapper);
+                List<Long> orderIds=queryMembers.stream().map(AmSpellGroupMemberPo::getOrderId).collect(Collectors.toList());
+                queryMembers.forEach(x->{
+                    orderService.closeOrderByOrderId(x.getOrderId());
+                });
+                // todo 退款
+                List<GroupStockBo> queryGroupStockBos = amActivityRelGoodsSkuService.getGroupStockBo(mainId);
+                //加活动库存（实际库存在关闭订单时候就加回去了）
+                queryGroupStockBos.forEach(x->{
+                    amActivityRelGoodsSkuService.addStock(x);
+                });
+
+            }
+        } catch (Exception e) {
+            LoggerUtil.error(e);
+        }finally {
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+
+        }
+    }
+
+
+    /**
+     * @Author zhangrt
+     * @Date 2019/10/26 0:27
+     * @Description 拼团时半小时未付款就去取消订单、去掉锁定库存
+     *
+     * @Update
+     *
+     * @Param [payOrderId, message, channel]
+     * @return void
+     **/
+    @RabbitListener(queues = {RabbitConstants.DEL_MEMBER_QUEUE})
+    @Transactional(rollbackFor = Exception.class)
+    public void listenerDelMemberQueue(Long memberId, Message message, Channel channel) throws IOException {
+        LoggerUtil.info(String.format("[拼团下单半小时后未付款 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), memberId));
+
+        try {
+            AmSpellGroupMemberPo queryMember = memberService.getById(memberId);
+            AmSpellGroupMainPo queryMain = groupMainService.getById(queryMember.getGroupMainId());
+
+            //开团成员不取消订单
+            //参团成员未付款取消资格
+            if (!queryMember.getIsHead()&&!queryMember.getPayStatus()){
+                //取消订单
+                orderService.closeOrderByOrderId(queryMember.getOrderId());
+                //锁定库存人数减1
+                AmSpellGroupMainPo updateMain=new AmSpellGroupMainPo();
+                updateMain.setId(queryMain.getId()).setLockStock(queryMain.getLockStock()+1);
+                groupMainService.updateById(updateMain);
+
+
+                //活动库存加对应的数量
+                GroupStockBo groupStockBo = amActivityRelGoodsSkuService.getGroupStockBoByMemberId(memberId);
+                amActivityRelGoodsSkuService.addStock(groupStockBo);
+
+            }
+        } catch (Exception e) {
+            LoggerUtil.error(e);
+        }finally {
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+
+        }
+    }
+
 
 }

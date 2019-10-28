@@ -27,6 +27,12 @@
         set sales_volume=sales_volume+#{salesVolume}
         where id=#{id}
     </insert>
+    <insert id="addStockInGroup">
+         update pm_goods_sku
+            set stock=stock+#{number}
+            where id=#{skuId}
+
+    </insert>
 
     <update id="updateStock">
         <foreach collection="list" item="item" index="index" open="" close="" separator=";">

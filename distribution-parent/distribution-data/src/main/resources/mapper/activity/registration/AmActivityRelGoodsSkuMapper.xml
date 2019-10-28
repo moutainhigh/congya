@@ -22,11 +22,31 @@
     <sql id="Base_Column_List">
         id, create_by, create_time, update_by, update_time, del_flag, activity_price, activity_stock, goods_id, sku_id, rel_id
     </sql>
+    <insert id="addStockInActivityStock">
+            update am_activity_rel_goods_sku
+            set activity_stock=activity_stock+#{number}
+            where id=#{relSkuId}
+
+    </insert>
+    <insert id="addSaleVolumeInActivityStock">
+         update am_activity_rel_goods_sku
+            set sales_volume=sales_volume+#{number}
+            where id=#{relSkuId}
+    </insert>
+    <update id="updateStock">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update am_activity_rel_goods_sku
+            <set>
+                activity_stock=activity_stock-#{item.number},
+            </set>
+            where id = #{item.skuRelId}
+        </foreach>
+    </update>
     <select id="getBoByIds" resultType="com.chauncy.data.bo.app.car.ActivitySkuBo">
-        select s.sku_id,u.sell_price,g.activity_type,g.activity_id,g.buy_limit,s.activity_price,s.activity_stock,s.sales_volume
+        select g.id goodsRelId,s.id skuRelId,s.sku_id,u.sell_price,g.activity_type,g.activity_id,g.buy_limit,s.activity_price,s.activity_stock,s.sales_volume
         from am_activity_rel_goods_sku s,am_activity_rel_activity_goods g,pm_goods_sku u
         where s.del_flag=0 and g.del_flag=0 and u.del_flag=0 and s.rel_id=g.id and g.verify_status=3 and s.sku_id=u.id
-        and g.activity_end_time &lt;=NOW() and g.activity_start_time&gt;=NOW()
+        and g.activity_end_time &gt;=NOW() and g.activity_start_time &lt;=NOW()
         and s.sku_id in
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
@@ -36,6 +56,7 @@
 
     <select id="getFullDiscountSkuBo" resultType="com.chauncy.data.bo.app.car.FullDiscountSkuBo">
         SELECT
+        s.rel_id,
         s.sku_id,
         g.activity_type,
         g.activity_id,
@@ -58,8 +79,8 @@
         and r.id=g.activity_id
         AND g.activity_type=1
         AND g.verify_status = 3
-        AND g.activity_end_time &lt;= NOW( )
-        AND g.activity_start_time &gt;= NOW( )
+        AND g.activity_end_time &gt;= NOW( )
+        AND g.activity_start_time &lt;= NOW( )
         AND s.sku_id IN
         <foreach collection = "ids" item = "id" separator="," open="(" close = ")" >
                  #{id}
@@ -68,10 +89,26 @@
     <select id="getIntegralPriceBo" resultType="com.chauncy.data.bo.app.activity.IntegralPriceBo">
         select s.sell_price,rs.activity_price
         FROM pm_goods_sku s,am_activity_rel_activity_goods rg,am_activity_rel_goods_sku rs
-        where s.del_flag=0 and rg.del_flag=0 and rs.del_flag=0
+        where s.del_flag=0 and rg.del_flag=0 and rs.del_fl ag=0
         and s.goods_id=rg.goods_id and rg.id=rs.rel_id and rs.sku_id=#{skuId}
         and rg.verify_status=3 and rg.activity_start_time&lt;=NOW() and rg.activity_end_time&gt;=NOW()
         and s.id=#{skuId}
+    </select>
+    <select id="getGroupStockBo" resultType="com.chauncy.data.bo.app.activity.GroupStockBo">
+            select o.total_number number ,rs.id redSkuId
+            from om_order o,am_spell_group_main m,am_spell_group_member me,am_activity_rel_goods_sku rs
+            where o.del_flag=0 and m.del_flag=0 and me.del_flag=0
+            and rs.del_flag=0
+            and o.id=me.order_id and me.group_main_id=m.id  and rs.rel_id=m.rel_id
+            and m.id=#{mainId} and me.pay_status=1
+    </select>
+    <select id="getGroupStockBoByMemberId" resultType="com.chauncy.data.bo.app.activity.GroupStockBo">
+            select o.total_number number ,rs.id redSkuId
+            from om_order o,am_spell_group_main m,am_spell_group_member me,am_activity_rel_goods_sku rs
+            where o.del_flag=0 and m.del_flag=0 and me.del_flag=0
+            and rs.del_flag=0
+            and o.id=me.order_id and me.group_main_id=m.id  and rs.rel_id=m.rel_id
+            and me.id=#{memberId}
     </select>
 
 </mapper>

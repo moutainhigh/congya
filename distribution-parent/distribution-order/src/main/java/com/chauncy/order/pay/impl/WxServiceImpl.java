@@ -309,6 +309,12 @@ public class WxServiceImpl implements IWxService {
         if (null == payOrderPo) {
             throw new ServiceException(ResultCode.NO_EXISTS, "订单记录不存在");
         }
+        LocalDateTime endTime = payOrderMapper.getGroupEndTimeByPayId(payOrderId);
+        if (endTime!=null){
+            if (LocalDateTime.now().isAfter(endTime)){
+                throw new ServiceException(ResultCode.FAIL, "支付失败！当前拼团订单已超过活动时间！");
+            }
+        }
         WxMD5Util md5Util = wxMD5Util;
         WXConfigUtil config = wxConfigUtil;
         WXPay wxpay = new WXPay(config);
