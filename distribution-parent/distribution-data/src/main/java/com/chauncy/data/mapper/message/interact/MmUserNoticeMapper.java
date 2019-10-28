@@ -1,5 +1,6 @@
 package com.chauncy.data.mapper.message.interact;
 
+import com.chauncy.data.bo.app.message.WithdrawalLogBo;
 import com.chauncy.data.domain.po.message.interact.MmUserNoticePo;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.app.message.information.interact.UnreadNoticeNumVo;
@@ -18,6 +19,20 @@ import java.util.List;
  * @since 2019-09-14
  */
 public interface MmUserNoticeMapper extends IBaseMapper<MmUserNoticePo> {
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/23 15:37
+     * @Description 提现成功给用户发送APP内消息  根据提现记录id获取发送消息需要的参数
+     *
+     * @Update yeJH
+     *
+     * @param  withdrawalIdList  提现记录id
+     * @param  logMatter  用户提现记录对应流水事件 RedEnvelopsLogMatterEnum.WITHDRAWAL
+     * @return com.chauncy.data.bo.app.message.WithdrawalLogBo
+     **/
+    List<WithdrawalLogBo> getWithdrawalLog(@Param("withdrawalIdList") List<Long> withdrawalIdList,
+                                     @Param("logMatter") Integer logMatter);
 
     /**
      * @Author yeJH
@@ -51,4 +66,5 @@ public interface MmUserNoticeMapper extends IBaseMapper<MmUserNoticePo> {
     List<UserNoticeListVo> searchUserSystemNoticeList(
             @Param("userId") Long userId,
             @Param("userLevel") Integer userLevel);
+
 }

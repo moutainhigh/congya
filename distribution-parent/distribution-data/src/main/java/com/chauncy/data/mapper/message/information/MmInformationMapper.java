@@ -9,6 +9,7 @@ import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.app.component.ScreenInfoParamVo;
 import com.chauncy.data.vo.app.message.information.InformationBaseVo;
 import com.chauncy.data.vo.app.message.information.InformationPagingVo;
+import com.chauncy.data.vo.manage.message.information.InformationContentVo;
 import com.chauncy.data.vo.manage.message.information.InformationPageInfoVo;
 import com.chauncy.data.vo.manage.message.information.InformationVo;
 import org.apache.ibatis.annotations.Param;
@@ -26,6 +27,18 @@ import java.util.List;
  * @since 2019-06-25
  */
 public interface MmInformationMapper extends IBaseMapper<MmInformationPo> {
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/21 23:43
+     * @Description 根据资讯id查询资讯信息
+     *
+     * @Update yeJH
+     *
+     * @param  infoId 资讯id
+     * @return com.chauncy.data.vo.manage.message.information.InformationContentVo
+     **/
+    InformationContentVo getBaseInformation(@Param("infoId") Long infoId);
 
     /**
      * 后台查询资讯基本信息

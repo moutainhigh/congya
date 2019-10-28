@@ -4,10 +4,13 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.information.add.AddInformationCommentDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationCommentDto;
+import com.chauncy.data.dto.manage.message.information.select.SearchInfoCommentDto;
 import com.chauncy.data.vo.JsonViewData;
-import com.chauncy.data.vo.manage.message.information.comment.InformationMainCommentVo;
+import com.chauncy.data.vo.manage.message.information.InformationContentVo;
+import com.chauncy.data.vo.manage.message.information.comment.InformationCommentVo;
 import com.chauncy.data.vo.manage.message.information.comment.InformationViceCommentVo;
 import com.chauncy.message.information.comment.service.IMmInformationCommentService;
+import com.chauncy.message.information.service.IMmInformationService;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
@@ -36,14 +39,59 @@ public class MmInformationCommentApi extends BaseApi {
     private IMmInformationCommentService mmInformationCommentService;
 
     @Autowired
+    private IMmInformationService mmInformationService;
+
+    @Autowired
     private SecurityUtil securityUtil;
+
+   /**
+    * @Author yeJH
+    * @Date 2019/10/21 21:27
+    * @Description 查询所有资讯评论
+    *
+    * @Update yeJH
+    *
+    * @param  searchInfoCommentDto
+    * @return com.chauncy.data.vo.JsonViewData<com.github.pagehelper.PageInfo<com.chauncy.data.vo.manage.message.information.comment.InformationCommentVo>>
+    **/
+    @ApiOperation(value = "查询所有资讯评论列表", notes = "根据评论用户id、评论时间、评论状态查询")
+    @PostMapping("/searchInfoComment")
+    public JsonViewData<PageInfo<InformationCommentVo>> searchInfoComment(
+            @ApiParam(required = true, name = "searchInfoCommentDto", value = "查询条件")
+            @Validated @RequestBody SearchInfoCommentDto searchInfoCommentDto) {
+
+        PageInfo<InformationCommentVo> informationCommentVoPageInfo =
+                mmInformationCommentService.searchInfoComment(searchInfoCommentDto);
+        return new JsonViewData(ResultCode.SUCCESS, "查找成功",
+                informationCommentVoPageInfo);
+
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/21 23:44
+     * @Description 根据资讯id查询资讯信息
+     *
+     * @Update yeJH
+     *
+     * @param  infoId 资讯id
+     * @return com.chauncy.data.vo.JsonViewData<com.chauncy.data.vo.manage.message.information.InformationContentVo>
+     **/
+    @ApiOperation(value = "评论管理-平台查看资讯", notes = "根据评资讯id查询")
+    @GetMapping("/getBaseInformation/{infoId}")
+    public JsonViewData<InformationContentVo> getBaseInformation(@PathVariable(value = "infoId") Long infoId) {
+
+        InformationContentVo informationContentVo = mmInformationService.getBaseInformation(infoId);
+        return new JsonViewData(ResultCode.SUCCESS, "查找成功", informationContentVo);
+
+    }
 
     /**
      * 条件查询
      * @param informationCommentDto
      * @return
      */
-    @ApiOperation(value = "条件查询", notes = "根据ID、名称查询")
+    @ApiOperation(value = "根据资讯id查询评论", notes = "根据ID查询")
     @PostMapping("/searchPaging")
     public JsonViewData<PageInfo<InformationViceCommentVo>> searchPaging( @Validated @RequestBody InformationCommentDto informationCommentDto) {
 

@@ -32,12 +32,38 @@
     </sql>
     <select id="searchSupplierActivity"
             resultType="com.chauncy.data.vo.supplier.activity.SearchSupplierActivityVo">
-        select a.id as activity_id,a.name as activity_name,b.id as activityGoodsRelId,b.activity_type ,c.id as goods_id,c.name as goods_name,c.verify_status,d.name as brand
-        from ${tableName} a,am_activity_rel_activity_goods b,pm_goods c,pm_goods_attribute d,pm_goods_rel_attribute_good e
-        where a.id = b.activity_id and a.del_flag = 0 and b.del_flag = 0 and c.del_flag	= 0 and d.del_flag = 0 and e.del_flag = 0
-		and b.goods_id = c.id and d.type = 8 and e.goods_good_id = c.id and e.goods_attribute_id = d.id
+        select a.id as activity_id,a.name as activity_name,b.id as activityGoodsRelId,b.activity_type ,c.id as goods_id,c.name as goods_name,b.verify_status,
+               b.modify_cause,b.refuse_case,d.name as brand,c.store_id,f.name as store_name
+        from ${tableName} a
+        inner join am_activity_rel_activity_goods b on a.id = b.activity_id and b.del_flag = 0
+        inner join pm_goods c on b.goods_id = c.id and c.publish_status = 1 and c.del_flag	= 0
+        inner join pm_goods_rel_attribute_good e on e.goods_good_id = c.id and e.del_flag = 0
+        inner join pm_goods_attribute d on d.type = 8 and e.goods_attribute_id = d.id and d.del_flag = 0
+        inner join sm_store f on c.store_id = f.id and f.del_flag = 0
+        where a.del_flag = 0
 		<if test="storeId != null">
-		  and b.store_id= #{storeId}
+		  and f.id= #{storeId}
+        </if>
+        <if test="storeId == null">
+            and b.verify_status != 7
+        </if>
+        <if test="t.storeId != null">
+            and f.id= #{t.storeId}
+        </if>
+        <if test="t.storeName != null and t.storeName != ''">
+            and f.name like concat('%', #{t.activityId} ,'%')
+        </if>
+        <if test="t.goodsId != null">
+            and c.id= #{t.goodsId}
+        </if>
+        <if test="t.verifyStatus != null and t.verifyStatus != 0">
+            and b.verify_status= #{t.verifyStatus}
+        </if>
+        <if test="t.goodsName != null and t.goodsName != ''">
+            and c.name like concat('%', #{t.verifyStatus} ,'%')
+        </if>
+        <if test="t.activityName != null and t.activityName != ''">
+            and a.name like concat('%', #{t.activityName} ,'%')
         </if>
     </select>
     <select id="findGoodsActivity"

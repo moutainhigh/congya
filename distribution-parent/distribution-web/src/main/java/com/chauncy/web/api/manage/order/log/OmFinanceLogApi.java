@@ -1,10 +1,13 @@
 package com.chauncy.web.api.manage.order.log;
 
 
+import com.chauncy.common.enums.message.NoticeTitleEnum;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.bo.app.message.SaveUserNoticeBo;
 import com.chauncy.data.dto.manage.order.bill.update.BatchAuditDto;
 import com.chauncy.data.dto.manage.order.log.select.SearchPlatformLogDto;
 import com.chauncy.data.dto.manage.order.log.select.SearchUserWithdrawalDto;
+import com.chauncy.message.interact.service.IMmUserNoticeService;
 import com.chauncy.order.log.service.IOmUserWithdrawalService;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.order.log.SearchPlatformLogVo;
@@ -22,6 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import io.swagger.annotations.Api;
 
 import javax.validation.Valid;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * <p>
@@ -41,6 +46,9 @@ public class OmFinanceLogApi extends BaseApi {
 
     @Autowired
     private IOmUserWithdrawalService omUserWithdrawalService;
+
+    @Autowired
+    private IMmUserNoticeService mmUserNoticeService;
 
 
     /**
@@ -101,6 +109,14 @@ public class OmFinanceLogApi extends BaseApi {
     public JsonViewData withdrawalSuccess(@PathVariable(value = "id") Long[] id) {
 
         omUserWithdrawalService.withdrawalSuccess(id);
+
+        List<Long> idList = Arrays.asList(id);
+        if(null != idList && idList.size() > 0) {
+            //标记已处理  给用户发送APP内消息
+            SaveUserNoticeBo saveUserNoticeBo = new SaveUserNoticeBo();
+            saveUserNoticeBo.setWithdrawalIdList(idList);
+            mmUserNoticeService.saveUserNotice(NoticeTitleEnum.WITHDRAWAL_SUCCESS.name(), saveUserNoticeBo);
+        }
         return new JsonViewData(ResultCode.SUCCESS, "操作成功");
     }
 

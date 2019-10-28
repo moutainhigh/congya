@@ -33,6 +33,12 @@ public class SearchSupplierActivityDto {
     @ApiModelProperty("活动名称")
     private String activityName;
 
+    @ApiModelProperty("店铺ID")
+    private Long storeId;
+
+    @ApiModelProperty("店铺名称")
+    private String storeName;
+
     @ApiModelProperty("审核状态")
     private Integer verifyStatus;
 

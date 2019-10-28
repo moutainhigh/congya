@@ -816,7 +816,7 @@ public class WxServiceImpl implements IWxService {
                 BigDecimalUtil.safeMultiply(orderRefundInfoBo.getTotalRealPayMoney(), new BigDecimal(100)).intValue());
         data.put("total_fee", totalFee);
         //退款结果通知url
-        data.put("notify_url", REFUND_NOTIFY_URL);
+        //data.put("notify_url", REFUND_NOTIFY_URL);
         //申请退款签名
         String orderSign = null;
         try {

@@ -20,6 +20,18 @@
     <sql id="Base_Column_List">
         id, user_id, notice_type, is_read, title, content, picture, create_time, create_by, del_flag
     </sql>
+
+    <select id="getWithdrawalLog" resultType="com.chauncy.data.bo.app.message.WithdrawalLogBo">
+        SELECT ouw.id AS withdrawalId, oal.id AS logId, uu.id AS userId, uu.name AS userName
+        FROM om_user_withdrawal ouw
+        INNER JOIN om_account_log oal ON ouw.id = oal.om_rel_id AND oal.log_matter = #{logMatter}
+        INNER JOIN um_user uu ON uu.id = oal.user_id
+        WHERE ouw.id IN
+        <foreach collection="withdrawalIdList" item="id" open="(" separator="," close=")">
+            #{withdrawalId}
+        </foreach>
+    </select>
+
     <select id="getUnreadNoticeNum"
             resultType="com.chauncy.data.vo.app.message.information.interact.UnreadNoticeNumVo">
          SELECT

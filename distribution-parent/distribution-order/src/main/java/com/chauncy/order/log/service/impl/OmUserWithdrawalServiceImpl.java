@@ -3,9 +3,13 @@ package com.chauncy.order.log.service.impl;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.enums.log.LogTriggerEventEnum;
 import com.chauncy.common.enums.log.WithdrawalStatusEnum;
+import com.chauncy.common.enums.message.NoticeContentEnum;
+import com.chauncy.common.enums.message.NoticeTitleEnum;
+import com.chauncy.common.enums.message.NoticeTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
+import com.chauncy.data.domain.po.message.interact.MmUserNoticePo;
 import com.chauncy.data.domain.po.order.OmUserWithdrawalPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.manage.order.bill.update.BatchAuditDto;
@@ -18,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -106,28 +111,30 @@ public class OmUserWithdrawalServiceImpl extends AbstractService<OmUserWithdrawa
         String userName = securityUtil.getCurrUser().getUsername();
 
         List<Long> idList = Arrays.asList(ids);
-        idList.forEach(id -> {
-            OmUserWithdrawalPo omUserWithdrawalPo = omUserWithdrawalMapper.selectById(id);
-            if(null == omUserWithdrawalPo) {
-                throw new ServiceException(ResultCode.NO_EXISTS, "id为" + id + "的记录不存在");
-            } else if(!omUserWithdrawalPo.getWithdrawalStatus().equals(WithdrawalStatusEnum.PROCESSING.getId())) {
-                throw new ServiceException(ResultCode.NO_EXISTS, "id为" + id + "申请提现不是待处理状态");
-            }
-        });
-        UpdateWrapper updateWrapper = new UpdateWrapper();
-        updateWrapper.in("id", idList);
-        updateWrapper.set("settlement_time", LocalDateTime.now());
-        updateWrapper.set("withdrawal_status", WithdrawalStatusEnum.WITHDRAWAL_SUCCESS.getId());
-        this.update(updateWrapper);
+        if(null != idList && idList.size() > 0) {
+            idList.forEach(id -> {
+                OmUserWithdrawalPo omUserWithdrawalPo = omUserWithdrawalMapper.selectById(id);
+                if (null == omUserWithdrawalPo) {
+                    throw new ServiceException(ResultCode.NO_EXISTS, "id为" + id + "的记录不存在");
+                } else if (!omUserWithdrawalPo.getWithdrawalStatus().equals(WithdrawalStatusEnum.PROCESSING.getId())) {
+                    throw new ServiceException(ResultCode.NO_EXISTS, "id为" + id + "申请提现不是待处理状态");
+                }
+            });
+            UpdateWrapper updateWrapper = new UpdateWrapper();
+            updateWrapper.in("id", idList);
+            updateWrapper.set("settlement_time", LocalDateTime.now());
+            updateWrapper.set("withdrawal_status", WithdrawalStatusEnum.WITHDRAWAL_SUCCESS.getId());
+            this.update(updateWrapper);
 
-        //APP用户提现红包 审核通过 添加后台流水
-        idList.forEach(id -> {
-            //OmUserWithdrawalPo omUserWithdrawalPo = omUserWithdrawalMapper.selectById(id);
-            AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
-            addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.WITHDRAWAL_SUCCESS);
-            addAccountLogBo.setRelId(id);
-            addAccountLogBo.setOperator(userName);
-            omAccountLogService.saveAccountLog(addAccountLogBo);
-        });
+            idList.forEach(id -> {
+                //APP用户提现红包 审核通过 添加后台流水
+                //OmUserWithdrawalPo omUserWithdrawalPo = omUserWithdrawalMapper.selectById(id);
+                AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
+                addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.WITHDRAWAL_SUCCESS);
+                addAccountLogBo.setRelId(id);
+                addAccountLogBo.setOperator(userName);
+                omAccountLogService.saveAccountLog(addAccountLogBo);
+            });
+        }
     }
 }

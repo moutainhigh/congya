@@ -41,7 +41,7 @@
                 and activity_status = #{activityStatus}
             </if>
         </where>
-        order by create_time
+        order by create_time desc
     </select>
 
 </mapper>

@@ -17,7 +17,8 @@ public enum VerifyStatusEnum implements BaseEnum {
     CHECKED(3,"审核通过"),
     NOT_APPROVED(4,"不通过/驳回"),
     MODIFY(5,"返回修改"),
-    DISABLED(6,"禁用正在进行的活动");
+    DISABLED(6,"禁用正在进行的活动"),
+    IS_CANCEL(7,"已取消");
 
     private Integer id;
     private String name;

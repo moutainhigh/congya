@@ -4,6 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.constant.logistics.LogisticsContantsConfig;
+import com.chauncy.common.enums.message.NoticeContentEnum;
+import com.chauncy.common.enums.message.NoticeTitleEnum;
+import com.chauncy.common.enums.message.NoticeTypeEnum;
 import com.chauncy.common.enums.order.LogisticsStatusEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
@@ -14,14 +17,19 @@ import com.chauncy.common.util.rabbit.RabbitUtil;
 import com.chauncy.data.bo.app.logistics.*;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.area.AreaShopLogisticsPo;
+import com.chauncy.data.domain.po.message.interact.MmUserNoticePo;
+import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.domain.po.order.OmOrderLogisticsPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
+import com.chauncy.data.domain.po.pay.OmOrderTempPo;
 import com.chauncy.data.domain.po.user.UmAreaShippingPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.logistics.SynQueryLogisticsDto;
 import com.chauncy.data.dto.app.order.logistics.SynQueryParamDto;
 import com.chauncy.data.dto.app.order.logistics.TaskRequestDto;
 import com.chauncy.data.mapper.area.AreaShopLogisticsMapper;
+import com.chauncy.data.mapper.message.interact.MmUserNoticeMapper;
+import com.chauncy.data.mapper.order.OmGoodsTempMapper;
 import com.chauncy.data.mapper.order.OmOrderLogisticsMapper;
 import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.mapper.sys.BasicSettingMapper;
@@ -48,6 +56,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -66,6 +75,12 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
 
     @Autowired
     private OmOrderLogisticsMapper mapper;
+
+    @Autowired
+    private OmGoodsTempMapper omGoodsTempMapper;
+
+    @Autowired
+    private MmUserNoticeMapper mmUserNoticeMapper;
 
     @Resource
     private LogisticsContantsConfig logisticsProperties;
@@ -160,7 +175,10 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
 
                 //	是否签收标记
                 String isCheck = result.getIscheck();
-
+                if("1".equals(isCheck)) {
+                    //邮件签收  发送消息给到APP内消息列表
+                    saveSignedNotice(orderId);
+                }
                 log.error(isCheck);
 
                 String data = JSONUtils.toJSONString(result.getData());
@@ -204,6 +222,34 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
             log.error("订单物流回调失败，失败信息为:【{}】", resp);
         }
         return resp;
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/22 11:45
+     * @Description 订单签收 给用户发交易物流通知消息
+     *
+     * @Update yeJH
+     *
+     * @param  orderId
+     * @return void
+     **/
+    public void saveSignedNotice(String orderId) {
+        OmOrderPo omOrderPo = orderMapper.selectById(orderId);
+        if(null != omOrderPo) {
+            //找到订单中的一个商品
+            QueryWrapper<OmGoodsTempPo> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda().eq(OmGoodsTempPo::getOrderId, orderId);
+            queryWrapper.lambda().last(" LIMIT 1 ");
+            OmGoodsTempPo omGoodsTempPo = omGoodsTempMapper.selectOne(queryWrapper);
+            MmUserNoticePo mmUserNoticePo = new MmUserNoticePo();
+            mmUserNoticePo.setUserId(omOrderPo.getUmUserId())
+                    .setNoticeType(NoticeTypeEnum.EXPRESS_LOGISTICS.getId())
+                    .setTitle(NoticeTitleEnum.ALREADY_SIGNED.getName())
+                    .setContent(MessageFormat.format(NoticeContentEnum.ALREADY_SIGNED.getName(),
+                            omGoodsTempPo.getName()));
+            mmUserNoticeMapper.insert(mmUserNoticePo);
+        }
     }
 
     /**

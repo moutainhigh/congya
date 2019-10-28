@@ -25,7 +25,7 @@ public enum NoticeContentEnum   implements BaseEnum {
     ALREADY_SIGNED(7, "您购买的{0}订单已签收"),
     SHIPPED(8, "您购买的{0}订单已发货"),
     REFUND_SUCCESSFUL(9, "亲爱的{0}：退款售后编号：{1}，系统已给您退款。请注意查收"),
-    RETURN_GOODS(10, "亲爱的{0}：退款售后编号：{1}，卖家已同意退款。请于{2}前将货物寄回指定售后点"),
+    RETURN_GOODS(10, "亲爱的{0}：退款售后编号：{1}，卖家已同意售后。请于{2}前将货物寄回指定售后点"),
     WITHDRAWAL_SUCCESS(11, "亲爱的{0}：流水编号{1}，请注意查收"),
     ;
 

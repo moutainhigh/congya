@@ -6,6 +6,8 @@ import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.information.add.AddInformationCommentDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationCommentDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationViceCommentDto;
+import com.chauncy.data.dto.manage.message.information.select.SearchInfoCommentDto;
+import com.chauncy.data.vo.manage.message.information.comment.InformationCommentVo;
 import com.chauncy.data.vo.manage.message.information.comment.InformationMainCommentVo;
 import com.chauncy.data.vo.manage.message.information.comment.InformationViceCommentVo;
 import com.github.pagehelper.PageInfo;
@@ -22,6 +24,18 @@ import java.util.List;
  */
 public interface IMmInformationCommentService extends Service<MmInformationCommentPo> {
 
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/21 20:33
+     * @Description 查询资讯所有评论
+     *
+     * @Update yeJH
+     *
+     * @param  searchInfoCommentDto
+     * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.manage.message.information.comment.InformationCommentVo>
+     **/
+    PageInfo<InformationCommentVo> searchInfoComment(SearchInfoCommentDto searchInfoCommentDto);
     /**
      * 后台分页查询评论
      * @param informationCommentDto

@@ -2,7 +2,9 @@ package com.chauncy.data.mapper.message.information.comment;
 
 import com.chauncy.data.domain.po.message.information.comment.MmInformationCommentPo;
 import com.chauncy.data.dto.manage.message.information.select.InformationCommentDto;
+import com.chauncy.data.dto.manage.message.information.select.SearchInfoCommentDto;
 import com.chauncy.data.mapper.IBaseMapper;
+import com.chauncy.data.vo.manage.message.information.comment.InformationCommentVo;
 import com.chauncy.data.vo.manage.message.information.comment.InformationMainCommentVo;
 import com.chauncy.data.vo.manage.message.information.comment.InformationViceCommentVo;
 import org.apache.ibatis.annotations.Param;
@@ -18,6 +20,19 @@ import java.util.List;
  * @since 2019-06-30
  */
 public interface MmInformationCommentMapper extends IBaseMapper<MmInformationCommentPo> {
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/21 20:38
+     * @Description 查询资讯所有评论
+     *
+     * @Update yeJH
+     *
+     * @param  searchInfoCommentDto 查询条件
+     * @return java.util.List<InformationCommentVo>
+     **/
+    List<InformationCommentVo>  searchInfoComment(SearchInfoCommentDto searchInfoCommentDto);
+
     /**
      * 后台分页查询评论
      *

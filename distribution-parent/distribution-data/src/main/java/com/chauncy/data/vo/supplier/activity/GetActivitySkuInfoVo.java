@@ -37,6 +37,14 @@ public class GetActivitySkuInfoVo {
     @JSONField(ordinal = 12)
     private List<Map<String,Object>> skuList;
 
+    @ApiModelProperty("积分抵扣比例")
+    @JSONField(ordinal = 13)
+    private BigDecimal discountPriceRatio;
+
+    @ApiModelProperty("所有sku中最小活动库存")
+    @JSONField(ordinal = 14)
+    private Integer lowestStock;
+
     @ApiModelProperty(value = "备注")
     @JSONField(ordinal = 4)
     private String remark;

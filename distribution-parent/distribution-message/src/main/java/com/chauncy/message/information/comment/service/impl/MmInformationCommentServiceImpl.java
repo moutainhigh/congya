@@ -11,10 +11,12 @@ import com.chauncy.data.domain.po.message.information.comment.MmInformationComme
 import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.message.information.add.AddInformationCommentDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationCommentDto;
+import com.chauncy.data.dto.manage.message.information.select.SearchInfoCommentDto;
 import com.chauncy.data.mapper.message.information.MmInformationMapper;
 import com.chauncy.data.mapper.message.information.comment.MmCommentLikedMapper;
 import com.chauncy.data.mapper.message.information.comment.MmInformationCommentMapper;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.vo.manage.message.information.comment.InformationCommentVo;
 import com.chauncy.data.vo.manage.message.information.comment.InformationMainCommentVo;
 import com.chauncy.data.vo.manage.message.information.comment.InformationViceCommentVo;
 import com.chauncy.message.information.comment.service.IMmInformationCommentService;
@@ -48,6 +50,28 @@ public class MmInformationCommentServiceImpl extends AbstractService<MmInformati
     private MmCommentLikedMapper mmCommentLikedMapper;
     @Autowired
     private IMmInformationService mmInformationService;
+
+    /**
+     * @Author yeJH
+     * @Date 2019/10/21 20:34
+     * @Description 查询资讯所有评论
+     *
+     * @Update yeJH
+     *
+     * @param  searchInfoCommentDto
+     * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.manage.message.information.comment.InformationCommentVo>
+     **/
+    @Override
+    public PageInfo<InformationCommentVo> searchInfoComment(SearchInfoCommentDto searchInfoCommentDto) {
+
+        Integer pageNo = searchInfoCommentDto.getPageNo()==null ? defaultPageNo : searchInfoCommentDto.getPageNo();
+        Integer pageSize = searchInfoCommentDto.getPageSize()==null ? defaultPageSize : searchInfoCommentDto.getPageSize();
+
+        PageInfo<InformationCommentVo> informationCommentVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> mmInformationCommentMapper.searchInfoComment(searchInfoCommentDto));
+        return informationCommentVoPageInfo ;
+
+    }
 
     /**
      * 后台分条件页查询评论

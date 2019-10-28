@@ -247,9 +247,9 @@
     </select>
 
     <select id="getOrderRewardByPayId" resultType="com.chauncy.data.bo.app.order.my.OrderRewardBo">
-        select SUM(g.reward_integrate) rewardShopTicket,
-            SUM(g.reward_experience) rewardIntegral,
-            SUM(g.reward_shop_ticket) rewardExperience
+        select SUM(ogt.reward_integrate*ogt.number) rewardShopTicket,
+            SUM(ogt.reward_experience*ogt.number) rewardIntegral,
+            SUM(ogt.reward_shop_ticket*ogt.number) rewardExperience
         from om_goods_temp ogt
         inner join om_order oo on oo.id = ogt.order_id
         where oo.pay_order_id = #{payOrderId} and del_flag=0
