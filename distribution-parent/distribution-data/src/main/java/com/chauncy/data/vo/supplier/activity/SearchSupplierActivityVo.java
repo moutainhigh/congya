@@ -63,4 +63,23 @@ public class SearchSupplierActivityVo {
     @JSONField(ordinal = 9)
     private GetActivitySkuInfoVo goodsDetail;
 
+    @ApiModelProperty(value = "返回修改原因",hidden = true)
+    @JSONField(ordinal = 10,serialize = false)
+    private String modifyCause;
+
+    @ApiModelProperty(value = "拒绝原因",hidden = true)
+    @JSONField(ordinal = 11,serialize = false)
+    private String refuseCase;
+
+    @ApiModelProperty(value = "原因")
+    @JSONField(ordinal = 12)
+    private String cause;
+
+    @ApiModelProperty("店铺ID")
+    @JSONField(ordinal = 13)
+    private Long storeId;
+
+    @ApiModelProperty("店铺名称")
+    @JSONField(ordinal = 14)
+    private String storeName;
 }

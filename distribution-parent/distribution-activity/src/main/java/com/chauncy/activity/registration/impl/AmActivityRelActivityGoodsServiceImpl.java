@@ -377,6 +377,18 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
 //        }
 
         GetActivitySkuInfoVo getActivitySkuInfoVo = new GetActivitySkuInfoVo();
+        //判断该商品是否存在
+        PmGoodsPo goodsPo = goodsMapper.selectById(goodsId);
+        if (goodsPo == null) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "该商品不存在！");
+        }else {
+            //基础信息
+            getActivitySkuInfoVo.setGoodsId(findActivitySkuDto.getGoodsId());
+            getActivitySkuInfoVo.setActivityId(findActivitySkuDto.getActivityId());
+            getActivitySkuInfoVo.setActivityType(activityTypeEnum.getId());
+            getActivitySkuInfoVo.setActivityCostRate(goodsPo.getActivityCostRate());
+            getActivitySkuInfoVo.setStoreId(goodsPo.getStoreId());
+        }
 
         List<GoodsStandardVo> standardVos = Lists.newArrayList();
         //获取商品对应的分类ID
@@ -406,13 +418,49 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
         });
         getActivitySkuInfoVo.setGoodsStandardVo(standardVos);
 
+        //活动积分比例
+        BigDecimal discountPriceRatio = null;
+        switch (activityTypeEnum) {
+            case REDUCED:
+//                    AmReducedPo amReducedPo = reducedMapper.selectById(activityId);
+//                    if (finalActivityRelActivityGoodsPo == null) {
+//                        throw new ServiceException(ResultCode.FAIL, String.format("商品:[%s]不参与该活动:[%s],请检查", goodsPo.getName(), amReducedPo.getName()));
+//                    }
+                break;
+            case INTEGRALS:
+                AmIntegralsPo integralsPo = integralsMapper.selectById(activityId);
+//                    if (finalActivityRelActivityGoodsPo == null) {
+//                        throw new ServiceException(ResultCode.FAIL, String.format("商品:[%s]不参与该活动:[%s],请检查", goodsPo.getName(), integralsPo.getName()));
+//                    }
+                if (integralsPo != null) {
+                    discountPriceRatio = BigDecimalUtil.safeDivide(integralsPo.getDiscountPriceRatio(), new BigDecimal(100), new BigDecimal(-1));
+                }
+                break;
+            case SECKILL:
+                AmSeckillPo seckillPo = seckillMapper.selectById(activityId);
+//                    if (finalActivityRelActivityGoodsPo == null) {
+//                        throw new ServiceException(ResultCode.FAIL, String.format("商品:[%s]不参与该活动:[%s],请检查", goodsPo.getName(), seckillPo.getName()));
+//                    }
+                if (seckillPo != null) {
+                    discountPriceRatio = BigDecimalUtil.safeDivide(seckillPo.getDiscountPriceRatio(), new BigDecimal(100), new BigDecimal(-1));
+                }
+                break;
+            case SPELL_GROUP:
+                AmSpellGroupPo spellGroupPo = spellGroupMapper.selectById(activityId);
+//                    if (finalActivityRelActivityGoodsPo == null) {
+//                        throw new ServiceException(ResultCode.FAIL, String.format("商品:[%s]不参与该活动:[%s],请检查", goodsPo.getName(), spellGroupPo.getName()));
+//                    }
+                if (spellGroupPo != null) {
+                    discountPriceRatio = BigDecimalUtil.safeDivide(spellGroupPo.getDiscountPriceRatio(), new BigDecimal(100), new BigDecimal(-1));
+                }
+                break;
+        }
+        getActivitySkuInfoVo.setDiscountPriceRatio(discountPriceRatio);
 
         List<Map<String, Object>> mapList = Lists.newArrayList();
-        //判断该商品是否存在
-        PmGoodsPo goodsPo = goodsMapper.selectById(goodsId);
-        if (goodsPo == null) {
-            throw new ServiceException(ResultCode.NO_EXISTS, "该商品不存在！");
-        }
+        //保存所有SKU库存
+        List<Integer> stocks = Lists.newArrayList();
+
         AmActivityRelActivityGoodsPo activityRelActivityGoodsPo = new AmActivityRelActivityGoodsPo();
         if (userPo.getStoreId() != null) {
             //从am_activity_rel_activity_goods 平台活动与商品关联表 获取活动商品信息
@@ -420,16 +468,20 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
                     .lambda().and(obj -> obj.eq(AmActivityRelActivityGoodsPo::getStoreId, userPo.getStoreId())
                             .eq(AmActivityRelActivityGoodsPo::getActivityId, findActivitySkuDto.getActivityId())
                             .eq(AmActivityRelActivityGoodsPo::getGoodsId, findActivitySkuDto.getGoodsId())));
-            if (activityRelActivityGoodsPo.getActivityType() != ActivityTypeEnum.fromName(findActivitySkuDto.getActivityType()).getId()) {
-                throw new ServiceException(ResultCode.FAIL, String.format("所传的活动类型:[%s]不对,该活动对应的类型应该是:[%s]", findActivitySkuDto.getActivityType(), ActivityTypeEnum.getActivityTypeEnumById(activityRelActivityGoodsPo.getActivityType()).getName()));
+            if (activityRelActivityGoodsPo != null) {
+                if (activityRelActivityGoodsPo.getActivityType() != ActivityTypeEnum.fromName(findActivitySkuDto.getActivityType()).getId()) {
+                    throw new ServiceException(ResultCode.FAIL, String.format("所传的活动类型:[%s]不对,该活动对应的类型应该是:[%s]", findActivitySkuDto.getActivityType(), ActivityTypeEnum.getActivityTypeEnumById(activityRelActivityGoodsPo.getActivityType()).getName()));
+                }
             }
         } else {
             //从am_activity_rel_activity_goods 平台活动与商品关联表 获取活动商品信息
             activityRelActivityGoodsPo = activityRelActivityGoodsMapper.selectOne(new QueryWrapper<AmActivityRelActivityGoodsPo>()
                     .lambda().and(obj -> obj.eq(AmActivityRelActivityGoodsPo::getActivityId, findActivitySkuDto.getActivityId())
                             .eq(AmActivityRelActivityGoodsPo::getGoodsId, findActivitySkuDto.getGoodsId())));
-            if (activityRelActivityGoodsPo.getActivityType() != ActivityTypeEnum.fromName(findActivitySkuDto.getActivityType()).getId()) {
-                throw new ServiceException(ResultCode.FAIL, String.format("所传的活动类型:[%s]不对,该活动对应的类型应该是:[%s]", findActivitySkuDto.getActivityType(), ActivityTypeEnum.getActivityTypeEnumById(activityRelActivityGoodsPo.getActivityType()).getName()));
+            if (activityRelActivityGoodsPo != null) {
+                if (activityRelActivityGoodsPo.getActivityType() != ActivityTypeEnum.fromName(findActivitySkuDto.getActivityType()).getId()) {
+                    throw new ServiceException(ResultCode.FAIL, String.format("所传的活动类型:[%s]不对,该活动对应的类型应该是:[%s]", findActivitySkuDto.getActivityType(), ActivityTypeEnum.getActivityTypeEnumById(activityRelActivityGoodsPo.getActivityType()).getName()));
+                }
             }
         }
 
@@ -443,13 +495,19 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
         BigDecimal activityCostRate = BigDecimalUtil.safeDivide(goodsMapper.selectById(goodsId).getActivityCostRate(), new BigDecimal(100), new BigDecimal(-1));
         //循环获取sku信息
         AmActivityRelActivityGoodsPo finalActivityRelActivityGoodsPo = activityRelActivityGoodsPo;
+//        Long storeId = null;
+//        if (finalActivityRelActivityGoodsPo != null){
+//            storeId = finalActivityRelActivityGoodsPo.getStoreId();
+//        }
+//        Long finalStoreId = storeId;
+        BigDecimal finalDiscountPriceRatio = discountPriceRatio;
         goodsSkuPos.forEach(x -> {
             Map<String, Object> mapBean = new HashMap<>();
             //获取除规格信息外的其他信息
             FindActivitySkuVo findActivitySkuVo = new FindActivitySkuVo();
             BeanUtils.copyProperties(x, findActivitySkuVo);
             findActivitySkuVo.setSkuId(x.getId());
-            getActivitySkuInfoVo.setStoreId(finalActivityRelActivityGoodsPo.getStoreId());
+//            getActivitySkuInfoVo.setStoreId(finalStoreId);
             //计算活动建议价
             //售价
             BigDecimal sellPrice = x.getSellPrice();
@@ -461,43 +519,12 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
             BigDecimal fixedCosts = BigDecimalUtil.safeAdd(supplierPrice, operationPrice, profitRate);
             //活动成本
             BigDecimal activityCost = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeSubtract(false, sellPrice, fixedCosts), activityCostRate);
+            //活动建议价的最低值：商品售价-活动成本
             BigDecimal lowActivityPrice = BigDecimalUtil.safeSubtract(false, sellPrice, activityCost);
+            //活动建议价的最大值：商品售价-商品售价*该次活动的比例
             BigDecimal highActivityPrice = null;
-            switch (activityTypeEnum) {
-                case REDUCED:
-                    AmReducedPo amReducedPo = reducedMapper.selectById(activityId);
-                    if (finalActivityRelActivityGoodsPo == null) {
-                        throw new ServiceException(ResultCode.FAIL, String.format("商品:[%s]不参与该活动:[%s],请检查", goodsPo.getName(), amReducedPo.getName()));
-                    }
-                    break;
-                case INTEGRALS:
-                    AmIntegralsPo integralsPo = integralsMapper.selectById(activityId);
-                    if (finalActivityRelActivityGoodsPo == null) {
-                        throw new ServiceException(ResultCode.FAIL, String.format("商品:[%s]不参与该活动:[%s],请检查", goodsPo.getName(), integralsPo.getName()));
-                    }
-                    if (integralsPo != null) {
-                        highActivityPrice = BigDecimalUtil.safeSubtract(false, sellPrice, BigDecimalUtil.safeMultiply(sellPrice, BigDecimalUtil.safeDivide(integralsPo.getDiscountPriceRatio(), new BigDecimal(100), new BigDecimal(-1))));
-                    }
-                    break;
-                case SECKILL:
-                    AmSeckillPo seckillPo = seckillMapper.selectById(activityId);
-                    if (finalActivityRelActivityGoodsPo == null) {
-                        throw new ServiceException(ResultCode.FAIL, String.format("商品:[%s]不参与该活动:[%s],请检查", goodsPo.getName(), seckillPo.getName()));
-                    }
-                    if (seckillPo != null) {
-                        highActivityPrice = BigDecimalUtil.safeSubtract(false, sellPrice, BigDecimalUtil.safeMultiply(sellPrice, BigDecimalUtil.safeDivide(seckillPo.getDiscountPriceRatio(), new BigDecimal(100), new BigDecimal(-1))));
-                    }
-                    break;
-                case SPELL_GROUP:
-                    AmSpellGroupPo spellGroupPo = spellGroupMapper.selectById(activityId);
-                    if (finalActivityRelActivityGoodsPo == null) {
-                        throw new ServiceException(ResultCode.FAIL, String.format("商品:[%s]不参与该活动:[%s],请检查", goodsPo.getName(), spellGroupPo.getName()));
-                    }
-                    if (spellGroupPo != null) {
-                        highActivityPrice = BigDecimalUtil.safeSubtract(false, sellPrice, BigDecimalUtil.safeMultiply(sellPrice, BigDecimalUtil.safeDivide(spellGroupPo.getDiscountPriceRatio(), new BigDecimal(100), new BigDecimal(-1))));
-                    }
-                    break;
-            }
+            highActivityPrice = BigDecimalUtil.safeSubtract(false, sellPrice, BigDecimalUtil.safeMultiply(sellPrice, finalDiscountPriceRatio));
+
             String recommendedActivityPrice;
             if (lowActivityPrice.equals(highActivityPrice) || highActivityPrice == null) {
                 highActivityPrice = lowActivityPrice;
@@ -511,14 +538,10 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
             //从am_activity_rel_goods_sku 平台活动的商品与sku关联表 获取活动价格和活动库存
             if (finalActivityRelActivityGoodsPo != null) {
                 getActivitySkuInfoVo.setActivityGoodsRelId(finalActivityRelActivityGoodsPo.getId());
-                getActivitySkuInfoVo.setActivityType(finalActivityRelActivityGoodsPo.getActivityType());
                 getActivitySkuInfoVo.setPicture(finalActivityRelActivityGoodsPo.getPicture());
                 getActivitySkuInfoVo.setRemark(finalActivityRelActivityGoodsPo.getRemark());
                 getActivitySkuInfoVo.setStatus(VerifyStatusEnum.getVerifyStatusById(finalActivityRelActivityGoodsPo.getVerifyStatus()).getName());
-                getActivitySkuInfoVo.setActivityId(findActivitySkuDto.getActivityId());
-                getActivitySkuInfoVo.setActivityCostRate(goodsMapper.selectById(goodsId).getActivityCostRate());
                 getActivitySkuInfoVo.setBuyLimit(finalActivityRelActivityGoodsPo.getBuyLimit());
-                getActivitySkuInfoVo.setGoodsId(finalActivityRelActivityGoodsPo.getGoodsId());
 
                 AmActivityRelGoodsSkuPo activityRelGoodsSkuPo = activityRelGoodsSkuMapper.selectOne(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda()
                         .eq(AmActivityRelGoodsSkuPo::getRelId, finalActivityRelActivityGoodsPo.getId())
@@ -529,6 +552,7 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
                     findActivitySkuVo.setGoodsSkuRelId(activityRelGoodsSkuPo.getId());
                 }
             }
+
             mapBean = JSONUtils.toBean(findActivitySkuVo, Map.class);
 
             //获取每条sku对应的规格信息，规格值与sku多对多关系
@@ -555,8 +579,12 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
             });
 
             mapList.add(mapBean);
+            //保存所有sku库存以便获取最低库存
+            stocks.add(x.getStock());
         });
         getActivitySkuInfoVo.setSkuList(mapList);
+        Integer lowestStock = stocks.stream().mapToInt((x)->x).summaryStatistics().getMin();
+        getActivitySkuInfoVo.setLowestStock(lowestStock);
 
         return getActivitySkuInfoVo;
     }
@@ -608,6 +636,110 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
                 endTime = spellGroupPo.getActivityEndTime();
                 break;
         }
+        //判断是否符合计算公式要求
+        ActivityTypeEnum activityType = ActivityTypeEnum.fromName(isConformDto.getActivityType());
+        switch (activityType) {
+            case REDUCED:
+                /**满减活动条件限制：4、活动成本/售价>=满减活动比例
+                 *
+                 * 1、固定成本(sku)=供货价(sku)+运营比例(sku)*销售价+利润比例(sku)*销售价
+                 * 2、活动成本=（商品售价(sku)-固定成本）*商品活动成本百分比(商品运营信息Tab)
+                 * 3、满减活动比例 = 减/满
+                 */
+                AmReducedPo reducedPo = reducedMapper.selectById(isConformDto.getActivityId());
+                for (PmGoodsSkuPo b : goodsSkuPos) {
+                    //售价
+                    BigDecimal sellPrice = b.getSellPrice();
+                    //获取供货价、运营成本比例(%)、利润比例(%)
+                    BigDecimal supplierPrice = b.getSupplierPrice();
+                    BigDecimal operationPrice = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(b.getOperationCost(), new BigDecimal(100), new BigDecimal(-1)), sellPrice);
+                    BigDecimal profitRate = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(b.getProfitRate(), new BigDecimal(100), new BigDecimal(-1)), sellPrice);
+                    //固定成本
+                    BigDecimal fixedCosts = BigDecimalUtil.safeAdd(supplierPrice, operationPrice, profitRate);
+                    //活动成本
+                    BigDecimal activityCost = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeSubtract(false, sellPrice, fixedCosts), activityCostRate);
+                    //满金额条件
+                    BigDecimal reductionFullMoney = reducedPo.getReductionFullMoney();
+                    //减金额
+                    BigDecimal reductionPostMoney = reducedPo.getReductionPostMoney();
+                    //满减比例
+                    BigDecimal rate = BigDecimalUtil.safeDivide(reductionPostMoney, reductionFullMoney, new BigDecimal(-1));
+                    //活动成本/售价
+                    BigDecimal activitySaleRate = BigDecimalUtil.safeDivide(activityCost, sellPrice, new BigDecimal(-1));
+                    //不满足条件
+                    if (activitySaleRate.compareTo(rate) >= 0) {
+                        throw new ServiceException(ResultCode.FAIL, String.format("该商品:[%s]不满足该活动:[%s]的条件", goodsMapper.selectById(goodsId).getName(), reducedPo.getName()));
+                    }
+                }
+                break;
+            /**
+             * 活动积分判断
+             *
+             * 活动成本-优惠金额>=0
+             */
+            case INTEGRALS:
+                AmIntegralsPo integralsPo = integralsMapper.selectById(isConformDto.getActivityId());
+                for (PmGoodsSkuPo b : goodsSkuPos) {
+                    //售价
+                    BigDecimal sellPrice = b.getSellPrice();
+                    //获取供货价、运营成本比例(%)、利润比例(%)
+                    BigDecimal supplierPrice = b.getSupplierPrice();
+                    BigDecimal operationPrice = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(b.getOperationCost(), new BigDecimal(100), new BigDecimal(-1)), sellPrice);
+                    BigDecimal profitRate = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(b.getProfitRate(), new BigDecimal(100), new BigDecimal(-1)), sellPrice);
+                    //固定成本
+                    BigDecimal fixedCosts = BigDecimalUtil.safeAdd(supplierPrice, operationPrice, profitRate);
+                    //活动成本
+                    BigDecimal activityCost = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeSubtract(false, sellPrice, fixedCosts), activityCostRate);
+                    //优惠金额
+                    BigDecimal discount = BigDecimalUtil.safeMultiply(sellPrice, BigDecimalUtil.safeDivide(integralsPo.getDiscountPriceRatio(), new BigDecimal(100), new BigDecimal(-1)));
+                    if (activityCost.compareTo(discount) < 0) {
+                        throw new ServiceException(ResultCode.FAIL, String.format("该商品:[%s]不满足该活动:[%s]的条件", goodsMapper.selectById(goodsId).getName(), integralsPo.getName()));
+                    }
+
+                }
+                break;
+            case SECKILL:
+                AmSeckillPo seckillPo = seckillMapper.selectById(isConformDto.getActivityId());
+                for (PmGoodsSkuPo b : goodsSkuPos) {
+                    //售价
+                    BigDecimal sellPrice = b.getSellPrice();
+                    //获取供货价、运营成本比例(%)、利润比例(%)
+                    BigDecimal supplierPrice = b.getSupplierPrice();
+                    BigDecimal operationPrice = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(b.getOperationCost(), new BigDecimal(100), new BigDecimal(-1)), sellPrice);
+                    BigDecimal profitRate = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(b.getProfitRate(), new BigDecimal(100), new BigDecimal(-1)), sellPrice);
+                    //固定成本
+                    BigDecimal fixedCosts = BigDecimalUtil.safeAdd(supplierPrice, operationPrice, profitRate);
+                    //活动成本
+                    BigDecimal activityCost = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeSubtract(false, sellPrice, fixedCosts), activityCostRate);
+                    //优惠金额
+                    BigDecimal discount = BigDecimalUtil.safeMultiply(sellPrice, BigDecimalUtil.safeDivide(seckillPo.getDiscountPriceRatio(), new BigDecimal(100), new BigDecimal(-1)));
+                    if (activityCost.compareTo(discount) < 0) {
+                        throw new ServiceException(ResultCode.FAIL, String.format("该商品:[%s]不满足该活动:[%s]的条件", goodsMapper.selectById(goodsId).getName(), seckillPo.getName()));
+                    }
+                }
+                break;
+            case SPELL_GROUP:
+                AmSpellGroupPo spellGroupPo = spellGroupMapper.selectById(isConformDto.getActivityId());
+                for (PmGoodsSkuPo b : goodsSkuPos) {
+                    //售价
+                    BigDecimal sellPrice = b.getSellPrice();
+                    //获取供货价、运营成本比例(%)、利润比例(%)
+                    BigDecimal supplierPrice = b.getSupplierPrice();
+                    BigDecimal operationPrice = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(b.getOperationCost(), new BigDecimal(100), new BigDecimal(-1)), sellPrice);
+                    BigDecimal profitRate = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(b.getProfitRate(), new BigDecimal(100), new BigDecimal(-1)), sellPrice);
+                    //固定成本
+                    BigDecimal fixedCosts = BigDecimalUtil.safeAdd(supplierPrice, operationPrice, profitRate);
+                    //活动成本
+                    BigDecimal activityCost = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeSubtract(false, sellPrice, fixedCosts), activityCostRate);
+                    //优惠金额
+                    BigDecimal discount = BigDecimalUtil.safeMultiply(sellPrice, BigDecimalUtil.safeDivide(spellGroupPo.getDiscountPriceRatio(), new BigDecimal(100), new BigDecimal(-1)));
+                    if (activityCost.compareTo(discount) < 0) {
+                        throw new ServiceException(ResultCode.FAIL, String.format("该商品:[%s]不满足该活动:[%s]的条件", goodsMapper.selectById(goodsId).getName(), spellGroupPo.getName()));
+                    }
+                }
+                break;
+        }
+
         //查询该商家参与的所有有效的活动 am_activity_rel_activity_goods
         List<StoreActivityBo> storeActivityBos = activityRelActivityGoodsMapper.findStoreActivity(userPo.getStoreId(), isConformDto.getGoodsId());
         if (!ListUtil.isListNullAndEmpty(storeActivityBos)) {
@@ -615,129 +747,40 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
             LocalDateTime finalEndTime = endTime;
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             storeActivityBos.forEach(y -> {
-                ActivityTypeEnum activityType = ActivityTypeEnum.getActivityTypeEnumById(y.getActivityType());
                 switch (activityType) {
                     case REDUCED:
                         AmReducedPo reducedPo = reducedMapper.selectById(y.getActivityId());
                         LocalDateTime reduceStartTime = reducedPo.getActivityStartTime();
                         LocalDateTime reduceEndTime = reducedPo.getActivityEndTime();
-                        if ((reduceStartTime.isAfter(finalStartTime) && reduceStartTime.isBefore(finalEndTime)) ||
-                                (reduceEndTime.isAfter(finalStartTime) && reduceEndTime.isBefore(finalEndTime))) {
+                        if ((reduceStartTime.compareTo(finalStartTime)>=0 && reduceStartTime.compareTo(finalEndTime)<=0) ||
+                                (reduceEndTime.compareTo(finalStartTime)>=0 && reduceEndTime.compareTo(finalEndTime)<=0)) {
                             throw new ServiceException(ResultCode.FAIL, String.format("该商品:[%s]在该时间段:[%s]内已参加其他活动,请重新选择!", goodsMapper.selectById(goodsId).getName(), (dateTimeFormatter.format(finalStartTime) + "～" + dateTimeFormatter.format(finalEndTime))));
                         }
-                        /**满减活动条件限制：4、活动成本/售价>=满减活动比例
-                         *
-                         * 1、固定成本(sku)=供货价(sku)+运营比例(sku)*销售价+利润比例(sku)*销售价
-                         * 2、活动成本=（商品售价(sku)-固定成本）*商品活动成本百分比(商品运营信息Tab)
-                         * 3、满减活动比例 = 减/满
-                         */
-                        for (PmGoodsSkuPo b : goodsSkuPos) {
-                            //售价
-                            BigDecimal sellPrice = b.getSellPrice();
-                            //获取供货价、运营成本比例(%)、利润比例(%)
-                            BigDecimal supplierPrice = b.getSupplierPrice();
-                            BigDecimal operationPrice = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(b.getOperationCost(), new BigDecimal(100), new BigDecimal(-1)), sellPrice);
-                            BigDecimal profitRate = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(b.getProfitRate(), new BigDecimal(100), new BigDecimal(-1)), sellPrice);
-                            //固定成本
-                            BigDecimal fixedCosts = BigDecimalUtil.safeAdd(supplierPrice, operationPrice, profitRate);
-                            //活动成本
-                            BigDecimal activityCost = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeSubtract(false, sellPrice, fixedCosts), activityCostRate);
-                            //满金额条件
-                            BigDecimal reductionFullMoney = reducedPo.getReductionFullMoney();
-                            //减金额
-                            BigDecimal reductionPostMoney = reducedPo.getReductionPostMoney();
-                            //满减比例
-                            BigDecimal rate = BigDecimalUtil.safeDivide(reductionPostMoney, reductionFullMoney, new BigDecimal(-1));
-                            //活动成本/售价
-                            BigDecimal activitySaleRate = BigDecimalUtil.safeDivide(activityCost, sellPrice, new BigDecimal(-1));
-                            //不满足条件
-                            if (activitySaleRate.compareTo(rate) < 0) {
-                                throw new ServiceException(ResultCode.FAIL, String.format("该商品:[%s]不满足该活动:[%s]的条件", goodsMapper.selectById(goodsId).getName(), reducedPo.getName()));
-                            }
-                        }
-                        break;
-                    /**
-                     * 活动积分判断
-                     *
-                     * 活动成本-优惠金额>=0
-                     */
                     case INTEGRALS:
                         AmIntegralsPo integralsPo = integralsMapper.selectById(y.getActivityId());
                         LocalDateTime intergralsStartTime = integralsPo.getActivityStartTime();
                         LocalDateTime integralsEndTime = integralsPo.getActivityEndTime();
-                        if ((intergralsStartTime.isAfter(finalStartTime) && intergralsStartTime.isBefore(finalEndTime)) ||
-                                (integralsEndTime.isAfter(finalStartTime) && integralsEndTime.isBefore(finalEndTime))) {
+                        if ((intergralsStartTime.compareTo(finalStartTime)>=0 && intergralsStartTime.compareTo(finalEndTime)<=0) ||
+                                (integralsEndTime.compareTo(finalStartTime)>=0 && integralsEndTime.compareTo(finalEndTime)<=0)) {
                             throw new ServiceException(ResultCode.FAIL, String.format("该商品:[%s]在该时间段:[%s]内已参加其他活动,请重新选择!", goodsMapper.selectById(goodsId).getName(), (dateTimeFormatter.format(finalStartTime) + "～" + dateTimeFormatter.format(finalEndTime))));
-                        }
-                        for (PmGoodsSkuPo b : goodsSkuPos) {
-                            //售价
-                            BigDecimal sellPrice = b.getSellPrice();
-                            //获取供货价、运营成本比例(%)、利润比例(%)
-                            BigDecimal supplierPrice = b.getSupplierPrice();
-                            BigDecimal operationPrice = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(b.getOperationCost(), new BigDecimal(100), new BigDecimal(-1)), sellPrice);
-                            BigDecimal profitRate = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(b.getProfitRate(), new BigDecimal(100), new BigDecimal(-1)), sellPrice);
-                            //固定成本
-                            BigDecimal fixedCosts = BigDecimalUtil.safeAdd(supplierPrice, operationPrice, profitRate);
-                            //活动成本
-                            BigDecimal activityCost = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeSubtract(false, sellPrice, fixedCosts), activityCostRate);
-                            //优惠金额
-                            BigDecimal discount = BigDecimalUtil.safeMultiply(sellPrice, BigDecimalUtil.safeDivide(integralsPo.getDiscountPriceRatio(), new BigDecimal(100), new BigDecimal(-1)));
-                            if (activityCost.compareTo(discount) < 0) {
-                                throw new ServiceException(ResultCode.FAIL, String.format("该商品:[%s]不满足该活动:[%s]的条件", goodsMapper.selectById(goodsId).getName(), integralsPo.getName()));
-                            }
-
                         }
                         break;
                     case SECKILL:
                         AmSeckillPo seckillPo = seckillMapper.selectById(y.getActivityId());
                         LocalDateTime seckillStartTime = seckillPo.getActivityStartTime();
                         LocalDateTime seckillEndTime = seckillPo.getActivityEndTime();
-                        if ((seckillStartTime.isAfter(finalStartTime) && seckillStartTime.isBefore(finalEndTime)) ||
-                                (seckillEndTime.isAfter(finalStartTime) && seckillEndTime.isBefore(finalEndTime))) {
+                        if ((seckillStartTime.compareTo(finalStartTime)>=0 && seckillStartTime.compareTo(finalEndTime)<=0) ||
+                                (seckillEndTime.compareTo(finalStartTime)>=0 && seckillEndTime.compareTo(finalEndTime)<=0)) {
                             throw new ServiceException(ResultCode.FAIL, String.format("该商品:[%s]在该时间段:[%s]内已参加其他活动,请重新选择!", goodsMapper.selectById(goodsId).getName(), (dateTimeFormatter.format(finalStartTime) + "～" + dateTimeFormatter.format(finalEndTime))));
-                        }
-                        for (PmGoodsSkuPo b : goodsSkuPos) {
-                            //售价
-                            BigDecimal sellPrice = b.getSellPrice();
-                            //获取供货价、运营成本比例(%)、利润比例(%)
-                            BigDecimal supplierPrice = b.getSupplierPrice();
-                            BigDecimal operationPrice = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(b.getOperationCost(), new BigDecimal(100), new BigDecimal(-1)), sellPrice);
-                            BigDecimal profitRate = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(b.getProfitRate(), new BigDecimal(100), new BigDecimal(-1)), sellPrice);
-                            //固定成本
-                            BigDecimal fixedCosts = BigDecimalUtil.safeAdd(supplierPrice, operationPrice, profitRate);
-                            //活动成本
-                            BigDecimal activityCost = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeSubtract(false, sellPrice, fixedCosts), activityCostRate);
-                            //优惠金额
-                            BigDecimal discount = BigDecimalUtil.safeMultiply(sellPrice, BigDecimalUtil.safeDivide(seckillPo.getDiscountPriceRatio(), new BigDecimal(100), new BigDecimal(-1)));
-                            if (activityCost.compareTo(discount) < 0) {
-                                throw new ServiceException(ResultCode.FAIL, String.format("该商品:[%s]不满足该活动:[%s]的条件", goodsMapper.selectById(goodsId).getName(), seckillPo.getName()));
-                            }
                         }
                         break;
                     case SPELL_GROUP:
                         AmSpellGroupPo spellGroupPo = spellGroupMapper.selectById(y.getActivityId());
                         LocalDateTime spellGroupStartTime = spellGroupPo.getActivityStartTime();
                         LocalDateTime spellGroupEndTime = spellGroupPo.getActivityEndTime();
-                        if ((spellGroupStartTime.isAfter(finalStartTime) && spellGroupStartTime.isBefore(finalEndTime)) ||
-                                (spellGroupEndTime.isAfter(finalStartTime) && spellGroupEndTime.isBefore(finalEndTime))) {
+                        if ((spellGroupStartTime.compareTo(finalStartTime)>=0 && spellGroupStartTime.compareTo(finalEndTime)<=0) ||
+                                (spellGroupEndTime.compareTo(finalStartTime)>=0 && spellGroupEndTime.compareTo(finalEndTime)<=0)) {
                             throw new ServiceException(ResultCode.FAIL, String.format("该商品:[%s]在该时间段:[%s]内已参加其他活动,请重新选择!", goodsMapper.selectById(goodsId).getName(), (dateTimeFormatter.format(finalStartTime) + "～" + dateTimeFormatter.format(finalEndTime))));
-                        }
-                        for (PmGoodsSkuPo b : goodsSkuPos) {
-                            //售价
-                            BigDecimal sellPrice = b.getSellPrice();
-                            //获取供货价、运营成本比例(%)、利润比例(%)
-                            BigDecimal supplierPrice = b.getSupplierPrice();
-                            BigDecimal operationPrice = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(b.getOperationCost(), new BigDecimal(100), new BigDecimal(-1)), sellPrice);
-                            BigDecimal profitRate = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(b.getProfitRate(), new BigDecimal(100), new BigDecimal(-1)), sellPrice);
-                            //固定成本
-                            BigDecimal fixedCosts = BigDecimalUtil.safeAdd(supplierPrice, operationPrice, profitRate);
-                            //活动成本
-                            BigDecimal activityCost = BigDecimalUtil.safeMultiply(BigDecimalUtil.safeSubtract(false, sellPrice, fixedCosts), activityCostRate);
-                            //优惠金额
-                            BigDecimal discount = BigDecimalUtil.safeMultiply(sellPrice, BigDecimalUtil.safeDivide(spellGroupPo.getDiscountPriceRatio(), new BigDecimal(100), new BigDecimal(-1)));
-                            if (activityCost.compareTo(discount) < 0) {
-                                throw new ServiceException(ResultCode.FAIL, String.format("该商品:[%s]不满足该活动:[%s]的条件", goodsMapper.selectById(goodsId).getName(), spellGroupPo.getName()));
-                            }
                         }
                         break;
                 }
@@ -745,7 +788,7 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
         }
         //查询改商品是否以参与优惠券活动
         CouponActivityBo couponActivityBo = relCouponGoodsMapper.isParticipateCoupon(isConformDto.getGoodsId());
-        if (couponActivityBo == null) {
+        if (couponActivityBo != null) {
             throw new ServiceException(ResultCode.FAIL, String.format("该商品[%s]已经参加【%s】优惠券活动!", couponActivityBo.getGoodsName(), couponActivityBo.getCouponName()));
         }
 
@@ -790,7 +833,8 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
                 activityEndTime = amSpellGroupPo.getActivityEndTime();
                 break;
         }
-
+        //活动价格必须在活动建议价范围
+        //活动库存不能大于原来的库存
 
         SysUserPo sysUserPo = securityUtil.getCurrUser();
         if (sysUserPo.getStoreId() == null) {
@@ -823,6 +867,9 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
             AmActivityRelActivityGoodsPo relActivityGoodsPo = activityRelActivityGoodsMapper.selectById(saveRegistrationDto.getActivityGoodsRelId());
             if (relActivityGoodsPo.getVerifyStatus() != VerifyStatusEnum.MODIFY.getId()) {
                 throw new ServiceException(ResultCode.FAIL, String.format("该状态:[%s]不是返回修改状态，不能执行修改操作!", VerifyStatusEnum.getVerifyStatusById(relActivityGoodsPo.getActivityType()).getName()));
+            }
+            if (relActivityGoodsPo.getVerifyStatus() == VerifyStatusEnum.MODIFY.getId()){
+                relActivityGoodsPo.setVerifyStatus(VerifyStatusEnum.WAIT_CONFIRM.getId());
             }
             BeanUtils.copyProperties(saveRegistrationDto, relActivityGoodsPo);
             relActivityGoodsPo.setUpdateBy(sysUserPo.getUsername());
@@ -867,6 +914,7 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
                 tableName = "am_spell_group";
                 break;
         }
+
         String finalTableName = tableName;
         PageInfo<SearchSupplierActivityVo> searchSupplierActivityVoPageInfo = PageHelper.startPage(pageNum, pageSize)
                 .doSelectPageInfo(() -> mapper.searchSupplierActivity(searchSupplierActivityDto, finalTableName, storeId));
@@ -882,6 +930,12 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
             List<Object> goodsSkuRelIds = this.findActivitySku(findActivitySkuDto).getSkuList().stream().map(b -> b.get("goodsSkuRelId")).collect(Collectors.toList());
             List<Long> goodsSkuRelIdList = JSONUtils.toList(goodsSkuRelIds, Long.class);
             a.setGoodsSkuRelIds(goodsSkuRelIdList);
+            //原因
+            if (a.getVerifyStatus() == VerifyStatusEnum.MODIFY.getId()){
+                a.setCause(a.getModifyCause());
+            }else if (a.getVerifyStatus() == VerifyStatusEnum.NOT_APPROVED.getId()){
+                a.setCause(a.getRefuseCase());
+            }
         });
 
         return searchSupplierActivityVoPageInfo;
@@ -928,9 +982,13 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
         }
         relActivityGoodsPo.setUpdateBy(securityUtil.getCurrUser().getUsername());
         relActivityGoodsPo.setVerifyStatus(updateVerifyStatusDto.getVerifyStatus());
-        relActivityGoodsPo.setRefuseCase(updateVerifyStatusDto.getRefuseCase());
         relActivityGoodsPo.setVerifier(securityUtil.getCurrUser().getUsername());
         relActivityGoodsPo.setVerifyTime(LocalDateTime.now());
+        if (updateVerifyStatusDto.getVerifyStatus() == VerifyStatusEnum.MODIFY.getId()) {
+            relActivityGoodsPo.setModifyCause(updateVerifyStatusDto.getRefuseCase());
+        }else if (updateVerifyStatusDto.getVerifyStatus() == VerifyStatusEnum.NOT_APPROVED.getId()){
+            relActivityGoodsPo.setRefuseCase(updateVerifyStatusDto.getRefuseCase());
+        }
         activityRelActivityGoodsMapper.updateById(relActivityGoodsPo);
     }
 

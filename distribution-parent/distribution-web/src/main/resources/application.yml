@@ -9,7 +9,7 @@ server:
 
 spring:
   profiles:
-    active: prod
+    active: dev
   devtools:
     restart:
       enabled: true

@@ -2,6 +2,7 @@ package com.chauncy.common.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
+import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 
 /**
@@ -55,8 +56,23 @@ public class JasyptUtil {
     public static void main(String[] args){
 
         //加密
-        System.out.println(encyptPwd("123456","171781179328958464"));
+        System.out.println(encyptPwd("congya2019","admin"));
+        System.out.println(encyptPwd("congya2019","admin"));
+        System.out.println(encyptPwd("congya2019","admin"));
         //解密
-        System.out.println(decyptPwd("123456","Pj0FySzj9Vy0nCzOXTMRqiedbjZVSG3nfyJuEMWGDUk="));
+        System.out.println(decyptPwd("congya2019","I/RglyglQQM961R19e0FFw=="));
+
+        StandardPBEStringEncryptor standardPBEStringEncryptor =new StandardPBEStringEncryptor();
+
+        /*配置文件中配置如下的算法*/
+        standardPBEStringEncryptor.setAlgorithm("PBEWithMD5AndDES");
+        /*配置文件中配置的password*/
+        standardPBEStringEncryptor.setPassword("EWRREWRERWECCCXC");
+        /*要加密的文本*/
+        String name = standardPBEStringEncryptor.encrypt("root");
+        String password =standardPBEStringEncryptor.encrypt("123456");
+        /*将加密的文本写到配置文件中*/
+        System.out.println("name="+name);
+        System.out.println("password="+password);
     }
 }
