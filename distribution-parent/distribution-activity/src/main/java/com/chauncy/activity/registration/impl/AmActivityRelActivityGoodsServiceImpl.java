@@ -944,25 +944,34 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
     /**
      * 商家端取消活动报名
      *
-     * @param cancelRegistrationDtos
+     * @param cancelRegistrationDto
      * @return
      */
     @Override
-    public void cancelRegistration(List<CancelRegistrationDto> cancelRegistrationDtos) {
+    public void cancelRegistration(CancelRegistrationDto cancelRegistrationDto) {
 
-        cancelRegistrationDtos.forEach(a -> {
+//        cancelRegistrationDtos.forEach(a -> {
             //获取审核状态
-            Integer verifyStatus = activityRelActivityGoodsMapper.selectById(a.getActivityGoodsRelId()).getVerifyStatus();
+            Integer verifyStatus = activityRelActivityGoodsMapper.selectById(cancelRegistrationDto.getActivityGoodsRelId()).getVerifyStatus();
             if (verifyStatus != VerifyStatusEnum.WAIT_CONFIRM.getId()) {
                 throw new ServiceException(ResultCode.FAIL, "该活动审核状态:[%s]不是待审核,不能取消报名！", VerifyStatusEnum.getVerifyStatusById(verifyStatus));
             }
+            //更新报名活动状态为已取消/待审核
+        AmActivityRelActivityGoodsPo amActivityRelActivityGoodsPo = activityRelActivityGoodsMapper.selectById(cancelRegistrationDto.getActivityGoodsRelId());
+        if (cancelRegistrationDto.getIsCancel()){
+            amActivityRelActivityGoodsPo.setVerifyStatus(VerifyStatusEnum.IS_CANCEL.getId());
+
+        }else {
+            amActivityRelActivityGoodsPo.setVerifyStatus(VerifyStatusEnum.WAIT_CONFIRM.getId());
+        }
+        activityRelActivityGoodsMapper.updateById(amActivityRelActivityGoodsPo);
 
             //删除平台活动与商品关联表
-            activityRelActivityGoodsMapper.deleteById(a.getActivityGoodsRelId());
+//            activityRelActivityGoodsMapper.deleteById(cancelRegistrationDto.getActivityGoodsRelId());
             //删除活动商品和对应的sku信息
-            List<Long> goodsSkuRelIdList = a.getGoodsSkuRelIds().stream().filter(b -> !b.equals(0)).collect(Collectors.toList());
-            activityRelGoodsSkuMapper.deleteBatchIds(goodsSkuRelIdList);
-        });
+//            List<Long> goodsSkuRelIdList = cancelRegistrationDto.getGoodsSkuRelIds().stream().filter(b -> !b.equals(0)).collect(Collectors.toList());
+//            activityRelGoodsSkuMapper.deleteBatchIds(goodsSkuRelIdList);
+//        });
     }
 
     /**

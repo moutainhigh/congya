@@ -55,7 +55,7 @@ public class SearchSupplierActivityVo {
     @JSONField(ordinal = 7)
     private String brand;
 
-    @ApiModelProperty("审核状态 2-待审核 3-已通过 4-已拒绝 5-返回修改")
+    @ApiModelProperty("审核状态 2-待审核 3-已通过 4-已拒绝 5-返回修改 6-禁用正在进行的活动 7-已取消")
     @JSONField(ordinal = 8)
     private Integer verifyStatus;
 

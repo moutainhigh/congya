@@ -44,6 +44,9 @@
 		<if test="storeId != null">
 		  and f.id= #{storeId}
         </if>
+        <if test="storeId == null">
+            and b.verify_status != 7
+        </if>
         <if test="t.storeId != null">
             and f.id= #{t.storeId}
         </if>

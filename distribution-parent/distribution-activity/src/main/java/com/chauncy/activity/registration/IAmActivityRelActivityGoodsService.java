@@ -69,10 +69,10 @@ public interface IAmActivityRelActivityGoodsService extends Service<AmActivityRe
 
     /**
      * 商家端取消活动报名
-     * @param cancelRegistrationDtos
+     * @param cancelRegistrationDto
      * @return
      */
-    void cancelRegistration(List<CancelRegistrationDto> cancelRegistrationDtos);
+    void cancelRegistration(CancelRegistrationDto cancelRegistrationDto);
 
     /**
      * 修改报名的活动的状态

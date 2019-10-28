@@ -146,15 +146,15 @@ public class RegistrationActivityApi extends BaseApi {
 
     /**
      * 商家端取消活动报名
-     * @param cancelRegistrationDtos
+     * @param cancelRegistrationDto
      * @return
      */
     @PostMapping("/cancelRegistration")
     @ApiOperation("商家端取消活动报名")
     public JsonViewData cancelRegistration(@RequestBody @ApiParam(required = true,name="cancelRegistrationDto",value = "取消活动报名")
-                                           @Validated List<CancelRegistrationDto> cancelRegistrationDtos){
+                                           @Validated CancelRegistrationDto cancelRegistrationDto){
 
-        service.cancelRegistration(cancelRegistrationDtos);
+        service.cancelRegistration(cancelRegistrationDto);
         return setJsonViewData(ResultCode.SUCCESS,"取消成功");
     }
 

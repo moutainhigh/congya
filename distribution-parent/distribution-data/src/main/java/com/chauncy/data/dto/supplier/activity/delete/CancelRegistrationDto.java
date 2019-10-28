@@ -21,10 +21,13 @@ public class CancelRegistrationDto {
     @ApiModelProperty("记录ID")
     private Long activityGoodsRelId;
 
-    @ApiModelProperty("活动sku记录ID")
+    @ApiModelProperty(value = "活动sku记录ID",hidden = true)
     private List<Long> goodsSkuRelIds;
 
     @ApiModelProperty(value = "商家ID",hidden = true)
     private Long storeId;
+
+    @ApiModelProperty(value = "是否取消报名,ture-是，false-否，重新报名")
+    private Boolean isCancel;
 
 }
