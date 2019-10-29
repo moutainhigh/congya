@@ -26,4 +26,7 @@ public class OrderRefundInfoBo implements Serializable {
     @ApiModelProperty(value = "订单金额")
     private BigDecimal totalRealPayMoney;
 
+    @ApiModelProperty(value = "退款金额")
+    private BigDecimal refundMoney;
+
 }

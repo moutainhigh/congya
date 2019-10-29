@@ -242,7 +242,7 @@ public class RabbitOrderHandler {
                 //仅退款 待商家处理==》退款成功
                 if (queryAfterOrder.getAfterSaleType() == AfterSaleTypeEnum.ONLY_REFUND &&
                         queryAfterOrder.getStatus() == AfterSaleStatusEnum.NEED_STORE_DO) {
-                    wxService.refund(rabbitAfterBo.getAfterSaleOrderId(),true);
+                    wxService.refund(rabbitAfterBo.getAfterSaleOrderId(), true,true);
                 }
                 //仅退款和退货退款 待买家处理==》退款关闭
                 if (queryAfterOrder.getStatus() == AfterSaleStatusEnum.NEED_BUYER_DO) {
@@ -261,7 +261,7 @@ public class RabbitOrderHandler {
                 //退货退款 待商家退款==》退款成功
                 if (queryAfterOrder.getAfterSaleType() == AfterSaleTypeEnum.RETURN_GOODS &&
                         queryAfterOrder.getStatus() == AfterSaleStatusEnum.NEED_STORE_REFUND) {
-                    wxService.refund(rabbitAfterBo.getAfterSaleOrderId(),true);
+                    wxService.refund(rabbitAfterBo.getAfterSaleOrderId(), true, true);
                 }
             }
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
