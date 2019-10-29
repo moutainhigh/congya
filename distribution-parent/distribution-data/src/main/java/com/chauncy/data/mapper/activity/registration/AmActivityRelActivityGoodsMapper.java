@@ -27,7 +27,7 @@ public interface AmActivityRelActivityGoodsMapper extends IBaseMapper<AmActivity
      */
     @Select("select activity_id,activity_type,goods_id from am_activity_rel_activity_goods a " +
             "where store_id = #{storeId} and goods_id = #{goodsId} and del_flag = 0 and verify_status not in(4,7) " +
-            "and activity_end_time &gt;= now()")
+            "and activity_end_time >= now()")
     List<StoreActivityBo> findStoreActivity(@Param("storeId") Long storeId,@Param("goodsId") Long goodsId);
 
     /**
