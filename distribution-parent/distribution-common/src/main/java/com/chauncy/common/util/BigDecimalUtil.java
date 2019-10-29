@@ -195,6 +195,23 @@ public class BigDecimalUtil {
 
     }
 
+    /**
+     * @Author zhangrt
+     * @Date 2019/10/29 16:43
+     * @Description 保留两位，后面的小数舍弃，不是四舍五入
+     *
+     * @Update
+     *
+     * @Param [b1, b2]
+     * @return java.math.BigDecimal
+     **/
+
+    public static <T extends Number> BigDecimal safeDivideDown(T b1, T b2){
+
+        return safeDivide(b1, b2, BigDecimal.ZERO);
+
+    }
+
 
 
     /**
@@ -294,6 +311,26 @@ public class BigDecimalUtil {
             return BigDecimal.ZERO;
         }
         return BigDecimal.valueOf(b1.doubleValue()).multiply(BigDecimal.valueOf(b2.doubleValue())).setScale(2, BigDecimal.ROUND_HALF_UP);
+    }
+
+    /**
+     * @Author zhangrt
+     * @Date 2019/10/29 16:44
+     * @Description 保留两位，后面的小数舍弃，不是四舍五入
+     *
+     * @Update
+     *
+     * @Param [b1, b2]
+     * @return java.math.BigDecimal
+     **/
+
+    public static <T extends Number> BigDecimal safeMultiplyDown(T b1, T b2) {
+
+        if (null == b1 ||  null == b2) {
+
+            return BigDecimal.ZERO;
+        }
+        return BigDecimal.valueOf(b1.doubleValue()).multiply(BigDecimal.valueOf(b2.doubleValue())).setScale(2, BigDecimal.ROUND_DOWN);
     }
 
     /**x

@@ -1,9 +1,11 @@
 package com.chauncy.web.api.supplier.order.afterSale;
 
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.enums.message.NoticeTitleEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.bo.app.message.SaveUserNoticeBo;
+import com.chauncy.data.domain.po.afterSale.OmAfterSaleOrderPo;
 import com.chauncy.data.dto.manage.order.afterSale.OperateAfterSaleDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.message.interact.service.IMmUserNoticeService;
@@ -46,6 +48,9 @@ public class OmAfterSaleOrderApi extends BaseApi {
     @Autowired
     private SecurityUtil securityUtil;
 
+    @Autowired
+    private IOmAfterSaleOrderService omAfterSaleOrderService;
+
 
    /* *//**
      * 申请退款
@@ -77,9 +82,14 @@ public class OmAfterSaleOrderApi extends BaseApi {
 
             //确认退款
             case PERMIT_REFUND:
-                wxService.refund(operateAfterSaleDto.getAfterSaleOrderId(), true, false);
+                String refundId = wxService.refund(operateAfterSaleDto.getAfterSaleOrderId(), true, false);
+                UpdateWrapper<OmAfterSaleOrderPo> updateWrapper = new UpdateWrapper<>();
+                updateWrapper.lambda().eq(OmAfterSaleOrderPo::getId, operateAfterSaleDto.getAfterSaleOrderId())
+                        .set(OmAfterSaleOrderPo::getRefundId, refundId);
+                omAfterSaleOrderService.update(updateWrapper);
+                omAfterSaleOrderService.permitRefund(operateAfterSaleDto.getAfterSaleOrderId(),false);
                 break;
-
+                                                                                                                                                   
             //拒绝退款
             case REFUSE_REFUND:
                 afterSaleOrderService.refuseRefund(operateAfterSaleDto.getAfterSaleOrderId());

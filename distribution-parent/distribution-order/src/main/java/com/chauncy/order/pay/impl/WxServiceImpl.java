@@ -773,7 +773,7 @@ public class WxServiceImpl implements IWxService {
      **/
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean refund(Long afterSaleOrderId, boolean isAfterSaleOrder, boolean isAuto)  {
+    public String refund(Long afterSaleOrderId, boolean isAfterSaleOrder, boolean isAuto)  {
 
         if(isAfterSaleOrder) {
             //售后订单
@@ -861,7 +861,7 @@ public class WxServiceImpl implements IWxService {
         if (returnCode.equals("SUCCESS")) {
             String resultCode = response.get("result_code");
             if ("SUCCESS".equals(resultCode)) {
-                return true;
+                return response.get("refund_id");
                 //resultCode 为SUCCESS
                 //更新售后订单订单
                 /*UpdateWrapper<OmAfterSaleOrderPo> updateWrapper = new UpdateWrapper<>();
