@@ -23,4 +23,5 @@ public interface AmSpellGroupMainMapper extends IBaseMapper<AmSpellGroupMainPo> 
      * @return
      */
     List<SearchSpellRecordVo> searchSpellRecord(SearchSpellRecordDto searchSpellRecordDto);
+
 }

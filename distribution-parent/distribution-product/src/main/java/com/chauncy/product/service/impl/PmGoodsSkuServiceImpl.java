@@ -1,5 +1,6 @@
 package com.chauncy.product.service.impl;
 
+import com.chauncy.data.bo.app.activity.GroupStockBo;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.PmGoodsSkuPo;
 import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
@@ -17,4 +18,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class PmGoodsSkuServiceImpl extends AbstractService<PmGoodsSkuMapper, PmGoodsSkuPo> implements IPmGoodsSkuService {
 
+    @Override
+    public int addStockInGroup(GroupStockBo groupStockBo) {
+        return baseMapper.addStockInGroup(groupStockBo);
+    }
 }

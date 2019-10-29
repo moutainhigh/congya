@@ -70,4 +70,7 @@ public class AmSpellGroupMainPo implements Serializable {
 
     @ApiModelProperty(value = "活动与商品关联id")
     private Long relId;
+
+    @ApiModelProperty(value = "锁定库存")
+    private Integer lockStock;
 }

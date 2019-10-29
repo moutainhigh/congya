@@ -41,9 +41,18 @@ public interface IWxService {
     void orderQuery(Long payOrderId) throws Exception;
 
     /**
-     * 调用官方SDK申请退款
-     * @return
-     * @throws Exception
-     */
-    void refund(Long afterOrderId,boolean isAuto) ;
+     * @Author yeJH
+     * @Date 2019/10/29 10:24
+     * @Description 调用官方SDK申请退款
+     *
+     * @Update yeJH
+     *
+     * @param  afterSaleOrderId  isAfterSaleOrder=true  售后订单id  isAfterSaleOrder=false  订单id
+     * @param  isAfterSaleOrder  是否是售后订单  true 是  false 否
+     * @param  isAuto  是否自动退款
+     *                 1.售后时间截止  自动退款  true
+     *                 2.后台财务同意退款        false
+     * @return boolean
+     **/
+    boolean refund(Long afterSaleOrderId, boolean isAfterSaleOrder, boolean isAuto) ;
 }

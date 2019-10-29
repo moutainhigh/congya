@@ -32,4 +32,11 @@ public class SettleDto {
     //第二版本
     @ApiModelProperty(value = "结算时使用用户哪张优惠券")
     private Long couponRelUserId;
+
+    @ApiModelProperty(value = "是否拼团")
+    private Boolean isGroup;
+
+    @ApiModelProperty(value = "参加拼团id,自己发起新团时该字段为空")
+    @NeedExistConstraint(tableName = "am_spell_group_main")
+    private Long mainId;
 }

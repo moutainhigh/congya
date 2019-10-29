@@ -1,10 +1,14 @@
 package com.chauncy.activity.registration;
 
+import com.chauncy.data.bo.app.activity.GroupStockBo;
 import com.chauncy.data.bo.app.activity.IntegralPriceBo;
 import com.chauncy.data.domain.po.activity.registration.AmActivityRelGoodsSkuPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.car.SettleAccountsDto;
 import com.chauncy.data.vo.app.activity.integral.JudgeIntegralBalanceVo;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * <p>
@@ -28,5 +32,15 @@ public interface IAmActivityRelGoodsSkuService extends Service<AmActivityRelGood
      **/
 
     JudgeIntegralBalanceVo judgeIntegralBalance(SettleAccountsDto settleAccountsDto);
+
+
+    List<GroupStockBo> getGroupStockBo(Long mainId);
+
+    int addStock(GroupStockBo groupStockBo);
+
+
+    GroupStockBo getGroupStockBoByMemberId(Long memberId);
+
+
 
 }

@@ -1,5 +1,6 @@
 package com.chauncy.data.mapper.product;
 
+import com.chauncy.data.bo.app.activity.GroupStockBo;
 import com.chauncy.data.bo.app.order.reward.RewardShopTicketBo;
 import com.chauncy.data.domain.po.product.PmGoodsSkuPo;
 import com.chauncy.data.dto.app.car.ShopTicketSoWithCarGoodDto;
@@ -94,4 +95,17 @@ public interface PmGoodsSkuMapper extends IBaseMapper<PmGoodsSkuPo> {
      */
     @Select("select g.name from pm_goods_sku s,pm_goods g where s.goods_id=g.id  and s.id = #{skuId}")
     String getGoodsName(Long skuId);
+
+    /**
+     * @Author zhangrt
+     * @Date 2019/10/26 0:21
+     * @Description  拼团失败加回真实库存
+     *
+     * @Update
+     *
+     * @Param [groupStockBo]
+     * @return int
+     **/
+
+    int addStockInGroup(GroupStockBo groupStockBo);
 }

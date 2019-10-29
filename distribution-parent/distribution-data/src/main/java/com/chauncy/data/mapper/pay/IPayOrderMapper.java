@@ -4,6 +4,8 @@ import com.chauncy.data.bo.manage.order.OrderRefundInfoBo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.mapper.IBaseMapper;
 
+import java.time.LocalDateTime;
+
 /**
  * <p>
  *  Mapper 接口
@@ -34,4 +36,17 @@ public interface IPayOrderMapper extends IBaseMapper<PayOrderPo> {
      **/
 
     PayOrderPo getByAfterSaleOrderId(Long afterSaleOrderId);
+
+    /**
+     * @Author zhangrt
+     * @Date 2019/10/26 16:42
+     * @Description 根据支付单id查出拼团活动的结束时间
+     *
+     * @Update
+     *
+     * @Param [payId]
+     * @return java.time.LocalDateTime
+     **/
+
+    LocalDateTime getGroupEndTimeByPayId(Long payId);
 }

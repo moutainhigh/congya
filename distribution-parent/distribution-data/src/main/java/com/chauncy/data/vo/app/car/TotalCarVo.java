@@ -74,6 +74,10 @@ public class TotalCarVo {
     @ApiModelProperty(value = "满减活动扣去了多少钱")
     private BigDecimal fullDiscountMoney;
 
+    //第二版本
+    @ApiModelProperty(value = "拼团优惠多少元")
+    private BigDecimal groupDiscountMoney;
+
 
 
   /*  @ApiModelProperty(value = "总订单合计优惠")
