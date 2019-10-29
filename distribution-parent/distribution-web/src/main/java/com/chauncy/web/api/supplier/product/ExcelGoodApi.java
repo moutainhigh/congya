@@ -225,8 +225,11 @@ public class ExcelGoodApi extends BaseApi {
                 continue;
             }
             //商品分类
-            PmGoodsCategoryPo categoryCondition = new PmGoodsCategoryPo(rowDataList.get(0), 3,true);
-            Wrapper categoryPoWrapper = new QueryWrapper<>(categoryCondition, "id");
+            //PmGoodsCategoryPo categoryCondition = new PmGoodsCategoryPo(rowDataList.get(0), 3,true);
+            QueryWrapper<PmGoodsCategoryPo> categoryPoWrapper = new QueryWrapper<>();
+            categoryPoWrapper.lambda().eq(PmGoodsCategoryPo::getName,rowDataList.get(0)).
+                    eq(PmGoodsCategoryPo::getLevel,3).eq(PmGoodsCategoryPo::getEnabled,true);
+
             PmGoodsCategoryPo categoryPo = categoryService.getOne(categoryPoWrapper);
             if (categoryPo == null) {
                 excelImportErrorLogVo.setRowNumber(i + 1);
