@@ -954,8 +954,9 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
 //        cancelRegistrationDtos.forEach(a -> {
             //获取审核状态
             Integer verifyStatus = activityRelActivityGoodsMapper.selectById(cancelRegistrationDto.getActivityGoodsRelId()).getVerifyStatus();
-            if (verifyStatus != VerifyStatusEnum.WAIT_CONFIRM.getId()) {
-                throw new ServiceException(ResultCode.FAIL, "该活动审核状态:[%s]不是待审核,不能取消报名！", VerifyStatusEnum.getVerifyStatusById(verifyStatus));
+            if (verifyStatus != VerifyStatusEnum.WAIT_CONFIRM.getId() && verifyStatus != VerifyStatusEnum.IS_CANCEL.getId()
+                    && verifyStatus != VerifyStatusEnum.MODIFY.getId()) {
+                throw new ServiceException(ResultCode.FAIL, String.format("该活动审核状态:[%s]不是待审核,不能取消报名！", VerifyStatusEnum.getVerifyStatusById(verifyStatus)));
             }
             //更新报名活动状态为已取消/待审核
         AmActivityRelActivityGoodsPo amActivityRelActivityGoodsPo = activityRelActivityGoodsMapper.selectById(cancelRegistrationDto.getActivityGoodsRelId());
@@ -963,6 +964,11 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
             amActivityRelActivityGoodsPo.setVerifyStatus(VerifyStatusEnum.IS_CANCEL.getId());
 
         }else {
+            FindActivitySkuDto findActivitySkuDto = new FindActivitySkuDto();
+            findActivitySkuDto.setActivityType(cancelRegistrationDto.getActivityType());
+            findActivitySkuDto.setActivityId(cancelRegistrationDto.getActivityId());
+            findActivitySkuDto.setGoodsId(cancelRegistrationDto.getGoodsId());
+            this.isComform(findActivitySkuDto);
             amActivityRelActivityGoodsPo.setVerifyStatus(VerifyStatusEnum.WAIT_CONFIRM.getId());
         }
         activityRelActivityGoodsMapper.updateById(amActivityRelActivityGoodsPo);
