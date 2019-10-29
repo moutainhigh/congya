@@ -747,7 +747,8 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
             LocalDateTime finalEndTime = endTime;
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             storeActivityBos.forEach(y -> {
-                switch (activityType) {
+                ActivityTypeEnum activityType2 = ActivityTypeEnum.getActivityTypeEnumById(y.getActivityType());
+                switch (activityType2) {
                     case REDUCED:
                         AmReducedPo reducedPo = reducedMapper.selectById(y.getActivityId());
                         LocalDateTime reduceStartTime = reducedPo.getActivityStartTime();
