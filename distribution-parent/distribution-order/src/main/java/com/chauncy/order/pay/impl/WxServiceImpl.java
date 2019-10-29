@@ -756,34 +756,53 @@ public class WxServiceImpl implements IWxService {
     }
 
 
+
     /**
-     * 调用官方SDK申请退款
-     * @param afterSaleOrderId   售后订单id
-     * @throws Exception
-     */
+     * @Author yeJH
+     * @Date 2019/10/29 10:24
+     * @Description 调用官方SDK申请退款
+     *
+     * @Update yeJH
+     *
+     * @param  afterSaleOrderId  isAfterSaleOrder=true  售后订单id  isAfterSaleOrder=false  订单id
+     * @param  isAfterSaleOrder  是否是售后订单  true 是  false 否
+     * @param  isAuto  是否自动退款
+     *                 1.售后时间截止  自动退款  true
+     *                 2.后台财务同意退款        false
+     * @return boolean
+     **/
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void refund(Long afterSaleOrderId,boolean isAuto)  {
+    public boolean refund(Long afterSaleOrderId, boolean isAfterSaleOrder, boolean isAuto)  {
 
-        OmAfterSaleOrderPo omAfterSaleOrderPo = omAfterSaleOrderMapper.selectById(afterSaleOrderId);
-        if(null == omAfterSaleOrderPo) {
-            throw new ServiceException(ResultCode.NO_EXISTS, "退款订单记录不存在");
-        }
-        //如果不是延时任务，需要判断登录用户是否有权限
-        if (!isAuto) {
-            //获取当前店铺用户
-            SysUserPo sysUserPo = securityUtil.getCurrUser();
-            if (null == sysUserPo.getStoreId() || !sysUserPo.getStoreId().equals(omAfterSaleOrderPo.getStoreId())) {
-                //当前登录用户跟操作不匹配
-                throw new ServiceException(ResultCode.FAIL, "当前登录用户跟操作不匹配");
+        if(isAfterSaleOrder) {
+            //售后订单
+            OmAfterSaleOrderPo omAfterSaleOrderPo = omAfterSaleOrderMapper.selectById(afterSaleOrderId);
+            if (null == omAfterSaleOrderPo) {
+                throw new ServiceException(ResultCode.NO_EXISTS, "退款订单记录不存在");
             }
-        }
-        //售后订单仅退款且状态为待商家处理  或者  售后订单退货退款且状态为待商家退款 才能退款
-        if(!((omAfterSaleOrderPo.getAfterSaleType() == AfterSaleTypeEnum.ONLY_REFUND &&
-                omAfterSaleOrderPo.getStatus() == AfterSaleStatusEnum.NEED_STORE_DO) ||
-                (omAfterSaleOrderPo.getAfterSaleType() == AfterSaleTypeEnum.RETURN_GOODS &&
-                        omAfterSaleOrderPo.getStatus() == AfterSaleStatusEnum.NEED_STORE_REFUND))) {
-            throw new ServiceException(ResultCode.FAIL, "退款操作跟当前售后订单状态不符");
+            //如果不是延时任务，需要判断登录用户是否有权限
+            if (!isAuto) {
+                //获取当前店铺用户
+                SysUserPo sysUserPo = securityUtil.getCurrUser();
+                if (null == sysUserPo.getStoreId() || !sysUserPo.getStoreId().equals(omAfterSaleOrderPo.getStoreId())) {
+                    //当前登录用户跟操作不匹配
+                    throw new ServiceException(ResultCode.FAIL, "当前登录用户跟操作不匹配");
+                }
+            }
+            //售后订单仅退款且状态为待商家处理  或者  售后订单退货退款且状态为待商家退款 才能退款
+            if (!((omAfterSaleOrderPo.getAfterSaleType() == AfterSaleTypeEnum.ONLY_REFUND &&
+                    omAfterSaleOrderPo.getStatus() == AfterSaleStatusEnum.NEED_STORE_DO) ||
+                    (omAfterSaleOrderPo.getAfterSaleType() == AfterSaleTypeEnum.RETURN_GOODS &&
+                            omAfterSaleOrderPo.getStatus() == AfterSaleStatusEnum.NEED_STORE_REFUND))) {
+                throw new ServiceException(ResultCode.FAIL, "退款操作跟当前售后订单状态不符");
+            }
+        } else {
+            //订单
+            OmOrderPo omOrderPo = omOrderService.getById(afterSaleOrderId);
+            if (null == omOrderPo) {
+                throw new ServiceException(ResultCode.NO_EXISTS, "订单记录不存在");
+            }
         }
         WxMD5Util md5Util = wxMD5Util;
         WXConfigUtil config = wxConfigUtil;
@@ -797,7 +816,8 @@ public class WxServiceImpl implements IWxService {
         data.put("mch_id", config.getMchID());
         //随机字符串
         data.put("nonce_str", WXPayUtil.generateNonceStr());
-        OrderRefundInfoBo orderRefundInfoBo = payOrderMapper.findOrderRefundInfo(afterSaleOrderId);
+        //获取退款信息  订单号  支付流水号  退款金额
+        OrderRefundInfoBo orderRefundInfoBo = getRefundInfo(afterSaleOrderId, isAfterSaleOrder);
         if(null != orderRefundInfoBo.getPayOrderNo()) {
             //微信订单号
             data.put("transaction_id", orderRefundInfoBo.getPayOrderNo());
@@ -806,10 +826,10 @@ public class WxServiceImpl implements IWxService {
             data.put("out_trade_no", String.valueOf(orderRefundInfoBo.getPayOrderId()));
         }
         //商户退款单号
-        data.put("out_refund_no", String.valueOf(omAfterSaleOrderPo.getId()));
+        data.put("out_refund_no", String.valueOf(afterSaleOrderId));
         //退款金额
         String refundFee = Integer.toString(
-                BigDecimalUtil.safeMultiply(omAfterSaleOrderPo.getRefundMoney(), new BigDecimal(100)).intValue());
+                BigDecimalUtil.safeMultiply(orderRefundInfoBo.getRefundMoney(), new BigDecimal(100)).intValue());
         data.put("refund_fee", refundFee);
         //订单金额
         String totalFee = Integer.toString(
@@ -841,13 +861,14 @@ public class WxServiceImpl implements IWxService {
         if (returnCode.equals("SUCCESS")) {
             String resultCode = response.get("result_code");
             if ("SUCCESS".equals(resultCode)) {
+                return true;
                 //resultCode 为SUCCESS
                 //更新售后订单订单
-                UpdateWrapper<OmAfterSaleOrderPo> updateWrapper = new UpdateWrapper<>();
+                /*UpdateWrapper<OmAfterSaleOrderPo> updateWrapper = new UpdateWrapper<>();
                 updateWrapper.lambda().eq(OmAfterSaleOrderPo::getId, omAfterSaleOrderPo.getId())
                         .set(OmAfterSaleOrderPo::getRefundId, response.get("refund_id"));
                 omAfterSaleOrderService.update(updateWrapper);
-                omAfterSaleOrderService.permitRefund(afterSaleOrderId,isAuto);
+                omAfterSaleOrderService.permitRefund(afterSaleOrderId,isAuto);*/
             } else {
                 //调用微信申请退款接口返回失败
                 String errCodeDes = response.get("err_code_des");
@@ -858,9 +879,39 @@ public class WxServiceImpl implements IWxService {
             String returnMsg = response.get("return_msg");
             throw new ServiceException(ResultCode.FAIL, returnMsg);
         }
-
     }
 
+    /**
+     * @Author yeJH
+     * @Date 2019/10/29 11:05
+     * @Description 获取退款信息  订单号  支付流水号  退款金额
+     *
+     * @Update yeJH
+     *
+     * @param  afterSaleOrderId
+     * @param  isAfterSaleOrder
+     * @return com.chauncy.data.bo.manage.order.OrderRefundInfoBo
+     **/
+    private OrderRefundInfoBo getRefundInfo(Long afterSaleOrderId, boolean isAfterSaleOrder) {
+        if(isAfterSaleOrder) {
+            //售后订单
+            return payOrderMapper.findOrderRefundInfo(afterSaleOrderId);
+        } else {
+            //非售后订单
+            OrderRefundInfoBo orderRefundInfoBo = new OrderRefundInfoBo();
+            OmOrderPo omOrderPo = omOrderService.getById(afterSaleOrderId);
+            if(null != omOrderPo && null != omOrderPo.getPayOrderId()) {
+                PayOrderPo payOrderPo = payOrderMapper.selectById(omOrderPo.getPayOrderId());
+                orderRefundInfoBo.setPayOrderId(payOrderPo.getId());
+                orderRefundInfoBo.setPayOrderNo(payOrderPo.getPayOrderNo());
+                orderRefundInfoBo.setTotalRealPayMoney(payOrderPo.getTotalRealPayMoney());
+                orderRefundInfoBo.setRefundMoney(payOrderPo.getTotalRealPayMoney());
+                return orderRefundInfoBo;
+            } else {
+                throw new ServiceException(ResultCode.PARAM_ERROR, "不存在该订单或者支付单");
+            }
+        }
+    }
 
 
 }

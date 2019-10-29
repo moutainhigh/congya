@@ -77,7 +77,7 @@ public class OmAfterSaleOrderApi extends BaseApi {
 
             //确认退款
             case PERMIT_REFUND:
-                wxService.refund(operateAfterSaleDto.getAfterSaleOrderId(),false);
+                wxService.refund(operateAfterSaleDto.getAfterSaleOrderId(), true, false);
                 break;
 
             //拒绝退款

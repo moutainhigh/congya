@@ -51,7 +51,8 @@
         SELECT
             po.id AS payOrderId,
             po.pay_order_no,
-            po.total_real_pay_money
+            po.total_real_pay_money,
+            oaso.refund_money AS refundMoney
         FROM
             pay_order po,
             om_order oo,
