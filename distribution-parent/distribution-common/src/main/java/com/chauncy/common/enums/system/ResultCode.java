@@ -32,6 +32,8 @@ public enum ResultCode  {
 
     THIRD_FAIL(11,"第三方调用出错！！"),
 
+    UN_REGISTER(11,"该用户尚未注册，请先完成手机验证注册!"),
+
 
     LOGISTICS_ERROR1(600,"您不是合法的订阅者（即授权Key出错)"),
     LOGISTICS_ERROR2(601,"POLL:KEY已过期"),

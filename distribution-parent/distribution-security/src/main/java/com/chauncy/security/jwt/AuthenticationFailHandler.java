@@ -70,8 +70,12 @@ public class AuthenticationFailHandler extends SimpleUrlAuthenticationFailureHan
         } else if (e instanceof DisabledException) {
             ResponseUtil.out(response, new JsonViewData<Object>(ResultCode.FAIL,"用户不存在，请联系管理员"));
         } else if (e instanceof LoginFailLimitException) {
-            ResponseUtil.out(response, new JsonViewData<Object>(ResultCode.FAIL,((LoginFailLimitException) e).getMsg()));
-
+            if (((LoginFailLimitException) e).getResultCode()!=null){
+                ResponseUtil.out(response, new JsonViewData<Object>(((LoginFailLimitException) e).getResultCode(),((LoginFailLimitException) e).getMsg()));
+            }
+            else {
+                ResponseUtil.out(response, new JsonViewData<Object>(ResultCode.FAIL, ((LoginFailLimitException) e).getMsg()));
+            }
         } else {
             ResponseUtil.out(response, new JsonViewData<Object>(ResultCode.FAIL,"登录失败，其他内部错误"));
         }

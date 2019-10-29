@@ -1,6 +1,7 @@
 package com.chauncy.security.provider;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.enums.user.ValidCodeEnum;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.security.config.SecurityUserDetails;
@@ -104,7 +105,7 @@ public class AppProvider implements AuthenticationProvider {
                 thirdCondition.setUnionId(unionId);
                 UmUserPo thirdQueryUser = umUserService.getOne(new QueryWrapper<>(thirdCondition));
                 if (thirdQueryUser==null){
-                    throw new LoginFailLimitException("该用户尚未注册，请先完成手机验证注册!");
+                    throw new LoginFailLimitException(ResultCode.UN_REGISTER);
                 }
                 if (!thirdQueryUser.getEnabled()){
                     throw new LockedException("该账户已被禁用！");
