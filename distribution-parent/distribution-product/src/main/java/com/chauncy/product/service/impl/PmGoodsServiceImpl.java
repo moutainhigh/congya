@@ -992,21 +992,27 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
                     if (valueList.contains(x.getValue())) {
                         throw new ServiceException(ResultCode.DUPLICATION, "添加失败，属性值不能重复", x.getValue());
                     }
-                    //保存自定义规格值
-                    PmGoodsAttributeValuePo goodsAttributeValuePo = new PmGoodsAttributeValuePo();
-                    goodsAttributeValuePo.setProductAttributeId(x.getAttributeId());
-                    goodsAttributeValuePo.setValue(x.getValue());
-                    goodsAttributeValuePo.setCreateBy(user);
-                    //设置类型为自定义属性值
-                    goodsAttributeValuePo.setIsCustom(true);
-                    goodsAttributeValueMapper.insert(goodsAttributeValuePo);
-
-                    //根据具体规格下的新增的规格值获取规格值ID
                     PmGoodsAttributeValuePo goodsAttributeValuePo1 = new PmGoodsAttributeValuePo();
                     goodsAttributeValuePo1.setValue(x.getValue());
                     goodsAttributeValuePo1.setProductAttributeId(x.getAttributeId());
                     QueryWrapper<PmGoodsAttributeValuePo> queryWrapper = new QueryWrapper<>(goodsAttributeValuePo1);
-                    Long valueId = goodsAttributeValueMapper.selectOne(queryWrapper).getId();
+                    PmGoodsAttributeValuePo goodsAttributeValuePo2 = goodsAttributeValueMapper.selectOne(queryWrapper);
+                    Long valueId = null;
+                    if (goodsAttributeValuePo2 == null) {
+                        //保存自定义规格值
+                        PmGoodsAttributeValuePo goodsAttributeValuePo = new PmGoodsAttributeValuePo();
+                        goodsAttributeValuePo.setProductAttributeId(x.getAttributeId());
+                        goodsAttributeValuePo.setValue(x.getValue());
+                        goodsAttributeValuePo.setCreateBy(user);
+                        //设置类型为自定义属性值
+                        goodsAttributeValuePo.setIsCustom(true);
+                        goodsAttributeValueMapper.insert(goodsAttributeValuePo);
+                    }
+
+                    //根据具体规格下的新增的规格值获取规格值ID
+                    else {
+                        valueId = goodsAttributeValuePo2.getId();
+                    }
 
                     //保存商品对应的规格值到关联表
                     PmGoodsRelAttributeValueSkuPo goodsRelAttributeValueSkuPo = new PmGoodsRelAttributeValueSkuPo();
