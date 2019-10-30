@@ -10,6 +10,7 @@ import com.chauncy.common.enums.goods.*;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.JSONUtils;
+import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.bo.app.order.reward.RewardShopTicketBo;
 import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
@@ -996,9 +997,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
                     goodsAttributeValuePo1.setValue(x.getValue());
                     goodsAttributeValuePo1.setProductAttributeId(x.getAttributeId());
                     QueryWrapper<PmGoodsAttributeValuePo> queryWrapper = new QueryWrapper<>(goodsAttributeValuePo1);
-                    PmGoodsAttributeValuePo goodsAttributeValuePo2 = goodsAttributeValueMapper.selectOne(queryWrapper);
+                    List<PmGoodsAttributeValuePo> goodsAttributeValuePo2 = goodsAttributeValueMapper.selectList(queryWrapper);
                     Long valueId = null;
-                    if (goodsAttributeValuePo2 == null) {
+                    if (ListUtil.isListNullAndEmpty(goodsAttributeValuePo2)) {
                         //保存自定义规格值
                         PmGoodsAttributeValuePo goodsAttributeValuePo = new PmGoodsAttributeValuePo();
                         goodsAttributeValuePo.setProductAttributeId(x.getAttributeId());
@@ -1011,7 +1012,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
                     //根据具体规格下的新增的规格值获取规格值ID
                     else {
-                        valueId = goodsAttributeValuePo2.getId();
+                        valueId = goodsAttributeValuePo2.get(0).getId();
                     }
 
                     //保存商品对应的规格值到关联表

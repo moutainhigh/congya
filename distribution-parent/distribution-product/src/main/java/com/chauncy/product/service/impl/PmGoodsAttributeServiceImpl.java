@@ -443,8 +443,8 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
             boolean a = list1 != null && list1.size() > 0;
             boolean b = list2 != null && list2.size() > 0;
             boolean c = list3 != null && list3.size() > 0;
-            if (a == true || b == true || c == true) {
-                throw new ServiceException(ResultCode.FAIL, "修改失败，包含正被类目或商品使用的关联的属性名称");
+            if ((a == true || b == true || c == true) && !addOrUpdateAttValueDto.getAttributeName().equals(po1.getName())) {
+                throw new ServiceException(ResultCode.FAIL, "修改规格名称失败，包含正被类目或商品使用的关联的属性名称");
             }
 
             PmGoodsAttributePo goodsAttributePo = new PmGoodsAttributePo();
