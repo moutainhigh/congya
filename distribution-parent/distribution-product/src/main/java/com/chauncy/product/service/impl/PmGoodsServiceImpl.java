@@ -302,12 +302,12 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             goodsPo.setVerifyStatus(VerifyStatusEnum.UNCHECKED.getId());
             goodsPo.setStoreId(storeId);
         }
-        goodsPo.setCreateBy(user);
-        goodsPo.setId(null);
-        goodsPo.setShippingTemplateId(addGoodBaseDto.getShippingId());
 //        goodsPo.setCreateTime(date);
         //复制Dto对象到po
         BeanUtils.copyProperties(addGoodBaseDto, goodsPo);
+        goodsPo.setCreateBy(user);
+        goodsPo.setId(null);
+        goodsPo.setShippingTemplateId(addGoodBaseDto.getShippingId());
         //先保存商品不关联信息
         mapper.insert(goodsPo);
 
@@ -677,7 +677,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             valueIds.forEach(b -> {
                 PmGoodsAttributeValuePo valuePo = goodsAttributeValueMapper.selectById(b);
                 if (valuePo == null) {
-                    throw new ServiceException(ResultCode.NO_EXISTS, "数据库不存在对应的属性值", b);
+                    throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在对应的属性值id[%s]",b));
                 }
                 StandardValueAndStatusVo standardValueAndStatusVo = new StandardValueAndStatusVo();
                 standardValueAndStatusVo.setAttributeValueId(b);
@@ -828,10 +828,10 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
                    //获取属性值ID集合
                    List<Long> valueIds = relAttributeValueSkuPos.stream().map(a -> a.getGoodsAttributeValueId()).collect(Collectors.toList());
                    List<PmGoodsAttributeValuePo> goodsAttributeValuePos = goodsAttributeValueMapper.selectBatchIds(valueIds);
-                   //获取自定义属性值并删除
-                   goodsAttributeValuePos.stream().filter(a -> a.getIsCustom()).forEach(b -> {
+                   //获取除自定义属性值并删除
+                   /*goodsAttributeValuePos.stream().filter(a -> a.getIsCustom() == false).forEach(b -> {
                        goodsAttributeValueMapper.deleteById(b.getId());
-                   });
+                   });*/
                    //删除sku与属性值关联表的信息
                    goodsRelAttributeValueSkuMapper.deleteByMap(valueMap);
                    //最后删除该条sku
@@ -1110,7 +1110,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             valueIds.forEach(b -> {
                 PmGoodsAttributeValuePo valuePo = goodsAttributeValueMapper.selectById(b);
                 if (valuePo == null) {
-                    throw new ServiceException(ResultCode.NO_EXISTS, "数据库不存在对应的属性值", b);
+                    throw new ServiceException(ResultCode.NO_EXISTS, String.format("数据库不存在对应的属性值id[%s]",b));
                 }
                 StandardValueAndStatusVo standardValueAndStatusVo = new StandardValueAndStatusVo();
                 standardValueAndStatusVo.setAttributeValueId(b);

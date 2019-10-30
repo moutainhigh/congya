@@ -76,6 +76,7 @@ public class PmGoodsAttributeValuePo implements Serializable {
     @ApiModelProperty(value = "更新时间")
     private LocalDateTime updateTime;
 
+
     @ApiModelProperty(value = "删除标志 默认0")
     @TableLogic
     private Boolean delFlag;

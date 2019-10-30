@@ -42,6 +42,7 @@
         <result column="sales_volume" property="salesVolume"/>
         <result column="collection_num" property="collectionNum"/>
         <result column="forward_num" property="forwardNum"/>
+        <result column="like_num" property="likeNum"/>
     </resultMap>
     <insert id="addASalesVolume">
         update pm_goods
