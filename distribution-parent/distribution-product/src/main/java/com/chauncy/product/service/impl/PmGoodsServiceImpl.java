@@ -1008,6 +1008,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
                         //设置类型为自定义属性值
                         goodsAttributeValuePo.setIsCustom(true);
                         goodsAttributeValueMapper.insert(goodsAttributeValuePo);
+                        valueId = goodsAttributeValuePo.getId();
                     }
 
                     //根据具体规格下的新增的规格值获取规格值ID
