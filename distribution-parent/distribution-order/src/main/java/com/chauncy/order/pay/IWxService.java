@@ -52,7 +52,7 @@ public interface IWxService {
      * @param  isAuto  是否自动退款
      *                 1.售后时间截止  自动退款  true
      *                 2.后台财务同意退款        false
-     * @return boolean
+     * @return String
      **/
-    boolean refund(Long afterSaleOrderId, boolean isAfterSaleOrder, boolean isAuto) ;
+    String refund(Long afterSaleOrderId, boolean isAfterSaleOrder, boolean isAuto) ;
 }

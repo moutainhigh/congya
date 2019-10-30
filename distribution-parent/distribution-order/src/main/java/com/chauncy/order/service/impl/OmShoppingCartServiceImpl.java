@@ -891,7 +891,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 goodsTypeOrderVo.setShopTicketSoWithCarGoodVos(shopTicketSoWithCarGoodVos);
                 //拆单后商品总数量
                 goodsTypeOrderVo.setTotalNumber(shopTicketSoWithCarGoodVos.stream().mapToInt(x -> x.getNumber()).sum());
-                //商品总额=数量*单价（活动价格）+邮费+运费
+                //商品总额=数量*单价（销售价）+邮费+运费
                 BigDecimal totalMoney = shopTicketSoWithCarGoodVos.stream().map(x -> BigDecimalUtil.safeMultiply(x.getNumber(), x.getSellPrice())).
                         reduce(BigDecimal.ZERO, BigDecimal::add);
                 totalMoney = BigDecimalUtil.safeAdd(totalMoney, shipMoney, taxMoney);
@@ -944,13 +944,13 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     private void setDiscount(TotalCarVo totalCarVo, UmUserPo currentUser, BasicSettingPo basicSettingPo) {
         BigDecimal totalMoney = totalCarVo.getTotalMoney();
         //一个购物券=多少元
-        BigDecimal shopTicketToMoney = BigDecimalUtil.safeDivide(1, basicSettingPo.getMoneyToShopTicket());
+        BigDecimal shopTicketToMoney = BigDecimalUtil.safeDivideDown(1, basicSettingPo.getMoneyToShopTicket());
         //一个红包=多少元
-        BigDecimal redEnvelopsToMoney = BigDecimalUtil.safeDivide(1, basicSettingPo.getMoneyToCurrentRedEnvelops());
+        BigDecimal redEnvelopsToMoney = BigDecimalUtil.safeDivideDown(1, basicSettingPo.getMoneyToCurrentRedEnvelops());
         //当前用户所拥有的红包折算后的金额
-        BigDecimal redEnvelopMoney = BigDecimalUtil.safeMultiply(redEnvelopsToMoney, currentUser.getCurrentRedEnvelops());
+        BigDecimal redEnvelopMoney = BigDecimalUtil.safeMultiplyDown(redEnvelopsToMoney, currentUser.getCurrentRedEnvelops());
         //当前用户所拥有的购物券折算后的金额
-        BigDecimal shopTicketMoney = BigDecimalUtil.safeMultiply(shopTicketToMoney, currentUser.getCurrentShopTicket());
+        BigDecimal shopTicketMoney = BigDecimalUtil.safeMultiplyDown(shopTicketToMoney, currentUser.getCurrentShopTicket());
         //-1表示小于，0是等于，1是大于。
         //如果总金额<=红包折算后的金额
         if (totalMoney.compareTo(redEnvelopMoney) <= 0) {

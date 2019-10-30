@@ -139,6 +139,7 @@
         <if test="storeId!=null and storeId!=0">
             and s.id=#{storeId}
         </if>
+        order by ao.update_time desc
     </select>
     <select id="searchCheckList" resultType="com.chauncy.data.vo.manage.order.afterSale.AfterSaleLogVo">
             select `node`,`describes`,create_time

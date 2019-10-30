@@ -1,6 +1,7 @@
 package com.chauncy.web.config.rabbit.handler;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.activity.registration.IAmActivityRelGoodsSkuService;
 import com.chauncy.activity.spell.IAmSpellGroupMainService;
 import com.chauncy.activity.spell.IAmSpellGroupMemberService;
@@ -93,6 +94,9 @@ public class RabbitOrderHandler {
 
     @Autowired
     private IPmGoodsSkuService skuService;
+
+    @Autowired
+    private IOmAfterSaleOrderService omAfterSaleOrderService;
 
     @RabbitListener(queues = {RabbitConstants.CLOSE_ORDER_QUEUE})
     @Transactional(rollbackFor = Exception.class)
@@ -228,7 +232,7 @@ public class RabbitOrderHandler {
      */
     @RabbitListener(queues = {RabbitConstants.AFTER_REDIRECT_QUEUE})
     @Transactional(rollbackFor = Exception.class)
-    public void afterDelay(RabbitAfterBo rabbitAfterBo, Message message, Channel channel) {
+    public void afterDelay(RabbitAfterBo rabbitAfterBo, Message message, Channel channel) throws IOException {
 
 
         try {
@@ -242,7 +246,12 @@ public class RabbitOrderHandler {
                 //仅退款 待商家处理==》退款成功
                 if (queryAfterOrder.getAfterSaleType() == AfterSaleTypeEnum.ONLY_REFUND &&
                         queryAfterOrder.getStatus() == AfterSaleStatusEnum.NEED_STORE_DO) {
-                    wxService.refund(rabbitAfterBo.getAfterSaleOrderId(), true,true);
+                    String refundId = wxService.refund(rabbitAfterBo.getAfterSaleOrderId(), true, true);
+                    UpdateWrapper<OmAfterSaleOrderPo> updateWrapper = new UpdateWrapper<>();
+                    updateWrapper.lambda().eq(OmAfterSaleOrderPo::getId, rabbitAfterBo.getAfterSaleOrderId())
+                            .set(OmAfterSaleOrderPo::getRefundId, refundId);
+                    omAfterSaleOrderService.update(updateWrapper);
+                    omAfterSaleOrderService.permitRefund(rabbitAfterBo.getAfterSaleOrderId(),true);
                 }
                 //仅退款和退货退款 待买家处理==》退款关闭
                 if (queryAfterOrder.getStatus() == AfterSaleStatusEnum.NEED_BUYER_DO) {
@@ -261,16 +270,18 @@ public class RabbitOrderHandler {
                 //退货退款 待商家退款==》退款成功
                 if (queryAfterOrder.getAfterSaleType() == AfterSaleTypeEnum.RETURN_GOODS &&
                         queryAfterOrder.getStatus() == AfterSaleStatusEnum.NEED_STORE_REFUND) {
-                    wxService.refund(rabbitAfterBo.getAfterSaleOrderId(), true, true);
+                    String refundId = wxService.refund(rabbitAfterBo.getAfterSaleOrderId(), true, true);
+                    UpdateWrapper<OmAfterSaleOrderPo> updateWrapper = new UpdateWrapper<>();
+                    updateWrapper.lambda().eq(OmAfterSaleOrderPo::getId, rabbitAfterBo.getAfterSaleOrderId())
+                            .set(OmAfterSaleOrderPo::getRefundId, refundId);
+                    omAfterSaleOrderService.update(updateWrapper);
+                    omAfterSaleOrderService.permitRefund(rabbitAfterBo.getAfterSaleOrderId(),true);
                 }
             }
-            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (Exception e) {
-            try {
-                channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
-            } catch (IOException ex) {
                 LoggerUtil.error(e);
-            }
+        }finally {
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
 
         }
 
@@ -308,10 +319,11 @@ public class RabbitOrderHandler {
                         .eq(AmSpellGroupMemberPo::getPayStatus,true);
                 List<AmSpellGroupMemberPo> queryMembers = memberService.list(groupMemberPoQueryWrapper);
                 List<Long> orderIds=queryMembers.stream().map(AmSpellGroupMemberPo::getOrderId).collect(Collectors.toList());
-                queryMembers.forEach(x->{
-                    orderService.closeOrderByOrderId(x.getOrderId());
+                orderIds.forEach(x->{
+                    orderService.closeOrderByOrderId(x);
+                    String refundId = wxService.refund(x, false, true);
                 });
-                // todo 退款
+
                 List<GroupStockBo> queryGroupStockBos = amActivityRelGoodsSkuService.getGroupStockBo(mainId);
                 //加活动库存（实际库存在关闭订单时候就加回去了）
                 queryGroupStockBos.forEach(x->{

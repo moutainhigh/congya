@@ -228,6 +228,9 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     public boolean closeOrderByOrderId(Long orderId) {
         //把支付单禁用,以后该支付单下的其他订单都单独生成支付单
         OmOrderPo orderPo = mapper.selectById(orderId);
+        if (orderPo.getStatus()==OrderStatusEnum.ALREADY_CANCEL){
+            throw new ServiceException(ResultCode.FAIL,"该订单处于已取消状态，不能重复取消！");
+        }
         //支付单失效
         PayOrderPo updatePayOrder = new PayOrderPo();
         updatePayOrder.setId(orderPo.getPayOrderId()).setEnabled(false);
@@ -239,7 +242,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         updateOrder.setStatus(OrderStatusEnum.ALREADY_CANCEL);
         updateOrder.setRealMoney(null);
         updateOrder.setCloseTime(LocalDateTime.now());
-        this.updateById(orderPo);
+        this.updateById(updateOrder);
 
         //查找skuid和数量
         QueryWrapper goodsTempWrapper = new QueryWrapper();
@@ -772,7 +775,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
         OmGoodsTempPo queryGoodsTemp = goodsTempMapper.selectById(goodsTempId);
 
-        // TODO: 2019/9/10 俊浩流水(完成)
+        // TODO: 2019/10/29 俊浩商品销售报表
 
         //查出下单用户需要返的购物券、积分、经验值
         RewardBuyerBo rewardBuyerBo = mapper.getRewardBoByGoodsTempId(goodsTempId);
@@ -870,86 +873,91 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
         //查出下单用户需要返的购物券、积分、经验值
         RewardBuyerBo rewardBuyerBo = mapper.getRewardBoByOrder(orderId);
-        //用户返购物券 积分 经验值
-        UmUserPo addUser = new UmUserPo();
-        addUser.setCurrentExperience(rewardBuyerBo.getRewardExperience()).setCurrentIntegral(rewardBuyerBo.getRewardIntegrate())
-                .setCurrentShopTicket(rewardBuyerBo.getRewardShopTicket()).setId(userId).setTotalOrder(1).
-                setTotalConsumeMoney(rewardBuyerBo.getRealPayMoney());
-        userMapper.updateAdd(addUser);
+        //用户总消费、总订单数
+        UmUserPo updateUser2 = new UmUserPo();
+        if (rewardBuyerBo!=null) {
+            //用户返购物券 积分 经验值
+            UmUserPo addUser = new UmUserPo();
+            addUser.setCurrentExperience(rewardBuyerBo.getRewardExperience()).setCurrentIntegral(rewardBuyerBo.getRewardIntegrate())
+                    .setCurrentShopTicket(rewardBuyerBo.getRewardShopTicket()).setId(userId).setTotalOrder(1).
+                    setTotalConsumeMoney(rewardBuyerBo.getRealPayMoney());
+            userMapper.updateAdd(addUser);
 
-        //购物奖励  下单用户本人有获得积分，购物券
-        addShoppingRewardLog(queryOrder.getId(), userId, rewardBuyerBo.getRewardIntegrate(), rewardBuyerBo.getRewardShopTicket());
+            //购物奖励  下单用户本人有获得积分，购物券
+            addShoppingRewardLog(queryOrder.getId(), userId, rewardBuyerBo.getRewardIntegrate(), rewardBuyerBo.getRewardShopTicket());
 
-        //查出需要返佣的用户
-        QueryWrapper<PayUserRelationPo> payUserWrapper = new QueryWrapper<>();
-        payUserWrapper.lambda().eq(PayUserRelationPo::getOrderId, orderId);
-        PayUserRelationPo queryPayUser = payUserRelationMapper.selectOne(payUserWrapper);
-        //基本参数设置
-        BasicSettingPo queryBasicSetting = basicSettingMapper.selectOne(Wrappers.emptyWrapper());
+            //查出需要返佣的用户
+            QueryWrapper<PayUserRelationPo> payUserWrapper = new QueryWrapper<>();
+            payUserWrapper.lambda().eq(PayUserRelationPo::getOrderId, orderId);
+            PayUserRelationPo queryPayUser = payUserRelationMapper.selectOne(payUserWrapper);
+            //基本参数设置
+            BasicSettingPo queryBasicSetting = basicSettingMapper.selectOne(Wrappers.emptyWrapper());
 
-        //订单实付金额
-        BigDecimal realPayMoney = rewardBuyerBo.getRealPayMoney();
-        if (queryPayUser != null) {
-            //返红包
-            rewardRed(queryPayUser, queryBasicSetting);
-            //上两级用户
-            if (queryPayUser.getLastTwoUserId() != null) {
-                //得到经验值
-                BigDecimal lastTwoExperience = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getLastTwoLevelExperience(), 100));
-                //得到积分
-                BigDecimal lastTwoIntegrate = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getLastTwoLevelIntegrate(), 100));
-                //增加积分和经验值
-                UmUserPo updateLastTwo = new UmUserPo();
-                updateLastTwo.setId(queryPayUser.getLastTwoUserId()).setCurrentExperience(lastTwoExperience).setCurrentIntegral(lastTwoIntegrate);
-                userMapper.updateAdd(updateLastTwo);
-                umUserService.updateLevel(queryPayUser.getLastTwoUserId());
+            //订单实付金额
+            BigDecimal realPayMoney = rewardBuyerBo.getRealPayMoney();
+            updateUser2.setTotalConsumeMoney(realPayMoney);
+            if (queryPayUser != null) {
+                //返红包
+                rewardRed(queryPayUser, queryBasicSetting);
+                //上两级用户
+                if (queryPayUser.getLastTwoUserId() != null) {
+                    //得到经验值
+                    BigDecimal lastTwoExperience = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getLastTwoLevelExperience(), 100));
+                    //得到积分
+                    BigDecimal lastTwoIntegrate = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getLastTwoLevelIntegrate(), 100));
+                    //增加积分和经验值
+                    UmUserPo updateLastTwo = new UmUserPo();
+                    updateLastTwo.setId(queryPayUser.getLastTwoUserId()).setCurrentExperience(lastTwoExperience).setCurrentIntegral(lastTwoIntegrate);
+                    userMapper.updateAdd(updateLastTwo);
+                    umUserService.updateLevel(queryPayUser.getLastTwoUserId());
 
-                //好友助攻  上两级用户获得积分
-                addFriendsAssistLog(queryOrder.getId(), queryPayUser.getLastTwoUserId(), lastTwoIntegrate, BigDecimal.ZERO);
+                    //好友助攻  上两级用户获得积分
+                    addFriendsAssistLog(queryOrder.getId(), queryPayUser.getLastTwoUserId(), lastTwoIntegrate, BigDecimal.ZERO);
 
-            }
-            //上一级用户
-            if (queryPayUser.getLastOneUserId() != null) {
-                //得到经验值
-                BigDecimal experience = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getLastLevelExperience(), 100));
-                //得到积分
-                BigDecimal integrate = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getLastLevelIntegrate(), 100));
-                //增加积分和经验值
-                UmUserPo updateUser = new UmUserPo();
-                updateUser.setId(queryPayUser.getLastOneUserId()).setCurrentExperience(experience).setCurrentIntegral(integrate);
-                userMapper.updateAdd(updateUser);
-                umUserService.updateLevel(queryPayUser.getLastOneUserId());
-
-                //好友助攻  上一级用户获得积分
-                addFriendsAssistLog(queryOrder.getId(), queryPayUser.getLastOneUserId(), integrate, BigDecimal.ZERO);
-
-            }
-
-            //下一级用户集合
-            if (!ListUtil.isListNullAndEmpty(queryPayUser.getNextUserIds())) {
-                //得到经验值
-                BigDecimal experience = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getNextLevelExperience(), 100));
-                //得到积分
-                BigDecimal integrate = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getNextLevelIntegrate(), 100));
-                //增加积分和经验值
-                queryPayUser.getNextUserIds().forEach(x -> {
+                }
+                //上一级用户
+                if (queryPayUser.getLastOneUserId() != null) {
+                    //得到经验值
+                    BigDecimal experience = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getLastLevelExperience(), 100));
+                    //得到积分
+                    BigDecimal integrate = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getLastLevelIntegrate(), 100));
+                    //增加积分和经验值
                     UmUserPo updateUser = new UmUserPo();
-                    updateUser.setId(x).setCurrentExperience(experience).setCurrentIntegral(integrate);
+                    updateUser.setId(queryPayUser.getLastOneUserId()).setCurrentExperience(experience).setCurrentIntegral(integrate);
                     userMapper.updateAdd(updateUser);
-                    umUserService.updateLevel(x);
+                    umUserService.updateLevel(queryPayUser.getLastOneUserId());
 
-                });
+                    //好友助攻  上一级用户获得积分
+                    addFriendsAssistLog(queryOrder.getId(), queryPayUser.getLastOneUserId(), integrate, BigDecimal.ZERO);
+
+                }
+
+                //下一级用户集合
+                if (!ListUtil.isListNullAndEmpty(queryPayUser.getNextUserIds())) {
+                    //得到经验值
+                    BigDecimal experience = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getNextLevelExperience(), 100));
+                    //得到积分
+                    BigDecimal integrate = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getNextLevelIntegrate(), 100));
+                    //增加积分和经验值
+                    queryPayUser.getNextUserIds().forEach(x -> {
+                        UmUserPo updateUser = new UmUserPo();
+                        updateUser.setId(x).setCurrentExperience(experience).setCurrentIntegral(integrate);
+                        userMapper.updateAdd(updateUser);
+                        umUserService.updateLevel(x);
+
+                    });
+                }
+
             }
-
+            //商品销售报表
+            omOrderReportService.orderClosure(orderId);
         }
 
-        //用户总消费、总订单数
-        UmUserPo updateUser = new UmUserPo();
-        updateUser.setId(userId).setTotalConsumeMoney(realPayMoney).setTotalOrder(1);
-        userMapper.updateAdd(updateUser);
 
-        //商品销售报表
-        omOrderReportService.orderClosure(orderId);
+        updateUser2.setId(userId).setTotalOrder(1);
+        userMapper.updateAdd(updateUser2);
+
+
     }
 
     @Override
