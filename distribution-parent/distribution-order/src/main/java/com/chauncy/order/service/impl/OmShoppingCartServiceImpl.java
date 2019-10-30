@@ -30,10 +30,7 @@ import com.chauncy.data.domain.po.message.content.MmArticlePo;
 import com.chauncy.data.domain.po.order.*;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.domain.po.pay.PayUserRelationPo;
-import com.chauncy.data.domain.po.product.PmGoodsAttributeValuePo;
-import com.chauncy.data.domain.po.product.PmGoodsPo;
-import com.chauncy.data.domain.po.product.PmGoodsRelAttributeValueSkuPo;
-import com.chauncy.data.domain.po.product.PmGoodsSkuPo;
+import com.chauncy.data.domain.po.product.*;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.sys.BasicSettingPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
@@ -133,6 +130,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     @Autowired
     private PmGoodsMapper goodsMapper;
+
+    @Autowired
+    private PmGoodsLikedMapper goodsLikedMapper;
 
     @Autowired
     private MmArticleMapper articleMapper;
@@ -1195,6 +1195,21 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             isFavorites = false;
         }
         specifiedGoodsVo.setIsFavorites(isFavorites);
+
+        /** 获取用户是否已经关注该商品*/
+        PmGoodsLikedPo goodsLikedPo = goodsLikedMapper.selectOne(new QueryWrapper<PmGoodsLikedPo>().lambda()
+                .and(obj -> obj.eq(PmGoodsLikedPo::getGoodsId, goodsId)
+                        .eq(PmGoodsLikedPo::getUserId, userPo.getId())));
+        Boolean isliked = false;
+        if (goodsLikedPo == null) {
+            isliked = false;
+        } else if (goodsLikedPo.getIsLiked()) {
+            isliked = true;
+        } else if (!goodsLikedPo.getIsLiked()) {
+            isliked = false;
+        }
+        specifiedGoodsVo.setIsliked(isliked);
+
 
         String carouselImage = goodsMapper.selectById(goodsId).getCarouselImage();
         //string转list

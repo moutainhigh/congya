@@ -60,32 +60,32 @@ public class PmGoodsLikedServiceImpl extends AbstractService<PmGoodsLikedMapper,
                 .last("for update"));
 
         //从未点赞
-        /*if (goodsLikedPo == null){
+        if (goodsLikedPo == null){
             goodsLikedPo = new PmGoodsLikedPo();
             goodsLikedPo.setId(null).setCreateBy(userPo.getId()).setGoodsId(goodsId).setUserId(userPo.getId())
                     .setIsLiked(true).setDelFlag(false);
             mapper.insert(goodsLikedPo);
 
-            goodsMapper.addLikedNum(evaluateId);
+            goodsMapper.addLikedNum(goodsId);
 
-        }else if (evaluateLikedPo.getIsLiked()) { //取消点赞
+        }else if (goodsLikedPo.getIsLiked()) { //取消点赞
 
-            evaluateLikedPo.setIsLiked(false);
-            evaluateLikedMapper.updateById(evaluateLikedPo);
+            goodsLikedPo.setIsLiked(false);
+            mapper.updateById(goodsLikedPo);
 
-            mapper.delLikedNum(evaluateId);
-        }else if (!evaluateLikedPo.getIsLiked()){ //点赞过且取消点赞再次点赞
-            evaluateLikedPo.setIsLiked(true);
-            evaluateLikedMapper.updateById(evaluateLikedPo);
+            goodsMapper.delLikedNum(goodsId);
+        }else if (!goodsLikedPo.getIsLiked()){ //点赞过且取消点赞再次点赞
+            goodsLikedPo.setIsLiked(true);
+            mapper.updateById(goodsLikedPo);
 
-            mapper.addLikedNum(evaluateId);
+            goodsMapper.addLikedNum(goodsId);
 
         }
-        Integer num = mapper.selectById(evaluateId).getLikedNum();
+        Integer num = goodsMapper.selectById(goodsId).getLikedNum();
         if (num < 0){
             num = 0;
-        }*/
+        }
 
-        return null;
+        return num;
     }
 }

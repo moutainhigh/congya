@@ -161,6 +161,6 @@ public class PmGoodsPo {
     private Integer forwardNum;
 
     @ApiModelProperty (value = "点赞数量")
-    private Integer likeNum;
+    private Integer likedNum;
 
 }

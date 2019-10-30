@@ -78,6 +78,14 @@ public class SpecifiedGoodsVo {
     @JSONField(ordinal = 6)
     private Boolean isFavorites;
 
+    @ApiModelProperty("点赞数量")
+    @JSONField(ordinal = 5)
+    private Integer likedNum;
+
+    @ApiModelProperty("用户是否已经点赞 0- 否 1-是")
+    @JSONField(ordinal = 6)
+    private Boolean isliked;
+
     @ApiModelProperty("商品标题")
     @JSONField(ordinal = 7)
     private String subtitle;
