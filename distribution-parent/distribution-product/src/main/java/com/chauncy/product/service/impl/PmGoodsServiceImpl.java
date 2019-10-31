@@ -398,10 +398,10 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         List<PmGoodsRelAttributeGoodPo> goodsRelAttributeGoodPos = goodsRelAttributeGoodMapper.selectList(queryWrapper);
         //获取属性IDs
         List<Long> attributeIds = goodsRelAttributeGoodPos.stream().map(a -> a.getGoodsAttributeId()).collect(Collectors.toList());
+        List<BaseVo> labels = Lists.newArrayList();
+        List<BaseVo> platformServices = Lists.newArrayList();
+        List<BaseVo> merchantServices = Lists.newArrayList();
         attributeIds.forEach(x -> {
-            List<BaseVo> labels = Lists.newArrayList();
-            List<BaseVo> platformServices = Lists.newArrayList();
-            List<BaseVo> merchantServices = Lists.newArrayList();
             //根据属性ID查找属性信息
             PmGoodsAttributePo goodsAttributePo = goodsAttributeMapper.selectById(x);
             //根据不同属性类型保存不同属性信息
