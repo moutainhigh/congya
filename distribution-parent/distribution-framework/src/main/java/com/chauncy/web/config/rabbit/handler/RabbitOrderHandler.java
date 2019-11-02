@@ -104,7 +104,7 @@ public class RabbitOrderHandler {
         LoggerUtil.info(String.format("[closeOrderByPayId 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), payOrderId));
         PayOrderPo queryPayOrder = payOrderService.getById(payOrderId);
         //如果订单状态为未支付,就去取消订单
-        if (queryPayOrder.getStatus().equals(PayOrderStatusEnum.NEED_PAY.getId())) {
+        if (queryPayOrder!=null&&queryPayOrder.getStatus().equals(PayOrderStatusEnum.NEED_PAY.getId())) {
             orderService.closeOrderByPayId(payOrderId);
         }
         try {

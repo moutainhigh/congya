@@ -591,7 +591,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         List<ActivitySkuBo> boByIds = amActivityRelGoodsSkuMapper.getBoByIds(skuIds);
         boByIds.forEach(x -> {
             Integer buyNumber = shopTicketSoWithCarGoodVos.stream().filter(y -> y.getId().equals(x.getSkuId())).findFirst().get().getNumber();
-            if (x.getBuyLimit() < buyNumber) {
+            if (x.getBuyLimit()!=0&&x.getBuyLimit() < buyNumber) {
                 String goodsName = skuMapper.getGoodsName(x.getSkuId());
                 throw new ServiceException(ResultCode.FAIL,
                         String.format("商品名称【%s】购买数量【%s】大于限购数量【%s】，请重新选择。", goodsName, buyNumber, x.getBuyLimit()));
@@ -1889,7 +1889,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         boByIds.forEach(x -> {
             Integer buyNumber = shopTicketSoWithCarGoodDtos.stream().filter(y -> y.getId().equals(x.getSkuId())).findFirst().get().getNumber();
             //判断限购
-            if (x.getBuyLimit() < buyNumber) {
+            if (x.getBuyLimit()!=0&&x.getBuyLimit() < buyNumber) {
                 String goodsName = skuMapper.getGoodsName(x.getSkuId());
                 throw new ServiceException(ResultCode.FAIL,
                         String.format("商品名称【%s】购买数量【%s】大于限购数量【%s】，请重新选择。", goodsName, buyNumber, x.getBuyLimit()));
