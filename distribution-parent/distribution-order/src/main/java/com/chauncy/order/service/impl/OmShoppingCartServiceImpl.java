@@ -1165,12 +1165,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
      * @return
      */
     @Override
-    public SpecifiedGoodsVo selectSpecifiedGoods(Long goodsId) {
+    public SpecifiedGoodsVo selectSpecifiedGoods(Long goodsId, UmUserPo umUserPo) {
 
-        UmUserPo userPo = securityUtil.getAppCurrUser();
-        if (userPo == null) {
-            throw new ServiceException(ResultCode.NO_EXISTS, "您不是APP用户！");
-        }
+        Long umUserId = null == umUserPo ? null : umUserPo.getId();
 
         SpecifiedGoodsVo specifiedGoodsVo = new SpecifiedGoodsVo();
         List<GoodsStandardVo> goodsStandardVoList = Lists.newArrayList();
@@ -1185,7 +1182,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         /** 获取用户是否已经收藏该商品*/
         UmUserFavoritesPo userFavoritesPo = userFavoritesMapper.selectOne(new QueryWrapper<UmUserFavoritesPo>().lambda()
                 .and(obj -> obj.eq(UmUserFavoritesPo::getFavoritesId, goodsId)
-                        .eq(UmUserFavoritesPo::getUserId, userPo.getId())));
+                        .eq(UmUserFavoritesPo::getUserId, umUserId)));
         Boolean isFavorites = false;
         if (userFavoritesPo == null) {
             isFavorites = false;
@@ -1199,7 +1196,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         /** 获取用户是否已经关注该商品*/
         PmGoodsLikedPo goodsLikedPo = goodsLikedMapper.selectOne(new QueryWrapper<PmGoodsLikedPo>().lambda()
                 .and(obj -> obj.eq(PmGoodsLikedPo::getGoodsId, goodsId)
-                        .eq(PmGoodsLikedPo::getUserId, userPo.getId())));
+                        .eq(PmGoodsLikedPo::getUserId, umUserId)));
         Boolean isliked = false;
         if (goodsLikedPo == null) {
             isliked = false;
@@ -1258,7 +1255,12 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             //让利成本比例
             b.setProfitsRate(goodsPo.getProfitsRate());
             //会员等级比例
-            BigDecimal purchasePresent = levelMapper.selectById(userPo.getMemberLevelId()).getPurchasePresent();
+            BigDecimal purchasePresent;
+            if(null == umUserId) {
+                purchasePresent = new BigDecimal("0");
+            } else {
+                purchasePresent = levelMapper.selectById(umUserPo.getMemberLevelId()).getPurchasePresent();
+            }
             b.setPurchasePresent(purchasePresent);
             //购物券比例
             BigDecimal moneyToShopTicket = basicSettingMapper.selectList(null).get(0).getMoneyToShopTicket();
@@ -1308,7 +1310,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         if (!ListUtil.isListNullAndEmpty(findCouponListVos)) {
             findCouponListVos.forEach(a -> {
                 List<AmCouponRelCouponUserPo> relCouponUserPos = relCouponUserMapper.selectList(new QueryWrapper<AmCouponRelCouponUserPo>().lambda().and(obj -> obj
-                        .eq(AmCouponRelCouponUserPo::getUserId, userPo.getId()).eq(AmCouponRelCouponUserPo::getCouponId, a.getCouponId())));
+                        .eq(AmCouponRelCouponUserPo::getUserId, umUserId).eq(AmCouponRelCouponUserPo::getCouponId, a.getCouponId())));
                 if (!ListUtil.isListNullAndEmpty(relCouponUserPos)) {
                     a.setIsReceive(true);
                 }
@@ -1351,7 +1353,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             goodsDetailEvaluateVo.setEvaluateNum(evaluateNum);
             if (goodsEvaluateVo != null) {
                 OmEvaluateLikedPo evaluateLikedPo = evaluateLikedMapper.selectOne(new QueryWrapper<OmEvaluateLikedPo>().lambda()
-                        .eq(OmEvaluateLikedPo::getUserId, userPo.getId()).eq(OmEvaluateLikedPo::getEvaluateId, goodsEvaluateVo.getId())
+                        .eq(OmEvaluateLikedPo::getUserId, umUserId).eq(OmEvaluateLikedPo::getEvaluateId, goodsEvaluateVo.getId())
                         .eq(OmEvaluateLikedPo::getIsLiked, true));
                 if (evaluateLikedPo == null) {
                     goodsEvaluateVo.setIsLiked(false);
@@ -1402,7 +1404,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         Integer fansNum = storePo.getCollectionNum();
         //是否关注
         UmUserFavoritesPo userFavoritesStore = userFavoritesMapper.selectOne(new QueryWrapper<UmUserFavoritesPo>().lambda().and(obj -> obj
-                .eq(UmUserFavoritesPo::getUserId, userPo.getId()).eq(UmUserFavoritesPo::getFavoritesId, storePo.getId()).eq(UmUserFavoritesPo::getIsFavorites, true)));
+                .eq(UmUserFavoritesPo::getUserId, umUserId).eq(UmUserFavoritesPo::getFavoritesId, storePo.getId()).eq(UmUserFavoritesPo::getIsFavorites, true)));
         if (userFavoritesStore == null) {
             storeVo.setIsAttention(false);
         } else {
