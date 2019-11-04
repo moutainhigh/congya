@@ -541,7 +541,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             message.getMessageProperties().setExpiration(expireTime);
             return message;
         });
-        LoggerUtil.info("【下单等待取消订单发送时间】:" + LocalDateTime.now());
+        LoggerUtil.info("【下单等待取消订单发送时间】:" + LocalDateTime.now()+savePayOrderPo.getId());
 
         return submitOrderVo;
     }

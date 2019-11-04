@@ -238,7 +238,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         UmUserPo condition = new UmUserPo();
         condition.setInviteCode(inviteCode);
         UmUserPo parentUserPo = mapper.selectOne(new QueryWrapper<>(condition).select("id,invite_people_num,store_id"));
-        //子跟随父亲的店铺id 设置parentid
+        //子跟随父亲的店铺id 设置 parentid
         UmUserPo updateChildUserPo = new UmUserPo();
         updateChildUserPo.setId(userId).setParentId(parentUserPo.getId()).setStoreId(parentUserPo.getStoreId());
         mapper.updateById(updateChildUserPo);
@@ -256,7 +256,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         PageInfo<UmUserListVo> umUserListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> mapper.loadSearchUserList(searchUserListDto));
 
-        //通过条件构造器限制只需要查出name
+        //通过条件构造器限制只需要 查出name
         UmUserPo condition = new UmUserPo();
         //设置关联用户的名称,不要连表(数据库查出的是id，现在将id转为name)
         umUserListVoPageInfo.getList().stream().filter(x -> x.getParent() != null).
