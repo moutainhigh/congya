@@ -57,6 +57,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -561,6 +563,23 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
             orderService.storeSend(orderId);
 
             log.info("订阅物流信息成功，订单号为:【{}】,物流单号为:【{}】", orderId, taskRequestDto.getNumber());
+            //时间格式化
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+
+            AreaShopLogisticsPo logisticsPo = logisticsMapper.selectOne(new QueryWrapper<AreaShopLogisticsPo>().eq("logi_code", taskRequestDto.getCompany()));
+            // 快递公司名称
+            String expressCompanyName = logisticsPo.getLogiName();
+            //插入数据
+            OmOrderLogisticsPo orderLogistics = new OmOrderLogisticsPo();
+            orderLogistics.setLogisticsNo(taskRequestDto.getNumber()).setOrderId(orderId)
+            .setStatus("1").setLogiCode(taskRequestDto.getCompany()).setLogiName(expressCompanyName)
+            .setIsCheck("0")
+            .setData("[{\"areaCode\":null,\"areaName\":null,\"context\":\"商家已发货\",\"ftime\":" +LocalDateTime.now().format(formatter)+
+                    ",\"time\":" +LocalDateTime.now().format(formatter)+
+                    "}]");
+            mapper.insert(orderLogistics);
+
             return resp;
         }
         System.out.println(response.toString());

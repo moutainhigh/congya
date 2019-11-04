@@ -16,7 +16,7 @@ spring:
 
 logging:
   level:
-    com.chauncy: debug
+    com.chauncy: prod                                                                                                                       ug
     org.springframework: WARN
     org.spring.springboot.dao: debug
 
