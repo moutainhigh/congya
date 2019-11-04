@@ -1,5 +1,5 @@
 server:
-  port: 81
+  port: 80
   servlet:
       context-path: /distribution
   tomcat:
@@ -9,7 +9,7 @@ server:
 
 spring:
   profiles:
-    active: prod
+    active: dev
   devtools:
     restart:
       enabled: true
