@@ -96,7 +96,7 @@ public class MmUserNoticeServiceImpl extends AbstractService<MmUserNoticeMapper,
                     //找到订单中的一个商品
                     QueryWrapper<OmGoodsTempPo> queryWrapper = new QueryWrapper<>();
                     queryWrapper.lambda().eq(OmGoodsTempPo::getOrderId, saveUserNoticeBo.getOrderId());
-                    queryWrapper.lambda().last(" LIMIT 1 ");
+                    queryWrapper.last(" LIMIT 1 ");
                     OmGoodsTempPo omGoodsTempPo = omGoodsTempMapper.selectOne(queryWrapper);
                     MmUserNoticePo mmUserNoticePo = new MmUserNoticePo();
                     mmUserNoticePo.setUserId(omOrderPo.getUmUserId())

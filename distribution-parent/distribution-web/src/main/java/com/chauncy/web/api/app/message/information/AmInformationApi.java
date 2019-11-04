@@ -2,6 +2,7 @@ package com.chauncy.web.api.app.message.information;
 
 import com.chauncy.common.enums.app.advice.AdviceLocationEnum;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.message.information.select.SearchInfoByConditionDto;
 import com.chauncy.data.dto.manage.message.information.add.AddInformationCommentDto;
 import com.chauncy.data.dto.manage.message.information.select.InformationCommentDto;
@@ -134,8 +135,67 @@ public class AmInformationApi extends BaseApi {
     public JsonViewData<InformationBaseVo> findBaseById(@ApiParam(required = true, value = "id")
                                                             @PathVariable Long id) {
 
+        UmUserPo umUserPo = securityUtil.getAppCurrUser();
+        Long userId = null == umUserPo ? null : umUserPo.getId();
         return new JsonViewData(ResultCode.SUCCESS, "查询成功",
-                mmInformationService.findBaseById(id));
+                mmInformationService.findBaseById(id, userId));
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/11/3 14:22
+     * @Description APP分享资讯到微信  微信用户访问资讯（无需登录）
+     *
+     * @Update yeJH
+     *
+     * @param  id
+     * @return com.chauncy.data.vo.JsonViewData<com.chauncy.data.vo.app.message.information.InformationBaseVo>
+     **/
+    @ApiOperation(value = "游客查找资讯详情", notes = "非登录用户根据资讯id查找资讯详情")
+    @GetMapping("/share/findBaseById/{id}")
+    public JsonViewData<InformationBaseVo> findShareInfo(@ApiParam(required = true, value = "id")
+                                                            @PathVariable Long id) {
+
+        return new JsonViewData(ResultCode.SUCCESS, "查询成功",
+                mmInformationService.findBaseById(id, null));
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/11/3 15:34
+     * @Description 游客根据资讯id获取资讯详情
+     *
+     * @Update yeJH
+     *
+     * @param  informationCommentDto
+     * @return com.chauncy.data.vo.JsonViewData<com.github.pagehelper.PageInfo<com.chauncy.data.vo.manage.message.information.comment.InformationMainCommentVo>>
+     **/
+    @ApiOperation(value = "游客获取资讯评论", notes = "非登录用户根据资讯id获取资讯评论详情")
+    @PostMapping("/share/comment/searchShareComment")
+    public JsonViewData<PageInfo<InformationMainCommentVo>> searchShareComment(@Valid @ApiParam(required = true,
+            name = "informationCommentDto", value = "查询条件")@RequestBody InformationCommentDto informationCommentDto) {
+
+        return new JsonViewData(ResultCode.SUCCESS, "查询成功",
+                mmInformationCommentService.searchInfoCommentById(informationCommentDto));
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/11/3 15:36
+     * @Description 根据主评论id查询副评论
+     *
+     * @Update yeJH
+     *
+     * @param  mainId
+     * @return com.chauncy.data.vo.JsonViewData<com.chauncy.data.vo.manage.message.information.comment.InformationViceCommentVo>
+     **/
+    @ApiOperation(value = "查找资讯副评论", notes = "根据主评论ID查找所有副评论")
+    @PostMapping("/share/comment/searchShareViceComment/{mainId}")
+    public JsonViewData<InformationViceCommentVo> searchShareViceComment(@ApiParam(required = true, value = "mainId")
+                                                                            @PathVariable Long mainId) {
+
+        return new JsonViewData(ResultCode.SUCCESS, "查询成功",
+                mmInformationCommentService.searchViceCommentByMainId(mainId,  null));
     }
 
 
