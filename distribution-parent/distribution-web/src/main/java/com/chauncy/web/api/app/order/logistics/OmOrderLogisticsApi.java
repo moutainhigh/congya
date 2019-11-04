@@ -20,6 +20,7 @@ import com.chauncy.order.service.IOmOrderService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +63,7 @@ public class OmOrderLogisticsApi extends BaseApi {
      */
     @ApiOperation("订单订阅物流信息请求接口(商家发货)")
     @PostMapping("/subscribe")
+    @Transactional(rollbackFor = Exception.class)
     public JsonViewData subscribleLogistics(@RequestBody @ApiParam(required = true, name = "taskRequestDto", value = "订单订阅物流信息")
                                                     @Validated TaskRequestDto taskRequestDto) {
         OmOrderPo queryOrder=orderService.getById(taskRequestDto.getOrderId());
