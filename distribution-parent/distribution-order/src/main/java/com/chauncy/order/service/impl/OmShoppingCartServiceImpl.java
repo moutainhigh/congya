@@ -1246,31 +1246,30 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         specifiedGoodsVo.setShipFreightInfoVo(shipFreightInfoVo);
         specifiedGoodsVo.setShipFreight(shipFreight);
 
-        //获取最高返券值
-        List<Double> rewardShopTickes = com.google.common.collect.Lists.newArrayList();
-        List<RewardShopTicketBo> rewardShopTicketBos = skuMapper.findRewardShopTicketInfos(goodsId);
-        rewardShopTicketBos.forEach(b -> {
-            //商品活动百分比
-            b.setActivityCostRate(goodsPo.getActivityCostRate());
-            //让利成本比例
-            b.setProfitsRate(goodsPo.getProfitsRate());
-            //会员等级比例
-            BigDecimal purchasePresent;
-            if(null == umUserId) {
-                purchasePresent = new BigDecimal("0");
-            } else {
-                purchasePresent = levelMapper.selectById(umUserPo.getMemberLevelId()).getPurchasePresent();
-            }
-            b.setPurchasePresent(purchasePresent);
-            //购物券比例
-            BigDecimal moneyToShopTicket = basicSettingMapper.selectList(null).get(0).getMoneyToShopTicket();
-            b.setMoneyToShopTicket(moneyToShopTicket);
-            BigDecimal rewardShopTicket = b.getRewardShopTicket();
-            rewardShopTickes.add(rewardShopTicket.doubleValue());
-        });
-        //获取RewardShopTickes列表最大返券值
-        Double maxRewardShopTicket = rewardShopTickes.stream().mapToDouble((x) -> x).summaryStatistics().getMax();
-        specifiedGoodsVo.setMaxRewardShopTicket(BigDecimal.valueOf(maxRewardShopTicket));
+        if(null == umUserId) {
+            specifiedGoodsVo.setMaxRewardShopTicket(new BigDecimal("0"));
+        } else {
+            //获取最高返券值
+            List<Double> rewardShopTickes = com.google.common.collect.Lists.newArrayList();
+            List<RewardShopTicketBo> rewardShopTicketBos = skuMapper.findRewardShopTicketInfos(goodsId);
+            rewardShopTicketBos.forEach(b -> {
+                //商品活动百分比
+                b.setActivityCostRate(goodsPo.getActivityCostRate());
+                //让利成本比例
+                b.setProfitsRate(goodsPo.getProfitsRate());
+                //会员等级比例
+                BigDecimal purchasePresent = levelMapper.selectById(umUserPo.getMemberLevelId()).getPurchasePresent();
+                b.setPurchasePresent(purchasePresent);
+                //购物券比例
+                BigDecimal moneyToShopTicket = basicSettingMapper.selectList(null).get(0).getMoneyToShopTicket();
+                b.setMoneyToShopTicket(moneyToShopTicket);
+                BigDecimal rewardShopTicket = b.getRewardShopTicket();
+                rewardShopTickes.add(rewardShopTicket.doubleValue());
+            });
+            //获取RewardShopTickes列表最大返券值
+            Double maxRewardShopTicket = rewardShopTickes.stream().mapToDouble((x) -> x).summaryStatistics().getMax();
+            specifiedGoodsVo.setMaxRewardShopTicket(BigDecimal.valueOf(maxRewardShopTicket));
+        }
 
         //返券规则
         String returnTicketRule = "";
