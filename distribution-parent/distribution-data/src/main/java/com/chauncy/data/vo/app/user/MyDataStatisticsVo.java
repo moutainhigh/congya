@@ -8,6 +8,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
+
 /**
  * @Author cheng
  * @create 2019-09-17 22:17
@@ -73,15 +75,15 @@ public class MyDataStatisticsVo {
 
     @ApiModelProperty(value = "积分数量")
     @JSONField(ordinal = 13)
-    private Integer integralNum;
+    private BigDecimal integralNum;
 
     @ApiModelProperty(value = "购物券数量")
     @JSONField(ordinal = 14)
-    private Integer vouchersNum;
+    private BigDecimal vouchersNum;
 
     @ApiModelProperty(value = "红包数量")
     @JSONField(ordinal = 15)
-    private Integer redEnvelopeNum;
+    private BigDecimal redEnvelopeNum;
 
     @ApiModelProperty(value = "个人中心顶部背景图")
     @JSONField(ordinal = 16)
