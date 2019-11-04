@@ -82,7 +82,7 @@ public interface IOmShoppingCartService extends Service<OmShoppingCartPo> {
      * @param goodsId
      * @return
      */
-    SpecifiedGoodsVo selectSpecifiedGoods(Long goodsId);
+    SpecifiedGoodsVo selectSpecifiedGoods(Long goodsId, UmUserPo umUserPo);
 
     /**
      * 提交订单

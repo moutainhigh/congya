@@ -64,11 +64,17 @@ public interface IMmInformationService extends Service<MmInformationPo> {
     InformationVo findById(Long id);
 
     /**
-     * app根据ID查找资讯
-     * @param id 资讯id
-     * @return
-     */
-    InformationBaseVo findBaseById(Long id);
+     * @Author yeJH
+     * @Date 2019/11/3 14:56
+     * @Description 根据资讯id获取资讯详情
+     *
+     * @Update yeJH
+     *
+     * @param  id
+     * @param  userId  为空表示游客  不为空是访问资讯的用户
+     * @return com.chauncy.data.vo.app.message.information.InformationBaseVo
+     **/
+    InformationBaseVo findBaseById(Long id, Long userId);
 
     /**
      * 根据关联ID删除资讯跟店铺的绑定关系

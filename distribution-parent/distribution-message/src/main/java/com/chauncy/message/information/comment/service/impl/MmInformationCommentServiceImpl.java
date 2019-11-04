@@ -103,8 +103,13 @@ public class MmInformationCommentServiceImpl extends AbstractService<MmInformati
         if (null == mmInformationCommentPo){
             throw new ServiceException(ResultCode.NO_EXISTS,"评论不存在");
         }
-
-        return mmInformationCommentMapper.searchViceCommentByMainId(mainId,  userId, null);
+        List<InformationViceCommentVo> informationViceCommentVoList =
+                mmInformationCommentMapper.searchViceCommentByMainId(mainId,  userId, null);
+        informationViceCommentVoList.stream().forEach(viceComment -> {
+            //评论发布时间规则
+            viceComment.setReleaseTime(RelativeDateFormatUtil.format(viceComment.getCreateTime()));
+        });
+        return informationViceCommentVoList;
     }
 
     /**

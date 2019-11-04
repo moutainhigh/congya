@@ -8,8 +8,10 @@ import com.chauncy.data.dto.app.user.favorites.select.SelectFavoritesDto;
 import com.chauncy.data.dto.app.user.favorites.update.DelFavaritesDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.user.favorites.SearchFavoritesVo;
+import com.chauncy.product.service.IPmGoodsLikedService;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.user.service.IUmUserFavoritesService;
+import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -28,11 +30,14 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping ("/app/user/favorites")
-@Api (tags = "app_用户收藏夹")
-public class UmUserFavoritesApi {
+@Api (tags = "app_商品点赞或用户收藏夹")
+public class UmUserFavoritesApi extends BaseApi {
 
     @Autowired
     private IUmUserFavoritesService service;
+
+    @Autowired
+    private IPmGoodsLikedService goodsLikedService;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -77,5 +82,22 @@ public class UmUserFavoritesApi {
 
         UmUserPo userPo = securityUtil.getAppCurrUser ();
         return new JsonViewData(service.searchFavorites(selectFavoritesDto,userPo));
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-30 13:39
+     * @Description //对商品点赞/取消点赞
+     *
+     * @Update chauncy
+     *
+     * @param  goodsId
+     * @return com.chauncy.data.vo.JsonViewData<java.lang.Integer>
+     **/
+    @GetMapping("/updateGoodsLiked/{goodsId}")
+    @ApiOperation("对商品点赞/取消点赞")
+    public JsonViewData<Integer> updateGoodsLiked(@PathVariable Long goodsId){
+
+        return setJsonViewData(goodsLikedService.updateGoodsLiked(goodsId));
     }
 }

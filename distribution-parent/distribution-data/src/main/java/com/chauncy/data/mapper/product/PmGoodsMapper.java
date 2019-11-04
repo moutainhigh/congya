@@ -315,4 +315,30 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
      * @return void
      **/
     List<SearchAdviceGoodsVo> searchSpellAdviceBindGoods(SearchSpellAdviceBindGoodsDto searchSpellAdviceGoodsDto);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-30 18:17
+     * @Description //商品的点赞数量加1
+     *
+     * @Update chauncy
+     *
+     * @param  goodsId
+     * @return void
+     **/
+    @Update("update pm_goods set liked_num = liked_num + 1 where id = #{goodsId}")
+    void addLikedNum(Long goodsId);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-10-30 18:19
+     * @Description //TODO
+     *
+     * @Update chauncy
+     *
+     * @param  goodsId
+     * @return void
+     **/
+    @Update("update pm_goods set liked_num = liked_num - 1 where id = #{goodsId} and liked_num > 0")
+    void delLikedNum(Long goodsId);
 }

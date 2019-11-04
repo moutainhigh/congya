@@ -52,6 +52,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -179,6 +180,7 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
     public void editInformation(InformationDto informationDto) {
 
         MmInformationPo mmInformationPo = mmInformationMapper.selectById(informationDto.getId());
+        mmInformationPo.setUpdateTime(LocalDateTime.now());
         SysUserPo sysUserPo = securityUtil.getCurrUser();
         if(null == sysUserPo.getStoreId()) {
             //平台用户
@@ -276,16 +278,20 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
         return informationVo;
     }
 
+
     /**
-     * app根据ID查找资讯
+     * @Author yeJH
+     * @Date 2019/11/3 14:56
+     * @Description 根据资讯id获取资讯详情
      *
-     * @param id 资讯id
-     * @return
-     */
+     * @Update yeJH
+     *
+     * @param  id
+     * @param  userId  为空表示游客  不为空是访问资讯的用户
+     * @return com.chauncy.data.vo.app.message.information.InformationBaseVo
+     **/
     @Override
-    public InformationBaseVo findBaseById(Long id) {
-        UmUserPo umUserPo = securityUtil.getAppCurrUser();
-        Long userId = null == umUserPo ? null : umUserPo.getId();
+    public InformationBaseVo findBaseById(Long id, Long userId) {
         MmInformationPo mmInformationPo = mmInformationMapper.selectById(id);
         if(null == mmInformationPo) {
             throw new ServiceException(ResultCode.NO_EXISTS, "资讯不存在");
@@ -650,7 +656,8 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
         UpdateWrapper<MmInformationPo> updateWrapper = new UpdateWrapper<>();
         updateWrapper.lambda()
                 .in(MmInformationPo::getId, baseUpdateStatusDto.getId())
-                .set(MmInformationPo::getEnabled, baseUpdateStatusDto.getEnabled());
+                .set(MmInformationPo::getEnabled, baseUpdateStatusDto.getEnabled())
+                .set(MmInformationPo::getUpdateTime, LocalDateTime.now());
         this.update(updateWrapper);
     }
 }

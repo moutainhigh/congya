@@ -23,6 +23,7 @@ import com.chauncy.data.domain.po.message.information.rel.MmInformationLikedPo;
 import com.chauncy.data.domain.po.message.interact.MmFeedBackPo;
 import com.chauncy.data.domain.po.message.interact.MmUserNoticePo;
 import com.chauncy.data.domain.po.store.SmStorePo;
+import com.chauncy.data.domain.po.sys.BasicSettingPo;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.domain.po.user.UmRelUserLabelPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
@@ -38,6 +39,7 @@ import com.chauncy.data.mapper.message.information.rel.MmInformationLikedMapper;
 import com.chauncy.data.mapper.message.interact.MmFeedBackMapper;
 import com.chauncy.data.mapper.message.interact.MmUserNoticeMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
+import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.mapper.user.UmRelUserLabelMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
@@ -100,6 +102,9 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
 
     @Autowired
     private MmInformationCommentMapper informationCommentMapper;
+
+    @Autowired
+    private BasicSettingMapper basicSettingMapper;
 
     @Autowired
     private MmAdviceMapper adviceMapper;
@@ -538,6 +543,14 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     public MyDataStatisticsVo getMyDataStatistics(UmUserPo userPo) {
 
         MyDataStatisticsVo myDataStatisticsVo = mapper.getMyDataStatistics(userPo.getId());
+
+        //红包   展示红包对应的金额
+        //获取系统基本设置
+        BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
+        // 计算红包等价多少金额 用户红包余额/money_to_current_red_envelops(个人消费的订单金额1元=多少红包)
+        BigDecimal equalAmount = BigDecimalUtil.safeDivide(myDataStatisticsVo.getRedEnvelopeNum(),
+                basicSettingPo.getMoneyToCurrentRedEnvelops());
+        myDataStatisticsVo.setRedEnvelopeNum(equalAmount);
 
         PersonalCenterPictureVo topPicture = adviceMapper.getTopPicture();
         PersonalCenterPictureVo topUpPicture =adviceMapper.getTopUpPicture();

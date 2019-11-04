@@ -3,7 +3,9 @@ package com.chauncy.web.api.app.order;
 
 import com.chauncy.activity.coupon.IAmCouponService;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.domain.po.order.OmRealUserPo;
+import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.car.SettleDto;
 import com.chauncy.data.dto.app.car.SubmitOrderDto;
 import com.chauncy.data.dto.app.order.cart.add.AddCartDto;
@@ -24,6 +26,7 @@ import com.chauncy.data.vo.app.order.cart.RealUserVo;
 import com.chauncy.data.vo.app.order.cart.SubmitOrderVo;
 import com.chauncy.order.service.IOmRealUserService;
 import com.chauncy.order.service.IOmShoppingCartService;
+import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.web.base.BaseApi;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
@@ -58,6 +61,9 @@ public class OmShoppingCartApi extends BaseApi {
     @Autowired
     private IAmCouponService couponService;
 
+    @Autowired
+    private SecurityUtil securityUtil;
+
     /**
      * 查看商品详情
      *
@@ -68,7 +74,11 @@ public class OmShoppingCartApi extends BaseApi {
     @ApiOperation("查看具体商品详情")
     public JsonViewData<SpecifiedGoodsVo> selectSpecifiedGoods(@ApiParam(required = true, name = "goodsId", value = "商品ID")
                                                                @PathVariable Long goodsId) {
-        return new JsonViewData<SpecifiedGoodsVo>(service.selectSpecifiedGoods(goodsId));
+        UmUserPo userPo = securityUtil.getAppCurrUser();
+        if (userPo == null) {
+            throw new ServiceException(ResultCode.NO_EXISTS, "您不是APP用户！");
+        }
+        return new JsonViewData<SpecifiedGoodsVo>(service.selectSpecifiedGoods(goodsId, userPo));
     }
 
     /**
