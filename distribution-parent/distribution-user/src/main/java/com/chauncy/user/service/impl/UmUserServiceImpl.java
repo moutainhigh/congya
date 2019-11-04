@@ -238,7 +238,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         UmUserPo condition = new UmUserPo();
         condition.setInviteCode(inviteCode);
         UmUserPo parentUserPo = mapper.selectOne(new QueryWrapper<>(condition).select("id,invite_people_num,store_id"));
-        //子跟随父亲的店铺id 设置parentid
+        //子跟随父亲的店铺id 设置 parentid
         UmUserPo updateChildUserPo = new UmUserPo();
         updateChildUserPo.setId(userId).setParentId(parentUserPo.getId()).setStoreId(parentUserPo.getStoreId());
         mapper.updateById(updateChildUserPo);
