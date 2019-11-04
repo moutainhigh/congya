@@ -106,6 +106,7 @@ public class MmUserNoticeServiceImpl extends AbstractService<MmUserNoticeMapper,
                                     omGoodsTempPo.getName()));
                     mapper.insert(mmUserNoticePo);
                 }
+                break;
             case WITHDRAWAL_SUCCESS:
                 //提现成功给用户发送APP内消息  根据提现记录id获取发送消息需要的参数
                 List<WithdrawalLogBo> withdrawalLogBoList = mapper.getWithdrawalLog(saveUserNoticeBo.getWithdrawalIdList(),
@@ -124,6 +125,7 @@ public class MmUserNoticeServiceImpl extends AbstractService<MmUserNoticeMapper,
                         }
                     });
                 }
+                break;
             case RETURN_GOODS:
                 //商家同意售后  发送APP内消息给用户
                 OmAfterSaleOrderPo queryAfterSaleOrder =
@@ -138,6 +140,7 @@ public class MmUserNoticeServiceImpl extends AbstractService<MmUserNoticeMapper,
                                     umUserPo.getName(), queryAfterSaleOrder.getId()));
                     mapper.insert(mmUserNoticePo);
                 }
+                break;
         }
     }
 
