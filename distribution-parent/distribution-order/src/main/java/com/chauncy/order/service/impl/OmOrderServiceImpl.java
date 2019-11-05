@@ -501,7 +501,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         }
         //生成新的支付单
         PayOrderPo savePayOrderPo = new PayOrderPo();
-        BeanUtils.copyProperties(queryPayOrder, savePayOrderPo, "id");
+        BeanUtils.copyProperties(queryPayOrder, savePayOrderPo, "id","prePayId");
 
         OmOrderPo queryOrder = mapper.selectById(orderId);
 
