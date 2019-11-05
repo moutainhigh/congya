@@ -105,7 +105,8 @@ public class OmFinanceLogApi extends BaseApi {
      */
     @ApiOperation(value = "标记已处理", notes = "平台标记状态为处理中的用户提现为已处理")
     @GetMapping("/withdrawalSuccess/{id}")
-    @ApiImplicitParam(name = "id", value = "账单id", required = true, dataType = "Long", paramType = "path")
+    @ApiImplicitParam(name = "id", value = "用户提现记录id", required = true, dataType = "Long", paramType = "path")
+    @Transactional(rollbackFor = Exception.class)
     public JsonViewData withdrawalSuccess(@PathVariable(value = "id") Long[] id) {
 
         omUserWithdrawalService.withdrawalSuccess(id);

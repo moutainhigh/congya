@@ -32,6 +32,19 @@ import java.util.List;
 public interface UmUserMapper extends IBaseMapper<UmUserPo> {
 
     /**
+     * @Author yeJH
+     * @Date 2019/11/5 9:17
+     * @Description 扣减红包
+     *
+     * @Update yeJH
+     *
+     * @param  id  用户id
+     * @param  amount  扣减数量
+     * @return void
+     **/
+    int reduceRedEnvelops(@Param("id")Long id, @Param("amount")BigDecimal amount);
+
+    /**
      * 推送信息时需要获取app用户信息
      * 
      * @param searchUserListDto
