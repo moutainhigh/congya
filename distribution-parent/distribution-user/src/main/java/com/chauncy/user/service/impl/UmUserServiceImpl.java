@@ -279,7 +279,9 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
             storeWrapper.eq("id", umUserDetailVo.getStoreId());
             storeWrapper.select("name");
             SmStorePo queryStore = smStoreMapper.selectOne(storeWrapper);
-            umUserDetailVo.setStoreName(queryStore.getName());
+            if (queryStore != null) {
+                umUserDetailVo.setStoreName(queryStore.getName());
+            }
         }
         if (umUserDetailVo.getParentName() != null) {
             QueryWrapper userWrapper = new QueryWrapper();
