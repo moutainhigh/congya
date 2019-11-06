@@ -2,6 +2,7 @@ package com.chauncy.web;
 
 import com.baomidou.mybatisplus.core.injector.ISqlInjector;
 import com.baomidou.mybatisplus.extension.injector.LogicSqlInjector;
+import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.boot.SpringApplication;
@@ -26,11 +27,12 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableRedisRepositories
 @EnableRabbit
 //@EnableAspectJAutoProxy //aop编程
+@Slf4j
 public class StartApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         SpringApplication.run(StartApplication.class, args);
-        System.out.println("启动成功");
+        log.info("启动成功");
     }
 
 
