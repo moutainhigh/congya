@@ -202,6 +202,7 @@
         from pm_goods_rel_attribute_value_sku a ,pm_goods_attribute_value b, pm_goods_attribute c,pm_goods_sku d
         <where>
             a.goods_attribute_value_id = b.id and b.product_attribute_id = c.id and a.del_flag = 0
+            AND b.del_flag = 0 AND c.del_flag = 0 AND d.del_flag = 0
             and d.id = a.goods_sku_id
             <if test="attributeId !=null">
                 and c.id = #{attributeId}

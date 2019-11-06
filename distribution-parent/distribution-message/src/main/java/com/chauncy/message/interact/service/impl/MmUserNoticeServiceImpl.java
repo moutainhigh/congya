@@ -120,7 +120,7 @@ public class MmUserNoticeServiceImpl extends AbstractService<MmUserNoticeMapper,
                                     .setNoticeType(NoticeTypeEnum.EXPRESS_LOGISTICS.getId())
                                     .setTitle(NoticeTitleEnum.WITHDRAWAL_SUCCESS.getName())
                                     .setContent(MessageFormat.format(NoticeContentEnum.WITHDRAWAL_SUCCESS.getName(),
-                                            withdrawalLogBo.getUserName(), withdrawalLogBo.getLogId()));
+                                            withdrawalLogBo.getUserName(), String.valueOf(withdrawalLogBo.getLogId())));
                             mapper.insert(mmUserNoticePo);
                         }
                     });
@@ -137,7 +137,7 @@ public class MmUserNoticeServiceImpl extends AbstractService<MmUserNoticeMapper,
                             .setNoticeType(NoticeTypeEnum.EXPRESS_LOGISTICS.getId())
                             .setTitle(NoticeTitleEnum.RETURN_GOODS.getName())
                             .setContent(MessageFormat.format(NoticeContentEnum.RETURN_GOODS.getName(),
-                                    umUserPo.getName(), queryAfterSaleOrder.getId()));
+                                    umUserPo.getName(), String.valueOf(queryAfterSaleOrder.getId())));
                     mapper.insert(mmUserNoticePo);
                 }
                 break;

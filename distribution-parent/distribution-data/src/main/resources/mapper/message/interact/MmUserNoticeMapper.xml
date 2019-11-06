@@ -28,7 +28,7 @@
         INNER JOIN um_user uu ON uu.id = oal.user_id
         WHERE ouw.id IN
         <foreach collection="withdrawalIdList" item="id" open="(" separator="," close=")">
-            #{withdrawalId}
+            #{id}
         </foreach>
     </select>
 
