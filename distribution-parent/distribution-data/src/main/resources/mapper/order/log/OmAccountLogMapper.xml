@@ -153,7 +153,7 @@
                 and date(ouw.create_time) <![CDATA[<= ]]> #{endTime}
             </if>
         </where>
-        order by ouw.create_time
+        order by ouw.create_time DESC
     </select>
     <select id="searchStoreLogPaging" resultType="com.chauncy.data.vo.manage.order.log.SearchStoreLogVo">
         SELECT
@@ -192,6 +192,7 @@
                 and ABS(oal.amount) <![CDATA[<= ]]> #{maxAmount}
             </if>
         </where>
+        ORDER BY oal.`create_time` DESC
     </select>
     <select id="getIncomeAndConsume" resultType="java.util.Map">
         SELECT

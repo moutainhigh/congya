@@ -1,6 +1,7 @@
 package com.chauncy.order.log.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.enums.log.*;
 import com.chauncy.common.enums.message.NoticeContentEnum;
 import com.chauncy.common.enums.message.NoticeTitleEnum;
@@ -829,6 +830,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
             OmAccountLogPo fromRedEnvelopsLog = getFromOmAccountLogPo(addAccountLogBo, UserTypeEnum.APP_USER,
                     AccountTypeEnum.RED_ENVELOPS, LogTypeEnum.EXPENDITURE);
             UmUserPo umUserPo = umUserMapper.selectById(omUserWithdrawalPo.getUmUserId());
+            fromRedEnvelopsLog.setUserId(omUserWithdrawalPo.getUmUserId());
             fromRedEnvelopsLog.setRelUserId(omUserWithdrawalPo.getUmUserId());
             fromRedEnvelopsLog.setBalance(BigDecimalUtil.safeSubtract(umUserPo.getCurrentRedEnvelops(), omUserWithdrawalPo.getWithdrawalAmount()));
             fromRedEnvelopsLog.setLastBalance(umUserPo.getCurrentRedEnvelops());
@@ -1117,6 +1119,15 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         if(userWithdrawalDto.getWithdrawalAmount().compareTo(umUserPo.getCurrentRedEnvelops()) > 0) {
             throw  new ServiceException(ResultCode.PARAM_ERROR, "提现金额大于用户余额");
         }
+        QueryWrapper<OmUserWithdrawalPo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(OmUserWithdrawalPo::getUmUserId, umUserPo.getId()).and(obj -> obj
+                .eq(OmUserWithdrawalPo::getWithdrawalStatus, WithdrawalStatusEnum.PROCESSING.getId())
+                .or().eq(OmUserWithdrawalPo::getWithdrawalStatus, WithdrawalStatusEnum.TO_BE_AUDITED.getId()));
+        int count = omUserWithdrawalMapper.selectCount(queryWrapper);
+        if(count > 0) {
+            //用户有正在提现还未处理的记录
+            throw  new ServiceException(ResultCode.PARAM_ERROR, "您还有提现未处理的记录，不能继续提现");
+        }
 
         OmUserWithdrawalPo omUserWithdrawalPo = new OmUserWithdrawalPo();
         //提现用户
@@ -1157,6 +1168,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         addAccountLogBo.setRelId(omUserWithdrawalPo.getId());
         addAccountLogBo.setOperator(umUserPo.getName());
         this.saveAccountLog(addAccountLogBo);
+
+        //扣除红包
+        umUserMapper.reduceRedEnvelops(umUserPo.getId(), equalAmount);
     }
 
 

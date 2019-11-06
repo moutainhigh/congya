@@ -119,6 +119,12 @@
         WHERE
         `id` = #{id};
     </update>
+    <update id="reduceRedEnvelops">
+        UPDATE um_user uu
+        SET uu.current_red_envelops = uu.current_red_envelops - #{amount}
+        WHERE uu.id =#{id}
+        AND uu.current_red_envelops - #{amount} <![CDATA[> ]]> 0
+    </update>
     <select id="loadSearchUserList" resultType="com.chauncy.data.vo.manage.user.list.UmUserListVo">
         SELECT
         u.id,

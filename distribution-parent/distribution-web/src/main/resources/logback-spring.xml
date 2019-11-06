@@ -4,12 +4,21 @@
     <!--日志格式应用spring boot默认的格式，也可以自己更改-->
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
-    <!--定义日志存放的位置，默认存放在项目启动的相对路径的目录 defaultValue="congya-logs" 这里是自定义-->
+    <springProperty scope="context" name="springAppName"
+                    source="spring.application.name" />
+    <!-- 日志在工程中的输出位置 -->
+    <!--    <property name="LOG_FILE" value="${BUILD_FOLDER:-build}/${springAppName}" />-->
+
+    <!--定义日志存放的位置，默认存放在项目启动的相对路径的目录 defaultValue="project-logs" 这里是自定义路径-->
     <springProperty scope="context" name="LOG_PATH" source="log.path" defaultValue="/log/congya-logs"/>
 
     <!-- ****************************************************************************************** -->
     <!-- ****************************** 本地开发只在控制台打印日志 ************************************ -->
     <!-- ****************************************************************************************** -->
+    <!-- 控制台的日志输出样式 -->
+    <property name="CONSOLE_LOG_PATTERN"
+              value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}" />
+
     <springProfile name="dev">
         <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>
@@ -38,6 +47,36 @@
             <encoder>
                 <pattern>${CONSOLE_LOG_PATTERN}</pattern>
                 <charset>utf-8</charset>
+            </encoder>
+        </appender>
+
+        <!-- 为logstash输出的JSON格式的Appender -->
+        <appender name="logstash"
+                  class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+            <destination>172.18.35.11:5044</destination>
+            <!-- 日志输出编码 -->
+            <encoder
+                    class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+                <providers>
+                    <timestamp>
+                        <timeZone>UTC</timeZone>
+                    </timestamp>
+                    <pattern>
+                        <pattern>
+                            {
+                            "severity": "%level",
+                            "service": "${springAppName:-}",
+                            "trace": "%X{X-B3-TraceId:-}",
+                            "span": "%X{X-B3-SpanId:-}",
+                            "exportable": "%X{X-Span-Export:-}",
+                            "pid": "${PID:-}",
+                            "thread": "%thread",
+                            "class": "%logger{40}",
+                            "rest": "%message"
+                            }
+                        </pattern>
+                    </pattern>
+                </providers>
             </encoder>
         </appender>
 
@@ -148,10 +187,9 @@
             <appender-ref ref="FILE_INFO"/>
             <appender-ref ref="FILE_ERROR"/>
             <appender-ref ref="FILE_ALL"/>
+            <appender-ref ref="logstash"/>
         </root>
 
     </springProfile>
 
 </configuration>
-
-

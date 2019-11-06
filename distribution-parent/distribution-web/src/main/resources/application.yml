@@ -1,5 +1,5 @@
 server:
-  port: 80
+  port: 81
   servlet:
       context-path: /distribution
   tomcat:
@@ -9,14 +9,14 @@ server:
 
 spring:
   profiles:
-    active: dev
+    active: prod
   devtools:
     restart:
       enabled: true
 
 logging:
   level:
-    com.chauncy: prod                                                                                                                       ug
+    com.chauncy: debug
     org.springframework: WARN
     org.spring.springboot.dao: debug
 
