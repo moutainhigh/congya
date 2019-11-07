@@ -72,6 +72,8 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
 
+        log.info("%%%%%%%%%验证token有效性开始%%%%%%%%%");
+
         String header = request.getHeader(SecurityConstant.HEADER);
         if(StrUtil.isBlank(header)){
             header = request.getParameter(SecurityConstant.HEADER);
