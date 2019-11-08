@@ -42,7 +42,6 @@ public class RabbitUtil {
 
         // 添加延时队列
         rabbitTemplate.convertAndSend(RabbitConstants.ORDER_DEAD_EXCHANGE, RabbitConstants.ORDER_DEAD_ROUTING_KEY,messageContent , message -> {
-            // TODO 如果配置了 params.put("x-message-ttl", 5 * 1000); 那么这一句也可以省略,具体根据业务需要是声明 Queue 的时候就指定好延迟时间还是在发送自己控制时间
 
             message.getMessageProperties().setExpiration(expiration);
             return message;
