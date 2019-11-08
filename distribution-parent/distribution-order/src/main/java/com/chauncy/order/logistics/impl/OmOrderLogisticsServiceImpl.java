@@ -126,7 +126,7 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
      * @return
      */
     @Override
-    public TaskResponseBo subscribleLogistics(TaskRequestDto taskRequestDto) {
+    public TaskResponseBo  subscribleLogistics(TaskRequestDto taskRequestDto) {
 
         Long orderId = taskRequestDto.getOrderId();
         //回调Url
@@ -564,7 +564,7 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
 
             log.info("订阅物流信息成功，订单号为:【{}】,物流单号为:【{}】", orderId, taskRequestDto.getNumber());
             //时间格式化
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 
             AreaShopLogisticsPo logisticsPo = logisticsMapper.selectOne(new QueryWrapper<AreaShopLogisticsPo>().eq("logi_code", taskRequestDto.getCompany()));
@@ -575,9 +575,7 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
             orderLogistics.setLogisticsNo(taskRequestDto.getNumber()).setOrderId(orderId)
             .setStatus("1").setLogiCode(taskRequestDto.getCompany()).setLogiName(expressCompanyName)
             .setIsCheck("0")
-            .setData("[{\"areaCode\":null,\"areaName\":null,\"context\":\"商家已发货\",\"ftime\":" +LocalDateTime.now().format(formatter)+
-                    ",\"time\":" +LocalDateTime.now().format(formatter)+
-                    "}]");
+            .setData(String.format("[{\"areaCode\":null,\"areaName\":null,\"context\":\"商家已发货\",\"ftime\":\"%s\",\"time\":\"%s\"}]",LocalDateTime.now().format(formatter),LocalDateTime.now().format(formatter)));
             mapper.insert(orderLogistics);
 
             return resp;
