@@ -614,13 +614,19 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
         //添加自动评价延时队列
         rabbitUtil.sendDelayMessage(expiration + "", rabbitOrderBo);
+        LoggerUtil.info("【确认收货后：待评价===》自动评价发送时间】:" + LocalDateTime.now()+"【传送的数据】"+rabbitOrderBo.toString()
+        +"【延迟多久】"+expiration
+        );
         //添加售后截止延时队列,售后截止队列的状态为空
         RabbitOrderBo afterRabbitOrderBo = new RabbitOrderBo();
         afterRabbitOrderBo.setOrderId(orderId);
         rabbitUtil.sendDelayMessage(afterExpiration + "", afterRabbitOrderBo);
 
-        LoggerUtil.info("【确认收货后：待评价===》自动评价发送时间】:" + LocalDateTime.now());
-        LoggerUtil.info("【确认收货等待售后截止】:" + LocalDateTime.now());
+        LoggerUtil.info("【确认收货===》售后截止】:" + LocalDateTime.now()+afterRabbitOrderBo.toString()
+                +"【延迟多久】"+afterExpiration
+
+        );
+
 
     }
 
