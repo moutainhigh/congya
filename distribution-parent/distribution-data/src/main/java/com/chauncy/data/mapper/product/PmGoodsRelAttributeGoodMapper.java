@@ -39,4 +39,6 @@ public interface PmGoodsRelAttributeGoodMapper extends IBaseMapper<PmGoodsRelAtt
      * @return
      */
     List<AttributeVo> findParam(Long goodsId);
+
+    List<PmGoodsRelAttributeGoodPo> searchByAttributeId(Long id);
 }

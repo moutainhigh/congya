@@ -156,12 +156,17 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
         for (Long id : ids) {
             List<PmGoodsRelAttributeCategoryPo> list1 = attributeCategoryMapper.findByAttributeId(id);
             List<PmGoodsRelAttributeGoodPo> list2 = attributeGoodMapper.findByAttributeId(id);
+            List<PmGoodsRelAttributeGoodPo> list4 = attributeGoodMapper.searchByAttributeId(id);
             List<PmGoodsRelAttributeSkuPo> list3 = attributeSkuMapper.findByAttributeId(id);
             boolean a = list1 != null && list1.size() > 0;
             boolean b = list2 != null && list2.size() > 0;
             boolean c = list3 != null && list3.size() > 0;
+            boolean d = list4 != null && list4.size() > 0;
             if (a == true || b == true || c == true) {
                 return new JsonViewData(ResultCode.FAIL, "删除失败，包含正被商品或类目或sku使用关联的属性");
+            }
+            if (d == true){
+                return new JsonViewData(ResultCode.FAIL, "删除失败，该品牌正被商品关联");
             }
         }
         //遍历ID
