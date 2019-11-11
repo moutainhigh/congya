@@ -43,10 +43,12 @@ public class InformationDto  implements Serializable {
 
     @ApiModelProperty(value = "资讯标签id（mm_information_label主键）")
     @NeedExistConstraint(tableName = "mm_information_label")
+    @NotNull(message = "资讯标签不能为空")
     private Long infoLabelId;
 
     @ApiModelProperty(value = "资讯分类id（mm_information_category主键）")
     @NeedExistConstraint(tableName = "mm_information_category")
+    @NotNull(message = "资讯分类不能为空")
     private Long infoCategoryId;
 
     @ApiModelProperty(value = "关联商品id")
