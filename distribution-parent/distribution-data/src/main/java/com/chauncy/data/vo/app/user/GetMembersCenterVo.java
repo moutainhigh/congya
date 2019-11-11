@@ -110,16 +110,16 @@ public class GetMembersCenterVo {
     @JSONField(ordinal = 18)
     private BigDecimal contributionProportion;
 
-    @ApiModelProperty(hidden = true,value = "赞")
-    @JSONField(ordinal = 19,serialize = false)
+    @ApiModelProperty(value = "赞")
+    @JSONField(ordinal = 19)
     private Integer praise;
 
-    @ApiModelProperty(value = "分享",hidden = true)
-    @JSONField(ordinal = 20,serialize = false)
+    @ApiModelProperty(value = "分享")
+    @JSONField(ordinal = 20)
     private Integer share;
 
-    @ApiModelProperty(value = "评论",hidden = true)
-    @JSONField(ordinal = 21,serialize = false)
+    @ApiModelProperty(value = "评论")
+    @JSONField(ordinal = 21)
     private Integer comments;
 
     @ApiModelProperty(value = "CRO",hidden = true)
