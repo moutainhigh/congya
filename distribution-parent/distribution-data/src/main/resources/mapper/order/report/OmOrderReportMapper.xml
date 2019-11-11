@@ -86,7 +86,9 @@
             SUM(orrgt.distribute_price) AS total_amount,
             SUM(orrgt.goods_num) AS total_num,
             ss.name AS create_by,
-            orrgt.is_parent_store
+            orrgt.is_parent_store,
+            #{startDate} AS startDate,
+            #{endDate} AS endDate
         FROM om_report_rel_goods_temp orrgt, sm_store ss
         WHERE ss.id = orrgt.store_id
         AND orrgt.branch_id = #{branchId}
@@ -94,6 +96,48 @@
         AND DATE(orrgt.create_time) <![CDATA[>= ]]> #{startDate}
         AND DATE(orrgt.create_time) <![CDATA[<= ]]> #{endDate}
         GROUP BY orrgt.store_id, orrgt.branch_id, ss.name, orrgt.is_parent_store
+    </select>
+    <select id="getStoreSumNeedCreateReport" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM sm_store ss
+        <where>
+            DATE(ss.`create_time`)  <![CDATA[<= ]]> #{endDate}
+            <if test="null != storeId">
+                AND ss.`id` = #{storeId}
+            </if>
+            AND  NOT EXISTS (
+                SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`payment_bill_settlement_cycle` = 0
+                FROM (
+                SELECT oor.`end_date`
+                FROM om_order_report oor
+                WHERE oor.`store_id` = ss.`id`
+                AND oor.`end_date` <![CDATA[<= ]]> #{endDate}
+                ORDER BY end_date DESC
+                LIMIT 1
+                ) AS temp
+            )
+        </where>
+    </select>
+    <select id="getStoreNeedCreateReport" resultType="java.lang.Long">
+        SELECT ss.id
+        FROM sm_store ss
+        <where>
+            DATE(ss.`create_time`)  <![CDATA[<= ]]> #{endDate}
+            <if test="null != storeId">
+                AND ss.`id` = #{storeId}
+            </if>
+            AND  NOT EXISTS (
+            SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`payment_bill_settlement_cycle` = 0
+            FROM (
+            SELECT oor.`end_date`
+            FROM om_order_report oor
+            WHERE oor.`store_id` = ss.`id`
+            AND oor.`end_date` <![CDATA[<= ]]> #{endDate}
+            ORDER BY end_date DESC
+            LIMIT 1
+            ) AS temp
+            )
+        </where>
     </select>
 
 </mapper>

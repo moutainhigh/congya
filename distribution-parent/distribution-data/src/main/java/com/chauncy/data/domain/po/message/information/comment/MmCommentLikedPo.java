@@ -49,7 +49,7 @@ public class MmCommentLikedPo implements Serializable {
     @ApiModelProperty(value = "用户id")
     private Long userId;
 
-    @ApiModelProperty(value = "删除标志")
+    @ApiModelProperty(value = "0 点赞  1 取消点赞")
     private Boolean delFlag;
 
 

@@ -135,12 +135,36 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
         return reportRelGoodsTempVoPageInfo;
     }
 
+    /**
+     * 批量创建商品销售报表
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void batchCreateSaleReport() {
+        //获取当前时间的上一周的最后一天  直接用周数-1 每年的第一周会有问题
+        //获取上一周所在周
+        LocalDate lastWeek = LocalDate.now().plusDays(-7L);
+        //上一周时间所在周的结束日期
+        Date date = DateFormatUtil.getLastDayOfWeek(DateFormatUtil.localDateToDate(lastWeek));
+        LocalDate endDate = DateFormatUtil.datetoLocalDate(date);
+        //获取需要创建商品销售报表的店铺的数量
+        int storeSum = omOrderReportMapper.getStoreSumNeedCreateReport(endDate, null);
+        //一次性只处理1000条数据
+        for(int pageNo = 1; pageNo <= storeSum / 1000; pageNo++) {
+            PageHelper.startPage(pageNo, 1000);
+            List<Long> storeIdList = omOrderReportMapper.getStoreNeedCreateReport(endDate, null);
+            storeIdList.forEach(storeId -> createSaleReport(endDate, storeId));
+        }
+    }
+
 
     /**
      * 根据时间创建商品销售报表
      * endDate   需要创建账单的那一周   任何一天都可以
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void createSaleReportByDate(LocalDate endDate) {
         //获取当前店铺用户
         SysUserPo sysUserPo = securityUtil.getCurrUser();
