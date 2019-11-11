@@ -52,6 +52,7 @@
         LEFT JOIN sm_store ss ON mi.`store_id` = ss.id
         <where>
             mi.id = #{infoId}
+            AND mi.del_flag = 0
         </where>
     </select>
 
@@ -128,6 +129,8 @@
                 FROM mm_information_comment mic
                 WHERE mic.info_id = mi.id
                 AND mic.user_id = #{userId}
+                AND mic.enabled = 1
+                AND mic.del_flag = 0
                 )
             ) as isComment,
             (EXISTS
@@ -145,8 +148,8 @@
                 AND mif.user_id = #{userId}
                 )
             ) as isForward
-        FROM mm_information mi LEFT JOIN sm_store ss ON mi.`store_id` = ss.id
-        WHERE mi.id = #{mmInformationId} AND mi.del_flag = 0
+        FROM mm_information mi INNER JOIN sm_store ss ON mi.`store_id` = ss.id
+        WHERE mi.id = #{mmInformationId} AND mi.del_flag = 0 AND mi.verify_status = 3
     </select>
 
 
@@ -255,6 +258,8 @@
                 FROM mm_information_comment mic
                 WHERE mic.info_id = mi.id
                 AND mic.user_id = #{userId}
+                AND mic.enabled = 1
+                AND mic.del_flag = 0
                 )
             ) as isComment,
             (EXISTS
@@ -279,7 +284,7 @@
             left join um_user_favorites uuf on mi.store_id = uuf.favorites_id
         </if>
         <where>
-            mi.del_flag = 0 and mi.enabled = 1
+            mi.del_flag = 0 and mi.enabled = 1 and mi.verify_status = 3
             <if test="informationType != null and informationType == 2">
                 and uuf.del_flag = 0 and uuf.user_id = #{userId}
                 AND uuf.is_favorites = 1
@@ -328,6 +333,8 @@
                 FROM mm_information_comment mic
                 WHERE mic.info_id = mi.id
                 AND mic.user_id = #{userId}
+                AND mic.enabled = 1
+                AND mic.del_flag = 0
                 )
             ) as isComment,
             (EXISTS
@@ -347,7 +354,7 @@
             ) as isForward
         from mm_information mi
         <where>
-            mi.del_flag = 0 and mi.enabled = 1
+            mi.del_flag = 0 and mi.enabled = 1 and mi.verify_status = 3
             <if test="storeId !=null and storeId !=0 ">
                 and mi.store_id = #{storeId}
             </if>
@@ -390,6 +397,7 @@
                 <where>
                     mi.del_flag = 0
                     AND mi.enabled = 1
+                    AND mi.verify_status = 3
                     <if test="informationType != null and informationType == 2">
                         AND uuf.del_flag = 0
                         AND uuf.user_id = #{userId}
@@ -414,13 +422,14 @@
     <select id="getFocusInfoSum" resultType="java.lang.Integer">
         SELECT  COUNT(1)
         FROM mm_information mi
-        LEFT JOIN sm_store ss
+        INNER JOIN sm_store ss
         ON mi.`store_id` = ss.id
-        LEFT JOIN um_user_favorites uuf
+        INNER JOIN um_user_favorites uuf
         ON mi.store_id = uuf.favorites_id
         <where>
             mi.del_flag = 0
             AND mi.enabled = 1
+            AND mi.verify_status = 3
             AND uuf.del_flag = 0
             AND uuf.user_id = #{userId}
             AND uuf.is_favorites = 1
