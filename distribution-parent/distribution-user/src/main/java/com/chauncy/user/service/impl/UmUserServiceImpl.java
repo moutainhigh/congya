@@ -571,6 +571,11 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
 
         MyDataStatisticsVo myDataStatisticsVo = mapper.getMyDataStatistics(userPo.getId());
 
+        //好友 直推好友数量（第一代）
+        Integer friend = mapper.selectList(new QueryWrapper<UmUserPo>().lambda().and(obj->obj
+                .eq(UmUserPo::getParentId,userPo.getId()).eq(UmUserPo::getDelFlag,0))).size();
+        myDataStatisticsVo.setFansNum(friend);
+
         //红包   展示红包对应的金额
         //获取系统基本设置
         BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
