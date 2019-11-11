@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -174,7 +175,23 @@ public class MmInformationCommentServiceImpl extends AbstractService<MmInformati
      */
     @Override
     public void editStatusBatch(BaseUpdateStatusDto baseUpdateStatusDto) {
-        this.editEnabledBatch(baseUpdateStatusDto);
+        List<Long> idList = Arrays.asList(baseUpdateStatusDto.getId());
+
+        UpdateWrapper<MmInformationCommentPo> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.lambda().in(MmInformationCommentPo::getId, idList)
+                .set(MmInformationCommentPo::getEnabled, baseUpdateStatusDto.getEnabled());
+        this.update(updateWrapper);
+
+        idList.stream().forEach(commentId -> {
+            MmInformationCommentPo mmInformationCommentPo = mmInformationCommentMapper.selectById(commentId);
+            if(baseUpdateStatusDto.getEnabled()) {
+                //增加
+                mmInformationMapper.addCommentNum(mmInformationCommentPo.getInfoId());
+            } else {
+                //扣减
+                mmInformationMapper.deductCommentNum(mmInformationCommentPo.getInfoId());
+            }
+        });
     }
 
 
@@ -186,6 +203,11 @@ public class MmInformationCommentServiceImpl extends AbstractService<MmInformati
     public void delInfoCommentById(Long id) {
         //批量删除
         mmInformationCommentMapper.deleteById(id);
+        MmInformationCommentPo mmInformationCommentPo = mmInformationCommentMapper.selectById(id);
+        if(null != mmInformationCommentPo) {
+            //修改资讯评论数
+            mmInformationMapper.deductCommentNum(mmInformationCommentPo.getInfoId());
+        }
     }
 
     /**

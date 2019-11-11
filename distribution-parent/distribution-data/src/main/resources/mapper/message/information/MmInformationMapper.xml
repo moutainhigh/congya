@@ -35,8 +35,18 @@
     <sql id="Base_Column_List">
         id, title, author, enabled, info_label_id, info_category_id, store_id, sort, cover_image, pure_text, detail_html, verify_status, browsing_num, forward_num, comment_num, liked_num, collection_num, remark, verify_time, verify_by, create_time, create_by, update_time, update_by, del_flag
     </sql>
+    <update id="addCommentNum">
+        update mm_information mi
+        set mi.comment_num = mi.comment_num + 1
+        where mi.id = #{id}
+    </update>
     <update id="shareInformation">
         update mm_information set forward_num = forward_num+1 where id = #{shareId}
+    </update>
+    <update id="deductCommentNum">
+        update mm_information mi
+        set mi.comment_num = mi.comment_num - 1
+        where mi.id = #{id} and mi.comment_num > 1
     </update>
 
     <select id="getBaseInformation" resultType="com.chauncy.data.vo.manage.message.information.InformationContentVo">
