@@ -41,6 +41,12 @@
     <sql id="Base_Column_List">
         id, create_by, create_time, update_by, update_time, del_flag, order_id, phone, store_id, store_name, goods_name, number, refund_money, after_sale_type, reason, status, goods_type, pictures, refund_id
     </sql>
+    <select id="getStoreLogoByOrder" resultType="java.lang.String">
+        SELECT ss.logo_image
+        FROM sm_store ss
+        INNER JOIN om_after_sale_order oaso ON oaso.store_id = ss.id
+        WHERE oaso.id = #{afterSaleOrderId}
+    </select>
     <select id="searchBrothersById"
             resultType="com.chauncy.data.vo.app.order.my.afterSale.ApplyAfterSaleVo">
              select id goodsTempId, name,icon,real_pay_money,standard_str,number

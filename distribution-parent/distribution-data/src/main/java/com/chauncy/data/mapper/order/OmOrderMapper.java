@@ -37,6 +37,18 @@ public interface OmOrderMapper extends IBaseMapper<OmOrderPo> {
 
     /**
      * @Author yeJH
+     * @Date 2019/11/12 20:18
+     * @Description 根据订单id获取店铺名称
+     *
+     * @Update yeJH
+     *
+     * @param  orderId
+     * @return java.lang.String
+     **/
+    String getStoreNameByOrder(Long orderId);
+
+    /**
+     * @Author yeJH
      * @Date 2019/10/8 0:18
      * @Description 通过订单id获取用户订单发货地址
      *

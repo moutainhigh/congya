@@ -26,10 +26,11 @@ public enum IntegrateLogMatterEnum  implements BaseEnum {
     EXPERIENCE_PACK(43, "经验包"),
     PLATFORM_GIVE(44, "系统赠送"),
     NEW_GIFT(45, "新人礼包"),
-    LOGIN(46, "登录"),
-    SHARE(47, "分享"),
+    /*LOGIN(46, "登录"),
+    SHARE(47, "分享"),*/
     MEMBER_AWARD(48, "会员奖励"),
     FRIENDS_ASSIST(49, "好友助攻"),
+    CANCEL_ORDER (50, "取消订单"),
     ;
 
     @EnumValue
