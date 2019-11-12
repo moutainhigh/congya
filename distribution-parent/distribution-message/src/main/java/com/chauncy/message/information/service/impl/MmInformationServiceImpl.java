@@ -196,7 +196,7 @@ public class MmInformationServiceImpl extends AbstractService<MmInformationMappe
         } else {
             //商家用户
             if (mmInformationPo.getVerifyStatus().equals(VerifyStatusEnum.NOT_APPROVED.getId())) {
-                //只有资讯的状态为待审核或者审核通过  平台用户才能编辑资讯
+                //只有资讯的状态为驳回状态  商家用户才能编辑资讯
                 BeanUtils.copyProperties(informationDto, mmInformationPo);
                 mmInformationPo.setUpdateBy(sysUserPo.getUsername());
                 //编辑之后的资讯变回待审核状态

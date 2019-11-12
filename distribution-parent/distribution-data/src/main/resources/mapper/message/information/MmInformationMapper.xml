@@ -35,8 +35,18 @@
     <sql id="Base_Column_List">
         id, title, author, enabled, info_label_id, info_category_id, store_id, sort, cover_image, pure_text, detail_html, verify_status, browsing_num, forward_num, comment_num, liked_num, collection_num, remark, verify_time, verify_by, create_time, create_by, update_time, update_by, del_flag
     </sql>
+    <update id="addCommentNum">
+        update mm_information mi
+        set mi.comment_num = mi.comment_num + 1
+        where mi.id = #{id}
+    </update>
     <update id="shareInformation">
         update mm_information set forward_num = forward_num+1 where id = #{shareId}
+    </update>
+    <update id="deductCommentNum">
+        update mm_information mi
+        set mi.comment_num = mi.comment_num - 1
+        where mi.id = #{id} and mi.comment_num > 1
     </update>
 
     <select id="getBaseInformation" resultType="com.chauncy.data.vo.manage.message.information.InformationContentVo">
@@ -52,6 +62,7 @@
         LEFT JOIN sm_store ss ON mi.`store_id` = ss.id
         <where>
             mi.id = #{infoId}
+            AND mi.del_flag = 0
         </where>
     </select>
 
@@ -128,6 +139,8 @@
                 FROM mm_information_comment mic
                 WHERE mic.info_id = mi.id
                 AND mic.user_id = #{userId}
+                AND mic.enabled = 1
+                AND mic.del_flag = 0
                 )
             ) as isComment,
             (EXISTS
@@ -145,8 +158,8 @@
                 AND mif.user_id = #{userId}
                 )
             ) as isForward
-        FROM mm_information mi LEFT JOIN sm_store ss ON mi.`store_id` = ss.id
-        WHERE mi.id = #{mmInformationId} AND mi.del_flag = 0
+        FROM mm_information mi INNER JOIN sm_store ss ON mi.`store_id` = ss.id
+        WHERE mi.id = #{mmInformationId} AND mi.del_flag = 0 AND mi.verify_status = 3
     </select>
 
 
@@ -255,6 +268,8 @@
                 FROM mm_information_comment mic
                 WHERE mic.info_id = mi.id
                 AND mic.user_id = #{userId}
+                AND mic.enabled = 1
+                AND mic.del_flag = 0
                 )
             ) as isComment,
             (EXISTS
@@ -279,7 +294,7 @@
             left join um_user_favorites uuf on mi.store_id = uuf.favorites_id
         </if>
         <where>
-            mi.del_flag = 0 and mi.enabled = 1
+            mi.del_flag = 0 and mi.enabled = 1 and mi.verify_status = 3
             <if test="informationType != null and informationType == 2">
                 and uuf.del_flag = 0 and uuf.user_id = #{userId}
                 AND uuf.is_favorites = 1
@@ -328,6 +343,8 @@
                 FROM mm_information_comment mic
                 WHERE mic.info_id = mi.id
                 AND mic.user_id = #{userId}
+                AND mic.enabled = 1
+                AND mic.del_flag = 0
                 )
             ) as isComment,
             (EXISTS
@@ -347,7 +364,7 @@
             ) as isForward
         from mm_information mi
         <where>
-            mi.del_flag = 0 and mi.enabled = 1
+            mi.del_flag = 0 and mi.enabled = 1 and mi.verify_status = 3
             <if test="storeId !=null and storeId !=0 ">
                 and mi.store_id = #{storeId}
             </if>
@@ -390,6 +407,7 @@
                 <where>
                     mi.del_flag = 0
                     AND mi.enabled = 1
+                    AND mi.verify_status = 3
                     <if test="informationType != null and informationType == 2">
                         AND uuf.del_flag = 0
                         AND uuf.user_id = #{userId}
@@ -414,13 +432,14 @@
     <select id="getFocusInfoSum" resultType="java.lang.Integer">
         SELECT  COUNT(1)
         FROM mm_information mi
-        LEFT JOIN sm_store ss
+        INNER JOIN sm_store ss
         ON mi.`store_id` = ss.id
-        LEFT JOIN um_user_favorites uuf
+        INNER JOIN um_user_favorites uuf
         ON mi.store_id = uuf.favorites_id
         <where>
             mi.del_flag = 0
             AND mi.enabled = 1
+            AND mi.verify_status = 3
             AND uuf.del_flag = 0
             AND uuf.user_id = #{userId}
             AND uuf.is_favorites = 1
