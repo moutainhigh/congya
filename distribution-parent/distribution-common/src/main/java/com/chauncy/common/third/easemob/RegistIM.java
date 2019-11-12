@@ -85,7 +85,7 @@ public class RegistIM {
     public static Object modifyIMUserNickName(String IMAccount,String nickName){
 
         Nickname alias = new Nickname().nickname(nickName);
-        Object nickNameResult = easemobIMUsers.modifyIMUserNickNameWithAdminToken(IMAccount,nickName);
+        Object nickNameResult = easemobIMUsers.modifyIMUserNickNameWithAdminToken(IMAccount,alias);
 
         System.out.println(JSONUtils.toJSONObject(nickNameResult));
 

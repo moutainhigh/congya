@@ -280,12 +280,11 @@ public class UmUserDataApi extends BaseApi {
         if (updateUserDataDto.getInviteCode()!=null&&updateUserDataDto.getInviteCode()!=0){
             umUserService.setParent(updateUserDataDto.getInviteCode(),getAppCurrUser().getId());
         }
-        else {
-            UmUserPo updateUser = new UmUserPo();
-            BeanUtils.copyProperties(updateUserDataDto, updateUser);
-            updateUser.setId(getAppCurrUser().getId());
-            umUserService.updateById(updateUser);
-        }
+
+        UmUserPo updateUser = new UmUserPo();
+        BeanUtils.copyProperties(updateUserDataDto, updateUser,"inviteCode");
+        updateUser.setId(getAppCurrUser().getId());
+        umUserService.updateById(updateUser);
 
         //当用户修改昵称时修改环信账号昵称
         if (!getAppCurrUser().getName().equals(updateUserDataDto.getName()) && updateUserDataDto.getName() != null ) {
