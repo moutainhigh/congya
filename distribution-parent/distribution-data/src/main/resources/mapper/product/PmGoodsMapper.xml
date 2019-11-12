@@ -223,7 +223,7 @@
         inner JOIN pm_goods_attribute d on c.goods_attribute_id = d.id and d.type=8
         inner join pm_goods_category e on e.id = a.goods_category_id
         left join sm_store f on f.id = a.store_id and f.del_flag = 0
-        <where>
+        where a.del_flag = 0 and d.del_flag = 0
          <if test="goodName!=null and goodName !=''">
              and a.name like concat('%', #{goodName}, '%')
          </if>
@@ -257,7 +257,6 @@
             <if test="highestSupplierPrice!=null">
                 and b.supplier_price &lt;=#{highestSupplierPrice}
             </if>
-        </where>
         GROUP BY a.id,d.id order by a.create_time
     </select>
 
