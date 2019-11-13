@@ -184,6 +184,10 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
                 //订单下单  购物券，积分，红包抵扣
                 this.appOrder(addAccountLogBo);
                 break;
+            case PAY_ORDER:
+                //订单支付成功 平台添加收入流水
+                this.payOrder(addAccountLogBo);
+                break;
             case GIFT_RECHARGE:
                 //礼包充值  获得购物券，积分
                 this.giftRecharge(addAccountLogBo);
@@ -1026,18 +1030,30 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
 
 
     /**
-     * 流水触发事件：APP用户订单支付成功
+     * 流水触发事件：APP用户订单下单成功
      * 过程：
      * 1.用户消费抵扣红包，积分，购物券
      *   红包-  积分-  购物券-
-     * 2.平台订单收入
-     *   线上资金+
      */
     private void appOrder(AddAccountLogBo addAccountLogBo) {
         PayOrderPo payOrderPo = payOrderMapper.selectById(addAccountLogBo.getRelId());
         if (null != payOrderPo) {
             //用户消费抵扣红包，积分，购物券
             orderPayment(addAccountLogBo, payOrderPo);
+        } else {
+            //todo  如何保证数据生成
+        }
+    }
+
+    /**
+     * 流水触发事件：APP用户订单支付成功
+     * 过程：
+     * 2.平台订单收入
+     *   线上资金+
+     */
+    private void payOrder(AddAccountLogBo addAccountLogBo) {
+        PayOrderPo payOrderPo = payOrderMapper.selectById(addAccountLogBo.getRelId());
+        if (null != payOrderPo) {
             //平台订单收入
             orderIncome(addAccountLogBo, payOrderPo);
         } else {
@@ -1078,7 +1094,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
                     AccountTypeEnum.RED_ENVELOPS, LogTypeEnum.EXPENDITURE);
             fromRedEnvelopsLog.setUserId(umUserPo.getId());
             fromRedEnvelopsLog.setBalance(BigDecimalUtil.safeSubtract(umUserPo.getCurrentRedEnvelops(), payOrderPo.getTotalRedEnvelops()));
-            fromRedEnvelopsLog.setLastBalance(umUserPo.getCurrentShopTicket());
+            fromRedEnvelopsLog.setLastBalance(umUserPo.getCurrentRedEnvelops());
             //流水发生金额  红包抵扣金额
             fromRedEnvelopsLog.setAmount(BigDecimalUtil.safeMultiply(payOrderPo.getTotalRedEnvelops(), -1));
             //支付方式
@@ -1093,7 +1109,27 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
             fromRedEnvelopsLog.setLogDetailExplain(LogDetailExplainEnum.ORDER_PAYMENT.getId());
             omAccountLogMapper.insert(fromRedEnvelopsLog);
         }
-        //todo 积分第一期不做
+        //APP用户 积分 支出流水 积分-消费抵扣积分
+        if(addAccountLogBo.getMarginIntegral().compareTo(BigDecimal.ZERO) > 0) {
+            OmAccountLogPo fromIntegralLog = getFromOmAccountLogPo(addAccountLogBo, UserTypeEnum.APP_USER,
+                    AccountTypeEnum.INTEGRATE, LogTypeEnum.EXPENDITURE);
+            fromIntegralLog.setUserId(umUserPo.getId());
+            fromIntegralLog.setBalance(BigDecimalUtil.safeSubtract(umUserPo.getCurrentIntegral(), addAccountLogBo.getMarginIntegral()));
+            fromIntegralLog.setLastBalance(umUserPo.getCurrentIntegral());
+            //流水发生金额  积分抵扣金额
+            fromIntegralLog.setAmount(BigDecimalUtil.safeMultiply(addAccountLogBo.getMarginIntegral(), -1));
+            //支付方式
+            fromIntegralLog.setPaymentWay(PaymentWayEnum.ACCOUNT.getId());
+            //流水事由
+            fromIntegralLog.setLogMatter(IntegrateLogMatterEnum.ORDER_PAYMENT.getId());
+            //流水详情标题
+            fromIntegralLog.setLogDetailTitle(LogDetailTitleEnum.ORDER_PAYMENT.getName());
+            //流水详情当前状态
+            fromIntegralLog.setLogDetailState(LogDetailStateEnum.PAYMENT_SUCCESS.getId());
+            //流水详情说明
+            fromIntegralLog.setLogDetailExplain(LogDetailExplainEnum.ORDER_PAYMENT.getId());
+            omAccountLogMapper.insert(fromIntegralLog);
+        }
     }
 
     /**
@@ -1110,7 +1146,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         toOmAccountLogPo.setRelUserId(payOrderPo.getUmUserId());
         toOmAccountLogPo.setRelUserPhone(umUserMapper.selectById(payOrderPo.getUmUserId()).getPhone());
         //支付方式
-        toOmAccountLogPo.setPaymentWay(PaymentWayEnum.getByName(payOrderPo.getPayTypeCode()).getId());
+        //toOmAccountLogPo.setPaymentWay(PaymentWayEnum.getByName(payOrderPo.getPayTypeCode()).getId());
         //流水事由
         toOmAccountLogPo.setLogMatter(PlatformLogMatterEnum.ORDER_INCOME.getId());
         omAccountLogMapper.insert(toOmAccountLogPo);

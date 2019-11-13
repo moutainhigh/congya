@@ -328,10 +328,10 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
         //付款成功后需要做的操作
         afterPayDo(payOrderPo.getId());
-        //1.订单下单流水生成
+        //1.订单下单流水生成  下单的时候就扣除红包购物券积分
         UmUserPo umUserPo = userMapper.selectById(payOrderPo.getUmUserId());
         AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
-        addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.APP_ORDER);
+        addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.PAY_ORDER);
         addAccountLogBo.setRelId(payOrderPo.getId());
         addAccountLogBo.setOperator(String.valueOf(umUserPo.getId()));
         //listenerOrderLogQueue 消息队列
