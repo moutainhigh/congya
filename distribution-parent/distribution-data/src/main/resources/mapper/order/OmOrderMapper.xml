@@ -227,7 +227,7 @@
 
     <select id="getAppMyOrderDetailGoodsVoByOrderId"
             resultType="com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailGoodsVo">
-            select id goodsTempId,g.name goodsName,sku_id,icon picture,sell_price,standard_str,number
+            select id goodsTempId,g.name goodsName,sku_id,goods_id,icon picture,sell_price,standard_str,number
             from om_goods_temp g
             where
             g.del_flag=0
