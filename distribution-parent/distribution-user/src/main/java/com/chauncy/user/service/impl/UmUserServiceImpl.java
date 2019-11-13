@@ -395,7 +395,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         //要修改的会员等级id
         Long memberLevelId = null;
         //当用户经验值大于等级所需经验值的时候,进行升级
-        while (queryUser.getCurrentExperience().compareTo(nextLevel.getLevelExperience()) >= 0) {
+        while (nextLevel!=null&&queryUser.getCurrentExperience().compareTo(nextLevel.getLevelExperience()) >= 0) {
             memberLevelId = nextLevel.getId();
             //找出下一等级的会员详细信息
             QueryWrapper<PmMemberLevelPo> levelQueryWrapper = new QueryWrapper<>();

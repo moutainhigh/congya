@@ -57,7 +57,7 @@ spring:
         max-concurrency: 20
         prefetch: 1 # 每次只处理1个信息
         retry:
-          enabled: true
+          enabled: false
 
 #server:
 #  max-http-header-size: 200MB
