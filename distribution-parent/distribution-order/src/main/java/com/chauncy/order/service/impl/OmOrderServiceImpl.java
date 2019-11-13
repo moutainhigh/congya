@@ -378,6 +378,8 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
      * @Update yeJH
      **/
     private void saveRewardNotice(Long payOrderId, Long umUserId) {
+        //根据支付单id获取第一个商品的sku图片
+        String skuPic = payOrderMapper.getSkuPicByPayOrder(payOrderId);
         OrderRewardBo orderRewardBo = mapper.getOrderRewardByPayId(payOrderId);
         if (null != orderRewardBo && null != orderRewardBo.getRewardIntegral()) {
             //新增APP消息中心消息  预计入账积分
@@ -385,15 +387,17 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             mmUserNoticePo.setUserId(umUserId)
                     .setNoticeType(NoticeTypeEnum.TASK_REWARD.getId())
                     .setTitle(NoticeTitleEnum.SHOPPING_REWARD.getName())
+                    .setPicture(skuPic)
                     .setContent(MessageFormat.format(NoticeContentEnum.SHOPPING_REWARD.getName(),
                             orderRewardBo.getRewardIntegral(), AccountTypeEnum.SHOP_TICKET.getName()));
             mmUserNoticeMapper.insert(mmUserNoticePo);
         } else if (null != orderRewardBo && null != orderRewardBo.getRewardShopTicket()) {
-            //新增APP消息中心消息  预计入账积分
+            //新增APP消息中心消息  预计入账购物券
             MmUserNoticePo mmUserNoticePo = new MmUserNoticePo();
             mmUserNoticePo.setUserId(umUserId)
                     .setNoticeType(NoticeTypeEnum.TASK_REWARD.getId())
                     .setTitle(NoticeTitleEnum.SHOPPING_REWARD.getName())
+                    .setPicture(skuPic)
                     .setContent(MessageFormat.format(NoticeContentEnum.SHOPPING_REWARD.getName(),
                             orderRewardBo.getRewardIntegral(), AccountTypeEnum.INTEGRATE.getName()));
             mmUserNoticeMapper.insert(mmUserNoticePo);

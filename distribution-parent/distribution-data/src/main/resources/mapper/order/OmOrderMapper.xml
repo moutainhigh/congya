@@ -344,5 +344,12 @@
             where o.pay_order_id=p.id and o.del_flag=0 and p.enabled=1
             and o.id=#{orderId}
     </select>
+    <select id="getSkuPicByOrder" resultType="java.lang.String">
+        SELECT ogt.icon
+        FROM  om_order oo
+        INNER JOIN om_goods_temp ogt ON ogt.order_id = oo.id
+        WHERE oo.id = #{orderId}
+        LIMIT 1
+    </select>
 
 </mapper>

@@ -210,5 +210,9 @@
             and l.after_sale_order_id=#{afterSaleOrderId}
             AND l.create_time = ( SELECT MAX( create_time ) FROM om_after_sale_log l2 WHERE l2.after_sale_order_id = #{afterSaleOrderId} )
     </select>
+    <select id="getSkuPicByOrder" resultType="java.lang.String">
+        SELECT ogt.icon FROM  om_after_sale_order oaso
+        INNER JOIN om_goods_temp ogt ON ogt.id = oaso.goods_temp_id WHERE oaso.id = #{id}
+    </select>
 
 </mapper>

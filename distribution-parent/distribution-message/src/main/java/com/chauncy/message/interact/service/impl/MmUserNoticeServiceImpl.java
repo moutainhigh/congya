@@ -2,6 +2,7 @@ package com.chauncy.message.interact.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.chauncy.common.constant.ServiceConstant;
 import com.chauncy.common.enums.log.RedEnvelopsLogMatterEnum;
 import com.chauncy.common.enums.message.NoticeContentEnum;
 import com.chauncy.common.enums.message.NoticeTitleEnum;
@@ -119,6 +120,7 @@ public class MmUserNoticeServiceImpl extends AbstractService<MmUserNoticeMapper,
                             mmUserNoticePo.setUserId(withdrawalLogBo.getUserId())
                                     .setNoticeType(NoticeTypeEnum.EXPRESS_LOGISTICS.getId())
                                     .setTitle(NoticeTitleEnum.WITHDRAWAL_SUCCESS.getName())
+                                    .setPicture(MessageFormat.format(ServiceConstant.ICON_PATH, "congya"))
                                     .setContent(MessageFormat.format(NoticeContentEnum.WITHDRAWAL_SUCCESS.getName(),
                                             withdrawalLogBo.getUserName(), String.valueOf(withdrawalLogBo.getLogId())));
                             mapper.insert(mmUserNoticePo);
@@ -130,12 +132,15 @@ public class MmUserNoticeServiceImpl extends AbstractService<MmUserNoticeMapper,
                 //商家同意售后  发送APP内消息给用户
                 OmAfterSaleOrderPo queryAfterSaleOrder =
                         omAfterSaleOrderMapper.selectById(saveUserNoticeBo.getAfterSaleOrderId());
+                //根据售后订单id获取商品的sku图片
+                String skuPic = omAfterSaleOrderMapper.getSkuPicByOrder(queryAfterSaleOrder.getId());
                 UmUserPo umUserPo = umUserMapper.selectById(queryAfterSaleOrder.getCreateBy());
                 MmUserNoticePo mmUserNoticePo = new MmUserNoticePo();
                 if (null != queryAfterSaleOrder) {
                     mmUserNoticePo.setUserId(Long.valueOf(queryAfterSaleOrder.getCreateBy()))
                             .setNoticeType(NoticeTypeEnum.EXPRESS_LOGISTICS.getId())
                             .setTitle(NoticeTitleEnum.RETURN_GOODS.getName())
+                            .setPicture(skuPic)
                             .setContent(MessageFormat.format(NoticeContentEnum.RETURN_GOODS.getName(),
                                     umUserPo.getName(), String.valueOf(queryAfterSaleOrder.getId())));
                     mapper.insert(mmUserNoticePo);

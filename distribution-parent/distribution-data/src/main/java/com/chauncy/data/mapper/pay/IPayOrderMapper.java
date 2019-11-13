@@ -49,4 +49,16 @@ public interface IPayOrderMapper extends IBaseMapper<PayOrderPo> {
      **/
 
     LocalDateTime getGroupEndTimeByPayId(Long payId);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/11/13 22:53
+     * @Description 根据支付单id获取第一个商品的sku图片
+     *
+     * @Update yeJH
+     *
+     * @param  payOrderId
+     * @return java.lang.String
+     **/
+    String getSkuPicByPayOrder(Long payOrderId);
 }
