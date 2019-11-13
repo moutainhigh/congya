@@ -208,7 +208,7 @@ public class BigDecimalUtil {
 
     public static <T extends Number> BigDecimal safeDivideDown(T b1, T b2){
 
-        return safeDivide(b1, b2, BigDecimal.ZERO);
+        return BigDecimal.valueOf(b1.doubleValue()).divide(BigDecimal.valueOf(b2.doubleValue()), 2, BigDecimal.ROUND_DOWN);
 
     }
 

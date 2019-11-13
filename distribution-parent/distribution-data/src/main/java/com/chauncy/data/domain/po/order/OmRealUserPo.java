@@ -66,5 +66,8 @@ public class OmRealUserPo implements Serializable {
     @ApiModelProperty(value = "身份证反面照片")
     private String backPhoto;
 
+    @ApiModelProperty(value = "收货人手机")
+    private String phone;
+
 
 }

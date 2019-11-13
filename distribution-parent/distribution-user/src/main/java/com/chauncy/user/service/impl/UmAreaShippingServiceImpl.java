@@ -1,5 +1,6 @@
 package com.chauncy.user.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.domain.po.area.AreaRegionPo;
@@ -49,6 +50,15 @@ public class UmAreaShippingServiceImpl extends AbstractService<UmAreaShippingMap
     public Long addArea(AddAreaDto addAreaDto, UmUserPo userPo) {
 
         UmAreaShippingPo areaShippingPo = updateDefault(addAreaDto,userPo);
+
+        //第一个地址无论用户有没有选择默认，都是默认地址
+        QueryWrapper<UmAreaShippingPo> queryWrapper=new QueryWrapper<>();
+        queryWrapper.lambda().eq(UmAreaShippingPo::getUmUserId,userPo.getId());
+        Integer count = mapper.selectCount(queryWrapper);
+        if (count==0){
+            areaShippingPo.setIsDefault(true);
+        }
+
         //获取当前登陆的用户ID
         areaShippingPo.setUmUserId(userPo.getId());
         areaShippingPo.setCreateBy(userPo.getName());
@@ -102,6 +112,14 @@ public class UmAreaShippingServiceImpl extends AbstractService<UmAreaShippingMap
             //shipAreaVo.setMergerName(areaRegionMapper.selectById(x.getAreaId()).getMergerName());
             shipAreaVos.add(shipAreaVo);
         });
+        //如果有地址但是没有默认地址，设置第一个地址为默认地址
+        long count = shipAreaVos.stream().filter(ShipAreaVo::getIsDefault).count();
+        if (count==0 && !ListUtil.isListNullAndEmpty(shipAreaVos)){
+            shipAreaVos.get(0).setIsDefault(true);
+        }
+        shipAreaVos.forEach(x->{
+            x.setAreaName(x.getAreaName().replace(","," "));
+        });
         return shipAreaVos;
     }
 
@@ -116,7 +134,19 @@ public class UmAreaShippingServiceImpl extends AbstractService<UmAreaShippingMap
             BeanUtils.copyProperties(areaShippingPo, shipAreaVo);
             return shipAreaVo;
         }else {
-            return null;
+            QueryWrapper queryWrapper2=new QueryWrapper();
+            queryWrapper2.eq("um_user_id", userId);
+            List<UmAreaShippingPo> areaShippingPos = mapper.selectList(queryWrapper2);
+            if (ListUtil.isListNullAndEmpty(areaShippingPos)){
+                return null;
+            }
+            else {
+                UmAreaShippingPo areaShippingPo2 = areaShippingPos.get(0);
+                ShipAreaVo shipAreaVo2 = new ShipAreaVo();
+                BeanUtils.copyProperties(areaShippingPo2, shipAreaVo2);
+                return shipAreaVo2;
+
+            }
         }
     }
 
