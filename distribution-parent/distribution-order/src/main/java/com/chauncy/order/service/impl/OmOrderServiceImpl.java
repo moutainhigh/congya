@@ -634,12 +634,6 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         } else {
             refundDay = basicSettingPo.getRefundDay();
         }
-        //0天表示不允许退款
-        if (refundDay==0){
-            UpdateWrapper<OmGoodsTempPo> updateWrapper=new UpdateWrapper<>();
-            updateWrapper.lambda().eq(OmGoodsTempPo::getOrderId,orderId).set(OmGoodsTempPo::getCanAfterSale,false);
-            goodsTempService.update(updateWrapper);
-        }
         //计算截止时间
         LocalDateTime afterSaleDeadline = LocalDateTime.now().plusDays(refundDay);
         OmOrderPo updateOrder = new OmOrderPo();
