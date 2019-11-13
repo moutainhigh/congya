@@ -66,42 +66,28 @@ public class RabbitConfig {
 
 
 
+
+
+    @Bean
+    public Queue closeOrderQueue() {
+        return new Queue(RabbitConstants.CLOSE_ORDER_QUEUE, true);
+    }
+
     /**
-     * 延迟队列配置
-     * <p>
-     * 1、params.put("x-message-ttl", 5 * 1000);
-     * TODO 第一种方式是直接设置 Queue 延迟时间 但如果直接给队列设置过期时间,这种做法不是很灵活,（当然二者是兼容的,默认是时间小的优先）
-     * 2、rabbitTemplate.convertAndSend(book, message -> {
-     * message.getMessageProperties().setExpiration(2 * 1000 + "");
-     * return message;
-     * });
-     * TODO 第二种就是每次发送消息动态设置延迟时间,这样我们可以灵活控制
+     * 将路由键和某模式进行匹配。此时队列需要绑定要一个模式上。
+     * 符号“#”匹配一个或多个词，符号“*”匹配不多不少一个词。因此“audit.#”能够匹配到“audit.irs.corporate”，但是“audit.*” 只会匹配到“audit.irs”。
      **/
     @Bean
-    public Queue delayOrderQueue() {
-        Map<String, Object> params = new HashMap<>();
-        // x-dead-letter-exchange 声明了队列里的死信转发到的DLX名称，
-        params.put("x-dead-letter-exchange", RabbitConstants.CLOSE_ORDER_EXCHANGE);
-        // x-dead-letter-routing-key 声明了这些死信在转发时携带的 routing-key 名称。
-        params.put("x-dead-letter-routing-key", RabbitConstants.ROUTING_KEY);
-        return new Queue(RabbitConstants.ORDER_UNPAID_DELAY_QUEUE, true, false, false, params);
-    }
-
-    /**
-     * 需要将一个队列绑定到交换机上，要求该消息与一个特定的路由键完全匹配。
-     * 这是一个完整的匹配。如果一个队列绑定到该交换机上要求路由键 “dog”，则只有被标记为“dog”的消息才被转发，不会转发dog.puppy，也不会转发dog.guard，只会转发dog。
-     * TODO 它不像 TopicExchange 那样可以使用通配符适配多个
-     *
-     * @return DirectExchange
-     */
-    @Bean
-    public DirectExchange delayOrderExchange() {
-        return new DirectExchange(RabbitConstants.ORDER_UNPAID_DELAY_EXCHANGE);
+    public CustomExchange closeOrderTopicExchange() {
+        Map<String, Object> args = new HashMap<>();
+        args.put("x-delayed-type", "direct");
+        return new CustomExchange(RabbitConstants.CLOSE_ORDER_EXCHANGE, "x-delayed-message", true, false, args);
     }
 
     @Bean
-    public Binding dlxBinding() {
-        return BindingBuilder.bind(delayOrderQueue()).to(delayOrderExchange()).with(RabbitConstants.DELAY_ROUTING_KEY);
+    public Binding closeOrderBinding() {
+        // TODO 如果要让延迟队列之间有关联,这里的 routingKey 和 绑定的交换机很关键
+        return BindingBuilder.bind(closeOrderQueue()).to(closeOrderTopicExchange()).with(RabbitConstants.CLOSE_ORDER_ROUTING_KEY).noargs();
     }
 
 
@@ -213,46 +199,16 @@ public class RabbitConfig {
     }
 
 
-    @Bean
-    public Queue submitOrderQueue() {
-        return new Queue(RabbitConstants.CLOSE_ORDER_QUEUE, true);
-    }
 
-    /**
-     * 将路由键和某模式进行匹配。此时队列需要绑定要一个模式上。
-     * 符号“#”匹配一个或多个词，符号“*”匹配不多不少一个词。因此“audit.#”能够匹配到“audit.irs.corporate”，但是“audit.*” 只会匹配到“audit.irs”。
-     **/
-    @Bean
-    public TopicExchange submitOrderTopicExchange() {
-        return new TopicExchange(RabbitConstants.CLOSE_ORDER_EXCHANGE);
-    }
+
+
 
     @Bean
-    public Binding submitOrderBinding() {
-        // TODO 如果要让延迟队列之间有关联,这里的 routingKey 和 绑定的交换机很关键
-        return BindingBuilder.bind(submitOrderQueue()).to(submitOrderTopicExchange()).with(RabbitConstants.ROUTING_KEY);
+    public CustomExchange orderDeadExchange() {
+        Map<String, Object> args = new HashMap<>();
+        args.put("x-delayed-type", "direct");
+        return new CustomExchange(RabbitConstants.ORDER_DEAD_EXCHANGE, "x-delayed-message", true, false, args);
     }
-
-    @Bean
-    public Queue orderDeadQueue() {
-        //死信队列
-        Map<String, Object> params = new HashMap<>();
-        params.put("x-dead-letter-exchange", RabbitConstants.ORDER_REDIRECT_EXCHANGE);
-        params.put("x-dead-letter-routing-key", RabbitConstants.ORDER_REDIRECT_KEY);
-        return new Queue(RabbitConstants.ORDER_DEAD_QUEUE, true, false, false, params);
-    }
-
-    @Bean
-    public DirectExchange orderDeadExchange() {
-        //死信交换机
-        return new DirectExchange(RabbitConstants.ORDER_DEAD_EXCHANGE);
-    }
-
-    @Bean
-    public Binding dlxOrderBinding() {
-        return BindingBuilder.bind(orderDeadQueue()).to(orderDeadExchange()).with(RabbitConstants.ORDER_DEAD_ROUTING_KEY);
-    }
-
 
     /**
      * 转发队列
@@ -264,100 +220,34 @@ public class RabbitConfig {
     }
 
     /**
-     * 死信转发的交换机
-     * @return
-     */
-    @Bean
-    public TopicExchange orderRedirectExchange() {
-        return new TopicExchange(RabbitConstants.ORDER_REDIRECT_EXCHANGE);
-    }
-
-    /**
      * 死信交换机与队列绑定
      * @return
      */
     @Bean
     public Binding orderRedirectBinding() {
-        // TODO 如果要让延迟队列之间有关联,这里的 routingKey 和 绑定的交换机很关键
         return BindingBuilder.bind(redirectOrderQueue()).
-                to(orderRedirectExchange()).with(RabbitConstants.ORDER_REDIRECT_KEY);
+                to(orderDeadExchange()).with(RabbitConstants.ORDER_REDIRECT_KEY).noargs();
     }
 
 
 
     @Bean
     public Queue afterDeadQueue() {
-        //死信队列
-        Map<String, Object> params = new HashMap<>();
-        params.put("x-dead-letter-exchange", RabbitConstants.AFTER_REDIRECT_EXCHANGE);
-        params.put("x-dead-letter-routing-key", RabbitConstants.AFTER_REDIRECT_KEY);
-        return new Queue(RabbitConstants.AFTER_DEAD_QUEUE, true, false, false, params);
+
+        return new Queue(RabbitConstants.AFTER_DEAD_QUEUE, true);
     }
 
     @Bean
-    public DirectExchange afterDeadExchange() {
-        //死信交换机
-        return new DirectExchange(RabbitConstants.AFTER_DEAD_EXCHANGE);
+    public CustomExchange afterDeadExchange() {
+        Map<String, Object> args = new HashMap<>();
+        args.put("x-delayed-type", "direct");
+        return new CustomExchange(RabbitConstants.AFTER_DEAD_EXCHANGE, "x-delayed-message", true, false, args);
     }
 
     @Bean
     public Binding dlxAfterBinding() {
-        return BindingBuilder.bind(afterDeadQueue()).to(afterDeadExchange()).with(RabbitConstants.AFTER_DEAD_ROUTING_KEY);
+        return BindingBuilder.bind(afterDeadQueue()).to(afterDeadExchange()).with(RabbitConstants.AFTER_DEAD_ROUTING_KEY).noargs();
     }
-
-
-    /**
-     * 转发队列
-     * @return
-     */
-    @Bean
-    public Queue redirectAfterQueue() {
-        return new Queue(RabbitConstants.AFTER_REDIRECT_QUEUE, true);
-    }
-
-    /**
-     * 死信转发的交换机
-     * @return
-     */
-    @Bean
-    public TopicExchange afterRedirectExchange() {
-        return new TopicExchange(RabbitConstants.AFTER_REDIRECT_EXCHANGE);
-    }
-
-    /**
-     * 死信交换机与队列绑定
-     * @return
-     */
-    @Bean
-    public Binding afterRedirectBinding() {
-        // TODO 如果要让延迟队列之间有关联,这里的 routingKey 和 绑定的交换机很关键
-        return BindingBuilder.bind(redirectAfterQueue()).
-                to(afterRedirectExchange()).with(RabbitConstants.AFTER_REDIRECT_KEY);
-    }
-
-
-
-    @Bean
-    public Queue openGroupQueue() {
-        //死信队列
-        Map<String, Object> params = new HashMap<>();
-        params.put("x-dead-letter-exchange", RabbitConstants.CLOSE_GROUP_EXCHANGE);
-        params.put("x-dead-letter-routing-key", RabbitConstants.CLOSE_GROUP_ROUTING_KEY);
-        return new Queue(RabbitConstants.OPEN_GROUP_DELAY_QUEUE, true, false, false, params);
-    }
-
-    @Bean
-    public DirectExchange openGroupExchange() {
-        //死信交换机
-        return new DirectExchange(RabbitConstants.OPEN_GROUP_DELAY_EXCHANGE);
-    }
-
-    @Bean
-    public Binding dlxOpenGroupBinding() {
-        return BindingBuilder.bind(openGroupQueue()).to(openGroupExchange()).with(RabbitConstants.OPEN_GROUP_DELAY_ROUTING_KEY);
-    }
-
-
     /**
      * 转发队列
      * @return
@@ -372,8 +262,10 @@ public class RabbitConfig {
      * @return
      */
     @Bean
-    public TopicExchange closeGroupExchange() {
-        return new TopicExchange(RabbitConstants.CLOSE_GROUP_EXCHANGE);
+    public CustomExchange closeGroupExchange() {
+        Map<String, Object> args = new HashMap<>();
+        args.put("x-delayed-type", "direct");
+        return new CustomExchange(RabbitConstants.CLOSE_GROUP_EXCHANGE, "x-delayed-message", true, false, args);
     }
 
     /**
@@ -383,34 +275,12 @@ public class RabbitConfig {
     @Bean
     public Binding closeGroupBinding() {
         return BindingBuilder.bind(closeGroupQueue()).
-                to(closeGroupExchange()).with(RabbitConstants.CLOSE_GROUP_ROUTING_KEY);
-    }
-
-
-
-    @Bean
-    public Queue addMemberQueue() {
-        //死信队列
-        Map<String, Object> params = new HashMap<>();
-        params.put("x-dead-letter-exchange", RabbitConstants.DEL_MEMBER_EXCHANGE);
-        params.put("x-dead-letter-routing-key", RabbitConstants.DEL_MEMBER_ROUTING_KEY);
-        return new Queue(RabbitConstants.ADD_MEMBER_DELAY_QUEUE, true, false, false, params);
-    }
-
-    @Bean
-    public DirectExchange addMemberExchange() {
-        //死信交换机
-        return new DirectExchange(RabbitConstants.ADD_MEMBER__DELAY_EXCHANGE);
-    }
-
-    @Bean
-    public Binding dlxAddMemberBinding() {
-        return BindingBuilder.bind(addMemberQueue()).to(addMemberExchange()).with(RabbitConstants.ADD_MEMBER_DELAY_ROUTING_KEY);
+                to(closeGroupExchange()).with(RabbitConstants.CLOSE_GROUP_ROUTING_KEY).noargs();
     }
 
 
     /**
-     * 转发队列
+     * 半小时内未付款取消拼团资格
      * @return
      */
     @Bean
@@ -423,10 +293,11 @@ public class RabbitConfig {
      * @return
      */
     @Bean
-    public TopicExchange delMemberExchange() {
-        return new TopicExchange(RabbitConstants.DEL_MEMBER_EXCHANGE);
+    public CustomExchange delMemberExchange() {
+        Map<String, Object> args = new HashMap<>();
+        args.put("x-delayed-type", "direct");
+        return new CustomExchange(RabbitConstants.DEL_MEMBER_EXCHANGE, "x-delayed-message", true, false, args);
     }
-
     /**
      * 死信交换机与队列绑定
      * @return
@@ -434,7 +305,7 @@ public class RabbitConfig {
     @Bean
     public Binding delMemberBinding() {
         return BindingBuilder.bind(delMemberQueue()).
-                to(delMemberExchange()).with(RabbitConstants.DEL_MEMBER_ROUTING_KEY);
+                to(delMemberExchange()).with(RabbitConstants.DEL_MEMBER_ROUTING_KEY).noargs();
     }
 
 

@@ -53,6 +53,7 @@ import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
 import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
+import com.chauncy.data.temp.order.service.IOmGoodsTempService;
 import com.chauncy.data.vo.app.car.ShopTicketSoWithCarGoodVo;
 import com.chauncy.data.vo.app.order.cart.SubmitOrderVo;
 import com.chauncy.data.vo.app.order.my.AppSearchOrderVo;
@@ -166,6 +167,9 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
     @Autowired
     private AmActivityRelGoodsSkuMapper amActivityRelGoodsSkuMapper;
+
+    @Autowired
+    private IOmGoodsTempService goodsTempService;
 
     @Value("${jasypt.encryptor.password}")
     private String password;
@@ -440,15 +444,16 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         //获取系统基本设置
         BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
         //多久自动收货(毫秒)
-        String expiration = basicSettingPo.getAutoReceiveDay() * 24 * 60 * 60 * 1000 + "";
+        Integer expiration = basicSettingPo.getAutoReceiveDay() * 24 * 60 * 60 * 1000 ;
 
         RabbitOrderBo rabbitOrderBo = new RabbitOrderBo();
         rabbitOrderBo.setOrderId(orderId).setOrderStatusEnum(OrderStatusEnum.NEED_RECEIVE_GOODS);
-        //添加自动收货的消息队列
-        //rabbitUtil.sendDelayMessage(10*60*1000+"",rabbitOrderBo);
-        rabbitUtil.sendDelayMessage(expiration, rabbitOrderBo);
-        // rabbitUtil.sendDelayMessage(expiration+"",rabbitOrderBo);
-        LoggerUtil.info("【已发货等待自动收货消息发送时间】:" + LocalDateTime.now());
+        //过期时间为0不自动收货
+        if (expiration!=0) {
+            rabbitUtil.sendDelayMessage(expiration, rabbitOrderBo);
+
+            LoggerUtil.info("【已发货等待自动收货消息发送时间】:" + LocalDateTime.now());
+        }
 
     }
 
@@ -561,16 +566,19 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
 
         //过期时间
-        String expireTime = basicSettingPo.getAutoCloseOrderDay() * 24 * 60 * 60 * 1000 + "";
+        Integer expireTime = basicSettingPo.getAutoCloseOrderDay() * 24 * 60 * 60 * 1000 ;
 
-        // 添加延时取消订单队列
-        this.rabbitTemplate.convertAndSend(RabbitConstants.ORDER_UNPAID_DELAY_EXCHANGE, RabbitConstants.DELAY_ROUTING_KEY, savePayOrderPo.getId(), message -> {
+        //过期时间为0不取消待付款订单
+        if (expireTime!=0) {
+            // 添加延时取消订单队列
+            this.rabbitTemplate.convertAndSend(RabbitConstants.CLOSE_ORDER_EXCHANGE, RabbitConstants.CLOSE_ORDER_ROUTING_KEY, savePayOrderPo.getId(), message -> {
 
-            // message.getMessageProperties().setExpiration(basicSettingPo.getAutoCloseOrderDay()*24*60*60*1000 + "");
-            message.getMessageProperties().setExpiration(expireTime);
-            return message;
-        });
-        LoggerUtil.info("【下单等待取消订单发送时间】:" + LocalDateTime.now()+savePayOrderPo.getId());
+                // message.getMessageProperties().setExpiration(basicSettingPo.getAutoCloseOrderDay()*24*60*60*1000 + "");
+                message.getMessageProperties().setDelay(expireTime);
+                return message;
+            });
+            LoggerUtil.info("【下单等待关闭订单发送时间】:" + LocalDateTime.now() + savePayOrderPo.getId());
+        }
 
         return submitOrderVo;
     }
@@ -626,6 +634,12 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         } else {
             refundDay = basicSettingPo.getRefundDay();
         }
+        //0天表示不允许退款
+        if (refundDay==0){
+            UpdateWrapper<OmGoodsTempPo> updateWrapper=new UpdateWrapper<>();
+            updateWrapper.lambda().eq(OmGoodsTempPo::getOrderId,orderId).set(OmGoodsTempPo::getCanAfterSale,false);
+            goodsTempService.update(updateWrapper);
+        }
         //计算截止时间
         LocalDateTime afterSaleDeadline = LocalDateTime.now().plusDays(refundDay);
         OmOrderPo updateOrder = new OmOrderPo();
@@ -634,18 +648,18 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         mapper.updateById(updateOrder);
 
         //多久自动评价(毫秒)
-        //String expiration = basicSettingPo.getAutoCommentDay() * 24 * 60 * 60 * 1000 + "";
-        String expiration =    2*60 * 1000 + "";
+        //Integer expiration = basicSettingPo.getAutoCommentDay() * 24 * 60 * 60 * 1000;
+        Integer expiration =0;
         //多久售后截止(毫秒)
-        //String afterExpiration = refundDay * 24 * 60 * 60 * 1000 + "";
-        String afterExpiration =  60 * 1000 + "";
+        //Integer afterExpiration = refundDay * 24 * 60 * 60 * 1000;
+        Integer afterExpiration = 0;
 
         RabbitOrderBo rabbitOrderBo = new RabbitOrderBo();
         rabbitOrderBo.setOrderId(orderId).setOrderStatusEnum(OrderStatusEnum.NEED_EVALUATE)
         .setMessageCreateTime(LocalDateTime.now()).setMessageExpireTime(LocalDateTime.now().plusDays(basicSettingPo.getAutoCommentDay()));
 
         //添加自动评价延时队列
-        rabbitUtil.sendDelayMessage(expiration + "", rabbitOrderBo);
+        rabbitUtil.sendDelayMessage(expiration , rabbitOrderBo);
         LoggerUtil.info("【确认收货后：待评价===》自动评价发送时间】:" + LocalDateTime.now()+"【传送的数据】"+rabbitOrderBo.toString()
         +"【延迟多久】"+expiration
         );
@@ -653,7 +667,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         RabbitOrderBo afterRabbitOrderBo = new RabbitOrderBo();
         afterRabbitOrderBo.setOrderId(orderId).setMessageCreateTime(LocalDateTime.now()).setMessageExpireTime(LocalDateTime.now().plusDays(refundDay));
 
-        rabbitUtil.sendDelayMessage(afterExpiration + "", afterRabbitOrderBo);
+        rabbitUtil.sendDelayMessage(afterExpiration, afterRabbitOrderBo);
 
         LoggerUtil.info("【确认收货===》售后截止】:" + LocalDateTime.now()+afterRabbitOrderBo.toString()
                 +"【延迟多久】"+afterExpiration
@@ -1020,7 +1034,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         //延迟队列：待评价===》已评价
         BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
         //多久自动评价(毫秒)
-        String expiration = basicSettingPo.getAutoCommentDay() * 24 * 60 * 60 * 1000 + "";
+        Integer expiration = basicSettingPo.getAutoCommentDay() * 24 * 60 * 60 * 1000 ;
         RabbitOrderBo rabbitOrderBo = new RabbitOrderBo();
         rabbitOrderBo.setOrderId(orderId).setOrderStatusEnum(OrderStatusEnum.NEED_EVALUATE);
 
@@ -1028,7 +1042,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         orderDeadline(orderId);
 
         //添加自动评价延时队列
-        rabbitUtil.sendDelayMessage(expiration + "", rabbitOrderBo);
+        rabbitUtil.sendDelayMessage(expiration, rabbitOrderBo);
         LoggerUtil.info("【确认收货后：待评价===》自动评价发送时间】:" + LocalDateTime.now());
 
 

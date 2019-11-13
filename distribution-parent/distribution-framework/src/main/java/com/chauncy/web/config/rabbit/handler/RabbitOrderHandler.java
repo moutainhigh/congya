@@ -235,7 +235,7 @@ public class RabbitOrderHandler {
      * @param message
      * @param channel
      */
-    @RabbitListener(queues = {RabbitConstants.AFTER_REDIRECT_QUEUE})
+    @RabbitListener(queues = {RabbitConstants.AFTER_DEAD_QUEUE})
     @Transactional(rollbackFor = Exception.class)
     public void afterDelay(RabbitAfterBo rabbitAfterBo, Message message, Channel channel) throws IOException {
 
