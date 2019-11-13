@@ -44,7 +44,7 @@
             resultType="com.chauncy.data.vo.manage.message.advice.shuffling.SearchShufflingAssociatedDetailVo">
         select id as detail_id, title as detail_name
         from mm_information
-        where del_flag = 0
+        where del_flag = 0 and verify_status = 3 and enabled = 1
         <if test="name != null and name != ''">
             and name like concat('%',#{name},'%')
         </if>

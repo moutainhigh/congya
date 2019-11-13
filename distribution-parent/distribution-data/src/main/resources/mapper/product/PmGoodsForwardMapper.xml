@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chauncy.data.mapper.product.PmGoodsForwardMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.chauncy.data.domain.po.product.PmGoodsForwardPo">
+        <id column="id" property="id" />
+        <result column="create_by" property="createBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="goods_id" property="goodsId" />
+        <result column="user_id" property="userId" />
+        <result column="del_flag" property="delFlag" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, create_by, update_time, goods_id, user_id, del_flag
+    </sql>
+    <select id="selectForUpdate" resultType="com.chauncy.data.domain.po.product.PmGoodsForwardPo">
+        SELECT id,create_by,update_time,info_id,user_id,del_flag
+        FROM pm_goods_forward
+        WHERE goods_id = #{goodsId} AND user_id = #{userId} FOR UPDATE
+    </select>
+
+</mapper>

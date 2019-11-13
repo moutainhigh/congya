@@ -159,7 +159,7 @@
             <if test="null != storeId">
                 AND ss.`id` = #{storeId}
             </if>
-            AND  (
+            AND  NOT EXISTS (
                 <if test="1 == billType">
                     SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`payment_bill_settlement_cycle` = 0
                 </if>
@@ -186,7 +186,7 @@
             <if test="null != storeId">
                 AND ss.`id` = #{storeId}
             </if>
-            AND  (
+            AND  NOT EXISTS (
                 <if test="1 == billType">
                     SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`payment_bill_settlement_cycle` = 0
                 </if>

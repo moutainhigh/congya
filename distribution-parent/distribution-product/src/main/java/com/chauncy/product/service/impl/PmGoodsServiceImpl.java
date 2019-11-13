@@ -168,6 +168,12 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     private PmGoodsRelAttributeValueGoodMapper relAttributeValueGoodMapper;
 
     @Autowired
+    private PmGoodsLikedMapper goodsLikedMapper;
+
+    @Autowired
+    private PmGoodsForwardMapper goodsForwardMapper;
+
+    @Autowired
     private AreaRegionMapper areaRegionMapper;
 
     @Autowired
@@ -2017,11 +2023,26 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
         switch (shareTypeEnum) {
             case GOODS:
-                mapper.shareGoods(shareDto);
+                PmGoodsPo goodsPo = mapper.selectById((shareDto.getShareId()));
+                if (goodsPo == null){
+                    throw new ServiceException(ResultCode.NO_EXISTS,"商品不存在");
+                }
+                PmGoodsForwardPo goodsForwardPo = goodsForwardMapper.selectForUpdate(shareDto.getShareId(), userPo.getId());
+                if (goodsForwardPo == null) {
+                    //未转发过
+                    goodsForwardPo = new PmGoodsForwardPo();
+                    goodsForwardPo.setGoodsId(shareDto.getShareId());
+                    goodsForwardPo.setCreateBy(userPo.getId().toString());
+                    goodsForwardPo.setUserId(userPo.getId());
+                    //新增转发记录
+                    goodsForwardMapper.insert(goodsForwardPo);
+                    //转发量+1
+                    mapper.shareGoods(shareDto);
+                }
                 break;
 
             case INFORMATION:
-                //mmInformationMapper.shareInformation(shareDto);
+//                mmInformationMapper.shareInformation(shareDto);
                 MmInformationPo mmInformationPo = mmInformationMapper.selectById(shareDto.getShareId());
                 if(null == mmInformationPo){
                     throw new ServiceException(ResultCode.NO_EXISTS,"资讯不存在");

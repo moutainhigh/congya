@@ -1,4 +1,4 @@
-package com.chauncy.data.domain.po.message.information.rel;
+package com.chauncy.data.domain.po.product;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -18,18 +18,18 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 用户资讯点赞表
+ * 用户商品转发表
  * </p>
  *
  * @author huangwancheng
- * @since 2019-08-29
+ * @since 2019-11-11
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("mm_information_liked")
-@ApiModel(value = "MmInformationLikedPo对象", description = "用户资讯点赞表")
-public class MmInformationLikedPo implements Serializable {
+@TableName("pm_goods_forward")
+@ApiModel(value = "PmGoodsForwardPo对象", description = "用户商品转发表")
+public class PmGoodsForwardPo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -43,13 +43,14 @@ public class MmInformationLikedPo implements Serializable {
     @ApiModelProperty(value = "修改时间")
     private LocalDateTime updateTime;
 
-    @ApiModelProperty(value = "资讯id")
-    private Long infoId;
+    @ApiModelProperty(value = "goods_id")
+    private Long goodsId;
 
     @ApiModelProperty(value = "用户id")
     private Long userId;
 
-    @ApiModelProperty(value = "0 点赞  1 取消点赞")
+    @ApiModelProperty(value = "删除标志")
+    @TableLogic
     private Boolean delFlag;
 
 

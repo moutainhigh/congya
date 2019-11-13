@@ -21,7 +21,8 @@ public enum LogDetailTitleEnum   implements BaseEnum {
     MEMBER_AWARD(6, "会员奖励"),
     REFUND(7, "退款"),
     ORDER_PAYMENT(7, "消费抵扣"),
-    weiqueding(8, "商家名"),
+    WEIQUEDING(8, "商家名"),
+    CANCEL_ORDER(9, "取消订单"),
     ;
 
 

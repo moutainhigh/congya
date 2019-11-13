@@ -50,6 +50,7 @@ import com.chauncy.order.log.service.IOmAccountLogService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.base.Splitter;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -207,10 +208,108 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
                 //好友助攻  订单售后时间到，下单用户上两级有红包分佣，积分奖励
                 this.friendsAssist(addAccountLogBo);
                 break;
+            case CANCEL_ORDER:
+                //订单取消  红包，购物券，积分退回
+                this.cancelOrder(addAccountLogBo);
+                break;
         }
     }
 
-   /**
+    /**
+     * @Author yeJH
+     * @Date 2019/11/12 22:30
+     * @Description 订单取消  红包，购物券，积分退回
+     *
+     * @Update yeJH
+     *
+     * @param  addAccountLogBo
+     * @return void
+     **/
+    private void cancelOrder(AddAccountLogBo addAccountLogBo) {
+        UmUserPo umUserPo = umUserMapper.selectById(addAccountLogBo.getUmUserId());
+        //红包+ 订单取消
+        if(null != addAccountLogBo.getMarginRedEnvelops()
+                && addAccountLogBo.getMarginRedEnvelops().compareTo(BigDecimal.ZERO) > 0) {
+            cancelOrder(addAccountLogBo,
+                    umUserPo,
+                    AccountTypeEnum.RED_ENVELOPS,
+                    addAccountLogBo.getMarginRedEnvelops());
+
+        }
+        //购物券+ 订单取消
+        if(null != addAccountLogBo.getMarginShopTicket()
+                && addAccountLogBo.getMarginShopTicket().compareTo(BigDecimal.ZERO) > 0) {
+            cancelOrder(addAccountLogBo,
+                    umUserPo,
+                    AccountTypeEnum.SHOP_TICKET,
+                    addAccountLogBo.getMarginShopTicket());
+
+        }
+        //积分+ 订单取消
+        if(null != addAccountLogBo.getMarginIntegral()
+                && addAccountLogBo.getMarginIntegral().compareTo(BigDecimal.ZERO) > 0) {
+            cancelOrder(addAccountLogBo,
+                    umUserPo,
+                    AccountTypeEnum.SHOP_TICKET,
+                    addAccountLogBo.getMarginIntegral());
+
+        }
+
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/11/12 22:45
+     * @Description 订单取消 退回红包，购物券，积分
+     *
+     * @Update yeJH
+     *
+     * @param  addAccountLogBo  保存流水参数
+     * @param  umUserPo 退回用户
+     * @param  accountTypeEnum  账目类型
+     * @param  margin  退回数额
+     * @return void
+     **/
+    private void cancelOrder(AddAccountLogBo addAccountLogBo,
+                             UmUserPo umUserPo,
+                             AccountTypeEnum accountTypeEnum,
+                             BigDecimal margin) {
+
+        OmAccountLogPo toAccountLog = getFromOmAccountLogPo(addAccountLogBo, UserTypeEnum.APP_USER,
+                accountTypeEnum, LogTypeEnum.INCOME);
+        BigDecimal current = BigDecimal.ZERO;
+        toAccountLog.setUserId(umUserPo.getId());
+        if(accountTypeEnum.equals(AccountTypeEnum.RED_ENVELOPS)) {
+            current = umUserPo.getCurrentRedEnvelops();
+        } else if (accountTypeEnum.equals(AccountTypeEnum.SHOP_TICKET)) {
+            current = umUserPo.getCurrentShopTicket();
+        } else if (accountTypeEnum.equals(AccountTypeEnum.INTEGRATE)) {
+            current = umUserPo.getCurrentIntegral();
+        }
+        toAccountLog.setLastBalance(current);
+        toAccountLog.setBalance(BigDecimalUtil.safeAdd(current, margin));
+        //流水发生金额  取消订单退回
+        toAccountLog.setAmount(margin);
+        //流水事由
+        if(accountTypeEnum.equals(AccountTypeEnum.RED_ENVELOPS)) {
+            toAccountLog.setLogMatter(RedEnvelopsLogMatterEnum.CANCEL_ORDER.getId());
+        } else if (accountTypeEnum.equals(AccountTypeEnum.SHOP_TICKET)) {
+            toAccountLog.setLogMatter(ShopTicketLogMatterEnum.CANCEL_ORDER.getId());
+        } else if (accountTypeEnum.equals(AccountTypeEnum.INTEGRATE)) {
+            toAccountLog.setLogMatter(IntegrateLogMatterEnum.CANCEL_ORDER.getId());
+        }
+        //流水详情标题
+        toAccountLog.setLogDetailTitle(LogDetailTitleEnum.CANCEL_ORDER.getName());
+        //流水详情当前状态
+        toAccountLog.setLogDetailState(LogDetailStateEnum.DEPOSIT_WALLET.getId());
+        //流水详情说明
+        toAccountLog.setLogDetailExplain(LogDetailExplainEnum.RETURN_WALLET.getId());
+        omAccountLogMapper.insert(toAccountLog);
+
+
+    }
+
+    /**
     * @Author yeJH
     * @Date 2019/9/22 20:05
     * @Description 积分，购物券，红包到账  新增任务奖励消息
@@ -436,7 +535,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         }
         toAccountLog.setBalance(BigDecimalUtil.safeAdd(current, margin));
         toAccountLog.setLastBalance(current);
-        //流水发生金额  系统赠送
+        //流水发生金额  购物奖励
         toAccountLog.setAmount(margin);
         //流水事由
         if (accountTypeEnum.equals(AccountTypeEnum.SHOP_TICKET)) {
@@ -444,8 +543,13 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         } else if (accountTypeEnum.equals(AccountTypeEnum.INTEGRATE)) {
             toAccountLog.setLogMatter(IntegrateLogMatterEnum.SHOPPING_REWARD.getId());
         }
-        //流水详情标题
-        toAccountLog.setLogDetailTitle(LogDetailTitleEnum.weiqueding.getName());
+        //流水详情标题  商家名称
+        String storeName = omOrderMapper.getStoreNameByOrder(toAccountLog.getOmRelId());
+        List<String> stringList = Splitter.on(",").splitToList(storeName);
+        if(null != stringList && stringList.size() == 2) {
+            toAccountLog.setLogDetailTitle(stringList.get(0));
+            toAccountLog.setPicture(stringList.get(1));
+        }
         //流水详情当前状态
         toAccountLog.setLogDetailState(LogDetailStateEnum.PAYMENT_SUCCESS.getId());
         //流水详情说明
@@ -680,6 +784,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         toAccountLog.setLastBalance(current);
         //流水发生金额  售后退还
         toAccountLog.setAmount(margin);
+        //获取商家头像
+        String storeLogo = omAfterSaleOrderMapper.getStoreLogoByOrder(toAccountLog.getOmRelId());
+        toAccountLog.setPicture(storeLogo);
         //流水事由
         if(accountTypeEnum.equals(AccountTypeEnum.RED_ENVELOPS)) {
             toAccountLog.setLogMatter(RedEnvelopsLogMatterEnum.AFTER_SALE_REFUND.getId());

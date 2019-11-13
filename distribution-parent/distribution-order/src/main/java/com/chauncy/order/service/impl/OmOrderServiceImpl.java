@@ -221,6 +221,20 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 BigDecimalUtil.safeMultiply(-1, queryPayOrder.getTotalShopTicket()),
                 BigDecimalUtil.safeMultiply(-1, integralInPayOrder),
                 queryPayOrder.getUmUserId());
+
+        //订单取消  购物券，红包，积分退还 对应流水生成
+        AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
+        addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.CANCEL_ORDER);
+        addAccountLogBo.setRelId(payOrderId);
+        addAccountLogBo.setOperator(String.valueOf(queryPayOrder.getUmUserId()));
+        addAccountLogBo.setMarginRedEnvelops(queryPayOrder.getTotalRedEnvelops());
+        addAccountLogBo.setMarginShopTicket(queryPayOrder.getTotalShopTicket());
+        addAccountLogBo.setMarginIntegral(integralInPayOrder);
+        addAccountLogBo.setUmUserId(queryPayOrder.getUmUserId());
+        //listenerOrderLogQueue 消息队列
+        this.rabbitTemplate.convertAndSend(
+                RabbitConstants.ACCOUNT_LOG_EXCHANGE, RabbitConstants.ACCOUNT_LOG_ROUTING_KEY, addAccountLogBo);
+
         return true;
     }
 
@@ -265,6 +279,21 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 BigDecimalUtil.safeMultiply(-1, orderPo.getShopTicket()),
                 BigDecimalUtil.safeMultiply(-1, integralInOrder),
                 orderPo.getUmUserId());
+
+        //订单取消  购物券，红包，积分退还 对应流水生成
+        AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
+        addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.CANCEL_ORDER);
+        addAccountLogBo.setRelId(orderPo.getId());
+        addAccountLogBo.setOperator(String.valueOf(orderPo.getUmUserId()));
+        addAccountLogBo.setMarginRedEnvelops(orderPo.getRedEnvelops());
+        addAccountLogBo.setMarginShopTicket(orderPo.getShopTicket());
+        addAccountLogBo.setMarginIntegral(integralInOrder);
+        addAccountLogBo.setUmUserId(orderPo.getUmUserId());
+        //listenerOrderLogQueue 消息队列
+        this.rabbitTemplate.convertAndSend(
+                RabbitConstants.ACCOUNT_LOG_EXCHANGE, RabbitConstants.ACCOUNT_LOG_ROUTING_KEY, addAccountLogBo);
+
+
         return true;
     }
 

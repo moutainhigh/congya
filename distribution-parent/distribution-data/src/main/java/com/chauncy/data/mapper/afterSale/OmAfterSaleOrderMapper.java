@@ -24,6 +24,18 @@ import java.util.List;
 public interface OmAfterSaleOrderMapper extends IBaseMapper<OmAfterSaleOrderPo> {
 
     /**
+     * @Author yeJH
+     * @Date 2019/11/12 22:08
+     * @Description 根据售后订单获取店铺logo
+     *
+     * @Update yeJH
+     *
+     * @param  afterSaleOrderId
+     * @return java.lang.String
+     **/
+    String getStoreLogoByOrder(Long afterSaleOrderId);
+
+    /**
      * 通过订单id查找商品快照
      * @param id
      * @return
@@ -64,5 +76,4 @@ public interface OmAfterSaleOrderMapper extends IBaseMapper<OmAfterSaleOrderPo> 
      * @return
      */
     ApplyAfterDetailVo getApplyAfterDetail(Long afterSaleOrderId);
-
 }

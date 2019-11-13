@@ -18,10 +18,13 @@ import com.chauncy.common.util.*;
 import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
 import com.chauncy.data.bo.order.log.AccountLogBo;
 import com.chauncy.data.core.AbstractService;
+import com.chauncy.data.domain.po.message.information.comment.MmCommentLikedPo;
 import com.chauncy.data.domain.po.message.information.comment.MmInformationCommentPo;
 import com.chauncy.data.domain.po.message.information.rel.MmInformationLikedPo;
 import com.chauncy.data.domain.po.message.interact.MmFeedBackPo;
 import com.chauncy.data.domain.po.message.interact.MmUserNoticePo;
+import com.chauncy.data.domain.po.order.OmEvaluateLikedPo;
+import com.chauncy.data.domain.po.product.PmGoodsLikedPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.sys.BasicSettingPo;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
@@ -34,10 +37,13 @@ import com.chauncy.data.dto.manage.user.select.SearchUserIdCardDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
 import com.chauncy.data.dto.manage.user.update.UpdateUserDto;
 import com.chauncy.data.mapper.message.advice.MmAdviceMapper;
+import com.chauncy.data.mapper.message.information.comment.MmCommentLikedMapper;
 import com.chauncy.data.mapper.message.information.comment.MmInformationCommentMapper;
 import com.chauncy.data.mapper.message.information.rel.MmInformationLikedMapper;
 import com.chauncy.data.mapper.message.interact.MmFeedBackMapper;
 import com.chauncy.data.mapper.message.interact.MmUserNoticeMapper;
+import com.chauncy.data.mapper.order.OmEvaluateLikedMapper;
+import com.chauncy.data.mapper.product.PmGoodsLikedMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
@@ -99,6 +105,15 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
 
     @Autowired
     private MmInformationLikedMapper informationLikedMapper;
+
+    @Autowired
+    private MmCommentLikedMapper commentLikedMapper;
+
+    @Autowired
+    private OmEvaluateLikedMapper evaluateLikedMapper;
+
+    @Autowired
+    private PmGoodsLikedMapper goodsLikedMapper;
 
     @Autowired
     private MmInformationCommentMapper informationCommentMapper;
@@ -505,27 +520,36 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
 
 
 
-        /*
         //平均消费
-        BigDecimal avgConsumer = BigDecimalUtil.safeDivide(membersCenterVo.getTotalConsumeMoney(),membersCenterVo.getTotalOrder());
+//        BigDecimal avgConsumer = BigDecimalUtil.safeDivide(membersCenterVo.getTotalConsumeMoney(),membersCenterVo.getTotalOrder());
 
         //赞
+        //用户资讯点赞
         Integer praise1 = informationLikedMapper.selectCount(new QueryWrapper<MmInformationLikedPo>().lambda().and(obj->obj
                 .eq(MmInformationLikedPo::getUserId,userPo.getId()).eq(MmInformationLikedPo::getDelFlag,0)));
-        Integer praise2 = informationCommentMapper.selectCount(new QueryWrapper<MmInformationCommentPo>().lambda().and(obj->obj
-                .eq(MmInformationCommentPo::getUserId,userPo.getId()).eq(MmInformationCommentPo::getDelFlag,0)));
+        //用户资讯评论点赞
+        Integer praise2 = commentLikedMapper.selectCount(new QueryWrapper<MmCommentLikedPo>().lambda().and(obj->obj
+                .eq(MmCommentLikedPo::getUserId,userPo.getId()).eq(MmCommentLikedPo::getDelFlag,0)));
 //                .stream().mapToLong((a)->a.getId()).summaryStatistics().getCount();
-        membersCenterVo.setPraise(praise1+praise2);
+        //商品点赞
+        Integer praise3 = goodsLikedMapper.selectCount(new QueryWrapper<PmGoodsLikedPo>().lambda().and(obj->obj
+                .eq(PmGoodsLikedPo::getUserId,userPo.getId()).eq(PmGoodsLikedPo::getIsLiked,1)));
+
+        //商品评论点赞
+        Integer praise4 = evaluateLikedMapper.selectCount(new QueryWrapper<OmEvaluateLikedPo>().lambda().and(obj->obj
+                .eq(OmEvaluateLikedPo::getUserId,userPo.getId()).eq(OmEvaluateLikedPo::getIsLiked,1)));
+
+        membersCenterVo.setPraise(praise1+praise2+praise3+praise4);
 
         //分享
-        Integer share = mapper.selectCount(new QueryWrapper<UmUserPo>().lambda().and(obj->
-                obj.eq(UmUserPo::getDelFlag,0).eq(UmUserPo::getId,userPo.getId())));
+        Integer share = mapper.selectOne(new QueryWrapper<UmUserPo>().lambda().and(obj->
+                obj.eq(UmUserPo::getDelFlag,0).eq(UmUserPo::getId,userPo.getId()))).getShareNum();
         membersCenterVo.setShare(share);
 
         //评论
         Integer informationComments = informationCommentMapper.selectCount(new QueryWrapper<MmInformationCommentPo>().lambda().and(obj->obj
                 .eq(MmInformationCommentPo::getDelFlag,0).eq(MmInformationCommentPo::getUserId,userPo.getId())));
-        membersCenterVo.setComments(informationComments);*/
+        membersCenterVo.setComments(informationComments);
 
 
         return membersCenterVo;
@@ -546,6 +570,11 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     public MyDataStatisticsVo getMyDataStatistics(UmUserPo userPo) {
 
         MyDataStatisticsVo myDataStatisticsVo = mapper.getMyDataStatistics(userPo.getId());
+
+        //好友 直推好友数量（第一代）
+        Integer friend = mapper.selectList(new QueryWrapper<UmUserPo>().lambda().and(obj->obj
+                .eq(UmUserPo::getParentId,userPo.getId()).eq(UmUserPo::getDelFlag,0))).size();
+        myDataStatisticsVo.setFansNum(friend);
 
         //红包   展示红包对应的金额
         //获取系统基本设置

@@ -23,6 +23,7 @@ public enum  LogTriggerEventEnum  implements BaseEnum {
      * 9.好友助攻  （订单完成  下单用户获得红包）
      * 10.App提现平台标记已处理
      * 11.App提现平台审核驳回
+     * 12.用户订单取消
      */
     STORE_WITHDRAWAL(1, "店铺利润、货款账单提现"),
     APP_WITHDRAWAL(2, "APP用户提现红包"),
@@ -35,6 +36,7 @@ public enum  LogTriggerEventEnum  implements BaseEnum {
     FRIENDS_ASSIST(9, "好友助攻"),
     WITHDRAWAL_SUCCESS(10, "App提现标记已处理"),
     WITHDRAWAL_FAIL(11, "App提现平台审核驳回"),
+    CANCEL_ORDER(11, "取消订单"),
     ;
 
 

@@ -518,7 +518,7 @@
         <result column="is_focus" property="isFocus" />
         <result column="store_describe" property="storeDescribe" />
         <result column="likedSum" property="likedSum" />
-        <result column="collectionNum" property="collectionNum" />
+        <result column="collection_num" property="collectionNum" />
         <result column="background_image" property="backgroundImage" />
         <!-- collection定义关联集合类型的属性封装规则
         offType:指定集合中的元素类型

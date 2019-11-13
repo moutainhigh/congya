@@ -35,6 +35,18 @@ public interface IOmOrderReportService extends Service<OmOrderReportPo> {
     PageInfo<ReportRelGoodsTempVo> findReportById(BaseSearchPagingDto baseSearchPagingDto, Long id);
 
     /**
+     * @Author yeJH
+     * @Date 2019/11/11 19:06
+     * @Description 批量创建销售报表
+     *
+     * @Update yeJH
+     *
+     * @param
+     * @return void
+     **/
+    void batchCreateSaleReport();
+
+    /**
      * 根据时间创建商品销售报表
      * endDate   需要创建账单的那一周   任何一天都可以
      */

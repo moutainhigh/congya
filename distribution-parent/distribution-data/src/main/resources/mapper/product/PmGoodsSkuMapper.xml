@@ -55,11 +55,14 @@
     </update>
 
     <select id="findBrandGoodsVos" resultType="com.chauncy.data.vo.app.advice.goods.BrandGoodsVo">
-        select a.id as goods_id,a.name as goods_name,b.sales_volume,b.id as sku_id,b.picture,b.line_price,b.sell_price
+        select a.id as goods_id,a.name as goods_name,b.sales_volume,b.id as sku_id,a.icon as picture,b.line_price,b.sell_price
         from pm_goods a,pm_goods_sku b,pm_goods_rel_attribute_good c
         where a.del_flag =0 and b.del_flag = 0 and c.del_flag =0 and c.goods_attribute_id = #{brandId}
         and c.goods_good_id = a.id and b.goods_id = a.id
+        and b.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = a.id  and d2.del_flag =0 and d2.sell_price =
+        (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = a.id  and d1.del_flag =0 LIMIT 1) limit 1)
         ORDER BY b.sales_volume DESC limit 6
+
     </select>
 
 </mapper>

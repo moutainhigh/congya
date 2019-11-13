@@ -43,4 +43,29 @@ public interface OmOrderReportMapper extends IBaseMapper<OmOrderReportPo> {
     List<OmOrderReportPo> searchOrderReport(@Param("startDate") LocalDate startDate,
                                             @Param("endDate") LocalDate endDate, @Param("branchId") Long branchId);
 
+    /**
+     * @Author yeJH
+     * @Date 2019/11/11 18:39
+     * @Description 判断当前店铺列表多少店铺需要创建商品销售报表
+     *
+     * @Update yeJH
+     *
+     * @param  endDate
+     * @param  storeId
+     * @return int
+     **/
+    int getStoreSumNeedCreateReport(LocalDate endDate, Long storeId);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/11/11 19:02
+     * @Description /判断当前店铺列表需要创建商品销售报表的店铺id
+     *
+     * @Update yeJH
+     *
+     * @param  endDate
+     * @param  storeId
+     * @return java.util.List<java.lang.Long>
+     **/
+    List<Long> getStoreNeedCreateReport(LocalDate endDate, Long storeId);
 }

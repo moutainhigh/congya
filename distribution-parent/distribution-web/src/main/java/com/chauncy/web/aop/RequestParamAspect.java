@@ -58,8 +58,10 @@ public class RequestParamAspect {
                     } else {
 
                         //param
-                        Object object = args[0];
-                        requestParam = JSON.toJSONStringWithDateFormat(new Gson().toJson(object), "yyyy-MM-dd HH:mm:ss", SerializerFeature.UseSingleQuotes);
+                        if (args != null && args.length != 0) {
+                            Object object = args[0];
+                            requestParam = JSON.toJSONStringWithDateFormat(new Gson().toJson(object), "yyyy-MM-dd HH:mm:ss", SerializerFeature.UseSingleQuotes);
+                        }
 
                         /*if (object.getClass().equals(ArrayList.class)){
                             requestParam = JSON.toJSONStringWithDateFormat(JSONUtils.toJSONString(object), "yyyy-MM-dd HH:mm:ss", SerializerFeature.UseSingleQuotes);

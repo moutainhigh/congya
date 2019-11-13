@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -43,10 +44,12 @@ public class InformationDto  implements Serializable {
 
     @ApiModelProperty(value = "资讯标签id（mm_information_label主键）")
     @NeedExistConstraint(tableName = "mm_information_label")
+    @Min(value = 1,message = "资讯标签不能为空")
     private Long infoLabelId;
 
     @ApiModelProperty(value = "资讯分类id（mm_information_category主键）")
     @NeedExistConstraint(tableName = "mm_information_category")
+    @Min(value = 1, message = "资讯分类不能为空")
     private Long infoCategoryId;
 
     @ApiModelProperty(value = "关联商品id")

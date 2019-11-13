@@ -126,4 +126,28 @@ public interface MmInformationMapper extends IBaseMapper<MmInformationPo> {
      * @return
      */
     Integer getFocusInfoSum(@Param("userId") Long userId, @Param("readTime") LocalDateTime readTime);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/11/11 22:13
+     * @Description 隐藏、删除评论的时候修改资讯评论量
+     *
+     * @Update yeJH
+     *
+     * @param  id  资讯id
+     * @return void
+     **/
+    void deductCommentNum(Long id);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/11/11 22:39
+     * @Description 显示评论的时候修改资讯评论量
+     *
+     * @Update yeJH
+     *
+     * @param  infoId
+     * @return void
+     **/
+    void addCommentNum(Long infoId);
 }

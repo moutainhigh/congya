@@ -2,6 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.chauncy.data.mapper.order.OmOrderMapper">
 
+    <select id="getStoreNameByOrder" resultType="java.lang.String">
+        SELECT CONCAT(ss.`name`, ',', ss.logo_image) as storeName
+        FROM sm_store ss
+        INNER JOIN om_order oo ON oo.store_id = ss.id
+        WHERE oo.id = #{orderId}
+    </select>
 
     <select id="getShipAreaByOrderId" resultType="com.chauncy.data.vo.app.activity.spell.SpellGroupAreaVo">
         SELECT po.ship_name,
