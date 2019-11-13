@@ -648,11 +648,11 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         mapper.updateById(updateOrder);
 
         //多久自动评价(毫秒)
-        //Integer expiration = basicSettingPo.getAutoCommentDay() * 24 * 60 * 60 * 1000;
-        Integer expiration =0;
+        Integer expiration = basicSettingPo.getAutoCommentDay() * 24 * 60 * 60 * 1000;
+        //Integer expiration =0;
         //多久售后截止(毫秒)
-        //Integer afterExpiration = refundDay * 24 * 60 * 60 * 1000;
-        Integer afterExpiration = 0;
+        Integer afterExpiration = refundDay * 24 * 60 * 60 * 1000;
+        //Integer afterExpiration = 0;
 
         RabbitOrderBo rabbitOrderBo = new RabbitOrderBo();
         rabbitOrderBo.setOrderId(orderId).setOrderStatusEnum(OrderStatusEnum.NEED_EVALUATE)
