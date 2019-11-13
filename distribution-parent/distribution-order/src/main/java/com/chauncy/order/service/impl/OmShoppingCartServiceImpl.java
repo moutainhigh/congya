@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.constant.RabbitConstants;
 import com.chauncy.common.enums.app.activity.SpellGroupMainStatusEnum;
 import com.chauncy.common.enums.app.activity.type.ActivityTypeEnum;
+import com.chauncy.common.enums.log.LogTriggerEventEnum;
 import com.chauncy.common.enums.message.ArticleLocationEnum;
 import com.chauncy.common.enums.message.KeyWordTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
@@ -14,6 +15,7 @@ import com.chauncy.data.bo.app.car.FullDiscountSkuBo;
 import com.chauncy.data.bo.app.car.MoneyShipBo;
 import com.chauncy.data.bo.app.order.reward.RewardShopTicketBo;
 import com.chauncy.data.bo.base.BaseBo;
+import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
 import com.chauncy.data.bo.manage.pay.PayUserMessage;
 import com.chauncy.data.bo.supplier.good.GoodsValueBo;
 import com.chauncy.data.core.AbstractService;
@@ -2441,6 +2443,16 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         SubmitOrderVo submitOrderVo = new SubmitOrderVo();
         submitOrderVo.setPayOrderId(savePayOrderPo.getId()).setTotalRealPayMoney(savePayOrderPo.getTotalRealPayMoney())
                 .setTotalRedEnvelops(totalRedEnvelops).setTotalShopTicket(totalShopTicket).setTotalIntegral(totalIntegral[0]);
+
+        //1.订单下单流水生成  下单的时候就扣除红包购物券积分
+        AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
+        addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.APP_ORDER);
+        addAccountLogBo.setRelId(savePayOrderPo.getId());
+        addAccountLogBo.setOperator(String.valueOf(umUserPo.getId()));
+        addAccountLogBo.setMarginIntegral(submitOrderVo.getTotalIntegral());
+        //listenerOrderLogQueue 消息队列
+        this.rabbitTemplate.convertAndSend(
+                RabbitConstants.ACCOUNT_LOG_EXCHANGE, RabbitConstants.ACCOUNT_LOG_ROUTING_KEY, addAccountLogBo);
 
         return submitOrderVo;
     }

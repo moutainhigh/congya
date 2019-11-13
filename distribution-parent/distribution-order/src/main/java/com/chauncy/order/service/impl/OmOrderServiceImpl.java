@@ -325,14 +325,14 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         //付款成功后需要做的操作
         afterPayDo(payOrderPo.getId());
         //1.订单下单流水生成  下单的时候就扣除红包购物券积分
-        /*UmUserPo umUserPo = userMapper.selectById(payOrderPo.getUmUserId());
+        UmUserPo umUserPo = userMapper.selectById(payOrderPo.getUmUserId());
         AddAccountLogBo addAccountLogBo = new AddAccountLogBo();
-        addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.APP_ORDER);
+        addAccountLogBo.setLogTriggerEventEnum(LogTriggerEventEnum.PAY_ORDER);
         addAccountLogBo.setRelId(payOrderPo.getId());
         addAccountLogBo.setOperator(String.valueOf(umUserPo.getId()));
         //listenerOrderLogQueue 消息队列
         this.rabbitTemplate.convertAndSend(
-                RabbitConstants.ACCOUNT_LOG_EXCHANGE, RabbitConstants.ACCOUNT_LOG_ROUTING_KEY, addAccountLogBo);*/
+                RabbitConstants.ACCOUNT_LOG_EXCHANGE, RabbitConstants.ACCOUNT_LOG_ROUTING_KEY, addAccountLogBo);
 
         //2.海关申报 拆单之后的订单是海外直邮或者保税仓
         QueryWrapper<OmOrderPo> queryWrapper = new QueryWrapper<>();
