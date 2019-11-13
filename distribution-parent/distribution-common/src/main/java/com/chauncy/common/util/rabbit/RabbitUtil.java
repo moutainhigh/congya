@@ -38,12 +38,12 @@ public class RabbitUtil {
      * @param expiration 消息过期时间(单位毫秒)
      * @param messageContent 消息具体内容
      */
-    public void sendDelayMessage(String expiration,Object messageContent) {
+    public void sendDelayMessage(Integer expiration,Object messageContent) {
 
         // 添加延时队列
-        rabbitTemplate.convertAndSend(RabbitConstants.ORDER_DEAD_EXCHANGE, RabbitConstants.ORDER_DEAD_ROUTING_KEY,messageContent , message -> {
+        rabbitTemplate.convertAndSend(RabbitConstants.ORDER_DEAD_EXCHANGE, RabbitConstants.ORDER_REDIRECT_KEY,messageContent , message -> {
 
-            message.getMessageProperties().setExpiration(expiration);
+            message.getMessageProperties().setDelay(expiration);
             return message;
         });
 

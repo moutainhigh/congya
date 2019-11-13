@@ -396,7 +396,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         //要修改的会员等级id
         Long memberLevelId = null;
         //当用户经验值大于等级所需经验值的时候,进行升级
-        while (queryUser.getCurrentExperience().compareTo(nextLevel.getLevelExperience()) >= 0) {
+        while (nextLevel!=null&&queryUser.getCurrentExperience().compareTo(nextLevel.getLevelExperience()) >= 0) {
             memberLevelId = nextLevel.getId();
             //找出下一等级的会员详细信息
             QueryWrapper<PmMemberLevelPo> levelQueryWrapper = new QueryWrapper<>();
@@ -404,8 +404,9 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
             nextLevel = memberLevelMapper.selectOne(levelQueryWrapper);
         }
         if (memberLevelId != null) {
+            PmMemberLevelPo queryLevel = memberLevelMapper.selectById(memberLevelId);
             UmUserPo updateUser = new UmUserPo();
-            updateUser.setId(userId).setMemberLevelId(memberLevelId).setLevel(nextLevel.getLevel()-1);
+            updateUser.setId(userId).setMemberLevelId(memberLevelId).setLevel(queryLevel.getLevel());
             mapper.updateById(updateUser);
 
             //会员升级  发送APP内消息中心推送
@@ -414,7 +415,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
                     .setNoticeType(NoticeTypeEnum.TASK_REWARD.getId())
                     .setTitle(NoticeTitleEnum.UPGRADE.getName())
                     .setPicture(MessageFormat.format(ServiceConstant.ICON_PATH, "congya"))
-                    .setContent(MessageFormat.format(NoticeContentEnum.UPGRADE.getName(), nextLevel.getLevel()-1));
+                    .setContent(MessageFormat.format(NoticeContentEnum.UPGRADE.getName(), queryLevel.getLevel()));
             mmUserNoticeMapper.insert(mmUserNoticePo);
         }
 

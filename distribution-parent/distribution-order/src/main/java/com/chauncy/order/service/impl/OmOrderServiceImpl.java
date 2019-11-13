@@ -53,6 +53,7 @@ import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
 import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
+import com.chauncy.data.temp.order.service.IOmGoodsTempService;
 import com.chauncy.data.vo.app.car.ShopTicketSoWithCarGoodVo;
 import com.chauncy.data.vo.app.order.cart.SubmitOrderVo;
 import com.chauncy.data.vo.app.order.my.AppSearchOrderVo;
@@ -94,6 +95,7 @@ import java.util.stream.Collectors;
  * @since 2019-06-28
  */
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo> implements IOmOrderService {
 
     @Autowired
@@ -166,6 +168,9 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
     @Autowired
     private AmActivityRelGoodsSkuMapper amActivityRelGoodsSkuMapper;
+
+    @Autowired
+    private IOmGoodsTempService goodsTempService;
 
     @Value("${jasypt.encryptor.password}")
     private String password;
@@ -444,15 +449,16 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         //获取系统基本设置
         BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
         //多久自动收货(毫秒)
-        String expiration = basicSettingPo.getAutoReceiveDay() * 24 * 60 * 60 * 1000 + "";
+        Integer expiration = basicSettingPo.getAutoReceiveDay() * 24 * 60 * 60 * 1000 ;
 
         RabbitOrderBo rabbitOrderBo = new RabbitOrderBo();
         rabbitOrderBo.setOrderId(orderId).setOrderStatusEnum(OrderStatusEnum.NEED_RECEIVE_GOODS);
-        //添加自动收货的消息队列
-        //rabbitUtil.sendDelayMessage(10*60*1000+"",rabbitOrderBo);
-        rabbitUtil.sendDelayMessage(expiration, rabbitOrderBo);
-        // rabbitUtil.sendDelayMessage(expiration+"",rabbitOrderBo);
-        LoggerUtil.info("【已发货等待自动收货消息发送时间】:" + LocalDateTime.now());
+        //过期时间为0不自动收货
+        if (expiration!=0) {
+            rabbitUtil.sendDelayMessage(expiration, rabbitOrderBo);
+
+            LoggerUtil.info("【已发货等待自动收货消息发送时间】:" + LocalDateTime.now());
+        }
 
     }
 
@@ -565,16 +571,19 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
 
         //过期时间
-        String expireTime = basicSettingPo.getAutoCloseOrderDay() * 24 * 60 * 60 * 1000 + "";
+        Integer expireTime = basicSettingPo.getAutoCloseOrderDay() * 24 * 60 * 60 * 1000 ;
 
-        // 添加延时取消订单队列
-        this.rabbitTemplate.convertAndSend(RabbitConstants.ORDER_UNPAID_DELAY_EXCHANGE, RabbitConstants.DELAY_ROUTING_KEY, savePayOrderPo.getId(), message -> {
+        //过期时间为0不取消待付款订单
+        if (expireTime!=0) {
+            // 添加延时取消订单队列
+            this.rabbitTemplate.convertAndSend(RabbitConstants.CLOSE_ORDER_EXCHANGE, RabbitConstants.CLOSE_ORDER_ROUTING_KEY, savePayOrderPo.getId(), message -> {
 
-            // message.getMessageProperties().setExpiration(basicSettingPo.getAutoCloseOrderDay()*24*60*60*1000 + "");
-            message.getMessageProperties().setExpiration(expireTime);
-            return message;
-        });
-        LoggerUtil.info("【下单等待取消订单发送时间】:" + LocalDateTime.now()+savePayOrderPo.getId());
+                // message.getMessageProperties().setExpiration(basicSettingPo.getAutoCloseOrderDay()*24*60*60*1000 + "");
+                message.getMessageProperties().setDelay(expireTime);
+                return message;
+            });
+            LoggerUtil.info("【下单等待关闭订单发送时间】:" + LocalDateTime.now() + savePayOrderPo.getId());
+        }
 
         return submitOrderVo;
     }
@@ -638,18 +647,18 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         mapper.updateById(updateOrder);
 
         //多久自动评价(毫秒)
-        //String expiration = basicSettingPo.getAutoCommentDay() * 24 * 60 * 60 * 1000 + "";
-        String expiration =    2*60 * 1000 + "";
+        Integer expiration = basicSettingPo.getAutoCommentDay() * 24 * 60 * 60 * 1000;
+        //Integer expiration =0;
         //多久售后截止(毫秒)
-        //String afterExpiration = refundDay * 24 * 60 * 60 * 1000 + "";
-        String afterExpiration =  60 * 1000 + "";
+        Integer afterExpiration = refundDay * 24 * 60 * 60 * 1000;
+        //Integer afterExpiration = 0;
 
         RabbitOrderBo rabbitOrderBo = new RabbitOrderBo();
         rabbitOrderBo.setOrderId(orderId).setOrderStatusEnum(OrderStatusEnum.NEED_EVALUATE)
         .setMessageCreateTime(LocalDateTime.now()).setMessageExpireTime(LocalDateTime.now().plusDays(basicSettingPo.getAutoCommentDay()));
 
         //添加自动评价延时队列
-        rabbitUtil.sendDelayMessage(expiration + "", rabbitOrderBo);
+        rabbitUtil.sendDelayMessage(expiration , rabbitOrderBo);
         LoggerUtil.info("【确认收货后：待评价===》自动评价发送时间】:" + LocalDateTime.now()+"【传送的数据】"+rabbitOrderBo.toString()
         +"【延迟多久】"+expiration
         );
@@ -657,7 +666,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         RabbitOrderBo afterRabbitOrderBo = new RabbitOrderBo();
         afterRabbitOrderBo.setOrderId(orderId).setMessageCreateTime(LocalDateTime.now()).setMessageExpireTime(LocalDateTime.now().plusDays(refundDay));
 
-        rabbitUtil.sendDelayMessage(afterExpiration + "", afterRabbitOrderBo);
+        rabbitUtil.sendDelayMessage(afterExpiration, afterRabbitOrderBo);
 
         LoggerUtil.info("【确认收货===》售后截止】:" + LocalDateTime.now()+afterRabbitOrderBo.toString()
                 +"【延迟多久】"+afterExpiration
@@ -830,11 +839,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 setTotalConsumeMoney(rewardBuyerBo.getRealPayMoney());
         userMapper.updateAdd(addUser);
 
-        //购物奖励  下单用户本人有获得积分，购物券
-        addShoppingRewardLog(queryGoodsTemp.getOrderId(),
-                Long.parseLong(queryGoodsTemp.getCreateBy()),
-                rewardBuyerBo.getRewardIntegrate(),
-                rewardBuyerBo.getRewardShopTicket());
+
 
         //查出需要返佣的用户
         QueryWrapper<PayUserRelationPo> payUserWrapper = new QueryWrapper<>();
@@ -904,7 +909,11 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
         }
 
-
+       //购物奖励  下单用户本人有获得积分，购物券
+        addShoppingRewardLog(queryGoodsTemp.getOrderId(),
+                Long.parseLong(queryGoodsTemp.getCreateBy()),
+                rewardBuyerBo.getRewardIntegrate(),
+                rewardBuyerBo.getRewardShopTicket());
     }
 
     public void orderDeadline(Long orderId) {
@@ -922,12 +931,11 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             //用户返购物券 积分 经验值
             UmUserPo addUser = new UmUserPo();
             addUser.setCurrentExperience(rewardBuyerBo.getRewardExperience()).setCurrentIntegral(rewardBuyerBo.getRewardIntegrate())
-                    .setCurrentShopTicket(rewardBuyerBo.getRewardShopTicket()).setId(userId).setTotalOrder(1).
-                    setTotalConsumeMoney(rewardBuyerBo.getRealPayMoney());
+                    .setCurrentShopTicket(rewardBuyerBo.getRewardShopTicket()).setId(userId)
+                    ;
             userMapper.updateAdd(addUser);
 
-            //购物奖励  下单用户本人有获得积分，购物券
-            addShoppingRewardLog(queryOrder.getId(), userId, rewardBuyerBo.getRewardIntegrate(), rewardBuyerBo.getRewardShopTicket());
+
 
             //查出需要返佣的用户
             QueryWrapper<PayUserRelationPo> payUserWrapper = new QueryWrapper<>();
@@ -939,15 +947,17 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             //订单实付金额
             BigDecimal realPayMoney = rewardBuyerBo.getRealPayMoney();
             updateUser2.setTotalConsumeMoney(realPayMoney);
+
+            BigDecimal orderMoney=queryOrder.getTotalMoney();
             if (queryPayUser != null) {
                 //返红包
                 rewardRed(queryPayUser, queryBasicSetting);
                 //上两级用户
                 if (queryPayUser.getLastTwoUserId() != null) {
                     //得到经验值
-                    BigDecimal lastTwoExperience = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getLastTwoLevelExperience(), 100));
+                    BigDecimal lastTwoExperience = BigDecimalUtil.safeMultiply(orderMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getLastTwoLevelExperience(), 100));
                     //得到积分
-                    BigDecimal lastTwoIntegrate = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getLastTwoLevelIntegrate(), 100));
+                    BigDecimal lastTwoIntegrate = BigDecimalUtil.safeMultiply(orderMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getLastTwoLevelIntegrate(), 100));
                     //增加积分和经验值
                     UmUserPo updateLastTwo = new UmUserPo();
                     updateLastTwo.setId(queryPayUser.getLastTwoUserId()).setCurrentExperience(lastTwoExperience).setCurrentIntegral(lastTwoIntegrate);
@@ -961,26 +971,23 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 //上一级用户
                 if (queryPayUser.getLastOneUserId() != null) {
                     //得到经验值
-                    BigDecimal experience = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getLastLevelExperience(), 100));
+                    BigDecimal experience = BigDecimalUtil.safeMultiply(orderMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getLastLevelExperience(), 100));
                     //得到积分
-                    BigDecimal integrate = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getLastLevelIntegrate(), 100));
+                    BigDecimal integrate = BigDecimalUtil.safeMultiply(orderMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getLastLevelIntegrate(), 100));
                     //增加积分和经验值
                     UmUserPo updateUser = new UmUserPo();
                     updateUser.setId(queryPayUser.getLastOneUserId()).setCurrentExperience(experience).setCurrentIntegral(integrate);
                     userMapper.updateAdd(updateUser);
                     umUserService.updateLevel(queryPayUser.getLastOneUserId());
-
                     //好友助攻  上一级用户获得积分
                     addFriendsAssistLog(queryOrder.getId(), queryPayUser.getLastOneUserId(), integrate, BigDecimal.ZERO);
-
                 }
-
                 //下一级用户集合
                 if (!ListUtil.isListNullAndEmpty(queryPayUser.getNextUserIds())) {
                     //得到经验值
-                    BigDecimal experience = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getNextLevelExperience(), 100));
+                    BigDecimal experience = BigDecimalUtil.safeMultiply(orderMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getNextLevelExperience(), 100));
                     //得到积分
-                    BigDecimal integrate = BigDecimalUtil.safeMultiply(realPayMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getNextLevelIntegrate(), 100));
+                    BigDecimal integrate = BigDecimalUtil.safeMultiply(orderMoney, BigDecimalUtil.safeDivide(queryBasicSetting.getNextLevelIntegrate(), 100));
                     //增加积分和经验值
                     queryPayUser.getNextUserIds().forEach(x -> {
                         UmUserPo updateUser = new UmUserPo();
@@ -1000,7 +1007,11 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         updateUser2.setId(userId).setTotalOrder(1);
         userMapper.updateAdd(updateUser2);
 
+        umUserService.updateLevel(userId);
 
+
+        //购物奖励  下单用户本人有获得积分，购物券
+        addShoppingRewardLog(queryOrder.getId(), userId, rewardBuyerBo.getRewardIntegrate(), rewardBuyerBo.getRewardShopTicket());
     }
 
     @Override
@@ -1024,7 +1035,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         //延迟队列：待评价===》已评价
         BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
         //多久自动评价(毫秒)
-        String expiration = basicSettingPo.getAutoCommentDay() * 24 * 60 * 60 * 1000 + "";
+        Integer expiration = basicSettingPo.getAutoCommentDay() * 24 * 60 * 60 * 1000 ;
         RabbitOrderBo rabbitOrderBo = new RabbitOrderBo();
         rabbitOrderBo.setOrderId(orderId).setOrderStatusEnum(OrderStatusEnum.NEED_EVALUATE);
 
@@ -1032,7 +1043,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         orderDeadline(orderId);
 
         //添加自动评价延时队列
-        rabbitUtil.sendDelayMessage(expiration + "", rabbitOrderBo);
+        rabbitUtil.sendDelayMessage(expiration, rabbitOrderBo);
         LoggerUtil.info("【确认收货后：待评价===》自动评价发送时间】:" + LocalDateTime.now());
 
 

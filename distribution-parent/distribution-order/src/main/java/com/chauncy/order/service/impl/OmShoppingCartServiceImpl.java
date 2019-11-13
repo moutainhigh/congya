@@ -93,7 +93,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
-import io.netty.handler.codec.compression.Bzip2Decoder;
 import org.assertj.core.util.Lists;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
@@ -2407,20 +2406,17 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 spellGroupMemberMapper.insert(saveMember);
 
                 // 24小时内未拼团成功
-                this.rabbitTemplate.convertAndSend(RabbitConstants.OPEN_GROUP_DELAY_EXCHANGE, RabbitConstants.OPEN_GROUP_DELAY_ROUTING_KEY, saveMain.getId(), message -> {
+                this.rabbitTemplate.convertAndSend(RabbitConstants.CLOSE_GROUP_EXCHANGE, RabbitConstants.CLOSE_GROUP_ROUTING_KEY, saveMain.getId(), message -> {
 
-                    // message.getMessageProperties().setExpiration(basicSettingPo.getAutoCloseOrderDay()*24*60*60*1000 + "");
-                    message.getMessageProperties().setExpiration(24 * 60 * 60 * 1000 + "");
+                    message.getMessageProperties().setDelay(RabbitConstants.CLOSE_GROUP_TIME);
                     return message;
                 });
                 LoggerUtil.info("【评团开始，24小时后人数不足取消该评团】:" + LocalDateTime.now());
             }
 
             // 半小时内未付款，订单关闭，失去拼团名额
-            this.rabbitTemplate.convertAndSend(RabbitConstants.ADD_MEMBER__DELAY_EXCHANGE, RabbitConstants.ADD_MEMBER_DELAY_ROUTING_KEY, saveMember.getId(), message -> {
-
-                // message.getMessageProperties().setExpiration(basicSettingPo.getAutoCloseOrderDay()*24*60*60*1000 + "");
-                message.getMessageProperties().setExpiration(30 * 60 * 1000 + "");
+            this.rabbitTemplate.convertAndSend(RabbitConstants.DEL_MEMBER_EXCHANGE, RabbitConstants.DEL_MEMBER_ROUTING_KEY, saveMember.getId(), message -> {
+                message.getMessageProperties().setDelay(RabbitConstants.DEL_MEMBER_TIME);
                 return message;
             });
             LoggerUtil.info("【拼团下单成功，半小时内未付款取消关闭订单，取消拼团资格】:" + LocalDateTime.now());
@@ -2429,16 +2425,18 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         }
 
         //过期时间
-        String expireTime = basicSettingPo.getAutoCloseOrderDay() * 24 * 60 * 60 * 1000 + "";
+        Integer expireTime = basicSettingPo.getAutoCloseOrderDay() * 24 * 60 * 60 * 1000;
 
-        // 添加超时未支付自动取消订单延时队列
-        this.rabbitTemplate.convertAndSend(RabbitConstants.ORDER_UNPAID_DELAY_EXCHANGE, RabbitConstants.DELAY_ROUTING_KEY, savePayOrderPo.getId(), message -> {
+        if (expireTime!=0) {
+            // 添加超时未支付自动取消订单延时队列
+            this.rabbitTemplate.convertAndSend(RabbitConstants.CLOSE_ORDER_EXCHANGE, RabbitConstants.CLOSE_ORDER_ROUTING_KEY, savePayOrderPo.getId(), message -> {
 
-            // message.getMessageProperties().setExpiration(basicSettingPo.getAutoCloseOrderDay()*24*60*60*1000 + "");
-            message.getMessageProperties().setExpiration(expireTime);
-            return message;
-        });
-        LoggerUtil.info("【下单等待取消订单发送时间】:" + LocalDateTime.now());
+                // message.getMessageProperties().setExpiration(basicSettingPo.getAutoCloseOrderDay()*24*60*60*1000 + "");
+                message.getMessageProperties().setDelay(expireTime);
+                return message;
+            });
+            LoggerUtil.info("【下单等待取消订单发送时间】:" + LocalDateTime.now());
+        }
 
         SubmitOrderVo submitOrderVo = new SubmitOrderVo();
         submitOrderVo.setPayOrderId(savePayOrderPo.getId()).setTotalRealPayMoney(savePayOrderPo.getTotalRealPayMoney())

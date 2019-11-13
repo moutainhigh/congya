@@ -6,20 +6,13 @@ package com.chauncy.common.constant;
  **/
 public interface RabbitConstants {
 
-    /**
-     * 延迟待付款队列名称
-     */
-     static final String ORDER_UNPAID_DELAY_QUEUE = "order.unpaid.delay.queue";
-    /**
-     * DLX，dead letter发送到的 exchange
-     * TODO 此处的 exchange 很重要,具体消息就是发送到该交换机的
-     */
-     static final String ORDER_UNPAID_DELAY_EXCHANGE = "order.delay.exchange";
+
+
     /**
      * routing key 名称
      * TODO 此处的 routingKey 很重要要,具体消息发送在该 routingKey 的
      */
-     static final String DELAY_ROUTING_KEY = "order.delay.key";
+     static final String CLOSE_ORDER_ROUTING_KEY = "order.delay.key";
 
     /**
      * 关闭订单队列
@@ -29,10 +22,7 @@ public interface RabbitConstants {
      * 关闭订单交换机
      */
      static final String CLOSE_ORDER_EXCHANGE = "close.order.exchange";
-    /**
-     * 延迟交换机与队列的路由键
-     */
-    static final String ROUTING_KEY = "all";
+
 
     /**
      * 账目流水队列
@@ -86,27 +76,18 @@ public interface RabbitConstants {
      */
     static final String PLATFORM_GIVE_ROUTING_KEY = "platform.give.key";
 
-    /**
-     * 死信队列名称
-     */
-    static final String ORDER_DEAD_QUEUE = "order.dead.queue";
+
     /**
      * DLX，死信交换机
      */
     static final String ORDER_DEAD_EXCHANGE = "order.dead.exchange";
-    /**
-     * 死信交换机与队列的routing key 名称
-     */
-    static final String ORDER_DEAD_ROUTING_KEY = "order.dead.key";
+
 
     /**
      * 订单转发队列
      */
     static final String ORDER_REDIRECT_QUEUE = "order.redirect.queue";
-    /**
-     * 订单转发交换机
-     */
-    static final String ORDER_REDIRECT_EXCHANGE = "order.redirect.exchange";
+
     /**
      * 订单转发死信的路由键
      */
@@ -127,41 +108,27 @@ public interface RabbitConstants {
      */
     static final String AFTER_DEAD_ROUTING_KEY = "after.dead.key";
 
-    /**
-     * 订单转发队列
-     */
-    static final String AFTER_REDIRECT_QUEUE = "after.redirect.queue";
-    /**
-     * 订单转发交换机
-     */
-    static final String AFTER_REDIRECT_EXCHANGE = "after.redirect.exchange";
-    /**
-     * 订单转发死信的路由键
-     */
-    static final String AFTER_REDIRECT_KEY = "after.redirect.key";
+
+
 
 
     /**
      * 售后订单延迟72小时
      */
-    static final String AFTER_DELAY_TIME = 72*60*60*1000+"";
-
-
-
-
+    static final Integer AFTER_DELAY_TIME = 72*60*60*1000;
 
     /**
-     * 开团队列，24小时候没成功就拼团失败
+     * 开团后24小时没拼团成功取消拼团
      */
-    static final String OPEN_GROUP_DELAY_QUEUE = "open.group.delay.queue";
+    static final Integer CLOSE_GROUP_TIME = 24*60*60*1000;
+
     /**
-     * DLX，dead letter发送到的 exchange
+     * 半小时内付款没成功取消拼团资格
      */
-    static final String OPEN_GROUP_DELAY_EXCHANGE = "open.group.delay.exchange";
-    /**
-     * routing key 名称
-     */
-    static final String OPEN_GROUP_DELAY_ROUTING_KEY = "open.group.delay.key";
+    static final Integer DEL_MEMBER_TIME = 30*60*1000;
+
+
+
 
     /**
      * 拼团失败
@@ -181,18 +148,9 @@ public interface RabbitConstants {
 
 
 
-    /**
-     * 参团队列，半小时候没付款释放库存
-     */
-    static final String ADD_MEMBER_DELAY_QUEUE = "add.member.delay.queue";
-    /**
-     * DLX，dead letter发送到的 exchange
-     */
-    static final String ADD_MEMBER__DELAY_EXCHANGE = "add.member.delay.exchange";
-    /**
-     * routing key 名称
-     */
-    static final String ADD_MEMBER_DELAY_ROUTING_KEY = "add.member.delay.key";
+
+
+
 
     /**
      * 参团失败
