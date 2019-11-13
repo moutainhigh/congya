@@ -95,6 +95,7 @@ import java.util.stream.Collectors;
  * @since 2019-06-28
  */
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo> implements IOmOrderService {
 
     @Autowired
@@ -834,11 +835,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 setTotalConsumeMoney(rewardBuyerBo.getRealPayMoney());
         userMapper.updateAdd(addUser);
 
-        //购物奖励  下单用户本人有获得积分，购物券
-        addShoppingRewardLog(queryGoodsTemp.getOrderId(),
-                Long.parseLong(queryGoodsTemp.getCreateBy()),
-                rewardBuyerBo.getRewardIntegrate(),
-                rewardBuyerBo.getRewardShopTicket());
+
 
         //查出需要返佣的用户
         QueryWrapper<PayUserRelationPo> payUserWrapper = new QueryWrapper<>();
@@ -908,7 +905,11 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
         }
 
-
+       //购物奖励  下单用户本人有获得积分，购物券
+        addShoppingRewardLog(queryGoodsTemp.getOrderId(),
+                Long.parseLong(queryGoodsTemp.getCreateBy()),
+                rewardBuyerBo.getRewardIntegrate(),
+                rewardBuyerBo.getRewardShopTicket());
     }
 
     public void orderDeadline(Long orderId) {
@@ -930,8 +931,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                     setTotalConsumeMoney(rewardBuyerBo.getRealPayMoney());
             userMapper.updateAdd(addUser);
 
-            //购物奖励  下单用户本人有获得积分，购物券
-            addShoppingRewardLog(queryOrder.getId(), userId, rewardBuyerBo.getRewardIntegrate(), rewardBuyerBo.getRewardShopTicket());
+
 
             //查出需要返佣的用户
             QueryWrapper<PayUserRelationPo> payUserWrapper = new QueryWrapper<>();
@@ -973,12 +973,9 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                     updateUser.setId(queryPayUser.getLastOneUserId()).setCurrentExperience(experience).setCurrentIntegral(integrate);
                     userMapper.updateAdd(updateUser);
                     umUserService.updateLevel(queryPayUser.getLastOneUserId());
-
                     //好友助攻  上一级用户获得积分
                     addFriendsAssistLog(queryOrder.getId(), queryPayUser.getLastOneUserId(), integrate, BigDecimal.ZERO);
-
                 }
-
                 //下一级用户集合
                 if (!ListUtil.isListNullAndEmpty(queryPayUser.getNextUserIds())) {
                     //得到经验值
@@ -1004,7 +1001,8 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         updateUser2.setId(userId).setTotalOrder(1);
         userMapper.updateAdd(updateUser2);
 
-
+        //购物奖励  下单用户本人有获得积分，购物券
+        addShoppingRewardLog(queryOrder.getId(), userId, rewardBuyerBo.getRewardIntegrate(), rewardBuyerBo.getRewardShopTicket());
     }
 
     @Override

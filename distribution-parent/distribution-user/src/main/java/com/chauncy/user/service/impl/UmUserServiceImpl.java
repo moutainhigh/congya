@@ -403,8 +403,9 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
             nextLevel = memberLevelMapper.selectOne(levelQueryWrapper);
         }
         if (memberLevelId != null) {
+            PmMemberLevelPo queryLevel = memberLevelMapper.selectById(memberLevelId);
             UmUserPo updateUser = new UmUserPo();
-            updateUser.setId(userId).setMemberLevelId(memberLevelId).setLevel(nextLevel.getLevel()-1);
+            updateUser.setId(userId).setMemberLevelId(memberLevelId).setLevel(queryLevel.getLevel());
             mapper.updateById(updateUser);
 
             //会员升级  发送APP内消息中心推送
@@ -412,7 +413,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
             mmUserNoticePo.setUserId(userId)
                     .setNoticeType(NoticeTypeEnum.TASK_REWARD.getId())
                     .setTitle(NoticeTitleEnum.UPGRADE.getName())
-                    .setContent(MessageFormat.format(NoticeContentEnum.UPGRADE.getName(), nextLevel.getLevel()-1));
+                    .setContent(MessageFormat.format(NoticeContentEnum.UPGRADE.getName(), queryLevel.getLevel()));
             mmUserNoticeMapper.insert(mmUserNoticePo);
         }
 
