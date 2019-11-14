@@ -42,7 +42,7 @@ public class QuartzConfig {
 
         //未知参数
         schedulerFactoryBean.setApplicationContextSchedulerContextKey("applicationContextKey");
-        schedulerFactoryBean.setSchedulerName("chauncyScheduler");
+        schedulerFactoryBean.setSchedulerName("congyaScheduler");
 
         return schedulerFactoryBean;
     }
@@ -54,7 +54,7 @@ public class QuartzConfig {
 
         // quartz参数
         Properties prop = new Properties();
-        prop.put("org.quartz.scheduler.instanceName", "chauncyScheduler");
+        prop.put("org.quartz.scheduler.instanceName", "congyaScheduler");
         prop.put("org.quartz.scheduler.instanceId", "AUTO");
         // 线程池配置
         prop.put("org.quartz.threadPool.class", "org.quartz.simpl.SimpleThreadPool");
