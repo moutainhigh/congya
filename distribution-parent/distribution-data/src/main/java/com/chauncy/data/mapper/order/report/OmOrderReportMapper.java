@@ -50,11 +50,11 @@ public interface OmOrderReportMapper extends IBaseMapper<OmOrderReportPo> {
      *
      * @Update yeJH
      *
-     * @param  endDate
+     * @param  endDate创建货款账单开始
      * @param  storeId
      * @return int
      **/
-    int getStoreSumNeedCreateReport(LocalDate endDate, Long storeId);
+    int getStoreSumNeedCreateReport(@Param("endDate") LocalDate endDate, @Param("storeId") Long storeId);
 
     /**
      * @Author yeJH
@@ -67,5 +67,5 @@ public interface OmOrderReportMapper extends IBaseMapper<OmOrderReportPo> {
      * @param  storeId
      * @return java.util.List<java.lang.Long>
      **/
-    List<Long> getStoreNeedCreateReport(LocalDate endDate, Long storeId);
+    List<Long> getStoreNeedCreateReport(@Param("endDate") LocalDate endDate, @Param("storeId") Long storeId);
 }

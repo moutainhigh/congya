@@ -13,6 +13,7 @@ import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.common.util.DateFormatUtil;
 import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
+import com.chauncy.data.bo.order.log.BillRelOrderBo;
 import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.order.bill.OmBillRelGoodsTempPo;
@@ -43,6 +44,7 @@ import com.chauncy.order.service.IOmOrderService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,6 +62,7 @@ import java.util.*;
  * @author huangwancheng
  * @since 2019-07-22
  */
+@Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, OmOrderBillPo> implements IOmOrderBillService {
@@ -351,10 +354,22 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
         //获取需要创建账单的店铺的数量
         int storeSum = omOrderBillMapper.getStoreSumNeedCreateBill(billType, endDate, null);
         //一次性只处理1000条数据
-        for(int pageNo = 1; pageNo <= storeSum / 1000; pageNo++) {
-            PageHelper.startPage(pageNo, 1000);
-            List<Long> storeIdList = omOrderBillMapper.getStoreNeedCreateBill(billType, endDate, null);
-            storeIdList.forEach(storeId -> createStoreBill(endDate, storeId, billType));
+        if(storeSum > 0) {
+            for (int pageNo = 1; pageNo <= storeSum / 1000 + 1; pageNo++) {
+                PageHelper.startPage(pageNo, 1000);
+                List<Long> storeIdList = omOrderBillMapper.getStoreNeedCreateBill(billType, endDate, null);
+                    storeIdList.forEach(storeId -> {
+                        try {
+                            createStoreBill(endDate, storeId, billType);
+                        } catch (Exception e) {
+                            if(BillTypeEnum.PROFIT_BILL.getId().equals(billType)) {
+                                log.error("店铺id为" + storeId + "的店铺生成利润账单报错");
+                            } else if(BillTypeEnum.PAYMENT_BILL.getId().equals(billType)) {
+                                log.error("店铺id为" + storeId + "的店铺生成货款账单报错");
+                            }
+                        }
+                    });
+            }
         }
     }
 
@@ -419,36 +434,38 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
         omOrderBillPo.setBillType(billType);
         omOrderBillPo.setCreateBy(String.valueOf(storeId));
         omOrderBillMapper.insert(omOrderBillPo);
-        //查询时间段内订单
-        List<Map<String, Object>> orderIdList = getBillOrderList(startDate, endDate, storeId, billType);
-        for(Map<String, Object> orderMap : orderIdList) {
+        //查询时间段内属于账单的订单
+        List<BillRelOrderBo> billRelOrderBoList = omOrderBillMapper.getBillOrderList(startDate, endDate, storeId, billType);
+        for(BillRelOrderBo billRelOrderBo : billRelOrderBoList) {
             QueryWrapper<OmGoodsTempPo> goodsTempQueryWrapper = new QueryWrapper();
-            goodsTempQueryWrapper.lambda().eq(OmGoodsTempPo::getOrderId, orderMap.get("id"));
+            goodsTempQueryWrapper.lambda().eq(OmGoodsTempPo::getOrderId, billRelOrderBo.getId());
             List<OmGoodsTempPo> omGoodsTempPoList = omGoodsTempMapper.selectList(goodsTempQueryWrapper);
             for(OmGoodsTempPo omGoodsTempPo : omGoodsTempPoList) {
-                OmBillRelGoodsTempPo omBillRelGoodsTempPo = new OmBillRelGoodsTempPo();
-                omBillRelGoodsTempPo.setBillId(omOrderBillPo.getId());
-                omBillRelGoodsTempPo.setGoodsTempId(omGoodsTempPo.getId());
-                totalNum +=  omGoodsTempPo.getNumber();
-                if (BillTypeEnum.PAYMENT_BILL.getId().equals(billType)) {
-                    //货款账单 供应价 * 数量
-                    BigDecimal amount = BigDecimalUtil.safeMultiply(omGoodsTempPo.getSupplierPrice(), omGoodsTempPo.getNumber());
-                    omBillRelGoodsTempPo.setTotalAmount(amount);
-                    totalAmount = BigDecimalUtil.safeAdd(totalAmount, amount);
-                } else if (BillTypeEnum.PROFIT_BILL.getId().equals(billType)) {
-                    //利润账单 商品数量 * 商品利润比例 * 商品售价 * 店铺利润配置比例
-                    BigDecimal profitRate = BigDecimalUtil.safeDivide(omGoodsTempPo.getProfitRate(),new BigDecimal(100));
-                    BigDecimal incomeRate = BigDecimalUtil.safeDivide(
-                            new BigDecimal(orderMap.get("incomeRate").toString()),
-                            new BigDecimal(100));
-                    BigDecimal amount = BigDecimalUtil.safeMultiply(
-                            BigDecimalUtil.safeMultiply(profitRate,omGoodsTempPo.getSellPrice()),
-                            BigDecimalUtil.safeMultiply(incomeRate, new BigDecimal(omGoodsTempPo.getNumber())));
-                    omBillRelGoodsTempPo.setTotalAmount(amount);
-                    totalAmount = BigDecimalUtil.safeAdd(totalAmount, amount);
+                if (omGoodsTempPo.getCanAfterSale()) {
+                    OmBillRelGoodsTempPo omBillRelGoodsTempPo = new OmBillRelGoodsTempPo();
+                    omBillRelGoodsTempPo.setBillId(omOrderBillPo.getId());
+                    omBillRelGoodsTempPo.setGoodsTempId(omGoodsTempPo.getId());
+                    totalNum += omGoodsTempPo.getNumber();
+                    if (BillTypeEnum.PAYMENT_BILL.getId().equals(billType)) {
+                        //货款账单 供应价 * 数量
+                        BigDecimal amount = BigDecimalUtil.safeMultiply(omGoodsTempPo.getSupplierPrice(), omGoodsTempPo.getNumber());
+                        omBillRelGoodsTempPo.setTotalAmount(amount);
+                        totalAmount = BigDecimalUtil.safeAdd(totalAmount, amount);
+                    } else if (BillTypeEnum.PROFIT_BILL.getId().equals(billType)) {
+                        //利润账单 商品数量 * 商品利润比例 * 商品售价 * 店铺利润配置比例
+                        BigDecimal profitRate = BigDecimalUtil.safeDivide(omGoodsTempPo.getProfitRate(), new BigDecimal(100));
+                        BigDecimal incomeRate = BigDecimalUtil.safeDivide(
+                                new BigDecimal(billRelOrderBo.getIncomeRate().toString()),
+                                new BigDecimal(100));
+                        BigDecimal amount = BigDecimalUtil.safeMultiply(
+                                BigDecimalUtil.safeMultiply(profitRate, omGoodsTempPo.getSellPrice()),
+                                BigDecimalUtil.safeMultiply(incomeRate, new BigDecimal(omGoodsTempPo.getNumber())));
+                        omBillRelGoodsTempPo.setTotalAmount(amount);
+                        totalAmount = BigDecimalUtil.safeAdd(totalAmount, amount);
+                    }
+                    omBillRelGoodsTempPo.setCreateBy(String.valueOf(storeId));
+                    omBillRelGoodsTempMapper.insert(omBillRelGoodsTempPo);
                 }
-                omBillRelGoodsTempPo.setCreateBy(String.valueOf(storeId));
-                omBillRelGoodsTempMapper.insert(omBillRelGoodsTempPo);
             }
         }
         //更新商品总数

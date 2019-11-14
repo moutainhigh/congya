@@ -1189,7 +1189,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         toOmAccountLogPo.setRelUserId(payOrderPo.getUmUserId());
         toOmAccountLogPo.setRelUserPhone(umUserMapper.selectById(payOrderPo.getUmUserId()).getPhone());
         //支付方式
-        //toOmAccountLogPo.setPaymentWay(PaymentWayEnum.getByName(payOrderPo.getPayTypeCode()).getId());
+        toOmAccountLogPo.setPaymentWay(PaymentWayEnum.getByName(payOrderPo.getPayTypeCode()).getId());
         //流水事由
         toOmAccountLogPo.setLogMatter(PlatformLogMatterEnum.ORDER_INCOME.getId());
         omAccountLogMapper.insert(toOmAccountLogPo);
