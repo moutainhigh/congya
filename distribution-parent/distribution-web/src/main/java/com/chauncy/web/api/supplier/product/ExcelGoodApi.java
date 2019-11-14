@@ -27,6 +27,7 @@ import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiOperation;
+import org.apache.ibatis.exceptions.TooManyResultsException;
 import org.mockito.internal.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -240,13 +241,17 @@ public class ExcelGoodApi extends BaseApi {
             //商品品牌
             PmGoodsAttributePo brandCondition = new PmGoodsAttributePo(rowDataList.get(5), 8,true);
             Wrapper brandWrapper = new QueryWrapper<>(brandCondition, "id");
-            PmGoodsAttributePo brand = attributePoService.getOne(brandWrapper);
-            if (brand == null) {
+            PmGoodsAttributePo brand=null;
+            try {
+                 brand = attributePoService.getOne(brandWrapper);
+
+            }catch (TooManyResultsException e){
                 excelImportErrorLogVo.setRowNumber(i + 1);
-                excelImportErrorLogVo.setErrorMessage(String.format("系统商品品牌【%s】不存在该名称", rowDataList.get(5)));
+                excelImportErrorLogVo.setErrorMessage(String.format("系统商品品牌【%s】名称重复", rowDataList.get(5)));
                 excelImportErrorLogVos.add(excelImportErrorLogVo);
                 continue;
             }
+
             //商品标签
             List<String> labelNames = Splitter.on(";").splitToList(rowDataList.get(6));
             List<Long> labelIds = pmGoodsService.findIdByNamesInAndTableName(labelNames, "pm_goods_attribute", "and type=5");
