@@ -139,7 +139,6 @@
         total_shop_ticket,
         s.`name` storeName,
         u.parent_id parent,
-        invite_people_num,
         recent_login_time,
         u.enabled,
         commission_status
@@ -235,7 +234,6 @@
             `current_integral`,
             `current_shop_ticket`,
             `total_consume_money`,
-            `invite_people_num`,
             `total_red_envelops`,
             `total_integral`,
             `total_shop_ticket`,
@@ -256,20 +254,11 @@
         and u.id=#{id}
     </select>
     <select id="getRelUsers" resultType="com.chauncy.data.vo.manage.user.detail.UmUserRelVo">
-            WITH RECURSIVE childrenIds (id,true_name,phone) AS
-                (
-                SELECT id,true_name,phone
-                FROM um_user
-                WHERE
-                    del_flag=0 and
-                    parent_id=#{id}
-                UNION ALL
-                SELECT c.id,c.true_name,c.phone
-                FROM childrenIds AS p JOIN um_user AS c
-                ON p.id = c.parent_id
-                where c.del_flag=0
-                )
-            SELECT id,true_name,phone FROM childrenIds
+            SELECT id,true_name,phone
+            FROM um_user
+            WHERE
+            del_flag=0 and
+            parent_id=#{id}
     </select>
 
     <select id="loadSearchUsers" resultType="com.chauncy.data.vo.manage.message.interact.push.UmUsersVo">
@@ -328,7 +317,7 @@
         select id,phone,true_name,name
         from um_user
         where id in
-        <foreach item="item" collection="userIds" separator="," open="(" close=")" index="">  #{item, jdbcType=INTEGER}
+        <foreach item="item" collection="userIds" separator="," open="(" close=")" index="">#{item, jdbcType=INTEGER}
         </foreach>
     </select>
 

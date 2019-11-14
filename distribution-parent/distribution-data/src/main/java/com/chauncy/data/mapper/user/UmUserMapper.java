@@ -103,7 +103,7 @@ public interface UmUserMapper extends IBaseMapper<UmUserPo> {
     String getLabelNamesByUserId(@Param("id") Long id);
 
     /**
-     * 关联用户
+     * 关联用户(直接下级)
      * @param id
      * @return
      */

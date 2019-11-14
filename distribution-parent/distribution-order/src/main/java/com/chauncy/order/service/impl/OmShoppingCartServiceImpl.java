@@ -974,10 +974,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         BigDecimal totalMoney = totalCarVo.getTotalMoney();
         //一个购物券=多少元
         BigDecimal shopTicketToMoney = BigDecimalUtil.safeDivideDown(1, basicSettingPo.getMoneyToShopTicket());
-        //一个红包=多少元
-        BigDecimal redEnvelopsToMoney = BigDecimalUtil.safeDivideDown(1, basicSettingPo.getMoneyToCurrentRedEnvelops());
         //当前用户所拥有的红包折算后的金额
-        BigDecimal redEnvelopMoney = BigDecimalUtil.safeMultiplyDown(redEnvelopsToMoney, currentUser.getCurrentRedEnvelops());
+        BigDecimal redEnvelopMoney = currentUser.getCurrentRedEnvelops();
         //当前用户所拥有的购物券折算后的金额
         BigDecimal shopTicketMoney = BigDecimalUtil.safeMultiplyDown(shopTicketToMoney, currentUser.getCurrentShopTicket());
         //-1表示小于，0是等于，1是大于。
@@ -1021,7 +1019,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         //一个购物券=多少元
         BigDecimal shopTicketToMoney = BigDecimalUtil.safeDivide(1, basicSettingPo.getMoneyToShopTicket());
         //一个红包=多少元
-        BigDecimal redEnvelopsToMoney = BigDecimalUtil.safeDivide(1, basicSettingPo.getMoneyToCurrentRedEnvelops());
+        Integer redEnvelopsToMoney = 1;
         //当前用户所拥有的购物券折算后的金额
         BigDecimal shopTicketMoney = BigDecimalUtil.safeMultiply(shopTicketToMoney, currentUser.getCurrentShopTicket());
         //当前用户所拥有的红包折算后的金额
@@ -2224,7 +2222,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         //总支付单
         PayOrderPo savePayOrderPo = new PayOrderPo();
         //红包金额换算成红包个数
-        BigDecimal totalRedEnvelops = BigDecimalUtil.safeMultiply(submitOrderDto.getTotalRedEnvelopsMoney(), basicSettingPo.getMoneyToCurrentRedEnvelops());
+        BigDecimal totalRedEnvelops = submitOrderDto.getTotalRedEnvelopsMoney();
         //优惠券金额换算成优惠券个数
         BigDecimal totalShopTicket = BigDecimalUtil.safeMultiply(submitOrderDto.getTotalShopTicketMoney(), basicSettingPo.getMoneyToShopTicket());
         //设置商品总额、使用购物券、使用红包、运费、税费
@@ -2362,7 +2360,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 //保存下级用户集合
                 List<PayUserRelationNextLevelPo> savePayUserRelationNextLevels = com.google.common.collect.Lists.newArrayList();
                 PayUserRelationNextLevelPo savePayUserRelationNextLevel = new PayUserRelationNextLevelPo();
-                if (ListUtil.isListNullAndEmpty(queryPayUser.getNextUserIds())) {
+                if (!ListUtil.isListNullAndEmpty(queryPayUser.getNextUserIds())) {
                     queryPayUser.getNextUserIds().forEach(y -> {
                         savePayUserRelationNextLevel.setNextUserId(y).setPayUserRealtionId(savePayUser.getId());
                         savePayUserRelationNextLevels.add(savePayUserRelationNextLevel);
