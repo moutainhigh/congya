@@ -130,6 +130,7 @@
         u.id,
         u.phone,
         u.true_name,
+        u.name,
         m.level_name,
         u.total_order,
         current_integral,

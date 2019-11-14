@@ -289,8 +289,8 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
                 forEach(x -> {
                     condition.setId(Long.parseLong(x.getParent()));
                     //当trueName为空时，查出的实体也为空
-                    UmUserPo queryParentUser = mapper.selectOne(new QueryWrapper<>(condition, "true_name"));
-                    x.setParent(queryParentUser == null || queryParentUser.getTrueName() == null ? "" : queryParentUser.getTrueName());
+                    UmUserPo queryParentUser = mapper.selectOne(new QueryWrapper<>(condition, "name"));
+                    x.setParent(queryParentUser == null || queryParentUser.getName() == null ? "" : queryParentUser.getName());
                 });
         return umUserListVoPageInfo;
     }
@@ -320,9 +320,9 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         if (umUserDetailVo.getParentName() != null) {
             QueryWrapper userWrapper = new QueryWrapper();
             userWrapper.eq("id", umUserDetailVo.getParentName());
-            userWrapper.select("true_name");
+            userWrapper.select("name");
             UmUserPo queryParentUser = mapper.selectOne(userWrapper);
-            umUserDetailVo.setParentName(queryParentUser == null ? null : queryParentUser.getTrueName());
+            umUserDetailVo.setParentName(queryParentUser == null ? null : queryParentUser.getName());
         }
         return umUserDetailVo;
     }
