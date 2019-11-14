@@ -239,8 +239,10 @@ public class ExcelGoodApi extends BaseApi {
                 continue;
             }
             //商品品牌
-            PmGoodsAttributePo brandCondition = new PmGoodsAttributePo(rowDataList.get(5), 8,true);
-            Wrapper brandWrapper = new QueryWrapper<>(brandCondition, "id");
+            QueryWrapper<PmGoodsAttributePo> brandWrapper=new QueryWrapper<>();
+            brandWrapper.lambda().eq(PmGoodsAttributePo::getName,rowDataList.get(5))
+                    .eq(PmGoodsAttributePo::getType,8)
+                    .eq(PmGoodsAttributePo::getEnabled,true);
             PmGoodsAttributePo brand=null;
             try {
                  brand = attributePoService.getOne(brandWrapper);
@@ -248,6 +250,13 @@ public class ExcelGoodApi extends BaseApi {
             }catch (TooManyResultsException e){
                 excelImportErrorLogVo.setRowNumber(i + 1);
                 excelImportErrorLogVo.setErrorMessage(String.format("系统商品品牌【%s】名称重复", rowDataList.get(5)));
+                excelImportErrorLogVos.add(excelImportErrorLogVo);
+                continue;
+            }
+
+            if (brand == null) {
+                excelImportErrorLogVo.setRowNumber(i + 1);
+                excelImportErrorLogVo.setErrorMessage(String.format("系统商品品牌【%s】不存在该名称", rowDataList.get(5)));
                 excelImportErrorLogVos.add(excelImportErrorLogVo);
                 continue;
             }
