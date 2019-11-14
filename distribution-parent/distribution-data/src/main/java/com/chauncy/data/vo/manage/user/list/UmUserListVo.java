@@ -27,6 +27,9 @@ public class UmUserListVo {
     @ApiModelProperty("用户名称")
     private String trueName;
 
+    @ApiModelProperty("用户昵称")
+    private String name;
+
     @ApiModelProperty("用户等级名称")
     private String levelName;
 
