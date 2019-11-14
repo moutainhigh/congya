@@ -71,7 +71,6 @@ public class PmGoodsAttributePo implements Serializable {
     private Long id;
 
     @ApiModelProperty(value = "名称或标题")
-    @TableField(condition = SqlCondition.LIKE)
     private String name;
 
     @ApiModelProperty(value = "排序数字，此排序是展示在前端服务说明的排序")
