@@ -271,6 +271,17 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         PageInfo<UmUserListVo> umUserListVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> mapper.loadSearchUserList(searchUserListDto));
 
+        //查出邀請人數
+        umUserListVoPageInfo.getList().forEach(x->{
+            List<UmUserRelVo> relUsers = mapper.getRelUsers(x.getId());
+            if (ListUtil.isListNullAndEmpty(relUsers)){
+                x.setInvitePeopleNum(0);
+            }
+            else {
+                x.setInvitePeopleNum(relUsers.size());
+            }
+        });
+
         //通过条件构造器限制只需要 查出name
         UmUserPo condition = new UmUserPo();
         //设置关联用户的名称,不要连表(数据库查出的是id，现在将id转为name)
@@ -287,6 +298,14 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     @Override
     public UmUserDetailVo getUserDetailVo(Long id) {
         UmUserDetailVo umUserDetailVo = mapper.loadUserDetailVo(id);
+
+        List<UmUserRelVo> relUsers = mapper.getRelUsers(id);
+        if (ListUtil.isListNullAndEmpty(relUsers)){
+            umUserDetailVo.setInvitePeopleNum(0);
+        }
+        else {
+            umUserDetailVo.setInvitePeopleNum(relUsers.size());
+        }
         //组装labelNames storeName nextLevelExperience parentName(数据库查出来的是id)
         umUserDetailVo.setLabelNames(mapper.getLabelNamesByUserId(id));
         if (umUserDetailVo.getStoreId() != null) {
@@ -395,7 +414,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         //要修改的会员等级id
         Long memberLevelId = null;
         //当用户经验值大于等级所需经验值的时候,进行升级
-        while (queryUser.getCurrentExperience().compareTo(nextLevel.getLevelExperience()) >= 0) {
+        while (nextLevel!=null&&queryUser.getCurrentExperience().compareTo(nextLevel.getLevelExperience()) >= 0) {
             memberLevelId = nextLevel.getId();
             //找出下一等级的会员详细信息
             QueryWrapper<PmMemberLevelPo> levelQueryWrapper = new QueryWrapper<>();
@@ -403,8 +422,9 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
             nextLevel = memberLevelMapper.selectOne(levelQueryWrapper);
         }
         if (memberLevelId != null) {
+            PmMemberLevelPo queryLevel = memberLevelMapper.selectById(memberLevelId);
             UmUserPo updateUser = new UmUserPo();
-            updateUser.setId(userId).setMemberLevelId(memberLevelId).setLevel(nextLevel.getLevel()-1);
+            updateUser.setId(userId).setMemberLevelId(memberLevelId).setLevel(queryLevel.getLevel());
             mapper.updateById(updateUser);
 
             //会员升级  发送APP内消息中心推送
@@ -412,7 +432,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
             mmUserNoticePo.setUserId(userId)
                     .setNoticeType(NoticeTypeEnum.TASK_REWARD.getId())
                     .setTitle(NoticeTitleEnum.UPGRADE.getName())
-                    .setContent(MessageFormat.format(NoticeContentEnum.UPGRADE.getName(), nextLevel.getLevel()-1));
+                    .setContent(MessageFormat.format(NoticeContentEnum.UPGRADE.getName(), queryLevel.getLevel()));
             mmUserNoticeMapper.insert(mmUserNoticePo);
         }
 
@@ -578,10 +598,8 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
 
         //红包   展示红包对应的金额
         //获取系统基本设置
-        BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
         // 计算红包等价多少金额 用户红包余额/money_to_current_red_envelops(个人消费的订单金额1元=多少红包)
-        BigDecimal equalAmount = BigDecimalUtil.safeDivide(myDataStatisticsVo.getRedEnvelopeNum(),
-                basicSettingPo.getMoneyToCurrentRedEnvelops());
+        BigDecimal equalAmount = myDataStatisticsVo.getRedEnvelopeNum();
         myDataStatisticsVo.setRedEnvelopeNum(equalAmount);
 
         PersonalCenterPictureVo topPicture = adviceMapper.getTopPicture();
