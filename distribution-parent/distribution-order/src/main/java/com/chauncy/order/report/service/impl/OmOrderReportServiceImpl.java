@@ -7,6 +7,7 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.common.util.DateFormatUtil;
+import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.order.report.OmOrderReportPo;
@@ -155,7 +156,14 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
             for (int pageNo = 1; pageNo <= storeSum / 1000 + 1; pageNo++) {
                 PageHelper.startPage(pageNo, 1000);
                 List<Long> storeIdList = omOrderReportMapper.getStoreNeedCreateReport(endDate, null);
-                storeIdList.forEach(storeId -> createSaleReport(endDate, storeId));
+                storeIdList.forEach(storeId -> {
+                    try {
+                        createSaleReport(endDate, storeId);
+                    } catch (Exception e) {
+                        LoggerUtil.error(e);
+                        log.error("店铺id为" + storeId + "的店铺生成商品销售报表报错");
+                    }
+                });
             }
         }
     }
@@ -213,6 +221,7 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
      * 3.店铺商品规格库存对应的库存减少
      * 4.订单中已售后的商品不扣减库存
      * PS:不一定有足够的虚拟库存扣减
+     * 店铺A产生了商品销售报表  店铺的上级店铺们产生店铺A的分店销售报表
      * @param orderId  订单id
      */
     @Override
@@ -226,7 +235,7 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
         //售后商品不需要扣减库存
         omGoodsTempPoWrapper.lambda()
                 .eq(OmGoodsTempPo::getOrderId, orderId)
-                .eq(OmGoodsTempPo::getIsAfterSale, false);
+                .eq(OmGoodsTempPo::getCanAfterSale, true);
         List<OmGoodsTempPo> omGoodsTempPoList = omGoodsTempMapper.selectList(omGoodsTempPoWrapper);
         for(OmGoodsTempPo omGoodsTempPo : omGoodsTempPoList) {
             //根据订单商品数量  判断店铺虚拟库存批次
@@ -248,8 +257,10 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
                 OmReportRelGoodsTempPo omReportRelGoodsTempPo = new OmReportRelGoodsTempPo();
                 omReportRelGoodsTempPo.setGoodsTempId(omGoodsTempPo.getId());
                 omReportRelGoodsTempPo.setCreateBy(omOrderPo.getCreateBy());
-                omReportRelGoodsTempPo.setStoreId(pmStoreRelGoodsStockPo.getParentStoreId());
-                omReportRelGoodsTempPo.setBranchId(pmStoreRelGoodsStockPo.getStoreId());
+                //每一条快照都单独生成  所以不需要branchId
+                omReportRelGoodsTempPo.setStoreId(pmStoreRelGoodsStockPo.getStoreId());
+                /*omReportRelGoodsTempPo.setStoreId(pmStoreRelGoodsStockPo.getParentStoreId());
+                omReportRelGoodsTempPo.setBranchId(pmStoreRelGoodsStockPo.getStoreId());*/
                 if(pmStoreRelGoodsStockPo.getRemainingStockNum() >= needDeductionSum) {
                     //该批次的虚拟库存足够扣减剩余的商品数量 只扣除剩余商品数量
                     omReportRelGoodsTempPo.setDistributePrice(pmStoreRelGoodsStockPo.getDistributePrice());
@@ -273,13 +284,15 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
                 //插入关联
                 omReportRelGoodsTempMapper.insert(omReportRelGoodsTempPo);
 
-                //获取分配虚拟库存的关系链 上级店铺
+                //获取分配虚拟库存的关系链 上级店铺  产生分店销售报表
                 List<Long> parentStoreIds = pmStoreRelGoodsStockMapper.getParentStoreIds(pmStoreRelGoodsStockPo.getId());
                 parentStoreIds.forEach(parentStoreId ->{
-                    omReportRelGoodsTempPo.setId(null);
-                    omReportRelGoodsTempPo.setIsParentStore(true);
-                    omReportRelGoodsTempPo.setStoreId(parentStoreId);
-                    omReportRelGoodsTempMapper.insert(omReportRelGoodsTempPo);
+                    if(!parentStoreId.equals(pmStoreRelGoodsStockPo.getStoreId())) {
+                        omReportRelGoodsTempPo.setId(null);
+                        omReportRelGoodsTempPo.setIsParentStore(true);
+                        omReportRelGoodsTempPo.setStoreId(parentStoreId);
+                        omReportRelGoodsTempMapper.insert(omReportRelGoodsTempPo);
+                    }
                 });
 
                 //店铺关联商品虚拟库存对应批次的剩余库存扣减

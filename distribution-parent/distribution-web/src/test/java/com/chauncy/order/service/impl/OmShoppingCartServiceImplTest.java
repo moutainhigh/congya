@@ -61,12 +61,14 @@ public class OmShoppingCartServiceImplTest {
     @Test
     public void firstSecond() {
 
-        omOrderBillService.batchCreateStoreBill(BillTypeEnum.PAYMENT_BILL.getId());
-
-
-        //omOrderBillService.batchCreateStoreBill(BillTypeEnum.PROFIT_BILL.getId());
-        //omOrderReportService.batchCreateSaleReport();
-
+//        omOrderBillService.batchCreateStoreBill(BillTypeEnum.PAYMENT_BILL.getId());
+//
+//
+//        omOrderBillService.batchCreateStoreBill(BillTypeEnum.PROFIT_BILL.getId());
+        omOrderReportService.batchCreateSaleReport();
+        //商品销售报表
+        /*omOrderReportService.orderClosure(206983497670201344L);
+        omOrderReportService.orderClosure(206982238737272832L);*/
     }
 
 
