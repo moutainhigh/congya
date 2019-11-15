@@ -31,4 +31,9 @@ public interface ServiceConstant {
      * APP店铺列表中店铺展示商品列表默认展示排序前三个
      */
     Integer DEFAULT_SHOW_GOODS_NUM = 3;
+
+    /**
+     * 流水图标路径
+     */
+    String ICON_PATH = "http://bo2h.com/common/png/{0}.png";
 }

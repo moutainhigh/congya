@@ -76,4 +76,16 @@ public interface OmAfterSaleOrderMapper extends IBaseMapper<OmAfterSaleOrderPo> 
      * @return
      */
     ApplyAfterDetailVo getApplyAfterDetail(Long afterSaleOrderId);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/11/13 23:33
+     * @Description 根据售后订单id获取商品的sku图片
+     *
+     * @Update yeJH
+     *
+     * @param  id  售后订单
+     * @return java.lang.String
+     **/
+    String getSkuPicByOrder(Long id);
 }

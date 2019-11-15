@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.constant.Constants;
 import com.chauncy.common.constant.RabbitConstants;
+import com.chauncy.common.constant.ServiceConstant;
 import com.chauncy.common.enums.log.AccountTypeEnum;
 import com.chauncy.common.enums.log.LogTriggerEventEnum;
 import com.chauncy.common.enums.message.NoticeContentEnum;
@@ -432,6 +433,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
             mmUserNoticePo.setUserId(userId)
                     .setNoticeType(NoticeTypeEnum.TASK_REWARD.getId())
                     .setTitle(NoticeTitleEnum.UPGRADE.getName())
+                    .setPicture(MessageFormat.format(ServiceConstant.ICON_PATH, "congya"))
                     .setContent(MessageFormat.format(NoticeContentEnum.UPGRADE.getName(), queryLevel.getLevel()));
             mmUserNoticeMapper.insert(mmUserNoticePo);
         }

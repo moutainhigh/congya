@@ -252,5 +252,19 @@
         </where>
         ORDER BY ogt.create_time DESC
     </select>
+    <select id="getBillOrderList" resultType="com.chauncy.data.bo.order.log.BillRelOrderBo">
+        SELECT id, income_rate
+        FROM om_order
+        <where>
+            <if test="billType != null and billType == 1">
+                store_id = #{storeId}
+            </if>
+            <if test="billType != null and billType == 2">
+                user_store_id = #{storeId}
+            </if>
+            AND date(after_sale_deadline) <![CDATA[>= ]]> #{startDate}
+            AND date(after_sale_deadline) <![CDATA[<= ]]> #{endDate}
+        </where>
+    </select>
 
 </mapper>

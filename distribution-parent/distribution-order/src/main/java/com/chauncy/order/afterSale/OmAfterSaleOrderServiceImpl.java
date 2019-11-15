@@ -366,12 +366,16 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         this.rabbitTemplate.convertAndSend(
                 RabbitConstants.ACCOUNT_LOG_EXCHANGE, RabbitConstants.ACCOUNT_LOG_ROUTING_KEY, addAccountLogBo);
 
+
+        //根据售后订单id获取商品的sku图片
+        String skuPic = mapper.getSkuPicByOrder(queryAfterSaleOrder.getId());
         //交易物流消息  给用户发送APP内消息推送
         UmUserPo umUserPo = userMapper.selectById(queryAfterSaleOrder.getCreateBy());
         MmUserNoticePo mmUserNoticePo = new MmUserNoticePo();
         mmUserNoticePo.setUserId(Long.valueOf(queryAfterSaleOrder.getCreateBy()))
                 .setNoticeType(NoticeTypeEnum.EXPRESS_LOGISTICS.getId())
                 .setTitle(NoticeTitleEnum.REFUND_SUCCESSFUL.getName())
+                .setPicture(skuPic)
                 .setContent(MessageFormat.format(NoticeContentEnum.REFUND_SUCCESSFUL.getName(),
                         umUserPo.getName(), queryAfterSaleOrder.getId()));
         mmUserNoticeMapper.insert(mmUserNoticePo);

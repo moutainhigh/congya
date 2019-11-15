@@ -302,11 +302,11 @@
             SUM(pgs.stock) AS stock,
             pga.`name` AS brandName
         FROM pm_goods_virtual_stock pgvs
-        LEFT JOIN pm_goods pg ON pg.id = pgvs.goods_id AND pgvs.store_id = #{storeId}
-        LEFT JOIN pm_goods_sku pgs ON pg.id = pgs.goods_id
+        INNER JOIN pm_goods pg ON pg.id = pgvs.goods_id AND pgvs.store_id = #{storeId} AND pgvs.is_own = 0
+        INNER JOIN pm_goods_sku pgs ON pg.id = pgs.goods_id
         LEFT JOIN pm_goods_rel_attribute_good pgrag ON pgrag.goods_good_id = pg.id
         INNER JOIN pm_goods_attribute pga ON pgrag.goods_attribute_id = pga.id
-        WHERE pgvs.store_id = #{storeId} AND pgvs.`del_flag` = 0 AND pgs.`del_flag` = 0 AND pgrag.`del_flag` = 0
+        WHERE pgvs.`del_flag` = 0 AND pgs.`del_flag` = 0 AND pgrag.`del_flag` = 0
         AND pga.`del_flag` = 0 AND pga.type=8 AND pg.`del_flag` = 0 and pg.`verify_status` = 3
         <if test="null != id">
             AND NOT EXISTS
@@ -337,7 +337,7 @@
             )
         </if>
         order by pg.create_time desc-->
-        SELECT
+        <!--SELECT
             pg.id AS goodsId,
             pg.icon,
             pg.NAME AS good_name,
@@ -366,7 +366,37 @@
             )
         </if>
         GROUP BY pg.id, pga.name
-        ORDER BY pg.create_time desc
+        ORDER BY pg.create_time desc-->
+        SELECT
+        pg.id AS goodsId,
+        pg.icon,
+        pg.NAME AS good_name,
+        pg.sort,
+        pg.sales_volume,
+        pg.star_status,
+        MIN(pgs.supplier_price) AS supplier_price,
+        MIN(pgs.sell_price) AS sell_price,
+        SUM(pgs.stock) AS stock,
+        pga.`name` AS brandName
+        FROM pm_goods_virtual_stock pgvs
+        INNER JOIN pm_goods pg ON pg.id = pgvs.goods_id AND pgvs.store_id = #{storeId} AND pgvs.is_own = 1
+        INNER JOIN pm_goods_sku pgs ON pg.id = pgs.goods_id
+        LEFT JOIN pm_goods_rel_attribute_good pgrag ON pgrag.goods_good_id = pg.id
+        INNER JOIN pm_goods_attribute pga ON pgrag.goods_attribute_id = pga.id
+        WHERE pgvs.`del_flag` = 0 AND pgs.`del_flag` = 0 AND pgrag.`del_flag` = 0
+        AND pga.`del_flag` = 0 AND pga.type=8 AND pg.`del_flag` = 0 and pg.`verify_status` = 3
+        <if test="null != id">
+            AND NOT EXISTS
+            (
+            SELECT id
+            FROM  pm_goods_rel_stock_template pgrst
+            WHERE pgrst.`goods_id` = pg.`id`
+            AND pgrst.`del_flag` = 0
+            AND pgrst.stock_template_id = #{id}
+            )
+        </if>
+        GROUP BY pg.id, pga.name
+        ORDER BY pg.create_time DESC
     </select>
 
     <select id="searchStoreGoodsBaseList"
