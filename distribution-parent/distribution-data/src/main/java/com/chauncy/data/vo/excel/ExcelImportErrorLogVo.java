@@ -3,6 +3,7 @@ package com.chauncy.data.vo.excel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ import java.util.List;
 
 @Data
 @ApiModel
+@ToString
 public class ExcelImportErrorLogVo {
 
     @ApiModelProperty("excel导入出错的第几行")

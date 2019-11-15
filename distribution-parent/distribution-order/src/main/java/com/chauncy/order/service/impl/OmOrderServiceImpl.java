@@ -1061,6 +1061,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         //计算红包
         final BigDecimal[] totalRed = {BigDecimal.ZERO};
         rewardBuyers.forEach(x -> {
+            x.setMoneyToShopTicket(basicSettingPo.getMoneyToShopTicket());
             x.setPacketPresent(queryMember.getPacketPresent());
             x.setMoneyToRed(basicSettingPo.getMoneyToCurrentRedEnvelops());
             BigDecimal red = x.calculateRed();
@@ -1069,6 +1070,9 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         UmUserPo queryFirstUser = umUserService.getById(queryPayUser.getFirstUserId());
         //如果只有第一级上级用户且一级用户有返佣资格
         if (queryPayUser.getSecondUserId() == null && queryFirstUser.getCommissionStatus()) {
+            //第一级用户的赠送比例
+            BigDecimal firstPacketPresent = userMapper.getPacketPresent(queryPayUser.getFirstUserId());
+            totalRed[0]=BigDecimalUtil.safeMultiply(totalRed[0],BigDecimalUtil.safeDivide(firstPacketPresent,100));
             UmUserPo updateFirst = new UmUserPo();
             updateFirst.setId(queryPayUser.getFirstUserId()).setCurrentRedEnvelops(totalRed[0]);
             userMapper.updateAdd(updateFirst);
@@ -1136,11 +1140,15 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         //计算红包
         rewardBuyer.setPacketPresent(queryMember.getPacketPresent());
         rewardBuyer.setMoneyToRed(basicSettingPo.getMoneyToCurrentRedEnvelops());
+        rewardBuyer.setMoneyToShopTicket(basicSettingPo.getMoneyToShopTicket());
         BigDecimal red = rewardBuyer.calculateRed();
 
         UmUserPo queryFirstUser = umUserService.getById(queryPayUser.getFirstUserId());
         //如果只有第一级上级用户且一级用户有返佣资格
         if (queryPayUser.getSecondUserId() == null && queryFirstUser.getCommissionStatus()) {
+            //第一级用户的赠送比例
+            BigDecimal firstPacketPresent = userMapper.getPacketPresent(queryPayUser.getFirstUserId());
+            red=BigDecimalUtil.safeMultiply(red,BigDecimalUtil.safeDivide(firstPacketPresent,100));
             UmUserPo updateFirst = new UmUserPo();
             updateFirst.setId(queryPayUser.getFirstUserId()).setCurrentRedEnvelops(red);
             userMapper.updateAdd(updateFirst);
