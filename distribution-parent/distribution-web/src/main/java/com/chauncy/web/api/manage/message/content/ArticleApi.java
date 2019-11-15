@@ -46,6 +46,24 @@ public class ArticleApi {
 
         return new JsonViewData(service.findLocations());
     }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-11-15 18:11
+     * @Description //查找邀请有礼图文详情
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return com.chauncy.data.vo.JsonViewData<java.lang.String>
+     **/
+    @GetMapping("/getInvitationArticle")
+    @ApiOperation("查找邀请有礼图文详情")
+    public JsonViewData<String> getInvitationArticle(){
+
+        return new JsonViewData(service.getInvitationArticle());
+    }
+
     /**
      * 添加文章
      *

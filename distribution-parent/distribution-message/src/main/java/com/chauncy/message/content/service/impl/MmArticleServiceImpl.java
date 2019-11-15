@@ -215,4 +215,20 @@ public class MmArticleServiceImpl extends AbstractService<MmArticleMapper, MmArt
         return findArticleContentVos;
     }
 
+    /**
+     * @Author chauncy
+     * @Date 2019-11-15 18:11
+     * @Description //查找邀请有礼图文详情
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return java.lang.String
+     **/
+    @Override
+    public String getInvitationArticle() {
+
+        return mapper.getInvitationArticle();
+    }
+
 }

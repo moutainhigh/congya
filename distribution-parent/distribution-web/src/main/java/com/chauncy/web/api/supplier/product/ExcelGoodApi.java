@@ -116,6 +116,7 @@ public class ExcelGoodApi extends BaseApi {
         List<List<String>> excelData = getDataFromExcel(file.getInputStream());
 
         List<ExcelImportErrorLogVo> excelImportErrorLogVos = saveBaseAndGetErrorLogs(excelData);
+        LoggerUtil.error("【导入错误信息：】"+excelImportErrorLogVos.toString());
         return new JsonViewData(ResultCode.SUCCESS,
                 "操作成功，共有" + excelImportErrorLogVos.size() + "条导入失败！",
                 excelImportErrorLogVos
@@ -131,6 +132,7 @@ public class ExcelGoodApi extends BaseApi {
 
         List<List<String>> excelData = getDataFromExcel(file.getInputStream());
         List<ExcelImportErrorLogVo> excelImportErrorLogVos = savefinanceAndGetErrorLogs(excelData);
+        LoggerUtil.error("【导入错误信息：】"+excelImportErrorLogVos.toString());
         return new JsonViewData(ResultCode.SUCCESS,
                 "操作成功，共有" + excelImportErrorLogVos.size() + "条导入失败！",
                 excelImportErrorLogVos
@@ -145,6 +147,7 @@ public class ExcelGoodApi extends BaseApi {
 
         List<List<String>> excelData = getDataFromExcel(file.getInputStream());
         List<ExcelImportErrorLogVo> excelImportErrorLogVos = saveOperateAndGetErrorLogs(excelData);
+        LoggerUtil.error("【导入错误信息：】"+excelImportErrorLogVos.toString());
         return new JsonViewData(ResultCode.SUCCESS,
                 "操作成功，共有" + excelImportErrorLogVos.size() + "条导入失败！",
                 excelImportErrorLogVos
@@ -160,6 +163,7 @@ public class ExcelGoodApi extends BaseApi {
 
         List<List<String>> excelData = getDataFromExcel(file.getInputStream());
         List<ExcelImportErrorLogVo> excelImportErrorLogVos = saveSkuAndGetErrorLogs(excelData);
+        LoggerUtil.error("【导入错误信息：】"+excelImportErrorLogVos.toString());
         return new JsonViewData(ResultCode.SUCCESS,
                 "操作成功，共有" + excelImportErrorLogVos.size() + "条导入失败！",
                 excelImportErrorLogVos

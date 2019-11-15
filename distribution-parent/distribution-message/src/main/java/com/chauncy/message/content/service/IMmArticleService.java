@@ -97,4 +97,16 @@ public interface IMmArticleService extends Service<MmArticlePo> {
      * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.manage.message.content.app.FindArticleContentVo>>
      **/
     List<FindArticleContentVo> findArticleContent(Integer type);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-11-15 18:11
+     * @Description //查找邀请有礼图文详情
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return java.lang.String
+     **/
+    String getInvitationArticle();
 }

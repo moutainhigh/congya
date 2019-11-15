@@ -104,6 +104,8 @@ ignored:
     - /manage/message/advice/findAdviceLocation
     - /app/wxPay/notify
     - /app/component/findBootPage
+    - /manage/message/content/getInvitationArticle
+    - /app/user/data/getNameByCode/**
 
 # 配置快递100
 logistics:

@@ -54,6 +54,9 @@ public class RewardRedBo {
     @ApiModelProperty(hidden = true)
     private BigDecimal skuId;
 
+    private BigDecimal moneyToShopTicket;
+
+
 
     /**
      * 根据公式算出返回红包
@@ -71,11 +74,12 @@ public class RewardRedBo {
 
         //购物券=（付现价-固定成本-活动成本-购物券）X 推广成本（%）(商品详情页面)X会员管理里面的红包赠送比例X消费商品金额的购物券比例设置（参数设置）会员等级里面的红包赠送比例要加权平分
 
+        BigDecimal rewardShopTicket=BigDecimalUtil.safeDivide(this.rewardShopTicket,this.moneyToShopTicket);
         //（付现价-固定成本-活动成本-购物券）
         BigDecimal a=BigDecimalUtil.safeSubtract(true,sellPrice,fixedCost,activityCost,rewardShopTicket);
 
-        //推广成本（%）(商品详情页面)X会员管理里面的红包赠送比例X消费商品金额的购物券比例设置（参数设置）会员等级里面的红包赠送比例要加权平分
-        BigDecimal b=BigDecimalUtil.safeMultiply(BigDecimalUtil.safeMultiply(transfromDecimal(generalizeCostRate),transfromDecimal(packetPresent)),moneyToRed);
+        //推广成本（%）(商品详情页面)X消费商品金额的红包比例设置（参数设置）
+        BigDecimal b=BigDecimalUtil.safeMultiply(transfromDecimal(generalizeCostRate),moneyToRed);
 
         //红包
         return BigDecimalUtil.safeMultiply(a,b);

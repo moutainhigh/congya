@@ -39,4 +39,17 @@ public interface MmArticleMapper extends IBaseMapper<MmArticlePo> {
      **/
     @Select("select id,name,detail_html from mm_article where del_flag =0 and enabled = 1 and article_location = #{location}  ")
     List<FindArticleContentVo> findArticleContent(String location);
+
+    /**
+     * @Author chauncy
+     * @Date 2019-11-15 18:12
+     * @Description //查找邀请有礼图文详情
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return java.lang.String
+     **/
+    @Select("select detail_html from mm_article where del_flag = 0 and enabled = 1 and article_location = '邀请好友' ")
+    String getInvitationArticle();
 }
