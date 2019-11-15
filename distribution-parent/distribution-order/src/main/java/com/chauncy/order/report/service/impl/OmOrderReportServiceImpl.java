@@ -151,10 +151,12 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
         //获取需要创建商品销售报表的店铺的数量
         int storeSum = omOrderReportMapper.getStoreSumNeedCreateReport(endDate, null);
         //一次性只处理1000条数据
-        for(int pageNo = 1; pageNo <= storeSum / 1000; pageNo++) {
-            PageHelper.startPage(pageNo, 1000);
-            List<Long> storeIdList = omOrderReportMapper.getStoreNeedCreateReport(endDate, null);
-            storeIdList.forEach(storeId -> createSaleReport(endDate, storeId));
+        if(storeSum > 0) {
+            for (int pageNo = 1; pageNo <= storeSum / 1000 + 1; pageNo++) {
+                PageHelper.startPage(pageNo, 1000);
+                List<Long> storeIdList = omOrderReportMapper.getStoreNeedCreateReport(endDate, null);
+                storeIdList.forEach(storeId -> createSaleReport(endDate, storeId));
+            }
         }
     }
 

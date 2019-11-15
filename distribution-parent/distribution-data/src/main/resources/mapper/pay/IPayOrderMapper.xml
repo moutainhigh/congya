@@ -81,5 +81,12 @@
 	o.pay_order_id=#{payId} and mb.order_id=o.id and mb.group_main_id=m.id
 	and m.id=g.id
     </select>
+    <select id="getSkuPicByPayOrder" resultType="java.lang.String">
+        SELECT ogt.icon
+        FROM pay_order po
+        INNER JOIN om_order oo ON oo.pay_order_id = po.id AND po.id = #{payOrderId}
+        INNER JOIN om_goods_temp ogt ON ogt.order_id = oo.id
+        LIMIT 1
+    </select>
 
 </mapper>

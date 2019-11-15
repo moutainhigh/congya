@@ -124,10 +124,18 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
 
 
     /**
-     * 店铺分配商品库存
-     * @param pmStoreGoodsStockPo
-     * @param storeRelGoodsStockBaseDtoList
-     */
+     * @Author yeJH
+     * @Date 2019/11/14 17:52
+     * @Description 店铺分配商品库存
+     * 1.获取分配库存使用的库存模板
+     *
+     * @Update yeJH
+     *
+     * @param  createBy
+     * @param  pmStoreGoodsStockPo
+     * @param  storeRelGoodsStockBaseDtoList
+     * @return void
+     **/
     private void insertStoreRelGoodsStock(String createBy,
                                           PmStoreGoodsStockPo pmStoreGoodsStockPo,
                                           List<StoreRelGoodsStockBaseDto> storeRelGoodsStockBaseDtoList) {
@@ -216,7 +224,7 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
     /**
      * 分配库存 修改库存信息
      * @param createBy              操作员
-     * @param GoodsId               商品id
+     * @param goodsId               商品id
      * @param fromStoreId           扣减库存店铺
      * @param toStoreId             获得库存店铺
      * @param goodsSkuId            分配的规格
@@ -252,6 +260,7 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
                     .setGoodsId(goodsId)
                     .setGoodsSkuId(goodsSkuId)
                     .setStockNum(distributeStockNum)
+                    .setIsOwn(false)
                     .setCreateBy(createBy);
             pmGoodsVirtualStockMapper.insert(toStock);
         }  else {

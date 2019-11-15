@@ -229,9 +229,15 @@ public interface OmOrderMapper extends IBaseMapper<OmOrderPo> {
 
     CustomsOrderBo getCustomsOrderBo(Serializable orderId);
 
-
-
-
-
-
+    /**
+     * @Author yeJH
+     * @Date 2019/11/13 23:26
+     * @Description 根据订单id获取第一个商品的sku图片
+     *
+     * @Update yeJH
+     *
+     * @param  id 订单id
+     * @return java.lang.String
+     **/
+    String getSkuPicByOrder(Long id);
 }

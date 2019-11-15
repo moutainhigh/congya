@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.common.constant.Constants;
 import com.chauncy.common.constant.RabbitConstants;
+import com.chauncy.common.constant.ServiceConstant;
 import com.chauncy.common.enums.log.AccountTypeEnum;
 import com.chauncy.common.enums.log.LogTriggerEventEnum;
 import com.chauncy.common.enums.message.NoticeContentEnum;
@@ -289,8 +290,8 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
                 forEach(x -> {
                     condition.setId(Long.parseLong(x.getParent()));
                     //当trueName为空时，查出的实体也为空
-                    UmUserPo queryParentUser = mapper.selectOne(new QueryWrapper<>(condition, "true_name"));
-                    x.setParent(queryParentUser == null || queryParentUser.getTrueName() == null ? "" : queryParentUser.getTrueName());
+                    UmUserPo queryParentUser = mapper.selectOne(new QueryWrapper<>(condition, "name"));
+                    x.setParent(queryParentUser == null || queryParentUser.getName() == null ? "" : queryParentUser.getName());
                 });
         return umUserListVoPageInfo;
     }
@@ -320,9 +321,9 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         if (umUserDetailVo.getParentName() != null) {
             QueryWrapper userWrapper = new QueryWrapper();
             userWrapper.eq("id", umUserDetailVo.getParentName());
-            userWrapper.select("true_name");
+            userWrapper.select("name");
             UmUserPo queryParentUser = mapper.selectOne(userWrapper);
-            umUserDetailVo.setParentName(queryParentUser == null ? null : queryParentUser.getTrueName());
+            umUserDetailVo.setParentName(queryParentUser == null ? null : queryParentUser.getName());
         }
         return umUserDetailVo;
     }
@@ -432,6 +433,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
             mmUserNoticePo.setUserId(userId)
                     .setNoticeType(NoticeTypeEnum.TASK_REWARD.getId())
                     .setTitle(NoticeTitleEnum.UPGRADE.getName())
+                    .setPicture(MessageFormat.format(ServiceConstant.ICON_PATH, "congya"))
                     .setContent(MessageFormat.format(NoticeContentEnum.UPGRADE.getName(), queryLevel.getLevel()));
             mmUserNoticeMapper.insert(mmUserNoticePo);
         }

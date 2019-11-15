@@ -35,7 +35,9 @@ public class BillQuartz {
      * @return void
      **/
     public void createPaymentBill(){
+        log.info("==============================创建货款账单开始================================");
         omOrderBillService.batchCreateStoreBill(BillTypeEnum.PAYMENT_BILL.getId());
+        log.info("==============================创建货款账单结束================================");
     }
     /**
      * @Author yeJH
@@ -47,7 +49,11 @@ public class BillQuartz {
      * @return void
      **/
     public void createProfitBill(){
+
+        log.info("==============================创建利润账单开始================================");
         omOrderBillService.batchCreateStoreBill(BillTypeEnum.PROFIT_BILL.getId());
+        log.info("==============================创建利润账单结束================================");
+
     }
     /**
      * @Author yeJH
@@ -59,6 +65,10 @@ public class BillQuartz {
      * @return void
      **/
     public void createSaleReport(){
+
+        log.info("==============================创建商品销售报表开始================================");
         omOrderReportService.batchCreateSaleReport();
+        log.info("==============================创建商品销售报表结束================================");
+
     }
 }

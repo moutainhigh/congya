@@ -976,6 +976,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
                     .setGoodsId(goodsId)
                     .setGoodsSkuId(goodsSkuPo.getId())
                     .setStockNum(goodsSkuPo.getStock())
+                    .setIsOwn(true)
                     .setCreateBy(user);
             pmGoodsVirtualStockMapper.insert(pmGoodsVirtualStockPo);
             //获取前端传的规格信息

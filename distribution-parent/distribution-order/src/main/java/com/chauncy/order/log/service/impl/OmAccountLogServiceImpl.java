@@ -2,6 +2,7 @@ package com.chauncy.order.log.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.chauncy.common.constant.ServiceConstant;
 import com.chauncy.common.enums.log.*;
 import com.chauncy.common.enums.message.NoticeContentEnum;
 import com.chauncy.common.enums.message.NoticeTitleEnum;
@@ -302,6 +303,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         } else if (accountTypeEnum.equals(AccountTypeEnum.INTEGRATE)) {
             toAccountLog.setLogMatter(IntegrateLogMatterEnum.CANCEL_ORDER.getId());
         }
+        //图标
+        toAccountLog.setPicture(MessageFormat.format(ServiceConstant.ICON_PATH,
+                RedEnvelopsLogMatterEnum.CANCEL_ORDER.name()));
         //流水详情标题
         toAccountLog.setLogDetailTitle(LogDetailTitleEnum.CANCEL_ORDER.getName());
         //流水详情当前状态
@@ -547,6 +551,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         } else if (accountTypeEnum.equals(AccountTypeEnum.INTEGRATE)) {
             toAccountLog.setLogMatter(IntegrateLogMatterEnum.SHOPPING_REWARD.getId());
         }
+        //图标
+        toAccountLog.setPicture(MessageFormat.format(ServiceConstant.ICON_PATH,
+                ShopTicketLogMatterEnum.SHOPPING_REWARD.name()));
         //流水详情标题  商家名称
         String storeName = omOrderMapper.getStoreNameByOrder(toAccountLog.getOmRelId());
         List<String> stringList = Splitter.on(",").splitToList(storeName);
@@ -587,6 +594,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         toAccountLog.setAmount(margin);
         //流水事由
         toAccountLog.setLogMatter(RedEnvelopsLogMatterEnum.FRIENDS_ASSIST.getId());
+        //图标
+        toAccountLog.setPicture(MessageFormat.format(ServiceConstant.ICON_PATH,
+                RedEnvelopsLogMatterEnum.FRIENDS_ASSIST.name()));
         //流水详情标题
         //获取订单下单用户
         OmOrderPo omOrderPo = omOrderMapper.selectById(addAccountLogBo.getRelId());
@@ -716,6 +726,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         } else if (accountTypeEnum.equals(AccountTypeEnum.INTEGRATE)) {
             toAccountLog.setLogMatter(IntegrateLogMatterEnum.PLATFORM_GIVE.getId());
         }
+        //图标
+        toAccountLog.setPicture(MessageFormat.format(ServiceConstant.ICON_PATH,
+                RedEnvelopsLogMatterEnum.PLATFORM_GIVE.name()));
         //流水详情标题
         toAccountLog.setLogDetailTitle(LogDetailTitleEnum.CONGYA_OFFICIAL.getName());
         //流水详情当前状态
@@ -797,6 +810,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         } else if (accountTypeEnum.equals(AccountTypeEnum.SHOP_TICKET)) {
             toAccountLog.setLogMatter(ShopTicketLogMatterEnum.AFTER_SALE_REFUND.getId());
         }
+        //图标
+        toAccountLog.setPicture(MessageFormat.format(ServiceConstant.ICON_PATH,
+                RedEnvelopsLogMatterEnum.AFTER_SALE_REFUND.name()));
         //流水详情标题
         toAccountLog.setLogDetailTitle(LogDetailTitleEnum.REFUND.getName());
         //流水详情当前状态
@@ -826,6 +842,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         toShopTicketLog.setAmount(amGiftPo.getVouchers());
         //流水事由
         toShopTicketLog.setLogMatter(ShopTicketLogMatterEnum.NEW_GIFT.getId());
+        //图标
+        toShopTicketLog.setPicture(MessageFormat.format(ServiceConstant.ICON_PATH,
+                ShopTicketLogMatterEnum.NEW_GIFT.name()));
         //流水详情标题
         toShopTicketLog.setLogDetailTitle(LogDetailTitleEnum.MEMBER_AWARD.getName());
         //流水详情当前状态
@@ -847,6 +866,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         toIntegralsLog.setAmount(amGiftPo.getIntegrals());
         //流水事由
         toIntegralsLog.setLogMatter(IntegrateLogMatterEnum.NEW_GIFT.getId());
+        //图标
+        toIntegralsLog.setPicture(MessageFormat.format(ServiceConstant.ICON_PATH,
+                IntegrateLogMatterEnum.NEW_GIFT.name()));
         //流水详情标题
         toIntegralsLog.setLogDetailTitle(LogDetailTitleEnum.MEMBER_AWARD.getName());
         //流水详情当前状态
@@ -880,6 +902,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         toShopTicketLog.setAmount(amGiftOrderPo.getVouchers());
         //流水事由
         toShopTicketLog.setLogMatter(ShopTicketLogMatterEnum.EXPERIENCE_PACK.getId());
+        //图标
+        toShopTicketLog.setPicture(MessageFormat.format(ServiceConstant.ICON_PATH,
+                ShopTicketLogMatterEnum.EXPERIENCE_PACK.name()));
         //流水详情标题
         toShopTicketLog.setLogDetailTitle(LogDetailTitleEnum.FROM_EXPERIENCE.getName());
         //流水详情当前状态
@@ -901,6 +926,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         toIntegralsLog.setAmount(amGiftOrderPo.getIntegrals());
         //流水事由
         toIntegralsLog.setLogMatter(IntegrateLogMatterEnum.EXPERIENCE_PACK.getId());
+        //图标
+        toIntegralsLog.setPicture(MessageFormat.format(ServiceConstant.ICON_PATH,
+                IntegrateLogMatterEnum.EXPERIENCE_PACK.name()));
         //流水详情标题
         toIntegralsLog.setLogDetailTitle(LogDetailTitleEnum.FROM_EXPERIENCE.getName());
         //流水详情当前状态
@@ -953,6 +981,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
             fromRedEnvelopsLog.setArrivalWay(omUserWithdrawalPo.getWithdrawalWay());
             //流水事由
             fromRedEnvelopsLog.setLogMatter(RedEnvelopsLogMatterEnum.WITHDRAWAL.getId());
+            //图标
+            fromRedEnvelopsLog.setPicture(MessageFormat.format(ServiceConstant.ICON_PATH,
+                    RedEnvelopsLogMatterEnum.WITHDRAWAL.name()));
             //流水详情标题
             fromRedEnvelopsLog.setLogDetailTitle(LogDetailTitleEnum.RED_ENVELOPS_WITHDRAWAL.getName());
             //流水详情当前状态
@@ -983,6 +1014,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
             toRedEnvelopsLog.setAmount(omUserWithdrawalPo.getWithdrawalAmount());
             //流水事由
             toRedEnvelopsLog.setLogMatter(RedEnvelopsLogMatterEnum.AUDIT_FAIL_REFUND.getId());
+            //图标
+            toRedEnvelopsLog.setPicture(MessageFormat.format(ServiceConstant.ICON_PATH,
+                    RedEnvelopsLogMatterEnum.AUDIT_FAIL_REFUND.name()));
             //流水详情标题
             toRedEnvelopsLog.setLogDetailTitle(LogDetailTitleEnum.WITHDRAWAL_FAIL.getName());
             //流水详情当前状态
@@ -1080,6 +1114,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
             fromShopTicketLog.setPaymentWay(PaymentWayEnum.ACCOUNT.getId());
             //流水事由
             fromShopTicketLog.setLogMatter(ShopTicketLogMatterEnum.ORDER_PAYMENT.getId());
+            //图标
+            fromShopTicketLog.setPicture(MessageFormat.format(ServiceConstant.ICON_PATH,
+                    ShopTicketLogMatterEnum.ORDER_PAYMENT.name()));
             //流水详情标题
             fromShopTicketLog.setLogDetailTitle(LogDetailTitleEnum.ORDER_PAYMENT.getName());
             //流水详情当前状态
@@ -1101,6 +1138,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
             fromRedEnvelopsLog.setPaymentWay(PaymentWayEnum.ACCOUNT.getId());
             //流水事由
             fromRedEnvelopsLog.setLogMatter(RedEnvelopsLogMatterEnum.ORDER_PAYMENT.getId());
+            //图标
+            fromRedEnvelopsLog.setPicture(MessageFormat.format(ServiceConstant.ICON_PATH,
+                    RedEnvelopsLogMatterEnum.ORDER_PAYMENT.name()));
             //流水详情标题
             fromRedEnvelopsLog.setLogDetailTitle(LogDetailTitleEnum.ORDER_PAYMENT.getName());
             //流水详情当前状态
@@ -1122,6 +1162,9 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
             fromIntegralLog.setPaymentWay(PaymentWayEnum.ACCOUNT.getId());
             //流水事由
             fromIntegralLog.setLogMatter(IntegrateLogMatterEnum.ORDER_PAYMENT.getId());
+            //图标
+            fromIntegralLog.setPicture(MessageFormat.format(ServiceConstant.ICON_PATH,
+                    IntegrateLogMatterEnum.ORDER_PAYMENT.name()));
             //流水详情标题
             fromIntegralLog.setLogDetailTitle(LogDetailTitleEnum.ORDER_PAYMENT.getName());
             //流水详情当前状态
@@ -1146,7 +1189,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         toOmAccountLogPo.setRelUserId(payOrderPo.getUmUserId());
         toOmAccountLogPo.setRelUserPhone(umUserMapper.selectById(payOrderPo.getUmUserId()).getPhone());
         //支付方式
-        //toOmAccountLogPo.setPaymentWay(PaymentWayEnum.getByName(payOrderPo.getPayTypeCode()).getId());
+        toOmAccountLogPo.setPaymentWay(PaymentWayEnum.getByName(payOrderPo.getPayTypeCode()).getId());
         //流水事由
         toOmAccountLogPo.setLogMatter(PlatformLogMatterEnum.ORDER_INCOME.getId());
         omAccountLogMapper.insert(toOmAccountLogPo);

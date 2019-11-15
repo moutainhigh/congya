@@ -239,6 +239,8 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
     public void saveSignedNotice(String orderId) {
         OmOrderPo omOrderPo = orderMapper.selectById(orderId);
         if(null != omOrderPo) {
+            //根据订单id获取第一个商品的sku图片
+            String skuPic = orderMapper.getSkuPicByOrder(omOrderPo.getId());
             //找到订单中的一个商品
             QueryWrapper<OmGoodsTempPo> queryWrapper = new QueryWrapper<>();
             queryWrapper.lambda().eq(OmGoodsTempPo::getOrderId, orderId);
@@ -248,6 +250,7 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
             mmUserNoticePo.setUserId(omOrderPo.getUmUserId())
                     .setNoticeType(NoticeTypeEnum.EXPRESS_LOGISTICS.getId())
                     .setTitle(NoticeTitleEnum.ALREADY_SIGNED.getName())
+                    .setPicture(skuPic)
                     .setContent(MessageFormat.format(NoticeContentEnum.ALREADY_SIGNED.getName(),
                             omGoodsTempPo.getName()));
             mmUserNoticeMapper.insert(mmUserNoticePo);

@@ -1,9 +1,12 @@
 package com.chauncy.order.service.impl;
 
 import com.chauncy.common.enums.message.NoticeTitleEnum;
+import com.chauncy.common.enums.order.BillTypeEnum;
 import com.chauncy.data.bo.app.message.SaveUserNoticeBo;
 import com.chauncy.message.interact.service.IMmUserNoticeService;
+import com.chauncy.order.bill.service.IOmOrderBillService;
 import com.chauncy.order.logistics.impl.OmOrderLogisticsServiceImpl;
+import com.chauncy.order.report.service.IOmOrderReportService;
 import com.chauncy.user.service.IUmUserService;
 import com.chauncy.web.StartApplication;
 import org.junit.Test;
@@ -28,6 +31,10 @@ public class OmShoppingCartServiceImplTest {
     private IMmUserNoticeService mmUserNoticeService;
     @Autowired
     private OmOrderLogisticsServiceImpl omOrderLogisticsService;
+    @Autowired
+    private IOmOrderBillService omOrderBillService;
+    @Autowired
+    private IOmOrderReportService omOrderReportService;
 
 
     @Autowired
@@ -54,12 +61,11 @@ public class OmShoppingCartServiceImplTest {
     @Test
     public void firstSecond() {
 
-        omOrderLogisticsService.saveSignedNotice("190320936170295296");
-        //订单发货成功  发送APP内消息给用户
-        SaveUserNoticeBo saveUserNoticeBo = new SaveUserNoticeBo();
-        saveUserNoticeBo.setOrderId(190320936170295296L);
-        mmUserNoticeService.saveUserNotice(NoticeTitleEnum.SHIPPED.name(), saveUserNoticeBo);
+        omOrderBillService.batchCreateStoreBill(BillTypeEnum.PAYMENT_BILL.getId());
 
+
+        //omOrderBillService.batchCreateStoreBill(BillTypeEnum.PROFIT_BILL.getId());
+        //omOrderReportService.batchCreateSaleReport();
 
     }
 

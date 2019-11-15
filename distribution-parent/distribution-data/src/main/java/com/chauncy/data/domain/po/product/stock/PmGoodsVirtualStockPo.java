@@ -48,6 +48,9 @@ public class PmGoodsVirtualStockPo implements Serializable {
     @ApiModelProperty(value = "库存数量")
     private Integer stockNum;
 
+    @ApiModelProperty(value = "是否自有商品  0 false 1true")
+    private Boolean isOwn;
+
     @ApiModelProperty(value = "创建者")
     private String createBy;
 
