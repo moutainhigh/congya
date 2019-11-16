@@ -129,8 +129,26 @@ public class OmShoppingCartApi extends BaseApi {
     @GetMapping("/guessYourLike/{goodsId}")
     @ApiOperation("猜你喜欢")
     public JsonViewData<List<SearchGoodsBaseListVo>> guessYourLike(@PathVariable Long goodsId){
+        UmUserPo user = securityUtil.getAppCurrUser();
 
-        return setJsonViewData(service.guessYourLike(goodsId));
+        return setJsonViewData(service.guessYourLike(goodsId, user));
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/11/16 11:17
+     * @Description 非登录用户猜你喜欢
+     *
+     * @Update yeJH
+     *
+     * @param  goodsId
+     * @return com.chauncy.data.vo.JsonViewData<java.util.List<com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo>>
+     **/
+    @GetMapping("/share/guessYourLike/{goodsId}")
+    @ApiOperation("非登录用户访问猜你喜欢")
+    public JsonViewData<List<SearchGoodsBaseListVo>> shareGuessYourLike(@PathVariable Long goodsId){
+
+        return setJsonViewData(service.guessYourLike(goodsId, null));
     }
 
     /**

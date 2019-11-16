@@ -103,6 +103,7 @@ public class MmUserNoticeServiceImpl extends AbstractService<MmUserNoticeMapper,
                     mmUserNoticePo.setUserId(omOrderPo.getUmUserId())
                             .setNoticeType(NoticeTypeEnum.EXPRESS_LOGISTICS.getId())
                             .setTitle(noticeTitleEnum.getName())
+                            .setPicture(omGoodsTempPo.getIcon())
                             .setContent(MessageFormat.format(NoticeContentEnum.fromName(name).getName(),
                                     omGoodsTempPo.getName()));
                     mapper.insert(mmUserNoticePo);
@@ -220,6 +221,9 @@ public class MmUserNoticeServiceImpl extends AbstractService<MmUserNoticeMapper,
                         //通知消息发布时间早于用户访问时间   未读
                         userNoticeListVo.setIsRead(false);
                     }
+                    //系统通知图标
+                    userNoticeListVo.setPicture(MessageFormat.format(ServiceConstant.ICON_PATH,
+                            NoticeTitleEnum.SYSTEM_NOTICE.name()));
                 });
             } else {
                 //记录不存在 记录数据

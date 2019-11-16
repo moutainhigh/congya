@@ -27,6 +27,10 @@ public enum NoticeTitleEnum   implements BaseEnum {
     REFUND_SUCCESSFUL(9, "退款已经成功"),
     RETURN_GOODS(10, "卖家同意售后，需要您退货"),
     WITHDRAWAL_SUCCESS(11, "提现成功"),
+    /**
+     * 系统通知
+     */
+    SYSTEM_NOTICE(12, "系统通知"),
     ;
 
     @EnumValue
