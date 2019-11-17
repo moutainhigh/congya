@@ -21,8 +21,8 @@
         id, report_id, goods_temp_id, distribute_price, total_amount, create_by, create_time, update_by, update_time, del_flag
     </sql>
     <update id="updateRelReport">
-        UPDATE om_report_rel_goods_temp
-        SET report_id = #{reportId}
+        UPDATE om_report_rel_goods_temp orrgt
+        SET orrgt.report_id = #{reportId}
         WHERE orrgt.report_id IS NULL
         AND orrgt.store_id = #{storeId}
         AND orrgt.branch_id = #{branchId}

@@ -37,11 +37,11 @@ public interface OmOrderReportMapper extends IBaseMapper<OmOrderReportPo> {
      * 查找 om_report_rel_goods_temp  生成对应的om_order_report
      * @param startDate
      * @param endDate
-     * @param branchId
+     * @param storeId
      * @return
      */
     List<OmOrderReportPo> searchOrderReport(@Param("startDate") LocalDate startDate,
-                                            @Param("endDate") LocalDate endDate, @Param("branchId") Long branchId);
+                                            @Param("endDate") LocalDate endDate, @Param("storeId") Long storeId);
 
     /**
      * @Author yeJH
@@ -50,7 +50,7 @@ public interface OmOrderReportMapper extends IBaseMapper<OmOrderReportPo> {
      *
      * @Update yeJH
      *
-     * @param  endDate创建货款账单开始
+     * @param  endDate 创建货款账单开始
      * @param  storeId
      * @return int
      **/

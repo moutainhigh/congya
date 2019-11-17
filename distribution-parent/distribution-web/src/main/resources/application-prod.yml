@@ -93,7 +93,8 @@ ignored:
     - /app/information/share/findBaseById/**
     - /app/information/share/comment/searchShareComment
     - /app/information/share/comment/searchShareViceComment/**
-      - /app/common/detail/share/selectSpecifiedGoods/**
+    - /app/common/detail/share/selectSpecifiedGoods/**
+    - /app/order/shopCart/share/guessYourLike/**
     - /pm-goods-attribute-po/findByType/**
     - /v2/api-docs
     - /app/user/data/register

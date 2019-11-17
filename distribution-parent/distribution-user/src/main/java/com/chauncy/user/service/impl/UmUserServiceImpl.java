@@ -433,7 +433,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
             mmUserNoticePo.setUserId(userId)
                     .setNoticeType(NoticeTypeEnum.TASK_REWARD.getId())
                     .setTitle(NoticeTitleEnum.UPGRADE.getName())
-                    .setPicture(MessageFormat.format(ServiceConstant.ICON_PATH, "congya"))
+                    .setPicture(MessageFormat.format(ServiceConstant.ICON_PATH, NoticeTitleEnum.UPGRADE.name()))
                     .setContent(MessageFormat.format(NoticeContentEnum.UPGRADE.getName(), queryLevel.getLevel()));
             mmUserNoticeMapper.insert(mmUserNoticePo);
         }

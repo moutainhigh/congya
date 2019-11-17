@@ -112,7 +112,7 @@ public interface IOmShoppingCartService extends Service<OmShoppingCartPo> {
      * @Param [goodsId]
      * @return com.chauncy.common.enums.system.ResultCode
      **/
-    List<SearchGoodsBaseListVo> guessYourLike(Long goodsId);
+    List<SearchGoodsBaseListVo> guessYourLike(Long goodsId, UmUserPo user);
 
     /**
      * @Author chauncy

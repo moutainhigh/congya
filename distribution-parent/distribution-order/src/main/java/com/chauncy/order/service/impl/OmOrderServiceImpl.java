@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chauncy.common.constant.RabbitConstants;
+import com.chauncy.common.constant.ServiceConstant;
 import com.chauncy.common.enums.app.activity.SpellGroupMainStatusEnum;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.common.enums.app.order.PayOrderStatusEnum;
@@ -383,7 +384,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
      * @Update yeJH
      **/
     private void saveRewardNotice(Long payOrderId, Long umUserId) {
-        //根据支付单id获取第一个商品的sku图片
+        //根据支付单id获取第一个商品的sku图片x`x`
         String skuPic = payOrderMapper.getSkuPicByPayOrder(payOrderId);
         OrderRewardBo orderRewardBo = mapper.getOrderRewardByPayId(payOrderId);
         if (null != orderRewardBo && null != orderRewardBo.getRewardIntegral()) {
@@ -391,10 +392,10 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             MmUserNoticePo mmUserNoticePo = new MmUserNoticePo();
             mmUserNoticePo.setUserId(umUserId)
                     .setNoticeType(NoticeTypeEnum.TASK_REWARD.getId())
-                    .setTitle(NoticeTitleEnum.SHOPPING_REWARD.getName())
-                    .setPicture(skuPic)
-                    .setContent(MessageFormat.format(NoticeContentEnum.SHOPPING_REWARD.getName(),
-                            orderRewardBo.getRewardIntegral(), AccountTypeEnum.SHOP_TICKET.getName()));
+                    .setTitle(NoticeTitleEnum.FRIENDS_ASSIST.getName())
+                    .setPicture(MessageFormat.format(ServiceConstant.ICON_PATH, NoticeTitleEnum.FRIENDS_ASSIST.name()))
+                    .setContent(MessageFormat.format(NoticeContentEnum.FRIENDS_ASSIST.getName(),
+                            orderRewardBo.getRewardIntegral(), AccountTypeEnum.INTEGRATE.getName()));
             mmUserNoticeMapper.insert(mmUserNoticePo);
         } else if (null != orderRewardBo && null != orderRewardBo.getRewardShopTicket()) {
             //新增APP消息中心消息  预计入账购物券
@@ -402,9 +403,9 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             mmUserNoticePo.setUserId(umUserId)
                     .setNoticeType(NoticeTypeEnum.TASK_REWARD.getId())
                     .setTitle(NoticeTitleEnum.SHOPPING_REWARD.getName())
-                    .setPicture(skuPic)
+                    .setPicture(MessageFormat.format(ServiceConstant.ICON_PATH, NoticeTitleEnum.GET_SHOP_TICKET.name()))
                     .setContent(MessageFormat.format(NoticeContentEnum.SHOPPING_REWARD.getName(),
-                            orderRewardBo.getRewardIntegral(), AccountTypeEnum.INTEGRATE.getName()));
+                            orderRewardBo.getRewardIntegral(), AccountTypeEnum.SHOP_TICKET.getName()));
             mmUserNoticeMapper.insert(mmUserNoticePo);
         }
     }
@@ -999,8 +1000,6 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
                 }
 
             }
-            //商品销售报表
-            omOrderReportService.orderClosure(orderId);
         }
 
 
@@ -1009,6 +1008,8 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
         umUserService.updateLevel(userId);
 
+        //商品销售报表
+        omOrderReportService.orderClosure(orderId);
 
         //购物奖励  下单用户本人有获得积分，购物券
         addShoppingRewardLog(queryOrder.getId(), userId, rewardBuyerBo.getRewardIntegrate(), rewardBuyerBo.getRewardShopTicket());

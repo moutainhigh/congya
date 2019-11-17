@@ -337,6 +337,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
                 getIntegrateNotice.setUserId(umUserId)
                         .setNoticeType(NoticeTypeEnum.TASK_REWARD.getId())
                         .setTitle(NoticeTitleEnum.GET_INTEGRATE.getName())
+                        .setPicture(MessageFormat.format(ServiceConstant.ICON_PATH, NoticeTitleEnum.GET_INTEGRATE.name()))
                         .setContent(MessageFormat.format(NoticeContentEnum.GET_INTEGRATE.getName(), amount));
                 mmUserNoticeMapper.insert(getIntegrateNotice);
                 break;
@@ -346,6 +347,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
                 getShopTicketNotice.setUserId(umUserId)
                         .setNoticeType(NoticeTypeEnum.TASK_REWARD.getId())
                         .setTitle(NoticeTitleEnum.GET_SHOP_TICKET.getName())
+                        .setPicture(MessageFormat.format(ServiceConstant.ICON_PATH, NoticeTitleEnum.GET_SHOP_TICKET.name()))
                         .setContent(MessageFormat.format(NoticeContentEnum.GET_SHOP_TICKET.getName(), amount));
                 mmUserNoticeMapper.insert(getShopTicketNotice);
                 break;
@@ -355,6 +357,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
                 getRedEnvelopsNotice.setUserId(umUserId)
                         .setNoticeType(NoticeTypeEnum.TASK_REWARD.getId())
                         .setTitle(NoticeTitleEnum.GET_RED_ENVELOPS.getName())
+                        .setPicture(MessageFormat.format(ServiceConstant.ICON_PATH, NoticeTitleEnum.GET_RED_ENVELOPS.name()))
                         .setContent(MessageFormat.format(NoticeContentEnum.GET_RED_ENVELOPS.getName(), amount));
                 mmUserNoticeMapper.insert(getRedEnvelopsNotice);
                 break;
@@ -627,7 +630,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
                     AccountTypeEnum.INTEGRATE,
                     addAccountLogBo.getMarginIntegral());
 
-            //新增购物券到账信息
+            //新增积分到账信息
             saveNotice(umUserPo.getId(), AccountTypeEnum.INTEGRATE, addAccountLogBo.getMarginIntegral());
 
         }
@@ -639,7 +642,7 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
                     AccountTypeEnum.RED_ENVELOPS,
                     addAccountLogBo.getMarginRedEnvelops());
 
-            //新增购物券到账信息
+            //新增红包到账信息
             saveNotice(umUserPo.getId(), AccountTypeEnum.RED_ENVELOPS, addAccountLogBo.getMarginRedEnvelops());
 
         }
