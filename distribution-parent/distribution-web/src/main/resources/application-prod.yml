@@ -107,6 +107,7 @@ ignored:
     - /app/component/findBootPage
     - /manage/message/content/getInvitationArticle
     - /app/user/data/getNameByCode/**
+    - /app/order/shopCart/getAssociatedGoods/**
 
 # 配置快递100
 logistics:
