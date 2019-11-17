@@ -2107,6 +2107,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
                     throw new ServiceException(ResultCode.PARAM_ERROR, "商品不存在");
                 }
                 BeanUtils.copyProperties(temp,shareDetailVo);
+                if(shareDetailVo.getMaxPrice().compareTo(shareDetailVo.getMinPrice()) == 0) {
+                    shareDetailVo.setMaxPrice(null);
+                }
                 //分享描述
                 shareDetailVo.setShareDescribe(temp.getGoodsName());
                 //分享图片

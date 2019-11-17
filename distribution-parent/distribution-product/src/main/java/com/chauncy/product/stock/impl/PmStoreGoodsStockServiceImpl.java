@@ -266,7 +266,7 @@ public class PmStoreGoodsStockServiceImpl extends AbstractService<PmStoreGoodsSt
         }  else {
             UpdateWrapper<PmGoodsVirtualStockPo> updateWrapper = new UpdateWrapper<>();
             updateWrapper.lambda().eq(PmGoodsVirtualStockPo::getId, toStock.getId())
-                    .set(PmGoodsVirtualStockPo::getStockNum, fromStock.getStockNum() + distributeStockNum);
+                    .set(PmGoodsVirtualStockPo::getStockNum, toStock.getStockNum() + distributeStockNum);
             pmGoodsVirtualStockService.update(updateWrapper);
         }
     }

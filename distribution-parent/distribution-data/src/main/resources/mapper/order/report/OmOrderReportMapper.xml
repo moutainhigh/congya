@@ -36,10 +36,12 @@
          ON branch.`id` = oor.`branch_id`
         <where>
             <if test="reportType !=null and reportType == 2">
-                and oor.`branch_id` = #{storeId}
+                and oor.`store_id` = #{storeId}
+                and oor.is_parent_store = 0
             </if>
             <if test="reportType !=null and reportType == 3">
                 and oor.`store_id` = #{storeId}
+                and oor.is_parent_store = 1
             </if>
             <if test="reportType !=null and reportType == 1">
                 and oor.is_parent_store = 0
