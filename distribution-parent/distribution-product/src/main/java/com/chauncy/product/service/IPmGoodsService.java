@@ -4,6 +4,7 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.bo.base.BaseBo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
+import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.advice.goods.select.SearchGoodsBaseListDto;
 import com.chauncy.data.dto.app.component.ShareDto;
 import com.chauncy.data.dto.app.product.FindStoreGoodsParamDto;
@@ -22,6 +23,7 @@ import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
 import com.chauncy.data.vo.app.advice.store.GoodsSecondCategoryListVo;
 import com.chauncy.data.vo.app.component.ScreenParamVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
+import com.chauncy.data.vo.app.goods.ShareDetailVo;
 import com.chauncy.data.vo.supplier.*;
 import com.chauncy.data.vo.supplier.good.AssociationGoodsVo;
 import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
@@ -344,4 +346,16 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * @return
      */
     void share(ShareDto shareDto);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/11/17 21:18
+     * @Description 获取分享商品、资讯、注册页面的接口数据
+     *
+     * @Update yeJH
+     *
+     * @return com.chauncy.data.vo.JsonViewData<ShareDetailVo>
+     * @return void
+     **/
+    ShareDetailVo getShareDetail(ShareDto shareDto, UmUserPo umUserPo);
 }

@@ -24,6 +24,7 @@ import com.chauncy.data.vo.app.advice.store.GoodsSecondCategoryListVo;
 import com.chauncy.data.vo.app.component.ScreenGoodsParamVo;
 import com.chauncy.data.vo.app.goods.ActivityGoodsVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
+import com.chauncy.data.vo.app.goods.ShareDetailVo;
 import com.chauncy.data.vo.app.goods.SpecifiedGoodsVo;
 import com.chauncy.data.vo.manage.message.advice.tab.association.acticity.SearchActivityGoodsVo;
 import com.chauncy.data.vo.manage.message.advice.tab.tab.SearchAdviceGoodsVo;
@@ -341,4 +342,16 @@ public interface PmGoodsMapper extends IBaseMapper<PmGoodsPo> {
      **/
     @Update("update pm_goods set liked_num = liked_num - 1 where id = #{goodsId} and liked_num > 0")
     void delLikedNum(Long goodsId);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/11/17 21:37
+     * @Description 获取要分享的商品的信息
+     *
+     * @Update yeJH
+     *
+     * @param  shareId
+     * @return com.chauncy.data.vo.app.goods.ShareDetailVo
+     **/
+    ShareDetailVo getShareGoodsDetail(Long shareId);
 }

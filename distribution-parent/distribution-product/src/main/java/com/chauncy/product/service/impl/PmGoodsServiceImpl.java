@@ -2,6 +2,7 @@ package com.chauncy.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.chauncy.common.constant.ServiceConstant;
 import com.chauncy.common.enums.app.component.ShareTypeEnum;
 import com.chauncy.common.enums.app.sort.SortFileEnum;
 import com.chauncy.common.enums.app.sort.SortWayEnum;
@@ -51,6 +52,7 @@ import com.chauncy.data.vo.app.advice.store.GoodsSecondCategoryListVo;
 import com.chauncy.data.vo.app.component.ScreenGoodsParamVo;
 import com.chauncy.data.vo.app.component.ScreenParamVo;
 import com.chauncy.data.vo.app.goods.GoodsBaseInfoVo;
+import com.chauncy.data.vo.app.goods.ShareDetailVo;
 import com.chauncy.data.vo.supplier.*;
 import com.chauncy.data.vo.supplier.good.AssociationGoodsVo;
 import com.chauncy.data.vo.supplier.good.ExcelGoodVo;
@@ -65,14 +67,17 @@ import com.chauncy.product.stock.IPmGoodsVirtualStockService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -190,6 +195,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     private static int defaultPageNo = 1;
 
     private static String defaultSoft = "sort desc";
+
+    @Value("${distribution.share.addr}")
+    private String shareAddr;
 
     @Override
     public List<String> findGoodsType() {
@@ -2069,6 +2077,82 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
         umUserMapper.updateById(userPo);
 
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/11/17 21:30
+     * @Description 获取分享商品/资讯/注册页面信息
+     *
+     * @Update yeJH
+     *
+     * @param  shareDto
+     * @return com.chauncy.data.vo.app.goods.ShareDetailVo
+     **/
+    @Override
+    public ShareDetailVo getShareDetail(ShareDto shareDto, UmUserPo umUserPo) {
+        if(null == shareDto.getShareType()) {
+            throw new ServiceException(ResultCode.PARAM_ERROR, "分享类型参数错误");
+        }
+        ShareDetailVo shareDetailVo = new ShareDetailVo();
+        //分享标题
+        shareDetailVo.setShareTitle(ServiceConstant.SHARE_TITLE);
+        switch (shareDto.getShareType()) {
+            case GOODS:
+                if(null == shareDto.getShareId()) {
+                    throw new ServiceException(ResultCode.PARAM_ERROR, "商品id参数不能为空");
+                }
+                ShareDetailVo temp = mapper.getShareGoodsDetail(shareDto.getShareId());
+                if(null == temp) {
+                    throw new ServiceException(ResultCode.PARAM_ERROR, "商品不存在");
+                }
+                BeanUtils.copyProperties(temp,shareDetailVo);
+                //分享描述
+                shareDetailVo.setShareDescribe(temp.getGoodsName());
+                //分享图片
+                shareDetailVo.setSharePicture(temp.getGoodsPicture());
+                //分享链接
+                shareDetailVo.setShareUrl(MessageFormat.format(ServiceConstant.SHARE_URL_GOODS, shareAddr,
+                        String.valueOf(shareDto.getShareId())));
+                break;
+            case INFORMATION:
+                if(null == shareDto.getShareId()) {
+                    throw new ServiceException(ResultCode.PARAM_ERROR, "资讯id参数不能为空");
+                }
+                MmInformationPo mmInformationPo = mmInformationMapper.selectById(shareDto.getShareId());
+                if(null == mmInformationPo) {
+                    throw new ServiceException(ResultCode.PARAM_ERROR, "资讯不存在");
+                }
+                //分享描述
+                shareDetailVo.setShareDescribe(mmInformationPo.getTitle());
+                //分享图片
+                List<String> images = Splitter.on(";").splitToList(mmInformationPo.getCoverImage());
+                String sharePicture = (null != images && images.size() > 0) ?
+                        images.get(0) : MessageFormat.format(ServiceConstant.ICON_PATH, "congya");
+                shareDetailVo.setSharePicture(sharePicture);
+                //分享链接
+                shareDetailVo.setShareUrl(MessageFormat.format(ServiceConstant.SHARE_URL_INFO, shareAddr,
+                        String.valueOf(shareDto.getShareId())));
+                break;
+            case REGISTER:
+                //用户头像
+                shareDetailVo.setUserPhoto(umUserPo.getPhoto());
+                //用户昵称
+                shareDetailVo.setNickName(umUserPo.getName());
+                //用户邀请码
+                shareDetailVo.setInviteCode(umUserPo.getInviteCode());
+                //分享描述
+                shareDetailVo.setShareDescribe(ServiceConstant.SHARE_DESCRIBE);
+                //分享图片
+                String photo = null != umUserPo.getPhoto() ?
+                        umUserPo.getPhoto() : MessageFormat.format(ServiceConstant.ICON_PATH, "congya");
+                shareDetailVo.setSharePicture(photo);
+                //分享链接
+                shareDetailVo.setShareUrl(MessageFormat.format(ServiceConstant.SHARE_URL_REGISTER, shareAddr,
+                        String.valueOf(umUserPo.getInviteCode())));
+                break;
+        }
+        return shareDetailVo;
     }
 
 }

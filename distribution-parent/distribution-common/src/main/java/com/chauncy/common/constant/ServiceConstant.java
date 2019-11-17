@@ -36,4 +36,25 @@ public interface ServiceConstant {
      * 流水图标路径
      */
     String ICON_PATH = "http://bo2h.com/common/png/{0}.png";
+
+    /**
+     * 分享标题
+     */
+    String SHARE_TITLE = "我发现一个很好用的商城～一起来愉快地购物吧！";
+    /**
+     * 分享描述
+     */
+    String SHARE_DESCRIBE = "我发现了一个不错的商品，赶快来看看吧";
+    /**
+     * 分享商品链接
+     */
+    String SHARE_URL_GOODS = "{0}/goodsdetail?goodsId={1}";
+    /**
+     * 分享资讯链接
+     */
+    String SHARE_URL_INFO = "{0}/info?id={1}";
+    /**
+     * 分享用户注册链接
+     */
+    String SHARE_URL_REGISTER = "{0}/invite?inviteCode={1}";
 }

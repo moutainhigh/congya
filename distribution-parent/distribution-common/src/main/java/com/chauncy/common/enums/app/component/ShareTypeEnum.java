@@ -18,7 +18,11 @@ public enum ShareTypeEnum implements BaseEnum {
 
     GOODS(1,"商品"),
 
-    INFORMATION(2,"资讯");
+    INFORMATION(2,"资讯"),
+
+    REGISTER(3,"邀请注册"),
+
+    ;
 
     @EnumValue  //这个注解放在数据库存储的字段上
     private Integer id;

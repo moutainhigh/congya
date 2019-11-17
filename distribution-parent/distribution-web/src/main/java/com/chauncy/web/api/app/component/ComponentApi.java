@@ -12,6 +12,7 @@ import com.chauncy.data.dto.app.product.FindGoodsCategoryDto;
 import com.chauncy.data.vo.BaseVo;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.component.ScreenParamVo;
+import com.chauncy.data.vo.app.goods.ShareDetailVo;
 import com.chauncy.data.vo.app.user.GetMembersCenterVo;
 import com.chauncy.data.vo.manage.message.content.app.FindArticleContentVo;
 import com.chauncy.message.advice.IMmAdviceService;
@@ -32,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
@@ -228,13 +230,32 @@ public class ComponentApi extends BaseApi {
      * @return
      */
     @PostMapping("/share")
-    @ApiOperation("分享商品/资讯")
+    @ApiOperation("分享商品/资讯成功访问该接口")
     public JsonViewData shareGoods(@RequestBody @ApiParam(required = true,name = "shareDto",value = "分享商品/资讯Dto")
                                    @Validated ShareDto shareDto){
 
         goodsService.share(shareDto);
 
         return setJsonViewData(ResultCode.SUCCESS,"转发成功");
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/11/17 21:29
+     * @Description 获取分享商品/资讯/注册页面信息
+     *
+     * @Update yeJH
+     *
+     * @param  shareDto
+     * @return com.chauncy.data.vo.JsonViewData<ShareDetailVo>
+     **/
+    @PostMapping("/share/getShareDetail")
+    @ApiOperation("分享商品/资讯/注册页面信息")
+    public JsonViewData<ShareDetailVo> getShareDetail(@RequestBody @ApiParam(required = true,name = "shareDto",value = "分享商品/资讯/注册页面Dto")
+                                   @Validated ShareDto shareDto, HttpServletRequest request){
+
+        UmUserPo umUserPo = securityUtil.getAppCurrUser();
+        return setJsonViewData(goodsService.getShareDetail(shareDto, umUserPo));
     }
 
     /**
