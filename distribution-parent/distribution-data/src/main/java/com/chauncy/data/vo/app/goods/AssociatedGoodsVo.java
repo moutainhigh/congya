@@ -21,6 +21,9 @@ public class AssociatedGoodsVo {
     @ApiModelProperty(value = "商品ID")
     private Long goodsId;
 
+    @ApiModelProperty(value = "商品名称")
+    private String goodsName;
+
     @ApiModelProperty(value = "商品图片")
     private String picture;
 
