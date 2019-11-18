@@ -2108,7 +2108,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
                 }
                 BeanUtils.copyProperties(temp,shareDetailVo);
                 if(shareDetailVo.getMaxPrice().compareTo(shareDetailVo.getMinPrice()) == 0) {
-                    shareDetailVo.setMaxPrice(null);
+                    shareDetailVo.setMaxPrice(BigDecimal.ZERO);
                 }
                 //分享描述
                 shareDetailVo.setShareDescribe(temp.getGoodsName());
