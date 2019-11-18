@@ -1,6 +1,7 @@
 package com.chauncy.quartz.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
@@ -23,6 +24,9 @@ public class QuartzConfig {
     @Autowired
     private DataSource dataSource;
 
+    @Value("${distribution.quartz.schedulerName}")
+    private String schedulerName;
+
 
     @Bean
     public SchedulerFactoryBean schedulerFactoryBean() throws IOException {
@@ -42,7 +46,7 @@ public class QuartzConfig {
 
         //未知参数
         schedulerFactoryBean.setApplicationContextSchedulerContextKey("applicationContextKey");
-        schedulerFactoryBean.setSchedulerName("congyaScheduler");
+        schedulerFactoryBean.setSchedulerName(schedulerName);
 
         return schedulerFactoryBean;
     }
@@ -54,7 +58,7 @@ public class QuartzConfig {
 
         // quartz参数
         Properties prop = new Properties();
-        prop.put("org.quartz.scheduler.instanceName", "congyaScheduler");
+        prop.put("org.quartz.scheduler.instanceName", schedulerName);
         prop.put("org.quartz.scheduler.instanceId", "AUTO");
         // 线程池配置
         prop.put("org.quartz.threadPool.class", "org.quartz.simpl.SimpleThreadPool");
