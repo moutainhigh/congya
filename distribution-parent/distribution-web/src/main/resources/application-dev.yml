@@ -183,6 +183,10 @@ distribution:
   share:
     addr: http://112.126.96.226:91/#
 
+  # 定时任务配置
+  quartz:
+    schedulerName: chauncyScheduler
+
   # 微信配置
   wxpay:
     APP_ID: wx1aaefbe9953a4485
