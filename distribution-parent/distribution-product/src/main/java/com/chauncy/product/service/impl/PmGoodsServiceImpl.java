@@ -2120,7 +2120,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
                 shareDetailVo.setSharePicture(temp.getGoodsPicture());
                 //分享链接
                 shareDetailVo.setShareUrl(MessageFormat.format(ServiceConstant.SHARE_URL_GOODS, shareAddr,
-                        String.valueOf(shareDto.getShareId())));
+                        String.valueOf(shareDto.getShareId()), String.valueOf(umUserPo.getInviteCode())));
                 break;
             case INFORMATION:
                 if(null == shareDto.getShareId()) {
@@ -2139,7 +2139,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
                 shareDetailVo.setSharePicture(sharePicture);
                 //分享链接
                 shareDetailVo.setShareUrl(MessageFormat.format(ServiceConstant.SHARE_URL_INFO, shareAddr,
-                        String.valueOf(shareDto.getShareId())));
+                        String.valueOf(shareDto.getShareId()), String.valueOf(umUserPo.getInviteCode())));
                 break;
             case REGISTER:
                 //用户头像
