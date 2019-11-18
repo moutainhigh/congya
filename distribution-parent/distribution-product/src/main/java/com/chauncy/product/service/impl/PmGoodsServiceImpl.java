@@ -2025,6 +2025,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
 
         ShareTypeEnum shareTypeEnum = shareDto.getShareType();
         UmUserPo userPo = securityUtil.getAppCurrUser();
+        if(userPo == null){
+            throw new ServiceException(ResultCode.FAIL,"您不是App用户");
+        }
 
         if (shareTypeEnum == null){
             throw new ServiceException(ResultCode.NO_EXISTS,String.format("shareType所传的值在枚举类中不存在！"));

@@ -17,7 +17,7 @@
         id, create_by, update_time, goods_id, user_id, del_flag
     </sql>
     <select id="selectForUpdate" resultType="com.chauncy.data.domain.po.product.PmGoodsForwardPo">
-        SELECT id,create_by,update_time,info_id,user_id,del_flag
+        SELECT id,create_by,update_time,goods_id,user_id,del_flag
         FROM pm_goods_forward
         WHERE goods_id = #{goodsId} AND user_id = #{userId} FOR UPDATE
     </select>
