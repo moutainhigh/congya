@@ -121,7 +121,7 @@ public class MmUserNoticeServiceImpl extends AbstractService<MmUserNoticeMapper,
                             mmUserNoticePo.setUserId(withdrawalLogBo.getUserId())
                                     .setNoticeType(NoticeTypeEnum.EXPRESS_LOGISTICS.getId())
                                     .setTitle(NoticeTitleEnum.WITHDRAWAL_SUCCESS.getName())
-                                    .setPicture(MessageFormat.format(ServiceConstant.ICON_PATH, "congya"))
+                                    .setPicture(MessageFormat.format(ServiceConstant.ICON_PATH, NoticeTitleEnum.WITHDRAWAL_SUCCESS.name()))
                                     .setContent(MessageFormat.format(NoticeContentEnum.WITHDRAWAL_SUCCESS.getName(),
                                             withdrawalLogBo.getUserName(), String.valueOf(withdrawalLogBo.getLogId())));
                             mapper.insert(mmUserNoticePo);
