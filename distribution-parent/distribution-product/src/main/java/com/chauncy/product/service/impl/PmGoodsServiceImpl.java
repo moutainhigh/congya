@@ -1761,7 +1761,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         searchExcelDto.setStoreId(currentUser.getStoreId());
         Integer pageNo = searchExcelDto.getPageNo() == null ? defaultPageNo : searchExcelDto.getPageNo();
         Integer pageSize = searchExcelDto.getPageSize() == null ? defaultPageSize : searchExcelDto.getPageSize();
-        PageInfo<ExcelGoodVo> excelGoodVoPageInfo = PageHelper.startPage(pageNo, pageSize, defaultSoft)
+        PageInfo<ExcelGoodVo> excelGoodVoPageInfo = PageHelper.startPage(pageNo, pageSize)
                 .doSelectPageInfo(() -> mapper.searchExcelGoods(searchExcelDto));
         return excelGoodVoPageInfo;
     }

@@ -159,10 +159,19 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
          */
         saveUser.setInviteCode(SnowFlakeUtil.getFlowIdInstance().nextId());
 
+        //绑定父级
+        QueryWrapper<UmUserPo> userPoQueryWrapper=new QueryWrapper<>();
+        userPoQueryWrapper.lambda().eq(UmUserPo::getInviteCode,addUserDto.getInviteCode()).select(UmUserPo::getId,UmUserPo::getStoreId);
+        UmUserPo parentUser = mapper.selectOne(userPoQueryWrapper);
+
+        saveUser.setParentId(parentUser.getId()).setStoreId(parentUser.getStoreId());
+
         Boolean isSuccess = mapper.insert(saveUser) > 0;
 
         /** 注册IM账号**/
         registIM(saveUser, isSuccess);
+
+
 
         return isSuccess;
     }

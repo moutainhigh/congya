@@ -322,7 +322,7 @@ public class ExcelGoodApi extends BaseApi {
                 shipName = rowDataList.get(12);
                 shipIds = categoryService.findIdByNamesInAndTableName(Lists.newArrayList(shipName), "pm_shipping_template", "and type=2");
             }
-            if (shipIds == null) {
+            if (ListUtil.isListNullAndEmpty(shipIds) ) {
                 excelImportErrorLogVo.setRowNumber(i + 1);
                 excelImportErrorLogVo.setErrorMessage("运费模板不存在");
                 excelImportErrorLogVos.add(excelImportErrorLogVo);
