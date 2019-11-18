@@ -610,6 +610,7 @@
             and name like concat('%', #{name}, '%')
         </if>
         and store_id=#{storeId}
+        order by create_time desc
 
     </select>
     <select id="selectIds" resultType="com.chauncy.data.vo.BaseVo">
