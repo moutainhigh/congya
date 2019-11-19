@@ -419,7 +419,7 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
         //创建账单
         OmOrderBillPo omOrderBillPo = new OmOrderBillPo();
         omOrderBillPo.setYear(endDate.getYear());
-        String month = endDate.getMonthValue() > 10 ? "0" + endDate.getMonthValue() : String.valueOf(endDate.getMonthValue());
+        String month = endDate.getMonthValue() < 10 ? "0" + endDate.getMonthValue() : String.valueOf(endDate.getMonthValue());
         omOrderBillPo.setMonthDay(month + String.valueOf(endDate.getDayOfMonth()));
         //总货款/总利润
         BigDecimal totalAmount = BigDecimal.ZERO;
