@@ -68,4 +68,19 @@ public class Constants {
          */
         public static String PASSWORD = "123456";
 
+        /**
+         * logback追踪Id
+         */
+        public static String UNIQUE_ID = "traceId";
+
+        /**
+         * logback追踪用户Id
+         */
+        public static String USER_ID = "userId";
+
+        /**
+         * logback追踪用户
+         */
+        public static String USER_NAME = "userName";
+
 }
