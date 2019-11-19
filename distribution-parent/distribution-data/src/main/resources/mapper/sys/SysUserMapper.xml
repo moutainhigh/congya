@@ -74,7 +74,7 @@
 
     <select id="searchUsersByCondition"
             resultType="com.chauncy.data.vo.sys.permission.SearchUsersByConditionVo">
-        select distinct a.id,avatar,mobile,email,nick_name,password,sex,status,type,username,a.create_time
+        select distinct a.id,avatar,mobile,email,nick_name,password,sex,status,type,username,a.create_time,a.update_time
         from sys_user a,sys_role_user b,sys_role c
         where a.id = b.user_id and c.id = b.role_id and a.del_flag = 0 and b.del_flag = 0 and c.del_flag = 0
             <if test="m.mobile != null and m.mobile != ''">
@@ -98,6 +98,7 @@
             <if test="storeId != null and storeId != ''">
                 and a.store_id = #{storeId}
             </if>
+            order by a.update_time desc
     </select>
 
 </mapper>
