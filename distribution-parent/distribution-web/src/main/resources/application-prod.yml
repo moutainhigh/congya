@@ -80,6 +80,7 @@ ignored:
     - /sys-user-po/regist
     - /common/**
     - /druid/**
+    - /custom/**
     - /swagger-ui.html
     - /swagger-resources/**
     - /swagger/**
