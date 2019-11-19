@@ -104,7 +104,7 @@
 
             <!-- 日志文件的格式 -->
             <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-                <pattern>${FILE_LOG_PATTERN}</pattern>
+                <pattern>${CONSOLE_LOG_PATTERN}</pattern>
                 <charset>utf-8</charset>
             </encoder>
 
@@ -140,7 +140,7 @@
 
             <!-- 日志文件的格式 -->
             <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-                <pattern>${FILE_LOG_PATTERN}</pattern>
+                <pattern>${CONSOLE_LOG_PATTERN}</pattern>
                 <charset>utf-8</charset>
             </encoder>
 
@@ -176,7 +176,7 @@
 
             <!-- 日志文件的格式 -->
             <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-                <pattern>${FILE_LOG_PATTERN}</pattern>
+                <pattern>${CONSOLE_LOG_PATTERN}</pattern>
                 <charset>utf-8</charset>
             </encoder>
         </appender>
