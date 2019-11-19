@@ -34,13 +34,11 @@ public class WxMD5Util {
                 continue;
             }
             String asas = data.get(k);
-            System.out.println(k + "：" + asas);
             if (data.get(k).trim().length() > 0)
                 // 参数值为空，则不参与签名
                 sb.append(k).append("=").append(data.get(k).trim()).append("&");
         }
         sb.append("key=").append(config.getKey());
-        System.out.println(sb);
         MessageDigest md = null;
         try {
             md = MessageDigest.getInstance("MD5");
@@ -57,7 +55,6 @@ public class WxMD5Util {
         for (byte item : array) {
             sb2.append(Integer.toHexString((item & 0xFF) | 0x100).substring(1, 3));
         }
-        System.out.println(sb2.toString().toUpperCase());
         return sb2.toString().toUpperCase();
     }
 }
