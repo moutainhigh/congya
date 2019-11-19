@@ -40,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -113,9 +114,13 @@ public class SysUserApi {
             sysUserPo.setSystemType(1);
         } else {
             sysUserPo.setSystemType(2);
+            if (u.getType() == SecurityConstant.USER_TYPE_ADMIN){
+                throw new ServiceException(ResultCode.FAIL,"商家只能店主是管理员,请重新选择");
+            }
             sysUserPo.setStoreId(currentUser.getStoreId());
         }
         sysUserPo.setCreateBy(currentUser.getUsername());
+        sysUserPo.setUpdateTime(LocalDateTime.now());
         boolean s = userService.save(sysUserPo);
         if (!s) {
             return new JsonViewData(ResultCode.FAIL, "添加失败");

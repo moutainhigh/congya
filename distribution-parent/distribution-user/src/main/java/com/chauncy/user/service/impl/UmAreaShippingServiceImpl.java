@@ -2,6 +2,8 @@ package com.chauncy.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.domain.po.area.AreaRegionPo;
 import com.chauncy.data.domain.po.user.UmAreaShippingPo;
@@ -12,6 +14,7 @@ import com.chauncy.data.mapper.user.UmAreaShippingMapper;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.vo.app.user.ShipAreaVo;
 import com.chauncy.user.service.IUmAreaShippingService;
+import org.apache.catalina.security.SecurityUtil;
 import org.assertj.core.util.Lists;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -89,7 +92,22 @@ public class UmAreaShippingServiceImpl extends AbstractService<UmAreaShippingMap
      */
     @Override
     public void delArea(Long id) {
+        UmAreaShippingPo areaShippingPo = mapper.selectById(id);
+        if (areaShippingPo == null){
+            throw new ServiceException(ResultCode.FAIL,"收货地址不存在!");
+        }
+        Long userId = mapper.selectById(id).getUmUserId();
         mapper.deleteById(id);
+        Map<String, Object> map = new HashMap<>();
+        map.put("um_user_id", userId);
+        List<UmAreaShippingPo> areaShippingPos = mapper.selectByMap(map);
+        //如果有地址但是没有默认地址，设置第一个地址为默认地址
+        long count = areaShippingPos.stream().filter(UmAreaShippingPo::getIsDefault).count();
+        if (count==0 && !ListUtil.isListNullAndEmpty(areaShippingPos)){
+            UmAreaShippingPo umAreaShippingPo = areaShippingPos.get(0);
+            umAreaShippingPo.setIsDefault(true);
+            mapper.updateById(umAreaShippingPo);
+        }
     }
 
     /**

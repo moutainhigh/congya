@@ -2137,8 +2137,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             if (submitOrderDto.getRealUserId() == null) {
                 QueryWrapper<OmRealUserPo> realUserWrapper = new QueryWrapper<>();
                 realUserWrapper.lambda().eq(OmRealUserPo::getPhone, umAreaShippingPo.getMobile());
-                OmRealUserPo omRealUserPo = realUserMapper.selectOne(realUserWrapper);
-                submitOrderDto.setRealUserId(omRealUserPo.getId());
+                List<OmRealUserPo> omRealUserPos = realUserMapper.selectList(realUserWrapper);
+                submitOrderDto.setRealUserId(omRealUserPos.get(0).getId());
             }
         }
 
@@ -2359,9 +2359,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 payUserRelationService.save(savePayUser);
                 //保存下级用户集合
                 List<PayUserRelationNextLevelPo> savePayUserRelationNextLevels = com.google.common.collect.Lists.newArrayList();
-                PayUserRelationNextLevelPo savePayUserRelationNextLevel = new PayUserRelationNextLevelPo();
                 if (!ListUtil.isListNullAndEmpty(queryPayUser.getNextUserIds())) {
                     queryPayUser.getNextUserIds().forEach(y -> {
+                        PayUserRelationNextLevelPo savePayUserRelationNextLevel = new PayUserRelationNextLevelPo();
                         savePayUserRelationNextLevel.setNextUserId(y).setPayUserRealtionId(savePayUser.getId());
                         savePayUserRelationNextLevels.add(savePayUserRelationNextLevel);
                     });
