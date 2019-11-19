@@ -2359,9 +2359,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 payUserRelationService.save(savePayUser);
                 //保存下级用户集合
                 List<PayUserRelationNextLevelPo> savePayUserRelationNextLevels = com.google.common.collect.Lists.newArrayList();
-                PayUserRelationNextLevelPo savePayUserRelationNextLevel = new PayUserRelationNextLevelPo();
                 if (!ListUtil.isListNullAndEmpty(queryPayUser.getNextUserIds())) {
                     queryPayUser.getNextUserIds().forEach(y -> {
+                        PayUserRelationNextLevelPo savePayUserRelationNextLevel = new PayUserRelationNextLevelPo();
                         savePayUserRelationNextLevel.setNextUserId(y).setPayUserRealtionId(savePayUser.getId());
                         savePayUserRelationNextLevels.add(savePayUserRelationNextLevel);
                     });
