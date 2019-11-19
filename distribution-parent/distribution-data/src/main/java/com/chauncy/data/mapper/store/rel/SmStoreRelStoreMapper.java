@@ -33,4 +33,4 @@ public interface SmStoreRelStoreMapper extends IBaseMapper<SmStoreRelStorePo> {
      * @return
      */
     Long getTeamWorkParentStoreId(
-            @Param("storeId")Long storeId, @Param("startDate") LocalDate startDate, @Param("startDate") LocalDate endDate);}
+            @Param("storeId")Long storeId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);}
