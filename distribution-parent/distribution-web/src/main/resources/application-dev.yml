@@ -181,7 +181,7 @@ distribution:
 
   # 分享的页面地址
   share:
-    addr: http://112.126.96.226:91/#
+    addr: http://5yah.bo2h.com:8007/#
 
   # 定时任务配置
   quartz:

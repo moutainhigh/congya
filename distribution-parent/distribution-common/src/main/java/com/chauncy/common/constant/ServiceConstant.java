@@ -48,11 +48,11 @@ public interface ServiceConstant {
     /**
      * 分享商品链接
      */
-    String SHARE_URL_GOODS = "{0}/goodsdetail?goodsId={1}";
+    String SHARE_URL_GOODS = "{0}/goodsdetail?goodsId={1}&inviteCode={2}";
     /**
      * 分享资讯链接
      */
-    String SHARE_URL_INFO = "{0}/info?id={1}";
+    String SHARE_URL_INFO = "{0}/info?id={1}&inviteCode={2}";
     /**
      * 分享用户注册链接
      */
