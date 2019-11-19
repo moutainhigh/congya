@@ -22,6 +22,7 @@ import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.domain.po.order.OmOrderLogisticsPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.pay.OmOrderTempPo;
+import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.domain.po.user.UmAreaShippingPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.logistics.SynQueryLogisticsDto;
@@ -32,6 +33,7 @@ import com.chauncy.data.mapper.message.interact.MmUserNoticeMapper;
 import com.chauncy.data.mapper.order.OmGoodsTempMapper;
 import com.chauncy.data.mapper.order.OmOrderLogisticsMapper;
 import com.chauncy.data.mapper.order.OmOrderMapper;
+import com.chauncy.data.mapper.pay.IPayOrderMapper;
 import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.mapper.user.UmAreaShippingMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
@@ -107,6 +109,9 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
 
     @Autowired
     private IOmOrderService orderService;
+
+    @Autowired
+    private IPayOrderMapper payOrderMapper;
 
 
 //    /**
@@ -292,14 +297,13 @@ public class OmOrderLogisticsServiceImpl extends AbstractService<OmOrderLogistic
 //        map.put("isCheck", orderLogistics.getIsCheck());
 //        map.put("receiveName", "收货人");
 //        map.put("receiveTel", "手机号");
+        PayOrderPo queryPayOrder = payOrderMapper.selectById(order.getPayOrderId());
 
         //获取用户详细收货地址
-        Long areaShippingId = order.getAreaShippingId();
-        UmAreaShippingPo areaShippingPo = areaShippingMapper.selectById(areaShippingId);
-        String areaName = areaShippingPo.getAreaName().replace(",", "");
-        String detail = areaShippingPo.getDetailedAddress();
+        String areaName = queryPayOrder.getAreaName().replace(",", "");
+        String detail = queryPayOrder.getShipAddress();
         String address = areaName.concat(detail);
-        UmUserPo userPo = userMapper.selectById(areaShippingPo.getUmUserId());
+        UmUserPo userPo = userMapper.selectById(order.getCreateBy());
 
         List<LogisticsDataBo> logisticsDataBos = JSONUtils.toJSONArray(orderLogistics.getData());
         FindLogicDetailVo findLogicDetailVo = new FindLogicDetailVo();

@@ -2137,8 +2137,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             if (submitOrderDto.getRealUserId() == null) {
                 QueryWrapper<OmRealUserPo> realUserWrapper = new QueryWrapper<>();
                 realUserWrapper.lambda().eq(OmRealUserPo::getPhone, umAreaShippingPo.getMobile());
-                OmRealUserPo omRealUserPo = realUserMapper.selectOne(realUserWrapper);
-                submitOrderDto.setRealUserId(omRealUserPo.getId());
+                List<OmRealUserPo> omRealUserPos = realUserMapper.selectList(realUserWrapper);
+                submitOrderDto.setRealUserId(omRealUserPos.get(0).getId());
             }
         }
 
