@@ -185,7 +185,7 @@ distribution:
 
   # 定时任务配置
   quartz:
-    schedulerName: chauncyScheduler
+    schedulerName: congyaDevScheduler
 
   # 微信配置
   wxpay:
