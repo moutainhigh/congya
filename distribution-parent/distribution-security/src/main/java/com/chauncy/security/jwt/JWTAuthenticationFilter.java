@@ -44,6 +44,7 @@ import java.util.concurrent.TimeUnit;
  *
  * token过滤器来验证token有效性
  *
+ * 本项目拦截：security MyAuthenticationFilter ==>LimitRaterInterceptor==>controller
  */
 @Slf4j
 public class JWTAuthenticationFilter extends BasicAuthenticationFilter {

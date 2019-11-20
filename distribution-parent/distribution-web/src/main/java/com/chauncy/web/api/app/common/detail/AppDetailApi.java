@@ -1,5 +1,6 @@
 package com.chauncy.web.api.app.common.detail;
 
+import com.chauncy.common.annotation.limit.RateLimiter;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.data.domain.po.user.UmUserPo;
@@ -43,6 +44,7 @@ public class AppDetailApi {
      */
     @GetMapping("/selectSpecifiedGoods/{goodsId}")
     @ApiOperation("查看具体商品详情")
+    @RateLimiter(limit = 1)
     public JsonViewData<SpecifiedGoodsVo> selectSpecifiedGoods(@ApiParam(required = true, name = "goodsId", value = "商品ID")
                                                                @PathVariable Long goodsId) {
         UmUserPo userPo = securityUtil.getAppCurrUser();

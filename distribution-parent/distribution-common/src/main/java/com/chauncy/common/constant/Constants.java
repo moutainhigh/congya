@@ -83,4 +83,24 @@ public class Constants {
          */
         public static String USER_NAME = "userName";
 
+        /**
+         * 令牌桶限流key
+         */
+        public static String BUCKET = "BUCKET:";
+
+        /**
+         * 令牌桶限流数量
+         */
+        public static String BUCKET_COUNT = "BUCKET_COUNT:";
+
+        /**
+         * 令牌桶限流流成员key
+         */
+        public static String BUCKET_MONITOR = "BUCKET_MONITOR:";
+
+        /**
+         * 全局限流标识
+         */
+        public static String LIMIT_ALL = "TICKETS_LIMIT_ALL";
+
 }

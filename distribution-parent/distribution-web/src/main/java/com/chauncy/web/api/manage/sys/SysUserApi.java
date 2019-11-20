@@ -2,6 +2,7 @@ package com.chauncy.web.api.manage.sys;
 
 
 import cn.hutool.core.util.StrUtil;
+import com.chauncy.common.annotation.limit.RateLimiter;
 import com.chauncy.common.constant.Constants;
 import com.chauncy.common.constant.SecurityConstant;
 import com.chauncy.common.enums.system.ResultCode;
@@ -334,6 +335,7 @@ public class SysUserApi {
 
     @RequestMapping(value = "/info", method = RequestMethod.GET)
     @ApiOperation(value = "获取当前登录用户接口")
+    @RateLimiter(limit = 1)
     public Result<SysUserPo> getUserInfo() {
 
         SysUserPo u = securityUtil.getCurrUser();
