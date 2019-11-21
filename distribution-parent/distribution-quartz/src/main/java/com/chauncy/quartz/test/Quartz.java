@@ -1,5 +1,6 @@
 package com.chauncy.quartz.test;
 
+import com.chauncy.common.annotation.logback.LogBack;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +17,7 @@ public class Quartz {
 
     public String texts = "测试spel";
 
+    @LogBack
     public String quartzTest(String texts){
 
         String text = "测试定时任务传参数";

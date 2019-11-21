@@ -1,6 +1,7 @@
 package com.chauncy.security.jwt;
 
 import cn.hutool.core.util.StrUtil;
+import com.chauncy.common.constant.Constants;
 import com.chauncy.common.constant.SecurityConstant;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
@@ -15,6 +16,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -41,6 +44,7 @@ import java.util.concurrent.TimeUnit;
  *
  * token过滤器来验证token有效性
  *
+ * 本项目拦截：security MyAuthenticationFilter ==>LimitRaterInterceptor==>controller
  */
 @Slf4j
 public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
@@ -74,13 +78,22 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
 
         log.info("%%%%%%%%%验证token有效性开始%%%%%%%%%");
 
+        //日志跟踪
+        boolean bInsertMDC = insertMDC();
+
         String header = request.getHeader(SecurityConstant.HEADER);
         if(StrUtil.isBlank(header)){
             header = request.getParameter(SecurityConstant.HEADER);
         }
         Boolean notValid = StrUtil.isBlank(header) || (!tokenRedis && !header.startsWith(SecurityConstant.TOKEN_SPLIT));
         if (notValid) {
-            chain.doFilter(request, response);
+            try {
+                chain.doFilter(request, response);
+            } finally {
+                if (bInsertMDC) {
+                    MDC.remove(Constants.UNIQUE_ID);
+                }
+            }
             return;
         }
         try {
@@ -90,7 +103,14 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
             LoggerUtil.error(e);
         }
 
-        chain.doFilter(request, response);
+        try {
+            chain.doFilter(request, response);
+        } finally {
+            if (bInsertMDC) {
+                MDC.remove(Constants.UNIQUE_ID);
+                MDC.remove(Constants.USER_NAME);
+            }
+        }
     }
 
     private UsernamePasswordAuthenticationToken getAuthentication(String header, HttpServletResponse response) {
@@ -110,6 +130,7 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
             }
             TokenUser user = new Gson().fromJson(v, TokenUser.class);
             username = user.getUsername();
+            MDC.put(Constants.USER_NAME,username);
             if(storePerms){
                 // 缓存了权限
                 for(String ga : user.getPermissions()){
@@ -164,5 +185,22 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
             return new UsernamePasswordAuthenticationToken(principal, null, authorities);
         }
         return null;
+    }
+
+    /**
+     * @Author chauncy
+     * @Date 2019-11-19 20:31
+     * @Description //使用UUID作为日志跟踪ID
+     *
+     * @Update chauncy
+     *
+     * @param
+     * @return boolean
+     **/
+    private boolean insertMDC() {
+        UUID uuid = UUID.randomUUID();
+        String uniqueId = uuid.toString().replace("-", "");
+        MDC.put(Constants.UNIQUE_ID, uniqueId);
+        return true;
     }
 }

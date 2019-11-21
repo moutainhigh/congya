@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.chauncy.activity.registration.IAmActivityRelGoodsSkuService;
 import com.chauncy.activity.spell.IAmSpellGroupMainService;
 import com.chauncy.activity.spell.IAmSpellGroupMemberService;
+import com.chauncy.common.annotation.logback.LogBack;
 import com.chauncy.common.constant.RabbitConstants;
 import com.chauncy.common.enums.app.activity.ActivityStatusEnum;
 import com.chauncy.common.enums.app.activity.SpellGroupMainStatusEnum;
@@ -100,6 +101,7 @@ public class RabbitOrderHandler {
 
     @RabbitListener(queues = {RabbitConstants.CLOSE_ORDER_QUEUE})
     @Transactional(rollbackFor = Exception.class)
+    @LogBack
     public void listenerDelayQueue(Long payOrderId, Message message, Channel channel) throws IOException {
         LoggerUtil.info(String.format("[closeOrderByPayId 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), payOrderId));
         try {
@@ -118,6 +120,7 @@ public class RabbitOrderHandler {
 
     @RabbitListener(queues = {RabbitConstants.ACCOUNT_LOG_QUEUE})
     @Transactional(rollbackFor = Exception.class)
+    @LogBack
     public void listenerAccountLogQueue(AddAccountLogBo addAccountLogBo, Message message, Channel channel) throws IOException {
         LoggerUtil.info(String.format("[saveAccountLog 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), addAccountLogBo));
 
@@ -142,6 +145,7 @@ public class RabbitOrderHandler {
      **/
     @RabbitListener(queues = {RabbitConstants.CUSTOM_DECLARE_REDIRECT_QUEUE})
     @Transactional(rollbackFor = Exception.class)
+    @LogBack
     public void listenerCustomDeclareQueue(Long omOrderId, Message message, Channel channel) throws IOException {
         LoggerUtil.info(String.format("[customDeclareOrder 监听的消息] - [消费时间] - [%s] - [%s]",
                 LocalDateTime.now(), String.valueOf(omOrderId)));
@@ -158,6 +162,7 @@ public class RabbitOrderHandler {
 
     @RabbitListener(queues = {RabbitConstants.PLATFORM_GIVE_QUEUE})
     @Transactional(rollbackFor = Exception.class)
+    @LogBack
     public void listenerPlatformGiveQueue(AddAccountLogBo accountLogBo, Message message, Channel channel) throws IOException {
         LoggerUtil.info(String.format("[saveAccountLog 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), accountLogBo));
 
@@ -172,6 +177,7 @@ public class RabbitOrderHandler {
 
     @RabbitListener(queues = {RabbitConstants.ORDER_REDIRECT_QUEUE})
     @Transactional(rollbackFor = Exception.class)
+    @LogBack
     public void autoDoQueue(RabbitOrderBo rabbitOrderBo, Message message, Channel channel) throws IOException {
         LoggerUtil.info(String.format("[订单队列 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), rabbitOrderBo.toString()));
         //如果订单状态为未支评价,就去自动评价
@@ -237,6 +243,7 @@ public class RabbitOrderHandler {
      */
     @RabbitListener(queues = {RabbitConstants.AFTER_DEAD_QUEUE})
     @Transactional(rollbackFor = Exception.class)
+    @LogBack
     public void afterDelay(RabbitAfterBo rabbitAfterBo, Message message, Channel channel) throws IOException {
 
 
@@ -304,6 +311,7 @@ public class RabbitOrderHandler {
 
     @RabbitListener(queues = {RabbitConstants.CLOSE_GROUP_QUEUE})
     @Transactional(rollbackFor = Exception.class)
+    @LogBack
     public void listenerCloseGroupQueue(Long mainId, Message message, Channel channel) throws IOException {
         LoggerUtil.info(String.format("[拼团失败 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), mainId));
 
@@ -353,6 +361,7 @@ public class RabbitOrderHandler {
      **/
     @RabbitListener(queues = {RabbitConstants.DEL_MEMBER_QUEUE})
     @Transactional(rollbackFor = Exception.class)
+    @LogBack
     public void listenerDelMemberQueue(Long memberId, Message message, Channel channel) throws IOException {
         LoggerUtil.info(String.format("[拼团下单半小时后未付款 监听的消息] - [消费时间] - [%s] - [%s]", LocalDateTime.now(), memberId));
 

@@ -131,11 +131,19 @@ logistics:
 distribution:
   # 全局限流
   rateLimit:
-    enable: true
+    enable: false
     # 每1秒内
     timeout: 1000
     # 总限制100个请求
     limit: 100
+  # Ip限流
+  ipRateLimit:
+    # 一般设为false
+    enable: false
+    # 每1秒内
+    timeout: 1000
+    # 总限制1个请求
+    limit: 1
   # token交互方式
   token:
     # 默认redis 设置为true后，token将存入redis，并具有单点登录功能 设为false将使用JWT交互
@@ -185,7 +193,7 @@ distribution:
 
   # 定时任务配置
   quartz:
-    schedulerName: chauncyScheduler
+    schedulerName: congyaDevScheduler
 
   # 微信配置
   wxpay:
