@@ -17,7 +17,7 @@
     <!-- ****************************************************************************************** -->
     <!-- 控制台的日志输出样式 -->
     <property name="CONSOLE_LOG_PATTERN"
-              value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}" />
+              value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---)[%X{traceId},%X{userName}] %clr(---){faint} %clr([%15.15t]){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}" />
 
     <springProfile name="dev">
         <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
@@ -104,7 +104,7 @@
 
             <!-- 日志文件的格式 -->
             <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-                <pattern>${FILE_LOG_PATTERN}</pattern>
+                <pattern>${CONSOLE_LOG_PATTERN}</pattern>
                 <charset>utf-8</charset>
             </encoder>
 
@@ -140,7 +140,7 @@
 
             <!-- 日志文件的格式 -->
             <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-                <pattern>${FILE_LOG_PATTERN}</pattern>
+                <pattern>${CONSOLE_LOG_PATTERN}</pattern>
                 <charset>utf-8</charset>
             </encoder>
 
@@ -176,7 +176,7 @@
 
             <!-- 日志文件的格式 -->
             <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-                <pattern>${FILE_LOG_PATTERN}</pattern>
+                <pattern>${CONSOLE_LOG_PATTERN}</pattern>
                 <charset>utf-8</charset>
             </encoder>
         </appender>
