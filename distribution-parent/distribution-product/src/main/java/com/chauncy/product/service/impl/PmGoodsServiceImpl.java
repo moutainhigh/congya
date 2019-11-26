@@ -450,19 +450,21 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         //根据不同类型运费模版保存不同运费信息
         PmShippingTemplatePo shippingTemplatePo = shippingTemplateMapper.selectById(goodsPo.getShippingTemplateId());
 
-        GoodsShipTemplateEnum goodsShipTemplateById = GoodsShipTemplateEnum.getGoodsShipTemplateById(shippingTemplatePo.getType());
-        switch (goodsShipTemplateById) {
-            case MERCHANT_SHIP:
-                BaseVo merchantShipVo = new BaseVo();
-                BeanUtils.copyProperties(shippingTemplatePo, merchantShipVo);
-                baseGoodsVo.setMerchantShipVo(merchantShipVo);
-                break;
-            case PLATFORM_SHIP:
-                BaseVo platformShipVo = new BaseVo();
-                BeanUtils.copyProperties(shippingTemplatePo, platformShipVo);
-                baseGoodsVo.setPlatformShipVo(platformShipVo);
-                break;
+        if (shippingTemplatePo != null) {
+            GoodsShipTemplateEnum goodsShipTemplateById = GoodsShipTemplateEnum.getGoodsShipTemplateById(shippingTemplatePo.getType());
+            switch (goodsShipTemplateById) {
+                case MERCHANT_SHIP:
+                    BaseVo merchantShipVo = new BaseVo();
+                    BeanUtils.copyProperties(shippingTemplatePo, merchantShipVo);
+                    baseGoodsVo.setMerchantShipVo(merchantShipVo);
+                    break;
+                case PLATFORM_SHIP:
+                    BaseVo platformShipVo = new BaseVo();
+                    BeanUtils.copyProperties(shippingTemplatePo, platformShipVo);
+                    baseGoodsVo.setPlatformShipVo(platformShipVo);
+                    break;
 
+            }
         }
 
         return baseGoodsVo;
@@ -491,6 +493,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         //保存非关联信息
         BeanUtils.copyProperties(updateGoodBaseDto, goodsPo);
         goodsPo.setUpdateBy(user);
+        goodsPo.setShippingTemplateId(updateGoodBaseDto.getShippingId());
         goodsMapper.updateById(goodsPo);
 
         /**
@@ -521,6 +524,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         goodsRelAttributeGoodMapper.deleteByMap(GoodIdMap);
         //插入新数据
         addAttribute(updateGoodBaseDto, user, goodsPo);
+
     }
 
     /**
