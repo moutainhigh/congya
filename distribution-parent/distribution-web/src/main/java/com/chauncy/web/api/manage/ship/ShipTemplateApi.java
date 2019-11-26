@@ -1,6 +1,8 @@
 package com.chauncy.web.api.manage.ship;
 
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.exception.sys.ServiceException;
+import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.dto.manage.ship.add.AddShipTemplateDto;
 import com.chauncy.data.dto.manage.ship.delete.DelListDto;
 import com.chauncy.data.dto.manage.ship.select.SearchPlatTempDto;
@@ -9,6 +11,7 @@ import com.chauncy.data.dto.manage.ship.update.VerifyTemplateDto;
 import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.manage.ship.PlatTemplateVo;
 import com.chauncy.product.service.IPmShippingTemplateService;
+import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -33,6 +36,8 @@ public class ShipTemplateApi {
     @Autowired
     private IPmShippingTemplateService service;
 
+    @Autowired
+    private SecurityUtil securityUtil;
     /**
      * 添加或修改运费模版
      *
@@ -89,6 +94,9 @@ public class ShipTemplateApi {
     public JsonViewData<PageInfo<PlatTemplateVo>> SearchPlatTempByConditions(@RequestBody @Validated @ApiParam(required = true,name = "添加运费模版",
             value = "searchPlatTempDto") SearchPlatTempDto searchPlatTempDto){
 
+        //获取当前店铺/平台用户
+        SysUserPo sysUserPo = securityUtil.getCurrUser();
+        searchPlatTempDto.setStoreId(sysUserPo.getStoreId());
         return new JsonViewData(service.searchPlatTempByConditions(searchPlatTempDto));
     }
 

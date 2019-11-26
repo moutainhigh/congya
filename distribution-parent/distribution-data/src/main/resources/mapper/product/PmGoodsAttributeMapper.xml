@@ -117,6 +117,9 @@
         select *
         from pm_goods_attribute
         where del_flag = 0 and enabled = 1 and type = #{type}
+        <if test="type == 2 and storeId != null">
+            and store_id = #{storeId}
+        </if>
     </select>
 
     <select id="getBrandList" resultType="com.chauncy.data.vo.app.brand.BrandInfoVo">

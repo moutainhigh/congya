@@ -103,9 +103,10 @@ public interface PmGoodsAttributeMapper extends IBaseMapper<PmGoodsAttributePo> 
      * 通过类型查找属性
      *
      * @param type
+     * @param storeId  商家服务说明  不同店铺只能看到自己的商家服务说明
      * @return
      */
-    List<BaseVo> findAttByType(Integer type);
+    List<BaseVo> findAttByType(@Param("type")Integer type, @Param("storeId")Long storeId);
 
     /**
      * 查找分类下的品牌信息

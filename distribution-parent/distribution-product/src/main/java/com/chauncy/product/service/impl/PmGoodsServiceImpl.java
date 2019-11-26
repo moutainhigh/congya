@@ -30,6 +30,7 @@ import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
 import com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockPo;
 import com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockTemplatePo;
+import com.chauncy.data.dto.manage.good.select.SearchAttributesDto;
 import com.chauncy.data.dto.manage.good.update.RejectGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.*;
 import com.chauncy.data.dto.supplier.good.select.*;
@@ -450,19 +451,21 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         //根据不同类型运费模版保存不同运费信息
         PmShippingTemplatePo shippingTemplatePo = shippingTemplateMapper.selectById(goodsPo.getShippingTemplateId());
 
-        GoodsShipTemplateEnum goodsShipTemplateById = GoodsShipTemplateEnum.getGoodsShipTemplateById(shippingTemplatePo.getType());
-        switch (goodsShipTemplateById) {
-            case MERCHANT_SHIP:
-                BaseVo merchantShipVo = new BaseVo();
-                BeanUtils.copyProperties(shippingTemplatePo, merchantShipVo);
-                baseGoodsVo.setMerchantShipVo(merchantShipVo);
-                break;
-            case PLATFORM_SHIP:
-                BaseVo platformShipVo = new BaseVo();
-                BeanUtils.copyProperties(shippingTemplatePo, platformShipVo);
-                baseGoodsVo.setPlatformShipVo(platformShipVo);
-                break;
+        if (shippingTemplatePo != null) {
+            GoodsShipTemplateEnum goodsShipTemplateById = GoodsShipTemplateEnum.getGoodsShipTemplateById(shippingTemplatePo.getType());
+            switch (goodsShipTemplateById) {
+                case MERCHANT_SHIP:
+                    BaseVo merchantShipVo = new BaseVo();
+                    BeanUtils.copyProperties(shippingTemplatePo, merchantShipVo);
+                    baseGoodsVo.setMerchantShipVo(merchantShipVo);
+                    break;
+                case PLATFORM_SHIP:
+                    BaseVo platformShipVo = new BaseVo();
+                    BeanUtils.copyProperties(shippingTemplatePo, platformShipVo);
+                    baseGoodsVo.setPlatformShipVo(platformShipVo);
+                    break;
 
+            }
         }
 
         return baseGoodsVo;
@@ -491,6 +494,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         //保存非关联信息
         BeanUtils.copyProperties(updateGoodBaseDto, goodsPo);
         goodsPo.setUpdateBy(user);
+        goodsPo.setShippingTemplateId(updateGoodBaseDto.getShippingId());
         goodsMapper.updateById(goodsPo);
 
         /**
@@ -521,6 +525,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         goodsRelAttributeGoodMapper.deleteByMap(GoodIdMap);
         //插入新数据
         addAttribute(updateGoodBaseDto, user, goodsPo);
+
     }
 
     /**
@@ -1639,16 +1644,30 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
      * 类型 1->平台服务说明 2->商家服务说明 3->平台活动说明
      * 4->商品参数 5->商品标签 6->购买须知说明 7->商品规格 8->品牌管理 9->敏感词
      *
-     * @param categoryId
+     * @param searchAttributesDto
      * @return
      */
     @Override
-    public AttributeVo findAttributes(Long categoryId) {
+    public AttributeVo findAttributes(SearchAttributesDto searchAttributesDto) {
 
-        Long storeId = securityUtil.getCurrUser().getStoreId();
-        Map<String, Object> map = new HashMap<>();
-        map.put("store_id", storeId);
-
+        //获取当前正在修改的商品所属的店铺 或者 正在修改商品的店铺
+        Long storeId = null;
+        //获取当前店铺/平台用户
+        SysUserPo sysUserPo = securityUtil.getCurrUser();
+        if(null != sysUserPo.getStoreId()) {
+            //店铺用户
+            storeId = sysUserPo.getStoreId();
+        } else {
+            //平台用户  根据当前编辑的商品获取
+            if(null != searchAttributesDto.getGoodsId() && searchAttributesDto.getGoodsId() != 0L) {
+                PmGoodsPo pmGoodsPo = mapper.selectById(searchAttributesDto.getGoodsId());
+                if (null != pmGoodsPo) {
+                    storeId = pmGoodsPo.getStoreId();
+                } else {
+                    throw new ServiceException(ResultCode.PARAM_ERROR, "商品记录不存在");
+                }
+            }
+        }
         AttributeVo attributeVo = new AttributeVo();
 
         List<String> typeList = Lists.newArrayList();
@@ -1661,16 +1680,18 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         List<BaseVo> merchantShipList = Lists.newArrayList();
 
         typeList = Arrays.stream(GoodsTypeEnum.values()).map(a -> a.getName()).collect(Collectors.toList());
-        brandList = goodsAttributeMapper.findAttByType(GoodsAttributeTypeEnum.BRAND.getId());
-        labelList = goodsAttributeMapper.findAttByType(GoodsAttributeTypeEnum.LABEL.getId());
-        platformServiceList = goodsAttributeMapper.findAttByTypeAndCat(categoryId, GoodsAttributeTypeEnum.PLATFORM_SERVICE.getId());
+        brandList = goodsAttributeMapper.findAttByType(GoodsAttributeTypeEnum.BRAND.getId(), storeId);
+        labelList = goodsAttributeMapper.findAttByType(GoodsAttributeTypeEnum.LABEL.getId(), storeId);
+        platformServiceList = goodsAttributeMapper.findAttByTypeAndCat(searchAttributesDto.getCategoryId(),
+                GoodsAttributeTypeEnum.PLATFORM_SERVICE.getId());
         //商家服务说明
-        merchantServiceList = goodsAttributeMapper.findAttByType(GoodsAttributeTypeEnum.MERCHANT_SERVICE.getId());
-        paramList = goodsAttributeMapper.findAttByTypeAndCat(categoryId, GoodsAttributeTypeEnum.GOODS_PARAM.getId());
-        platformShipList = shippingTemplateMapper.findByType(GoodsShipTemplateEnum.PLATFORM_SHIP.getId());
-        merchantShipList = shippingTemplateMapper.findByType(GoodsShipTemplateEnum.MERCHANT_SHIP.getId());
+        merchantServiceList = goodsAttributeMapper.findAttByType(GoodsAttributeTypeEnum.MERCHANT_SERVICE.getId(), storeId);
+        paramList = goodsAttributeMapper.findAttByTypeAndCat(searchAttributesDto.getCategoryId(),
+                GoodsAttributeTypeEnum.GOODS_PARAM.getId());
+        platformShipList = shippingTemplateMapper.findByType(GoodsShipTemplateEnum.PLATFORM_SHIP.getId(), storeId);
+        merchantShipList = shippingTemplateMapper.findByType(GoodsShipTemplateEnum.MERCHANT_SHIP.getId(), storeId);
 
-        PmGoodsCategoryPo goodsCategoryPo3 = goodsCategoryMapper.selectById(categoryId);
+        PmGoodsCategoryPo goodsCategoryPo3 = goodsCategoryMapper.selectById(searchAttributesDto.getCategoryId());
         String level3 = goodsCategoryPo3.getName();
         PmGoodsCategoryPo goodsCategoryPo2 = goodsCategoryMapper.selectById(goodsCategoryPo3.getParentId());
         String level2 = goodsCategoryPo2.getName();

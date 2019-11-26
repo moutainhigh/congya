@@ -11,6 +11,7 @@ import com.chauncy.data.dto.app.product.FindStoreGoodsParamDto;
 import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
 import com.chauncy.data.dto.base.BaseSearchDto;
 import com.chauncy.data.dto.manage.good.select.AssociationGoodsDto;
+import com.chauncy.data.dto.manage.good.select.SearchAttributesDto;
 import com.chauncy.data.dto.manage.good.update.RejectGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.AddAssociationGoodsDto;
 import com.chauncy.data.dto.supplier.good.add.AddGoodBaseDto;
@@ -261,10 +262,10 @@ public interface IPmGoodsService extends Service<PmGoodsPo> {
      * 获取分类下的商品属性信息 typeList:商品类型；brandList:品牌；labelList:标签；platformServiceList:平台服务说明;
      * merchantServiceList:商家服务说明；paramList:商品参数；platformShipList:平台运费模版;merchantShipList:店铺运费模版
      *
-     * @param categoryId
+     * @param searchAttributesDto
      * @return
      */
-    AttributeVo findAttributes(Long categoryId);
+    AttributeVo findAttributes(SearchAttributesDto searchAttributesDto);
 
     /**
      * 库存模板根据商品类型查询店铺商品信息
