@@ -8,6 +8,7 @@ import com.chauncy.data.vo.app.goods.ShipFreightInfoVo;
 import com.chauncy.data.vo.manage.ship.AmountVo;
 import com.chauncy.data.vo.manage.ship.NumberVo;
 import com.chauncy.data.vo.manage.ship.PlatTemplateVo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -30,11 +31,17 @@ public interface PmShippingTemplateMapper extends IBaseMapper<PmShippingTemplate
     List<PlatTemplateVo> searchPlatTempByConditions(SearchPlatTempDto searchPlatTempDto);
 
     /**
-     * 根据类型查找运费模版
-     * @param type
-     * @return
-     */
-    List<BaseVo> findByType(Integer type);
+     * @Author huangwancheng
+     * @Date 2019/11/26 10:22
+     * @Description 根据类型查找运费模版
+     *
+     * @Update yeJH
+     *
+     * @param  type  1平台运费模板  2商家运费模板
+     * @param  storeId  不为空 商家能看到的模板  为空 平台能看到的模板
+     * @return java.util.List<com.chauncy.data.vo.BaseVo>
+     **/
+    List<BaseVo> findByType(@Param("type") Integer type, @Param("storeId") Long storeId);
 
     /**
      *查找按金额计算运费列表

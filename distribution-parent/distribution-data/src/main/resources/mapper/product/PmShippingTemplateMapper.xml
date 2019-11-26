@@ -160,6 +160,11 @@
         select id,name
         from pm_shipping_template
         where type = #{type}
+        and enable = 1
+        and del_flag = 0
+        <if test="type == 2 and storeId != null">
+            and store_id = #{storeId}
+        </if>
     </select>
     <select id="searchPlatTempByConditions" resultType="com.chauncy.data.vo.manage.ship.PlatTemplateVo">
 
