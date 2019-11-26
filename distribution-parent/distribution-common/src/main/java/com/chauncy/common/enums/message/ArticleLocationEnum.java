@@ -27,9 +27,7 @@ public enum ArticleLocationEnum implements BaseEnum {
     PLACE_THE_ORDER_AND_POLITE(12,"下单有礼"),
     HELP_CENTER(13,"帮助中心"),
     INTEGRALS_DESCRIPTION(14,"抵扣说明"),
-    RETURN_TICKET_RULES(15,"返券规则"),
-    USER_AGREEMENT(16,"用户协议"),
-    PRIVACY_RIGHT_POLICY(17,"隐私权政策");
+    RETURN_TICKET_RULES(15,"返券规则");
 
     private Integer id;
     private String name;
