@@ -165,7 +165,7 @@ public class PmGoodsCategoryApi extends BaseApi {
         }
         notAllowDelAttributes.forEach(x->{
             if (!goodAttributeIds.contains(x.getId())){
-                throw new ServiceException(ResultCode.PARAM_ERROR,"修改出错，%s属性不允许删除：已被该分类下的商品所关联",x.getName());
+                throw new ServiceException(ResultCode.PARAM_ERROR,String.format("修改出错，%s属性不允许删除：已被该分类下的商品所关联",x.getName()));
             }
         });
 
@@ -185,7 +185,7 @@ public class PmGoodsCategoryApi extends BaseApi {
     @PostMapping("/delete")
     @ApiOperation(value = "删除商品分类")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData delete(@Validated @RequestBody GoodCategoryDeleteDto goodCategoryDeleteDto, BindingResult bindingResult){
+    public JsonViewData delete(@Validated @RequestBody GoodCategoryDeleteDto goodCategoryDeleteDto){
         boolean isSuccess = goodsCategoryService.removeByIds(goodCategoryDeleteDto.getIds());
         return isSuccess?setJsonViewData(ResultCode.SUCCESS):setJsonViewData(ResultCode.FAIL);
     }

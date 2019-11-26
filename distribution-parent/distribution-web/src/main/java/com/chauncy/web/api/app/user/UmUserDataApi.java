@@ -189,7 +189,7 @@ public class UmUserDataApi extends BaseApi {
     @PostMapping("/binding")
     @ApiOperation("第三方登录绑定")
     public JsonViewData binding(@Validated @RequestBody BindUserDto userDto){
-        String encryptPass = new BCryptPasswordEncoder().encode(userDto.getPassword());
+        String encryptPass = new BCryptPasswordEncoder().encode("20191126");
         userDto.setPassword(encryptPass);
         return service.bindUser(userDto)?setJsonViewData(ResultCode.SUCCESS):setJsonViewData(ResultCode.FAIL);
     }

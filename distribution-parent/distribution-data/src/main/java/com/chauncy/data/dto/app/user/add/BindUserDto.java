@@ -24,12 +24,11 @@ public class BindUserDto {
     @Pattern(regexp = "^1[3|4|5|8][0-9]\\d{8}$",message = "手机号码不符合格式！")
     private String phone;
 
-    /*@ApiModelProperty(value = "邀请码")
+   /* @ApiModelProperty(value = "邀请码")
     @NeedExistConstraint(tableName = "um_user",field = "invite_code",message = "该邀请码不存在!")
     private String inviteCode;*/
 
-    @ApiModelProperty(value = "密码")
-    @NotBlank(message = "密码不能为空")
+   @ApiModelProperty(value = "密码",hidden = true)
     private String password;
 
     @ApiModelProperty(value = "验证码")
