@@ -64,7 +64,25 @@
        SELECT a.* FROM `pm_goods` g,pm_goods_rel_attribute_good ag,pm_goods_attribute a
        where g.goods_category_id=#{categoryId} and g.id=ag.goods_good_id
        and g.del_flag=0 and ag.del_flag=0 and a.del_flag=0 and a.id=ag.goods_attribute_id
-       and a.type in(1,3,4,6,7)
+       and a.type in(1,3,6,7)
+       union all
+       SELECT
+         a.*
+        FROM
+         `pm_goods` g,
+            pm_goods_rel_attribute_value_good ag,
+            pm_goods_attribute a,
+            pm_goods_attribute_value av
+        WHERE
+             g.id = ag.goods_id
+            AND g.del_flag = 0
+            AND ag.del_flag = 0
+            AND a.del_flag = 0
+            AND av.del_flag = 0
+            AND av.id = ag.goods_attribute_value_id
+            AND a.id = av.product_attribute_id
+            AND g.goods_category_id = #{categoryId}
+
     </select>
 
     <select id="findAttByTypeAndCat" resultType="com.chauncy.data.vo.BaseVo">
@@ -89,9 +107,9 @@
         select id,name,type
         from pm_goods_attribute
         where del_flag=0 AND enabled=1
-        and type  in
+        and type in
         <foreach collection="types" item="type" separator="," open="(" close=")">
-                  #{type}
+            #{type}
         </foreach>
 
     </select>
@@ -116,15 +134,16 @@
     </select>
 
     <select id="getBrandGoodsList" resultType="com.chauncy.data.vo.app.brand.GoodsVo">
-     <!-- list a.id as goodsId,a.name as goodsName,a.sales_volume as salesVolume
-     from pm_goods a, pm_goods_rel_attribute_good as b
-     where b.goods_attribute_id = #{brandId} and a.goods_category_id = #{categoryId}
-     and b.goods_good_id = a.id and a.del_flag = 0 and b.del_flag = 0-->
-     select a.id as goods_id,a.name as goods_name,c.sales_volume,c.line_price,c.sell_price as sale_price
-     from pm_goods a, pm_goods_rel_attribute_good as b,pm_goods_sku as c
-     where b.goods_attribute_id = #{brandId} and a.goods_category_id = #{categoryId}
-            and b.goods_good_id = a.id and c.goods_id = a.id and c.sell_price = (select min(sell_price) from pm_goods_sku as d where d.goods_id =a.id  and del_flag=0)
-            and a.del_flag = 0 and b.del_flag = 0 and c.del_flag = 0
+        <!-- list a.id as goodsId,a.name as goodsName,a.sales_volume as salesVolume
+        from pm_goods a, pm_goods_rel_attribute_good as b
+        where b.goods_attribute_id = #{brandId} and a.goods_category_id = #{categoryId}
+        and b.goods_good_id = a.id and a.del_flag = 0 and b.del_flag = 0-->
+        select a.id as goods_id,a.name as goods_name,c.sales_volume,c.line_price,c.sell_price as sale_price
+        from pm_goods a, pm_goods_rel_attribute_good as b,pm_goods_sku as c
+        where b.goods_attribute_id = #{brandId} and a.goods_category_id = #{categoryId}
+        and b.goods_good_id = a.id and c.goods_id = a.id and c.sell_price = (select min(sell_price) from pm_goods_sku as
+        d where d.goods_id =a.id and del_flag=0)
+        and a.del_flag = 0 and b.del_flag = 0 and c.del_flag = 0
         <if test="sortFile.equals('PRICE_SORT') ">
             order by sale_price
         </if>
@@ -145,7 +164,7 @@
         where enabled = 1 and del_flag = 0 and type = 8
         <if test="idList != null">
             and id not in
-            <foreach item="item" collection="idList" separator="," open="(" close=")" index="">  #{item}
+            <foreach item="item" collection="idList" separator="," open="(" close=")" index="">#{item}
             </foreach>
         </if>
         <if test="name!=null and name!=''">
@@ -153,13 +172,13 @@
         </if>
     </select>
     <select id="findAttByTypeAndStore" resultType="com.chauncy.data.vo.BaseVo">
-        select DISTINCT	pga.id,pga.name
+        select DISTINCT pga.id,pga.name
         from pm_goods_attribute pga,sm_store_rel_attribute ssra
         where ssra.del_flag = 0 and ssra.attribute_id = pga.id and pga.del_flag = 0 and pga.enabled = 1
-            and pga.type = #{type}
-            <if test="storeId != null">
-                and storeId = #{storeId}
-            </if>
+        and pga.type = #{type}
+        <if test="storeId != null">
+            and storeId = #{storeId}
+        </if>
     </select>
 
 
