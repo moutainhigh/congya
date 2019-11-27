@@ -1,5 +1,6 @@
 package com.chauncy.data.mapper.product;
 
+import com.chauncy.data.domain.po.product.PmGoodsRelAttributeCategoryPo;
 import com.chauncy.data.domain.po.product.PmGoodsRelAttributeGoodPo;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.app.goods.AttributeVo;
@@ -41,4 +42,8 @@ public interface PmGoodsRelAttributeGoodMapper extends IBaseMapper<PmGoodsRelAtt
     List<AttributeVo> findParam(Long goodsId);
 
     List<PmGoodsRelAttributeGoodPo> searchByAttributeId(Long id);
+
+    List<PmGoodsRelAttributeGoodPo> searchLabelByAttributeId(Long goodsAttributeId);
+
+    List<PmGoodsRelAttributeCategoryPo> searchServicesByAttributeId(Long goodsAttributeId);
 }

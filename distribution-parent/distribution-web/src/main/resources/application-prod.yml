@@ -185,7 +185,7 @@ distribution:
 
   # mob api配置 mob官网注册申请即可
   mob:
-    appKey: appKey
+    appKey: 2cf3cb9ebbbc3
 
   # 分享的页面地址
   share:

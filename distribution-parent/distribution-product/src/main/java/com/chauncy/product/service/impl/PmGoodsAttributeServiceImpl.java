@@ -1,5 +1,6 @@
 package com.chauncy.product.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.goods.GoodsAttributeTypeEnum;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
@@ -154,19 +155,54 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
     public JsonViewData deleteAttributeByIds(Long[] ids) {
         //判断是否存在引用
         for (Long id : ids) {
+            PmGoodsAttributePo attributePo = mapper.selectById(id);
             List<PmGoodsRelAttributeCategoryPo> list1 = attributeCategoryMapper.findByAttributeId(id);
             List<PmGoodsRelAttributeGoodPo> list2 = attributeGoodMapper.findByAttributeId(id);
             List<PmGoodsRelAttributeGoodPo> list4 = attributeGoodMapper.searchByAttributeId(id);
             List<PmGoodsRelAttributeSkuPo> list3 = attributeSkuMapper.findByAttributeId(id);
+            //商品标签
+            List<PmGoodsRelAttributeGoodPo> labels = Lists.newArrayList();
+            //购买须知
+            List<PmGoodsRelAttributeCategoryPo> notes = Lists.newArrayList();
+            //活动说明
+            List<PmGoodsRelAttributeCategoryPo> activity = Lists.newArrayList();
+            //服务说明
+            List<PmGoodsRelAttributeCategoryPo> services = Lists.newArrayList();
+            if (attributePo != null) {
+                //商品标签
+                labels = attributeGoodMapper.searchLabelByAttributeId(id);
+                //购买须知
+                notes = attributeCategoryMapper.searchNotesByAttributeId(id);
+                //活动说明
+                activity = attributeCategoryMapper.searchActivityByAttributeId(id);
+                //服务说明
+                services = attributeGoodMapper.searchServicesByAttributeId(id);
+            }
             boolean a = list1 != null && list1.size() > 0;
             boolean b = list2 != null && list2.size() > 0;
             boolean c = list3 != null && list3.size() > 0;
             boolean d = list4 != null && list4.size() > 0;
+            boolean e = labels != null && labels.size() > 0;
+            boolean f = notes != null && notes.size() > 0;
+            boolean g = activity != null && activity.size() > 0;
+            boolean h = services != null && services.size() > 0;
             if (a == true || b == true || c == true) {
                 return new JsonViewData(ResultCode.FAIL, "删除失败，包含正被商品或类目或sku使用关联的属性");
             }
             if (d == true){
                 return new JsonViewData(ResultCode.FAIL, "删除失败，该品牌正被商品关联");
+            }
+            if (e == true){
+                return new JsonViewData(ResultCode.FAIL, "删除失败，该商品标签正被商品关联");
+            }
+            if (f == true){
+                return new JsonViewData(ResultCode.FAIL, "删除失败，该购买须知正被类目关联");
+            }
+            if (g == true){
+                return new JsonViewData(ResultCode.FAIL, "删除失败，该活动说明正被类目关联");
+            }
+            if (h == true){
+                return new JsonViewData(ResultCode.FAIL, "删除失败，该服务说明正被商品关联");
             }
         }
         //遍历ID
