@@ -35,4 +35,8 @@ public interface PmGoodsRelAttributeCategoryMapper extends IBaseMapper<PmGoodsRe
      * @return java.util.List<com.chauncy.data.vo.app.goods.AttributeVo>
      **/
     List<AttributeVo> findPurchase(Long goodsId);
+
+    List<PmGoodsRelAttributeCategoryPo> searchNotesByAttributeId(Long goodsAttributeId);
+
+    List<PmGoodsRelAttributeCategoryPo> searchActivityByAttributeId(Long goodsAttributeId);
 }

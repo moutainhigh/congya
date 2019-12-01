@@ -185,7 +185,7 @@ public class PmGoodsCategoryApi extends BaseApi {
     @PostMapping("/delete")
     @ApiOperation(value = "删除商品分类")
     @Transactional(rollbackFor = Exception.class)
-    public JsonViewData delete(@Validated @RequestBody GoodCategoryDeleteDto goodCategoryDeleteDto, BindingResult bindingResult){
+    public JsonViewData delete(@Validated @RequestBody GoodCategoryDeleteDto goodCategoryDeleteDto){
         boolean isSuccess = goodsCategoryService.removeByIds(goodCategoryDeleteDto.getIds());
         return isSuccess?setJsonViewData(ResultCode.SUCCESS):setJsonViewData(ResultCode.FAIL);
     }

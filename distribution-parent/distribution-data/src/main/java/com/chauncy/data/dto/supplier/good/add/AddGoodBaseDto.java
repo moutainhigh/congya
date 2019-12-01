@@ -66,6 +66,7 @@ public class AddGoodBaseDto {
     private String detailHtml;
 
     @ApiModelProperty(value = "品牌ID")
+    @NotNull(message = "品牌不能为空")
     @NeedExistConstraint(tableName = "pm_goods_attribute")
     private Long brandId;
 

@@ -24,6 +24,7 @@
         from pm_goods_rel_attribute_sku a
         inner join pm_goods_attribute_value b on a.goods_attribute_id = b.product_attribute_id and b.is_custom = 0
         where a.goods_attribute_id = #{goodsAttributeId} and a.del_flag=0 and b.del_flag = 0
+        limit 2
     </select>
 
 </mapper>

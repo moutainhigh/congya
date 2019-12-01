@@ -159,18 +159,22 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
          */
         saveUser.setInviteCode(SnowFlakeUtil.getFlowIdInstance().nextId());
 
-        //绑定父级
-        QueryWrapper<UmUserPo> userPoQueryWrapper=new QueryWrapper<>();
-        userPoQueryWrapper.lambda().eq(UmUserPo::getInviteCode,addUserDto.getInviteCode()).select(UmUserPo::getId,UmUserPo::getStoreId);
-        UmUserPo parentUser = mapper.selectOne(userPoQueryWrapper);
 
-        saveUser.setParentId(parentUser.getId()).setStoreId(parentUser.getStoreId());
+        //绑定父级
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(addUserDto.getInviteCode())) {
+
+
+            QueryWrapper<UmUserPo> userPoQueryWrapper = new QueryWrapper<>();
+            userPoQueryWrapper.lambda().eq(UmUserPo::getInviteCode, addUserDto.getInviteCode()).select(UmUserPo::getId, UmUserPo::getStoreId);
+            UmUserPo parentUser = mapper.selectOne(userPoQueryWrapper);
+
+            saveUser.setParentId(parentUser.getId()).setStoreId(parentUser.getStoreId());
+        }
 
         Boolean isSuccess = mapper.insert(saveUser) > 0;
 
         /** 注册IM账号**/
         registIM(saveUser, isSuccess);
-
 
 
         return isSuccess;
@@ -282,12 +286,11 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
                 .doSelectPageInfo(() -> mapper.loadSearchUserList(searchUserListDto));
 
         //查出邀請人數
-        umUserListVoPageInfo.getList().forEach(x->{
+        umUserListVoPageInfo.getList().forEach(x -> {
             List<UmUserRelVo> relUsers = mapper.getRelUsers(x.getId());
-            if (ListUtil.isListNullAndEmpty(relUsers)){
+            if (ListUtil.isListNullAndEmpty(relUsers)) {
                 x.setInvitePeopleNum(0);
-            }
-            else {
+            } else {
                 x.setInvitePeopleNum(relUsers.size());
             }
         });
@@ -310,10 +313,9 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         UmUserDetailVo umUserDetailVo = mapper.loadUserDetailVo(id);
 
         List<UmUserRelVo> relUsers = mapper.getRelUsers(id);
-        if (ListUtil.isListNullAndEmpty(relUsers)){
+        if (ListUtil.isListNullAndEmpty(relUsers)) {
             umUserDetailVo.setInvitePeopleNum(0);
-        }
-        else {
+        } else {
             umUserDetailVo.setInvitePeopleNum(relUsers.size());
         }
         //组装labelNames storeName nextLevelExperience parentName(数据库查出来的是id)
@@ -355,9 +357,9 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         //修改主表字段
         mapper.updateUmUser(updateUserDto, currentUserName);
         //更改等级时，顺便更改用户表冗余字段level和经验值
-        if (updateUserDto.getMemberLevelId()!=0&&(!updateUserDto.getMemberLevelId().equals(userPo.getMemberLevelId()))){
+        if (updateUserDto.getMemberLevelId() != 0 && (!updateUserDto.getMemberLevelId().equals(userPo.getMemberLevelId()))) {
             PmMemberLevelPo queryMemberLevel = memberLevelMapper.selectById(updateUserDto.getMemberLevelId());
-            UmUserPo updateUser=new UmUserPo();
+            UmUserPo updateUser = new UmUserPo();
             updateUser.setId(updateUserDto.getId()).setMemberLevelId(updateUserDto.getMemberLevelId())
                     .setLevel(queryMemberLevel.getLevel()).setCurrentExperience(queryMemberLevel.getLevelExperience());
             mapper.updateById(updateUser);
@@ -424,7 +426,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         //要修改的会员等级id
         Long memberLevelId = null;
         //当用户经验值大于等级所需经验值的时候,进行升级
-        while (nextLevel!=null&&queryUser.getCurrentExperience().compareTo(nextLevel.getLevelExperience()) >= 0) {
+        while (nextLevel != null && queryUser.getCurrentExperience().compareTo(nextLevel.getLevelExperience()) >= 0) {
             memberLevelId = nextLevel.getId();
             //找出下一等级的会员详细信息
             QueryWrapper<PmMemberLevelPo> levelQueryWrapper = new QueryWrapper<>();
@@ -451,14 +453,14 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
 
     /**
      * 会员中心
-     *
+     * <p>
      * 综合
      * 消费 累计消费额
      * 资产 累计购物券+累计红包+累计积分*0.2
      * 发育 经验/天（总的经验值/从注册到当前日期的天数）
      * 收益 累计红包
      * 贡献 好友累计消费总额（一级会员的消费金额）
-     *
+     * <p>
      * 订单数 累计已完成订单数 （现在是没有已完成的订单）
      * 金额/单 累计消费额/累计计完成订单数
      * 奖励/单 （累计返券+积分）/累计完成订单数
@@ -475,40 +477,40 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         GetMembersCenterVo membersCenterVo = mapper.getMembersCenter(userPo.getId());
 
         //经验值百分比
-        BigDecimal percentage = BigDecimalUtil.safeDivide(membersCenterVo.getCurrentExperience(),membersCenterVo.getSumExperience());
+        BigDecimal percentage = BigDecimalUtil.safeDivide(membersCenterVo.getCurrentExperience(), membersCenterVo.getSumExperience());
         membersCenterVo.setPercentage(percentage);
 
         //订单数
         membersCenterVo.setTotalOrder(userPo.getTotalOrder());
 
         //金额/单 累计消费额/累计计完成订单数
-        membersCenterVo.setPricePerOrder(BigDecimalUtil.safeDivide(userPo.getTotalConsumeMoney(),userPo.getTotalOrder()));
+        membersCenterVo.setPricePerOrder(BigDecimalUtil.safeDivide(userPo.getTotalConsumeMoney(), userPo.getTotalOrder()));
 
         //奖励/单  （累计返券+积分）/累计完成订单数
-        BigDecimal reward = BigDecimalUtil.safeDivide(BigDecimalUtil.safeAdd(userPo.getTotalShopTicket(),userPo.getTotalIntegral()),userPo.getTotalOrder());
+        BigDecimal reward = BigDecimalUtil.safeDivide(BigDecimalUtil.safeAdd(userPo.getTotalShopTicket(), userPo.getTotalIntegral()), userPo.getTotalOrder());
         membersCenterVo.setRewardPerOrder(reward);
 
         // 经验/天 累计经验/注册天数
-        BigDecimal experience = BigDecimalUtil.safeDivide(membersCenterVo.getCurrentExperience(), (LocalDate.now().toEpochDay()-membersCenterVo.getCreateTime().toLocalDate().toEpochDay()));
+        BigDecimal experience = BigDecimalUtil.safeDivide(membersCenterVo.getCurrentExperience(), (LocalDate.now().toEpochDay() - membersCenterVo.getCreateTime().toLocalDate().toEpochDay()));
         membersCenterVo.setExperiencePerDay(experience);
 
         //好友 直推好友数量（第一代）
-        Integer friend = mapper.selectList(new QueryWrapper<UmUserPo>().lambda().and(obj->obj
-                .eq(UmUserPo::getParentId,userPo.getId()).eq(UmUserPo::getDelFlag,0))).size();
+        Integer friend = mapper.selectList(new QueryWrapper<UmUserPo>().lambda().and(obj -> obj
+                .eq(UmUserPo::getParentId, userPo.getId()).eq(UmUserPo::getDelFlag, 0))).size();
         membersCenterVo.setFriend(friend);
 
         //收入  累计佣金
         membersCenterVo.setIncome(userPo.getTotalRedEnvelops());
 
         //贡献 好友累计消费总额（一级会员的消费金额）
-        List<UmUserPo> friends = mapper.selectList(new QueryWrapper<UmUserPo>().lambda().and(obj->obj
-                        .eq(UmUserPo::getParentId,userPo.getId())));
-        BigDecimal contributions = friends.stream().map(a->a.getTotalConsumeMoney()).reduce(BigDecimal.ZERO,BigDecimal::add);
+        List<UmUserPo> friends = mapper.selectList(new QueryWrapper<UmUserPo>().lambda().and(obj -> obj
+                .eq(UmUserPo::getParentId, userPo.getId())));
+        BigDecimal contributions = friends.stream().map(a -> a.getTotalConsumeMoney()).reduce(BigDecimal.ZERO, BigDecimal::add);
 
         //消费
         BigDecimal totalConsumeMoney = userPo.getTotalConsumeMoney();
         //资产
-        BigDecimal assets = BigDecimalUtil.safeAdd(userPo.getTotalShopTicket(),userPo.getTotalRedEnvelops(),BigDecimalUtil.safeMultiply(userPo.getTotalIntegral(),new BigDecimal(0.2)));
+        BigDecimal assets = BigDecimalUtil.safeAdd(userPo.getTotalShopTicket(), userPo.getTotalRedEnvelops(), BigDecimalUtil.safeMultiply(userPo.getTotalIntegral(), new BigDecimal(0.2)));
         //发育
         BigDecimal development = experience;
         //收益
@@ -524,31 +526,30 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
                 contributions1
         );
         //获取最大值
-        BigDecimal max = datas.stream().max((u1, u2)->u1.compareTo(u2)).get();
+        BigDecimal max = datas.stream().max((u1, u2) -> u1.compareTo(u2)).get();
 
         //消费比例
-        membersCenterVo.setTotalConsumeMoneyProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(totalConsumeMoney,max,4,new BigDecimal(0.00)),100));
+        membersCenterVo.setTotalConsumeMoneyProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(totalConsumeMoney, max, 4, new BigDecimal(0.00)), 100));
 
         //资产比例
-        membersCenterVo.setAssetsProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(assets,max,4,new BigDecimal(0.00)),100));
+        membersCenterVo.setAssetsProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(assets, max, 4, new BigDecimal(0.00)), 100));
 
         //发育比例
-        membersCenterVo.setDevelopmentProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(development,max,4,new BigDecimal(0.00)),100));
+        membersCenterVo.setDevelopmentProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(development, max, 4, new BigDecimal(0.00)), 100));
 
         //收益比例
-        membersCenterVo.setEarningsProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(earnings,max,4,new BigDecimal(0.00)),100));
+        membersCenterVo.setEarningsProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(earnings, max, 4, new BigDecimal(0.00)), 100));
 
         //贡献比例
-        membersCenterVo.setContributionProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(contributions1,max,4,new BigDecimal(0.00)),100));
+        membersCenterVo.setContributionProportion(BigDecimalUtil.safeMultiply(BigDecimalUtil.safeDivide(contributions1, max, 4, new BigDecimal(0.00)), 100));
 
         //综合比例
         membersCenterVo.setComprehensiveProportion(BigDecimalUtil.safeMultiply(100,
                 BigDecimalUtil.safeDivide(
                         BigDecimalUtil.safeDivide(
-                                BigDecimalUtil.safeAdd(totalConsumeMoney,assets,development,earnings,contributions1),
-                        max,4,new BigDecimal(0.00)),
-                new BigDecimal(5),4,new BigDecimal(0.00))));
-
+                                BigDecimalUtil.safeAdd(totalConsumeMoney, assets, development, earnings, contributions1),
+                                max, 4, new BigDecimal(0.00)),
+                        new BigDecimal(5), 4, new BigDecimal(0.00))));
 
 
         //平均消费
@@ -556,30 +557,30 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
 
         //赞
         //用户资讯点赞
-        Integer praise1 = informationLikedMapper.selectCount(new QueryWrapper<MmInformationLikedPo>().lambda().and(obj->obj
-                .eq(MmInformationLikedPo::getUserId,userPo.getId()).eq(MmInformationLikedPo::getDelFlag,0)));
+        Integer praise1 = informationLikedMapper.selectCount(new QueryWrapper<MmInformationLikedPo>().lambda().and(obj -> obj
+                .eq(MmInformationLikedPo::getUserId, userPo.getId()).eq(MmInformationLikedPo::getDelFlag, 0)));
         //用户资讯评论点赞
-        Integer praise2 = commentLikedMapper.selectCount(new QueryWrapper<MmCommentLikedPo>().lambda().and(obj->obj
-                .eq(MmCommentLikedPo::getUserId,userPo.getId()).eq(MmCommentLikedPo::getDelFlag,0)));
+        Integer praise2 = commentLikedMapper.selectCount(new QueryWrapper<MmCommentLikedPo>().lambda().and(obj -> obj
+                .eq(MmCommentLikedPo::getUserId, userPo.getId()).eq(MmCommentLikedPo::getDelFlag, 0)));
 //                .stream().mapToLong((a)->a.getId()).summaryStatistics().getCount();
         //商品点赞
-        Integer praise3 = goodsLikedMapper.selectCount(new QueryWrapper<PmGoodsLikedPo>().lambda().and(obj->obj
-                .eq(PmGoodsLikedPo::getUserId,userPo.getId()).eq(PmGoodsLikedPo::getIsLiked,1)));
+        Integer praise3 = goodsLikedMapper.selectCount(new QueryWrapper<PmGoodsLikedPo>().lambda().and(obj -> obj
+                .eq(PmGoodsLikedPo::getUserId, userPo.getId()).eq(PmGoodsLikedPo::getIsLiked, 1)));
 
         //商品评论点赞
-        Integer praise4 = evaluateLikedMapper.selectCount(new QueryWrapper<OmEvaluateLikedPo>().lambda().and(obj->obj
-                .eq(OmEvaluateLikedPo::getUserId,userPo.getId()).eq(OmEvaluateLikedPo::getIsLiked,1)));
+        Integer praise4 = evaluateLikedMapper.selectCount(new QueryWrapper<OmEvaluateLikedPo>().lambda().and(obj -> obj
+                .eq(OmEvaluateLikedPo::getUserId, userPo.getId()).eq(OmEvaluateLikedPo::getIsLiked, 1)));
 
-        membersCenterVo.setPraise(praise1+praise2+praise3+praise4);
+        membersCenterVo.setPraise(praise1 + praise2 + praise3 + praise4);
 
         //分享
-        Integer share = mapper.selectOne(new QueryWrapper<UmUserPo>().lambda().and(obj->
-                obj.eq(UmUserPo::getDelFlag,0).eq(UmUserPo::getId,userPo.getId()))).getShareNum();
+        Integer share = mapper.selectOne(new QueryWrapper<UmUserPo>().lambda().and(obj ->
+                obj.eq(UmUserPo::getDelFlag, 0).eq(UmUserPo::getId, userPo.getId()))).getShareNum();
         membersCenterVo.setShare(share);
 
         //评论
-        Integer informationComments = informationCommentMapper.selectCount(new QueryWrapper<MmInformationCommentPo>().lambda().and(obj->obj
-                .eq(MmInformationCommentPo::getDelFlag,0).eq(MmInformationCommentPo::getUserId,userPo.getId())));
+        Integer informationComments = informationCommentMapper.selectCount(new QueryWrapper<MmInformationCommentPo>().lambda().and(obj -> obj
+                .eq(MmInformationCommentPo::getDelFlag, 0).eq(MmInformationCommentPo::getUserId, userPo.getId())));
         membersCenterVo.setComments(informationComments);
 
 
@@ -603,8 +604,8 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         MyDataStatisticsVo myDataStatisticsVo = mapper.getMyDataStatistics(userPo.getId());
 
         //好友 直推好友数量（第一代）
-        Integer friend = mapper.selectList(new QueryWrapper<UmUserPo>().lambda().and(obj->obj
-                .eq(UmUserPo::getParentId,userPo.getId()).eq(UmUserPo::getDelFlag,0))).size();
+        Integer friend = mapper.selectList(new QueryWrapper<UmUserPo>().lambda().and(obj -> obj
+                .eq(UmUserPo::getParentId, userPo.getId()).eq(UmUserPo::getDelFlag, 0))).size();
         myDataStatisticsVo.setFansNum(friend);
 
         //红包   展示红包对应的金额
@@ -614,7 +615,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         myDataStatisticsVo.setRedEnvelopeNum(equalAmount);
 
         PersonalCenterPictureVo topPicture = adviceMapper.getTopPicture();
-        PersonalCenterPictureVo topUpPicture =adviceMapper.getTopUpPicture();
+        PersonalCenterPictureVo topUpPicture = adviceMapper.getTopUpPicture();
         myDataStatisticsVo.setTopPicture(null == topPicture ? new PersonalCenterPictureVo() : topPicture);
         myDataStatisticsVo.setTopUpPicture(null == topUpPicture ? new PersonalCenterPictureVo() : topUpPicture);
 
@@ -622,14 +623,12 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     }
 
     /**
+     * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.user.SearchMyFriendVo>
      * @Author chauncy
      * @Date 2019-09-18 10:26
      * @Description //条件分页查询我的粉丝
-     *
      * @Update chauncy
-     *
      * @Param [searchMyFriendDto, umUserPo]
-     * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.user.SearchMyFriendVo>
      **/
     @Override
     public PageInfo<SearchMyFriendVo> searchMyFriend(SearchMyFriendDto searchMyFriendDto, UmUserPo umUserPo) {
@@ -637,8 +636,8 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         Integer pageNo = searchMyFriendDto.getPageNo() == null ? defaultPageNo : searchMyFriendDto.getPageNo();
         Integer pageSize = searchMyFriendDto.getPageSize() == null ? defaultPageSize : searchMyFriendDto.getPageSize();
 
-        PageInfo<SearchMyFriendVo> searchMyFriendVoPageInfo = PageHelper.startPage(pageNo,pageSize)
-                .doSelectPageInfo(()->mapper.searchMyFriend(umUserPo.getId()));
+        PageInfo<SearchMyFriendVo> searchMyFriendVoPageInfo = PageHelper.startPage(pageNo, pageSize)
+                .doSelectPageInfo(() -> mapper.searchMyFriend(umUserPo.getId()));
 
 
         return searchMyFriendVoPageInfo;
