@@ -7,6 +7,7 @@ import com.chauncy.common.enums.log.RedEnvelopsLogMatterEnum;
 import com.chauncy.common.enums.message.NoticeContentEnum;
 import com.chauncy.common.enums.message.NoticeTitleEnum;
 import com.chauncy.common.enums.message.NoticeTypeEnum;
+import com.chauncy.common.util.RelativeDateFormatUtil;
 import com.chauncy.data.bo.app.message.SaveUserNoticeBo;
 import com.chauncy.data.bo.app.message.WithdrawalLogBo;
 import com.chauncy.data.domain.po.afterSale.OmAfterSaleOrderPo;
@@ -214,7 +215,7 @@ public class MmUserNoticeServiceImpl extends AbstractService<MmUserNoticeMapper,
                 mmUserNoticeTimeMapper.updateById(mmUserNoticeTimePo);
                 MmUserNoticeTimePo finalMmUserNoticeTimePo = mmUserNoticeTimePo;
                 userNoticeListVoPageInfo.getList().forEach(userNoticeListVo -> {
-                    if(userNoticeListVo.getCreateTime().isBefore(finalMmUserNoticeTimePo.getReadTime())) {
+                    if(userNoticeListVo.getRealCreateTime().isBefore(finalMmUserNoticeTimePo.getReadTime())) {
                         //通知消息发布时间早于用户访问时间   已读
                         userNoticeListVo.setIsRead(true);
                     } else {
@@ -232,7 +233,12 @@ public class MmUserNoticeServiceImpl extends AbstractService<MmUserNoticeMapper,
                 mmUserNoticeTimePo.setReadTime(LocalDateTime.now());
                 mmUserNoticeTimeMapper.insert(mmUserNoticeTimePo);
             }
+
         }
+        userNoticeListVoPageInfo.getList().stream().forEach(userNoticeListVo -> {
+            userNoticeListVo.setCreateTime(RelativeDateFormatUtil.format(userNoticeListVo.getRealCreateTime()));
+        });
+
         return userNoticeListVoPageInfo;
 
     }
