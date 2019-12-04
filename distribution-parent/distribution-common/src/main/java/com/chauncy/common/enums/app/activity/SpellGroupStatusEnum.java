@@ -15,8 +15,8 @@ public enum SpellGroupStatusEnum implements BaseEnum {
 
     SNAPPED_UP(1,"已抢购"),
     IN_PROGRESS(2,"抢购中"),
-    ABOUT_TO_START(2,"即将开始"),
-    ANNOUNCE_IN_ADVANCE(2,"预告"),
+    ABOUT_TO_START(3,"即将开始"),
+    ANNOUNCE_IN_ADVANCE(4,"明日预告"),
     ;
 
     private Integer id;
