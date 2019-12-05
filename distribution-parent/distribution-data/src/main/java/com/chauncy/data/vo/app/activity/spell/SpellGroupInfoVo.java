@@ -30,7 +30,7 @@ public class SpellGroupInfoVo implements Serializable {
     @ApiModelProperty(value = "还差几人拼成")
     private Integer margin;
 
-    @ApiModelProperty(value = "拼团结束时间，秒级时间戳")
+    @ApiModelProperty(value = "拼团结束时间  毫秒级时间戳")
     private Long endTime;
 
     @ApiModelProperty(value = "拼团结束时间")

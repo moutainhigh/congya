@@ -450,7 +450,7 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 case 3:
                     if(null != homePageActivityGoodsVo.getActivityEndTime()) {
                         homePageActivityGoodsVo.setEndTime(
-                                homePageActivityGoodsVo.getActivityEndTime().toEpochSecond(ZoneOffset.of("+8")));
+                                homePageActivityGoodsVo.getActivityEndTime().toInstant(ZoneOffset.of("+8")).toEpochMilli());
                     }
                     secKillGoods.add(homePageActivityGoodsVo);
                     break;

@@ -130,7 +130,7 @@ public class AmSeckillServiceImpl extends AbstractService<AmSeckillMapper, AmSec
                         //活动已开始
                         seckillGoodsVo.setIsStart(true);
                         //秒杀活动截止时间
-                        seckillGoodsVo.setEndTime(seckillGoodsVo.getActivityEndTime().toEpochSecond(ZoneOffset.of("+8")));
+                        seckillGoodsVo.setEndTime(seckillGoodsVo.getActivityEndTime().toInstant(ZoneOffset.of("+8")).toEpochMilli());
                     } else {
                         //活动未开始
                         seckillGoodsVo.setIsStart(false);
