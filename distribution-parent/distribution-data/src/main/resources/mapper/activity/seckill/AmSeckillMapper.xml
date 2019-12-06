@@ -130,10 +130,10 @@
                 and a.registration_start_time &gt; now()
             </if>
             <if test="registrationStatus == 3">
-                and a.registration_start_time &lt;= now() and now() &gt;= a.registration_end_time
+                and a.registration_start_time &lt;= now() and now() &lt;= a.registration_end_time
             </if>
             <if test="registrationStatus == 4">
-                and a.registration_start_time &gt; now()
+                and a.registration_end_time &lt; now()
             </if>
         </if>
         <if test="activityStartTime != null">
@@ -157,6 +157,7 @@
         <if test="subtitle != null and subtitle != ''">
             and subtitle like concat('%', #{subtitle} ,'%')
         </if>
+        order by a.create_time desc
 
     </select>
     <select id="findSeckillById" resultType="com.chauncy.data.vo.manage.activity.SearchActivityListVo">
