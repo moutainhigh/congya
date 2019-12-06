@@ -86,7 +86,7 @@
     </select>
 
     <select id="getSeckillTimeQuantum" resultType="com.chauncy.data.vo.app.activity.seckill.SeckillTimeQuantumVo">
-        SELECT DISTINCT `as`.create_time AS activityTime
+        SELECT DISTINCT `as`.activity_start_time AS activityTime
         FROM am_seckill `as`
         <where>
              `as`.del_flag = 0
