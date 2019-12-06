@@ -101,7 +101,7 @@
                 AND aarag.verify_status = 3
             )
         </where>
-        ORDER BY `as`.create_time DESC
+        ORDER BY `as`.activity_start_time DESC
     </select>
 
     <select id="searchSeckillList" resultType="com.chauncy.data.vo.manage.activity.SearchActivityListVo">
