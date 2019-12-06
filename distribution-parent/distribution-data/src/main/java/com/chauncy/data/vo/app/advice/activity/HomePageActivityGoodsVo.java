@@ -25,7 +25,7 @@ public class HomePageActivityGoodsVo  implements Serializable {
     @JSONField(ordinal = 1)
     private String picture;
 
-    @ApiModelProperty(value = "限时秒杀结束时间秒级时间戳")
+    @ApiModelProperty(value = "限时秒杀结束时间毫秒级时间戳")
     @JSONField(ordinal = 2)
     private Long endTime;
 

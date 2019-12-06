@@ -110,7 +110,7 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
         }
 
         //判断不同类型对应的属性名称是否已经存在
-        if (mapper.findByTypeAndName(goodsAttributePo.getType(), goodsAttributePo.getName()) != null) {
+        if (mapper.findByTypeAndName(goodsAttributePo.getType(), goodsAttributePo.getName(), storeId) != null) {
             return new JsonViewData(ResultCode.FAIL, "添加失败,该属性名称已存在");
         }
         if (goodsAttributeDto.getType()==GoodsAttributeTypeEnum.MERCHANT_SERVICE.getId()){
@@ -270,7 +270,7 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
 
         }else {
             //判断不同类型对应的属性名称是否已经存在
-            PmGoodsAttributePo po = mapper.findByTypeAndName(goodsAttributePo.getType(), goodsAttributePo.getName());
+            PmGoodsAttributePo po = mapper.findByTypeAndName(goodsAttributePo.getType(), goodsAttributePo.getName(), storeId);
             if (!po1.getName().equals(goodsAttributePo.getName()) && po != null) {
                 return new JsonViewData(ResultCode.FAIL, "修改失败,该属性名称已存在");
             }
@@ -430,7 +430,7 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
             }
 
             //判断不同类型对应的属性名称是否已经存在
-            if (mapper.findByTypeAndName(addOrUpdateAttValueDto.getType(), addOrUpdateAttValueDto.getAttributeName()) != null) {
+            if (mapper.findByTypeAndName(addOrUpdateAttValueDto.getType(), addOrUpdateAttValueDto.getAttributeName(), storeId) != null) {
                 throw new ServiceException(ResultCode.FAIL, "添加失败,该属性名称已存在",addOrUpdateAttValueDto.getAttributeName());
             }
 
@@ -472,7 +472,7 @@ public class PmGoodsAttributeServiceImpl extends AbstractService<PmGoodsAttribut
                 throw new ServiceException(ResultCode.FAIL, "该属性不存在");
             }
             //判断不同类型对应的属性名称是否已经存在
-            PmGoodsAttributePo po = mapper.findByTypeAndName(addOrUpdateAttValueDto.getType(), addOrUpdateAttValueDto.getAttributeName());
+            PmGoodsAttributePo po = mapper.findByTypeAndName(addOrUpdateAttValueDto.getType(), addOrUpdateAttValueDto.getAttributeName(), storeId);
             if (!po1.getName().equals(addOrUpdateAttValueDto.getAttributeName()) && po != null) {
                 throw new ServiceException(ResultCode.FAIL, "修改失败,该属性名称已存在");
             }

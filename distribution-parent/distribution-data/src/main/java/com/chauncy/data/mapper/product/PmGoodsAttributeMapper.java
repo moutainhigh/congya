@@ -56,7 +56,7 @@ public interface PmGoodsAttributeMapper extends IBaseMapper<PmGoodsAttributePo> 
      * @param name
      * @return
      */
-    PmGoodsAttributePo findByTypeAndName(@Param("type") Integer type, @Param("name") String name);
+    PmGoodsAttributePo findByTypeAndName(@Param("type") Integer type, @Param("name") String name, @Param("storeId") Long storeId);
 
     /**
      * 按条件查询

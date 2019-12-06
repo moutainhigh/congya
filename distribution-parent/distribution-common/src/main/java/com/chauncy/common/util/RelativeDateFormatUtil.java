@@ -2,6 +2,7 @@ package com.chauncy.common.util;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 /**
  * @author yeJH
@@ -47,8 +48,10 @@ public class RelativeDateFormatUtil {
             long months = toMonths(delta);
             return (months <= 0 ? 1 : months) + ONE_MONTH_AGO;
         } else {
-            long years = toYears(delta);
-            return (years <= 0 ? 1 : years) + ONE_YEAR_AGO;
+            DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            return df.format(localDateTime);
+            /*long years = toYears(delta);
+            return (years <= 0 ? 1 : years) + ONE_YEAR_AGO;*/
         }
     }
 
