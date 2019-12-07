@@ -142,13 +142,8 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void batchCreateSaleReport() {
-        //获取当前时间的上一周的最后一天  直接用周数-1 每年的第一周会有问题
-        //获取上一周所在周
-        LocalDate lastWeek = LocalDate.now().plusDays(-7L);
-        //上一周时间所在周的结束日期
-        Date date = DateFormatUtil.getLastDayOfWeek(DateFormatUtil.localDateToDate(lastWeek));
-        LocalDate endDate = DateFormatUtil.datetoLocalDate(date);
+    public void batchCreateSaleReport(LocalDate endDate) {
+
         //获取需要创建商品销售报表的店铺的数量
         int storeSum = omOrderReportMapper.getStoreSumNeedCreateReport(endDate, null);
         //一次性只处理1000条数据

@@ -165,12 +165,12 @@
             <if test="2 == billType">
                 and  ss.`income_bill_Settlement_cycle` != 0
             </if>
-            AND  NOT EXISTS (
+            AND  0 = (
                 <if test="1 == billType">
-                    SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`payment_bill_settlement_cycle` = 0
+                    SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`payment_bill_settlement_cycle`
                 </if>
                 <if test="2 == billType">
-                    SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`income_bill_Settlement_cycle` = 0
+                    SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`income_bill_Settlement_cycle`
                 </if>
                 FROM (
 	                SELECT oob.`end_date`
@@ -192,12 +192,12 @@
             <if test="null != storeId">
                 AND ss.`id` = #{storeId}
             </if>
-            AND  NOT EXISTS (
+            AND  0 = (
                 <if test="1 == billType">
-                    SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`payment_bill_settlement_cycle` = 0
+                    SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`payment_bill_settlement_cycle`
                 </if>
                 <if test="2 == billType">
-                    SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`income_bill_Settlement_cycle` = 0
+                    SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`income_bill_Settlement_cycle`
                 </if>
 	            FROM (
 	                SELECT oob.`end_date`
