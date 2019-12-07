@@ -407,6 +407,8 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
      * 根据店铺id，账单日期创建账单
      * @param endDate   账单最后一天
      * @param storeId   账单所属店铺
+     *                  利润账单 商品数量 * 商品利润比例 * 商品售价 * 店铺利润配置比例
+     *                  货款账单 供应价 * 数量
      */
     private void createStoreBill(LocalDate endDate, Long storeId, Integer billType) {
         SmStorePo smStorePo = smStoreMapper.selectById(storeId);
@@ -421,8 +423,8 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
         //创建账单
         OmOrderBillPo omOrderBillPo = new OmOrderBillPo();
         omOrderBillPo.setYear(endDate.getYear());
-        String month = endDate.getMonthValue() < 10 ? "0" + endDate.getMonthValue() : String.valueOf(endDate.getMonthValue());
-        omOrderBillPo.setMonthDay(month + String.valueOf(endDate.getDayOfMonth()));
+        omOrderBillPo.setMonthDay( String.format("%02d", endDate.getMonthValue())
+                + String.format("%02d", endDate.getDayOfMonth()));
         //总货款/总利润
         BigDecimal totalAmount = BigDecimal.ZERO;
         omOrderBillPo.setTotalAmount(totalAmount);
