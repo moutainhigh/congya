@@ -337,7 +337,8 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
 
         //设置商品快照表售后成功
         OmGoodsTempPo updateGoodsTemp = new OmGoodsTempPo();
-        updateGoodsTemp.setId(queryAfterSaleOrder.getGoodsTempId()).setIsAfterSale(true).setUpdateBy(userId);
+        updateGoodsTemp.setId(queryAfterSaleOrder.getGoodsTempId()).setIsAfterSale(true).setUpdateBy(userId)
+        .setSaleEndTime(LocalDateTime.now());
         goodsTempMapper.updateById(updateGoodsTemp);
 
         //退还使用的红包、购物券

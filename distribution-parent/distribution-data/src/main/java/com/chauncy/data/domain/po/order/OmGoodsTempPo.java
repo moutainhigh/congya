@@ -115,5 +115,8 @@ public class OmGoodsTempPo implements Serializable {
     @ApiModelProperty(value = "使用了多少购物券")
     private BigDecimal shopTicket;
 
+    @ApiModelProperty(value = "售后截止时间或售后结束时间")
+    private LocalDateTime saleEndTime;
+
 
 }
