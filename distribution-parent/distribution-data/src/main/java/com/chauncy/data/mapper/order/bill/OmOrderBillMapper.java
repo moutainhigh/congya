@@ -1,5 +1,6 @@
 package com.chauncy.data.mapper.order.bill;
 
+import com.chauncy.data.bo.order.log.BillRelGoodsTempBo;
 import com.chauncy.data.bo.order.log.BillRelOrderBo;
 import com.chauncy.data.domain.po.order.bill.OmOrderBillPo;
 import com.chauncy.data.dto.manage.order.bill.select.SearchBillDto;
@@ -86,4 +87,19 @@ public interface OmOrderBillMapper extends IBaseMapper<OmOrderBillPo> {
                                           @Param("endDate")LocalDate endDate,
                                           @Param("storeId")Long storeId,
                                           @Param("billType")Integer billType);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/12/8 13:21
+     * @Description 创建账单时获取时间内的所有可以售后的订单快照信息
+     *
+     * @Update yeJH
+     *
+     * @param  startDate    账单结算开始时间
+     * @param  endDate      账单结算结束时间
+     * @param  storeId      创建账单店铺
+     * @param  billType     账单类型  1 货款  2 利润
+     * @return java.util.List<com.chauncy.data.bo.order.log.BillRelGoodsTempBo>
+     **/
+    List<BillRelGoodsTempBo> getBillGoodsTempList(LocalDate startDate, LocalDate endDate, Long storeId, Integer billType);
 }

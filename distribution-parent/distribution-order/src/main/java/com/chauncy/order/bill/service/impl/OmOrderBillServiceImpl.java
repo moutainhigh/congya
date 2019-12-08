@@ -13,6 +13,7 @@ import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.common.util.DateFormatUtil;
 import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
+import com.chauncy.data.bo.order.log.BillRelGoodsTempBo;
 import com.chauncy.data.bo.order.log.BillRelOrderBo;
 import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
@@ -438,40 +439,41 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
         omOrderBillPo.setBillType(billType);
         omOrderBillPo.setCreateBy(String.valueOf(storeId));
         omOrderBillMapper.insert(omOrderBillPo);
-        //查询时间段内属于账单的订单
-        List<BillRelOrderBo> billRelOrderBoList = omOrderBillMapper.getBillOrderList(startDate, endDate, storeId, billType);
-        for(BillRelOrderBo billRelOrderBo : billRelOrderBoList) {
+        //查询时间段内属于账单的订单快照
+        //List<BillRelOrderBo> billRelOrderBoList = omOrderBillMapper.getBillOrderList(startDate, endDate, storeId, billType);
+        /*for(BillRelOrderBo billRelOrderBo : billRelOrderBoList) {
             QueryWrapper<OmGoodsTempPo> goodsTempQueryWrapper = new QueryWrapper();
             goodsTempQueryWrapper.lambda().eq(OmGoodsTempPo::getOrderId, billRelOrderBo.getId());
-            List<OmGoodsTempPo> omGoodsTempPoList = omGoodsTempMapper.selectList(goodsTempQueryWrapper);
-            for(OmGoodsTempPo omGoodsTempPo : omGoodsTempPoList) {
-                if (omGoodsTempPo.getCanAfterSale()) {
-                    OmBillRelGoodsTempPo omBillRelGoodsTempPo = new OmBillRelGoodsTempPo();
-                    omBillRelGoodsTempPo.setBillId(omOrderBillPo.getId());
-                    omBillRelGoodsTempPo.setGoodsTempId(omGoodsTempPo.getId());
-                    totalNum += omGoodsTempPo.getNumber();
-                    if (BillTypeEnum.PAYMENT_BILL.getId().equals(billType)) {
-                        //货款账单 供应价 * 数量
-                        BigDecimal amount = BigDecimalUtil.safeMultiply(omGoodsTempPo.getSupplierPrice(), omGoodsTempPo.getNumber());
-                        omBillRelGoodsTempPo.setTotalAmount(amount);
-                        totalAmount = BigDecimalUtil.safeAdd(totalAmount, amount);
-                    } else if (BillTypeEnum.PROFIT_BILL.getId().equals(billType)) {
-                        //利润账单 商品数量 * 商品利润比例 * 商品售价 * 店铺利润配置比例
-                        BigDecimal profitRate = BigDecimalUtil.safeDivide(omGoodsTempPo.getProfitRate(), new BigDecimal(100));
-                        BigDecimal incomeRate = BigDecimalUtil.safeDivide(
-                                new BigDecimal(billRelOrderBo.getIncomeRate().toString()),
-                                new BigDecimal(100));
-                        BigDecimal amount = BigDecimalUtil.safeMultiply(
-                                BigDecimalUtil.safeMultiply(profitRate, omGoodsTempPo.getSellPrice()),
-                                BigDecimalUtil.safeMultiply(incomeRate, new BigDecimal(omGoodsTempPo.getNumber())));
-                        omBillRelGoodsTempPo.setTotalAmount(amount);
-                        totalAmount = BigDecimalUtil.safeAdd(totalAmount, amount);
-                    }
-                    omBillRelGoodsTempPo.setCreateBy(String.valueOf(storeId));
-                    omBillRelGoodsTempMapper.insert(omBillRelGoodsTempPo);
+            List<OmGoodsTempPo> omGoodsTempPoList = omGoodsTempMapper.selectList(goodsTempQueryWrapper);*/
+        List<BillRelGoodsTempBo> billRelGoodsTempBoList = omOrderBillMapper.getBillGoodsTempList(startDate, endDate, storeId, billType);
+        for(OmGoodsTempPo omGoodsTempPo : omGoodsTempPoList) {
+            if (omGoodsTempPo.getCanAfterSale()) {
+                OmBillRelGoodsTempPo omBillRelGoodsTempPo = new OmBillRelGoodsTempPo();
+                omBillRelGoodsTempPo.setBillId(omOrderBillPo.getId());
+                omBillRelGoodsTempPo.setGoodsTempId(omGoodsTempPo.getId());
+                totalNum += omGoodsTempPo.getNumber();
+                if (BillTypeEnum.PAYMENT_BILL.getId().equals(billType)) {
+                    //货款账单 供应价 * 数量
+                    BigDecimal amount = BigDecimalUtil.safeMultiply(omGoodsTempPo.getSupplierPrice(), omGoodsTempPo.getNumber());
+                    omBillRelGoodsTempPo.setTotalAmount(amount);
+                    totalAmount = BigDecimalUtil.safeAdd(totalAmount, amount);
+                } else if (BillTypeEnum.PROFIT_BILL.getId().equals(billType)) {
+                    //利润账单 商品数量 * 商品利润比例 * 商品售价 * 店铺利润配置比例
+                    BigDecimal profitRate = BigDecimalUtil.safeDivide(omGoodsTempPo.getProfitRate(), new BigDecimal(100));
+                    BigDecimal incomeRate = BigDecimalUtil.safeDivide(
+                            billRelOrderBo.getIncomeRate(),
+                            new BigDecimal(100));
+                    BigDecimal amount = BigDecimalUtil.safeMultiply(
+                            BigDecimalUtil.safeMultiply(profitRate, omGoodsTempPo.getSellPrice()),
+                            BigDecimalUtil.safeMultiply(incomeRate, new BigDecimal(omGoodsTempPo.getNumber())));
+                    omBillRelGoodsTempPo.setTotalAmount(amount);
+                    totalAmount = BigDecimalUtil.safeAdd(totalAmount, amount);
                 }
+                omBillRelGoodsTempPo.setCreateBy(String.valueOf(storeId));
+                omBillRelGoodsTempMapper.insert(omBillRelGoodsTempPo);
             }
         }
+      /*  }*/
         //更新商品总数
         omOrderBillPo.setTotalNum(totalNum);
         //更新总利润/总货款
