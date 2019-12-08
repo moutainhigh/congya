@@ -25,6 +25,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -204,6 +205,25 @@ public class OmOrderBillApi  extends BaseApi {
 
         return new JsonViewData(ResultCode.SUCCESS, "查找成功",
                 omOrderReportService.findReportById(baseSearchPagingDto, id));
+
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/12/6 21:45
+     * @Description 创建货款账单，利润账单，商品销售报表
+     *
+     * @Update yeJH
+     *
+     * @param  billType
+     **/
+    @ApiOperation(value = "创建货款账单，利润账单，商品销售报表", notes = "创建货款账单，利润账单，商品销售报表")
+    @GetMapping("/bill/createBill/{billType}/{endDate}")
+    public JsonViewData createBill(
+            @ApiParam(required = true, value = "billType")@PathVariable Integer billType,
+            @ApiParam(required = true, value = "endDate")@DateTimeFormat(pattern = "yyyy-MM-dd" ) @PathVariable LocalDate endDate) {
+        omOrderBillService.createBill(billType, endDate);
+        return new JsonViewData(ResultCode.SUCCESS, "操作成功");
 
     }
 

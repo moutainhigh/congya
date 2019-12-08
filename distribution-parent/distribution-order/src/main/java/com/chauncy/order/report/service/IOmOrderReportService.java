@@ -44,7 +44,7 @@ public interface IOmOrderReportService extends Service<OmOrderReportPo> {
      * @param
      * @return void
      **/
-    void batchCreateSaleReport();
+    void batchCreateSaleReport(LocalDate endDate);
 
     /**
      * 根据时间创建商品销售报表
