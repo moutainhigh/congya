@@ -101,5 +101,8 @@ public interface OmOrderBillMapper extends IBaseMapper<OmOrderBillPo> {
      * @param  billType     账单类型  1 货款  2 利润
      * @return java.util.List<com.chauncy.data.bo.order.log.BillRelGoodsTempBo>
      **/
-    List<BillRelGoodsTempBo> getBillGoodsTempList(LocalDate startDate, LocalDate endDate, Long storeId, Integer billType);
+    List<BillRelGoodsTempBo> getBillGoodsTempList(@Param("startDate") LocalDate startDate,
+                                                  @Param("endDate")LocalDate endDate,
+                                                  @Param("storeId")Long storeId,
+                                                  @Param("billType")Integer billType);
 }
