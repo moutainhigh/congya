@@ -1,12 +1,15 @@
 package com.chauncy.data.vo.app.advice.coupon;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 /**
  * @Author cheng
@@ -62,4 +65,16 @@ public class FindCouponListVo {
     @ApiModelProperty(value = "满减金额")
     @JSONField(ordinal = 10)
     private BigDecimal reductionPostMoney;
+
+    @ApiModelProperty("使用期限--领取日期")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JSONField(ordinal = 11)
+    private LocalDate receiveTime;
+
+    @ApiModelProperty("使用期限--截止日期")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JSONField(ordinal = 12)
+    private LocalDate deadLine;
 }
