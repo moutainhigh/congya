@@ -102,7 +102,7 @@ public class CustomsDataServiceImpl extends AbstractService<CustomsDataMapper, C
         queryGoodsTemps.forEach(x->{
             GoodsInfo goodsInfo=new GoodsInfo();
             // TODO: 2019/9/22 商品链接拼接上id
-            goodsInfo.setGname(x.getName()).setItemLink(x.getId()+"");
+            goodsInfo.setGname(x.getName()).setItemLink("http://5yah.bo2h.com:8007/#/goodsdetail?goodsId="+x.getGoodsId());
             goodsInfos.add(goodsInfo);
         });
         payExchangeInfoHead.setInitalRequest(queryPayParam.getInitalRequest()).setInitalResponse(queryPayParam.getInitalResponse()).setPayTransactionId(queryPayOrder.getPayOrderNo())
