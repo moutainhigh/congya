@@ -13,6 +13,7 @@ import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.BigDecimalUtil;
 import com.chauncy.common.util.DateFormatUtil;
 import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
+import com.chauncy.data.bo.order.log.BillRelGoodsTempBo;
 import com.chauncy.data.bo.order.log.BillRelOrderBo;
 import com.chauncy.data.domain.po.order.OmGoodsTempPo;
 import com.chauncy.data.domain.po.order.OmOrderPo;
@@ -40,6 +41,7 @@ import com.chauncy.data.vo.manage.order.bill.*;
 import com.chauncy.order.bill.service.IOmOrderBillService;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.order.log.service.IOmAccountLogService;
+import com.chauncy.order.report.service.IOmOrderReportService;
 import com.chauncy.order.service.IOmOrderService;
 import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
@@ -96,6 +98,12 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
 
     @Autowired
     private SecurityUtil securityUtil;
+
+    @Autowired
+    private IOmOrderBillService omOrderBillService;
+
+    @Autowired
+    private IOmOrderReportService omOrderReportService;
 
 
     /**
@@ -339,18 +347,13 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void batchCreateStoreBill(Integer billType) {
+    public void batchCreateStoreBill(Integer billType, LocalDate endDate) {
         //获取当前时间的上一周的最后一天  直接用周数-1 每年的第一周会有问题
         /*LocalDate localDate = LocalDate.now();
         Date date = DateFormatUtil.getLastDayOfWeek(localDate.getYear(),
                 DateFormatUtil.getWeekOfYear(DateFormatUtil.localDateToDate(localDate)) - 1);
         LocalDate lastDate = DateFormatUtil.datetoLocalDate(date);*/
-        LocalDate localDate = LocalDate.now();
-        //获取上一周所在周
-        LocalDate lastWeek = localDate.plusDays(-7L);
-        //上一周时间所在周的结束日期
-        Date date = DateFormatUtil.getLastDayOfWeek(DateFormatUtil.localDateToDate(lastWeek));
-        LocalDate endDate = DateFormatUtil.datetoLocalDate(date);
+
         //获取需要创建账单的店铺的数量
         int storeSum = omOrderBillMapper.getStoreSumNeedCreateBill(billType, endDate, null);
         //一次性只处理1000条数据
@@ -363,10 +366,14 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
                             createStoreBill(endDate, storeId, billType);
                         } catch (Exception e) {
                             if(BillTypeEnum.PROFIT_BILL.getId().equals(billType)) {
+                                log.error(e.getLocalizedMessage());
                                 log.error("店铺id为" + storeId + "的店铺生成利润账单报错");
                             } else if(BillTypeEnum.PAYMENT_BILL.getId().equals(billType)) {
+                                e.printStackTrace();
+                                log.error(e.toString());
                                 log.error("店铺id为" + storeId + "的店铺生成货款账单报错");
                             }
+                            throw new ServiceException(ResultCode.FAIL, "生成账单操作失败");
                         }
                     });
             }
@@ -405,6 +412,8 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
      * 根据店铺id，账单日期创建账单
      * @param endDate   账单最后一天
      * @param storeId   账单所属店铺
+     *                  利润账单 商品数量 * 商品利润比例 * 商品售价 * 店铺利润配置比例
+     *                  货款账单 供应价 * 数量
      */
     private void createStoreBill(LocalDate endDate, Long storeId, Integer billType) {
         SmStorePo smStorePo = smStoreMapper.selectById(storeId);
@@ -419,8 +428,8 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
         //创建账单
         OmOrderBillPo omOrderBillPo = new OmOrderBillPo();
         omOrderBillPo.setYear(endDate.getYear());
-        String month = endDate.getMonthValue() < 10 ? "0" + endDate.getMonthValue() : String.valueOf(endDate.getMonthValue());
-        omOrderBillPo.setMonthDay(month + String.valueOf(endDate.getDayOfMonth()));
+        omOrderBillPo.setMonthDay( String.format("%02d", endDate.getMonthValue())
+                + String.format("%02d", endDate.getDayOfMonth()));
         //总货款/总利润
         BigDecimal totalAmount = BigDecimal.ZERO;
         omOrderBillPo.setTotalAmount(totalAmount);
@@ -434,39 +443,32 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
         omOrderBillPo.setBillType(billType);
         omOrderBillPo.setCreateBy(String.valueOf(storeId));
         omOrderBillMapper.insert(omOrderBillPo);
-        //查询时间段内属于账单的订单
-        List<BillRelOrderBo> billRelOrderBoList = omOrderBillMapper.getBillOrderList(startDate, endDate, storeId, billType);
-        for(BillRelOrderBo billRelOrderBo : billRelOrderBoList) {
-            QueryWrapper<OmGoodsTempPo> goodsTempQueryWrapper = new QueryWrapper();
-            goodsTempQueryWrapper.lambda().eq(OmGoodsTempPo::getOrderId, billRelOrderBo.getId());
-            List<OmGoodsTempPo> omGoodsTempPoList = omGoodsTempMapper.selectList(goodsTempQueryWrapper);
-            for(OmGoodsTempPo omGoodsTempPo : omGoodsTempPoList) {
-                if (omGoodsTempPo.getCanAfterSale()) {
-                    OmBillRelGoodsTempPo omBillRelGoodsTempPo = new OmBillRelGoodsTempPo();
-                    omBillRelGoodsTempPo.setBillId(omOrderBillPo.getId());
-                    omBillRelGoodsTempPo.setGoodsTempId(omGoodsTempPo.getId());
-                    totalNum += omGoodsTempPo.getNumber();
-                    if (BillTypeEnum.PAYMENT_BILL.getId().equals(billType)) {
-                        //货款账单 供应价 * 数量
-                        BigDecimal amount = BigDecimalUtil.safeMultiply(omGoodsTempPo.getSupplierPrice(), omGoodsTempPo.getNumber());
-                        omBillRelGoodsTempPo.setTotalAmount(amount);
-                        totalAmount = BigDecimalUtil.safeAdd(totalAmount, amount);
-                    } else if (BillTypeEnum.PROFIT_BILL.getId().equals(billType)) {
-                        //利润账单 商品数量 * 商品利润比例 * 商品售价 * 店铺利润配置比例
-                        BigDecimal profitRate = BigDecimalUtil.safeDivide(omGoodsTempPo.getProfitRate(), new BigDecimal(100));
-                        BigDecimal incomeRate = BigDecimalUtil.safeDivide(
-                                new BigDecimal(billRelOrderBo.getIncomeRate().toString()),
-                                new BigDecimal(100));
-                        BigDecimal amount = BigDecimalUtil.safeMultiply(
-                                BigDecimalUtil.safeMultiply(profitRate, omGoodsTempPo.getSellPrice()),
-                                BigDecimalUtil.safeMultiply(incomeRate, new BigDecimal(omGoodsTempPo.getNumber())));
-                        omBillRelGoodsTempPo.setTotalAmount(amount);
-                        totalAmount = BigDecimalUtil.safeAdd(totalAmount, amount);
-                    }
-                    omBillRelGoodsTempPo.setCreateBy(String.valueOf(storeId));
-                    omBillRelGoodsTempMapper.insert(omBillRelGoodsTempPo);
-                }
+        //查询时间段内属于账单的订单快照
+        List<BillRelGoodsTempBo> billRelGoodsTempBoList = omOrderBillMapper.getBillGoodsTempList(startDate, endDate, storeId, billType);
+        for(BillRelGoodsTempBo billRelGoodsTempBo : billRelGoodsTempBoList) {
+            OmBillRelGoodsTempPo omBillRelGoodsTempPo = new OmBillRelGoodsTempPo();
+            omBillRelGoodsTempPo.setBillId(omOrderBillPo.getId());
+            omBillRelGoodsTempPo.setGoodsTempId(billRelGoodsTempBo.getGoodsTempId());
+            totalNum += billRelGoodsTempBo.getNumber();
+            if (BillTypeEnum.PAYMENT_BILL.getId().equals(billType)) {
+                //货款账单 供应价 * 数量
+                BigDecimal amount = BigDecimalUtil.safeMultiply(billRelGoodsTempBo.getSupplierPrice(), billRelGoodsTempBo.getNumber());
+                omBillRelGoodsTempPo.setTotalAmount(amount);
+                totalAmount = BigDecimalUtil.safeAdd(totalAmount, amount);
+            } else if (BillTypeEnum.PROFIT_BILL.getId().equals(billType)) {
+                //利润账单 商品数量 * 商品利润比例 * 商品售价 * 店铺利润配置比例
+                BigDecimal profitRate = BigDecimalUtil.safeDivide(billRelGoodsTempBo.getProfitRate(), new BigDecimal(100));
+                BigDecimal incomeRate = BigDecimalUtil.safeDivide(
+                        billRelGoodsTempBo.getIncomeRate(),
+                        new BigDecimal(100));
+                BigDecimal amount = BigDecimalUtil.safeMultiply(
+                        BigDecimalUtil.safeMultiply(profitRate, billRelGoodsTempBo.getSellPrice()),
+                        BigDecimalUtil.safeMultiply(incomeRate, new BigDecimal(billRelGoodsTempBo.getNumber())));
+                omBillRelGoodsTempPo.setTotalAmount(amount);
+                totalAmount = BigDecimalUtil.safeAdd(totalAmount, amount);
             }
+            omBillRelGoodsTempPo.setCreateBy(String.valueOf(storeId));
+            omBillRelGoodsTempMapper.insert(omBillRelGoodsTempPo);
         }
         //更新商品总数
         omOrderBillPo.setTotalNum(totalNum);
@@ -571,5 +573,36 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
                 .doSelectPageInfo(() -> omOrderBillMapper.findRelBillDetail(id));
 
         return billRelGoodsTempVoPageInfo;
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/12/6 21:48
+     * @Description 创建货款账单，利润账单，商品销售报表
+     *
+     * @Update yeJH
+     *
+     * @param  billType
+     * @return void
+     **/
+    @Override
+    public void createBill(Integer billType, LocalDate endDate) {
+        switch (billType) {
+            case 1:
+                log.info("==============================创建货款账单开始================================");
+                omOrderBillService.batchCreateStoreBill(BillTypeEnum.PAYMENT_BILL.getId(), endDate);
+                log.info("==============================创建货款账单结束================================");
+                break;
+            case 2:
+                log.info("==============================创建利润账单开始================================");
+                omOrderBillService.batchCreateStoreBill(BillTypeEnum.PROFIT_BILL.getId(), endDate);
+                log.info("==============================创建利润账单结束================================");
+                break;
+            case 3:
+                log.info("==============================创建商品销售报表开始================================");
+                omOrderReportService.batchCreateSaleReport(endDate);
+                log.info("==============================创建商品销售报表结束================================");
+                break;
+        }
     }
 }

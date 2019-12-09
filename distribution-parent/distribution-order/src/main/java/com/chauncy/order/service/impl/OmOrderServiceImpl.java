@@ -824,6 +824,11 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
         OmGoodsTempPo queryGoodsTemp = goodsTempMapper.selectById(goodsTempId);
 
+        //商品快照表加上售后失败的时间
+        OmGoodsTempPo updateGoodsTemp=new OmGoodsTempPo();
+        updateGoodsTemp.setId(goodsTempId).setSaleEndTime(LocalDateTime.now());
+        goodsTempMapper.updateById(updateGoodsTemp);
+
         // TODO: 2019/10/29 俊浩商品销售报表
 
         //查出下单用户需要返的购物券、积分、经验值
@@ -906,7 +911,12 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
         }
 
-       //购物奖励  下单用户本人有获得积分，购物券
+
+        //商品销售报表
+        omOrderReportService.orderClosure(null, goodsTempId);
+
+
+        //购物奖励  下单用户本人有获得积分，购物券
         addShoppingRewardLog(queryGoodsTemp.getOrderId(),
                 Long.parseLong(queryGoodsTemp.getCreateBy()),
                 rewardBuyerBo.getRewardIntegrate(),
@@ -917,6 +927,11 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
         OmOrderPo queryOrder = mapper.selectById(orderId);
 
+        //快照表冗余是售后截止时间字段
+        UpdateWrapper<OmGoodsTempPo> updateWrapper=new UpdateWrapper<>();
+        updateWrapper.lambda().eq(OmGoodsTempPo::getOrderId,orderId).eq(OmGoodsTempPo::getCanAfterSale,true)
+        .set(OmGoodsTempPo::getSaleEndTime,LocalDateTime.now());
+        goodsTempService.update(updateWrapper);
 
         Long userId = Long.parseLong(queryOrder.getCreateBy());
 
@@ -1005,7 +1020,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         umUserService.updateLevel(userId);
 
         //商品销售报表
-        omOrderReportService.orderClosure(orderId);
+        omOrderReportService.orderClosure(orderId, null);
 
         //购物奖励  下单用户本人有获得积分，购物券
         addShoppingRewardLog(queryOrder.getId(), userId, rewardBuyerBo.getRewardIntegrate(), rewardBuyerBo.getRewardShopTicket());

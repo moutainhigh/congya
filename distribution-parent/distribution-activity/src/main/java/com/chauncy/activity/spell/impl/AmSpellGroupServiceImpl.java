@@ -231,7 +231,7 @@ public class AmSpellGroupServiceImpl extends AbstractService<AmSpellGroupMapper,
         spellGroupInfoVoPageInfo.getList().forEach(spellGroupInfoVo -> {
             if(null != spellGroupInfoVo.getExpireTime()) {
                 spellGroupInfoVo.setEndTime(
-                        spellGroupInfoVo.getExpireTime().toEpochSecond(ZoneOffset.of("+8")));
+                        spellGroupInfoVo.getExpireTime().toInstant(ZoneOffset.of("+8")).toEpochMilli());
             }
         });
 

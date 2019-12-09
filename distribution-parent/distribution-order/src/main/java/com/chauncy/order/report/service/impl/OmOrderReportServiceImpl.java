@@ -142,13 +142,8 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void batchCreateSaleReport() {
-        //获取当前时间的上一周的最后一天  直接用周数-1 每年的第一周会有问题
-        //获取上一周所在周
-        LocalDate lastWeek = LocalDate.now().plusDays(-7L);
-        //上一周时间所在周的结束日期
-        Date date = DateFormatUtil.getLastDayOfWeek(DateFormatUtil.localDateToDate(lastWeek));
-        LocalDate endDate = DateFormatUtil.datetoLocalDate(date);
+    public void batchCreateSaleReport(LocalDate endDate) {
+
         //获取需要创建商品销售报表的店铺的数量
         int storeSum = omOrderReportMapper.getStoreSumNeedCreateReport(endDate, null);
         //一次性只处理1000条数据
@@ -214,6 +209,9 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
     }
 
     /**
+     * @Author yeJH
+     * @Date 2019/12/8 12:38
+     * @Description
      * 订单确认不能售后业务处理 扣减商品虚拟库存，插入报表订单关联
      * 1.插入关联 omReportRelGoodsTempPo 一个OmGoodsTempPo可能对应多个PmStoreRelGoodsStockPo
      *   下单的商品不同数量可能来自不同的批次
@@ -222,21 +220,33 @@ public class OmOrderReportServiceImpl extends AbstractService<OmOrderReportMappe
      * 4.订单中已售后的商品不扣减库存
      * PS:不一定有足够的虚拟库存扣减
      * 店铺A产生了商品销售报表  店铺的上级店铺们产生店铺A的分店销售报表
-     * @param orderId  订单id
-     */
+     *
+     * @Update yeJH
+     *
+     * @param  orderId       订单id
+     * @param  goodsTempId   订单快照id  （订单售后失败）
+     * @return void
+     **/
     @Override
-    public void orderClosure(Long orderId) {
-
-        OmOrderPo omOrderPo = omOrderMapper.selectById(orderId);
-        if(null == omOrderPo) {
-            throw new ServiceException(ResultCode.NO_EXISTS, "订单不存在");
-        }
+    public void orderClosure(Long orderId, Long goodsTempId) {
+        List<OmGoodsTempPo> omGoodsTempPoList;
         QueryWrapper<OmGoodsTempPo> omGoodsTempPoWrapper = new QueryWrapper<>();
-        //售后商品不需要扣减库存
-        omGoodsTempPoWrapper.lambda()
-                .eq(OmGoodsTempPo::getOrderId, orderId)
-                .eq(OmGoodsTempPo::getCanAfterSale, true);
-        List<OmGoodsTempPo> omGoodsTempPoList = omGoodsTempMapper.selectList(omGoodsTempPoWrapper);
+        OmOrderPo omOrderPo = new OmOrderPo();
+        if(null != orderId) {
+            omOrderPo = omOrderMapper.selectById(orderId);
+            //售后商品不需要扣减库存
+            omGoodsTempPoWrapper.lambda()
+                    .eq(OmGoodsTempPo::getOrderId, orderId)
+                    .eq(OmGoodsTempPo::getIsAfterSale, false);
+            omGoodsTempPoList = omGoodsTempMapper.selectList(omGoodsTempPoWrapper);
+        } else {
+            omGoodsTempPoWrapper.lambda()
+                    .eq(OmGoodsTempPo::getId, goodsTempId);
+            omGoodsTempPoList = omGoodsTempMapper.selectList(omGoodsTempPoWrapper);
+            if(null != omGoodsTempPoList && omGoodsTempPoList.size() > 0) {
+                omOrderPo = omOrderMapper.selectById(omGoodsTempPoList.get(0).getOrderId());
+            }
+        }
         for(OmGoodsTempPo omGoodsTempPo : omGoodsTempPoList) {
             //根据订单商品数量  判断店铺虚拟库存批次
             //获取商品所属店铺的商品规格虚拟库存 可能有多个批次，先创建的先扣减

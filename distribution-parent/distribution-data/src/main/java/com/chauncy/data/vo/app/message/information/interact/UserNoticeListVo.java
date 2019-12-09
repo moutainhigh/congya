@@ -36,7 +36,10 @@ public class UserNoticeListVo  implements Serializable {
     private String picture;
 
     @ApiModelProperty(value = "创建时间")
-    private LocalDateTime createTime;
+    private LocalDateTime realCreateTime;
+
+    @ApiModelProperty(value = "时间格式，刚刚 几分钟前，几小时前，几天前，几个月前，具体时间")
+    private String createTime;
 
 
 

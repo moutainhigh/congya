@@ -15,6 +15,8 @@ import com.chauncy.data.vo.manage.order.bill.BillRelGoodsTempVo;
 import com.chauncy.data.vo.manage.order.bill.BillReportVo;
 import com.github.pagehelper.PageInfo;
 
+import java.time.LocalDate;
+
 /**
  * <p>
  * 账单表 服务类
@@ -70,7 +72,7 @@ public interface IOmOrderBillService extends Service<OmOrderBillPo> {
      * 批量创建货款、利润账单
      * @return
      */
-    void batchCreateStoreBill(Integer billType);
+    void batchCreateStoreBill(Integer billType, LocalDate endDate);
 
     /**
      * 根据时间创建货款、利润账单
@@ -92,4 +94,15 @@ public interface IOmOrderBillService extends Service<OmOrderBillPo> {
      * @return
      */
     PageInfo<BillRelGoodsTempVo> findRelBillDetail(BaseSearchPagingDto baseSearchPagingDto, Long id);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/12/6 21:46
+     * @Description 创建货款账单，利润账单，商品销售报表
+     *
+     * @Update yeJH
+     *
+     * @param  billType
+     **/
+    void createBill(Integer billType, LocalDate endDate);
 }

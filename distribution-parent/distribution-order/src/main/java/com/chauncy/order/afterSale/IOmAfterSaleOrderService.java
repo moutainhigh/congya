@@ -37,7 +37,7 @@ public interface IOmAfterSaleOrderService extends Service<OmAfterSaleOrderPo> {
 
 
     /**
-     * 根据快照id查找通个订单下的商品快照
+     * 根据快照id查找同个订单下的商品快照
      *
      * @param id
      * @return

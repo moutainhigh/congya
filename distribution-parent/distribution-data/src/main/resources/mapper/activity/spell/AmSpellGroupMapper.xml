@@ -159,7 +159,7 @@
         </where>
         GROUP BY pg.`id`
         <if test="null != sortFile and sortFile.name() == 'PRICE_SORT' ">
-            ORDER BY pgs.sell_price ${sortWay.name}
+            ORDER BY sellPrice ${sortWay.name}
         </if>
         <if test="null != sortFile and sortFile.name() == 'SALES_SORT'">
             ORDER BY pg.sales_volume ${sortWay.name}
@@ -291,7 +291,7 @@
         </where>
         GROUP BY pg.`id`
         <if test="null != sortFile and sortFile.name() == 'PRICE_SORT' ">
-            ORDER BY pgs.sell_price ${sortWay.name}
+            ORDER BY sellPrice
         </if>
         <if test="null != sortFile and sortFile.name() == 'SALES_SORT'">
             ORDER BY pg.sales_volume ${sortWay.name}

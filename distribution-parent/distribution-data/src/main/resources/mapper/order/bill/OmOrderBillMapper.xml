@@ -152,19 +152,15 @@
         </where>
     </select>
     <select id="getStoreSumNeedCreateBill" resultType="java.lang.Integer">
-        SELECT COUNT(*)
-        FROM sm_store ss
-        <where>
-            DATE(ss.`create_time`)  <![CDATA[<= ]]> #{endDate}
-            <if test="null != storeId">
-                AND ss.`id` = #{storeId}
-            </if>
-            AND  NOT EXISTS (
+        SELECT COUNT(1)
+        FROM (
+            SELECT ss.payment_bill_settlement_cycle,
+            (
                 <if test="1 == billType">
-                    SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`payment_bill_settlement_cycle` = 0
+                    SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`payment_bill_settlement_cycle`
                 </if>
                 <if test="2 == billType">
-                    SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`income_bill_Settlement_cycle` = 0
+                    SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`income_bill_Settlement_cycle`
                 </if>
                 FROM (
 	                SELECT oob.`end_date`
@@ -175,23 +171,37 @@
 	                ORDER BY end_date DESC
 	                LIMIT 1
 	            ) AS temp
-	        )
-        </where>
+            ) AS billWeek
+            FROM sm_store ss
+            <where>
+                DATE(ss.`create_time`)  <![CDATA[<= ]]> #{endDate}
+                <if test="null != storeId">
+                    AND ss.`id` = #{storeId}
+                </if>
+                <if test="1 == billType">
+                    and  ss.`payment_bill_settlement_cycle` != 0
+                </if>
+                <if test="2 == billType">
+                    and  ss.`income_bill_Settlement_cycle` != 0
+                </if>
+            </where>
+             HAVING (  billWeek > 0 AND billWeek MOD ss.`payment_bill_settlement_cycle` = 0 OR billWeek IS NULL)
+         ) AS countTemp
     </select>
     <select id="getStoreNeedCreateBill" resultType="java.lang.Long">
-        SELECT ss.id
+        <!-- SELECT ss.id
         FROM sm_store ss
         <where>
             DATE(ss.`create_time`)  <![CDATA[<= ]]> #{endDate}
             <if test="null != storeId">
                 AND ss.`id` = #{storeId}
             </if>
-            AND  NOT EXISTS (
+            AND  0 = (
                 <if test="1 == billType">
-                    SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`payment_bill_settlement_cycle` = 0
+                    SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`payment_bill_settlement_cycle`
                 </if>
                 <if test="2 == billType">
-                    SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`income_bill_Settlement_cycle` = 0
+                    SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`income_bill_Settlement_cycle`
                 </if>
 	            FROM (
 	                SELECT oob.`end_date`
@@ -203,7 +213,39 @@
 	                LIMIT 1
 	            ) AS temp
 	        )
+        </where> -->
+        SELECT ss.id, ss.payment_bill_settlement_cycle,
+            (
+                <if test="1 == billType">
+                    SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`payment_bill_settlement_cycle`
+                </if>
+                <if test="2 == billType">
+                    SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`income_bill_Settlement_cycle`
+                </if>
+                FROM (
+	                SELECT oob.`end_date`
+	                FROM om_order_bill oob
+	                WHERE oob.`store_id` = ss.`id`
+	                AND oob.`bill_type` = #{billType}
+	                AND oob.`end_date` <![CDATA[<= ]]> #{endDate}
+	                ORDER BY end_date DESC
+	                LIMIT 1
+	            ) AS temp
+            ) AS billWeek
+        FROM sm_store ss
+        <where>
+            DATE(ss.`create_time`)  <![CDATA[<= ]]> #{endDate}
+            <if test="null != storeId">
+                AND ss.`id` = #{storeId}
+            </if>
+            <if test="1 == billType">
+                and  ss.`payment_bill_settlement_cycle` != 0
+            </if>
+            <if test="2 == billType">
+                and  ss.`income_bill_Settlement_cycle` != 0
+            </if>
         </where>
+         HAVING ( billWeek > 0 AND billWeek MOD ss.`payment_bill_settlement_cycle` = 0 OR billWeek IS NULL)
     </select>
     <select id="searchBillReportPaging" resultType="com.chauncy.data.vo.manage.order.bill.BillReportVo">
         SELECT oob.id,
@@ -264,6 +306,27 @@
             </if>
             AND date(after_sale_deadline) <![CDATA[>= ]]> #{startDate}
             AND date(after_sale_deadline) <![CDATA[<= ]]> #{endDate}
+        </where>
+    </select>
+    <select id="getBillGoodsTempList" resultType="com.chauncy.data.bo.order.log.BillRelGoodsTempBo">
+        SELECT ogt.id as goodsTempId,
+            ogt.number,
+            ogt.supplier_price,
+            ogt.profit_rate,
+            ogt.sell_price,
+            oo.income_rate
+        FROM om_order oo
+        inner join om_goods_temp ogt on ogt.order_id = oo.id
+        <where>
+            <if test="billType != null and billType == 1">
+                oo.store_id = #{storeId}
+            </if>
+            <if test="billType != null and billType == 2">
+                oo.user_store_id = #{storeId}
+            </if>
+            AND date(ogt.sale_end_time) <![CDATA[>= ]]> #{startDate}
+            AND date(ogt.sale_end_time) <![CDATA[<= ]]> #{endDate}
+            AND ogt.is_after_sale = 0
         </where>
     </select>
 

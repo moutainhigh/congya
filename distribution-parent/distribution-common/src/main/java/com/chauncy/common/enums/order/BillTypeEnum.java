@@ -18,6 +18,7 @@ public enum BillTypeEnum implements BaseEnum {
      */
     PAYMENT_BILL(1, "货款账单"),
     PROFIT_BILL(2, "利润账单"),
+    GOODS_SALE_REPORT(3, "商品销售报表"),
     ;
 
     private Integer id;

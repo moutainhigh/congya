@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.time.LocalDate;
+
 /**
  * @Author zhangrt
  * @Date 2019/7/11 12:20
@@ -65,7 +67,7 @@ public class OmShoppingCartServiceImplTest {
 //
 //
 //        omOrderBillService.batchCreateStoreBill(BillTypeEnum.PROFIT_BILL.getId());
-        omOrderReportService.batchCreateSaleReport();
+        omOrderReportService.batchCreateSaleReport(LocalDate.now());
         //商品销售报表
         /*omOrderReportService.orderClosure(206983497670201344L);
         omOrderReportService.orderClosure(206982238737272832L);*/

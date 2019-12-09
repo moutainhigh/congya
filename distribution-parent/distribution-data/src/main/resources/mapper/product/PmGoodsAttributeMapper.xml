@@ -37,6 +37,9 @@
             <if test="name != null and name !=''">
                 and name = #{name}
             </if>
+            <if test="storeId != null and storeId !=0">
+                and store_id = #{storeId}
+            </if>
             and del_flag = 0
         </where>
 

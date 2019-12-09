@@ -65,7 +65,7 @@
             mun.title,
             mun.content,
             mun.picture,
-            mun.create_time
+            mun.create_time as realCreateTime
         FROM mm_user_notice mun
         WHERE mun.`user_id` = #{userId}
         AND mun.`notice_type` = #{noticeType}
@@ -80,7 +80,7 @@
             mip.title,
             mip.detail_html,
             '' AS picture,
-            mip.create_time
+            mip.create_time as realCreateTime
         FROM mm_interact_push mip
         INNER JOIN mm_user_notice_rel_user munru
         ON mip.id = munru.push_id

@@ -42,7 +42,7 @@ public class SeckillGoodsVo  extends GoodsBaseInfoVo implements Serializable {
     @ApiModelProperty(value = "秒杀活动是否开始")
     private Boolean isStart;
 
-    @ApiModelProperty(value = "秒杀结束时间，秒级时间戳，已抢购或抢购中的活动才展示")
+    @ApiModelProperty(value = "秒杀结束时间，毫秒级时间戳，已抢购或抢购中的活动才展示")
     private Long endTime;
 
     @ApiModelProperty(value = "秒杀结束时间")
