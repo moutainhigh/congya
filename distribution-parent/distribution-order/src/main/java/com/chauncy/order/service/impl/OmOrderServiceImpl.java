@@ -911,7 +911,12 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
         }
 
-       //购物奖励  下单用户本人有获得积分，购物券
+
+        //商品销售报表
+        omOrderReportService.orderClosure(null, goodsTempId);
+
+
+        //购物奖励  下单用户本人有获得积分，购物券
         addShoppingRewardLog(queryGoodsTemp.getOrderId(),
                 Long.parseLong(queryGoodsTemp.getCreateBy()),
                 rewardBuyerBo.getRewardIntegrate(),
@@ -1015,7 +1020,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         umUserService.updateLevel(userId);
 
         //商品销售报表
-        omOrderReportService.orderClosure(orderId);
+        omOrderReportService.orderClosure(orderId, null);
 
         //购物奖励  下单用户本人有获得积分，购物券
         addShoppingRewardLog(queryOrder.getId(), userId, rewardBuyerBo.getRewardIntegrate(), rewardBuyerBo.getRewardShopTicket());
