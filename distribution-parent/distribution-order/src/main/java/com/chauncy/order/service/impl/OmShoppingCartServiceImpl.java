@@ -1471,6 +1471,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         //查询已经开始的活动
         AmActivityRelActivityGoodsPo relActivityGoodsPo = relActivityGoodsMapper.findGoodsActivity(goodsId);
         GoodsActivityVo goodsActivityVo = new GoodsActivityVo();
+        //默认不参加活动
+        goodsActivityVo.setType(ActivityTypeEnum.NON.getId());
         if (relActivityGoodsPo != null) {
             ActivityTypeEnum activityTypeEnum = ActivityTypeEnum.getActivityTypeEnumById(relActivityGoodsPo.getActivityType());
             switch (activityTypeEnum) {
@@ -1907,6 +1909,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             skuDetail.put(String.valueOf(relIds), specifiedSkuVo);
             finalSpecifiedGoodsVo.setSkuDetail(skuDetail);
         });
+
+        specifiedGoodsVo.setGoodsActivityVo(goodsActivityVo);
 
         return specifiedGoodsVo;
     }
