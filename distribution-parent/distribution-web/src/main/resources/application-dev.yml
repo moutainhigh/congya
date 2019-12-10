@@ -188,6 +188,11 @@ distribution:
   mob:
     appKey: 2cf3cb9ebbbc3
 
+  # 环信客服
+  im:
+    account: bohui2018@163.com
+    password: bohui2028
+
   # 分享的页面地址
   share:
     addr: http://5yah.bo2h.com:8007/#

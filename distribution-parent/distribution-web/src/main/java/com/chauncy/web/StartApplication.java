@@ -29,7 +29,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableRabbit
 //@EnableAspectJAutoProxy //aop编程
 @Slf4j
-@EnableAsync
+//@EnableAsync
 public class StartApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {

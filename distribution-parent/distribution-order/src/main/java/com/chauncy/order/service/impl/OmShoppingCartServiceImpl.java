@@ -97,6 +97,7 @@ import org.assertj.core.util.Lists;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -260,6 +261,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     @Autowired
     private OmRealUserMapper realUserMapper;
+
+    @Value("${distribution.im.account}")
+    private String imAccount;
 
 
     //拆单后每个订单至少要支付0.01
@@ -1364,8 +1368,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
         /**平台IM账号*/
         //TODO 暂时写死Admin账号
-        specifiedGoodsVo.setPlatImId(sysUserMapper.selectOne(new QueryWrapper<SysUserPo>().lambda().eq(SysUserPo::getUsername, "admin")).getId());
-
+//        specifiedGoodsVo.setPlatImId(sysUserMapper.selectOne(new QueryWrapper<SysUserPo>().lambda().eq(SysUserPo::getUsername, "admin")).getId());
+        specifiedGoodsVo.setPlatImId(imAccount);
         //商品评价数据
         GoodsDetailEvaluateVo goodsDetailEvaluateVo = new GoodsDetailEvaluateVo();
 
@@ -1471,6 +1475,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         //查询已经开始的活动
         AmActivityRelActivityGoodsPo relActivityGoodsPo = relActivityGoodsMapper.findGoodsActivity(goodsId);
         GoodsActivityVo goodsActivityVo = new GoodsActivityVo();
+        //默认不参加活动
+        goodsActivityVo.setType(ActivityTypeEnum.NON.getId());
         if (relActivityGoodsPo != null) {
             ActivityTypeEnum activityTypeEnum = ActivityTypeEnum.getActivityTypeEnumById(relActivityGoodsPo.getActivityType());
             switch (activityTypeEnum) {
@@ -1907,6 +1913,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             skuDetail.put(String.valueOf(relIds), specifiedSkuVo);
             finalSpecifiedGoodsVo.setSkuDetail(skuDetail);
         });
+
+        specifiedGoodsVo.setGoodsActivityVo(goodsActivityVo);
 
         return specifiedGoodsVo;
     }

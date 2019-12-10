@@ -19,8 +19,11 @@ import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.activity.group.AmActivityGroupPo;
 import com.chauncy.data.domain.po.activity.registration.AmActivityRelActivityGoodsPo;
 import com.chauncy.data.domain.po.message.advice.*;
+import com.chauncy.data.domain.po.message.information.MmInformationPo;
 import com.chauncy.data.domain.po.message.information.category.MmInformationCategoryPo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
+import com.chauncy.data.domain.po.product.PmGoodsPo;
+import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.advice.brand.select.FindBrandShufflingDto;
@@ -634,13 +637,22 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                                case HTML_DETAIL:
                                    break;
                                case INFORMATION:
-                                   d.setDetailName(informationMapper.selectById(d.getDetailId()).getTitle());
+                                   MmInformationPo informationPo = informationMapper.selectById(d.getDetailId());
+                                   if (informationPo != null) {
+                                       d.setDetailName(informationPo.getTitle());
+                                   }
                                    break;
                                case STROE:
-                                   d.setDetailName(storeMapper.selectById(d.getDetailId()).getName());
+                                   SmStorePo smStorePo = storeMapper.selectById(d.getDetailId());
+                                   if (smStorePo != null) {
+                                       d.setDetailName(smStorePo.getName());
+                                   }
                                    break;
                                case GOODS:
-                                   d.setDetailName(goodsMapper.selectById(d.getDetailId()).getName());
+                                   PmGoodsPo goodsPo = goodsMapper.selectById(d.getDetailId());
+                                   if (goodsPo != null) {
+                                       d.setDetailName(goodsPo.getName());
+                                   }
                                    break;
                            }
                        });

@@ -257,7 +257,7 @@
             <if test="highestSupplierPrice!=null">
                 and b.supplier_price &lt;=#{highestSupplierPrice}
             </if>
-        GROUP BY a.id,d.id order by a.create_time
+        GROUP BY a.id,d.id order by a.create_time desc
     </select>
 
 
