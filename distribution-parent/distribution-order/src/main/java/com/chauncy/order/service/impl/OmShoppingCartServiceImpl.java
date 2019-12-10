@@ -582,6 +582,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         List<Long> skuIds = settleAccountsDtos.stream().map(x -> x.getSkuId()).collect(Collectors.toList());
         List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVos = mapper.searchByIds(skuIds);
 
+        final Integer[] activityType = {0};
+
         //sku对应的数量
         shopTicketSoWithCarGoodVos.forEach(x -> {
             //为查询后的id匹配上用户下单的数量
@@ -632,6 +634,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             }
             shopTicketSoWithCarGoodVos.get(0).setRealPayMoney(groupSku.getActivityPrice()).setType(ActivityTypeEnum.SPELL_GROUP.getId());
 
+            activityType[0] =4;
+
+
             groupDiscountMoney = BigDecimalUtil.safeMultiply(shopTicketSoWithCarGoodVos.get(0).getNumber(),
                     BigDecimalUtil.safeSubtract(shopTicketSoWithCarGoodVos.get(0).getSellPrice(), groupSku.getActivityPrice()));
 
@@ -649,6 +654,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             if (currentUser.getLevel() >= memberLevel.getLevel()) {
                 ShopTicketSoWithCarGoodVo shopTicketSoWithCarGoodVo = shopTicketSoWithCarGoodVos.stream().filter(y -> y.getId().equals(x.getSkuId())).findFirst().get();
                 shopTicketSoWithCarGoodVo.setRealPayMoney(x.getActivityPrice()).setType(ActivityTypeEnum.SECKILL.getId());
+                activityType[0] =3;
             }
         });
 
@@ -675,6 +681,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 totalIntegralMoney[0] = BigDecimalUtil.safeAdd(totalIntegralMoney[0], price);
                 //实付价改为活动价
                 shopTicketSoWithCarGoodVo.setRealPayMoney(x.getActivityPrice()).setType(ActivityTypeEnum.INTEGRALS.getId());
+                activityType[0] =2;
+
                 totalIntegral[0] = BigDecimalUtil.safeAdd(totalIntegral[0], integral);
             }
         });
@@ -707,6 +715,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     List<ShopTicketSoWithCarGoodVo> fullRedetionSkus = shopTicketSoWithCarGoodVos.stream().filter(x -> fullSkuIds.contains(x)).collect(Collectors.toList());
                     //计算满减的付现价
                     setRealPayMoneyForFullRedution2(fullRedetionSkus, reductionPostMoney, ActivityTypeEnum.REDUCED);
+                    activityType[0] =1;
 
                     totalFullDiscount = BigDecimalUtil.safeAdd(totalFullDiscount, reductionPostMoney);
                 }
@@ -723,6 +732,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             //如果是包邮类型，将sku设置为包邮
             querySelectCouponVoList.stream().filter(x -> x.getType() == 3).forEach(x -> {
                 shopTicketSoWithCarGoodVos.stream().filter(y -> y.getId().equals(x.getSkuId())).forEach(y -> y.setIsFreePostage(true));
+                activityType[0] =5;
+
             });
             //如果是满减,加入总优惠
             SelectCouponVo reduceCoupon = querySelectCouponVoList.stream().filter(x -> x.getType() == 1).findFirst().orElse(null);
@@ -737,6 +748,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     setRealPayMoneyForFullRedution2(fullRedetionSkus, reduceCoupon.getReductionFullMoney(), ActivityTypeEnum.COUPON);
                     //满减优惠券金额加入总优惠
                     reduceCouponMoney = reduceCoupon.getReductionPostMoney();
+                    activityType[0] =6;
+
                 }
 
             }
@@ -753,6 +766,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                         shopTicketSoWithCarGoodVos.stream().filter(y -> y.getId().equals(x.getSkuId())).
                                 forEach(y -> y.setRealPayMoney(BigDecimalUtil.safeMultiply(y.getSellPrice(), discount)).setType(ActivityTypeEnum.REDUCED.getId()));
                     });
+                    activityType[0] =7;
+
                 }
             }
         }
@@ -863,7 +878,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         //优惠活动抵扣金额
         totalCarVo.setFullDiscountMoney(totalFullDiscount).setReduceCouponMoney(reduceCouponMoney).setGroupDiscountMoney(groupDiscountMoney);
 
-
+        totalCarVo.setActivityType(activityType[0]);
         return totalCarVo;
     }
 
