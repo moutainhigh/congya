@@ -76,13 +76,13 @@
         SELECT asgm.id,
             asgm.expire_time,
             (asgm.condition_num - asgm.payed_num) AS margin,
-            uu.photo AS headPortrait,
-            uu.name as userName
+            GROUP_CONCAT(uu.photo) AS headPortrait,
+            GROUP_CONCAT(uu.name) AS userName
         FROM am_spell_group_main asgm
-        INNER JOIN am_spell_group_member asgm1 ON asgm.id = asgm1.group_main_id AND asgm1.is_head = 1
+        INNER JOIN am_spell_group_member asgm1 ON asgm.id = asgm1.group_main_id AND asgm.rel_id = #{relId}
         INNER JOIN um_user uu ON uu.id = asgm1.user_id
         WHERE asgm.status = 2
-        AND asgm.rel_id = #{relId}
+        GROUP BY asgm.id
     </select>
 
     <select id="findGoodsCategory" resultType="com.chauncy.data.vo.BaseVo">
