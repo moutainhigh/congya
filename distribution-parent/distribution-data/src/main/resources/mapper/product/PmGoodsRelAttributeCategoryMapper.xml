@@ -33,10 +33,10 @@
     </sql>
 
     <select id="findPurchase" resultType="com.chauncy.data.vo.app.goods.AttributeVo">
-        select b.id,a.name,a.content as value
-        from pm_goods_attribute a,pm_goods b,pm_goods_category c,pm_goods_rel_attribute_category d
-        where b.id = #{goodsId} and b.goods_category_id = c.id and c.id = d.goods_category_id and a.id = d.goods_attribute_id
-        and a.del_flag =0 and b.del_flag = 0 and c.del_flag	=0 and d.del_flag = 0 and a.type = 6;
+        FROM pm_goods b INNER JOIN pm_goods_category c ON b.id = #{goodsId}
+        AND b.goods_category_id = c.id  AND b.del_flag = 0 AND c.del_flag = 0
+        INNER JOIN pm_goods_rel_attribute_category d ON  c.id = d.goods_category_id AND d.del_flag = 0
+        INNER JOIN pm_goods_attribute a ON  a.id = d.goods_attribute_id AND a.del_flag =0 AND a.type = 6 AND a.enabled = 1
     </select>
     <select id="searchNotesByAttributeId"
             resultType="com.chauncy.data.domain.po.product.PmGoodsRelAttributeCategoryPo">
