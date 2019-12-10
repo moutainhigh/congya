@@ -227,12 +227,18 @@ public class AmSpellGroupServiceImpl extends AbstractService<AmSpellGroupMapper,
         PageInfo<SpellGroupInfoVo> spellGroupInfoVoPageInfo = PageHelper.startPage(pageNo, pageSize).doSelectPageInfo(() ->
                 mapper.searchSpellGroupInfo(relId));
 
-        //活动结束时间  时间戳
         spellGroupInfoVoPageInfo.getList().forEach(spellGroupInfoVo -> {
+            //活动结束时间  时间戳
             if(null != spellGroupInfoVo.getExpireTime()) {
                 spellGroupInfoVo.setEndTime(
                         spellGroupInfoVo.getExpireTime().toInstant(ZoneOffset.of("+8")).toEpochMilli());
             }
+            //团长及团员头像
+            List<String> headPortraitList =
+                    Splitter.on(",").omitEmptyStrings().splitToList(spellGroupInfoVo.getHeadPortrait());
+            spellGroupInfoVo.setHeadPortraitList(headPortraitList);
+            //团长名称
+            spellGroupInfoVo.setUserName(spellGroupInfoVo.getUserName().substring(0, spellGroupInfoVo.getUserName().indexOf(",")));
         });
 
         return spellGroupInfoVoPageInfo;

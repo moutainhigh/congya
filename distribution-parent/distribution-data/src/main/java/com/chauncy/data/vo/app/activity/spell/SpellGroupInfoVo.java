@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @author yeJH
@@ -21,8 +22,12 @@ public class SpellGroupInfoVo implements Serializable {
     @ApiModelProperty(value = "团id")
     private Long mainId;
 
-    @ApiModelProperty(value = "团长头像")
+    @ApiModelProperty(value = "团长/团员头像")
+    @JSONField(serialize = false)
     private String headPortrait;
+
+    @ApiModelProperty(value = "团长/团员头像")
+    private List<String> headPortraitList;
 
     @ApiModelProperty(value = "团长姓名")
     private String userName;

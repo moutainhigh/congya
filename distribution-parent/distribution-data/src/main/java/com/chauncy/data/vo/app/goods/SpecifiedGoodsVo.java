@@ -110,7 +110,7 @@ public class SpecifiedGoodsVo {
     @JSONField(ordinal = 12)
     private BigDecimal maxRewardShopTicket;
 
-    @ApiModelProperty(value = "返券规则")
+    @ApiModelProperty(value = "返券规则****")
     @JSONField(ordinal = 12)
     private String returnTicketRules;
 
@@ -180,15 +180,15 @@ public class SpecifiedGoodsVo {
     @JSONField(ordinal = 28,serialize = false)
     private ShipFreightInfoVo shipFreightInfoVo;
 
-    @ApiModelProperty(value = "活动",hidden = true)
+    @ApiModelProperty(value = "活动****",hidden = true)
     @JSONField(ordinal = 29,serialize = false)
     private List<AttributeVo> activityVoList;
 
-    @ApiModelProperty(value = "优惠券列表")
+    @ApiModelProperty(value = "优惠券列表****")
     @JSONField(ordinal = 30)
     private List<FindCouponListVo> findCouponList;
 
-    @ApiModelProperty(value = "商品参与的活动")
+    @ApiModelProperty(value = "商品参与的活动****")
     @JSONField(ordinal = 31)
     private GoodsActivityVo goodsActivityVo;
 
