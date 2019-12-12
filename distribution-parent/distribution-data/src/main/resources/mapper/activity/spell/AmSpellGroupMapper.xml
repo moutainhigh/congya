@@ -40,6 +40,7 @@
                 ORDER BY temp.create_time ASC LIMIT 5
             ) AS headPortraits,
             asgm1.`status` AS mainStatus,
+            (asgm1.condition_num - asgm1.payed_num) AS margin,
             asgm.`order_id`
         FROM am_spell_group_member asgm
         INNER JOIN am_spell_group_main asgm1 ON asgm.`group_main_id` = asgm1.`id`
