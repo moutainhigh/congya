@@ -78,9 +78,13 @@ public class TotalCarVo {
     @ApiModelProperty(value = "拼团优惠多少元")
     private BigDecimal groupDiscountMoney;
 
-    //第二版本
-    @ApiModelProperty(value = "参与的优惠类型：0-无活动 1-满减 2-积分 3-秒杀 4-拼团 5-包邮券 6-满减券 7-折扣券")
-    private Integer activityType=0;
+//    //第二版本
+//    @ApiModelProperty(value = "参与的优惠类型：0-无活动 1-满减 2-积分 3-秒杀 4-拼团 5-包邮券 6-满减券 7-折扣券")
+//    private Integer activityType=0;
+
+ //第二版本
+    @ApiModelProperty(value = "优惠券信息")
+    private String couponMessage;
 
 
 

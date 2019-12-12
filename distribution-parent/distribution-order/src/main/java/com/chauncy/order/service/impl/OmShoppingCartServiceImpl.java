@@ -637,7 +637,6 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                         String.format("该活动参与最低等级为【%s】,用户等级为【%s】，无法购买此活动商品", memberLevel.getLevel(), currentUser.getLevel()));
             }
             shopTicketSoWithCarGoodVos.get(0).setRealPayMoney(groupSku.getActivityPrice()).setType(ActivityTypeEnum.SPELL_GROUP.getId());
-
             activityType[0] =4;
 
 
@@ -726,6 +725,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
             }
         }
+        //优惠券信息
+        final String[] couponMessage = new String[1];
 
         //优惠券满减的金额
         BigDecimal reduceCouponMoney = BigDecimal.ZERO;
@@ -737,6 +738,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             querySelectCouponVoList.stream().filter(x -> x.getType() == 3).forEach(x -> {
                 shopTicketSoWithCarGoodVos.stream().filter(y -> y.getId().equals(x.getSkuId())).forEach(y -> y.setIsFreePostage(true));
                 activityType[0] =5;
+                couponMessage[0] ="包邮";
 
             });
             //如果是满减,加入总优惠
@@ -753,6 +755,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     //满减优惠券金额加入总优惠
                     reduceCouponMoney = reduceCoupon.getReductionPostMoney();
                     activityType[0] =6;
+                    couponMessage[0] ="满"+reduceCoupon.getReductionFullMoney().intValue()+"减"+reduceCoupon.getReductionPostMoney();
+
 
                 }
 
@@ -764,13 +768,14 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 //商品价格是否满足打折标准
                 if (discountPriceSum.compareTo(discountCoupon.getDiscountFullMoney()) >= 0) {
                     //折扣换算成小数
-                    BigDecimal discount = BigDecimalUtil.safeDivide(discountCoupon.getDiscount(), 100);
+                    BigDecimal discount = BigDecimalUtil.safeDivide(discountCoupon.getDiscount(), 10);
                     //sku价格打折
                     querySelectCouponVoList.stream().filter(x -> x.getType() == 2).forEach(x -> {
                         shopTicketSoWithCarGoodVos.stream().filter(y -> y.getId().equals(x.getSkuId())).
                                 forEach(y -> y.setRealPayMoney(BigDecimalUtil.safeMultiply(y.getSellPrice(), discount)).setType(ActivityTypeEnum.REDUCED.getId()));
                     });
                     activityType[0] =7;
+                    couponMessage[0] =discountCoupon.getDiscount()+"折券";
 
                 }
             }
@@ -796,6 +801,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
 
         TotalCarVo totalCarVo = new TotalCarVo();
+
+        totalCarVo.setCouponMessage(couponMessage[0]);
 
         String receivePhone = "";
         if (settleDto.getAreaShipId() == null) {
@@ -882,7 +889,6 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         //优惠活动抵扣金额
         totalCarVo.setFullDiscountMoney(totalFullDiscount).setReduceCouponMoney(reduceCouponMoney).setGroupDiscountMoney(groupDiscountMoney);
 
-        totalCarVo.setActivityType(activityType[0]);
         return totalCarVo;
     }
 
@@ -2003,6 +2009,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             //用于减活动库存
             activitySkuBos.add(groupSku);
             shopTicketSoWithCarGoodDtos.get(0).setRealPayMoney(groupSku.getActivityPrice());
+            shopTicketSoWithCarGoodDtos.get(0).setActivityType(4);
             groupDiscountMoney = BigDecimalUtil.safeMultiply(shopTicketSoWithCarGoodDtos.get(0).getNumber(),
                     BigDecimalUtil.safeSubtract(shopTicketSoWithCarGoodDtos.get(0).getSellPrice(), groupSku.getActivityPrice()));
 
@@ -2021,6 +2028,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 activitySkuBos.add(x);
                 ShopTicketSoWithCarGoodDto shopTicketSoWithCarGoodDto = shopTicketSoWithCarGoodDtos.stream().filter(y -> y.getId().equals(x.getSkuId())).findFirst().get();
                 shopTicketSoWithCarGoodDto.setRealPayMoney(x.getActivityPrice());
+                shopTicketSoWithCarGoodDto.setActivityType(3);
+
             }
         });
 
@@ -2047,6 +2056,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     activitySkuBos.add(x);
                     //销售价改为活动价
                     shopTicketSoWithCarGoodDto.setRealPayMoney(x.getActivityPrice()).setIntegral(integral);
+                    shopTicketSoWithCarGoodDto.setActivityType(2);
                     currentIntegral[0] = BigDecimalUtil.safeSubtract(currentIntegral[0], integral);
                     totalIntegral[0] = BigDecimalUtil.safeAdd(totalIntegral[0], integral);
                 }
@@ -2087,6 +2097,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     List<ShopTicketSoWithCarGoodDto> fullRedetionSkus = shopTicketSoWithCarGoodDtos.stream().filter(x -> fullSkuIds.contains(x)).collect(Collectors.toList());
                     //计算满减的付现价
                     setRealPayMoneyForFullRedution(fullRedetionSkus, reductionPostMoney);
+                    fullRedetionSkus.forEach(x->x.setActivityType(1));
 
                     //用于减活动库存
                     fullDiscountSkuBoList.forEach(x -> {
@@ -2343,6 +2354,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 //saveGoodsTemp.setRealPayMoney(BigDecimalUtil.safeMultiply(ratio, realPayMoney));
                 saveGoodsTemp.setRealPayMoney(BigDecimalUtil.safeSubtract(g.getRealPayMoney(), goodsShopTicketMoney, goodsRedEnvelopsMoney));
                 saveGoodsTemp.setRed(goodsRedEnvelops).setShopTicket(goodsShopTicket);
+                saveGoodsTemp.setActivityType(g.getActivityType());
                 saveGoodsTemps.add(saveGoodsTemp);
 
             });
