@@ -72,12 +72,10 @@ public class AppMyOrderDetailVo {
     private BigDecimal redEnvelopsMoney;
 
     @ApiModelProperty(value = "优惠券抵扣金额")
-    // TODO: 2019/7/30 优惠券第二期
-    private BigDecimal couponIdMoney=BigDecimal.ZERO;
+    private BigDecimal couponMoney;
 
     @ApiModelProperty(value = "积分抵扣金额")
-    // TODO: 2019/7/30 积分第二期
-    private BigDecimal integralMoney=BigDecimal.ZERO;
+    private BigDecimal integralMoney;
 
     @ApiModelProperty("运费")
     private BigDecimal shipMoney;

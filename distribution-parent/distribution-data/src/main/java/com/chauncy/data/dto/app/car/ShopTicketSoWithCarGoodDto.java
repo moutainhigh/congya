@@ -123,6 +123,16 @@ public class ShopTicketSoWithCarGoodDto {
     @JSONField(serialize = false)
     private BigDecimal integral;
 
+    //该商品积分抵扣了多少钱
+    @ApiModelProperty(hidden = true)
+    @JSONField(serialize = false)
+    private BigDecimal integralMoney;
+
+    //该商品优惠券抵扣了多少钱
+    @ApiModelProperty(hidden = true)
+    @JSONField(serialize = false)
+    private BigDecimal couponMoney;
+
     //第二版本
     @ApiModelProperty(value = "参与的优惠类型：0-无活动 1-满减 2-积分 3-秒杀 4-拼团 ")
     private Integer activityType = 0;

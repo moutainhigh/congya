@@ -194,19 +194,21 @@
     </select>
     <select id="getAppMyOrderDetailVoByOrderId"
             resultType="com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailVo">
-                SELECT
+         SELECT
             o.id orderId,
             o.goods_type,
             o.`status`,
             o.create_time,
-          o.pay_time,
+            o.pay_time,
             o.send_time,
-          o.receive_time,
+            o.receive_time,
             o.close_time,
             p.pay_order_no,
             o.total_money,
             o.red_envelops_money,
             o.shop_ticket_money,
+            o.coupon_money,
+            o.integral_money,
             o.ship_money,
             o.tax_money,
             o.real_money,
@@ -233,7 +235,7 @@
 
     <select id="getAppMyOrderDetailGoodsVoByOrderId"
             resultType="com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailGoodsVo">
-            select id goodsTempId,g.name goodsName,sku_id,goods_id,icon picture,sell_price,standard_str,number
+            select id goodsTempId,g.name goodsName,sku_id,goods_id,icon picture,sell_price,standard_str,number,activity_type
             from om_goods_temp g
             where
             g.del_flag=0

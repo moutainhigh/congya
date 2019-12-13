@@ -2057,6 +2057,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     //销售价改为活动价
                     shopTicketSoWithCarGoodDto.setRealPayMoney(x.getActivityPrice()).setIntegral(integral);
                     shopTicketSoWithCarGoodDto.setActivityType(2);
+                    shopTicketSoWithCarGoodDto.setIntegralMoney(price);
                     currentIntegral[0] = BigDecimalUtil.safeSubtract(currentIntegral[0], integral);
                     totalIntegral[0] = BigDecimalUtil.safeAdd(totalIntegral[0], integral);
                 }
@@ -2152,7 +2153,11 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     //sku价格打折
                     querySelectCouponVoList.stream().filter(x -> x.getType() == 2).forEach(x -> {
                         shopTicketSoWithCarGoodDtos.stream().filter(y -> y.getId().equals(x.getSkuId())).
-                                forEach(y -> y.setRealPayMoney(BigDecimalUtil.safeMultiply(y.getSellPrice(), discount)));
+                                forEach(y -> {
+                                    y.setRealPayMoney(BigDecimalUtil.safeMultiply(y.getSellPrice(), discount));
+                                    //商品优惠券抵扣金额
+                                    y.setCouponMoney(BigDecimalUtil.safeSubtract(y.getSellPrice(),y.getRealPayMoney()));
+                                });
                     });
                     //优惠券状态变为已使用
                     AmCouponRelCouponUserPo updateCouponRelCouponUser = new AmCouponRelCouponUserPo();
@@ -2325,9 +2330,13 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 }
             }
 
-
+            //订单设置优惠券抵扣金额和积分抵扣金额
+            final BigDecimal[] couponMoney = {BigDecimal.ZERO};
+            final BigDecimal[] integralMoney = {BigDecimal.ZERO};
             //生成商品快照
             x.getShopTicketSoWithCarGoodDtos().forEach(g -> {
+                couponMoney[0] =BigDecimalUtil.safeAdd(couponMoney[0],g.getCouponMoney());
+                integralMoney[0] =BigDecimalUtil.safeAdd(integralMoney[0],g.getIntegralMoney());
                 PmGoodsSkuPo skuPo = skuMapper.selectById(g.getId());
                 OmGoodsTempPo saveGoodsTemp = new OmGoodsTempPo();
                 //number sellPrice profitRate supplierPrice icon name standardStr
@@ -2358,6 +2367,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 saveGoodsTemps.add(saveGoodsTemp);
 
             });
+            saveOrder.setCouponMoney(couponMoney[0]);
+            saveOrder.setIntegralMoney(integralMoney[0]);
         });
         savePayOrderPo.setTotalRealPayMoney(saveOrders.stream().map(OmOrderPo::getRealMoney).reduce(BigDecimal.ZERO, BigDecimal::add));
         //生成支付单
@@ -2505,6 +2516,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             BigDecimal discountMoney = BigDecimalUtil.safeMultiply(reductionPostMoney,
                     BigDecimalUtil.safeDivide(x.computeFixedCost(), fixedCostSum));
             x.setRealPayMoney(BigDecimalUtil.safeSubtract(x.getSellPrice(), discountMoney));
+            x.setCouponMoney(discountMoney);
         });
     }
 
