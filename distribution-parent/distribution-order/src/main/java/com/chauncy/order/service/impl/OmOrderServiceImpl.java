@@ -55,6 +55,7 @@ import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.temp.order.service.IOmGoodsTempService;
+import com.chauncy.data.vo.app.activity.spell.SpellGroupDetailVo;
 import com.chauncy.data.vo.app.car.ShopTicketSoWithCarGoodVo;
 import com.chauncy.data.vo.app.order.cart.SubmitOrderVo;
 import com.chauncy.data.vo.app.order.my.AppSearchOrderVo;
@@ -71,6 +72,7 @@ import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.user.service.IUmUserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -511,6 +513,7 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             appSearchOrderVoPageInfo.getList().forEach(x -> {
                 List<SmSendGoodsTempVo> smSendGoodsTempVos = mapper.searchSendGoodsTemp(x.getOrderId());
                 x.setSmSendGoodsTempVos(smSendGoodsTempVos);
+
             });
             return appSearchOrderVoPageInfo;
         } else {
@@ -589,6 +592,13 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
     public AppMyOrderDetailVo getAppMyOrderDetailVoByOrderId(Long orderId) {
         //获取订单详情基本信息
         AppMyOrderDetailVo appMyOrderDetailVo = mapper.getAppMyOrderDetailVoByOrderId(orderId);
+        //获取拼团基本信息
+        SpellGroupDetailVo queryGroupMemberPhoto = mapper.getGroupMemberPhotos(orderId);
+        if(queryGroupMemberPhoto!=null){
+            appMyOrderDetailVo.setIsGroup(true);
+            appMyOrderDetailVo.setRelId(queryGroupMemberPhoto.getRelId());
+            appMyOrderDetailVo.setHeadPortrait(Splitter.on(",").splitToList(queryGroupMemberPhoto.getHeadPortraits()));
+        }
         //获取商品信息
         List<AppMyOrderDetailGoodsVo> appMyOrderDetailGoodsVos = mapper.getAppMyOrderDetailGoodsVoByOrderId(orderId);
         //组装店铺信息
@@ -614,7 +624,6 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             appMyOrderDetailVo.setQRCode(JasyptUtil.encyptPwd(password, appMyOrderDetailVo.getOrderId().toString()));
 
         }
-
         return appMyOrderDetailVo;
     }
 

@@ -35,6 +35,9 @@ public class SmSendGoodsTempVo {
     @ApiModelProperty(value = "商品货号")
     private String articleNumber;
 
+    @ApiModelProperty(value = "参与的优惠类型：0-无活动 1-满减 2-积分 3-秒杀 4-拼团")
+    private Integer activityType;
+
 
 
 }

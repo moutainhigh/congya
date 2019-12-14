@@ -40,6 +40,9 @@ public class AppMyOrderDetailGoodsVo {
     @ApiModelProperty("数量")
     private Integer number;
 
+    @ApiModelProperty("活动类型:0-无活动 1-满减；2-积分；3-秒杀；4-拼团")
+    private Integer activityType;
+
 
 
 }
