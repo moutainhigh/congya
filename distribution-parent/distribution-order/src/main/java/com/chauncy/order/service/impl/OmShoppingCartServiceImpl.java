@@ -71,6 +71,7 @@ import com.chauncy.data.mapper.user.UmUserFavoritesMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.temp.order.service.IOmGoodsTempService;
 import com.chauncy.data.vo.app.activity.coupon.SelectCouponVo;
+import com.chauncy.data.vo.app.activity.spell.SpellGroupInfoVo;
 import com.chauncy.data.vo.app.advice.activity.*;
 import com.chauncy.data.vo.app.advice.coupon.FindCouponListVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
@@ -1676,11 +1677,13 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                         //获取参与拼团活动商品所有sku活动价格，并获取最低价格和最高价格
                         //保存所有sku活动价格
                         List<Double> skuActivityPrices = new ArrayList<>();
-                        //活动总拼团量
-                        List<Integer> payedNum = spellGroupMainMapper.selectList(new QueryWrapper<AmSpellGroupMainPo>().lambda().and(obj -> obj
+                        //已拼总人数
+                        /*List<Integer> payedNum = spellGroupMainMapper.selectList(new QueryWrapper<AmSpellGroupMainPo>().lambda().and(obj -> obj
                                 .eq(AmSpellGroupMainPo::getRelId, relActivityGoodsPo.getId()))).stream().map(n -> n.getPayedNum()).collect(Collectors.toList());
                         Integer sumPayedNum = payedNum.stream().mapToInt((x) -> x).sum();
-                        spellGroupVo.setSpellNum(sumPayedNum);
+                        spellGroupVo.setSpellSum(sumPayedNum);*/
+                        //已拼总人数  已拼件数
+                        spellGroupVo = spellGroupMainMapper.getSpellGroup(relActivityGoodsPo.getId());
 
                         //获取该商品参与活动的所有sku信息
                         List<AmActivityRelGoodsSkuPo> relGoodsSkuPos = activityRelGoodsSkuMapper.selectList(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda()

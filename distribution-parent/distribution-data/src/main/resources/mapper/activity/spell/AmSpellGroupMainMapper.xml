@@ -57,5 +57,12 @@
         </if>
 
     </select>
+    <select id="getSpellGroup" resultType="com.chauncy.data.vo.app.advice.activity.SpellGroupVo">
+        SELECT SUM(ogt.number) AS spellNum, SUM(asgm1.payed_num) spellSum
+        FROM am_spell_group_main asgm1 INNER JOIN am_spell_group_member asgm2
+        ON asgm1.id = asgm2.`group_main_id` and asgm1.rel_id = #{id}
+        INNER JOIN om_order oo ON oo.id = asgm2.order_id
+        INNER JOIN om_goods_temp ogt ON ogt.order_id = oo.`id`
+    </select>
 
 </mapper>
