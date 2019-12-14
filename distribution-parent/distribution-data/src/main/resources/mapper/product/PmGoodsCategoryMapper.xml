@@ -59,6 +59,7 @@
 		WHERE pgc.parent_id = #{categoryId}
 		AND pgc.del_flag = 0
 		AND pgc.enabled = 1
+		AND pgc1.enabled = 1
 		ORDER BY pgc.sort, pgc1.sort ASC
 	</select>
     <select id="loadById" resultType="java.util.Map">
