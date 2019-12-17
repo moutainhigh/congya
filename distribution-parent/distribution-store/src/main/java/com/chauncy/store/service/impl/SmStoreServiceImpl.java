@@ -178,6 +178,9 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
 
         SmStorePo smStorePo = new SmStorePo();
         BeanUtils.copyProperties(storeBaseInfoDto, smStorePo);
+        if(null == smStorePo.getBackgroundImage()) {
+            smStorePo.setBackgroundImage("");
+        }
         //获取当前用户
         String userName = securityUtil.getCurrUser().getUsername();
         smStorePo.setCreateBy(userName);
@@ -232,6 +235,9 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         }
 
         BeanUtils.copyProperties(storeBaseInfoDto, oldSmStore);
+        if(null == oldSmStore.getBackgroundImage()) {
+            oldSmStore.setBackgroundImage("");
+        }
         //获取当前用户
         String userName = securityUtil.getCurrUser().getUsername();
         oldSmStore.setCreateBy(userName);
