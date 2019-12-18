@@ -1446,8 +1446,9 @@
 
         select b.id as goods_id,b.name as goods_name,b.icon as picture,b.activity_cost_rate,
         b.profits_rate,b.sales_volume,d.sell_price as sell_price,d.line_price,b.forward_num,b.collection_num
-        from pm_goods b,pm_goods_sku d
-        where b.publish_status = 1 and b.del_flag = 0 and d.del_flag =0 and d.goods_id=b.id
+        from pm_goods b inner join pm_goods_sku d on d.goods_id=b.id
+        inner join sm_store ss on ss.id = b.store_id and ss.enabled = 1
+        where b.publish_status = 1 and b.del_flag = 0 and d.del_flag =0
         and d.id = (SELECT id from pm_goods_sku d2 where d2.`goods_id` = b.id  and d2.del_flag =0 and d2.sell_price =
         (SELECT Min(d1.sell_price) FROM pm_goods_sku d1 WHERE d1.`goods_id` = b.id  and d1.del_flag =0 LIMIT 1) limit 1)
         order by b.comprehensive_score desc
