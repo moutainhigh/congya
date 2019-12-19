@@ -42,6 +42,9 @@ public class AppSearchOrderVo {
     @ApiModelProperty("店铺名称")
     private String storeName;
 
+    @ApiModelProperty("客服im账号")
+    private String imAccount;
+
     @ApiModelProperty("订单商品信息")
     private List<SmSendGoodsTempVo> smSendGoodsTempVos;
 
