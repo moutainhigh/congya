@@ -2,6 +2,7 @@ package com.chauncy.order.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.constant.RabbitConstants;
+import com.chauncy.common.constant.ServiceConstant;
 import com.chauncy.common.enums.app.activity.SpellGroupMainStatusEnum;
 import com.chauncy.common.enums.app.activity.type.ActivityTypeEnum;
 import com.chauncy.common.enums.log.LogTriggerEventEnum;
@@ -103,6 +104,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -265,6 +267,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     @Value("${distribution.im.account}")
     private String imAccount;
+
+    @Value("${distribution.share.addr}")
+    private String shareAddr;
 
 
     //拆单后每个订单至少要支付0.01
@@ -1224,7 +1229,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
         SpecifiedGoodsVo specifiedGoodsVo = new SpecifiedGoodsVo();
         List<GoodsStandardVo> goodsStandardVoList = Lists.newArrayList();
-
+        //商品分享链接
+        String shareUrl = MessageFormat.format(ServiceConstant.SHARE_URL_GOODS, shareAddr, String.valueOf(goodsId), "");
+        specifiedGoodsVo.setShareUrl(shareUrl);
         PmGoodsPo goodsPo = goodsMapper.selectById(goodsId);
         //判断该商品是否存在
         if (goodsPo == null) {
