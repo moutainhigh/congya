@@ -84,6 +84,9 @@ public class AfterSaleDetailVo {
     @ApiModelProperty(value = "支付类型：微信 ，支付宝")
     private String payTypeCode;
 
+    @ApiModelProperty(value = "客服IM账号")
+    private String imAccount;
+
 
 
 

@@ -668,6 +668,9 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
             QueryWrapper<UmUserPo> queryWrapper = new QueryWrapper<>();
             queryWrapper.lambda().eq(UmUserPo::getId, getUserNickNameDto.getImAccount());
             UmUserPo umUserPo = mapper.selectOne(queryWrapper);
+            if(null == umUserPo) {
+                throw new ServiceException(ResultCode.NO_EXISTS, "该IM账号不存在");
+            }
             userNickNameVo.setPhoto(umUserPo.getPhoto());
             userNickNameVo.setName(umUserPo.getName());
         } else if (getUserNickNameDto.getType().equals(2)) {
@@ -676,7 +679,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
             if(null == userNickNameVo) {
                 userNickNameVo = new UserNickNameVo();
                 //todo    平台客服名称
-                userNickNameVo.setName("");
+                userNickNameVo.setName("葱鸭");
                 userNickNameVo.setPhoto(MessageFormat.format(ServiceConstant.ICON_PATH, "congya"));
             }
         }

@@ -1229,9 +1229,6 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
         SpecifiedGoodsVo specifiedGoodsVo = new SpecifiedGoodsVo();
         List<GoodsStandardVo> goodsStandardVoList = Lists.newArrayList();
-        //商品分享链接
-        String shareUrl = MessageFormat.format(ServiceConstant.SHARE_URL_GOODS, shareAddr, String.valueOf(goodsId), "");
-        specifiedGoodsVo.setShareUrl(shareUrl);
         PmGoodsPo goodsPo = goodsMapper.selectById(goodsId);
         //判断该商品是否存在
         if (goodsPo == null) {
@@ -1946,7 +1943,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         });
 
         specifiedGoodsVo.setGoodsActivityVo(goodsActivityVo);
-
+        //商品分享链接
+        String shareUrl = MessageFormat.format(ServiceConstant.SHARE_URL_GOODS, shareAddr, String.valueOf(goodsId), "");
+        specifiedGoodsVo.setShareUrl(shareUrl);
         return specifiedGoodsVo;
     }
 
