@@ -27,6 +27,7 @@
 		FROM pm_goods_category pgc
 		WHERE pgc.del_flag = 0
 		AND pgc.level = 1
+		AND pgc.enabled = 1
 		ORDER BY pgc.sort ASC
 	</select>
 
@@ -55,7 +56,10 @@
 			pgc1.icon AS categoryIcon1,
 			pgc1.parent_id AS parentId1
 		FROM pm_goods_category pgc INNER JOIN pm_goods_category pgc1 ON pgc1.parent_id = pgc.id AND pgc1.del_flag = 0
-		WHERE pgc.del_flag = 0 AND pgc.parent_id = #{categoryId}
+		WHERE pgc.parent_id = #{categoryId}
+		AND pgc.del_flag = 0
+		AND pgc.enabled = 1
+		AND pgc1.enabled = 1
 		ORDER BY pgc.sort, pgc1.sort ASC
 	</select>
     <select id="loadById" resultType="java.util.Map">

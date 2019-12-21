@@ -36,6 +36,7 @@ import com.chauncy.data.domain.po.pay.PayUserRelationPo;
 import com.chauncy.data.domain.po.sys.BasicSettingPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
+import com.chauncy.data.domain.po.user.UmImAccountPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.my.SearchMyOrderDto;
 import com.chauncy.data.dto.app.order.store.WriteOffDto;
@@ -53,8 +54,10 @@ import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
 import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
+import com.chauncy.data.mapper.user.UmImAccountMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.temp.order.service.IOmGoodsTempService;
+import com.chauncy.data.vo.app.activity.spell.SpellGroupDetailVo;
 import com.chauncy.data.vo.app.car.ShopTicketSoWithCarGoodVo;
 import com.chauncy.data.vo.app.order.cart.SubmitOrderVo;
 import com.chauncy.data.vo.app.order.my.AppSearchOrderVo;
@@ -71,6 +74,7 @@ import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.user.service.IUmUserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -101,6 +105,9 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
     @Autowired
     private OmOrderMapper mapper;
+
+    @Autowired
+    private UmImAccountMapper umImAccountMapper;
 
     @Autowired
     private IPayOrderMapper payOrderMapper;
@@ -491,6 +498,11 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
     @Override
     public PageInfo<AppSearchOrderVo> searchAppOrder(SearchMyOrderDto searchMyOrderDto) {
+        //获取im账号
+        QueryWrapper<UmImAccountPo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().isNull(UmImAccountPo::getStoreId);
+        queryWrapper.lambda().last(" limit 1 ");
+        UmImAccountPo umImAccountPo = umImAccountMapper.selectOne(queryWrapper);
         //待核销和已完成是商家的
         if (searchMyOrderDto.getStatus() != null &&(searchMyOrderDto.getStatus() == OrderStatusEnum.WAIT_WRITE_OFF ||
                 searchMyOrderDto.getStatus() == OrderStatusEnum.FINISH )) {
@@ -511,6 +523,8 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             appSearchOrderVoPageInfo.getList().forEach(x -> {
                 List<SmSendGoodsTempVo> smSendGoodsTempVos = mapper.searchSendGoodsTemp(x.getOrderId());
                 x.setSmSendGoodsTempVos(smSendGoodsTempVos);
+                //添加客服账号 暂时写死
+                x.setImAccount(umImAccountPo.getImAccount());
             });
             return appSearchOrderVoPageInfo;
         } else {
@@ -520,6 +534,8 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             appSearchOrderVoPageInfo.getList().forEach(x -> {
                 List<SmSendGoodsTempVo> smSendGoodsTempVos = mapper.searchSendGoodsTemp(x.getOrderId());
                 x.setSmSendGoodsTempVos(smSendGoodsTempVos);
+                //添加客服账号 暂时写死
+                x.setImAccount(umImAccountPo.getImAccount());
             });
             return appSearchOrderVoPageInfo;
         }
@@ -587,8 +603,24 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
     @Override
     public AppMyOrderDetailVo getAppMyOrderDetailVoByOrderId(Long orderId) {
+
         //获取订单详情基本信息
         AppMyOrderDetailVo appMyOrderDetailVo = mapper.getAppMyOrderDetailVoByOrderId(orderId);
+
+        //获取im账号
+        QueryWrapper<UmImAccountPo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().isNull(UmImAccountPo::getStoreId);
+        queryWrapper.lambda().last(" limit 1 ");
+        UmImAccountPo umImAccountPo = umImAccountMapper.selectOne(queryWrapper);
+        appMyOrderDetailVo.setImAccount(umImAccountPo.getImAccount());
+
+        //获取拼团基本信息
+        SpellGroupDetailVo queryGroupMemberPhoto = mapper.getGroupMemberPhotos(orderId);
+        if(queryGroupMemberPhoto!=null){
+            appMyOrderDetailVo.setIsGroup(true);
+            appMyOrderDetailVo.setRelId(queryGroupMemberPhoto.getRelId());
+            appMyOrderDetailVo.setHeadPortrait(Splitter.on(",").splitToList(queryGroupMemberPhoto.getHeadPortraits()));
+        }
         //获取商品信息
         List<AppMyOrderDetailGoodsVo> appMyOrderDetailGoodsVos = mapper.getAppMyOrderDetailGoodsVoByOrderId(orderId);
         //组装店铺信息
@@ -614,7 +646,6 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
             appMyOrderDetailVo.setQRCode(JasyptUtil.encyptPwd(password, appMyOrderDetailVo.getOrderId().toString()));
 
         }
-
         return appMyOrderDetailVo;
     }
 

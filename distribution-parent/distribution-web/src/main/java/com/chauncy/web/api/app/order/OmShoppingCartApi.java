@@ -231,7 +231,7 @@ public class OmShoppingCartApi extends BaseApi {
 
     @PostMapping("/getCoupon")
     @ApiOperation("选择优惠券")
-    public JsonViewData<SelectCouponVo> getCoupon(@RequestBody @Validated List<CanUseCouponListDto> canUseCouponListDtos) {
+    public JsonViewData<List<SelectCouponVo>> getCoupon(@RequestBody @Validated List<CanUseCouponListDto> canUseCouponListDtos) {
         List<SelectCouponVo> selectCouPonVo = couponService.getSelectCouPonVo(canUseCouponListDtos);
         return setJsonViewData(selectCouPonVo);
     }

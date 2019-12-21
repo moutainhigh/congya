@@ -2,6 +2,7 @@ package com.chauncy.data.domain.po.order;
 
 import java.math.BigDecimal;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 
@@ -136,6 +137,12 @@ public class OmOrderPo implements Serializable {
 
     @ApiModelProperty(value = "购物券抵扣金额")
     private BigDecimal redEnvelopsMoney;
+
+    @ApiModelProperty(value = "积分抵扣了多少钱")
+    private BigDecimal integralMoney;
+
+    @ApiModelProperty(value = "优惠券抵扣了多少钱")
+    private BigDecimal couponMoney;
 
     @ApiModelProperty(value = "应付金额")
     private BigDecimal realMoney;

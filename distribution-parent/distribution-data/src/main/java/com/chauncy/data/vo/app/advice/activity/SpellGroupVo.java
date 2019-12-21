@@ -21,6 +21,9 @@ public class SpellGroupVo {
     @ApiModelProperty(value = "已拼件数")
     private Integer spellNum;
 
+    @ApiModelProperty(value = "已拼总人数")
+    private Integer spellSum;
+
     @ApiModelProperty(value = "成团人数")
     private Integer groupNum;
 

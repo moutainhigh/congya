@@ -7,14 +7,12 @@ import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.user.add.AddUserDto;
 import com.chauncy.data.dto.app.user.add.BindUserDto;
+import com.chauncy.data.dto.app.user.select.GetUserNickNameDto;
 import com.chauncy.data.dto.app.user.select.SearchMyFriendDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserIdCardDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
 import com.chauncy.data.dto.manage.user.update.UpdateUserDto;
-import com.chauncy.data.vo.app.user.GetMembersCenterVo;
-import com.chauncy.data.vo.app.user.MyDataStatisticsVo;
-import com.chauncy.data.vo.app.user.SearchMyFriendVo;
-import com.chauncy.data.vo.app.user.UserDataVo;
+import com.chauncy.data.vo.app.user.*;
 import com.chauncy.data.vo.manage.user.detail.UmUserDetailVo;
 import com.chauncy.data.vo.manage.user.detail.UmUserRelVo;
 import com.chauncy.data.vo.manage.user.idCard.SearchIdCardVo;
@@ -179,4 +177,16 @@ public interface IUmUserService extends Service<UmUserPo> {
      * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.user.SearchMyFriendVo>
      **/
     PageInfo<SearchMyFriendVo> searchMyFriend(SearchMyFriendDto searchMyFriendDto, UmUserPo umUserPo);
+
+    /**
+     * @Author yeJH
+     * @Date 2019/12/18 18:51
+     * @Description 根据IM账号获取头像昵称
+     *
+     * @Update yeJH
+     *
+     * @param  getUserNickNameDto
+     * @return com.chauncy.data.vo.app.user.UserNickNameVo
+     **/
+    UserNickNameVo getByImAccount(GetUserNickNameDto getUserNickNameDto);
 }

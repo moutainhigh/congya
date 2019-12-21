@@ -12,6 +12,7 @@ import com.chauncy.data.dto.supplier.order.SmSearchSendOrderDto;
 import com.chauncy.data.haiguan.vo.bo.CustomsOrderBo;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.app.activity.spell.SpellGroupAreaVo;
+import com.chauncy.data.vo.app.activity.spell.SpellGroupDetailVo;
 import com.chauncy.data.vo.app.order.my.AppSearchOrderVo;
 import com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailGoodsVo;
 import com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailVo;
@@ -240,4 +241,21 @@ public interface OmOrderMapper extends IBaseMapper<OmOrderPo> {
      * @return java.lang.String
      **/
     String getSkuPicByOrder(Long id);
+
+
+    /**
+     * @Author zhangrt
+     * @Date 2019/12/12 22:07
+     * @Description 获取拼团成员头像集合，和relId
+     *
+     * @Update
+     *
+     * @Param [orderId]
+     * @return com.chauncy.data.vo.app.activity.spell.SpellGroupDetailVo
+     **/
+
+    SpellGroupDetailVo getGroupMemberPhotos(Long orderId);
+
+
+
 }

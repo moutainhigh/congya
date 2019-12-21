@@ -158,7 +158,7 @@
         order by o.update_time desc
     </select>
     <select id="searchSendGoodsTemp" resultType="com.chauncy.data.vo.supplier.order.SmSendGoodsTempVo">
-            select `name`,standard_str,sell_price,number,icon,article_number,sku_id
+            select `name`,standard_str,sell_price,number,icon,article_number,sku_id,activity_type
             from om_goods_temp
             where order_id=#{orderId}
     </select>
@@ -194,19 +194,21 @@
     </select>
     <select id="getAppMyOrderDetailVoByOrderId"
             resultType="com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailVo">
-                SELECT
+         SELECT
             o.id orderId,
             o.goods_type,
             o.`status`,
             o.create_time,
-          o.pay_time,
+            o.pay_time,
             o.send_time,
-          o.receive_time,
+            o.receive_time,
             o.close_time,
             p.pay_order_no,
             o.total_money,
             o.red_envelops_money,
             o.shop_ticket_money,
+            o.coupon_money,
+            o.integral_money,
             o.ship_money,
             o.tax_money,
             o.real_money,
@@ -233,7 +235,7 @@
 
     <select id="getAppMyOrderDetailGoodsVoByOrderId"
             resultType="com.chauncy.data.vo.app.order.my.detail.AppMyOrderDetailGoodsVo">
-            select id goodsTempId,g.name goodsName,sku_id,goods_id,icon picture,sell_price,standard_str,number
+            select id goodsTempId,g.name goodsName,sku_id,goods_id,icon picture,sell_price,standard_str,number,activity_type
             from om_goods_temp g
             where
             g.del_flag=0
@@ -350,6 +352,20 @@
         INNER JOIN om_goods_temp ogt ON ogt.order_id = oo.id
         WHERE oo.id = #{orderId}
         LIMIT 1
+    </select>
+    <select id="getGroupMemberPhotos" resultType="com.chauncy.data.vo.app.activity.spell.SpellGroupDetailVo">
+        SELECT asgm.id relId,
+                   (
+                        SELECT GROUP_CONCAT(uu.photo)
+                        FROM am_spell_group_main asgm1
+                        INNER JOIN am_spell_group_member asgm2 ON asgm2.group_main_id = asgm1.id
+                        INNER JOIN um_user uu ON asgm2.user_id = uu.id
+                        WHERE pay_status = 1 AND asgm2.group_main_id = asgm.group_main_id
+                        ORDER BY asgm2.is_head DESC
+                    ) AS headPortraits
+        FROM om_order oo
+        INNER JOIN am_spell_group_member asgm ON asgm.order_id = oo.id AND oo.id = #{orderId}
+        WHERE oo.del_flag=0 AND asgm.del_flag=0
     </select>
 
 </mapper>

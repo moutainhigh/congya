@@ -32,6 +32,9 @@ public class SpellGroupDetailVo  implements Serializable {
     @ApiModelProperty(value = "拼团状态 1-发起未支付 2-拼团中 3-拼团成功 4-拼团失败   \n")
     private Integer mainStatus;
 
+    @ApiModelProperty(value = "如果是拼团中还差几人拼成")
+    private Integer margin;
+
     @ApiModelProperty(value = "关联订单id")
     private Long orderId;
 

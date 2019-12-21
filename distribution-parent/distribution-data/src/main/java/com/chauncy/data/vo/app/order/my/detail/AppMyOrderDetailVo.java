@@ -3,6 +3,7 @@ package com.chauncy.data.vo.app.order.my.detail;
 import com.chauncy.common.enums.app.order.OrderStatusEnum;
 import com.chauncy.data.bo.app.logistics.LogisticsDataBo;
 import com.chauncy.data.vo.manage.order.list.GoodsTempVo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -71,12 +72,10 @@ public class AppMyOrderDetailVo {
     private BigDecimal redEnvelopsMoney;
 
     @ApiModelProperty(value = "优惠券抵扣金额")
-    // TODO: 2019/7/30 优惠券第二期
-    private BigDecimal couponIdMoney=BigDecimal.ZERO;
+    private BigDecimal couponMoney;
 
     @ApiModelProperty(value = "积分抵扣金额")
-    // TODO: 2019/7/30 积分第二期
-    private BigDecimal integralMoney=BigDecimal.ZERO;
+    private BigDecimal integralMoney;
 
     @ApiModelProperty("运费")
     private BigDecimal shipMoney;
@@ -123,5 +122,18 @@ public class AppMyOrderDetailVo {
 
     @ApiModelProperty(value = "商家id")
     private Long storeId;
+
+    @ApiModelProperty(value = "是否拼团订单")
+    private Boolean isGroup;
+
+    @ApiModelProperty(value = "拼团id,查看评团详情时要传的id")
+    private Long relId;
+
+    @ApiModelProperty(value = "团员头像 第一个是团长")
+    private List<String> headPortrait;
+
+    @ApiModelProperty("客服im账号")
+    private String imAccount;
+
 
 }

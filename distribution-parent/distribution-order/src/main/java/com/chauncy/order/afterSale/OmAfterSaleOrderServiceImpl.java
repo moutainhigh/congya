@@ -27,6 +27,7 @@ import com.chauncy.data.domain.po.order.OmOrderPo;
 import com.chauncy.data.domain.po.pay.PayOrderPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
+import com.chauncy.data.domain.po.user.UmImAccountPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.my.afterSale.ApplyRefundDto;
 import com.chauncy.data.dto.app.order.my.afterSale.SendDto;
@@ -41,6 +42,7 @@ import com.chauncy.data.mapper.order.OmGoodsTempMapper;
 import com.chauncy.data.mapper.order.OmOrderMapper;
 import com.chauncy.data.mapper.pay.IPayOrderMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
+import com.chauncy.data.mapper.user.UmImAccountMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.app.order.my.afterSale.AfterSaleDetailVo;
 import com.chauncy.data.vo.app.order.my.afterSale.ApplyAfterDetailVo;
@@ -80,6 +82,9 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
 
     @Autowired
     private OmAfterSaleOrderMapper mapper;
+
+    @Autowired
+    private UmImAccountMapper umImAccountMapper;
 
     @Autowired
     private MmUserNoticeMapper mmUserNoticeMapper;
@@ -568,6 +573,13 @@ public class OmAfterSaleOrderServiceImpl extends AbstractService<OmAfterSaleOrde
         AfterSaleLogEnum node = afterSaleDetail.getNode();
         afterSaleDetail.setContentExplain(node.getContentExplain());
         afterSaleDetail.setContentTips(node.getContentTips());
+
+        //获取im账号
+        QueryWrapper<UmImAccountPo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().isNull(UmImAccountPo::getStoreId);
+        queryWrapper.lambda().last(" limit 1 ");
+        UmImAccountPo umImAccountPo = umImAccountMapper.selectOne(queryWrapper);
+        afterSaleDetail.setImAccount(umImAccountPo.getImAccount());
         return afterSaleDetail;
     }
 

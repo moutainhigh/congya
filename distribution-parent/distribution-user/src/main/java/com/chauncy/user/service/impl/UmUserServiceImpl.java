@@ -29,10 +29,12 @@ import com.chauncy.data.domain.po.product.PmGoodsLikedPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.sys.BasicSettingPo;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
+import com.chauncy.data.domain.po.user.UmImAccountPo;
 import com.chauncy.data.domain.po.user.UmRelUserLabelPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.user.add.AddUserDto;
 import com.chauncy.data.dto.app.user.add.BindUserDto;
+import com.chauncy.data.dto.app.user.select.GetUserNickNameDto;
 import com.chauncy.data.dto.app.user.select.SearchMyFriendDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserIdCardDto;
 import com.chauncy.data.dto.manage.user.select.SearchUserListDto;
@@ -48,6 +50,7 @@ import com.chauncy.data.mapper.product.PmGoodsLikedMapper;
 import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
+import com.chauncy.data.mapper.user.UmImAccountMapper;
 import com.chauncy.data.mapper.user.UmRelUserLabelMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.vo.app.user.*;
@@ -89,6 +92,9 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
 
     @Autowired
     private UmUserMapper mapper;
+
+    @Autowired
+    private UmImAccountMapper umImAccountMapper;
 
     @Autowired
     private RedisUtil redisUtil;
@@ -641,5 +647,43 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
 
 
         return searchMyFriendVoPageInfo;
+    }
+
+    /**
+     * @Author yeJH
+     * @Date 2019/12/18 18:53
+     * @Description 根据IM账号获取头像昵称
+     *
+     * @Update yeJH
+     *
+     * @param  getUserNickNameDto
+     * @return com.chauncy.data.vo.app.user.UserNickNameVo
+     **/
+    @Override
+    public UserNickNameVo getByImAccount(GetUserNickNameDto getUserNickNameDto) {
+
+        UserNickNameVo userNickNameVo = new UserNickNameVo();
+        if(getUserNickNameDto.getType().equals(1)) {
+            //用户im 是um_user表的id
+            QueryWrapper<UmUserPo> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda().eq(UmUserPo::getId, getUserNickNameDto.getImAccount());
+            UmUserPo umUserPo = mapper.selectOne(queryWrapper);
+            if(null == umUserPo) {
+                throw new ServiceException(ResultCode.NO_EXISTS, "该IM账号不存在");
+            }
+            userNickNameVo.setPhoto(umUserPo.getPhoto());
+            userNickNameVo.setName(umUserPo.getName());
+        } else if (getUserNickNameDto.getType().equals(2)) {
+            //客服im 是um_im_account表的im_account
+            userNickNameVo = umImAccountMapper.getByImAccount(getUserNickNameDto.getImAccount());
+            if(null == userNickNameVo) {
+                userNickNameVo = new UserNickNameVo();
+                //todo    平台客服名称
+                userNickNameVo.setName("葱鸭");
+                userNickNameVo.setPhoto(MessageFormat.format(ServiceConstant.ICON_PATH, "congya"));
+            }
+        }
+        return userNickNameVo;
+
     }
 }

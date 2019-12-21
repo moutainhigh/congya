@@ -118,5 +118,8 @@ public class OmGoodsTempPo implements Serializable {
     @ApiModelProperty(value = "售后截止时间或售后结束时间")
     private LocalDateTime saleEndTime;
 
+    @ApiModelProperty(value = "参与的优惠类型：0-无活动 1-满减 2-积分 3-秒杀 4-拼团")
+    private Integer activityType;
+
 
 }

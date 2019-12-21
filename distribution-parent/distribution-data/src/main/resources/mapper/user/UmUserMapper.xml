@@ -421,6 +421,9 @@
             (
                 SELECT COUNT(1) FROM am_coupon_rel_coupon_user acrcu WHERE acrcu.user_id =  uu.id  AND acrcu.use_status = 2
             ) AS couponNum,
+            (
+                SELECT phone FROM basic_setting
+            ) AS phone,
             uu.current_integral AS integralNum,
             uu.current_shop_ticket AS vouchersNum,
             uu.current_red_envelops AS redEnvelopeNum
