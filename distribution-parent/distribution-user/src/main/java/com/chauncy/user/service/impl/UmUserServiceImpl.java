@@ -174,7 +174,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         Boolean isSuccess = mapper.insert(saveUser) > 0;
 
         /** 注册IM账号**/
-        registIM(saveUser, isSuccess);
+//        registIM(saveUser, isSuccess);
 
 
         return isSuccess;
@@ -190,7 +190,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         saveUser.setInviteCode(SnowFlakeUtil.getFlowIdInstance().nextId());
         Boolean isSuccess = mapper.insert(saveUser) > 0;
 
-        registIM(saveUser, isSuccess);
+//        registIM(saveUser, isSuccess);
 
         return isSuccess;
     }

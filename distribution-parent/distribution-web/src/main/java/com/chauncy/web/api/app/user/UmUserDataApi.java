@@ -287,20 +287,20 @@ public class UmUserDataApi extends BaseApi {
         umUserService.updateById(updateUser);
 
         //当用户修改昵称时修改环信账号昵称
-        if (!getAppCurrUser().getName().equals(updateUserDataDto.getName()) && updateUserDataDto.getName() != null ) {
-            //判断该用户是否已经注册过IM账号
-            if (RegistIM.getUser(getAppCurrUser().getId().toString()) != null) {
-                RegistIM.modifyIMUserNickName(getAppCurrUser().getId().toString(),updateUserDataDto.getName());
-            }
-        }
-
-        if (RegistIM.getUser(getAppCurrUser().getId().toString()) == null) {
-            RegUserBo regUserBo = new RegUserBo();
-            regUserBo.setPassword(Constants.PASSWORD);
-            regUserBo.setUsername(getAppCurrUser().getId().toString());
-            regUserBo.setNickname(updateUserDataDto.getName());
-            RegistIM.reg(regUserBo);
-        }
+//        if (!getAppCurrUser().getName().equals(updateUserDataDto.getName()) && updateUserDataDto.getName() != null ) {
+//            //判断该用户是否已经注册过IM账号
+//            if (RegistIM.getUser(getAppCurrUser().getId().toString()) != null) {
+//                RegistIM.modifyIMUserNickName(getAppCurrUser().getId().toString(),updateUserDataDto.getName());
+//            }
+//        }
+//
+//        if (RegistIM.getUser(getAppCurrUser().getId().toString()) == null) {
+//            RegUserBo regUserBo = new RegUserBo();
+//            regUserBo.setPassword(Constants.PASSWORD);
+//            regUserBo.setUsername(getAppCurrUser().getId().toString());
+//            regUserBo.setNickname(updateUserDataDto.getName());
+//            RegistIM.reg(regUserBo);
+//        }
 
         return setJsonViewData(ResultCode.SUCCESS);
     }

@@ -141,12 +141,12 @@ public class SysUserApi {
 
         RegUserBo regUserBo = new RegUserBo();
         //判断该用户是否已经注册过IM账号
-        if (RegistIM.getUser(sysUserPo.getId()) == null) {
+        /*if (RegistIM.getUser(sysUserPo.getId()) == null) {
             regUserBo.setPassword(Constants.PASSWORD);
             regUserBo.setUsername(sysUserPo.getId());
             regUserBo.setNickname(sysUserPo.getNickName());
             RegistIM.reg(regUserBo);
-        }
+        }*/
 
         return new JsonViewData(ResultCode.SUCCESS);
     }
@@ -223,7 +223,7 @@ public class SysUserApi {
 
         //当用户修改昵称时修改环信账号昵称
         SysUserPo sysUserPo = userService.getById(u.getId());
-        if (!sysUserPo.getNickName().equals(u.getNickName()) && u.getNickName() != null) {
+        /*if (!sysUserPo.getNickName().equals(u.getNickName()) && u.getNickName() != null) {
             //判断该用户是否已经注册过IM账号
             if (RegistIM.getUser(u.getId()) != null) {
                 RegistIM.modifyIMUserNickName(u.getId(),u.getNickName());
@@ -235,7 +235,7 @@ public class SysUserApi {
             regUserBo.setUsername(sysUserPo.getId());
             regUserBo.setNickname(sysUserPo.getNickName());
             RegistIM.reg(regUserBo);
-        }
+        }*/
 
         return new JsonViewData(ResultCode.SUCCESS, "修改成功");
     }
@@ -556,9 +556,9 @@ public class SysUserApi {
             }
             /** 删除对应的IM账号*/
             //判断该用户是否已经注册过IM账号
-            if (RegistIM.getUser(u.getId()) != null) {
+            /*if (RegistIM.getUser(u.getId()) != null) {
                 RegistIM.deleteUser(u.getId());
-            }
+            }*/
             //删除缓存
             redisTemplate.delete("user::" + u.getUsername());
             redisTemplate.delete("userRole::" + u.getId());
@@ -571,7 +571,6 @@ public class SysUserApi {
             iUserRoleService.deleteByUserId(id);
             //删除关联部门负责人
             departmentHeaderService.deleteByUserId(id);
-
 
         }
 

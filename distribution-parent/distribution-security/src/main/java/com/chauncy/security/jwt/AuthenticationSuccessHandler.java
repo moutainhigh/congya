@@ -145,13 +145,13 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
            SysUserPo sysUserPo = sysUserPoIBaseMapper.selectOne(new QueryWrapper<SysUserPo>().lambda()
                    .eq(SysUserPo::getUsername,username));
            //是否注册环信账号
-           isRegistry(sysUserPo.getId(), sysUserPo.getNickName());
+//           isRegistry(sysUserPo.getId(), sysUserPo.getNickName());
            ResponseUtil.out(response, new JsonViewData<String>(token));
        }else if (details.getLoginType().equals(LoginType.THIRD_WECHAT)){
            UmUserPo userPo =umUserPoIBaseMapper.selectOne(new QueryWrapper<UmUserPo>().lambda()
                    .eq(UmUserPo::getUnionId,details.getUnionId()));
            //是否注册环信账号
-           isRegistry(userPo.getId().toString(), userPo.getName());
+//           isRegistry(userPo.getId().toString(), userPo.getName());
            userInfoVo.setToken(token);
            userInfoVo.setIM(String.valueOf(userPo.getId()));
            userInfoVo.setJPush(String.valueOf(userPo.getId()));
@@ -163,7 +163,7 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
            UmUserPo userPo =umUserPoIBaseMapper.selectOne(new QueryWrapper<UmUserPo>().lambda()
                    .eq(UmUserPo::getPhone,details.getPhone()));
            //是否注册环信账号
-           isRegistry(userPo.getId().toString(), userPo.getName());
+//           isRegistry(userPo.getId().toString(), userPo.getName());
 
            userInfoVo.setToken(token);
            userInfoVo.setIM(String.valueOf(userPo.getId()));

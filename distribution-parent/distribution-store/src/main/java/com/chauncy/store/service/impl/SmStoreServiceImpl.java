@@ -198,13 +198,13 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         //添加店铺后台账号
         createSysUser(smStorePo);
 
-        RegUserBo regStoreBo = new RegUserBo();
+        /*RegUserBo regStoreBo = new RegUserBo();
         //判断该店铺是否已经注册过IM账号
         if (RegistIM.getUser(String.valueOf(smStorePo.getId())) == null) {
             regStoreBo.setPassword(Constants.PASSWORD);
             regStoreBo.setUsername(String.valueOf(smStorePo.getId()));
             RegistIM.reg(regStoreBo);
-        }
+        }*/
 
         return new JsonViewData(ResultCode.SUCCESS, "添加成功", smStorePo);
     }
