@@ -9,6 +9,7 @@ import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.third.easemob.RegistIM;
 import com.chauncy.common.third.easemob.comm.RegUserBo;
+import com.chauncy.common.util.huanxin.HuanXinUtil;
 import com.chauncy.data.domain.po.sys.SysDepartmentPo;
 import com.chauncy.data.domain.po.sys.SysRolePo;
 import com.chauncy.data.domain.po.sys.SysRoleUserPo;
@@ -140,7 +141,12 @@ public class SysUserApi {
         }
 
         RegUserBo regUserBo = new RegUserBo();
-        //判断该用户是否已经注册过IM账号
+        //判断该用户是否已经注册过客服IM账号
+        if (new HuanXinUtil().getHXUserInfo(sysUserPo.getId()) == null){
+
+            new HuanXinUtil().createUser(sysUserPo.getId(), Constants.PASSWORD,sysUserPo.getNickName());
+        }
+
         /*if (RegistIM.getUser(sysUserPo.getId()) == null) {
             regUserBo.setPassword(Constants.PASSWORD);
             regUserBo.setUsername(sysUserPo.getId());
@@ -236,6 +242,17 @@ public class SysUserApi {
             regUserBo.setNickname(sysUserPo.getNickName());
             RegistIM.reg(regUserBo);
         }*/
+
+        if (!sysUserPo.getNickName().equals(u.getNickName()) && u.getNickName() != null) {
+            //判断该用户是否已经注册过客服IM账号
+            if (new HuanXinUtil().getHXUserInfo(u.getId())!= null) {
+                new HuanXinUtil().changeUserNickname(u.getId(),u.getNickName());
+            }
+        }
+        if (new HuanXinUtil().getHXUserInfo(u.getId()) == null) {
+            new HuanXinUtil().createUser(sysUserPo.getId(),Constants.PASSWORD,sysUserPo.getNickName());
+        }
+
 
         return new JsonViewData(ResultCode.SUCCESS, "修改成功");
     }

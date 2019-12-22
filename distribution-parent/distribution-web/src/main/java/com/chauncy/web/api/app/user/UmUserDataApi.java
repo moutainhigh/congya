@@ -9,6 +9,7 @@ import com.chauncy.common.enums.user.ValidCodeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.third.easemob.RegistIM;
 import com.chauncy.common.third.easemob.comm.RegUserBo;
+import com.chauncy.common.util.huanxin.HuanXinUtil;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.user.add.*;
 import com.chauncy.data.dto.app.user.select.SearchMyFriendDto;
@@ -301,6 +302,16 @@ public class UmUserDataApi extends BaseApi {
 //            regUserBo.setNickname(updateUserDataDto.getName());
 //            RegistIM.reg(regUserBo);
 //        }
+
+        if (!getAppCurrUser().getName().equals(updateUserDataDto.getName()) && updateUserDataDto.getName() != null ) {
+            //判断该用户是否已经注册过客服IM账号
+            if (new HuanXinUtil().getHXUserInfo(getAppCurrUser().getId().toString()) != null) {
+                new HuanXinUtil().changeUserNickname(getAppCurrUser().getId().toString(),updateUserDataDto.getName());
+            }
+        }
+        if (new HuanXinUtil().getHXUserInfo(getAppCurrUser().getId().toString()) != null) {
+            new HuanXinUtil().createUser(getAppCurrUser().getId().toString(),Constants.PASSWORD,updateUserDataDto.getName());
+        }
 
         return setJsonViewData(ResultCode.SUCCESS);
     }
