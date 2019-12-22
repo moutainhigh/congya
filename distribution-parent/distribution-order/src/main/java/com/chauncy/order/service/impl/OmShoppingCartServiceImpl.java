@@ -305,6 +305,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         if (exit) {
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.eq("sku_id", addCartDto.getSkuId());
+            queryWrapper.eq("user_id", umUserPo.getId());
             OmShoppingCartPo shoppingCartPo = mapper.selectOne(queryWrapper);
             shoppingCartPo.setNum(shoppingCartPo.getNum() + addCartDto.getNum());
             if (originStock < shoppingCartPo.getNum()) {
@@ -1341,12 +1342,14 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         //获取税率
         BigDecimal taxRate = null;
         // 1--平台税率 2--自定义税率 3—无税率
-        if (specifiedGoodsVo.getTaxRateType() == 1) {
-            taxRate = categoryMapper.selectById(specifiedGoodsVo.getCategoryId()).getTaxRate();
-        } else if (specifiedGoodsVo.getTaxRateType() == 2) {
-            taxRate = specifiedGoodsVo.getCustomTaxRate();
-        } else {
-            taxRate = new BigDecimal(0);
+        if (specifiedGoodsVo.getTaxRateType() != null) {
+            if (specifiedGoodsVo.getTaxRateType() == 1) {
+                taxRate = categoryMapper.selectById(specifiedGoodsVo.getCategoryId()).getTaxRate();
+            } else if (specifiedGoodsVo.getTaxRateType() == 2) {
+                taxRate = specifiedGoodsVo.getCustomTaxRate();
+            } else {
+                taxRate = new BigDecimal(0);
+            }
         }
         specifiedGoodsVo.setTaxRate(taxRate);
         BigDecimal taxCost = BigDecimalUtil.safeMultiply(lowestSellPrice, taxRate);
@@ -1390,7 +1393,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         Long storeId = goodsMapper.selectById(goodsId).getStoreId();
 
         /**店铺IM账号*/
-        specifiedGoodsVo.setStoreImId(String.valueOf(storeId));
+        specifiedGoodsVo.setStoreImId("kefuchannelimid_120433");
 
         /**平台IM账号*/
         //TODO 暂时写死Admin账号

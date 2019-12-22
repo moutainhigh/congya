@@ -16,6 +16,7 @@ import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.third.easemob.RegistIM;
 import com.chauncy.common.third.easemob.comm.RegUserBo;
 import com.chauncy.common.util.*;
+import com.chauncy.common.util.huanxin.HuanXinUtil;
 import com.chauncy.data.bo.manage.order.log.AddAccountLogBo;
 import com.chauncy.data.bo.order.log.AccountLogBo;
 import com.chauncy.data.core.AbstractService;
@@ -179,8 +180,9 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
 
         Boolean isSuccess = mapper.insert(saveUser) > 0;
 
-        /** 注册IM账号**/
-        registIM(saveUser, isSuccess);
+        /** 注册客服IM账号**/
+        new HuanXinUtil().createUser(saveUser.getId().toString(), Constants.PASSWORD,saveUser.getPhone());
+//        registIM(saveUser, isSuccess);
 
 
         return isSuccess;
@@ -196,7 +198,7 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
         saveUser.setInviteCode(SnowFlakeUtil.getFlowIdInstance().nextId());
         Boolean isSuccess = mapper.insert(saveUser) > 0;
 
-        registIM(saveUser, isSuccess);
+//        registIM(saveUser, isSuccess);
 
         return isSuccess;
     }

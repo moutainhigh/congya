@@ -10,6 +10,7 @@ import com.chauncy.common.enums.system.LoginType;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.common.third.easemob.RegistIM;
 import com.chauncy.common.third.easemob.comm.RegUserBo;
+import com.chauncy.common.util.huanxin.HuanXinUtil;
 import com.chauncy.data.domain.po.sys.SysUserPo;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.mapper.IBaseMapper;
@@ -129,7 +130,7 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
                     .setSubject(username)
                     //自定义属性 放入用户拥有请求权限
                     .claim(SecurityConstant.AUTHORITIES, new Gson().toJson(list))
-                    //失效时间
+                    //失效时
                     .setExpiration(new Date(System.currentTimeMillis() + tokenExpireTime * 60 * 1000))
                     //签名算法和密钥
                     .signWith(SignatureAlgorithm.HS512, SecurityConstant.JWT_SIGN_KEY)
@@ -145,13 +146,15 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
            SysUserPo sysUserPo = sysUserPoIBaseMapper.selectOne(new QueryWrapper<SysUserPo>().lambda()
                    .eq(SysUserPo::getUsername,username));
            //是否注册环信账号
-           isRegistry(sysUserPo.getId(), sysUserPo.getNickName());
+//           isRegistry(sysUserPo.getId(), sysUserPo.getNickName());
+           new HuanXinUtil().createUser(sysUserPo.getId(), Constants.PASSWORD,sysUserPo.getNickName());
            ResponseUtil.out(response, new JsonViewData<String>(token));
        }else if (details.getLoginType().equals(LoginType.THIRD_WECHAT)){
            UmUserPo userPo =umUserPoIBaseMapper.selectOne(new QueryWrapper<UmUserPo>().lambda()
                    .eq(UmUserPo::getUnionId,details.getUnionId()));
            //是否注册环信账号
-           isRegistry(userPo.getId().toString(), userPo.getName());
+//           isRegistry(userPo.getId().toString(), userPo.getName());
+           new HuanXinUtil().createUser(userPo.getId().toString(), Constants.PASSWORD,userPo.getName());
            userInfoVo.setToken(token);
            userInfoVo.setIM(String.valueOf(userPo.getId()));
            userInfoVo.setJPush(String.valueOf(userPo.getId()));
@@ -163,8 +166,8 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
            UmUserPo userPo =umUserPoIBaseMapper.selectOne(new QueryWrapper<UmUserPo>().lambda()
                    .eq(UmUserPo::getPhone,details.getPhone()));
            //是否注册环信账号
-           isRegistry(userPo.getId().toString(), userPo.getName());
-
+//           isRegistry(userPo.getId().toString(), userPo.getName());
+           new HuanXinUtil().createUser(userPo.getId().toString(), Constants.PASSWORD,userPo.getName());
            userInfoVo.setToken(token);
            userInfoVo.setIM(String.valueOf(userPo.getId()));
            userInfoVo.setJPush(String.valueOf(userPo.getId()));
