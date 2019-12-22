@@ -305,6 +305,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         if (exit) {
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.eq("sku_id", addCartDto.getSkuId());
+            queryWrapper.eq("user_id", umUserPo.getId());
             OmShoppingCartPo shoppingCartPo = mapper.selectOne(queryWrapper);
             shoppingCartPo.setNum(shoppingCartPo.getNum() + addCartDto.getNum());
             if (originStock < shoppingCartPo.getNum()) {
@@ -1392,7 +1393,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         Long storeId = goodsMapper.selectById(goodsId).getStoreId();
 
         /**店铺IM账号*/
-        specifiedGoodsVo.setStoreImId(String.valueOf(storeId));
+        specifiedGoodsVo.setStoreImId("kefuchannelimid_120433");
 
         /**平台IM账号*/
         //TODO 暂时写死Admin账号
