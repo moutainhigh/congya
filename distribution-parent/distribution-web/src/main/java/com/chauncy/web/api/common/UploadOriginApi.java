@@ -42,13 +42,18 @@ public class UploadOriginApi {
                                @RequestParam(required = false) String base64,
                                HttpServletRequest request) {
 
-        if (StrUtil.isNotBlank(base64)) {
+        /*if (StrUtil.isNotBlank(base64)) {
             for (MultipartFile file : files) {
                 // base64上传
                 file = Base64DecodeMultipartFileUtil.base64Convert(base64);
             }
-        }
+        }*/
 
+        if (StrUtil.isNotBlank(base64)) {
+            // base64上传
+            MultipartFile file = Base64DecodeMultipartFileUtil.base64Convert(base64);
+            files[0] = file;
+        }
         if (files == null ||files.length==0){
             return new JsonViewData(ResultCode.FAIL,"请选择上传文件");
         }
