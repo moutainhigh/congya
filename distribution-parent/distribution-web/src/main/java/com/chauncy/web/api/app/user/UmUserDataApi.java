@@ -9,6 +9,7 @@ import com.chauncy.common.enums.user.ValidCodeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.third.easemob.RegistIM;
 import com.chauncy.common.third.easemob.comm.RegUserBo;
+import com.chauncy.common.util.huanxin.HuanXinUtil;
 import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.user.add.*;
 import com.chauncy.data.dto.app.user.select.SearchMyFriendDto;
@@ -287,19 +288,29 @@ public class UmUserDataApi extends BaseApi {
         umUserService.updateById(updateUser);
 
         //当用户修改昵称时修改环信账号昵称
+//        if (!getAppCurrUser().getName().equals(updateUserDataDto.getName()) && updateUserDataDto.getName() != null ) {
+//            //判断该用户是否已经注册过IM账号
+//            if (RegistIM.getUser(getAppCurrUser().getId().toString()) != null) {
+//                RegistIM.modifyIMUserNickName(getAppCurrUser().getId().toString(),updateUserDataDto.getName());
+//            }
+//        }
+//
+//        if (RegistIM.getUser(getAppCurrUser().getId().toString()) == null) {
+//            RegUserBo regUserBo = new RegUserBo();
+//            regUserBo.setPassword(Constants.PASSWORD);
+//            regUserBo.setUsername(getAppCurrUser().getId().toString());
+//            regUserBo.setNickname(updateUserDataDto.getName());
+//            RegistIM.reg(regUserBo);
+//        }
+
         if (!getAppCurrUser().getName().equals(updateUserDataDto.getName()) && updateUserDataDto.getName() != null ) {
-            //判断该用户是否已经注册过IM账号
-            if (RegistIM.getUser(getAppCurrUser().getId().toString()) != null) {
-                RegistIM.modifyIMUserNickName(getAppCurrUser().getId().toString(),updateUserDataDto.getName());
+            //判断该用户是否已经注册过客服IM账号
+            if (new HuanXinUtil().getHXUserInfo(getAppCurrUser().getId().toString()) != null) {
+                new HuanXinUtil().changeUserNickname(getAppCurrUser().getId().toString(),updateUserDataDto.getName());
             }
         }
-
-        if (RegistIM.getUser(getAppCurrUser().getId().toString()) == null) {
-            RegUserBo regUserBo = new RegUserBo();
-            regUserBo.setPassword(Constants.PASSWORD);
-            regUserBo.setUsername(getAppCurrUser().getId().toString());
-            regUserBo.setNickname(updateUserDataDto.getName());
-            RegistIM.reg(regUserBo);
+        if (new HuanXinUtil().getHXUserInfo(getAppCurrUser().getId().toString()) != null) {
+            new HuanXinUtil().createUser(getAppCurrUser().getId().toString(),Constants.PASSWORD,updateUserDataDto.getName());
         }
 
         return setJsonViewData(ResultCode.SUCCESS);

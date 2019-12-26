@@ -22,10 +22,10 @@ public class HuanXinTests {
     public static void main(String[] args){
 
         //查找单个IM账号
-        getUser("1145671767662256129d");
+//        getUser("1145671767662256129d");
         //添加单个IM人员
         RegUserBo regUserBo = new RegUserBo();
-        regUserBo.setUsername("1145671767662256129");
+        regUserBo.setUsername("114567176");
         regUserBo.setPassword("123456");
         reg(regUserBo);
 

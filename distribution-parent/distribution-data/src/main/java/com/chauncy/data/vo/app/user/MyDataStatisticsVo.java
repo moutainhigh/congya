@@ -92,4 +92,9 @@ public class MyDataStatisticsVo {
     @ApiModelProperty(value = "个人中心充值入口图片")
     @JSONField(ordinal = 16)
     private PersonalCenterPictureVo topUpPicture;
+
+    @ApiModelProperty(value = "客服电话")
+    @JSONField(ordinal = 17)
+    private String phone;
+
 }

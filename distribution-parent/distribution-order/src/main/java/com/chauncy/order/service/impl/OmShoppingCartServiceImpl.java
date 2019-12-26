@@ -2,6 +2,7 @@ package com.chauncy.order.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.constant.RabbitConstants;
+import com.chauncy.common.constant.ServiceConstant;
 import com.chauncy.common.enums.app.activity.SpellGroupMainStatusEnum;
 import com.chauncy.common.enums.app.activity.type.ActivityTypeEnum;
 import com.chauncy.common.enums.log.LogTriggerEventEnum;
@@ -71,6 +72,7 @@ import com.chauncy.data.mapper.user.UmUserFavoritesMapper;
 import com.chauncy.data.mapper.user.UmUserMapper;
 import com.chauncy.data.temp.order.service.IOmGoodsTempService;
 import com.chauncy.data.vo.app.activity.coupon.SelectCouponVo;
+import com.chauncy.data.vo.app.activity.spell.SpellGroupInfoVo;
 import com.chauncy.data.vo.app.advice.activity.*;
 import com.chauncy.data.vo.app.advice.coupon.FindCouponListVo;
 import com.chauncy.data.vo.app.advice.goods.SearchGoodsBaseListVo;
@@ -102,6 +104,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -265,6 +268,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
     @Value("${distribution.im.account}")
     private String imAccount;
 
+    @Value("${distribution.share.addr}")
+    private String shareAddr;
+
 
     //拆单后每个订单至少要支付0.01
     private BigDecimal orderMinPayMoney = BigDecimal.valueOf(0.01);
@@ -299,6 +305,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         if (exit) {
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.eq("sku_id", addCartDto.getSkuId());
+            queryWrapper.eq("user_id", umUserPo.getId());
             OmShoppingCartPo shoppingCartPo = mapper.selectOne(queryWrapper);
             shoppingCartPo.setNum(shoppingCartPo.getNum() + addCartDto.getNum());
             if (originStock < shoppingCartPo.getNum()) {
@@ -1223,7 +1230,6 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
         SpecifiedGoodsVo specifiedGoodsVo = new SpecifiedGoodsVo();
         List<GoodsStandardVo> goodsStandardVoList = Lists.newArrayList();
-
         PmGoodsPo goodsPo = goodsMapper.selectById(goodsId);
         //判断该商品是否存在
         if (goodsPo == null) {
@@ -1336,12 +1342,14 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         //获取税率
         BigDecimal taxRate = null;
         // 1--平台税率 2--自定义税率 3—无税率
-        if (specifiedGoodsVo.getTaxRateType() == 1) {
-            taxRate = categoryMapper.selectById(specifiedGoodsVo.getCategoryId()).getTaxRate();
-        } else if (specifiedGoodsVo.getTaxRateType() == 2) {
-            taxRate = specifiedGoodsVo.getCustomTaxRate();
-        } else {
-            taxRate = new BigDecimal(0);
+        if (specifiedGoodsVo.getTaxRateType() != null) {
+            if (specifiedGoodsVo.getTaxRateType() == 1) {
+                taxRate = categoryMapper.selectById(specifiedGoodsVo.getCategoryId()).getTaxRate();
+            } else if (specifiedGoodsVo.getTaxRateType() == 2) {
+                taxRate = specifiedGoodsVo.getCustomTaxRate();
+            } else {
+                taxRate = new BigDecimal(0);
+            }
         }
         specifiedGoodsVo.setTaxRate(taxRate);
         BigDecimal taxCost = BigDecimalUtil.safeMultiply(lowestSellPrice, taxRate);
@@ -1385,7 +1393,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         Long storeId = goodsMapper.selectById(goodsId).getStoreId();
 
         /**店铺IM账号*/
-        specifiedGoodsVo.setStoreImId(String.valueOf(storeId));
+        specifiedGoodsVo.setStoreImId("kefuchannelimid_120433");
 
         /**平台IM账号*/
         //TODO 暂时写死Admin账号
@@ -1676,11 +1684,13 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                         //获取参与拼团活动商品所有sku活动价格，并获取最低价格和最高价格
                         //保存所有sku活动价格
                         List<Double> skuActivityPrices = new ArrayList<>();
-                        //活动总拼团量
-                        List<Integer> payedNum = spellGroupMainMapper.selectList(new QueryWrapper<AmSpellGroupMainPo>().lambda().and(obj -> obj
+                        //已拼总人数
+                        /*List<Integer> payedNum = spellGroupMainMapper.selectList(new QueryWrapper<AmSpellGroupMainPo>().lambda().and(obj -> obj
                                 .eq(AmSpellGroupMainPo::getRelId, relActivityGoodsPo.getId()))).stream().map(n -> n.getPayedNum()).collect(Collectors.toList());
                         Integer sumPayedNum = payedNum.stream().mapToInt((x) -> x).sum();
-                        spellGroupVo.setSpellNum(sumPayedNum);
+                        spellGroupVo.setSpellSum(sumPayedNum);*/
+                        //已拼总人数  已拼件数
+                        spellGroupVo = spellGroupMainMapper.getSpellGroup(relActivityGoodsPo.getId());
 
                         //获取该商品参与活动的所有sku信息
                         List<AmActivityRelGoodsSkuPo> relGoodsSkuPos = activityRelGoodsSkuMapper.selectList(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda()
@@ -1936,7 +1946,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         });
 
         specifiedGoodsVo.setGoodsActivityVo(goodsActivityVo);
-
+        //商品分享链接
+        String shareUrl = MessageFormat.format(ServiceConstant.SHARE_URL_GOODS, shareAddr, String.valueOf(goodsId), "");
+        specifiedGoodsVo.setShareUrl(shareUrl);
         return specifiedGoodsVo;
     }
 

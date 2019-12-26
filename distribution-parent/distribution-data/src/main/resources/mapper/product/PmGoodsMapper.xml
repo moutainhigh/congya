@@ -414,9 +414,10 @@
             pgs.`line_price`
         FROM
             pm_goods pg
+            inner join sm_store ss on pg.store_id = ss.id AND ss.enabled = 1
             <!-- 店铺 -->
             <if test="null != storeId and storeId != 0">
-                inner join sm_store ss on pg.store_id = ss.id AND ss.id = #{storeId}
+                AND ss.id = #{storeId}
             </if>
             <!-- 分类 -->
             <if test="(null != goodsType and goodsType == 6) or (null != categoryIds and categoryIds.size() > 0) ">

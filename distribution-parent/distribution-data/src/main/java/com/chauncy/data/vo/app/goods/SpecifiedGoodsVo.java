@@ -192,4 +192,8 @@ public class SpecifiedGoodsVo {
     @JSONField(ordinal = 31)
     private GoodsActivityVo goodsActivityVo;
 
+    @ApiModelProperty(value = "商品分享链接")
+    @JSONField(ordinal = 32)
+    private String shareUrl;
+
 }

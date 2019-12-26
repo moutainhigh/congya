@@ -132,6 +132,8 @@ public class AppMyOrderDetailVo {
     @ApiModelProperty(value = "团员头像 第一个是团长")
     private List<String> headPortrait;
 
+    @ApiModelProperty("客服im账号")
+    private String imAccount;
 
 
 }

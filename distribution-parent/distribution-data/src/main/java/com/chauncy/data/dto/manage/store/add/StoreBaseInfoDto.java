@@ -88,7 +88,7 @@ public class StoreBaseInfoDto implements Serializable {
     private String storeImage;
 
     @ApiModelProperty(value = "店铺背景图")
-    @NotBlank(message = "店铺背景图不能为空")
+    //@NotBlank(message = "店铺背景图不能为空")
     private String backgroundImage;
 
     @ApiModelProperty(value = "所属品牌集合")

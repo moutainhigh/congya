@@ -14,6 +14,7 @@ import com.chauncy.common.enums.system.SysRoleTypeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.third.easemob.RegistIM;
 import com.chauncy.common.third.easemob.comm.RegUserBo;
+import com.chauncy.common.util.huanxin.HuanXinUtil;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
@@ -178,6 +179,9 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
 
         SmStorePo smStorePo = new SmStorePo();
         BeanUtils.copyProperties(storeBaseInfoDto, smStorePo);
+        if(null == smStorePo.getBackgroundImage()) {
+            smStorePo.setBackgroundImage("");
+        }
         //获取当前用户
         String userName = securityUtil.getCurrUser().getUsername();
         smStorePo.setCreateBy(userName);
@@ -198,13 +202,15 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         //添加店铺后台账号
         createSysUser(smStorePo);
 
-        RegUserBo regStoreBo = new RegUserBo();
+        /*RegUserBo regStoreBo = new RegUserBo();
         //判断该店铺是否已经注册过IM账号
         if (RegistIM.getUser(String.valueOf(smStorePo.getId())) == null) {
             regStoreBo.setPassword(Constants.PASSWORD);
             regStoreBo.setUsername(String.valueOf(smStorePo.getId()));
             RegistIM.reg(regStoreBo);
-        }
+        }*/
+
+        new HuanXinUtil().createUser(smStorePo.getId().toString(), Constants.PASSWORD,smStorePo.getName());
 
         return new JsonViewData(ResultCode.SUCCESS, "添加成功", smStorePo);
     }
@@ -232,6 +238,9 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         }
 
         BeanUtils.copyProperties(storeBaseInfoDto, oldSmStore);
+        if(null == oldSmStore.getBackgroundImage()) {
+            oldSmStore.setBackgroundImage("");
+        }
         //获取当前用户
         String userName = securityUtil.getCurrUser().getUsername();
         oldSmStore.setCreateBy(userName);
