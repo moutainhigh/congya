@@ -175,7 +175,7 @@ public class AmCouponRelCouponUserServiceImpl extends AbstractService<AmCouponRe
         PageInfo<SearchMyCouponVo> searchMyCouponVoPageInfo = PageHelper.startPage(pageNo,pageSize)
                 .doSelectPageInfo(()->mapper.searchMyCoupon(user.getId(),searchMyCouponDto.getIsAvailable()));
 
-        if (searchMyCouponDto.getIsAvailable() == false) {
+        if (!searchMyCouponDto.getIsAvailable()) {
             searchMyCouponVoPageInfo.getList().forEach(a -> {
                 if (a.getDeadLine().compareTo(LocalDate.now()) < 0 && a.getUseStatus() == CouponUseStatusEnum.NOT_USED.getId()){
                     a.setUseStatus(CouponUseStatusEnum.FAILURE.getId());
