@@ -19,9 +19,9 @@ import javax.validation.constraints.NotNull;
 @ApiModel(description = "根据IM账号获取用户信息")
 public class GetUserNickNameDto {
 
-    @NotNull(message = "类型不能为空")
+    /*@NotNull(message = "类型不能为空")
     @ApiModelProperty(value = "类型  1->用户IM  2->客服IM")
-    private Integer type;
+    private Integer type;*/
 
     @NotEmpty(message = "IM账号不能为空")
     @ApiModelProperty(value = "im账号")

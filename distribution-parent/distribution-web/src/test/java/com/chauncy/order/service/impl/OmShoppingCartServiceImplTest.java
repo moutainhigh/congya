@@ -2,6 +2,7 @@ package com.chauncy.order.service.impl;
 
 import com.chauncy.common.enums.message.NoticeTitleEnum;
 import com.chauncy.common.enums.order.BillTypeEnum;
+import com.chauncy.common.util.Config;
 import com.chauncy.data.bo.app.message.SaveUserNoticeBo;
 import com.chauncy.message.interact.service.IMmUserNoticeService;
 import com.chauncy.order.bill.service.IOmOrderBillService;
@@ -15,7 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.FileInputStream;
 import java.time.LocalDate;
+import java.util.Properties;
 
 /**
  * @Author zhangrt
@@ -55,7 +58,7 @@ public class OmShoppingCartServiceImplTest {
      }*/
     @Test
     public void updateUserLevel() {
-        userService.list().forEach(  x->userService.updateLevel(x.getId()));
+        userService.list().forEach(x -> userService.updateLevel(x.getId()));
 
 
     }
@@ -73,5 +76,23 @@ public class OmShoppingCartServiceImplTest {
         omOrderReportService.orderClosure(206982238737272832L);*/
     }
 
+    @Test
+    public void update() {
+
+
+        String value = Config.getValue("redis.hostName");
+        System.err.println(value);
+        Config.setProper("redis.hostName","qwe");
+        String value1 = Config.getValue("redis.hostName");
+
+        System.err.println(value);
+
+    }
+
+
 
 }
+
+
+
+

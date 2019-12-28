@@ -665,17 +665,12 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
     public UserNickNameVo getByImAccount(GetUserNickNameDto getUserNickNameDto) {
 
         UserNickNameVo userNickNameVo = new UserNickNameVo();
-        if(getUserNickNameDto.getType().equals(1)) {
-            //用户im 是um_user表的id
-            QueryWrapper<UmUserPo> queryWrapper = new QueryWrapper<>();
-            queryWrapper.lambda().eq(UmUserPo::getId, getUserNickNameDto.getImAccount());
-            UmUserPo umUserPo = mapper.selectOne(queryWrapper);
-            if(null == umUserPo) {
-                throw new ServiceException(ResultCode.NO_EXISTS, "该IM账号不存在");
-            }
-            userNickNameVo.setPhoto(umUserPo.getPhoto());
-            userNickNameVo.setName(umUserPo.getName());
-        } else if (getUserNickNameDto.getType().equals(2)) {
+
+        //用户im 是um_user表的id
+        QueryWrapper<UmUserPo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(UmUserPo::getId, getUserNickNameDto.getImAccount());
+        UmUserPo umUserPo = mapper.selectOne(queryWrapper);
+        if(null == umUserPo) {
             //客服im 是um_im_account表的im_account
             userNickNameVo = umImAccountMapper.getByImAccount(getUserNickNameDto.getImAccount());
             if(null == userNickNameVo) {
@@ -684,7 +679,11 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
                 userNickNameVo.setName("葱鸭");
                 userNickNameVo.setPhoto(MessageFormat.format(ServiceConstant.ICON_PATH, "congya"));
             }
+        } else {
+            userNickNameVo.setPhoto(umUserPo.getPhoto());
+            userNickNameVo.setName(umUserPo.getName());
         }
+
         return userNickNameVo;
 
     }
