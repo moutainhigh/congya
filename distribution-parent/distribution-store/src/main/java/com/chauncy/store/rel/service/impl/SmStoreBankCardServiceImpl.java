@@ -58,6 +58,7 @@ public class SmStoreBankCardServiceImpl extends AbstractService<SmStoreBankCardM
             smStoreBankCardPo.setStoreId(sysUserPo.getStoreId());
             smStoreBankCardPo.setCreateBy(sysUserPo.getUsername());
             smStoreBankCardPo.setUpdateTime(LocalDateTime.now());
+            smStoreBankCardPo.setId(null);
             smStoreBankCardMapper.insert(smStoreBankCardPo);
         } else {
             smStoreBankCardPo.setUpdateBy(sysUserPo.getUsername());
