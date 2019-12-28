@@ -54,7 +54,7 @@ public class SmStoreBankCardServiceImpl extends AbstractService<SmStoreBankCardM
         }
         SmStoreBankCardPo smStoreBankCardPo = new SmStoreBankCardPo();
         BeanUtils.copyProperties(saveStoreBankCardDto,smStoreBankCardPo);
-        if(null == saveStoreBankCardDto.getId()) {
+        if(null == saveStoreBankCardDto.getId() || 0==saveStoreBankCardDto.getId()) {
             smStoreBankCardPo.setStoreId(sysUserPo.getStoreId());
             smStoreBankCardPo.setCreateBy(sysUserPo.getUsername());
             smStoreBankCardPo.setUpdateTime(LocalDateTime.now());
