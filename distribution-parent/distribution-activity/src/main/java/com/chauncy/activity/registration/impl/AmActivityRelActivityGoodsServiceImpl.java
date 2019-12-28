@@ -952,6 +952,9 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
     public void cancelRegistration(CancelRegistrationDto cancelRegistrationDto) {
 
 //        cancelRegistrationDtos.forEach(a -> {
+        if (ActivityTypeEnum.getActivityTypeEnumById(cancelRegistrationDto.getActivityType()).getName() == null){
+            throw new ServiceException(ResultCode.FAIL,String.format("该枚举:【%s】不存在！",cancelRegistrationDto.getActivityType()));
+        }
             //获取审核状态
             Integer verifyStatus = activityRelActivityGoodsMapper.selectById(cancelRegistrationDto.getActivityGoodsRelId()).getVerifyStatus();
             if (verifyStatus != VerifyStatusEnum.WAIT_CONFIRM.getId() && verifyStatus != VerifyStatusEnum.IS_CANCEL.getId()
@@ -965,7 +968,7 @@ public class AmActivityRelActivityGoodsServiceImpl extends AbstractService<AmAct
 
         }else {
             FindActivitySkuDto findActivitySkuDto = new FindActivitySkuDto();
-            findActivitySkuDto.setActivityType(cancelRegistrationDto.getActivityType());
+            findActivitySkuDto.setActivityType(ActivityTypeEnum.getActivityTypeEnumById(cancelRegistrationDto.getActivityType()).getName());
             findActivitySkuDto.setActivityId(cancelRegistrationDto.getActivityId());
             findActivitySkuDto.setGoodsId(cancelRegistrationDto.getGoodsId());
             this.isComform(findActivitySkuDto);

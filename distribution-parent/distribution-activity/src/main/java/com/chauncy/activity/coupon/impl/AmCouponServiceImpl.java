@@ -126,7 +126,7 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
             relCouponGoodsMapper.delete(new QueryWrapper<AmCouponRelCouponGoodsPo>().lambda().eq(AmCouponRelCouponGoodsPo::getCouponId, saveCouponDto.getId()));
             saveCouponAssociation(couponFormEnum, couponScopeEnum, saveCouponDto, couponPo, saveCouponResultVo);
         }
-        return null;
+        return saveCouponResultVo;
     }
 
     public SaveCouponResultVo saveCouponAssociation(CouponFormEnum couponFormEnum, CouponScopeEnum couponScopeEnum,

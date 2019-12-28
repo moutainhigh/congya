@@ -34,10 +34,10 @@ public class CancelRegistrationDto {
     @ApiModelProperty(value = "是否取消报名,ture-是，false-否，重新报名")
     private Boolean isCancel;
 
-    @ApiModelProperty("活动类型:满减、积分、秒杀、拼团")
-    @EnumConstraint(target = ActivityTypeEnum.class)
+    @ApiModelProperty("活动类型:1-满减、2-积分、3-秒杀、4-拼团")
+//    @EnumConstraint(target = ActivityTypeEnum.class)
     @NotNull(message = "活动类型不能为空")
-    private String activityType;
+    private Integer activityType;
 
     @ApiModelProperty("商品ID")
     @NeedExistConstraint(tableName = "pm_goods")
