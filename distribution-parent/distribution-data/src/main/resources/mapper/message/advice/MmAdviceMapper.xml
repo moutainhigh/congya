@@ -144,7 +144,7 @@
         LEFT JOIN am_reduced ar ON ar.id = `aarag`.`activity_id`
         LEFT JOIN pm_goods_sku `pgs` ON `pg`.id = `pgs`.goods_id
         LEFT JOIN pm_goods_rel_attribute_good pgrag  ON pg.id = pgrag.`goods_good_id`
-        LEFT JOIN pm_goods_attribute pga ON pgrag.goods_attribute_id = pga.`id`
+        LEFT JOIN pm_goods_attribute pga ON pgrag.goods_attribute_id = pga.`id` AND pgrag.`del_flag` = 0 AND pga.`del_flag` = 0 AND pga.`enabled` = 1 AND pga.`type` = 5
         <where>
             `martt`.`tab_id` = #{tabId}
             AND `martt`.del_flag = 0
@@ -163,10 +163,6 @@
                 ORDER BY sell_price
                 LIMIT 1
             )
-            AND pgrag.`del_flag` = 0
-            AND pga.`del_flag` = 0
-            AND pga.`enabled` = 1
-            AND pga.`type` = 5
         </where>
         GROUP BY pg.id,pgs.id,ar.id
         <if test="null != sortFile and sortFile.name() == 'PRICE_SORT' ">
@@ -202,7 +198,7 @@
             LEFT JOIN pm_goods_category pgc1 ON pgc1.id = pgc.parent_id
         </if>
         LEFT JOIN pm_goods_rel_attribute_good pgrag  ON pg.id = pgrag.`goods_good_id`
-        LEFT JOIN pm_goods_attribute pga ON pgrag.goods_attribute_id = pga.`id`
+        LEFT JOIN pm_goods_attribute pga ON pgrag.goods_attribute_id = pga.`id` AND pgrag.`del_flag` = 0 AND pga.`del_flag` = 0 AND pga.`enabled` = 1 AND pga.`type` = 5
         <where>
             ar.group_id = #{groupId}
             AND ar.`del_flag` = 0
@@ -224,10 +220,6 @@
                 ORDER BY sell_price
                 LIMIT 1
             )
-            AND pgrag.`del_flag` = 0
-            AND pga.`del_flag` = 0
-            AND pga.`enabled` = 1
-            AND pga.`type` = 5
         </where>
         GROUP BY pg.id,pgs.id,ar.id
         <if test="null != sortFile and sortFile.name() == 'PRICE_SORT' ">
