@@ -536,6 +536,7 @@
             FROM am_activity_rel_activity_goods aarag
             LEFT JOIN pm_goods pg ON pg.id = aarag.`goods_id`
             LEFT JOIN am_spell_group_main asgm ON aarag.id = asgm.rel_id
+                AND asgm.status = 3
             WHERE aarag.`activity_type` = 4
                 AND aarag.verify_status = 3
                 AND aarag.`del_flag` = 0
@@ -543,7 +544,6 @@
                 AND aarag.`activity_start_time` <![CDATA[< ]]> NOW()
                 AND pg.`publish_status` = 1
                 AND pg.`del_flag` = 0
-                AND asgm.status = 3
             GROUP BY aarag.id
             ORDER BY groupNum DESC
             LIMIT 1
