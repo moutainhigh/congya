@@ -245,8 +245,12 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 if(null != activityGroupTabVo.getActivityGoodsVoList()
                         && activityGroupTabVo.getActivityGoodsVoList().size() > 0) {
                     //获取商品标签
-                    activityGroupTabVo.getActivityGoodsVoList().forEach(goodsVo ->
-                            goodsVo.setLabelList(Splitter.on(",").omitEmptyStrings().splitToList(goodsVo.getLabels())));
+                    activityGroupTabVo.getActivityGoodsVoList().forEach(goodsVo ->{
+                        if(goodsVo.getLabels() != null){
+                            goodsVo.setLabelList(Splitter.on(",").omitEmptyStrings().splitToList(goodsVo.getLabels()));
+                        }
+                    });
+
                 }
             });
         } else {
@@ -306,8 +310,10 @@ public class MmAdviceServiceImpl extends AbstractService<MmAdviceMapper, MmAdvic
                 throw new ServiceException(ResultCode.PARAM_ERROR);
             }
             //获取商品标签
-            activityGoodsVoPageInfo.getList().forEach(activityGoodsVo -> {
-                activityGoodsVo.setLabelList(Splitter.on(",").omitEmptyStrings().splitToList(activityGoodsVo.getLabels()));
+            activityGoodsVoPageInfo.getList().forEach(activityGoodsVo ->{
+                if(activityGoodsVo.getLabels() != null){
+                    activityGoodsVo.setLabelList(Splitter.on(",").omitEmptyStrings().splitToList(activityGoodsVo.getLabels()));
+                }
             });
         } else {
             //积分

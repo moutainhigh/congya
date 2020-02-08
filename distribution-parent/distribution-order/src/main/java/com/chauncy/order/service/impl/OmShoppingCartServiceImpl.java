@@ -1866,6 +1866,27 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
                         }
                         break;
+
+                    case REDUCED:
+                        AmReducedPo reducedPo = reducedMapper.selectOne(new QueryWrapper<AmReducedPo>().lambda().and(obj ->
+                                obj.eq(AmReducedPo::getEnable, true).eq(AmReducedPo::getId, relActivityGoodsPo.getActivityId())));
+                        if (reducedPo == null) {
+                            goodsActivityVo.setType(ActivityTypeEnum.NON.getId());
+                        } else {
+                            goodsActivityVo.setType(ActivityTypeEnum.REDUCED.getId());
+                            //获取该sku对应的积分活动的价格
+                            AmActivityRelGoodsSkuPo activityRelGoodsSkuPo = amActivityRelGoodsSkuMapper.selectOne(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda().and(obj -> obj
+                                    .eq(AmActivityRelGoodsSkuPo::getRelId, relActivityGoodsPo.getId())
+                                    .eq(AmActivityRelGoodsSkuPo::getSkuId, b.getId())));
+                            if (activityRelGoodsSkuPo != null) {
+                                Integer activityStock = activityRelGoodsSkuPo.getActivityStock();
+                                BigDecimal activityPrice = activityRelGoodsSkuPo.getActivityPrice();
+                                specifiedSkuVo.setActivityPrice(activityPrice);
+                                specifiedSkuVo.setActivityStock(activityStock);
+                            }
+
+                        }
+                        break;
                     case SECKILL:
                         //这里是活动进行中的商品
                         AmSeckillPo seckillPo = seckillMapper.selectOne(new QueryWrapper<AmSeckillPo>().lambda().and(obj ->
