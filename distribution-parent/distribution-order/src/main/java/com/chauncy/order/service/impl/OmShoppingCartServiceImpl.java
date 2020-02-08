@@ -1678,8 +1678,6 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     } else {
                         goodsActivityVo.setType(ActivityTypeEnum.SPELL_GROUP.getId());
                         SpellGroupVo spellGroupVo = new SpellGroupVo();
-                        //成团人数
-                        spellGroupVo.setGroupNum(spellGroupPo.getGroupNum());
 
                         //获取参与拼团活动商品所有sku活动价格，并获取最低价格和最高价格
                         //保存所有sku活动价格
@@ -1691,6 +1689,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                         spellGroupVo.setSpellSum(sumPayedNum);*/
                         //已拼总人数  已拼件数
                         spellGroupVo = spellGroupMainMapper.getSpellGroup(relActivityGoodsPo.getId());
+
+                        //成团人数
+                        spellGroupVo.setGroupNum(spellGroupPo.getGroupNum());
 
                         //获取该商品参与活动的所有sku信息
                         List<AmActivityRelGoodsSkuPo> relGoodsSkuPos = activityRelGoodsSkuMapper.selectList(new QueryWrapper<AmActivityRelGoodsSkuPo>().lambda()
