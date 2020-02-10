@@ -82,4 +82,8 @@ public class SearchSupplierActivityVo {
     @ApiModelProperty("店铺名称")
     @JSONField(ordinal = 14)
     private String storeName;
+
+    @ApiModelProperty("商品图片")
+    @JSONField(ordinal = 15)
+    private String goodsPicture;
 }
