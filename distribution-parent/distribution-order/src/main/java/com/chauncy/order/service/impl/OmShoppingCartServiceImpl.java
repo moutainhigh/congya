@@ -884,11 +884,12 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         setDiscount(totalCarVo, currentUser, basicSettingPo);
         //积分
         totalCarVo.setTotalIntegralMoney(totalIntegralMoney[0]);
-        //计算实付金额=商品活动价格总和-红包购物券
+        //计算实付金额=商品活动价格总和-红包购物券+邮费+税费
         BigDecimal totalGoodsRealPayMoney = shopTicketSoWithCarGoodVos.stream().map(x ->
                 BigDecimalUtil.safeMultiply(x.getNumber(), x.getRealPayMoney())
         ).reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal totalRealPayMoney = BigDecimalUtil.safeSubtract(totalGoodsRealPayMoney, totalCarVo.getTotalDeductionMoney());
+        BigDecimal totalRealPayMoney = BigDecimalUtil.safeSubtract(false,totalGoodsRealPayMoney, totalCarVo.getTotalDeductionMoney());
+        totalRealPayMoney=BigDecimalUtil.safeAdd(totalRealPayMoney,totalShipMoney,totalTaxMoney);
         //葱鸭钱包总优惠加上积分的优惠
         totalCarVo.setTotalDeductionMoney(BigDecimalUtil.safeAdd(totalCarVo.getTotalDeductionMoney(), totalIntegralMoney[0]));
         totalCarVo.setTotalShipMoney(totalShipMoney)
@@ -953,7 +954,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                 //拆单后商品总数量
                 goodsTypeOrderVo.setTotalNumber(shopTicketSoWithCarGoodVos.stream().mapToInt(x -> x.getNumber()).sum());
                 //商品总额=数量*单价（销售价）+邮费+运费
-                BigDecimal totalMoney = shopTicketSoWithCarGoodVos.stream().map(x -> BigDecimalUtil.safeMultiply(x.getNumber(), x.getSellPrice())).
+                BigDecimal totalMoney = shopTicketSoWithCarGoodVos.stream().map(x -> BigDecimalUtil.safeMultiply(x.getNumber(), x.getRealPayMoney())).
                         reduce(BigDecimal.ZERO, BigDecimal::add);
                 totalMoney = BigDecimalUtil.safeAdd(totalMoney, shipMoney, taxMoney);
                 goodsTypeOrderVo.setTotalMoney(totalMoney);
