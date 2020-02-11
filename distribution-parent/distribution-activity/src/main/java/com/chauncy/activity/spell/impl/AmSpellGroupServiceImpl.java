@@ -238,7 +238,7 @@ public class AmSpellGroupServiceImpl extends AbstractService<AmSpellGroupMapper,
                     Splitter.on(",").omitEmptyStrings().splitToList(spellGroupInfoVo.getHeadPortrait());
             spellGroupInfoVo.setHeadPortraitList(headPortraitList);
             //团长名称
-            spellGroupInfoVo.setUserName(spellGroupInfoVo.getUserName().substring(0, spellGroupInfoVo.getUserName().indexOf(",")));
+            spellGroupInfoVo.setUserName(spellGroupInfoVo.getUserName()/*.substring(0, spellGroupInfoVo.getUserName().indexOf(","))*/);
         });
 
         return spellGroupInfoVoPageInfo;
