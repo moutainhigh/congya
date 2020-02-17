@@ -3,6 +3,7 @@ package com.chauncy.activity.spell;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.po.activity.spell.AmSpellGroupPo;
 import com.chauncy.data.core.Service;
+import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.activity.SearchMySpellGroupDto;
 import com.chauncy.data.dto.app.activity.SearchSpellGroupInfoDto;
 import com.chauncy.data.dto.app.product.SearchSpellGroupGoodsDto;
@@ -63,7 +64,7 @@ public interface IAmSpellGroupService extends Service<AmSpellGroupPo> {
      * @param  searchSpellGroupInfoDto
      * @return com.github.pagehelper.PageInfo<SpellGroupInfoVo>
      **/
-     PageInfo<SpellGroupInfoVo> searchSpellGroupInfo(SearchSpellGroupInfoDto searchSpellGroupInfoDto);
+     PageInfo<SpellGroupInfoVo> searchSpellGroupInfo(SearchSpellGroupInfoDto searchSpellGroupInfoDto, UmUserPo currentUser);
 
     /**
      * @Author yeJH

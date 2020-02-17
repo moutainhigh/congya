@@ -2,6 +2,7 @@ package com.chauncy.web.api.app.activity.spell;
 
 import com.chauncy.activity.spell.IAmSpellGroupService;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.activity.SearchMySpellGroupDto;
 import com.chauncy.data.dto.app.activity.SearchSpellGroupInfoDto;
 import com.chauncy.data.dto.app.product.SearchSpellGroupGoodsDto;
@@ -11,6 +12,7 @@ import com.chauncy.data.vo.app.activity.spell.MySpellGroupVo;
 import com.chauncy.data.vo.app.activity.spell.SpellGroupDetailVo;
 import com.chauncy.data.vo.app.activity.spell.SpellGroupInfoVo;
 import com.chauncy.data.vo.app.goods.SpellGroupGoodsVo;
+import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.web.base.BaseApi;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -35,6 +37,9 @@ public class AsSpellGroupApi  extends BaseApi {
 
     @Autowired
     private IAmSpellGroupService amSpellGroupService;
+
+    @Autowired
+    private SecurityUtil securityUtil;
 
 
     /**
@@ -92,8 +97,10 @@ public class AsSpellGroupApi  extends BaseApi {
             @ApiParam(required = true, name = "searchSpellGroupInfoDto", value = "根据商品查询拼团信息")
             @Valid @RequestBody SearchSpellGroupInfoDto searchSpellGroupInfoDto) {
 
+        UmUserPo currentUser = securityUtil.getAppCurrUser();
+
         return new JsonViewData(ResultCode.SUCCESS,"查找成功",
-                amSpellGroupService.searchSpellGroupInfo(searchSpellGroupInfoDto));
+                amSpellGroupService.searchSpellGroupInfo(searchSpellGroupInfoDto, currentUser));
     }
 
     /**

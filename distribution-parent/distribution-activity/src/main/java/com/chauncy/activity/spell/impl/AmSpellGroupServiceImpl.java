@@ -201,7 +201,7 @@ public class AmSpellGroupServiceImpl extends AbstractService<AmSpellGroupMapper,
      * @return com.github.pagehelper.PageInfo<com.chauncy.data.vo.app.activity.spell.SpellGroupInfoVo>
      **/
     @Override
-    public PageInfo<SpellGroupInfoVo> searchSpellGroupInfo(SearchSpellGroupInfoDto searchSpellGroupInfoDto) {
+    public PageInfo<SpellGroupInfoVo> searchSpellGroupInfo(SearchSpellGroupInfoDto searchSpellGroupInfoDto, UmUserPo currentUser) {
 
         //获取该商品跟活动关联的id
         QueryWrapper<AmActivityRelActivityGoodsPo> queryWrapper = new QueryWrapper<>();
@@ -225,7 +225,7 @@ public class AmSpellGroupServiceImpl extends AbstractService<AmSpellGroupMapper,
         Integer pageSize = searchSpellGroupInfoDto.getPageSize()==null ? defaultPageSize : searchSpellGroupInfoDto.getPageSize();
 
         PageInfo<SpellGroupInfoVo> spellGroupInfoVoPageInfo = PageHelper.startPage(pageNo, pageSize).doSelectPageInfo(() ->
-                mapper.searchSpellGroupInfo(relId));
+                mapper.searchSpellGroupInfo(relId, currentUser.getId()));
 
         spellGroupInfoVoPageInfo.getList().forEach(spellGroupInfoVo -> {
             //活动结束时间  时间戳
