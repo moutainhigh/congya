@@ -63,7 +63,7 @@ public interface AmSpellGroupMapper extends IBaseMapper<AmSpellGroupPo> {
      * @param  userId  用户本人拼团的团不展示
      * @return java.util.List<com.chauncy.data.vo.app.activity.spell.SpellGroupInfoVo>
      **/
-    List<SpellGroupInfoVo> searchSpellGroupInfo(Long relId, Long userId);
+    List<SpellGroupInfoVo> searchSpellGroupInfo(@Param("relId") Long relId, @Param("userId") Long userId);
 
     /**
      * @Author yeJH
