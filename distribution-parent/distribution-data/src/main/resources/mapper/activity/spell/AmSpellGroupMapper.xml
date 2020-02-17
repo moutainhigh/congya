@@ -77,7 +77,7 @@
         SELECT asgm.id,
             asgm.expire_time,
             (asgm.condition_num - asgm.payed_num) AS margin,
-            GROUP_CONCAT(uu.photo) AS headPortrait,
+            GROUP_CONCAT(IFNULL(uu.photo, #{headPortrait})) AS headPortrait,
             GROUP_CONCAT(uu.name) AS userName
         FROM am_spell_group_main asgm
         INNER JOIN am_spell_group_member asgm1 ON asgm.id = asgm1.group_main_id AND  asgm.status = 2 AND asgm.rel_id = #{relId}

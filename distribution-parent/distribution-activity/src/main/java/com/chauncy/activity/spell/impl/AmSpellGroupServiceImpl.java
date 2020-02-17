@@ -60,6 +60,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -220,12 +221,14 @@ public class AmSpellGroupServiceImpl extends AbstractService<AmSpellGroupMapper,
             relId = null;
         }
 
+        //默认头像
+        String headPortrait = MessageFormat.format(ServiceConstant.ICON_PATH, "congya");
 
         Integer pageNo = searchSpellGroupInfoDto.getPageNo()==null ? defaultPageNo : searchSpellGroupInfoDto.getPageNo();
         Integer pageSize = searchSpellGroupInfoDto.getPageSize()==null ? defaultPageSize : searchSpellGroupInfoDto.getPageSize();
 
         PageInfo<SpellGroupInfoVo> spellGroupInfoVoPageInfo = PageHelper.startPage(pageNo, pageSize).doSelectPageInfo(() ->
-                mapper.searchSpellGroupInfo(relId, currentUser.getId()));
+                mapper.searchSpellGroupInfo(relId, currentUser.getId(), headPortrait));
 
         spellGroupInfoVoPageInfo.getList().forEach(spellGroupInfoVo -> {
             //活动结束时间  时间戳
