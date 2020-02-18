@@ -13,6 +13,9 @@ spring:
         url: jdbc:mysql://47.102.104.124:3306/distribution?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&useSSL=true&useAffectedRows=true&serverTimezone=Asia/Shanghai
         username: ENC(RMG0mQ0Sqo14H0NCwrbRhw==)
         password: ENC(aIsQ2sJbwr71ldxOBjh0/A==)
+#        url: jdbc:mysql://rm-bp1zbt81se33vrh9pjo.mysql.rds.aliyuncs.com:3306/distribution_20191107?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&useSSL=true&useAffectedRows=true&serverTimezone=Asia/Shanghai
+#        username: ENC(Glr78Jb8mvELC8taMzmi/w==)
+#        password: ENC(i4qXEXUJ/IowlYIYBjUMQ4ePJuF8MMKm)
       slave:
         enabled: false
         url:
