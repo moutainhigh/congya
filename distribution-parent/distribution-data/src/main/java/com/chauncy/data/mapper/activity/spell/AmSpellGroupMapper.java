@@ -54,15 +54,19 @@ public interface AmSpellGroupMapper extends IBaseMapper<AmSpellGroupPo> {
 
     /**
      * @Author yeJH
-     * @Date 2019/10/6 18:29
+     * @Date 2020/2/17 17:11
      * @Description 根据商品id获取拼团信息
      *
      * @Update yeJH
      *
-     * @param  relId
+     * @param  relId  活动跟商品关联的id
+     * @param  userId  用户本人拼团的团不展示
+     * @param  headPortrait  拼团用户默认头像
      * @return java.util.List<com.chauncy.data.vo.app.activity.spell.SpellGroupInfoVo>
      **/
-    List<SpellGroupInfoVo> searchSpellGroupInfo(Long relId);
+    List<SpellGroupInfoVo> searchSpellGroupInfo(@Param("relId") Long relId,
+                                                @Param("userId") Long userId,
+                                                @Param("headPortrait") String headPortrait );
 
     /**
      * @Author yeJH
