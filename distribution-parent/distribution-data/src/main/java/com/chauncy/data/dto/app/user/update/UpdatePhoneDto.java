@@ -23,7 +23,7 @@ public class UpdatePhoneDto {
     @ApiModelProperty(value = "手机号码")
     @NeedExistConstraint(groups = ISaveGroup.class,tableName = "um_user",field = "phone",isNeedExists = true,message = "该手机号码还没注册")
     @NeedExistConstraint(groups = IUpdateGroup.class,tableName = "um_user",field = "phone",isNeedExists = false,message = "该手机号码已被注册")
-    @Pattern(regexp = "^1[3|4|5|8][0-9]\\d{8}$",message = "手机号码不符合格式！")
+    @Pattern(regexp = "^1[3|4|5|6|7|8|9][0-9]\\d{8}$",message = "手机号码不符合格式！")
     private String phone;
 
     @ApiModelProperty(value = "验证码")
