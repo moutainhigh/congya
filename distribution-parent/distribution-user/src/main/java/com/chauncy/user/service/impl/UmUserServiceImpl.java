@@ -63,6 +63,7 @@ import com.chauncy.user.service.IUmUserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.catalina.security.SecurityUtil;
+import org.apache.logging.log4j.util.Strings;
 import org.assertj.core.util.Lists;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
@@ -190,13 +191,31 @@ public class UmUserServiceImpl extends AbstractService<UmUserMapper, UmUserPo> i
 
     @Override
     public boolean bindUser(BindUserDto userDto) {
-        if (!validVerifyCode(userDto.getVerifyCode(), userDto.getPhone(), ValidCodeEnum.BIND_PHONE_CODE)) {
+
+        Boolean isSuccess = false;
+
+        /*if (!validVerifyCode(userDto.getVerifyCode(), userDto.getPhone(), ValidCodeEnum.BIND_PHONE_CODE)) {
             throw new ServiceException(ResultCode.FAIL, "验证码错误！");
+        }*/
+        QueryWrapper<UmUserPo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(UmUserPo::getPhone,userDto.getPhone());
+        //查询被绑定的用户
+        UmUserPo bindUser = mapper.selectOne(queryWrapper);
+        if(null == bindUser) {
+            //用户不存在 注册用户并绑定第三方unionId
+            bindUser = new UmUserPo();
+            BeanUtils.copyProperties(userDto, bindUser);
+            bindUser.setInviteCode(SnowFlakeUtil.getFlowIdInstance().nextId());
+            isSuccess = mapper.insert(bindUser) > 0;
+        } else if(null != bindUser && Strings.isBlank(bindUser.getUnionId())){
+            //用户已存在 被绑定用户没有绑定其他第三方 修改用户unionId字段
+            bindUser.setUnionId(userDto.getUnionId());
+            bindUser.setName(userDto.getName());
+            isSuccess = mapper.updateById(bindUser) > 0;
+        } else {
+            throw new ServiceException(ResultCode.FAIL, "该手机号码已绑定");
         }
-        UmUserPo saveUser = new UmUserPo();
-        BeanUtils.copyProperties(userDto, saveUser);
-        saveUser.setInviteCode(SnowFlakeUtil.getFlowIdInstance().nextId());
-        Boolean isSuccess = mapper.insert(saveUser) > 0;
+
 
 //        registIM(saveUser, isSuccess);
 
