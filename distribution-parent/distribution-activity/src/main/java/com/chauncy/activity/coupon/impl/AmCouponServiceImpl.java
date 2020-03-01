@@ -466,6 +466,8 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
             if (!ListUtil.isListNullAndEmpty(relCouponUserMapper.selectList(new QueryWrapper<AmCouponRelCouponUserPo>().eq("coupon_id", a)))) {
                 throw new ServiceException(ResultCode.FAIL, "优惠券已被领取不能进行删除操作");
             }
+
+            relCouponGoodsMapper.delete(new QueryWrapper<AmCouponRelCouponGoodsPo>().lambda().eq(AmCouponRelCouponGoodsPo::getCouponId,a));
         });
 
         mapper.deleteBatchIds(Arrays.asList(ids));
