@@ -20,8 +20,7 @@ import javax.validation.constraints.Pattern;
 public class BindUserDto {
 
     @ApiModelProperty(value = "手机号码")
-    @NeedExistConstraint(tableName = "um_user",isNeedExists = false,field = "phone",message = "该手机号码已经被注册")
-    @Pattern(regexp = "^1[3|4|5|8][0-9]\\d{8}$",message = "手机号码不符合格式！")
+    @Pattern(regexp = "^1[3|4|5|6|7|8|9][0-9]\\d{8}$",message = "手机号码不符合格式！")
     private String phone;
 
    /* @ApiModelProperty(value = "邀请码")
