@@ -237,9 +237,8 @@ public class AmCouponApi extends BaseApi {
     @PostMapping("/saveCouponGoods")
     public JsonViewData<SaveCouponResultVo> saveCouponGoods(@RequestBody @ApiParam(required = true,name = "保存优惠券关联商品",value = "saveCouponGoodsDto")
                                                             @Validated SaveCouponDto saveCouponDto){
-        service.saveCouponGoods(saveCouponDto);
 
-        return new JsonViewData(ResultCode.SUCCESS,"保存成功");
+        return new JsonViewData(service.saveCouponGoods(saveCouponDto));
     }
 
 
