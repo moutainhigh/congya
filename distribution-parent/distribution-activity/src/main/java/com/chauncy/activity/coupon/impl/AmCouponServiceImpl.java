@@ -214,7 +214,7 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
                             //满足条件操作
                             if (flag) {
                                 //添加操作
-                                if ((saveCouponDto.getId() == 0) && (couponPo.getId() == 0)) {
+                                if ((saveCouponDto.getId() == 0) && (couponPo.getId() == null)) {
                                     mapper.insert(couponPo);
                                 }
                                 AmCouponRelCouponGoodsPo amCouponRelCouponGoodsPo = new AmCouponRelCouponGoodsPo();
@@ -311,7 +311,7 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
                             //满足条件操作
                             if (flag) {
                                 //添加操作
-                                if ((saveCouponDto.getId() == 0) && (couponPo.getId() == 0)) {
+                                if ((saveCouponDto.getId() == 0) && (couponPo.getId() == null)) {
                                     mapper.insert(couponPo);
                                 }
                                 AmCouponRelCouponGoodsPo amCouponRelCouponGoodsPo = new AmCouponRelCouponGoodsPo();
@@ -365,7 +365,7 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
                     //添加商品范围为指定分类
                     case SPECIFIED_CATEGORY:
                         //添加操作
-                        if ((saveCouponDto.getId() == 0) && (couponPo.getId() == 0)) {
+                        if ((saveCouponDto.getId() == 0) && (couponPo.getId() == null)) {
                             mapper.insert(couponPo);
                         }
                         //修改操作
@@ -392,7 +392,7 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
                     //添加商品范围为指定商品
                     case SPECIFIED_GOODS:
                         //添加操作
-                        if ((saveCouponDto.getId() == 0) && (couponPo.getId() == 0)) {
+                        if ((saveCouponDto.getId() == 0) && (couponPo.getId() == null)) {
                             mapper.insert(couponPo);
                         }
                         //修改操作
