@@ -116,7 +116,7 @@
         WHERE a.del_flag = 0 AND b.del_flag = 0 AND a.publish_status = 1
         AND NOT EXISTS (
         SELECT 1 FROM am_coupon_rel_coupon_goods g ,am_coupon h where  h.id=g.coupon_id and  g.association_id = a.id  and h.enable = 1
-        );
+        )
         <if test="t.goodsId != null">
             and a.id = #{t.goodsId}
         </if>
