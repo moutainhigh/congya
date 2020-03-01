@@ -102,5 +102,5 @@ public interface IAmCouponService extends Service<AmCouponPo> {
      **/
     List<SelectCouponVo> getSelectCouPonVo(List<CanUseCouponListDto> canUseCouponListDtos);
 
-    void saveCouponGoods(SaveCouponRelationDto saveCouponGoodsDto);
+    SaveCouponResultVo saveCouponGoods(SaveCouponDto saveCouponDto);
 }

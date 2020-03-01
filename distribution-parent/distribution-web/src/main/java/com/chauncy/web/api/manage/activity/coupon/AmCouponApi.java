@@ -230,14 +230,14 @@ public class AmCouponApi extends BaseApi {
      *
      * @Update chauncy
      *
-     * @param  saveCouponGoodsDto
+     * @param  saveCouponDto
      * @return com.chauncy.data.vo.JsonViewData<com.chauncy.data.dto.manage.activity.coupon.add.SaveCouponRelationDto>
      **/
     @ApiOperation("保存优惠券关联信息")
     @PostMapping("/saveCouponGoods")
-    public JsonViewData<SaveCouponRelationDto> saveCouponGoods(@RequestBody @ApiParam(required = true,name = "保存优惠券关联商品",value = "saveCouponGoodsDto")
-                                                            @Validated SaveCouponRelationDto saveCouponGoodsDto){
-        service.saveCouponGoods(saveCouponGoodsDto);
+    public JsonViewData<SaveCouponResultVo> saveCouponGoods(@RequestBody @ApiParam(required = true,name = "保存优惠券关联商品",value = "saveCouponGoodsDto")
+                                                            @Validated SaveCouponDto saveCouponDto){
+        service.saveCouponGoods(saveCouponDto);
 
         return new JsonViewData(ResultCode.SUCCESS,"保存成功");
     }
