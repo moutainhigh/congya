@@ -14,6 +14,7 @@ import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.activity.coupon.AmCouponPo;
 import com.chauncy.data.domain.po.activity.coupon.AmCouponRelCouponGoodsPo;
 import com.chauncy.data.domain.po.activity.coupon.AmCouponRelCouponUserPo;
+import com.chauncy.data.domain.po.activity.registration.AmActivityRelActivityGoodsPo;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
 import com.chauncy.data.domain.po.product.PmGoodsSkuPo;
 import com.chauncy.data.domain.po.sys.SysUserPo;
@@ -30,6 +31,7 @@ import com.chauncy.data.dto.manage.common.FindGoodsBaseByConditionDto;
 import com.chauncy.data.mapper.activity.coupon.AmCouponMapper;
 import com.chauncy.data.mapper.activity.coupon.AmCouponRelCouponGoodsMapper;
 import com.chauncy.data.mapper.activity.coupon.AmCouponRelCouponUserMapper;
+import com.chauncy.data.mapper.activity.registration.AmActivityRelActivityGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsCategoryMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
@@ -93,7 +95,7 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
     private PmMemberLevelMapper levelMapper;
 
     @Autowired
-    private IAmCouponRelCouponGoodsService amCouponRelCouponGoodsService;
+    private AmActivityRelActivityGoodsMapper relActivityGoodsMapper;
 
     /**
      * 保存优惠券--添加或者修改
@@ -169,6 +171,17 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
                             //查找商品对应的sku信息
                             List<PmGoodsSkuPo> skuPoList = skuMapper.selectList(new QueryWrapper<PmGoodsSkuPo>().eq("goods_id", a));
                             boolean flag = true;
+
+                            /*//查询该商品是否已经参加优惠券活动
+                            List<AmCouponRelCouponGoodsPo> relCouponGoodsPos = relCouponGoodsMapper.selectList(new QueryWrapper<AmCouponRelCouponGoodsPo>()
+                            .lambda().eq(AmCouponRelCouponGoodsPo::getAssociationId,a));
+                            //查询该商品是否已经参加满减/积分/秒杀/拼团等活动
+                            List<AmActivityRelActivityGoodsPo> relActivityGoodsPoList = relActivityGoodsMapper.selectListByGoodsId(a);
+
+                            if (!ListUtil.isListNullAndEmpty(relCouponGoodsPos) || !ListUtil.isListNullAndEmpty(relActivityGoodsPoList)){
+                                flag = false;
+                            }*/
+
                             for (PmGoodsSkuPo b : skuPoList) {
                                 //售价
                                 BigDecimal sellPrice = b.getSellPrice();
@@ -711,14 +724,14 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
     @Override
     public SaveCouponResultVo saveCouponGoods(SaveCouponDto saveCouponDto) {
 
-        List<AmCouponRelCouponGoodsPo> amCouponRelCouponGoodsPos = relCouponGoodsMapper.selectList(new QueryWrapper<AmCouponRelCouponGoodsPo>()
+        /*List<AmCouponRelCouponGoodsPo> amCouponRelCouponGoodsPos = relCouponGoodsMapper.selectList(new QueryWrapper<AmCouponRelCouponGoodsPo>()
                 .lambda().eq(AmCouponRelCouponGoodsPo::getCouponId, saveCouponDto.getId()));
 
         if (!ListUtil.isListNullAndEmpty(amCouponRelCouponGoodsPos)) {
 
             relCouponGoodsMapper.deleteBatchIds(amCouponRelCouponGoodsPos.stream().map(a -> a.getId()).collect(Collectors.toList()));
 
-        }
+        }*/
 
         SysUserPo userPo = securityUtil.getCurrUser();
         AmCouponPo couponPo = new AmCouponPo();
@@ -728,9 +741,7 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
         SaveCouponResultVo saveCouponResultVo = new SaveCouponResultVo();
 
         BeanUtils.copyProperties(saveCouponDto, couponPo);
-        couponPo.setCreateBy(userPo.getUsername());
-        couponPo.setStock(saveCouponDto.getTotalNum());//初始化库存信息
-        couponPo.setId(null);
+        couponPo.setUpdateBy(userPo.getUsername());
         saveCouponAssociation(couponFormEnum, couponScopeEnum, saveCouponDto, couponPo, saveCouponResultVo);
 
         return saveCouponResultVo;

@@ -111,10 +111,12 @@
     <select id="findGoodsBaseByCondition" resultType="com.chauncy.data.vo.manage.common.goods.GoodsBaseVo">
 
         select DISTINCT a.id as goods_id,a.name as goods_name,b.id as category_id,b.name as category_name
-        from pm_goods a
-        left join (select * from am_activity_rel_activity_goods c where c.del_flag = 0 and c.verify_status !=6) as d on a.id = d.goods_id
-        INNER JOIN pm_goods_category b on a.goods_category_id = b.id
-        where a.del_flag = 0 and b.del_flag	= 0 and a.publish_status = 1 and d.id is null
+        FROM pm_goods a
+        INNER JOIN pm_goods_category b ON a.goods_category_id = b.id
+        WHERE a.del_flag = 0 AND b.del_flag = 0 AND a.publish_status = 1
+        AND NOT EXISTS (
+        SELECT 1 FROM am_coupon_rel_coupon_goods g ,am_coupon h where  h.id=g.coupon_id and  g.association_id = a.id  and h.enable = 1
+        );
         <if test="t.goodsId != null">
             and a.id = #{t.goodsId}
         </if>
