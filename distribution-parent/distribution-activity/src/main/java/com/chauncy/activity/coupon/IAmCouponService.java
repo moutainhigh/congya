@@ -6,6 +6,7 @@ import com.chauncy.data.domain.po.activity.coupon.AmCouponPo;
 import com.chauncy.data.dto.app.order.coupon.CanUseCouponListDto;
 import com.chauncy.data.dto.base.BasePageDto;
 import com.chauncy.data.dto.manage.activity.coupon.add.SaveCouponDto;
+import com.chauncy.data.dto.manage.activity.coupon.add.SaveCouponRelationDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchCouponListDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchDetailAssociationsDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchReceiveRecordDto;
@@ -101,4 +102,5 @@ public interface IAmCouponService extends Service<AmCouponPo> {
      **/
     List<SelectCouponVo> getSelectCouPonVo(List<CanUseCouponListDto> canUseCouponListDtos);
 
+    void saveCouponGoods(SaveCouponRelationDto saveCouponGoodsDto);
 }

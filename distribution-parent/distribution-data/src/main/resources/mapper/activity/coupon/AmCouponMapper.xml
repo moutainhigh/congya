@@ -74,9 +74,11 @@
     </select>
     <select id="findCouponDetailById"
             resultType="com.chauncy.data.vo.manage.activity.coupon.FindCouponDetailByIdVo">
-        SELECT a.name,a.total_num,a.every_limit_num,a.level_id,b.level_name,a.effective_day,a.type,a.scope
-        from am_coupon a,pm_member_level b
-        where a.level_id = b.id and a.id = #{id};
+        SELECT a.id,a.name,a.total_num,a.every_limit_num,a.level_id,b.level_name,a.effective_day,a.type,a.scope,
+        a.discount,a.discount_full_money,a.reduction_full_money,a.reduction_post_money
+        from am_coupon a
+        left join pm_member_level b on a.level_id = b.id
+        where a.id = #{id};
     </select>
     <select id="searchDetailCategory"
             resultType="com.chauncy.data.vo.manage.activity.coupon.SearchDetailAssociationsVo">

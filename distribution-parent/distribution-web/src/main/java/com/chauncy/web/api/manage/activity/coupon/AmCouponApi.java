@@ -4,9 +4,9 @@ package com.chauncy.web.api.manage.activity.coupon;
 import com.chauncy.activity.coupon.IAmCouponService;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.domain.MyBaseTree;
-import com.chauncy.data.dto.base.BaseUpdateStatusDto;
 import com.chauncy.data.dto.manage.activity.EditEnableDto;
 import com.chauncy.data.dto.manage.activity.coupon.add.SaveCouponDto;
+import com.chauncy.data.dto.manage.activity.coupon.add.SaveCouponRelationDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchCouponListDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchDetailAssociationsDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchReceiveRecordDto;
@@ -222,5 +222,26 @@ public class AmCouponApi extends BaseApi {
 
         return new JsonViewData<PageInfo<SearchDetailAssociationsVo>>(service.searchDetailAssociations(searchDetailAssociationsDto));
     }
+
+    /**
+     * @Author chauncy
+     * @Date 2020-03-01 13:48
+     * @Description //保存优惠券关联信息
+     *
+     * @Update chauncy
+     *
+     * @param  saveCouponGoodsDto
+     * @return com.chauncy.data.vo.JsonViewData<com.chauncy.data.dto.manage.activity.coupon.add.SaveCouponRelationDto>
+     **/
+    @ApiOperation("保存优惠券关联信息")
+    @PostMapping("/saveCouponGoods")
+    public JsonViewData<SaveCouponRelationDto> saveCouponGoods(@RequestBody @ApiParam(required = true,name = "保存优惠券关联商品",value = "saveCouponGoodsDto")
+                                                            @Validated SaveCouponRelationDto saveCouponGoodsDto){
+        service.saveCouponGoods(saveCouponGoodsDto);
+
+        return new JsonViewData(ResultCode.SUCCESS,"保存成功");
+    }
+
+
 
 }

@@ -1,6 +1,7 @@
 package com.chauncy.activity.coupon.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.chauncy.activity.coupon.IAmCouponRelCouponGoodsService;
 import com.chauncy.activity.coupon.IAmCouponService;
 import com.chauncy.common.enums.app.coupon.CouponFormEnum;
 import com.chauncy.common.enums.app.coupon.CouponScopeEnum;
@@ -21,6 +22,7 @@ import com.chauncy.data.domain.po.user.UmUserPo;
 import com.chauncy.data.dto.app.order.coupon.CanUseCouponListDto;
 import com.chauncy.data.dto.base.BasePageDto;
 import com.chauncy.data.dto.manage.activity.coupon.add.SaveCouponDto;
+import com.chauncy.data.dto.manage.activity.coupon.add.SaveCouponRelationDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchCouponListDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchDetailAssociationsDto;
 import com.chauncy.data.dto.manage.activity.coupon.select.SearchReceiveRecordDto;
@@ -89,6 +91,9 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
 
     @Autowired
     private PmMemberLevelMapper levelMapper;
+
+    @Autowired
+    private IAmCouponRelCouponGoodsService amCouponRelCouponGoodsService;
 
     /**
      * 保存优惠券--添加或者修改
@@ -194,16 +199,16 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
                             //满足条件操作
                             if (flag) {
                                 //添加操作
-                                if (saveCouponDto.getId() == 0) {
+                                if ((saveCouponDto.getId() == 0) && (couponPo.getId() == 0)) {
                                     mapper.insert(couponPo);
-                                } else {
-                                    mapper.updateById(couponPo);
                                 }
-                                AmCouponRelCouponGoodsPo amCouponRelCouponGoodsPo = new AmCouponRelCouponGoodsPo();
-                                amCouponRelCouponGoodsPo.setCreateBy(securityUtil.getCurrUser().getUsername());
-                                amCouponRelCouponGoodsPo.setCouponId(couponPo.getId());
-                                amCouponRelCouponGoodsPo.setAssociationId(a);
-                                relCouponGoodsMapper.insert(amCouponRelCouponGoodsPo);
+                                if (saveCouponDto.getId() == 0) {
+                                    AmCouponRelCouponGoodsPo amCouponRelCouponGoodsPo = new AmCouponRelCouponGoodsPo();
+                                    amCouponRelCouponGoodsPo.setCreateBy(securityUtil.getCurrUser().getUsername());
+                                    amCouponRelCouponGoodsPo.setCouponId(couponPo.getId());
+                                    amCouponRelCouponGoodsPo.setAssociationId(a);
+                                    relCouponGoodsMapper.insert(amCouponRelCouponGoodsPo);
+                                }
                                 success++;
                                 //修改操作
                                     /*else {
@@ -219,6 +224,10 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
                                         success++;
                                     }*/
                             }
+                        }
+
+                        if (saveCouponDto.getId() != 0 ){
+                            mapper.updateById(couponPo);
                         }
                         log.error("成功条数: {}", success);
                         log.error("失败条数: {},失败记录: {}", failList.size(), failList);
@@ -692,5 +701,31 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
             selectCouponVoList.add(selectCouponVos.get(0));
         }
         return selectCouponVoList;
+    }
+
+    @Override
+    public void saveCouponGoods(SaveCouponRelationDto saveCouponGoodsDto) {
+
+        List<AmCouponRelCouponGoodsPo> amCouponRelCouponGoodsPos = relCouponGoodsMapper.selectList(new QueryWrapper<AmCouponRelCouponGoodsPo>()
+        .lambda().eq(AmCouponRelCouponGoodsPo::getCouponId,saveCouponGoodsDto.getId()));
+
+        if (!ListUtil.isListNullAndEmpty(amCouponRelCouponGoodsPos)){
+
+            relCouponGoodsMapper.deleteBatchIds(amCouponRelCouponGoodsPos.stream().map(a->a.getId()).collect(Collectors.toList()));
+
+        }
+
+        List<AmCouponRelCouponGoodsPo> relCouponGoodsPos = Lists.newArrayList();
+
+        saveCouponGoodsDto.getRelationIds().forEach(a->{
+            AmCouponRelCouponGoodsPo amCouponRelCouponGoodsPo = new AmCouponRelCouponGoodsPo();
+            amCouponRelCouponGoodsPo.setCreateBy(securityUtil.getCurrUser().getUsername())
+                    .setAssociationId(a).setCouponId(saveCouponGoodsDto.getId());
+
+            relCouponGoodsPos.add(amCouponRelCouponGoodsPo);
+        });
+
+        amCouponRelCouponGoodsService.saveBatch(relCouponGoodsPos);
+
     }
 }
