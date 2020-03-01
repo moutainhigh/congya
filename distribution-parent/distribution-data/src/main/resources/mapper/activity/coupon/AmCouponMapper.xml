@@ -55,6 +55,7 @@
         <if test="highestNotUseNum !=null">
             and not_use_num &lt;= #{highestNotUseNum}
         </if>
+        order by a.create_time desc
     </select>
     <select id="searchReceiveRecord"
             resultType="com.chauncy.data.vo.manage.activity.coupon.SearchReceiveRecordVo">

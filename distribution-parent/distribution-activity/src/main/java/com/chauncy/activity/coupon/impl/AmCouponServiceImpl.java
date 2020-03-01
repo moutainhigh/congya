@@ -119,6 +119,7 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
             couponPo.setCreateBy(userPo.getUsername());
             couponPo.setStock(saveCouponDto.getTotalNum());//初始化库存信息
             couponPo.setId(null);
+            mapper.insert(couponPo);
             saveCouponAssociation(couponFormEnum, couponScopeEnum, saveCouponDto, couponPo, saveCouponResultVo);
         }
         //修改操作
@@ -214,9 +215,9 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
                             //满足条件操作
                             if (flag) {
                                 //添加操作
-                                if ((saveCouponDto.getId() == 0) && (couponPo.getId() == null)) {
+                                /*if ((saveCouponDto.getId() == 0) && (couponPo.getId() == null)) {
                                     mapper.insert(couponPo);
-                                }
+                                }*/
                                 AmCouponRelCouponGoodsPo amCouponRelCouponGoodsPo = new AmCouponRelCouponGoodsPo();
                                 amCouponRelCouponGoodsPo.setCreateBy(securityUtil.getCurrUser().getUsername());
                                 amCouponRelCouponGoodsPo.setCouponId(couponPo.getId());
@@ -311,9 +312,9 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
                             //满足条件操作
                             if (flag) {
                                 //添加操作
-                                if ((saveCouponDto.getId() == 0) && (couponPo.getId() == null)) {
+                                /*if ((saveCouponDto.getId() == 0) && (couponPo.getId() == null)) {
                                     mapper.insert(couponPo);
-                                }
+                                }*/
                                 AmCouponRelCouponGoodsPo amCouponRelCouponGoodsPo = new AmCouponRelCouponGoodsPo();
                                 amCouponRelCouponGoodsPo.setCreateBy(securityUtil.getCurrUser().getUsername());
                                 amCouponRelCouponGoodsPo.setCouponId(couponPo.getId());
@@ -353,25 +354,25 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
                 switch (couponScopeEnum) {
                     //添加商品范围为全部商品
                     case ALL_GOODS:
-                        //添加操作
+                        /*//添加操作
                         if (saveCouponDto.getId() == 0) {
                             mapper.insert(couponPo);
                         }
                         //修改操作
                         else {
                             mapper.updateById(couponPo);
-                        }
+                        }*/
                         break;
                     //添加商品范围为指定分类
                     case SPECIFIED_CATEGORY:
                         //添加操作
-                        if ((saveCouponDto.getId() == 0) && (couponPo.getId() == null)) {
+                        /*if ((saveCouponDto.getId() == 0) && (couponPo.getId() == null)) {
                             mapper.insert(couponPo);
                         }
                         //修改操作
                         else {
                             mapper.updateById(couponPo);
-                        }
+                        }*/
                         AmCouponPo finalCouponPo1 = couponPo;
                         if (saveCouponDto.getId() == 0) {
                             saveCouponDto.getIdList().forEach(a -> {
@@ -392,9 +393,9 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
                     //添加商品范围为指定商品
                     case SPECIFIED_GOODS:
                         //添加操作
-                        if ((saveCouponDto.getId() == 0) && (couponPo.getId() == null)) {
+                        /*if ((saveCouponDto.getId() == 0) && (couponPo.getId() == null)) {
                             mapper.insert(couponPo);
-                        }
+                        }*/
                         //修改操作
                         /*else {
                             mapper.updateById(couponPo);
@@ -462,7 +463,7 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
                 throw new ServiceException(ResultCode.FAIL, "数据库不存在该优惠券");
             }
             //优惠券已被领取不能进行删除操作
-            if (ListUtil.isListNullAndEmpty(relCouponUserMapper.selectList(new QueryWrapper<AmCouponRelCouponUserPo>().eq("coupon_id", a)))) {
+            if (!ListUtil.isListNullAndEmpty(relCouponUserMapper.selectList(new QueryWrapper<AmCouponRelCouponUserPo>().eq("coupon_id", a)))) {
                 throw new ServiceException(ResultCode.FAIL, "优惠券已被领取不能进行删除操作");
             }
         });
