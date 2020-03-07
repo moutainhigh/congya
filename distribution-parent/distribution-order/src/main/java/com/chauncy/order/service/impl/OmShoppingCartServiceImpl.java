@@ -2200,10 +2200,10 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     setRealPayMoneyForFullRedution(fullSkuIds, shopTicketSoWithCarGoodDtos, reduceCoupon.getReductionPostMoney());
                     //满减优惠券金额加入总优惠
                     reduceCouponMoney = reduceCoupon.getReductionPostMoney();
-                    //优惠券状态变为已使用  todo
-                    /*AmCouponRelCouponUserPo updateCouponRelCouponUser = new AmCouponRelCouponUserPo();
+                    //优惠券状态变为已使用
+                    AmCouponRelCouponUserPo updateCouponRelCouponUser = new AmCouponRelCouponUserPo();
                     updateCouponRelCouponUser.setId(submitOrderDto.getCouponRelUserId()).setUseStatus(1);
-                    relCouponUserMapper.updateById(updateCouponRelCouponUser);*/
+                    relCouponUserMapper.updateById(updateCouponRelCouponUser);
                 }
 
             }
