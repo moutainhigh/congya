@@ -751,9 +751,18 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             //如果是满减,加入总优惠
             SelectCouponVo reduceCoupon = querySelectCouponVoList.stream().filter(x -> x.getType() == 1).findFirst().orElse(null);
             if (reduceCoupon != null) {
-                BigDecimal reducePriceSum = querySelectCouponVoList.stream().filter(x -> x.getType() == 1).map(SelectCouponVo::getSellPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+                //BigDecimal reducePriceSum = querySelectCouponVoList.stream().filter(x -> x.getType() == 1).map(SelectCouponVo::getSellPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+                final BigDecimal[] reducePriceSum = {BigDecimal.ZERO};
+                querySelectCouponVoList.stream().forEach(x -> {
+                    List<SettleAccountsDto> skuList = settleDto.getSettleAccountsDtos().stream()
+                            .filter(y -> y.getSkuId().equals(x.getSkuId())).collect(Collectors.toList());
+                    if(x.getType() == 1) {
+                        reducePriceSum[0] = BigDecimalUtil.safeAdd(reducePriceSum[0],
+                                BigDecimalUtil.safeMultiply(x.getSellPrice(), skuList.get(0).getNumber()));
+                    }
+                });
                 //商品价格是否满足打折标准
-                if (reducePriceSum.compareTo(reduceCoupon.getReductionFullMoney()) >= 0) {
+                if (reducePriceSum[0].compareTo(reduceCoupon.getReductionFullMoney()) >= 0) {
                     //找出满足满减优惠的skuid集合，计算他们的付现价
                     List<Long> fullSkuIds = querySelectCouponVoList.stream().map(SelectCouponVo::getSkuId).collect(Collectors.toList());
                     List<ShopTicketSoWithCarGoodVo> fullRedetionSkus = shopTicketSoWithCarGoodVos.stream().filter(x -> fullSkuIds.contains(x)).collect(Collectors.toList());
@@ -771,9 +780,18 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             //如果是满折扣，将sku价格改变
             SelectCouponVo discountCoupon = querySelectCouponVoList.stream().filter(x -> x.getType() == 2).findFirst().orElse(null);
             if (discountCoupon != null) {
-                BigDecimal discountPriceSum = querySelectCouponVoList.stream().filter(x -> x.getType() == 2).map(SelectCouponVo::getSellPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+                //BigDecimal discountPriceSum = querySelectCouponVoList.stream().filter(x -> x.getType() == 2).map(SelectCouponVo::getSellPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+                final BigDecimal[] discountPriceSum = {BigDecimal.ZERO};
+                querySelectCouponVoList.stream().forEach(x -> {
+                    List<SettleAccountsDto> skuList = settleDto.getSettleAccountsDtos().stream()
+                            .filter(y -> y.getSkuId().equals(x.getSkuId())).collect(Collectors.toList());
+                    if(x.getType() == 2) {
+                        discountPriceSum[0] = BigDecimalUtil.safeAdd(discountPriceSum[0],
+                                BigDecimalUtil.safeMultiply(x.getSellPrice(), skuList.get(0).getNumber()));
+                    }
+                });
                 //商品价格是否满足打折标准
-                if (discountPriceSum.compareTo(discountCoupon.getDiscountFullMoney()) >= 0) {
+                if (discountPriceSum[0].compareTo(discountCoupon.getDiscountFullMoney()) >= 0) {
                     //折扣换算成小数
                     BigDecimal discount = BigDecimalUtil.safeDivide(discountCoupon.getDiscount(), 10);
                     //sku价格打折

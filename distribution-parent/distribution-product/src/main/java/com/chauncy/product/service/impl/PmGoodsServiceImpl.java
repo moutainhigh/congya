@@ -2119,6 +2119,10 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             throw new ServiceException(ResultCode.PARAM_ERROR, "分享类型参数错误");
         }
         ShareDetailVo shareDetailVo = new ShareDetailVo();
+        //获取苹果安卓下载链接
+        BasicSettingPo basicSettingPo = basicSettingMapper.selectOne(new QueryWrapper<>());
+        shareDetailVo.setAppStoreUrl(basicSettingPo.getAppStoreUrl());
+        shareDetailVo.setAndroidUrl(basicSettingPo.getAndroidUrl());
         //分享标题
         shareDetailVo.setShareTitle(ServiceConstant.SHARE_TITLE);
         switch (shareDto.getShareType()) {

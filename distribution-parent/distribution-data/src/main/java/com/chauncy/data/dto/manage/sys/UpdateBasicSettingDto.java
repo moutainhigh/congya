@@ -110,4 +110,10 @@ public class UpdateBasicSettingDto implements Serializable {
 
     @ApiModelProperty(value = "个人消费得到订单金额%的积分")
     private BigDecimal ownRewardIntegrate;
+
+    @ApiModelProperty(value = "苹果下载链接")
+    private String appStoreUrl;
+
+    @ApiModelProperty(value = "安卓下载链接")
+    private String androidUrl;
 }

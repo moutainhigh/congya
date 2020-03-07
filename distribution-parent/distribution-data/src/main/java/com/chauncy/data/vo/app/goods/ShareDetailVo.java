@@ -52,4 +52,10 @@ public class ShareDetailVo  implements Serializable {
     @ApiModelProperty(value = "最高价格")
     private BigDecimal maxPrice;
 
+    @ApiModelProperty(value = "苹果下载链接")
+    private String appStoreUrl;
+
+    @ApiModelProperty(value = "安卓下载链接")
+    private String androidUrl;
+
 }
