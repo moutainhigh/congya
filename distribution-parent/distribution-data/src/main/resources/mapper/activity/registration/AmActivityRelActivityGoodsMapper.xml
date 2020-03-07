@@ -83,5 +83,11 @@
         and b.id = a.goods_id and b.publish_status = 1 and a.activity_type = 3 and a.verify_status = 3 and b.id = #{goodsId};
 
     </select>
+    <select id="selectListByGoodsId"
+            resultType="com.chauncy.data.domain.po.activity.registration.AmActivityRelActivityGoodsPo">
+        select *
+        from am_activity_rel_activity_goods a
+        where a.del_flag = 0 and a.verify_status not in (6,7) and activity_end_time &gt;= now() and a.id = #{id}
+    </select>
 
 </mapper>

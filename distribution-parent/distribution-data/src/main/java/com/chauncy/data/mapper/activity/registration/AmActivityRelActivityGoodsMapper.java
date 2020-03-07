@@ -61,4 +61,6 @@ public interface AmActivityRelActivityGoodsMapper extends IBaseMapper<AmActivity
      * @return com.chauncy.data.domain.po.activity.registration.AmActivityRelActivityGoodsPo
      **/
     AmActivityRelActivityGoodsPo findPreSeckill(Long goodsId);
+
+    List<AmActivityRelActivityGoodsPo> selectListByGoodsId(Long id);
 }
