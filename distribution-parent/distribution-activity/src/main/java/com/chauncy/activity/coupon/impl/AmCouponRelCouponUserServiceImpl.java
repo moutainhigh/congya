@@ -144,7 +144,8 @@ public class AmCouponRelCouponUserServiceImpl extends AbstractService<AmCouponRe
             throw new ServiceException(ResultCode.FAIL,String.format("领取的优惠券:【%s】以达到上限:[%s]！",couponPo.getName(),couponPo.getEveryLimitNum()));
         }*/
 
-        if (!ListUtil.isListNullAndEmpty(relCouponUserList) && relCouponUserList.size() >= couponPo.getEveryLimitNum()){
+        if (!ListUtil.isListNullAndEmpty(relCouponUserList) && relCouponUserList.size() >= couponPo.getEveryLimitNum() ||
+                (couponPo.getEveryLimitNum() == 0)){
             throw new ServiceException(ResultCode.FAIL,String.format("领取的优惠券:【%s】以达到上限:[%s]！",couponPo.getName(),couponPo.getEveryLimitNum()));
         }else{
             //更新优惠券库存信息
