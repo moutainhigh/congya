@@ -130,6 +130,13 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
             }
             BeanUtils.copyProperties(saveCouponDto, couponPo);
             couponPo.setUpdateBy(userPo.getUsername());
+            //获取该优惠券已领取的数量
+            int count = relCouponUserMapper.selectCount(new QueryWrapper<AmCouponRelCouponUserPo>().lambda().eq(AmCouponRelCouponUserPo::getCouponId,saveCouponDto.getId()));
+            if (saveCouponDto.getTotalNum() < count){
+                throw new ServiceException(ResultCode.FAIL,String.format("该优惠券被领取的数量为：【%s】修改的发放数量不能小于用户已经领取的数量",count));
+            }else {
+                couponPo.setStock(saveCouponDto.getTotalNum()-count);
+            }
             //删除优惠券与商品/分类的关联表
             /*relCouponGoodsMapper.delete(new QueryWrapper<AmCouponRelCouponGoodsPo>().lambda().eq(AmCouponRelCouponGoodsPo::getCouponId, saveCouponDto.getId()));
             saveCouponAssociation(couponFormEnum, couponScopeEnum, saveCouponDto, couponPo, saveCouponResultVo);*/
