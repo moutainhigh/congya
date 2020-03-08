@@ -697,7 +697,7 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
             Long levelId = selectCouponVos.get(0).getLevelId();
             PmMemberLevelPo queryLevel = levelMapper.selectById(levelId);
             //如果用户等级不够，不能用优惠券
-            if (queryLevel.getLevel() > appCurrUser.getLevel()) {
+            if (null != queryLevel && queryLevel.getLevel() > appCurrUser.getLevel()) {
                 continue;
             }
             Integer type = selectCouponVos.get(0).getType();
