@@ -5,6 +5,7 @@ import com.chauncy.data.domain.po.activity.coupon.AmCouponRelCouponGoodsPo;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.app.advice.coupon.FindCouponListVo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -28,7 +29,9 @@ public interface AmCouponRelCouponGoodsMapper extends IBaseMapper<AmCouponRelCou
      * @param  goodsId
      * @return java.util.List<com.chauncy.data.vo.app.advice.coupon.FindCouponListVo>
      **/
-    List<FindCouponListVo> findCouponList(Long goodsId);
+    List<FindCouponListVo> findCouponList(@Param("goodsId")Long goodsId,
+                                          @Param("level")Integer level,
+                                          @Param("categoryId")Long categoryId);
 
     /**
      * @Author chauncy

@@ -1377,19 +1377,19 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         /**优惠券列表*/
         //优惠券列表,满减和固定折扣
         List<FindCouponListVo> findCouponListVos = Lists.newArrayList();
-        findCouponListVos = relCouponGoodsMapper.findCouponList(goodsId);
+        findCouponListVos = relCouponGoodsMapper.findCouponList(goodsId, umUserPo.getLevel(),goodsPo.getGoodsCategoryId() );
         //优惠券列表--包邮-指定全部商品
-        List<FindCouponListVo> findCouponListVos1 = relCouponGoodsMapper.findCouponList1(goodsId);
+        /*List<FindCouponListVo> findCouponListVos1 = relCouponGoodsMapper.findCouponList1(goodsId);
         //优惠券列表--包邮-指定分类
         List<FindCouponListVo> findCouponListVos2 = relCouponGoodsMapper.findCouponList2(goodsPo.getGoodsCategoryId());
 
         findCouponListVos.addAll(findCouponListVos1);
-        findCouponListVos.addAll(findCouponListVos2);
+        findCouponListVos.addAll(findCouponListVos2);*/
         if (!ListUtil.isListNullAndEmpty(findCouponListVos)) {
             findCouponListVos.forEach(a -> {
                 List<AmCouponRelCouponUserPo> relCouponUserPos = relCouponUserMapper.selectList(new QueryWrapper<AmCouponRelCouponUserPo>().lambda().and(obj -> obj
                         .eq(AmCouponRelCouponUserPo::getUserId, umUserId).eq(AmCouponRelCouponUserPo::getCouponId, a.getCouponId())));
-                if (!ListUtil.isListNullAndEmpty(relCouponUserPos)) {
+                if (relCouponUserPos.size() >= a.getEveryLimitNum()) {
                     a.setIsReceive(true);
                 }
             });
