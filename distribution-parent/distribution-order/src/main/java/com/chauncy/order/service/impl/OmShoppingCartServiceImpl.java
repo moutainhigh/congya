@@ -1384,7 +1384,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         List<FindCouponListVo> findCouponListVos2 = relCouponGoodsMapper.findCouponList2(goodsPo.getGoodsCategoryId());
 
         findCouponListVos.addAll(findCouponListVos1);
-        findCouponListVos.addAll(findCouponListVos2);*/
+        findCouponListVos.addAll(findCouponListVos2);
         if (!ListUtil.isListNullAndEmpty(findCouponListVos)) {
             findCouponListVos.forEach(a -> {
                 List<AmCouponRelCouponUserPo> relCouponUserPos = relCouponUserMapper.selectList(new QueryWrapper<AmCouponRelCouponUserPo>().lambda().and(obj -> obj
@@ -1393,6 +1393,16 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     a.setIsReceive(true);
                 }
             });
+        }*/
+        final List<FindCouponListVo>[] findUserCouponList = new List[]{new ArrayList<>()};
+        if (!ListUtil.isListNullAndEmpty(findCouponListVos)) {
+            findCouponListVos.forEach(a -> {
+                //优惠券领取状态不变一直是可领取状态 超过领取限制显示已达上限
+                a.setIsReceive(false);
+                //现在的逻辑是一个商品最多只能绑定一张优惠券，不想做兼容（list按照优惠券id做一次排序），直接拼接list
+                findUserCouponList[0] = relCouponGoodsMapper.findUserCouponList(a.getCouponId(), umUserId);
+            });
+            findCouponListVos.addAll(findUserCouponList[0]);
         }
         specifiedGoodsVo.setFindCouponList(findCouponListVos);
 

@@ -4,6 +4,7 @@ import com.chauncy.activity.coupon.IAmCouponRelCouponUserService;
 import com.chauncy.common.enums.system.ResultCode;
 import com.chauncy.data.dto.app.advice.coupon.SearchMyCouponDto;
 import com.chauncy.data.dto.app.advice.coupon.SearchReceiveCouponDto;
+import com.chauncy.data.vo.app.advice.coupon.FindCouponListVo;
 import com.chauncy.data.vo.app.advice.coupon.SearchMyCouponVo;
 import com.chauncy.data.vo.app.advice.coupon.SearchReceiveCouponVo;
 import com.chauncy.data.vo.JsonViewData;
@@ -54,11 +55,9 @@ public class AdviceCouponApi extends BaseApi {
      */
     @ApiOperation("用户领取优惠券")
     @GetMapping("/receiveCoupon/{couponId}")
-    public JsonViewData receiveCoupon(@PathVariable Long couponId){
+    public JsonViewData<FindCouponListVo> receiveCoupon(@PathVariable Long couponId){
 
-        relCouponUserService.receiveCoupon(couponId);
-
-        return setJsonViewData(ResultCode.SUCCESS,"操作成功");
+        return setJsonViewData(relCouponUserService.receiveCoupon(couponId));
 
     }
 

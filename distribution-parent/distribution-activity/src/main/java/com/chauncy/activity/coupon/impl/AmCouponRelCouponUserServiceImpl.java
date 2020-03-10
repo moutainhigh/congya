@@ -16,6 +16,7 @@ import com.chauncy.data.mapper.activity.coupon.AmCouponRelCouponUserMapper;
 import com.chauncy.activity.coupon.IAmCouponRelCouponUserService;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
+import com.chauncy.data.vo.app.advice.coupon.FindCouponListVo;
 import com.chauncy.data.vo.app.advice.coupon.SearchMyCouponVo;
 import com.chauncy.data.vo.app.advice.coupon.SearchReceiveCouponVo;
 import com.chauncy.data.vo.app.advice.gift.SearchTopUpGiftVo;
@@ -24,6 +25,7 @@ import com.chauncy.security.util.SecurityUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiModelProperty;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -111,7 +113,7 @@ public class AmCouponRelCouponUserServiceImpl extends AbstractService<AmCouponRe
      * @return
      */
     @Override
-    public void receiveCoupon(Long couponId) {
+    public FindCouponListVo receiveCoupon(Long couponId) {
 
         UmUserPo userPo = securityUtil.getAppCurrUser();
         //首先先判断优惠券库存是否足够
@@ -157,7 +159,11 @@ public class AmCouponRelCouponUserServiceImpl extends AbstractService<AmCouponRe
                     .setType(CouponBeLongTypeEnum.RECEIVE.getId()).setDeadLine(deadLine);
             relCouponUserMapper.insert(relCouponUserPo);
         }
-
+        FindCouponListVo findCouponListVo = new FindCouponListVo();
+        BeanUtils.copyProperties(couponPo, findCouponListVo);
+        findCouponListVo.setIsReceive(true);
+        findCouponListVo.setCouponId(couponPo.getId());
+        return findCouponListVo;
     }
 
     /**

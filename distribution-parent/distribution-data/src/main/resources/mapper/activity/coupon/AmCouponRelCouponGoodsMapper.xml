@@ -17,6 +17,15 @@
     <sql id="Base_Column_List">
         id, create_by, create_time, update_by, update_time, goods_id, coupon_id
     </sql>
+    <select id="findUserCouponList" resultType="com.chauncy.data.vo.app.advice.coupon.FindCouponListVo">
+        SELECT ac.id AS coupon_id,ac.NAME,ac.type,ac.discount,ac.discount_full_money,ac.reduction_full_money,
+            ac.reduction_post_money,ac.total_num,stock, ac.every_limit_num, TRUE AS isReceive
+        FROM am_coupon ac
+        INNER JOIN am_coupon_rel_coupon_user acrcu ON ac.id = acrcu.coupon_id
+        WHERE ac.id = #{couponId}
+        AND acrcu.user_id = #{userId}
+        AND acrcu.use_status = 2
+    </select>
     <select id="findCouponList" resultType="com.chauncy.data.vo.app.advice.coupon.FindCouponListVo">
         <!-- 优惠券指定商品 -->
         SELECT ac.id AS coupon_id,ac.NAME,ac.type,ac.discount,ac.discount_full_money,ac.reduction_full_money,ac.reduction_post_money,ac.total_num,stock, ac.every_limit_num
@@ -24,25 +33,26 @@
         INNER JOIN am_coupon_rel_coupon_goods acrcg ON acrcg.coupon_id = ac.id AND acrcg.association_id = #{goodsId}
         LEFT JOIN pm_member_level pml ON ac.level_id = pml.id
         WHERE ac.del_flag = 0 AND pml.del_flag = 0 AND pml.`level`<![CDATA[<= ]]>  #{level}
-        UNION
         <!-- 优惠券指定所有用户 -->
+        UNION
         SELECT ac.id AS coupon_id,ac.NAME,ac.type,ac.discount,ac.discount_full_money,ac.reduction_full_money,ac.reduction_post_money,ac.total_num,stock, ac.every_limit_num
         FROM am_coupon ac
         INNER JOIN am_coupon_rel_coupon_goods acrcg ON acrcg.coupon_id = ac.id
         WHERE acrcg.association_id = #{goodsId} AND ac.level_id = 0 AND  ac.del_flag = 0
-        UNION
         <!-- 包邮券指定所有商品 -->
+        <!-- UNION
         SELECT ac.id AS coupon_id,ac.NAME,ac.type,ac.discount,ac.discount_full_money,ac.reduction_full_money,ac.reduction_post_money,ac.total_num,stock, ac.every_limit_num
         FROM am_coupon ac
         LEFT JOIN pm_member_level pml ON ac.level_id = pml.id
         WHERE ac.del_flag = 0 AND pml.del_flag = 0 AND pml.`level`<![CDATA[<= ]]>  #{level} and ac.scope = 1
-        UNION
+        -->
         <!-- 包邮券指定分类商品 -->
+        <!-- UNION
         SELECT ac.id AS coupon_id,ac.NAME,ac.type,ac.discount,ac.discount_full_money,ac.reduction_full_money,ac.reduction_post_money,ac.total_num,stock, ac.every_limit_num
         FROM am_coupon ac
         INNER JOIN am_coupon_rel_coupon_goods acrcg ON acrcg.coupon_id = ac.id AND acrcg.association_id = #{categoryId}
         LEFT JOIN pm_member_level pml ON ac.level_id = pml.id
-        WHERE ac.del_flag = 0 AND pml.del_flag = 0 AND pml.`level`<![CDATA[<= ]]>  #{level}  and ac.scope = 2
+        WHERE ac.del_flag = 0 AND pml.del_flag = 0 AND pml.`level`<![CDATA[<= ]]>  #{level}  and ac.scope = 2 -->
         <!-- select a.association_id as goods_id,a.coupon_id,b.name,b.type,b.discount,b.discount_full_money,b.reduction_full_money,b.reduction_post_money,
         c.receive_time,c.dead_line
         from am_coupon_rel_coupon_goods a,am_coupon b
