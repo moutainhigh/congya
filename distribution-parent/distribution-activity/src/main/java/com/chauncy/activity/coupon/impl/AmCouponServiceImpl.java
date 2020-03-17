@@ -691,7 +691,8 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
             x.setNumber(canUseCouponListDtos.stream().filter(y -> y.getSkuId().equals(x.getSkuId())).findFirst().get().getNumber());
         });
         if (ListUtil.isListNullAndEmpty(querySelectCouponVoList)) {
-            throw new ServiceException(ResultCode.NO_EXISTS, "无可用的优惠券！");
+            //throw new ServiceException(ResultCode.NO_EXISTS, "无可用的优惠券！");
+            return Lists.emptyList();
         }
         //算出满足满减优惠的优惠券
         List<SelectCouponVo> selectCouponVoList = com.google.common.collect.Lists.newArrayList();
@@ -726,6 +727,8 @@ public class AmCouponServiceImpl extends AbstractService<AmCouponMapper, AmCoupo
                     continue;
                 }
             }
+            //设置为已领取
+            selectCouponVos.get(0).setIsReceive(true);
             selectCouponVoList.add(selectCouponVos.get(0));
         }
         return selectCouponVoList;

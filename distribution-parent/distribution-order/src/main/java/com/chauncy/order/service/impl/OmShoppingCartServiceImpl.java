@@ -724,7 +724,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     List<Long> fullSkuIds = fullDiscountSkuBoList.stream().map(FullDiscountSkuBo::getSkuId).collect(Collectors.toList());
                     List<ShopTicketSoWithCarGoodVo> fullRedetionSkus = shopTicketSoWithCarGoodVos.stream().filter(x -> fullSkuIds.contains(x)).collect(Collectors.toList());
                     //计算满减的付现价
-                    setRealPayMoneyForFullRedution2(fullRedetionSkus, reductionPostMoney, ActivityTypeEnum.REDUCED);
+                    setRealPayMoneyForFullRedution2(shopTicketSoWithCarGoodVos,fullSkuIds, reductionPostMoney, ActivityTypeEnum.REDUCED);
                     activityType[0] =1;
 
                     totalFullDiscount = BigDecimalUtil.safeAdd(totalFullDiscount, reductionPostMoney);
@@ -767,7 +767,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     List<Long> fullSkuIds = querySelectCouponVoList.stream().map(SelectCouponVo::getSkuId).collect(Collectors.toList());
                     List<ShopTicketSoWithCarGoodVo> fullRedetionSkus = shopTicketSoWithCarGoodVos.stream().filter(x -> fullSkuIds.contains(x)).collect(Collectors.toList());
                     //计算满减的付现价
-                    setRealPayMoneyForFullRedution2(fullRedetionSkus, reduceCoupon.getReductionFullMoney(), ActivityTypeEnum.COUPON);
+                    setRealPayMoneyForFullRedution2(shopTicketSoWithCarGoodVos,fullSkuIds, reduceCoupon.getReductionFullMoney(), ActivityTypeEnum.COUPON);
                     //满减优惠券金额加入总优惠
                     reduceCouponMoney = reduceCoupon.getReductionPostMoney();
                     activityType[0] =6;
@@ -2598,25 +2598,27 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     private void setRealPayMoneyForFullRedution(List<Long> fullSkuIds, List<ShopTicketSoWithCarGoodDto> shopTicketSoWithCarGoodDtos, BigDecimal reductionPostMoney) {
         //固定成本总和
-        BigDecimal fixedCostSum = shopTicketSoWithCarGoodDtos.stream().map(x -> x.computeFixedCost()).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal fixedCostSum = shopTicketSoWithCarGoodDtos.stream().
+                map(x -> BigDecimalUtil.safeMultiply(x.computeFixedCost(),x.getNumber())).reduce(BigDecimal.ZERO, BigDecimal::add);
         shopTicketSoWithCarGoodDtos.forEach(x -> {
             if(fullSkuIds.contains(x.getId())) {
                 //实际优惠金额
                 BigDecimal discountMoney = BigDecimalUtil.safeMultiply(reductionPostMoney,
-                        BigDecimalUtil.safeDivide(x.computeFixedCost(), fixedCostSum));
+                        BigDecimalUtil.safeDivide( x.computeFixedCost(), fixedCostSum));
                 x.setRealPayMoney(BigDecimalUtil.safeSubtract(x.getSellPrice(), discountMoney));
                 x.setCouponMoney(discountMoney);
             }
         });
     }
 
-    private void setRealPayMoneyForFullRedution2(List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVos, BigDecimal reductionPostMoney, ActivityTypeEnum activityTypeEnum) {
+    private void setRealPayMoneyForFullRedution2(List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVos, List<Long> fullSkuIds,BigDecimal reductionPostMoney, ActivityTypeEnum activityTypeEnum) {
         //固定成本总和
-        BigDecimal fixedCostSum = shopTicketSoWithCarGoodVos.stream().map(x -> x.computeFixedCost()).reduce(BigDecimal.ZERO, BigDecimal::add);
-        shopTicketSoWithCarGoodVos.forEach(x -> {
+        BigDecimal fixedCostSum = shopTicketSoWithCarGoodVos.stream().filter(x -> fullSkuIds.contains(x)).
+                map(x -> BigDecimalUtil.safeMultiply(x.computeFixedCost(),x.getNumber())).reduce(BigDecimal.ZERO, BigDecimal::add);
+        shopTicketSoWithCarGoodVos.stream().filter(x -> fullSkuIds.contains(x)).forEach(x -> {
             //实际优惠金额
             BigDecimal discountMoney = BigDecimalUtil.safeMultiply(reductionPostMoney,
-                    BigDecimalUtil.safeDivide(x.computeFixedCost(), fixedCostSum));
+                    BigDecimalUtil.safeDivide(BigDecimalUtil.safeMultiply(x.computeFixedCost(),x.getNumber()), fixedCostSum));
             x.setRealPayMoney(BigDecimalUtil.safeSubtract(x.getSellPrice(), discountMoney)).setType(activityTypeEnum.getId());
         });
     }
