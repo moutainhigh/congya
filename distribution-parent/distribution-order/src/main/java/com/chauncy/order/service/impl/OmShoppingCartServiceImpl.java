@@ -767,7 +767,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                     List<Long> fullSkuIds = querySelectCouponVoList.stream().map(SelectCouponVo::getSkuId).collect(Collectors.toList());
                     List<ShopTicketSoWithCarGoodVo> fullRedetionSkus = shopTicketSoWithCarGoodVos.stream().filter(x -> fullSkuIds.contains(x)).collect(Collectors.toList());
                     //计算满减的付现价
-                    setRealPayMoneyForFullRedution2(shopTicketSoWithCarGoodVos,fullSkuIds, reduceCoupon.getReductionFullMoney(), ActivityTypeEnum.COUPON);
+                    setRealPayMoneyForFullRedution2(shopTicketSoWithCarGoodVos,fullSkuIds, reduceCoupon.getReductionPostMoney(), ActivityTypeEnum.COUPON);
                     //满减优惠券金额加入总优惠
                     reduceCouponMoney = reduceCoupon.getReductionPostMoney();
                     activityType[0] =6;
@@ -896,10 +896,13 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         BigDecimal totalRealPayMoney = storeOrderVos.stream().map(x ->
                 x.getGoodsTypeOrderVos().stream().map(GoodsTypeOrderVo::getRealPayMoney).reduce(BigDecimal.ZERO, BigDecimal::add)
         ).reduce(BigDecimal.ZERO, BigDecimal::add);*/
+       //总实付金额：用于计算红包和购物券可以抵扣多少
+        BigDecimal realPayInRedAndShop=BigDecimalUtil.safeAdd(shopTicketSoWithCarGoodVos.stream().map(x->BigDecimalUtil.safeMultiply(x.getRealPayMoney(),x.getNumber()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add),totalShipMoney,totalTaxMoney);
 
         totalCarVo.setTotalMoney(totalMoney).setTotalNumber(totalNumber);
         //红包、购物券、可抵扣金额
-        setDiscount(totalCarVo, currentUser, basicSettingPo);
+        setDiscount(realPayInRedAndShop,totalCarVo, currentUser, basicSettingPo);
         //积分
         totalCarVo.setTotalIntegralMoney(totalIntegralMoney[0]);
         //计算实付金额=商品活动价格总和-红包购物券+邮费+税费
@@ -1021,8 +1024,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
      *
      * @param totalCarVo
      */
-    private void setDiscount(TotalCarVo totalCarVo, UmUserPo currentUser, BasicSettingPo basicSettingPo) {
-        BigDecimal totalMoney = totalCarVo.getTotalMoney();
+    private void setDiscount(BigDecimal realPayMoney,TotalCarVo totalCarVo, UmUserPo currentUser, BasicSettingPo basicSettingPo) {
+        BigDecimal totalMoney = realPayMoney;
         //一个购物券=多少元
         BigDecimal shopTicketToMoney = BigDecimalUtil.safeDivideDown(1, basicSettingPo.getMoneyToShopTicket());
         //当前用户所拥有的红包折算后的金额
@@ -2201,7 +2204,7 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
                         }
                     }
                 });
-                //商品价格是否满足打折标准
+                //商品价格是否满足满减标准
                 if (reducePriceSum[0].compareTo(reduceCoupon.getReductionFullMoney()) >= 0) {
                     //找出满足满减优惠的skuid集合，计算他们的付现价
                     List<Long> fullSkuIds = querySelectCouponVoList.stream().map(SelectCouponVo::getSkuId).collect(Collectors.toList());
@@ -2423,7 +2426,8 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
             final BigDecimal[] integralMoney = {BigDecimal.ZERO};
             //生成商品快照
             shopTicketSoWithCarGoodDtos.forEach(g -> {
-                couponMoney[0] =BigDecimalUtil.safeAdd(couponMoney[0],g.getCouponMoney());
+                couponMoney[0] =BigDecimalUtil.safeAdd(couponMoney[0],
+                        BigDecimalUtil.safeMultiply(g.getCouponMoney(),g.getNumber()));
                 integralMoney[0] =BigDecimalUtil.safeAdd(integralMoney[0],g.getIntegralMoney());
                 PmGoodsSkuPo skuPo = skuMapper.selectById(g.getId());
                 OmGoodsTempPo saveGoodsTemp = new OmGoodsTempPo();
@@ -2613,12 +2617,12 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
 
     private void setRealPayMoneyForFullRedution2(List<ShopTicketSoWithCarGoodVo> shopTicketSoWithCarGoodVos, List<Long> fullSkuIds,BigDecimal reductionPostMoney, ActivityTypeEnum activityTypeEnum) {
         //固定成本总和
-        BigDecimal fixedCostSum = shopTicketSoWithCarGoodVos.stream().filter(x -> fullSkuIds.contains(x)).
+        BigDecimal fixedCostSum = shopTicketSoWithCarGoodVos.stream().filter(x -> fullSkuIds.contains(x.getId())).
                 map(x -> BigDecimalUtil.safeMultiply(x.computeFixedCost(),x.getNumber())).reduce(BigDecimal.ZERO, BigDecimal::add);
-        shopTicketSoWithCarGoodVos.stream().filter(x -> fullSkuIds.contains(x)).forEach(x -> {
+        shopTicketSoWithCarGoodVos.stream().filter(x -> fullSkuIds.contains(x.getId())).forEach(x -> {
             //实际优惠金额
             BigDecimal discountMoney = BigDecimalUtil.safeMultiply(reductionPostMoney,
-                    BigDecimalUtil.safeDivide(BigDecimalUtil.safeMultiply(x.computeFixedCost(),x.getNumber()), fixedCostSum));
+                    BigDecimalUtil.safeDivide(x.computeFixedCost(), fixedCostSum));
             x.setRealPayMoney(BigDecimalUtil.safeSubtract(x.getSellPrice(), discountMoney)).setType(activityTypeEnum.getId());
         });
     }
