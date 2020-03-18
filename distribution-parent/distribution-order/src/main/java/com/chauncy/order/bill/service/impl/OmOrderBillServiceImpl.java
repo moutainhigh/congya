@@ -361,21 +361,21 @@ public class OmOrderBillServiceImpl extends AbstractService<OmOrderBillMapper, O
             for (int pageNo = 1; pageNo <= storeSum / 1000 + 1; pageNo++) {
                 PageHelper.startPage(pageNo, 1000);
                 List<Long> storeIdList = omOrderBillMapper.getStoreNeedCreateBill(billType, endDate, null);
-                    storeIdList.forEach(storeId -> {
-                        try {
-                            createStoreBill(endDate, storeId, billType);
-                        } catch (Exception e) {
-                            if(BillTypeEnum.PROFIT_BILL.getId().equals(billType)) {
-                                log.error(e.getLocalizedMessage());
-                                log.error("店铺id为" + storeId + "的店铺生成利润账单报错");
-                            } else if(BillTypeEnum.PAYMENT_BILL.getId().equals(billType)) {
-                                e.printStackTrace();
-                                log.error(e.toString());
-                                log.error("店铺id为" + storeId + "的店铺生成货款账单报错");
-                            }
-                            throw new ServiceException(ResultCode.FAIL, "生成账单操作失败");
+                storeIdList.forEach(storeId -> {
+                    try {
+                        createStoreBill(endDate, storeId, billType);
+                    } catch (Exception e) {
+                        if(BillTypeEnum.PROFIT_BILL.getId().equals(billType)) {
+                            log.error(e.getLocalizedMessage());
+                            log.error("店铺id为" + storeId + "的店铺生成利润账单报错");
+                        } else if(BillTypeEnum.PAYMENT_BILL.getId().equals(billType)) {
+                            e.printStackTrace();
+                            log.error(e.toString());
+                            log.error("店铺id为" + storeId + "的店铺生成货款账单报错");
                         }
-                    });
+                        throw new ServiceException(ResultCode.FAIL, "生成账单操作失败");
+                    }
+                });
             }
         }
     }

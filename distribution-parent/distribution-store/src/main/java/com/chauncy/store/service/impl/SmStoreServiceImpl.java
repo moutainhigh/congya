@@ -360,38 +360,37 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
             smStoreRelStorePo.setStoreId(storeId);
             smStoreRelStorePo.setParentId(storeRelStoreDto.getParentId());
             smStoreRelStorePo.setType(storeRelStoreDto.getType());
-            /*Integer count = smStoreRelStoreMapper.selectStoreRelCount(storeRelStoreDto);
+            Integer count = smStoreRelStoreMapper.selectStoreRelCount(storeRelStoreDto);
             if(count > 0) {
                 //关系已存在
-                throw new ServiceException(ResultCode.PARAM_ERROR, "当前店铺，被绑定店铺跟其他店铺");
-            } else {*/
-            //关系不存在
-            if(StoreRelationEnum.TEAM_WORK.getId().equals(storeRelStoreDto.getType())) {
-                //团队合作 关系是一条单线不超过5层
-                //店铺没有绑定过其他店铺
-                //被绑定的店铺没有被其他店铺绑定过
-                List<Integer> integerList = smStoreMapper.getTeamWorkCondition(storeId, storeRelStoreDto.getParentId());
-                //被绑定的店铺的关系链的层数 >= 5
-                if(integerList.get(0) >= ServiceConstant.TEAM_WORK_LEVEL) {
-                    throw new ServiceException(ResultCode.PARAM_ERROR, "团队合作的关系链层级已达到最高5层");
+            } else {
+                //关系不存在
+                if(StoreRelationEnum.TEAM_WORK.getId().equals(storeRelStoreDto.getType())) {
+                    //团队合作 关系是一条单线不超过5层
+                    //店铺没有绑定过其他店铺
+                    //被绑定的店铺没有被其他店铺绑定过
+                    List<Integer> integerList = smStoreMapper.getTeamWorkCondition(storeId, storeRelStoreDto.getParentId());
+                    //被绑定的店铺的关系链的层数 >= 5
+                    if(integerList.get(0) >= ServiceConstant.TEAM_WORK_LEVEL) {
+                        throw new ServiceException(ResultCode.PARAM_ERROR, "团队合作的关系链层级已达到最高5层");
+                    }
+                    if(integerList.get(1) > 0) {
+                        throw new ServiceException(ResultCode.PARAM_ERROR, "当前店铺已有绑定团队合作关系的店铺");
+                    }
+                    if(integerList.get(2) > 0) {
+                        throw new ServiceException(ResultCode.PARAM_ERROR, "当前被绑定店铺已被其他店铺绑定为团队合作关系");
+                    }
+                } else if(StoreRelationEnum.PRODUCT_AGENT.getId().equals(storeRelStoreDto.getType())) {
+                    //产品代理   被绑定的店铺不允许存在在当前店铺的子店铺中（避免形成闭环）
+                    Boolean productAgentCondition = smStoreMapper.getProductAgentCondition(storeId, storeRelStoreDto.getParentId());
+                    if(true == productAgentCondition) {
+                        //true 表示被绑定的店铺在当前店铺的子店铺中 循环绑定  形成闭环
+                        throw new ServiceException(ResultCode.PARAM_ERROR, "被绑定店铺是当前店铺的子店铺，绑定错误");
+                    }
                 }
-                if(integerList.get(1) > 0) {
-                    throw new ServiceException(ResultCode.PARAM_ERROR, "当前店铺已有绑定团队合作关系的店铺");
-                }
-                if(integerList.get(2) > 0) {
-                    throw new ServiceException(ResultCode.PARAM_ERROR, "当前被绑定店铺已被其他店铺绑定为团队合作关系");
-                }
-            } else if(StoreRelationEnum.PRODUCT_AGENT.getId().equals(storeRelStoreDto.getType())) {
-                //产品代理   被绑定的店铺不允许存在在当前店铺的子店铺中（避免形成闭环）
-                Boolean productAgentCondition = smStoreMapper.getProductAgentCondition(storeId, storeRelStoreDto.getParentId());
-                if(true == productAgentCondition) {
-                    //true 表示被绑定的店铺在当前店铺的子店铺中 循环绑定  形成闭环
-                    throw new ServiceException(ResultCode.PARAM_ERROR, "被绑定店铺是当前店铺的子店铺，绑定错误");
-                }
+                smStoreRelStorePoList.add(smStoreRelStorePo);
             }
-            smStoreRelStorePoList.add(smStoreRelStorePo);
         }
-        /*}*/
         if(smStoreRelStorePoList.size() >= 0) {
             smStoreRelStoreService.saveBatch(smStoreRelStorePoList);
         }
