@@ -32,7 +32,7 @@
         SELECT parent_id
         FROM sm_store_rel_store
         WHERE DATE(create_time) <![CDATA[< ]]> #{startDate}
-        AND DATE(update_time) <![CDATA[>= ]]> #{endDate}
+        AND (DATE(update_time) <![CDATA[>= ]]> #{endDate}  OR update_time IS NULL)
         AND store_id = #{storeId}
         AND `type` = 2
     </select>
