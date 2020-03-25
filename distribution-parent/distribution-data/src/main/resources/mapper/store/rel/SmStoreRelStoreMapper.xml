@@ -23,9 +23,7 @@
         SELECT COUNT(*)
         FROM sm_store_rel_store ssrs
         WHERE
-            (ssrs.`store_id` = #{storeId} AND ssrs.`parent_id` = #{parentId} AND ssrs.`type` = #{type})
-            OR (ssrs.`store_id` = #{storeId} AND ssrs.`type` = 2 )
-            OR (ssrs.`parent_id` = #{parentId} AND ssrs.`type` = 2 )
+            (ssrs.`store_id` = #{storeId} AND ssrs.`parent_id` = #{parentId} AND ssrs.`type` = #{type}  AND ssrs.del_flag = 0)
     </select>
 
     <select id="getTeamWorkParentStoreId" resultType="java.lang.Long">
