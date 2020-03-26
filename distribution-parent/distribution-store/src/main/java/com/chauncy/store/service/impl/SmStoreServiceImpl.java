@@ -354,7 +354,7 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
         for(StoreRelStoreDto storeRelStoreDto : storeRelStoreDtoList) {
             if(storeId.equals(storeRelStoreDto.getParentId())) {
                 //店铺不能绑定自身
-                break;
+                throw new ServiceException(ResultCode.PARAM_ERROR, "店铺不能绑定自身");
             }
             SmStoreRelStorePo smStoreRelStorePo = new SmStoreRelStorePo();
             smStoreRelStorePo.setStoreId(storeId);
@@ -373,9 +373,11 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
                     //被绑定的店铺的关系链的层数 >= 5
                     if(integerList.get(0) >= ServiceConstant.TEAM_WORK_LEVEL) {
                         throw new ServiceException(ResultCode.PARAM_ERROR, "团队合作的关系链层级已达到最高5层");
-                    } else if(integerList.get(1) > 0) {
+                    }
+                    if(integerList.get(1) > 0) {
                         throw new ServiceException(ResultCode.PARAM_ERROR, "当前店铺已有绑定团队合作关系的店铺");
-                    } else if(integerList.get(2) > 0) {
+                    }
+                    if(integerList.get(2) > 0) {
                         throw new ServiceException(ResultCode.PARAM_ERROR, "当前被绑定店铺已被其他店铺绑定为团队合作关系");
                     }
                 } else if(StoreRelationEnum.PRODUCT_AGENT.getId().equals(storeRelStoreDto.getType())) {

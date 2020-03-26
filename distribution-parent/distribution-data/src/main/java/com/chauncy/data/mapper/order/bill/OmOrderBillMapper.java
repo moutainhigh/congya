@@ -11,6 +11,7 @@ import com.chauncy.data.vo.manage.order.bill.BillDetailVo;
 import com.chauncy.data.vo.manage.order.bill.BillRelGoodsTempVo;
 import com.chauncy.data.vo.manage.order.bill.BillReportVo;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.List;
  * @author huangwancheng
  * @since 2019-07-22
  */
+@Repository
 public interface OmOrderBillMapper extends IBaseMapper<OmOrderBillPo> {
 
     /**

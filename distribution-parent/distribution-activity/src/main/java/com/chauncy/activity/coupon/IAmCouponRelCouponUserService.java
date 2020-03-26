@@ -5,6 +5,7 @@ import com.chauncy.data.domain.po.activity.coupon.AmCouponRelCouponUserPo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.advice.coupon.SearchMyCouponDto;
 import com.chauncy.data.dto.app.advice.coupon.SearchReceiveCouponDto;
+import com.chauncy.data.vo.app.advice.coupon.FindCouponListVo;
 import com.chauncy.data.vo.app.advice.coupon.SearchMyCouponVo;
 import com.chauncy.data.vo.app.advice.coupon.SearchReceiveCouponVo;
 import com.chauncy.data.vo.app.advice.gift.SearchTopUpGiftVo;
@@ -34,7 +35,7 @@ public interface IAmCouponRelCouponUserService extends Service<AmCouponRelCoupon
      * @param couponId
      * @return
      */
-    void receiveCoupon(Long couponId);
+    FindCouponListVo receiveCoupon(Long couponId);
 
     /**
      * 我的优惠券

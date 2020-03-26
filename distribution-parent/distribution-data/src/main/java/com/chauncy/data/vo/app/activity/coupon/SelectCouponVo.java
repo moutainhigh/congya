@@ -62,5 +62,6 @@ public class SelectCouponVo {
     @ApiModelProperty(value = "满减金额，type=1时这个字段不为空")
     private BigDecimal reductionPostMoney;
 
-
+    @ApiModelProperty(value = "是否已领取")
+    private Boolean isReceive = false;
 }

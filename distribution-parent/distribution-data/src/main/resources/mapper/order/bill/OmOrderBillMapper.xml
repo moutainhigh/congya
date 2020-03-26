@@ -154,12 +154,15 @@
     <select id="getStoreSumNeedCreateBill" resultType="java.lang.Integer">
         SELECT COUNT(1)
         FROM (
-            SELECT ss.payment_bill_settlement_cycle,
-            (
+            SELECT
                 <if test="1 == billType">
+                    ss.payment_bill_settlement_cycle,
+                    (
                     SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`payment_bill_settlement_cycle`
                 </if>
                 <if test="2 == billType">
+                    ss.`income_bill_Settlement_cycle`,
+                    (
                     SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`income_bill_Settlement_cycle`
                 </if>
                 FROM (
@@ -185,7 +188,15 @@
                     and  ss.`income_bill_Settlement_cycle` != 0
                 </if>
             </where>
-             HAVING (  billWeek > 0 AND billWeek MOD ss.`payment_bill_settlement_cycle` = 0 OR billWeek IS NULL)
+             HAVING (  billWeek >= 0
+        <if test="1 == billType">
+            AND billWeek MOD ss.`payment_bill_settlement_cycle` = 0
+        </if>
+        <if test="2 == billType">
+            AND billWeek MOD ss.`income_bill_Settlement_cycle` = 0
+        </if>
+
+             OR billWeek IS NULL)
          ) AS countTemp
     </select>
     <select id="getStoreNeedCreateBill" resultType="java.lang.Long">
@@ -214,12 +225,15 @@
 	            ) AS temp
 	        )
         </where> -->
-        SELECT ss.id, ss.payment_bill_settlement_cycle,
-            (
+        SELECT ss.id,
                 <if test="1 == billType">
+                    ss.payment_bill_settlement_cycle,
+                    (
                     SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`payment_bill_settlement_cycle`
                 </if>
                 <if test="2 == billType">
+                    ss.income_bill_Settlement_cycle,
+                    (
                     SELECT TIMESTAMPDIFF(WEEK,temp.`end_date`,#{endDate}) - ss.`income_bill_Settlement_cycle`
                 </if>
                 FROM (
@@ -245,7 +259,15 @@
                 and  ss.`income_bill_Settlement_cycle` != 0
             </if>
         </where>
-         HAVING ( billWeek > 0 AND billWeek MOD ss.`payment_bill_settlement_cycle` = 0 OR billWeek IS NULL)
+        HAVING (  billWeek >= 0
+        <if test="1 == billType">
+            AND billWeek MOD ss.`payment_bill_settlement_cycle` = 0
+        </if>
+        <if test="2 == billType">
+            AND billWeek MOD ss.`income_bill_Settlement_cycle` = 0
+        </if>
+
+        OR billWeek IS NULL)
     </select>
     <select id="searchBillReportPaging" resultType="com.chauncy.data.vo.manage.order.bill.BillReportVo">
         SELECT oob.id,

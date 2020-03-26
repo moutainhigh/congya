@@ -1,7 +1,9 @@
 package com.chauncy.data.vo.app.advice.coupon;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -77,4 +79,10 @@ public class FindCouponListVo {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JSONField(ordinal = 12)
     private LocalDate deadLine;
+
+    @JsonIgnore
+    @JSONField(serialize=false)
+    @ApiModelProperty(value = "每人限领数量")
+    private Integer everyLimitNum;
+
 }

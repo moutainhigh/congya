@@ -20,7 +20,8 @@ public class TotalCarVo {
 
 
     @ApiModelProperty(value = "使用葱鸭钱包可抵扣金额")
-    private BigDecimal totalDeductionMoney;
+    private BigDecimal
+            totalDeductionMoney;
 
     @ApiModelProperty(value = "总订单数量")
     private int totalNumber;

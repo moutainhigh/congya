@@ -5,6 +5,7 @@ import com.chauncy.data.domain.po.activity.coupon.AmCouponRelCouponGoodsPo;
 import com.chauncy.data.domain.po.product.PmGoodsPo;
 import com.chauncy.data.mapper.IBaseMapper;
 import com.chauncy.data.vo.app.advice.coupon.FindCouponListVo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -19,6 +20,19 @@ import java.util.List;
 public interface AmCouponRelCouponGoodsMapper extends IBaseMapper<AmCouponRelCouponGoodsPo> {
 
     /**
+     * @Author yeJH
+     * @Date 2020/3/10 22:17
+     * @Description 根据优惠券id获取用户领取过该优惠券并且未使用的优惠券列表
+     *
+     * @Update yeJH
+     *
+     * @param  couponId
+     * @return java.util.List<com.chauncy.data.vo.app.advice.coupon.FindCouponListVo>
+     **/
+    List<FindCouponListVo> findUserCouponList(@Param("couponId")Long couponId,
+                                              @Param("userId")Long userId);
+
+    /**
      * @Author chauncy
      * @Date 2019-09-27 21:36
      * @Description //查询商品关联的满减、固定折扣形式优惠券
@@ -28,7 +42,9 @@ public interface AmCouponRelCouponGoodsMapper extends IBaseMapper<AmCouponRelCou
      * @param  goodsId
      * @return java.util.List<com.chauncy.data.vo.app.advice.coupon.FindCouponListVo>
      **/
-    List<FindCouponListVo> findCouponList(Long goodsId);
+    List<FindCouponListVo> findCouponList(@Param("goodsId")Long goodsId,
+                                          @Param("level")Integer level,
+                                          @Param("categoryId")Long categoryId);
 
     /**
      * @Author chauncy
