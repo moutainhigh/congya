@@ -31,6 +31,7 @@ public enum ArticleLocationEnum implements BaseEnum {
     USER_AGREEMENT(16,"用户协议"),
     PRIVACY_RIGHT_POLICY(17,"隐私权政策"),
     SERVER_POLICY(18,"服务协议"),
+    VERSION_INFO(19,"版本信息"),
     ;
 
     private Integer id;
