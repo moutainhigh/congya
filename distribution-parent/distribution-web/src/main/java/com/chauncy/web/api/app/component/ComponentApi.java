@@ -313,11 +313,11 @@ public class ComponentApi extends BaseApi {
         return setJsonViewData(articleService.findArticleContent(type));
     }
 
-    @GetMapping("/find-version")
+    @GetMapping("/find-version/{type}")
     @ApiOperation("查找版本信息")
-    public JsonViewData<FindVersionVo> findVersion(){
+    public JsonViewData<FindVersionVo> findVersion(@ApiParam(required = true,name = "type",value = "app类型 1-android 2-ios") @PathVariable Integer type){
 
-        return setJsonViewData(versionService.findVersion());
+        return setJsonViewData(versionService.findVersion(type));
     }
 
 }

@@ -27,7 +27,7 @@ public interface ISysVersionService extends Service<SysVersionPo> {
 
     void delByIds(Long[] ids);
 
-    void setCurrent(Long id);
+    void setCurrent(UpdateCurrentVersionDto updateCurrentVersionDto);
 
-    FindVersionVo findVersion();
+    FindVersionVo findVersion(Integer type);
 }

@@ -86,11 +86,11 @@ public class SysVersionApi extends BaseApi {
     }
 
     @ApiOperation(value = "设置默认(当前)版本")
-    @GetMapping("/default/{id}")
-    public JsonViewData setCurrent(@ApiParam(required = true,name = "id",value = "设置默认(当前)版本")
-                                   @PathVariable Long id) {
+    @PostMapping("/default")
+    public JsonViewData setCurrent(@RequestBody @ApiParam(required = true,name = "updateCurrentVersionDto",value = "设置默认(当前)版本")
+                                   @Validated UpdateCurrentVersionDto updateCurrentVersionDto) {
 
-        service.setCurrent(id);
+        service.setCurrent(updateCurrentVersionDto);
         return new JsonViewData(ResultCode.SUCCESS);
     }
 

@@ -21,7 +21,7 @@ public interface SysVersionMapper extends IBaseMapper<SysVersionPo> {
 
     List<SearchVersionVo> searchVersion(SearchVersionDto searchVersionDto);
 
-    @Select("select * from sys_version where del_flag = 0 and current_flag = 1")
-    FindVersionVo findVersion();
+    @Select("select * from sys_version where del_flag = 0 and current_flag = 1 and type = #{type}")
+    FindVersionVo findVersion(Integer type);
 
 }

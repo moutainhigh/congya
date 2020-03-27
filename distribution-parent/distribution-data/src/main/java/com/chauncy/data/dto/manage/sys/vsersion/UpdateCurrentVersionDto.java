@@ -1,5 +1,7 @@
 package com.chauncy.data.dto.manage.sys.vsersion;
 
+import com.chauncy.common.enums.system.VersionTypeEnum;
+import com.chauncy.data.valid.annotation.EnumConstraint;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -17,8 +19,8 @@ public class UpdateCurrentVersionDto {
     @NotNull(message = "id参数不能为空")
     private Long id;
 
-    @ApiModelProperty("是否为当前版本 1-是 0-否")
-    @NotNull(message = "currentFlag参数不能为空")
-    private Boolean currentFlag;
+    @ApiModelProperty(value = "app类型 1-android 2-ios")
+    @EnumConstraint(target = VersionTypeEnum.class)
+    private Integer type;
 
 }

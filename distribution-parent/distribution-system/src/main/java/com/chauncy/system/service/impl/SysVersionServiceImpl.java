@@ -2,6 +2,7 @@ package com.chauncy.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.common.enums.system.VersionTypeEnum;
 import com.chauncy.common.exception.sys.ServiceException;
 import com.chauncy.common.util.ListUtil;
 import com.chauncy.data.domain.po.sys.SysUserPo;
@@ -100,10 +101,23 @@ public class SysVersionServiceImpl extends AbstractService<SysVersionMapper, Sys
     }
 
     @Override
-    public void setCurrent(Long id) {
+    public void setCurrent(UpdateCurrentVersionDto updateCurrentVersionDto) {
+
+        List<SysVersionPo> sysVersionPos = mapper.selectList(new QueryWrapper<SysVersionPo>().lambda().eq(SysVersionPo::getType,updateCurrentVersionDto.getType()));
+
+        if (ListUtil.isListNullAndEmpty(sysVersionPos)) {
+            throw new ServiceException(ResultCode.FAIL,String.format("不存在类型为：【%s】的版本信息", VersionTypeEnum.getVersionTypeEnumById(updateCurrentVersionDto.getType()).getName()));
+        }
+
+        Integer type = mapper.selectById(updateCurrentVersionDto.getId()).getType();
+        if (type != updateCurrentVersionDto.getType()){
+            throw new ServiceException(ResultCode.FAIL,String.format("类型为：【%s】的版本信息不存在ID为：【%s】",VersionTypeEnum.getVersionTypeEnumById(updateCurrentVersionDto.getType()).getName(),updateCurrentVersionDto.getId()));
+        }
 
         //查出已设置为当前版本的记录修改为false
-        List<Long> ids = mapper.selectList(new QueryWrapper<SysVersionPo>().lambda().eq(SysVersionPo::getCurrentFlag,true)).stream().map(a->a.getId()).collect(Collectors.toList());
+        List<Long> ids = mapper.selectList(new QueryWrapper<SysVersionPo>().lambda()
+                .and(obj->obj.eq(SysVersionPo::getType,updateCurrentVersionDto.getType()).eq(SysVersionPo::getCurrentFlag,true)))
+                .stream().map(a->a.getId()).collect(Collectors.toList());
         if (!ListUtil.isListNullAndEmpty(ids)) {
             ids.stream().forEach(a -> {
                 SysVersionPo sysVersionPo = mapper.selectById(a);
@@ -113,13 +127,13 @@ public class SysVersionServiceImpl extends AbstractService<SysVersionMapper, Sys
         }
 
         //设置当前的为默认版本
-        SysVersionPo sysVersionPo = mapper.selectById(id);
+        SysVersionPo sysVersionPo = mapper.selectById(updateCurrentVersionDto.getId());
         sysVersionPo.setCurrentFlag(true);
         mapper.updateById(sysVersionPo);
     }
 
     @Override
-    public FindVersionVo findVersion() {
-        return mapper.findVersion();
+    public FindVersionVo findVersion(Integer type) {
+        return mapper.findVersion(type);
     }
 }
