@@ -290,7 +290,9 @@
         from sm_store_rel_store ssrs left join sm_store ss
         on ssrs.store_id = ss.id
         <where>
-            ssrs.parent_id = #{storeId}
+            ssrs.`del_flag` = 0
+            AND ssrs.parent_id = #{storeId}
+            AND ssrs.type = 1
             <if test="storeName != null and storeName !=''">
                 and ss.`name` like concat('%', #{storeName}, '%')
             </if>

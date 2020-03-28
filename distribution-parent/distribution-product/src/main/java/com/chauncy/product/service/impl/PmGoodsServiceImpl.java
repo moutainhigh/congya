@@ -947,7 +947,7 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
     @Override
     public PageInfo<RecommendGoodsVo> storeRecommendGoods(SearchRecommendGoodsDto searchRecommendGoodsDto) {
 
-        if(null != searchRecommendGoodsDto.getInformationId()) {
+        if(null != searchRecommendGoodsDto.getInformationId() && searchRecommendGoodsDto.getInformationId() != 0) {
             MmInformationPo mmInformationPo = mmInformationMapper.selectById(searchRecommendGoodsDto.getInformationId());
             searchRecommendGoodsDto.setStoreId(mmInformationPo.getStoreId());
         } else {
