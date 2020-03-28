@@ -49,7 +49,7 @@ public class SysVersionServiceImpl extends AbstractService<SysVersionMapper, Sys
 
         LocalDateTime now = LocalDateTime.now();
         SysVersionPo version = new SysVersionPo();
-        List<String> versionNum = mapper.selectList(null).stream().map(a->a.getVersion()).collect(Collectors.toList());
+        List<Integer> versionNum = mapper.selectList(null).stream().map(a->a.getVersion()).collect(Collectors.toList());
 
         if (saveVersionDto.getId() == 0){
 
@@ -63,7 +63,7 @@ public class SysVersionServiceImpl extends AbstractService<SysVersionMapper, Sys
             version.setId(null);
             mapper.insert(version);
         }else {
-            List<String> ver = versionNum.stream().filter(a->!a.equals(saveVersionDto.getVersion())).collect(Collectors.toList());
+            List<Integer> ver = versionNum.stream().filter(a->a != saveVersionDto.getVersion()).collect(Collectors.toList());
 
             if (ver.contains(saveVersionDto.getVersion())){
                 throw new ServiceException(ResultCode.FAIL,String.format("版本号:[%s]已存在！",saveVersionDto.getVersion()));
