@@ -110,6 +110,7 @@ ignored:
     - /app/user/data/getNameByCode/**
     - /app/order/shopCart/getAssociatedGoods/**
     - /app/component/findArticleContent/**
+    - /upload/app
 
 # 配置快递100
 logistics:
@@ -129,6 +130,11 @@ jasypt:
     password: congya2019
 
 distribution:
+  ip: ENC(FOUovXicOrGnZtlv8xPYNGCSdFZ297Cy)
+  port: ENC(h5eMfUDd+RKCSehFHR13ig==)
+  user: ENC(Hb6OoOR4Pf0ilqEMYNeVEg==)
+  password: ENC(49TmlIDjV4psEt9P1t+75osSDKk0cBaG)
+  filePath: /var/www/html/andorid/
   # 全局限流
   rateLimit:
     enable: true
