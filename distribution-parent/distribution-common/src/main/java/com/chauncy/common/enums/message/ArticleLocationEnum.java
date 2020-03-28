@@ -29,7 +29,10 @@ public enum ArticleLocationEnum implements BaseEnum {
     INTEGRALS_DESCRIPTION(14,"抵扣说明"),
     RETURN_TICKET_RULES(15,"返券规则"),
     USER_AGREEMENT(16,"用户协议"),
-    PRIVACY_RIGHT_POLICY(17,"隐私权政策");
+    PRIVACY_RIGHT_POLICY(17,"隐私权政策"),
+    SERVER_POLICY(18,"服务协议"),
+    VERSION_INFO(19,"版本信息"),
+    ;
 
     private Integer id;
     private String name;

@@ -14,6 +14,7 @@ import com.chauncy.data.vo.JsonViewData;
 import com.chauncy.data.vo.app.component.ScreenParamVo;
 import com.chauncy.data.vo.app.goods.ShareDetailVo;
 import com.chauncy.data.vo.app.user.GetMembersCenterVo;
+import com.chauncy.data.vo.app.version.FindVersionVo;
 import com.chauncy.data.vo.manage.message.content.app.FindArticleContentVo;
 import com.chauncy.message.advice.IMmAdviceService;
 import com.chauncy.message.content.service.IMmArticleService;
@@ -24,6 +25,7 @@ import com.chauncy.product.service.IPmGoodsCategoryService;
 import com.chauncy.product.service.IPmGoodsService;
 import com.chauncy.security.util.SecurityUtil;
 import com.chauncy.store.service.ISmStoreService;
+import com.chauncy.system.service.ISysVersionService;
 import com.chauncy.user.service.IUmUserService;
 import com.chauncy.web.base.BaseApi;
 import io.swagger.annotations.Api;
@@ -81,6 +83,9 @@ public class ComponentApi extends BaseApi {
 
     @Autowired
     private SecurityUtil securityUtil;
+
+    @Autowired
+    private ISysVersionService versionService;
 
     /**
      * @Author yeJH
@@ -306,6 +311,13 @@ public class ComponentApi extends BaseApi {
     public JsonViewData<List<FindArticleContentVo>> findArticleContent(@PathVariable Integer type){
 
         return setJsonViewData(articleService.findArticleContent(type));
+    }
+
+    @GetMapping("/find-version/{type}")
+    @ApiOperation("查找版本信息")
+    public JsonViewData<FindVersionVo> findVersion(@ApiParam(required = true,name = "type",value = "app类型 1-android 2-ios") @PathVariable Integer type){
+
+        return setJsonViewData(versionService.findVersion(type));
     }
 
 }
