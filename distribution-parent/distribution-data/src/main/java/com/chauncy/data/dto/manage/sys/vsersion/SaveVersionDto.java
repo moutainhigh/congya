@@ -28,7 +28,7 @@ public class SaveVersionDto {
 
     @ApiModelProperty(value = "版本号")
     @NotNull(message = "版本号不能为空")
-    private String version;
+    private Integer version;
 
     @ApiModelProperty(value = "版本名称")
     @NotNull(message = "版本名称不能为空")

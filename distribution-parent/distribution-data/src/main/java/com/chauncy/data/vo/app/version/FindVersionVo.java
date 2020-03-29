@@ -13,7 +13,7 @@ import lombok.Data;
 public class FindVersionVo {
 
     @ApiModelProperty(value = "版本号")
-    private String version;
+    private Integer version;
 
     @ApiModelProperty(value = "版本名称")
     private String versionName;

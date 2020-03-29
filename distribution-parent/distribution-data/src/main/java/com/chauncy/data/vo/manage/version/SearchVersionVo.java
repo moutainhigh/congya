@@ -36,7 +36,7 @@ public class SearchVersionVo {
     private Integer type;
 
     @ApiModelProperty(value = "版本号")
-    private String version;
+    private Integer version;
 
     @ApiModelProperty(value = "版本名称")
     private String versionName;
