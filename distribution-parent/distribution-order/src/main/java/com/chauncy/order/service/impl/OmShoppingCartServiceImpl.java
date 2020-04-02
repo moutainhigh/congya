@@ -1380,7 +1380,9 @@ public class OmShoppingCartServiceImpl extends AbstractService<OmShoppingCartMap
         /**优惠券列表*/
         //优惠券列表,满减和固定折扣
         List<FindCouponListVo> findCouponListVos = Lists.newArrayList();
-        findCouponListVos = relCouponGoodsMapper.findCouponList(goodsId, umUserPo.getLevel(),goodsPo.getGoodsCategoryId() );
+        if(null != umUserPo) {
+            findCouponListVos = relCouponGoodsMapper.findCouponList(goodsId, umUserPo.getLevel(),goodsPo.getGoodsCategoryId() );
+        }
         //优惠券列表--包邮-指定全部商品
         /*List<FindCouponListVo> findCouponListVos1 = relCouponGoodsMapper.findCouponList1(goodsId);
         //优惠券列表--包邮-指定分类

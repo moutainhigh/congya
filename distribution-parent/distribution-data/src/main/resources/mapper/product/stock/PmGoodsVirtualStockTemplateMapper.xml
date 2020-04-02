@@ -69,9 +69,9 @@
 		left join pm_goods_attribute_value pgav on pgav.id = pgrav.goods_attribute_value_id  and pgrav.del_flag = 0,
         (
             select psrgs.id, psrgs.goods_sku_id,psrgs.remaining_stock_num, psrgs.distribute_price from pm_store_rel_goods_stock psrgs
-            where psrgs.store_id = #{storeId} and psrgs.remaining_stock_num > 0 and psrgs.create_time = (
+            where psrgs.store_id = #{storeId} and psrgs.remaining_stock_num > 0  AND psrgs.`del_flag` = 0 and psrgs.create_time = (
                 select min(temp.create_time) from pm_store_rel_goods_stock temp
-                where temp.goods_sku_id = psrgs.goods_sku_id and temp.store_id= psrgs.store_id
+                where temp.goods_sku_id = psrgs.goods_sku_id and temp.store_id= psrgs.store_id  AND temp.`del_flag` = 0
                 group by temp.store_id,temp.goods_sku_id
             )
         ) as t
