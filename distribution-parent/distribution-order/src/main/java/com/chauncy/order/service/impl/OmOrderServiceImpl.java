@@ -52,6 +52,7 @@ import com.chauncy.data.mapper.pay.IPayOrderMapper;
 import com.chauncy.data.mapper.pay.PayUserRelationMapper;
 import com.chauncy.data.mapper.product.PmGoodsMapper;
 import com.chauncy.data.mapper.product.PmGoodsSkuMapper;
+import com.chauncy.data.mapper.store.SmStoreMapper;
 import com.chauncy.data.mapper.sys.BasicSettingMapper;
 import com.chauncy.data.mapper.user.PmMemberLevelMapper;
 import com.chauncy.data.mapper.user.UmImAccountMapper;
@@ -105,6 +106,9 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
 
     @Autowired
     private OmOrderMapper mapper;
+
+    @Autowired
+    private SmStoreMapper smStoreMapper;
 
     @Autowired
     private UmImAccountMapper umImAccountMapper;
@@ -784,6 +788,8 @@ public class OmOrderServiceImpl extends AbstractService<OmOrderMapper, OmOrderPo
         queryGoodsTemps.forEach(x -> {
             goodsSkuMapper.addASalesVolume(x.getSkuId(), x.getNumber());
             goodsMapper.addASalesVolume(x.getGoodsId(), x.getNumber());
+            //商品所属店铺营业额增加
+            smStoreMapper.addStoreTurnover(x.getGoodsId(), x.getRealPayMoney());
         });
 
 

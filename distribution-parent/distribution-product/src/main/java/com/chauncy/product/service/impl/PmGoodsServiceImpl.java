@@ -326,6 +326,9 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
         //先保存商品不关联信息
         mapper.insert(goodsPo);
 
+        //店铺商品数目增加
+        smStoreMapper.addGoodsNum(goodsPo.getStoreId());
+
         //处理商品属性和商品关联信息
         addAttribute(addGoodBaseDto, user, goodsPo);
 
@@ -1834,6 +1837,8 @@ public class PmGoodsServiceImpl extends AbstractService<PmGoodsMapper, PmGoodsPo
             goodsSkuMapper.deleteByMap(query);
             //6、删除商品
             mapper.deleteById(b);
+            //7.所属店铺商品总数-1
+            smStoreMapper.reduceGoodsNum(b);
         });
 
     }

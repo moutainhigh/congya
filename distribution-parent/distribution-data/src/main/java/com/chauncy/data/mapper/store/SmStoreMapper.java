@@ -22,6 +22,7 @@ import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -239,4 +240,41 @@ public interface SmStoreMapper extends IBaseMapper<SmStorePo> {
      */
     @Update("update sm_store set collection_num = collection_num-1 where id = #{favoritesId} and collection_num > 0")
     void delFavorites(Long favoritesId);
+
+    /**
+     * @Author yeJH
+     * @Date 2020/4/4 0:19
+     * @Description 新增商品所属店铺商品总数+1
+     *
+     * @Update yeJH
+     *
+     * @param  smStoreId
+     * @return void
+     **/
+    void addGoodsNum(@Param("smStoreId") Long smStoreId);
+    
+    /**
+     * @Author yeJH
+     * @Date 2020/4/4 0:18
+     * @Description 删除商品所属店铺商品总数-1
+     *
+     * @Update yeJH
+     *
+     * @param  goodsId
+     * @return void
+     **/
+    void reduceGoodsNum(@Param("goodsId") Long goodsId);
+
+    /**
+     * @Author yeJH
+     * @Date 2020/4/4 0:43
+     * @Description 下单添加店铺营业额
+     *
+     * @Update yeJH
+     *
+     * @param  goodsId
+     * @param  realPayMoney
+     * @return void
+     **/
+    void addStoreTurnover(@Param("goodsId") Long goodsId, @Param("realPayMoney") BigDecimal realPayMoney);
 }
