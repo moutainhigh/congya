@@ -166,21 +166,21 @@
         FROM sm_store ss
         LEFT JOIN um_user uu ON ss.id = uu.store_id
         <where>
-            del_flag = 0
+            ss.del_flag = 0
             <if test="id !=null and id !=''">
-                and id = #{id}
+                and ss.id = #{id}
             </if>
             <if test="mobile != null and mobile !=''">
-                and owner_mobile = #{mobile}
+                and ss.owner_mobile = #{mobile}
             </if>
             <if test="enabled != null">
-                and enabled = #{enabled}
+                and ss.enabled = #{enabled}
             </if>
             <if test="type != null ">
-                and type = #{type}
+                and ss.type = #{type}
             </if>
             <if test="name != null and name !=''">
-                and name like concat('%', #{name}, '%')
+                and ss.name like concat('%', #{name}, '%')
             </if>
         </where>
         GROUP BY ss.id
