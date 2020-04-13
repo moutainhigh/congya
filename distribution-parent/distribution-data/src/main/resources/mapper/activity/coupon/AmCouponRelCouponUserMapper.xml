@@ -23,11 +23,11 @@
         SELECT a.id AS coupon_id,NAME,a.type,discount,discount_full_money,reduction_full_money,reduction_post_money,total_num,stock
         FROM am_coupon a
         LEFT JOIN pm_member_level b ON a.level_id = b.id
-        WHERE a.del_flag = 0 AND b.`level` &lt;= #{level}
+        WHERE a.del_flag = 0 AND b.`level` &lt;= #{level} and a.enable = 1
         UNION ALL
         SELECT a.id AS coupon_id,NAME,a.type,discount,discount_full_money,reduction_full_money,reduction_post_money,total_num,stock
         FROM am_coupon a
-        WHERE  a.level_id = 0 AND  a.del_flag = 0
+        WHERE  a.level_id = 0 AND  a.del_flag = 0 and a.enable = 1
     </select>
 
     <select id="searchMyCoupon" resultType="com.chauncy.data.vo.app.advice.coupon.SearchMyCouponVo">
