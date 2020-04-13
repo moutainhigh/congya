@@ -17,6 +17,7 @@ import com.chauncy.common.third.easemob.comm.RegUserBo;
 import com.chauncy.common.util.huanxin.HuanXinUtil;
 import com.chauncy.data.core.AbstractService;
 import com.chauncy.data.domain.po.product.PmGoodsCategoryPo;
+import com.chauncy.data.domain.po.product.PmGoodsPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.store.rel.SmRelStoreAttributePo;
 import com.chauncy.data.domain.po.store.rel.SmRelUserFocusStorePo;
@@ -847,5 +848,10 @@ public class SmStoreServiceImpl extends AbstractService<SmStoreMapper,SmStorePo>
                     .omitEmptyStrings().splitToList(storeHomePageVo.getStoreLabels()));
         }
         return storeHomePageVo;
+    }
+
+    @Override
+    public void addGoodsNum(Long smStoreId) {
+        smStoreMapper.addGoodsNum(smStoreId);
     }
 }

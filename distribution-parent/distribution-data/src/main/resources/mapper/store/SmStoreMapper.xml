@@ -48,7 +48,16 @@
         <result column="update_time" property="updateTime" />
         <result column="del_flag" property="delFlag" />
     </resultMap>
+    <update id="addStoreTurnover">
+        update sm_store set store_turnover = store_turnover + #{realPayMoney} where id = (select store_id from pm_goods where pm_goods.id = #{goodsId})
+    </update>
+    <update id="addGoodsNum">
+        update sm_store set goods_num = goods_num + 1 where id = #{smStoreId}
+    </update>
 
+    <update id="reduceGoodsNum">
+        update sm_store set goods_num = goods_num - 1 where id = (select store_id from pm_goods where pm_goods.id = #{goodsId}) and goods_num > 0
+    </update>
 
     <select id="getTeamWorkCondition" resultType="java.lang.Integer">
         SELECT COUNT(1) + 1  AS num FROM (
@@ -137,27 +146,44 @@
     </update>
 
     <select id="searchBaseInfo" resultType="com.chauncy.data.vo.manage.store.SmStoreBaseVo">
-        select id, `name`, `type`, (case when `type`=1 then '商品店铺' when `type`=2 then '推广店铺' end) as typeName, parent_id,
-        store_turnover, store_member_num, store_sub_num, goods_num, owner_mobile, sort, enabled, company_addr
-        from sm_store
+        SELECT ss.id,
+            ss.`name`,
+            ss.`type`,
+            (CASE WHEN ss.`type`=1 THEN '商品店铺' WHEN ss.`type`=2 THEN '推广店铺' END) AS typeName,
+            ss.parent_id,
+            ss.store_turnover,
+            COUNT(uu.id) AS store_member_num,
+            (
+                SELECT COUNT(1)
+                FROM sm_store_rel_store ssrs
+                WHERE ss.id = ssrs.parent_id AND ssrs.`del_flag` = 0
+            )AS store_sub_num,
+            ss.goods_num,
+            ss.owner_mobile,
+            ss.sort,
+            ss.enabled,
+            ss.company_addr
+        FROM sm_store ss
+        LEFT JOIN um_user uu ON ss.id = uu.store_id
         <where>
-            del_flag = 0
+            ss.del_flag = 0
             <if test="id !=null and id !=''">
-                and id = #{id}
+                and ss.id = #{id}
             </if>
             <if test="mobile != null and mobile !=''">
-                and owner_mobile = #{mobile}
+                and ss.owner_mobile = #{mobile}
             </if>
             <if test="enabled != null">
-                and enabled = #{enabled}
+                and ss.enabled = #{enabled}
             </if>
             <if test="type != null ">
-                and type = #{type}
+                and ss.type = #{type}
             </if>
             <if test="name != null and name !=''">
-                and name like concat('%', #{name}, '%')
+                and ss.name like concat('%', #{name}, '%')
             </if>
         </where>
+        GROUP BY ss.id
     </select>
 
 

@@ -9,6 +9,7 @@ import com.chauncy.common.util.LoggerUtil;
 import com.chauncy.common.util.StringUtils;
 import com.chauncy.data.domain.po.product.*;
 import com.chauncy.data.domain.po.product.stock.PmGoodsVirtualStockPo;
+import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.domain.po.user.PmMemberLevelPo;
 import com.chauncy.data.dto.supplier.good.select.SearchExcelDto;
 import com.chauncy.data.temp.product.service.IPmGoodsRelAttributeValueGoodService;
@@ -19,6 +20,7 @@ import com.chauncy.poi.util.ReadExcelUtil;
 import com.chauncy.product.service.*;
 import com.chauncy.product.stock.IPmGoodsVirtualStockService;
 import com.chauncy.security.util.SecurityUtil;
+import com.chauncy.store.service.ISmStoreService;
 import com.chauncy.user.service.IPmMemberLevelService;
 import com.chauncy.web.base.BaseApi;
 import com.google.common.base.Splitter;
@@ -105,6 +107,9 @@ public class ExcelGoodApi extends BaseApi {
 
     @Autowired
     private IPmMemberLevelService memberLevelService;
+
+    @Autowired
+    private ISmStoreService smStoreService;
 
 
     @PostMapping(value = "/importbase", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -368,6 +373,9 @@ public class ExcelGoodApi extends BaseApi {
             saveGoodPo.setIsExcel(true).setStoreId(securityUtil.getCurrUser().getStoreId());
 
             pmGoodsService.save(saveGoodPo);
+
+            //店铺商品数目增加
+            smStoreService.addGoodsNum(saveGoodPo.getStoreId());
 
             List<PmGoodsRelAttributeGoodPo> relAttributeGoodPos = Lists.newArrayList();
             //品牌

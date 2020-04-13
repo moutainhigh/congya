@@ -1,6 +1,7 @@
 package com.chauncy.store.service;
 
 import com.chauncy.common.enums.system.ResultCode;
+import com.chauncy.data.domain.po.product.PmGoodsPo;
 import com.chauncy.data.domain.po.store.SmStorePo;
 import com.chauncy.data.core.Service;
 import com.chauncy.data.dto.app.product.SearchStoreGoodsDto;
@@ -222,4 +223,16 @@ public interface ISmStoreService extends Service<SmStorePo> {
      * @return
      */
     StoreHomePageVo getStoreHomePage(Long storeId);
+
+    /**
+     * @Author yeJH
+     * @Date 2020/4/3 23:51
+     * @Description 新增商品 所属店铺商品总数+1
+     *
+     * @Update yeJH
+     *
+     * @param  smStoreId
+     * @return void
+     **/
+    void addGoodsNum(Long smStoreId);
 }

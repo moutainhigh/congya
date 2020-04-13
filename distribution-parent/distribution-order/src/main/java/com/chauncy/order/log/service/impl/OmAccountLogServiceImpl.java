@@ -1232,8 +1232,10 @@ public class OmAccountLogServiceImpl extends AbstractService<OmAccountLogMapper,
         if(Strings.isNotBlank(searchUserLogDto.getYear()) && Strings.isNotBlank(searchUserLogDto.getMonth())) {
             searchUserLogVo.setYear(searchUserLogDto.getYear());
             searchUserLogVo.setMonth(searchUserLogDto.getMonth());
+            int month = Integer.valueOf(searchUserLogDto.getMonth());
+            String monthString = month < 10 ? "0" + month : String.valueOf(month);
             //前端传日期 按照日期查询
-            searchUserLogDto.setLogDate(searchUserLogVo.getYear() + "-" + searchUserLogVo.getMonth());
+            searchUserLogDto.setLogDate(searchUserLogVo.getYear() + "-" + monthString);
         } else {
             //默认当前时间的年月
             searchUserLogVo.setYear(String.valueOf(LocalDate.now().getYear()));

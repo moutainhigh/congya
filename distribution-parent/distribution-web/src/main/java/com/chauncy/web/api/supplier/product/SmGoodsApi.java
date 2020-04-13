@@ -94,7 +94,9 @@ public class SmGoodsApi extends BaseApi {
                                         AddGoodBaseDto addGoodBaseDto) {
         /*service.addBase(addGoodBaseDto);*/
 
-        return new JsonViewData(service.addBase(addGoodBaseDto));
+        Long goodsId = service.addBase(addGoodBaseDto);
+
+        return new JsonViewData(goodsId);
     }
 
     /**
